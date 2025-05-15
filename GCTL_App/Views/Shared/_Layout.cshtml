@@ -1,0 +1,174 @@
+﻿@using GCTL.Core.Configurations
+@using GCTL_App.ViewComponents
+@inject Microsoft.Extensions.Options.IOptions<ApplicationSettings> AppSettings
+
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="default">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--    Document Title-->
+    <title> GCTL-HRM &nbsp; @ViewData["Title"]</title>
+    <!--    Document Title-->
+    <title> GCTL-HRM &nbsp; @ViewData["Title"]</title>
+    <!--    Favicons-->
+    <link rel="apple-touch-icon" sizes="180x180" href="~/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/img/favicons/favicon-16x16.png">
+    <link rel="shortcut icon" type="image/x-icon" href="~/img/favicons/favicon.ico">
+    <link rel="manifest" href="~/img/favicons/manifest.json">
+    <meta name="msapplication-TileImage" content="~/img/favicons/mstile-150x150.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <link href="~/js/vendors/simplebar/simplebar.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+    <!--    Choices -->
+    <link href="~/js/vendors/choices/choices.min.css" rel="stylesheet" />
+    <!--    Select2 -->
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+
+    <link href="~/js/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+    <link href="~/css/theme-rtl.css" type="text/css" rel="stylesheet" id="style-rtl">
+    <link href="~/css/theme.min.css" type="text/css" rel="stylesheet" id="style-default">
+    <link href="~/css/user-rtl.min.css" type="text/css" rel="stylesheet" id="user-style-rtl">
+    <link href="~/css/user.min.css" type="text/css" rel="stylesheet" id="user-style-default">
+    <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+    <link href="~/js/vendors/dropzone/dropzone.css" rel="stylesheet" />
+    <link href="~/js/vendors/leaflet/leaflet.css" rel="stylesheet" />
+    <link href="~/js/vendors/leaflet.markercluster/markercluster.default.css" rel="stylesheet" />
+    <link href="~/js/vendors/leaflet.markercluster/markercluster.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="col-auto">
+        <main class="main" id="top">
+            @await Component.InvokeAsync(typeof(MenuViewComponents))
+            <partial name="_Header" />
+
+            <div class="content card">
+                <div id="mainContent">
+                    @RenderBody()
+                </div>
+
+                <footer class="footer position-absolute">
+                    <div class="row g-0 justify-content-between align-items-center h-100">
+                        <div class="col-12 col-sm-auto text-center">
+                            <p class="mb-0 mt-2 mt-sm-0 text-body">Thank you for creating with GCTL<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2024 &copy;<a class="mx-1" href="http://gctlinfosys.com" target="_blank">GCTL</a></p>
+                        </div>
+                        <div class="col-12 col-sm-auto text-center">
+                            <p class="mb-0 text-body-tertiary text-opacity-85">v1.19.0</p>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+            <partial name="_SearchBoxModal" />
+        </main>
+    </div>
+    <!-- ===============================================-->
+    <!--    JavaScripts-->
+    <!-- ===============================================-->
+    <!-- jQuery -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/vendors/simplebar/simplebar.min.js"></script>
+    <script src="~/js/config.js"></script>
+    <script src="~/js/vendors/popper/popper.min.js"></script>
+    <script src="~/js/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="~/js/vendors/anchorjs/anchor.min.js"></script>
+    <script src="~/js/vendors/is/is.min.js"></script>
+    <script src="~/js/vendors/fontawesome/all.min.js"></script>
+    <script src="~/js/vendors/lodash/lodash.min.js"></script>
+    @* <script src="~/js/vendors/list.js/list.min.js"></script> *@
+    <script src="~/js/vendors/feather-icons/feather.min.js"></script>
+    <script src="~/js/vendors/dayjs/dayjs.min.js"></script>
+    <!--    Choices -->
+    <script src="~/js/vendors/choices/choices.min.js"></script>
+    <!--    Select2 -->
+    <script src="~/lib/select2/js/select2.min.js"></script>
+
+    <script src="~/js/vendors/flatpickr/flatpickr.min.js"></script>
+    <script src="~/js/phoenix.js"></script>
+    <script src="~/lib/toastr.js/toastr.min.js"></script>
+    <script src="~/js/vendors/dropzone/dropzone-min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/vendors/echarts/echarts.min.js"></script>
+    @* <script src="~/js/crm-dashboard.js"></script> *@
+    <script src="~/js/vendors/leaflet/leaflet.js"></script>
+    <script src="~/js/vendors/leaflet.markercluster/leaflet.markercluster.js"></script>
+    <script src="~/js/vendors/leaflet.tilelayer.colorfilter/leaflet-tilelayer-colorfilter.min.js"></script>
+    <!--    JS for Layout -->
+    <script>
+        var phoenixIsRTL = window.config.config.phoenixIsRTL;
+        if (phoenixIsRTL) {
+          var linkDefault = document.getElementById('style-default');
+          var userLinkDefault = document.getElementById('user-style-default');
+          linkDefault.setAttribute('disabled', true);
+          userLinkDefault.setAttribute('disabled', true);
+          document.querySelector('html').setAttribute('dir', 'rtl');
+        } else {
+          var linkRTL = document.getElementById('style-rtl');
+          var userLinkRTL = document.getElementById('user-style-rtl');
+          linkRTL.setAttribute('disabled', true);
+          userLinkRTL.setAttribute('disabled', true);
+        }
+
+
+        var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+        var navbarTop = document.querySelector('.navbar-top');
+        if (navbarTopStyle === 'darker') {
+          navbarTop.setAttribute('data-navbar-appearance', 'darker');
+        }
+
+        var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+        var navbarVertical = document.querySelector('.navbar-vertical');
+        if (navbarVertical && navbarVerticalStyle === 'darker') {
+          navbarVertical.setAttribute('data-navbar-appearance', 'darker');
+        }
+
+
+
+        function showDeleteModal(deleteCallback) {
+            // Show the modal
+            $('#confirmDeleteModal').modal('show');
+
+            $('#confirmDeleteBtn').off('click').on('click', function () {
+                deleteCallback();
+                $('#confirmDeleteModal').modal('hide');
+            });
+        };
+        function showLoadingIndicator() {
+            if ($('#loadingIndicator').length === 0) {
+                $('body').append(`
+                    <div id="loadingIndicator" style="display:none; position: fixed; top: 35%; left: 35%; z-index: 9999;">
+                        <img src="/images/spinner4-unscreen.gif" alt="Loading..." />
+                    </div>
+                `);
+            }
+
+            $("#loadingIndicator").show();
+            // $('body').css('filter', 'blur(5px)');
+        }
+        function hideLoadingIndicator() {
+            $("#loadingIndicator").hide();
+        }
+
+        // For sort icon
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll("th.sort").forEach(function (th) {
+                const icon = document.createElement("span");
+                icon.className = "sort-icon ms-2";
+                icon.innerHTML = `<i class="fas fa-sort small text-muted"></i>`;
+                th.appendChild(icon);
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            feather.replace();
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
