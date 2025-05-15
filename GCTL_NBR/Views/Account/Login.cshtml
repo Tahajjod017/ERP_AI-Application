@@ -1,0 +1,90 @@
+﻿@model GCTL.Core.ViewModels.Login.LoginViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+@if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
+{
+    <div class="alert alert-danger">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+
+<!-- ===============================================-->
+<!--    Main Content-->
+<!-- ===============================================-->
+<main class="main" id="top">
+    <div class="container">
+        <div class="row flex-center min-vh-100 py-5">
+            <div class="col-sm-10 col-md-8 col-lg-5 col-xl-5 col-xxl-3">
+                <!-- Logo -->
+                  <a class="d-flex flex-center text-decoration-none mb-4" href="">
+                    <div class="d-flex align-items-center fw-bolder fs-3 d-inline-block">
+                        <img src="../img/icons/logonbr.png" alt="phoenix" width="90" />
+                    </div>
+                </a>
+                <div class="text-center mb-7">
+                    <h3 class="text-body-highlight">Sign In</h3>
+                    <p class="text-body-tertiary">Get access to your account</p>
+                </div>
+
+
+                <form asp-action="Login" method="post" novalidate>
+                    @Html.AntiForgeryToken() <!-- Add Anti-forgery token for protection -->
+                    <!-- Validation Summary: Displays form validation errors -->
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <!-- Email -->
+                    <div class="mb-3 text-start">
+                        <label asp-for="Email" class="form-label" for="email">Email address</label>
+                        <div class="form-icon-container">
+                            <input asp-for="Email" class="form-control form-icon-input" id="email" type="email" placeholder="name@example.com" /><span class="fas fa-user text-body fs-9 form-icon"></span>
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3 text-start">
+                        <label asp-for="Password" class="form-label" for="password">Password</label>
+                        <div asp-for="Password" class="form-icon-container" data-password="data-password">
+                            <input asp-for="Password" class="form-control form-icon-input pe-6" id="password" type="password" placeholder="Password" data-password-input="data-password-input" /><span class="fas fa-key text-body fs-9 form-icon"></span>
+                            <button class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <!-- Remember Me -->
+                    <div class="row flex-between-center mb-7">
+                        <div class="col-auto">
+                            <div class="form-check mb-0">
+                                <input asp-for="RememberMe" class="form-check-input" id="basic-checkbox" type="checkbox" checked="checked" />
+                                <label asp-for="RememberMe" class="form-check-label mb-0" for="basic-checkbox">Remember me</label>
+                            </div>
+                        </div>
+                        <div class="col-auto"><a class="fs-9 fw-semibold" href="../../../pages/authentication/simple/forgot-password.html">Forgot Password?</a></div>
+                    </div>
+                    <!-- Submit Button -->
+                    <button class="btn btn-primary w-100 mb-3" type="submit">Sign In</button>
+                </form>
+
+
+                <div class="text-center"><a class="fs-9 fw-bold" a href="/Account/Register">Create an account</a></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+    var navbarTop = document.querySelector('.navbar-top');
+    if (navbarTopStyle === 'darker') {
+      navbarTop.setAttribute('data-navbar-appearance', 'darker');
+    }
+
+    var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+    var navbarVertical = document.querySelector('.navbar-vertical');
+    if (navbarVertical && navbarVerticalStyle === 'darker') {
+      navbarVertical.setAttribute('data-navbar-appearance', 'darker');
+    }
+</script>
+
+

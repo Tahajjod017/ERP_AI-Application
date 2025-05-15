@@ -1,0 +1,143 @@
+﻿@model GCTL.Core.ViewModels.RoleModule.PermissionViewModel
+@{
+    ViewData["Title"] = "Role Permissions";
+}
+<style>
+    .table-primary {
+        background-color: #f8f9fa !important; /* Light Gray */
+        padding-left: 2rem;
+        color: #007bff; /* Blue text color */
+    }
+
+    .table-secondary {
+        background-color: #e9ecef !important; /* Slightly Darker Gray */
+        color: #007bff; /* Blue text color */
+    }
+
+    .table-tertiary {
+        background-color: #dee2e6 !important; /* Even Darker Gray */
+        padding-left: 2rem !important; /* Same indentation as primary rows */
+        text-align: left; /* Align text to the left */
+        color: #007bff; /* Blue text color */
+    }
+
+    .pl-4 {
+        padding-left: 3rem !important;
+    }
+
+    .pl-5 {
+        padding-left: 4rem !important;
+    }
+
+    .hidden-row {
+        display: none;
+    }
+
+    .select-all {
+        margin-left: 10px;
+    }
+
+    .select-row {
+        padding: 0 !important;
+        margin-left: 10px;
+    }
+
+    .table th,
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+        .table td input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .table td a {
+            display: block;
+            text-align: left;
+            padding-left: 1rem;
+            color: #007bff; /* Blue text color for links */
+        }
+
+    .table th {
+        font-weight: bold;
+    }
+
+    /* Styling for module dropdowns */
+    .module-dropdown-indicator {
+        cursor: pointer;
+        margin-right: 5px;
+    }
+
+    /* Ensure tertiary rows have same color and alignment as primary and secondary rows */
+    .table-tertiary td {
+        color: #007bff; /* Blue color for text */
+        font-weight: normal; /* Same font weight as secondary rows */
+    }
+
+        /* Ensure links in tertiary rows follow the same color as in primary and secondary rows */
+        .table-tertiary td a {
+            color: #007bff; /* Blue link color for tertiary rows */
+        }
+</style>
+
+<main role="main" class="container-fluid px-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Role Permissions</h2>
+    </div>
+
+    <!-- Role Selection and Permissions Section -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <!-- Role Selection -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select id="roleSelect2" class="form-select">
+                            @if (ViewBag.Roles != null)
+                            {
+                                foreach (var role in ViewBag.Roles)
+                                {
+                                    <option value="@role.Id">@role.Name</option>
+                                }
+                            }
+                        </select>
+                        <label for="roleSelect2" class="font-weight-bold">Select Role</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions Table -->
+            <div class="table-responsive">
+                <table class="table table-hover table-borderless" id="permissionTableContainer">
+                    <!-- Table headers -->
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Module</th>
+                            <th>View</th>
+                            <th>Create</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                            <th>Export</th>
+                            <th>Download</th>
+                        </tr>
+                    </thead>
+                    <!-- Table body will be dynamically loaded here -->
+                    <tbody>
+                        <!-- Dynamic content will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="text-end mt-4">
+        <button id="savePermissions" class="btn btn-primary btn-lg">Save Permissions</button>
+    </div>
+</main>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/js/pages/authjs/rolepermission.js"></script>

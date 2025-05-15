@@ -1,0 +1,110 @@
+﻿@model GCTL.Core.ViewModels.Login.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_LayoutRegister.cshtml";
+}
+<!-- ===============================================-->
+<main class="main" id="top">
+    <div class="container">
+        <div class="row flex-center min-vh-100 py-5">
+            <div class="col-sm-10 col-md-8 col-lg-5 col-xl-5 col-xxl-3">
+                <!-- Logo -->
+                @* <a class="d-flex flex-center text-decoration-none mb-4" href="../../../index.html">
+                    <div class="d-flex align-items-center fw-bolder fs-3 d-inline-block">
+                        <img src="../../../assets/img/icons/logo.png" alt="phoenix" width="58" />
+                    </div>
+                </a> *@
+                <div class="text-center mb-7">
+                    <h3 class="text-body-highlight">Sign Up</h3>
+                    <p class="text-body-tertiary">Create your account today</p>
+                </div>
+
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    <!-- Name -->
+                    @* <div class="mb-3 text-start">
+                        <label class="form-label" for="name">Name</label>
+                        <input class="form-control" id="name" type="text" placeholder="Name" />
+                    </div> *@
+                    <!-- Email -->
+                    <div class="mb-3 text-start">
+                        <label asp-for="Email" class="form-label">Email address</label>
+                        <input asp-for="Email" class="form-control" id="email" type="email" placeholder="name@example.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <!-- Password -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <div class="position-relative" data-password="data-password">
+                                <input asp-for="Password" class="form-control form-icon-input pe-6" id="password" type="password" placeholder="Password" data-password-input="data-password-input" />
+                                <button class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                            <div class="position-relative" data-password="data-password">
+                                <input asp-for="ConfirmPassword" class="form-control form-icon-input pe-6" id="confirmPassword" type="password" placeholder="Confirm Password" data-password-input="data-password-input" />
+                                <button class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                    <!-- policy -->
+                    @*  <div class="form-check mb-3">
+                        <input class="form-check-input" id="termsService" type="checkbox" />
+                        <label class="form-label fs-9 text-transform-none" for="termsService">I accept the <a href="#!">terms </a>and <a href="#!">privacy policy</a></label>
+                    </div> *@
+                    <!-- For SuperAdmin -->
+                    <div class="form-check mb-3">
+                        <input asp-for="ForSuperAdmin" class="form-check-input" id="forSuperAdmin" type="checkbox" />
+                        <label asp-for="ForSuperAdmin" class="form-label fs-9 text-transform-none">For SuperAdmin</label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button class="btn btn-primary w-100 mb-3" type="submit">Sign up</button>
+                    <div class="text-center"><a class="fs-9 fw-bold" href="../../../pages/authentication/simple/sign-in.html">Sign in to an existing account</a></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+    var navbarTop = document.querySelector('.navbar-top');
+    if (navbarTopStyle === 'darker') {
+      navbarTop.setAttribute('data-navbar-appearance', 'darker');
+    }
+
+    var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+    var navbarVertical = document.querySelector('.navbar-vertical');
+    if (navbarVertical && navbarVerticalStyle === 'darker') {
+      navbarVertical.setAttribute('data-navbar-appearance', 'darker');
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        function toggleInputs() {
+            if ($('#forSuperAdmin').is(':checked')) {
+                $('#companyName').prop('disabled', true);
+                $('#companyIsActive').prop('disabled', true);
+            } else {
+                $('#companyName').prop('disabled', false);
+                $('#companyIsActive').prop('disabled', false);
+            }
+        }
+
+
+        $('#forSuperAdmin').on('change', function () {
+            toggleInputs();
+        });
+
+        // Initialize the state on page load
+        toggleInputs();
+    });
+</script>

@@ -1,0 +1,462 @@
+﻿
+
+
+
+<div class=" px-25 ">
+    <div class="d-flex justify-content-center mt-2 ">
+        <div class="col-12 row flex gy-3 pb-3">
+
+
+            <div class="container mt-3">
+                <div class="card shadow-sm">
+                    <div class="card-body p-0" style="background: #d2d9e970">
+                        <div class="d-flex justify-content-center mt-2">
+                            <div class="col-12 row flex gy-3 pb-3">
+
+                                <input id="empIdMain1" type="hidden" />
+                                <input id="empCode" type="hidden" />
+
+                               
+
+
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="form-floating">
+                                        <select class="form-select selectpicker" id="empCodePass1" data-live-search="true">
+                                            <option selected="selected">Select Employee</option>
+                                            <!-- Add employee options here -->
+                                        </select>
+                                        <label for="floatingSelectLitigation"></label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="form-floating">
+                                        <input class="form-control" id="NidPass1" type="text" placeholder="" readonly />
+                                        <label for="">National ID</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="form-floating">
+                                        <input class="form-control" id="BirthCertiPass1" type="text" placeholder="" readonly />
+                                        <label for="">Birth Certificate</label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+         
+
+
+
+			@* <partial name="_EmployeeInfoPartial" /> *@
+
+            <input type="hidden" id="empOfficialInfoId">
+            <input type="hidden" id="employeeId">
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="office" required>
+                        <option selected="selected">Select Office</option>
+
+                       
+
+                    </select>
+                    <label for="floatingSelectLitigation">Office</label>
+                </div>
+            </div>
+
+
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="branch" required>
+                        <option selected="selected" disabled>Select Branch</option>
+
+                       
+
+                    </select>
+                    <label for="floatingSelectLitigation">Branch</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="department" required>
+                        <option selected="selected">Select Department</option>
+
+                    </select>
+                    <label for="floatingSelectLitigation">Department</label>
+                </div>
+
+                @* <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button> *@
+                <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                    <div class="card position-relative border-0">
+                        <div class="card-body p-0">
+                            <div class="mx-3">
+                                <form action="deptForm">
+                                    <h5 class="mb-3">Enter Department Id</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="deptId">
+                                    <h5 class="mb-3">Enter Department Name</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="deptName">
+                                    <div class="text-end">
+                                        <button class="btn btn-link text-danger" id="deptCancel" type="button">Cancel</button>
+                                        <button class="btn btn-sm btn-primary px-5" id="deptSave" type="button">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="designation" required>
+                        <option selected="selected">Select Designation</option>
+
+                    </select>
+                    <label for="floatingSelectLitigation">Designation</label>
+                </div>
+
+                @* <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button> *@
+                <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                    <div class="card position-relative border-0">
+                        <div class="card-body p-0">
+                            <div class="mx-3">
+                                <form action="desigForm">
+                                    <h5 class="mb-3">Enter Designation Id</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="desigId">
+                                    <h5 class="mb-3">Enter Designation Name</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="desigName">
+                                    <div class="text-end">
+                                        <button class="btn btn-link text-danger" id="desigCancel" type="button">Cancel</button>
+                                        <button class="btn btn-sm btn-primary px-5" id="desigSave" type="button">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="empType" required>
+                        <option selected="selected">Select Employee Type</option>
+
+                    </select>
+                    <label for="floatingSelectLitigation">Employee Type</label>
+                </div>
+
+                @* <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button> *@
+                <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                    <div class="card position-relative border-0">
+                        <div class="card-body p-0">
+                            <div class="mx-3">
+                                <form action="empTypeForm">
+                                    <h5 class="mb-3">Employee Type Id</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="empTypeId">
+                                    <h5 class="mb-3">Employee Type Name</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="empTypeName">
+                                    <div class="text-end">
+                                        <button class="btn btn-link text-danger" id="empTypeCancel" type="button">Cancel</button>
+                                        <button class="btn btn-sm btn-primary px-5" id="empTypeSave" type="button">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="empNature" required>
+                        <option selected="selected" disabled>Select Employment Nature</option>
+
+                       
+
+                    </select>
+                    <label for="floatingSelectLitigation">Employment Nature </label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="gradeNo" required>
+                        <option selected="selected">Select Grade No</option>
+
+                    </select>
+                    <label for="floatingSelectLitigation">Grade No</label>
+                </div>
+
+                @* <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button> *@
+                <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                    <div class="card position-relative border-0">
+                        <div class="card-body p-0">
+                            <div class="mx-3">
+                                <form action="gradeForm">
+                                    <h5 class="mb-3">Enter Grade Id</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="gradeId">
+                                    <h5 class="mb-3">Enter Grade Name</h5>
+                                    <input class="form-control mb-3" type="text" aria-label="Default select" id="gradeName">
+                                    <div class="text-end">
+                                        <button class="btn btn-link text-danger" id="gradeCancel" type="button">Cancel</button>
+                                        <button class="btn btn-sm btn-primary px-5" id="gradeSave" type="button">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="grossSalary" type="text" placeholder="Enter Gross Salary" />
+                    <label for="grossSalary">Salary</label>
+                </div>
+            </div>
+
+
+            <div class="col-sm-2 col-md-4">
+
+                <div class="row">
+                    
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="salaryTypeoffi" required>
+                                <option selected disabled>Select Type</option>
+                                <!-- Add salary type options here -->
+                            </select>
+                            <label for="salaryTypeoffi">Select Type</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="currency" required>
+                                <option selected disabled>Currency</option>
+                                <!-- Add currency options here -->
+                            </select>
+                            <label for="currency">Currency</label>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="paymentPeriod" required>
+
+                       
+
+                    </select>
+                    <label for="floatingSelectLitigation">Payment Period</label>
+                </div>
+            </div>
+
+
+          
+
+            <div class="col-sm-2 col-md-2">
+                <div class="form-floating">
+                    <select class="form-select" id="modeOfPayment">
+                        <option selected="selected" disabled>Payment Mode</option>
+
+                      
+
+                    </select>
+                    <label for="floatingSelectLitigation">Mode of Payment</label>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2">
+                <div class="form-floating">
+                    <input class="form-control" id="bankPercent" type="text" placeholder=" 	Mode of Pay. in Bank(%) " />
+                    <label for=""> 	Mode of Pay. in Bank(%) </label>
+                </div>
+            </div>
+
+           
+
+
+            <div class="col-sm-4 col-md-4 mb-6">
+                <div class="form-floating">
+                    <select class="form-select" id="employeeStatus" required>
+                        <option selected="selected">Select Employee Status</option>
+
+                       
+
+                    </select>
+                    <label for="floatingSelectLitigation">Employee Status </label>
+                </div>
+            </div>
+
+            <p class="border-bottom">Joining Information</p>
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="appointmentLetterNo1" type="text" placeholder="Appointment Letter No " />
+                    <label for="">Appointment Letter No </label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control datetimepicker" id="appointmentLetterDate" type="text" placeholder="Appointment Letter Date" data-options='{"disableMobile":true}' />
+                        <label class="ps-6" for="floatingInputReportDate">Appointment Letter Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control datetimepicker" id="joiningDate" type="text" placeholder="Joining Date" data-options='{"disableMobile":true}' />
+                        <label class="ps-6" for="floatingInputReportDate">Joining Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                    </div>
+                </div>
+            </div>
+
+           
+
+            <div class="col-sm-2 col-md-2">
+                <div class="form-floating">
+                    <input class="form-control" id="probationPeriod" type="text" placeholder="Probation Period" />
+                    <label for="">Probation Period</label>
+                </div>
+            </div>
+
+            <div class="col-sm-2 col-md-2">
+                <div class="form-floating">
+                    <select class="form-select" id="time">
+                       
+
+                      
+
+                    </select>
+                    <label for="floatingSelectLitigation">Time</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control datetimepicker" id="confirmationDate" type="text" placeholder="Confirmation Dat" data-options='{"disableMobile":true}' />
+                        <label class="ps-6" for="floatingInputReportDate">Confirmation Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="confirmationLetterNo" type="text" placeholder="Confirmation Ref/letter No." />
+                    <label for="">Confirmation Ref/letter No. </label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control datetimepicker" id="contractEndDate" type="text" placeholder="Contract End Date" data-options='{"disableMobile":true}' />
+                        <label class="ps-6" for="floatingInputReportDate">Contract End Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" id="btnSaveOfficial" type="button" style="width: 100px;">Save</button>
+</div>
+
+
+
+<script src="/lib/jquery/dist/jquery.min.js"></script>
+<script src="/js/pages/employeeofficial.js"></script>
+
+<script>
+      $(document).ready(function () {
+        function populateDropdown11(url, dropdownId, valueField, textField) {
+            $.ajax({
+                url: url,
+                method: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log("API Response:", data);
+
+                    var $dropdown = $('#' + dropdownId);
+                    var $parentDiv = $dropdown.closest('.form-floating');
+                    var $label = $parentDiv.find('label');
+
+                    if (!$dropdown.length) {
+                        console.error("Dropdown not found:", dropdownId);
+                        return;
+                    }
+
+                    // Clear existing options and add a blank one
+                    $dropdown.empty().append('<option value="" selected></option>');
+
+                    let items = data.data || [];
+                    if (Array.isArray(items)) {
+                        items.forEach(function (item) {
+                            var $option = $('<option></option>').val(item[valueField]).text(item[textField]);
+                            $dropdown.append($option);
+                        });
+                    } else {
+                        console.error("Unexpected data format:", data);
+                    }
+
+                    // Destroy existing Choices instance before reinitializing
+                    if ($dropdown.data('choicesInstance')) {
+                        $dropdown.data('choicesInstance').destroy();
+                        $dropdown.data('choicesInstance', null);
+                    }
+
+                    // Initialize Choices.js
+                    var choicesInstance = new Choices($dropdown[0], {
+                        removeItemButton: true,
+                        placeholder: true,
+                        allowHTML: true,
+                        searchEnabled: true
+                    });
+
+                    $dropdown.data('choicesInstance', choicesInstance);
+
+                    // Manually trigger Bootstrap floating label behavior
+                    function updateFloatingLabel() {
+                        if ($dropdown.val()) {
+                            $label.addClass('floating-label-active');
+                        } else {
+                            $label.removeClass('floating-label-active');
+                        }
+                    }
+
+                    $dropdown.on('change', updateFloatingLabel);
+                    updateFloatingLabel(); // Ensure label is correct on load
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error('Error loading ' + dropdownId + ': ' + textStatus, errorThrown);
+                }
+            });
+        }
+
+        // Call the function
+        populateDropdown11('/immediateSupervisor/get', 'immediateSupervisor', 'id', 'name');
+    });
+</script>
+
+
+

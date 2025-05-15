@@ -1,0 +1,48 @@
+﻿@model GCTL.Core.ViewModels.MasterSetup.ActionTakens.ActionTakenVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">Add Action Taken</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="ActionTakens" method="post" enctype="multipart/form-data" id="actionTaken-form">
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="ActionTakenID" />
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="ActionTakenName" type="text" placeholder="Action Taken Name" />
+                        <label asp-for="ActionTakenName">Action Taken Name <span style="color: red;">*</span></label>
+                    </div>
+                    <span asp-validation-for="ActionTakenName" class="text-danger"></span>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+
+            @* <div class="col-sm-12 col-md-12 mb-4">
+            <div class="form-floating  form-floating-advance-select">
+                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">করদাতার সাথে সম্পর্ক</option>
+                    <option value="">পিতা</option>
+                </select>
+                <label for="floatingInputGrid">করদাতার সাথে সম্পর্ক</label>
+            </div>
+        </div> *@
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="actionTaken-resetBtn">Reset</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="actionTaken-saveBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

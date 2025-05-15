@@ -1,0 +1,94 @@
+﻿<div class="row g-3 justify-content-between align-items-end mb-4">
+
+
+    <div class="col-12 col-sm-auto">
+        <div class="d-flex align-items-center">
+            <div class="search-box me-3">
+                <select class="form-select" id="designationDropdown">
+                    <option selected="selected">Select Designation</option>
+                    @foreach (var item in ViewBag.catagory)
+                    {
+                        <option value="@item.DesignationID">@item.DesignationName</option>
+                    }
+                </select>
+
+
+            </div>
+
+            <button class="btn px-3 btn-phoenix-secondary" id="displayOrderBtn" type="button" style="display:none">
+                Change Display Order
+            </button>
+        </div>
+    </div>
+
+
+   
+
+  
+    <div class="col-12 col-sm-auto">
+        <div class="d-flex align-items-center">
+            <div class="search-box me-3">
+                <form class="position-relative">
+                    <input class="form-control search-input search" id="empTblSearch" type="search" placeholder="Search projects" aria-label="Search" />
+                    <span class="fas fa-search search-box-icon"></span>
+                </form>
+            </div>
+          <!--  <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="modal" data-bs-target="#reportsFilterModal" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                <span class="fa-solid fa-filter text-primary" data-fa-transform="down-3"></span>
+              </button> -->
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive ms-n1 ps-1 scrollbar">
+
+
+    <table class="table fs-9 mb-0 border-top border-translucent">
+        <thead>
+            <tr>
+                <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                    <!-- Select<br />
+                      <input type="checkbox" id="viewBank-check-all" /> -->
+                    EMPLOYEE ID
+                </th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="fieldId">EMPLOYEE NAME</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">GENDER</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="profession">DOB</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="tin">MOBILE</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="taxCircle">EMAIL</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="status">DEPARTMENT</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="status">DESIGNATION</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="status">ADDRESS</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="status">DISPLAY ORDER</th>
+                <!--<th class="sort align-middle text-start" scope="col"> ACTION</th> -->
+            </tr>
+
+        </thead>
+
+
+
+
+   
+
+        <tbody  id="employeeSetup-summary-table-body">
+
+             
+
+        </tbody>
+    </table>
+
+</div>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+    <div class="d-flex">
+        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+    </div>
+    <div class="d-flex">
+        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+        <ul class="mb-0 pagination"></ul>
+        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/pages/employeesetuptable.js"></script>

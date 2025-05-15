@@ -1,0 +1,143 @@
+﻿@using GCTL.Data.Models
+@model List<MenuTab>
+
+<nav class="navbar navbar-vertical navbar-expand-lg">
+    @* style="width:17.0rem;" *@
+    <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
+        <div class="navbar-vertical-content">
+            <ul class="navbar-nav flex-column" id="navbarVerticalNav">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var menu in Model)
+                    {
+                        @* var menuId = $"{menu.ControllerName}"; *@
+                        var menuId = string.IsNullOrEmpty(menu.ControllerName) ? $"{menu.MenuTabId}" : $"{menu.ControllerName}";
+                        <li class="nav-item">
+                            <div class="nav-item-wrapper">
+                                @if (menu.InverseParent.Any())
+                                {
+                                    <!-- If there are submenus, enable collapse and add dropdown-indicator -->
+                                    <a class="nav-link dropdown-indicator label-1" href="#@menuId" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="@menuId">
+                                        <div class="d-flex align-items-center">
+                                            <div class="dropdown-indicator-icon-wrapper">
+                                                <span class="fas fa-caret-right dropdown-indicator-icon"></span>
+                                            </div>
+                                            @* <span class="nav-link-icon"><i class="@menu.Icon"></i></span> *@
+                                            <span class="nav-link-icon"><span data-feather="@menu.Icon" width="16" height="16"></span></span>
+                                            <span class="nav-link-text">@menu.Title</span>
+                                        </div>
+                                    </a>
+                                    @if (menu.InverseParent.Any())
+                                    {
+                                        <div class="parent-wrapper label-1">
+                                            <ul class="nav collapse parent" data-bs-parent="#navbarVerticalCollapse" id="@menuId">
+                                                @foreach (var subMenu in menu.InverseParent)
+                                                {
+                                                    var subMenuId = $"{subMenu.ControllerName}";
+                                                    <li class="nav-item">
+                                                        @if (subMenu.InverseParent.Any())
+                                                        {
+                                                            <!-- If subMenu has submenus, add dropdown-indicator -->
+                                                            <a class="nav-link dropdown-indicator" href="#@subMenuId" data-bs-toggle="collapse" aria-expanded="false" aria-controls="@subMenuId">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="dropdown-indicator-icon-wrapper">
+                                                                        <span class="fas fa-caret-right dropdown-indicator-icon"></span>
+                                                                    </div>
+                                                                    <span class="nav-link-icon p-0"><i class="@subMenu.Icon"></i></span>
+                                                                    <span class="nav-link-text p-0">@subMenu.Title</span>
+                                                                </div>
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <!-- No submenus, just link to page -->
+                                                            <a class="nav-link" href="@Url.Action("Index", subMenu.ControllerName)">
+                                                                <div class="d-flex align-items-center">
+                                                                    <span class="nav-link-icon p-0"><i class="@subMenu.Icon"></i></span>
+                                                                    <span class="nav-link-text p-0">@subMenu.Title</span>
+                                                                </div>
+                                                            </a>
+                                                        }
+                                                        @if (subMenu.InverseParent.Any())
+                                                        {
+                                                            <ul class="nav collapse parent ms-3" data-bs-parent="#@subMenuId" id="@subMenuId">
+                                                                @foreach (var grandChild in subMenu.InverseParent)
+                                                                {
+                                                                    var grandChildId = $"{grandChild.ControllerName}";
+                                                                    <li class="nav-item">
+                                                                        @if (grandChild.InverseParent.Any())
+                                                                        {
+                                                                            <!-- If grandChild has submenus, add dropdown-indicator -->
+                                                                            <a class="nav-link dropdown-indicator" href="#@grandChildId" data-bs-toggle="collapse" aria-expanded="false" aria-controls="@grandChildId">
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <div class="dropdown-indicator-icon-wrapper">
+                                                                                        <span class="fas fa-caret-right dropdown-indicator-icon"></span>
+                                                                                    </div>
+                                                                                    <span class="nav-link-icon p-0"><i class="@grandChild.Icon"></i></span>
+                                                                                    <span class="nav-link-text p-0">@grandChild.Title</span>
+                                                                                </div>
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <!-- No submenus, just link to page -->
+                                                                            <a class="nav-link" href="@Url.Action("Index", grandChild.ControllerName)">
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <span class="nav-link-icon p-0"><i class="@grandChild.Icon"></i></span>
+                                                                                    <span class="nav-link-text p-0">@grandChild.Title</span>
+                                                                                </div>
+                                                                            </a>
+                                                                        }
+
+                                                                        @if (grandChild.InverseParent.Any())
+                                                                        {
+                                                                            <ul class="nav collapse parent ms-3" data-bs-parent="#@grandChildId" id="@grandChildId">
+                                                                                @foreach (var greatGrandChild in grandChild.InverseParent)
+                                                                                {
+                                                                                    <li class="nav-item">
+                                                                                        <a class="nav-link" href="@Url.Action("Index", greatGrandChild.ControllerName)">
+                                                                                            <div class="d-flex align-items-center">
+                                                                                                <span class="nav-link-icon p-0"><i class="@greatGrandChild.Icon"></i></span>
+                                                                                                <span class="nav-link-text p-0">@greatGrandChild.Title</span>
+                                                                                            </div>
+                                                                                        </a>
+                                                                                    </li>
+                                                                                }
+                                                                            </ul>
+                                                                        }
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        }
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <!-- If there are no submenus, direct link to the page -->
+                                    <a class="nav-link" href="@Url.Action("Index", menu.ControllerName)">
+                                        <div class="d-flex align-items-center">
+                                            <span class="nav-link-icon"><i class="@menu.Icon"></i></span>
+                                            <span class="nav-link-text">@menu.Title</span>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="navbar-vertical-footer">
+        <button class="btn navbar-vertical-toggle border-0 fw-semibold w-100 white-space-nowrap d-flex align-items-center">
+            <span class="uil uil-left-arrow-to-left fs-8"></span>
+            <span class="uil uil-arrow-from-right fs-8"></span>
+            <span class="navbar-vertical-footer-text ms-2">Collapsed View</span>
+        </button>
+    </div>
+</nav>
+

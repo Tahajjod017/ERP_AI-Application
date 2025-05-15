@@ -1,0 +1,173 @@
+﻿
+<div class=" px-25 ">
+    <div class="d-flex justify-content-center my-8 ">
+
+        <div class="col-12 row flex gy-3 ">
+
+
+            <div class="container mt-3">
+                <div class="card shadow-sm">
+                    <div class="card-body p-0" style="background: #d2d9e970">
+                        <div class="d-flex justify-content-center mt-2">
+                            <div class="col-12 row flex gy-3 pb-3">
+
+                                <input id="empIdMain3" type="hidden" />
+                                <input id="empCode" type="hidden" />
+
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="form-floating">
+                                        <select class="form-select" id="empCodePass3">
+                                            <option selected="selected">Select Employee</option>
+                                        </select>
+                                        <label for="floatingSelectLitigation"></label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="form-floating">
+                                        <input class="form-control" id="NidPass3" type="text" placeholder="" readonly />
+                                        <label for="">National ID</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-4">
+                                    <div class="form-floating">
+                                        <input class="form-control" id="BirthCertiPass3" type="text" placeholder="" readonly />
+                                        <label for="">Birth Certificate</label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+          
+
+
+            @* <partial name="_EmployeeInfoPartial" /> *@
+
+            <input type="hidden" id="empEducationId" />
+
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="levelEducation" name="levelEducation" required>
+                        <option value="none" selected disabled>Select Education Level</option>
+
+                    </select>
+                    <label for="floatingSelectLitigation">Level of Education</label>
+                </div>
+            </div>
+
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="examDegreeTitle" name="exam-degree-title" required>
+                    </select>
+                    <label for="floatingSelectLitigation">Select Exam/Degree Title</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="major" type="text" placeholder="Concentration/ Major/Group" required />
+                    <label for="">Concentration/ Major/Group</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="educationBoard" name="education-board" required>
+                    </select>
+                    <label for="floatingSelectLitigation">Select Exam/Degree Title</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="instituteNameEdu" type="text" placeholder="Institute Name" required />
+                    <label for="">Institute Name </label>
+                </div>
+            </div>
+
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="educationResult" name="education-result" required>
+                    </select>
+                    <label for="floatingSelectLitigation">Select Exam/Degree Title</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <select class="form-select" id="yearPassingEdu" name="year-of-passing" required>
+                        <option value="" selected disabled>Select your year of passing</option>
+
+
+
+                    </select>
+
+                    <label for="floatingSelectLitigation">Year of Passing</label>
+                </div>
+            </div>
+
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="durationEdu" type="text" placeholder="Duration" />
+                    <label for="">Duration (Years)</label>
+                </div>
+            </div>
+
+            <div class="col-sm-4 col-md-4">
+                <div class="form-floating">
+                    <input class="form-control" id="achiement" type="text" placeholder="Achievement" />
+                    <label for="">Achievement</label>
+                </div>
+            </div>
+            <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" id="btnAddEdu" type="button" style="width: 100px;">Add</button>
+
+
+
+
+
+
+        </div>
+    </div>
+
+    <h4 class="border-bottom">Academic Qualification Summary</h4>
+
+    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
+        <table class="table">
+            <thead>
+                <tr>
+
+                    <th scope="col">Exam Title</th>
+                    <th scope="col">Concentration/Major</th>
+                    <th scope="col">Institute	</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Pas.Year</th>
+                    <th scope="col">Duration</th>
+                    <th scope="col">Achievement</th>
+                </tr>
+            </thead>
+
+            <tbody id="educationTableBody">
+            </tbody>
+
+        </table>
+    </div>
+    <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" id="btnSaveEdu" type="button" style="width: 100px;">Save</button>
+</div>
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="~/js/pages/employeeeducational.js"></script>

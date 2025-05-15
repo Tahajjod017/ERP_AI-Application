@@ -1,0 +1,229 @@
+﻿<style>
+    .table-primary {
+        background-color: #f8f9fa !important; /* Light Gray */
+        padding-left: 2rem;
+        color: #007bff; /* Blue text color */
+    }
+
+    .table-secondary {
+        background-color: #e9ecef !important; /* Slightly Darker Gray */
+        color: #007bff; /* Blue text color */
+    }
+
+    .table-tertiary {
+        background-color: #dee2e6 !important; /* Even Darker Gray */
+        padding-left: 2rem !important; /* Same indentation as primary rows */
+        text-align: left; /* Align text to the left */
+        color: #007bff; /* Blue text color */
+    }
+
+    .pl-4 {
+        padding-left: 3rem !important;
+    }
+
+    .pl-5 {
+        padding-left: 8rem !important;
+    }
+
+    .hidden-row {
+        display: none;
+    }
+
+    .select-all {
+        margin-left: 10px;
+    }
+
+    .select-row {
+        padding: 0 !important;
+        margin-left: 10px;
+    }
+
+    .table th,
+    .table td {
+        text-align: left;
+        vertical-align: middle;
+    }
+
+        .table td input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .table td a {
+            display: block;
+            text-align: left;
+            padding-left: 1rem;
+            color: #007bff; /* Blue text color for links */
+        }
+
+        .table th {
+            font-weight: bold;
+        }
+
+    /* Styling for module dropdowns */
+    .module-dropdown-indicator {
+        cursor: pointer;
+        margin-right: 5px;
+    }
+
+    /* Ensure tertiary rows have same color and alignment as primary and secondary rows */
+    .table-tertiary td {
+        color: #007bff; /* Blue color for text */
+        font-weight: normal; /* Same font weight as secondary rows */
+       
+    }
+
+        /* Ensure links in tertiary rows follow the same color as in primary and secondary rows */
+        .table-tertiary td a {
+            display: block;
+            text-align: left;
+            padding-left: 1rem;
+            color: #007bff; /* Blue text color for links */
+        }
+
+    .table-quaternary {
+        background-color: #ced4da !important;
+        padding-left: 5rem !important;
+        color: #007bff;
+    }
+
+    .table-quinary {
+        background-color: #adb5bd !important;
+        padding-left: 6rem !important;
+        color: #007bff;
+    }
+
+</style>
+
+
+<table class="table table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th>Modules</th>
+            <th>Create</th>
+            <th>View</th>
+            <th>Edit</th>
+            <th>Delete</th>
+            <th>Export</th>
+            <th>Download</th>
+            <th>
+                <input type="checkbox" class="select-all"> Select All
+            </th>
+        </tr>
+    </thead>
+    <tbody id="module-tree">
+        @foreach (var primaryModule in Model.PrimaryModules)
+        {
+            <tr style="background-color: #f8f9fa; padding-left: 2rem !important;">
+                <!-- Light Gray Primary Row -->
+                <td class="font-weight-bold">
+                    <a href="javascript:void(0);" class="link-module" data-target="secondary-@primaryModule.Id">
+                        @if (primaryModule.SecondaryModules.Count > 0)
+                        {
+                            <i class="fas fa-caret-right module-dropdown-indicator" data-target="secondary-@primaryModule.Id"></i>
+                        }
+                        @primaryModule.Name
+                    </a>
+                </td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="create" data-module="@primaryModule.Id" @(primaryModule.CanCreate ? "checked" : "") /></td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="view" data-module="@primaryModule.Id" @(primaryModule.CanView ? "checked" : "") /></td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="edit" data-module="@primaryModule.Id" @(primaryModule.CanEdit ? "checked" : "") /></td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="delete" data-module="@primaryModule.Id" @(primaryModule.CanDelete ? "checked" : "") /></td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="export" data-module="@primaryModule.Id" @(primaryModule.CanExport ? "checked" : "") /></td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="download" data-module="@primaryModule.Id" @(primaryModule.CanDownload ? "checked" : "") /></td>
+                <td>
+                    <input type="checkbox" class="select-row" data-target="primary-@primaryModule.Id" />
+                </td>
+            </tr>
+
+            @foreach (var secondaryModule in primaryModule.SecondaryModules)
+            {
+                <tr style="background-color: #e9ecef;padding-left: 3rem !important;" class="hidden-row secondary-@primaryModule.Id">
+                    <!-- Slightly Darker Gray for Secondary -->
+                    <td class="pl-4">
+                        <a href="javascript:void(0);" class="link-module" data-target="tertiary-@secondaryModule.Id">
+                            @if (secondaryModule.TertiaryModules.Count > 0)
+                            {
+                                <i class="fas fa-caret-right module-dropdown-indicator" data-target="tertiary-@secondaryModule.Id"></i>
+                            }
+                            @secondaryModule.Name
+                        </a>
+                    </td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="create" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanCreate ? "checked" : "") /></td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="view" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanView ? "checked" : "") /></td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="edit" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanEdit ? "checked" : "") /></td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="delete" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanDelete ? "checked" : "") /></td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="export" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanExport ? "checked" : "") /></td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="download" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanDownload ? "checked" : "") /></td>
+                    <td>
+                        <input type="checkbox" class="select-row" data-target="secondary-@primaryModule.Id" />
+                    </td>
+                </tr>
+
+                @foreach (var tertiaryModule in secondaryModule.TertiaryModules)
+                {
+                    <tr style="background-color: #dee2e6; padding-left: 4rem !important;" class="table-tertiary hidden-row tertiary-@secondaryModule.Id">
+                        <td class="pl-5">
+                            <a href="javascript:void(0);" class="link-module" data-target="quaternary-@tertiaryModule.Id">
+                                @if (tertiaryModule.QuaternaryModules?.Count > 0)
+                                {
+                                    <i class="fas fa-caret-right module-dropdown-indicator" data-target="quaternary-@tertiaryModule.Id"></i>
+                                }
+                                @tertiaryModule.Name
+                            </a>
+                        </td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="create" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanCreate ? "checked" : "") /></td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="view" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanView ? "checked" : "") /></td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="edit" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanEdit ? "checked" : "") /></td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="delete" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanDelete ? "checked" : "") /></td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="export" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanExport ? "checked" : "") /></td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="download" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanDownload ? "checked" : "") /></td>
+                        <td>
+                            <input type="checkbox" class="select-row" data-target="tertiary-@secondaryModule.Id" />
+                        </td>
+                    </tr>
+
+                    @foreach (var quaternaryModule in tertiaryModule.QuaternaryModules)
+                    {
+                        <tr style="background-color: #ced4da; padding-left: 5rem !important;" class="hidden-row quaternary-@tertiaryModule.Id">
+                            <td class="pl-5">
+                                <a href="javascript:void(0);" class="link-module" data-target="quinary-@quaternaryModule.Id">
+                                    @if (quaternaryModule.QuinaryModules?.Count > 0)
+                                    {
+                                        <i class="fas fa-caret-right module-dropdown-indicator" data-target="quinary-@quaternaryModule.Id"></i>
+                                    }
+                                    @quaternaryModule.Name
+                                </a>
+                            </td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="create" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanCreate ? "checked" : "") /></td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="view" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanView ? "checked" : "") /></td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="edit" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanEdit ? "checked" : "") /></td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="delete" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanDelete ? "checked" : "") /></td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="export" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanExport ? "checked" : "") /></td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="download" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanDownload ? "checked" : "") /></td>
+                            <td>
+                                <input type="checkbox" class="select-row" data-target="quaternary-@tertiaryModule.Id" />
+                            </td>
+                        </tr>
+
+                        @foreach (var quinaryModule in quaternaryModule.QuinaryModules)
+                        {
+                            <tr style="background-color: #adb5bd; padding-left: 6rem !important;" class="hidden-row quinary-@quaternaryModule.Id">
+                                <td class="pl-5">@quinaryModule.Name</td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="create" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanCreate ? "checked" : "") /></td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="view" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanView ? "checked" : "") /></td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="edit" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanEdit ? "checked" : "") /></td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="delete" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanDelete ? "checked" : "") /></td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="export" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanExport ? "checked" : "") /></td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="download" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanDownload ? "checked" : "") /></td>
+                                <td>
+                                    <input type="checkbox" class="select-row" data-target="quinary-@quaternaryModule.Id" />
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+
+            }
+        }
+    </tbody>
+</table>

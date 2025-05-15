@@ -1,0 +1,100 @@
+﻿@model List<GCTL.Core.ViewModels.MenuTab.MenuTabVM>
+
+<div class="card mb-2">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">Information's of Menu Tab's</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body py-0 scrollbar to-do-list-body">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">Showing:</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="menuTab-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">5</option>
+                                <option class="dropdown-item" value="10">10</option>
+                                <option class="dropdown-item" value="25">25</option>
+                                <option class="dropdown-item" value="50">50</option>
+                                <option class="dropdown-item" value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="menuTab-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="menuTab-delSel">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="menuTab-searchBox">
+                            <form class="position-relative" id="menuTab-searchForm">
+                                <input class="form-control search-input search" id="menuTab-searchInput" type="search" placeholder="Search here" aria-label="Search" tabindex="11" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                <table class="table fs-9 mb-0 border-top border-translucent">
+                    <thead>
+                        <tr>
+                            <th class="sort text-start white-space-nowrap text-middle align-middle ps-2" scope="col" data-sort="MenuTabId">ID</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="Title">Nav Title</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="Type">Type</th>
+                            <th class="sort text-center white-space-nowrap align-middle ps-2" scope="col" data-sort="ParentId">Parent</th>
+                            <th class="sort text-center white-space-nowrap align-middle ps-2" scope="col" data-sort="OrderBy">Order</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="ControllerName">Controller Name</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="ViewName">View Name</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="Icon">Icon</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="IsActive">Active</th>
+                            <th class="sort text-start white-space-nowrap align-middle ps-2" scope="col" data-sort="Action">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="menuTab-tBody">
+                        @foreach(var data in Model)
+                        {
+                            <tr class="position-static">
+                                <td class="text-start text-middle align-middle text-nowrap ps-2">@data.MenuTabId</td>
+                                <td class="sort text-start white-space-nowrap align-middle ps-2">@data.Title</td>
+                                <td class="text-start white-space-nowrap align-middle ps-2">@data.Type</td>
+                                <td class="text-center white-space-nowrap align-middle ps-2">@data.ParentId</td>
+                                <td class="text-center white-space-nowrap align-middle ps-2">@data.OrderBy</td>
+                                <td class="text-start white-space-nowrap align-middle ps-2">@data.ControllerName</td>
+                                <td class="text-start white-space-nowrap align-middle ps-2">@data.ViewName</td>
+                                <td class="text-start white-space-nowrap align-middle ps-2">@data.Icon</td>
+                                <td class="text-start white-space-nowrap align-middle ps-2">@data.IsActive</td>
+                                <td class="text-start white-space-nowrap align-middle ps-2">
+                                    <a class="btn btn-outline-primary btn-sm p-2" href="#!" id="menuTab-edit" data-id="@data.MenuTabId"><i class="fas fa-edit text-success"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="menuTab-paginationInfo"></p>
+
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="menuTab-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="menuTab-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="menuTab-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
