@@ -1,56 +1,91 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using GCTL.Core.ViewModels;
 
 namespace GCTL.Service.Pagination
 {
-    public class PaginationService : IPaginationService
+    public class PaginationService<TEntity, TViewModel> where TEntity : class
     {
-        public PaginationResult<T> CreatePaginatedResult<T>(
-            IEnumerable<T> source,
-            int page,
-            int pageSize,
-            string searchTerm = "",
-            Func<T, string, bool> searchPredicate = null,
-            string sortColumn = "",
-            string sortDirection = "asc",
-            Dictionary<string, Expression<Func<T, object>>> sortColumnMappings = null)
+        public class PaginationResult<T>
         {
-            // Apply search if search term and predicate are provided
+            public IEnumerable<T> Data { get; set; }
+            public int TotalCount { get; set; }
+            public PaginationInfo PaginationInfo { get; set; }
+        }
+
+        public class PaginationInfo
+        {
+            public int StartItem { get; set; }
+            public int EndItem { get; set; }
+            public int TotalItems { get; set; }
+            public List<int> PageNumbers { get; set; }
+            public int TotalPages { get; set; }
+            public int CurrentPage { get; set; }
+        }
+
+        // Method to get paginated data
+        public static async Task<PaginationResult<TViewModel>> GetPaginatedData(
+            IQueryable<TEntity> query,
+            int pageNumber,
+            int pageSize,
+            string searchTerm,
+            string sortColumn,
+            string sortOrder,
+            Func<string, Expression<Func<TEntity, bool>>> searchPredicate,
+            Func<TEntity, TViewModel> selector)
+        {
+            // Apply search filter if search term is provided
             if (!string.IsNullOrEmpty(searchTerm) && searchPredicate != null)
             {
-                source = source.Where(item => searchPredicate(item, searchTerm));
+                query = query.Where(searchPredicate(searchTerm));
             }
 
-            // Apply sorting if sort column and mappings are provided
-            if (!string.IsNullOrEmpty(sortColumn) && sortColumnMappings != null && sortColumnMappings.ContainsKey(sortColumn))
+            // Apply sorting based on the column and direction
+            if (!string.IsNullOrEmpty(sortColumn))
             {
-                var keySelector = sortColumnMappings[sortColumn].Compile();
-                source = sortDirection.ToLower() == "asc"
-                    ? source.OrderBy(keySelector)
-                    : source.OrderByDescending(keySelector);
+                var propertyInfo = typeof(TEntity).GetProperty(sortColumn);
+                if (propertyInfo != null)
+                {
+                    query = sortOrder.ToLower() == "asc"
+                        ? query.OrderBy(e => EF.Property<object>(e, sortColumn))
+                        : query.OrderByDescending(e => EF.Property<object>(e, sortColumn));
+                }
             }
 
             // Get total count before pagination
-            int totalRecords = source.Count();
+            var totalItems = await query.CountAsync();
 
-            // Apply pagination
-            var data = source
-                .Skip((page - 1) * pageSize)
+            // Apply pagination 
+            // Was ToListAsync() before
+            var paginatedData = query
+                .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(selector)
                 .ToList();
 
-            // Return paginated result
-            return new PaginationResult<T>
+            // Calculate pagination info
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            var startItem = totalItems == 0 ? 0 : (pageNumber - 1) * pageSize + 1;
+            var endItem = Math.Min(pageNumber * pageSize, totalItems);
+            var pageNumbers = Enumerable.Range(1, totalPages).ToList();
+
+            return new PaginationResult<TViewModel>
             {
-                Data = data,
-                TotalRecords = totalRecords,
-                Page = page,
-                PageSize = pageSize
+                Data = paginatedData,
+                TotalCount = totalItems,
+                PaginationInfo = new PaginationInfo
+                {
+                    StartItem = startItem,
+                    EndItem = endItem,
+                    TotalItems = totalItems,
+                    PageNumbers = pageNumbers,
+                    TotalPages = totalPages,
+                    CurrentPage = pageNumber
+                }
             };
         }
     }

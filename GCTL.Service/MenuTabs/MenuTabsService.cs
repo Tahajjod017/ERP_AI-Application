@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels.MenuTab;
+using GCTL.Service.Pagination;
 
 namespace GCTL.Service.MenuTabs
 {

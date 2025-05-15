@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using static Dapper.SqlMapper;
+using GCTL.Service.Pagination;
 
 namespace GCTL.Service.MasterSetup.ActionTakens
 {
