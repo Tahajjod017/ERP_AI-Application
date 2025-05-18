@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Permissions
+public partial class LanguageMainTable
 {
     public int Id { get; set; }
 
-    public string Name { get; set; }
+    public string TextCode { get; set; }
 
-    public virtual ICollection<RoleModulePermissions> RoleModulePermissions { get; set; } = new List<RoleModulePermissions>();
+    public string EnglishText { get; set; }
+
+    public bool IsModified { get; set; }
 }

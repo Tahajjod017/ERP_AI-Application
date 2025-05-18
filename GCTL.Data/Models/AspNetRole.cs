@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AspNetRoles
+public partial class AspNetRole
 {
     public string Id { get; set; }
 
@@ -17,9 +17,9 @@ public partial class AspNetRoles
 
     public string ConcurrencyStamp { get; set; }
 
-    public virtual ICollection<AspNetRoleClaims> AspNetRoleClaims { get; set; } = new List<AspNetRoleClaims>();
+    public virtual ICollection<AspNetRoleClaim> AspNetRoleClaims { get; set; } = new List<AspNetRoleClaim>();
 
-    public virtual ICollection<RoleModulePermissions> RoleModulePermissions { get; set; } = new List<RoleModulePermissions>();
+    public virtual ICollection<RoleModulePermission> RoleModulePermissions { get; set; } = new List<RoleModulePermission>();
 
-    public virtual ICollection<AspNetUsers> User { get; set; } = new List<AspNetUsers>();
+    public virtual ICollection<AspNetUser> Users { get; set; } = new List<AspNetUser>();
 }

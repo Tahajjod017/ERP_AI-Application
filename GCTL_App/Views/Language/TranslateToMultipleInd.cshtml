@@ -1,0 +1,86 @@
+﻿@model ICollection<GCTL.Data.Models.LanguageList>
+@{
+    ViewData["Title"] = "Install New Language";
+}
+<link rel="stylesheet" href="~/css/StyleSheet.css">
+<h1>Install New Language</h1>
+<h4>Multiple Independent table</h4>
+
+<p>Select a target language and translation quality. The process might take several minutes.</p>
+
+<form method="post" asp-action="TranslateToMultipleInd">
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="languageCode">Target Language:</label>
+                <select class="form-control" id="languageCode" name="languageCode" required>
+                    <option value="">-- Select a Language --</option>
+                    <option value="bn">bangla</option>
+                    <option value="hi">Hindi</option>
+                    @foreach (var item in Model)
+                    {
+                        <option value="@item.LanguageCode">@item.LanguageName</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="translationQuality">Translation Quality:</label>
+                <select class="form-control" id="translationQuality" name="translationQuality" required>
+                    <option value="">-- Select Quality --</option>
+                    <option value="Good">Good</option>
+                    <option value="Better">Better</option>
+                    <option value="Best">Best</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <button type="submit" class="btn btn-primary mt-2">Install Now</button>
+</form>
+
+
+
+
+
+
+
+<div class="progress mt-3">
+    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+<p id="progress-text" class="mt-2">0% completed.</p>
+
+<h4>Available Language on Database</h4>
+
+<ul>
+    @foreach (var item in ViewBag.AvLangInd)
+    {
+        <li>@item</li>
+    }
+</ul>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/progressHub")
+        .build();
+
+    connection.on("UpdateProgress", (progress, total) => {
+        document.getElementById("progress-bar").style.width = progress + "%";
+        document.getElementById("progress-text").innerText = `${progress}% completed out of ${total}`;
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+</script>

@@ -7,6 +7,7 @@ using GCTL.Service.MenuTabs;
 using GCTL.Core.Repository;
 using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
+using GCTL.Service.Language;
 
 namespace GCTL_App.Extensions
 {
@@ -35,6 +36,15 @@ namespace GCTL_App.Extensions
 
             // Master Setup Start
             services.AddScoped<IActionTakenService, ActionTakenService>();
+
+            #region
+
+            services.AddScoped<ITranslateService, TranslateService>();
+            services.AddScoped<ILanguageTableService, LanguageTableService>();
+
+            #endregion
+
+
         }
     }
 }

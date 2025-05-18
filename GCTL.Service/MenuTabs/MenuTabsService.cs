@@ -52,7 +52,7 @@ namespace GCTL.Service.MenuTabs
 
             if (viewPermissionId == 0) return new List<MenuTab>();
 
-            var menus = await _context.MenuTab
+            var menus = await _context.MenuTabs
                 .Where(m =>
                 m.IsActive == true &&  // ✅ Only active menus for left menu and others inactive menu is for l4 and l5
                 _context.RoleModulePermissions
@@ -81,7 +81,7 @@ namespace GCTL.Service.MenuTabs
                 entity.Icon = model.Icon;
                 entity.IsActive = model.IsActive;
 
-                await _context.MenuTab.AddAsync(entity);
+                await _context.MenuTabs.AddAsync(entity);
                 await _context.SaveChangesAsync();
 
                 await _context.Database.CommitTransactionAsync();
@@ -103,7 +103,7 @@ namespace GCTL.Service.MenuTabs
             await _context.Database.BeginTransactionAsync();
             try
             {
-                var entity = await _context.MenuTab.FindAsync(model.MenuTabId);
+                var entity = await _context.MenuTabs.FindAsync(model.MenuTabId);
                 if (entity == null)
                 {
                     return false;
@@ -117,7 +117,7 @@ namespace GCTL.Service.MenuTabs
                 entity.Icon = model.Icon;
                 entity.IsActive = model.IsActive;
 
-                _context.MenuTab.Update(entity);
+                _context.MenuTabs.Update(entity);
                 await _context.SaveChangesAsync();
 
                 await _context.Database.CommitTransactionAsync();
@@ -138,7 +138,7 @@ namespace GCTL.Service.MenuTabs
         {
             try
             {
-                var data = await _context.MenuTab.FindAsync(id);
+                var data = await _context.MenuTabs.FindAsync(id);
                 if (data == null) return null;
 
                 return new MenuTabVM
@@ -165,7 +165,7 @@ namespace GCTL.Service.MenuTabs
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _context.MenuTab.FirstOrDefaultAsync(b => b.ControllerName == name);
+            var existingName = await _context.MenuTabs.FirstOrDefaultAsync(b => b.ControllerName == name);
             return existingName == null;
         }
         #endregion

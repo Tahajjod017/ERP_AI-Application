@@ -41,7 +41,7 @@ namespace GCTL_App.Controllers
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Load all modules (no tenant filtering)
-            var modules = await _Db.MenuTab.ToListAsync();
+            var modules = await _Db.MenuTabs.ToListAsync();
 
             var primaryModules = modules
                 .Where(m => m.Type == "Primary")
@@ -129,7 +129,7 @@ namespace GCTL_App.Controllers
                 return modulePermission.IsGranted;
             }
             // If no direct permission found, attempt to inherit from the parent module
-            var parentModuleId = _Db.MenuTab
+            var parentModuleId = _Db.MenuTabs
                 .Where(m => m.MenuTabId == moduleId)
                 .Select(m => m.ParentId)
                 .FirstOrDefault();
@@ -187,7 +187,7 @@ namespace GCTL_App.Controllers
                  .ToListAsync();
 
             // List to hold new permissions that are not yet added to the database
-            var newPermissions = new List<RoleModulePermissions>();
+            var newPermissions = new List<RoleModulePermission>();
 
             // Loop through the permissions to either update existing or add new
             foreach (var perm in model.Permissions)
@@ -212,7 +212,7 @@ namespace GCTL_App.Controllers
 
 
                     // Now create the new RoleModulePermission
-                    newPermissions.Add(new RoleModulePermissions
+                    newPermissions.Add(new RoleModulePermission
                     {
                         RoleId = model.RoleId,
                         MenuTabId = perm.MenuTabId,
@@ -263,7 +263,7 @@ namespace GCTL_App.Controllers
             }
 
             // Fetch allowed modules based on View permission
-            var modules = await _Db.MenuTab
+            var modules = await _Db.MenuTabs
                 .Where(m => _Db.RoleModulePermissions
                     .Any(rmp => rmp.RoleId == roleId && rmp.MenuTabId == m.MenuTabId && rmp.PermissionId == viewPermissionId && rmp.IsGranted))
                 .OrderBy(m => m.OrderBy)

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Employees
+public partial class Employee
 {
-    public int EmployeeID { get; set; }
+    public int EmployeeId { get; set; }
 
     public string EmployeeCode { get; set; }
 
@@ -25,17 +25,17 @@ public partial class Employees
 
     public string BirthPlace { get; set; }
 
-    public int? GenderID { get; set; }
+    public int? GenderId { get; set; }
 
-    public int? BloodGroupID { get; set; }
+    public int? BloodGroupId { get; set; }
 
-    public int? NationalityID { get; set; }
+    public int? NationalityId { get; set; }
 
-    public string NID { get; set; }
+    public string Nid { get; set; }
 
-    public int? ReligionID { get; set; }
+    public int? ReligionId { get; set; }
 
-    public int? MaritalStatusID { get; set; }
+    public int? MaritalStatusId { get; set; }
 
     public string CardNo { get; set; }
 
@@ -43,7 +43,7 @@ public partial class Employees
 
     public string Email { get; set; }
 
-    public string TIN { get; set; }
+    public string Tin { get; set; }
 
     public string EmployeeImageFileName { get; set; }
 
@@ -51,9 +51,9 @@ public partial class Employees
 
     public string OtherActivities { get; set; }
 
-    public string LIP { get; set; }
+    public string Lip { get; set; }
 
-    public string LMAC { get; set; }
+    public string Lmac { get; set; }
 
     public int? CreatedBy { get; set; }
 

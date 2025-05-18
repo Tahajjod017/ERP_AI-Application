@@ -18,8 +18,8 @@ namespace GCTL_App.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _Db;
-        private readonly IGenericRepository<ActionLogs> actionLogs;
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IGenericRepository<ActionLogs> actionLogs = null)
+        private readonly IGenericRepository<ActionLog> actionLogs;
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IGenericRepository<ActionLog> actionLogs = null)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -98,13 +98,13 @@ namespace GCTL_App.Controllers
                     //
 
                     //
-                    var actiondata = new ActionLogs
+                    var actiondata = new ActionLog
                     {
                         CreatedBy = user.EmployeeId,
                         UserEmail = model.Email,
                         ActionName = ActionName.LogIn,
-                        LIP = GetLocalIP(),
-                        LMAC = GetMacAddress(),
+                        Lip = GetLocalIP(),
+                        Lmac = GetMacAddress(),
                         CreatedAt = DateTime.Now
                     };
                     await actionLogs.AddAsync(actiondata);
@@ -224,13 +224,13 @@ namespace GCTL_App.Controllers
 
             var user = await _userManager.FindByEmailAsync(userEmail);
             // Log the logout action
-            var actiondata = new ActionLogs
+            var actiondata = new ActionLog
             {
                 CreatedBy = user.EmployeeId,
                 UserEmail = userEmail,
                 ActionName = ActionName.LogOut,
-                LIP = GetLocalIP(),
-                LMAC = GetMacAddress(),
+                Lip = GetLocalIP(),
+                Lmac = GetMacAddress(),
                 CreatedAt = DateTime.Now
             };
             await actionLogs.AddAsync(actiondata);
@@ -254,7 +254,7 @@ namespace GCTL_App.Controllers
 
             if (existingPermission == null)
             {
-                var roleModulePermission = new RoleModulePermissions
+                var roleModulePermission = new RoleModulePermission
                 {
                     RoleId = roleId,
                     MenuTabId = moduleId,

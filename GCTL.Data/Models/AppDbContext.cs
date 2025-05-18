@@ -14,69 +14,77 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public virtual DbSet<ActionLogs> ActionLogs { get; set; }
+    public virtual DbSet<ActionLog> ActionLogs { get; set; }
 
-    public virtual DbSet<ActionTaken> ActionTaken { get; set; }
+    public virtual DbSet<ActionTaken> ActionTakens { get; set; }
 
-    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
+    //public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
 
-    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+    //public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
 
-    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
+    //public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
 
-    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
+    //public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
 
-    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
+    //public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
 
-    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
+    //public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
+
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
-    public virtual DbSet<Employees> Employees { get; set; }
 
-    public virtual DbSet<MenuTab> MenuTab { get; set; }
+    public virtual DbSet<Employee> Employees { get; set; }
 
-    public virtual DbSet<Permissions> Permissions { get; set; }
+    public virtual DbSet<LanguageList> LanguageLists { get; set; }
 
-    public virtual DbSet<RoleModulePermissions> RoleModulePermissions { get; set; }
+    public virtual DbSet<LanguageMainTable> LanguageMainTables { get; set; }
+
+    public virtual DbSet<MenuTab> MenuTabs { get; set; }
+
+    public virtual DbSet<Permission> Permissions { get; set; }
+
+    public virtual DbSet<RoleModulePermission> RoleModulePermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<ActionLogs>(entity =>
+        modelBuilder.Entity<ActionLog>(entity =>
         {
-            entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2FCC3CB86");
+            entity.HasKey(e => e.ActionLogId).HasName("PK__ActionLo__428D61A2A11F96FF");
 
+            entity.Property(e => e.ActionLogId).HasColumnName("ActionLogID");
             entity.Property(e => e.ActionName).HasMaxLength(150);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Lip)
+                .HasMaxLength(20)
+                .HasColumnName("LIP");
+            entity.Property(e => e.Lmac)
+                .HasMaxLength(30)
+                .HasColumnName("LMAC");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserEmail).HasMaxLength(150);
         });
 
         modelBuilder.Entity<ActionTaken>(entity =>
         {
-            entity.HasKey(e => e.ActionTakenID).HasName("PK__ActionTa__DC44289DAC8597F7");
+            entity.HasKey(e => e.ActionTakenId).HasName("PK__ActionTa__DC44289D6296AC07");
 
+            entity.ToTable("ActionTaken");
+
+            entity.Property(e => e.ActionTakenId).HasColumnName("ActionTakenID");
             entity.Property(e => e.ActionTakenName).HasMaxLength(50);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Lip)
+                .HasMaxLength(20)
+                .HasColumnName("LIP");
+            entity.Property(e => e.Lmac)
+                .HasMaxLength(30)
+                .HasColumnName("LMAC");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
-        //modelBuilder.Entity<AspNetRoleClaims>(entity =>
-        //{
-        //    entity.Property(e => e.RoleId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
-        //});
-
-        //modelBuilder.Entity<AspNetRoles>(entity =>
+        //modelBuilder.Entity<AspNetRole>(entity =>
         //{
         //    entity.Property(e => e.Discriminator)
         //        .IsRequired()
@@ -85,7 +93,43 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
         //});
 
-        //modelBuilder.Entity<AspNetUserClaims>(entity =>
+        //modelBuilder.Entity<AspNetRoleClaim>(entity =>
+        //{
+        //    entity.Property(e => e.RoleId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
+        //});
+
+        //modelBuilder.Entity<AspNetUser>(entity =>
+        //{
+        //    entity.Property(e => e.Discriminator)
+        //        .IsRequired()
+        //        .HasMaxLength(21);
+        //    entity.Property(e => e.Email).HasMaxLength(256);
+        //    entity.Property(e => e.Nidnumber).HasColumnName("NIDNumber");
+        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+        //    entity.Property(e => e.UserName).HasMaxLength(256);
+
+        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.EmployeeId)
+        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+        //    entity.HasMany(d => d.Roles).WithMany(p => p.Users)
+        //        .UsingEntity<Dictionary<string, object>>(
+        //            "AspNetUserRole",
+        //            r => r.HasOne<AspNetRole>().WithMany().HasForeignKey("RoleId"),
+        //            l => l.HasOne<AspNetUser>().WithMany().HasForeignKey("UserId"),
+        //            j =>
+        //            {
+        //                j.HasKey("UserId", "RoleId");
+        //                j.ToTable("AspNetUserRoles");
+        //            });
+        //});
+
+        //modelBuilder.Entity<AspNetUserClaim>(entity =>
         //{
         //    entity.Property(e => e.UserId)
         //        .IsRequired()
@@ -94,7 +138,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
         //});
 
-        //modelBuilder.Entity<AspNetUserLogins>(entity =>
+        //modelBuilder.Entity<AspNetUserLogin>(entity =>
         //{
         //    entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
 
@@ -105,49 +149,27 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
         //});
 
-        //modelBuilder.Entity<AspNetUserTokens>(entity =>
+        //modelBuilder.Entity<AspNetUserToken>(entity =>
         //{
         //    entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
 
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
         //});
 
-        //modelBuilder.Entity<AspNetUsers>(entity =>
-        //{
-        //    entity.Property(e => e.Discriminator)
-        //        .IsRequired()
-        //        .HasMaxLength(21);
-        //    entity.Property(e => e.Email).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
-        //    entity.Property(e => e.UserName).HasMaxLength(256);
-
-        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.EmployeeId)
-        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        //    entity.HasMany(d => d.Role).WithMany(p => p.User)
-        //        .UsingEntity<Dictionary<string, object>>(
-        //            "AspNetUserRoles",
-        //            r => r.HasOne<AspNetRoles>().WithMany().HasForeignKey("RoleId"),
-        //            l => l.HasOne<AspNetUsers>().WithMany().HasForeignKey("UserId"),
-        //            j =>
-        //            {
-        //                j.HasKey("UserId", "RoleId");
-        //            });
-        //});
         modelBuilder.Entity<ApplicationUser>()
             .HasOne(u => u.Employee)
             .WithMany(e => e.AspNetUsers)
             .HasForeignKey(u => u.EmployeeId)
             .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
-        modelBuilder.Entity<Employees>(entity =>
+        modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.EmployeeID).HasName("PK__Employee__7AD04FF1A1DFAC88");
+            entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04FF1C958FE8F");
 
+            entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
             entity.Property(e => e.BirthCertificateNo).HasMaxLength(40);
             entity.Property(e => e.BirthPlace).HasMaxLength(100);
+            entity.Property(e => e.BloodGroupId).HasColumnName("BloodGroupID");
             entity.Property(e => e.CardNo).HasMaxLength(50);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
@@ -159,24 +181,53 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.EmployeeSignatureFileName).HasMaxLength(50);
             entity.Property(e => e.FatherName).HasMaxLength(70);
             entity.Property(e => e.FirstName).HasMaxLength(50);
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.GenderId).HasColumnName("GenderID");
             entity.Property(e => e.LastName).HasMaxLength(50);
+            entity.Property(e => e.Lip)
+                .HasMaxLength(20)
+                .HasColumnName("LIP");
+            entity.Property(e => e.Lmac)
+                .HasMaxLength(30)
+                .HasColumnName("LMAC");
+            entity.Property(e => e.MaritalStatusId).HasColumnName("MaritalStatusID");
             entity.Property(e => e.MobileNumber)
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.MotherName).HasMaxLength(70);
-            entity.Property(e => e.NID)
+            entity.Property(e => e.NationalityId).HasColumnName("NationalityID");
+            entity.Property(e => e.Nid)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .HasColumnName("NID");
             entity.Property(e => e.OtherActivities).HasMaxLength(255);
-            entity.Property(e => e.TIN).HasMaxLength(50);
+            entity.Property(e => e.ReligionId).HasColumnName("ReligionID");
+            entity.Property(e => e.Tin)
+                .HasMaxLength(50)
+                .HasColumnName("TIN");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<LanguageList>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Language__3214EC27120A36B7");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.LanguageCode).IsRequired();
+            entity.Property(e => e.LanguageName).IsRequired();
+        });
+
+        modelBuilder.Entity<LanguageMainTable>(entity =>
+        {
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.EnglishText).IsRequired();
+            entity.Property(e => e.TextCode).IsRequired();
         });
 
         modelBuilder.Entity<MenuTab>(entity =>
         {
-            entity.HasKey(e => e.MenuTabId).HasName("PK__MenuTab__72B9B8C691EB701B");
+            entity.HasKey(e => e.MenuTabId).HasName("PK__MenuTab__72B9B8C60A8F4C38");
+
+            entity.ToTable("MenuTab");
 
             entity.Property(e => e.ControllerName).HasMaxLength(100);
             entity.Property(e => e.Icon).HasMaxLength(500);
@@ -193,7 +244,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent).HasForeignKey(d => d.ParentId);
         });
 
-        modelBuilder.Entity<RoleModulePermissions>(entity =>
+        modelBuilder.Entity<RoleModulePermission>(entity =>
         {
             entity.Property(e => e.RoleId).HasMaxLength(450);
 

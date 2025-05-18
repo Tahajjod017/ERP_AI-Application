@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class RoleModulePermissions
+public partial class RoleModulePermission
 {
     public int Id { get; set; }
 
@@ -19,7 +19,7 @@ public partial class RoleModulePermissions
 
     public virtual MenuTab MenuTab { get; set; }
 
-    public virtual Permissions Permission { get; set; }
+    public virtual Permission Permission { get; set; }
 
     public virtual ApplicationRole Role { get; set; }
 }
