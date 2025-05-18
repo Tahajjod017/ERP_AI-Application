@@ -9,24 +9,28 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using GCTL.Service.Language;
 
 namespace GCTL_App.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _Db;
         private readonly IGenericRepository<ActionLog> actionLogs;
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IGenericRepository<ActionLog> actionLogs = null)
+
+
+        public AccountController(ITranslateService translateService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IGenericRepository<ActionLog> actionLogs) : base(translateService)
         {
+            _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
-            _Db = db; // Add ApplicationDbContext to the constructor
+            _Db = db;
             this.actionLogs = actionLogs;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -288,44 +292,6 @@ namespace GCTL_App.Controllers
             }
         }
 
-        //Added LIP LMacAddress
-        public string GetLocalIP()
-        {
-            string ipAddress = string.Empty;
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                var properties = networkInterface.GetIPProperties();
-                var ipv4Address = properties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-                if (ipv4Address != null)
-                {
-                    ipAddress = ipv4Address.Address.ToString();
-                    break;
-                }
-            }
-
-            return ipAddress;
-        }
-
-
-        public string GetMacAddress()
-        {
-            string macAddress = string.Empty;
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-           .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-            foreach (var networkInterface in networkInterfaces)
-            {
-                macAddress = networkInterface.GetPhysicalAddress().ToString();
-                if (!string.IsNullOrEmpty(macAddress))
-                {
-                    break;
-                }
-            }
-
-            return macAddress;
-        }
+       
     }
 }
