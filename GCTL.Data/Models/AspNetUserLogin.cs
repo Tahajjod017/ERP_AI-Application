@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AspNetUserLogins
+public partial class AspNetUserLogin
 {
     public string LoginProvider { get; set; }
 
@@ -15,5 +15,5 @@ public partial class AspNetUserLogins
 
     public string UserId { get; set; }
 
-    public virtual AspNetUsers User { get; set; }
+    public virtual AspNetUser User { get; set; }
 }

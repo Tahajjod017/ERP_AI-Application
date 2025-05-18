@@ -13,7 +13,21 @@ builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddMemoryCache();
 #endregion
+
 builder.Services.AddControllersWithViews();
+
+#region Language
+
+builder.Services.AddHttpContextAccessor();
+
+#endregion
+
+
+// Register SignalR
+builder.Services.AddSignalR();
+
+
+
 
 #region Manual
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
@@ -62,6 +76,31 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+
+#region lang
+
+app.Use(async (context, next) =>
+{
+    var language = context.Request.Cookies["Language"] ?? "en"; // Default to English
+    context.Items["Language"] = language;
+
+    if (context.Request.Cookies["Language"] == null)
+    {
+        context.Response.Cookies.Append("Language", "en", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = !app.Environment.IsDevelopment(), // Secure in production
+            SameSite = SameSiteMode.Lax
+        });
+    }
+
+    await next();
+});
+
+#endregion
+
+
 
 app.UseRouting();
 

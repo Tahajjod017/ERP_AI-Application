@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class ActionLogs
+public partial class ActionLog
 {
-    public int ActionLogID { get; set; }
+    public int ActionLogId { get; set; }
 
     public string UserEmail { get; set; }
 
@@ -17,9 +17,9 @@ public partial class ActionLogs
 
     public string ActionAfter { get; set; }
 
-    public string LIP { get; set; }
+    public string Lip { get; set; }
 
-    public string LMAC { get; set; }
+    public string Lmac { get; set; }
 
     public int? CreatedBy { get; set; }
 

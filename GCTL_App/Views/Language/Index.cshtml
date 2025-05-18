@@ -1,0 +1,515 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Language Index</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="languageCode">Target Language:</label>
+            <select class="form-control" id="languageCode11" name="languageCode" required>
+                <option value="">-- Select a Language --</option>
+                @foreach (var item in ViewBag.AvLangInd)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-6 text-end">
+        <a href="/language/TranslateToMultipleInd" class="btn btn-primary">
+            Add Language
+        </a>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search translations...">
+
+        <div id="loadingIndicator" class="text-center mb-3" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th width="5%">Sl</th>
+                        <th width="25%">English Text</th>
+                        <th width="25%">Translated Text</th>
+                        <th width="25%">Language Code</th>
+
+                        <th width="15%">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="langTable">
+                    <tr>
+                        <td colspan="4" class="text-center">Please select a language to load translations</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="paginationContainer" class="d-flex justify-content-center mt-3">
+            <nav aria-label="Translation pagination">
+                <ul id="pagination" class="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Add Edit Translation Modal -->
+<div class="modal fade" id="editTranslationModal" tabindex="-1" role="dialog" aria-labelledby="editTranslationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTranslationModalLabel">Edit Translation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editTranslationForm">
+                    <input type="hidden" id="editTranslationId" name="id">
+                    <input type="hidden" id="editLanguageId" name="langId">
+                    <input type="hidden" id="editLanguageCode" name="langCode">
+
+                    <div class="form-group">
+                        <label for="editEnglishText">English Text</label>
+                        <textarea class="form-control" id="editEnglishText" name="engText" rows="3" readonly></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTranslatedText">Translated Text</label>
+                        <textarea class="form-control" id="editTranslatedText" name="translatedText" rows="3" required></textarea>
+                    </div>
+
+                    <div id="editModalError" class="alert alert-danger mt-3" style="display: none;">
+                        An error occurred. Please try again.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveTranslationBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Use try-catch for the entire document ready function
+        try {
+            $(document).ready(function() {
+                // Add unhandled error handler
+                window.addEventListener('error', function(event) {
+                    console.error('Global error caught:', event.error);
+                    return false;
+                });
+            // Variables to store state
+            let allTranslations = [];
+            let filteredTranslations = [];
+            let currentPage = 1;
+            const rowsPerPage = 10;
+            let selectedLanguage = "";
+
+            // Language dropdown change event
+            $("#languageCode11").on("change", function(e) {
+                e.preventDefault(); // Prevent any default action
+                selectedLanguage = $(this).val();
+
+                if (!selectedLanguage) {
+                    resetTable();
+                    return;
+                }
+
+                try {
+                    loadTranslations(selectedLanguage);
+                } catch (err) {
+                    console.error("Error in language change handler:", err);
+                    $("#langTable").html('<tr><td colspan="4" class="text-center text-danger">An error occurred. Please try again.</td></tr>');
+                }
+            });
+
+            // Search functionality with debounce and error handling
+            let searchTimeout = null;
+            $("#searchInput").on("keyup", function(e) {
+                try {
+                    clearTimeout(searchTimeout);
+
+                    searchTimeout = setTimeout(function() {
+                        try {
+                            filterTranslations();
+                        } catch (err) {
+                            console.error("Error in search filter:", err);
+                        }
+                    }, 300);
+                } catch (err) {
+                    console.error("Error in search input handler:", err);
+                }
+            });
+
+            // Event delegation for edit buttons with proper modal handling
+            $(document).on("click", ".edit-btn", function(e) {
+                e.preventDefault(); // Prevent any default behavior
+                e.stopPropagation(); // Stop event bubbling
+
+                try {
+                    const id = $(this).data("id");
+                    const langId = $(this).data("langid");
+                    const langCode = $(this).data("langcode");
+                    const englishText = $(this).data("english");
+                    const translatedText = $(this).data("translated");
+
+                    // Reset any previous error messages
+                    $("#editModalError").hide();
+
+                    // Populate the form fields
+                    $("#editTranslationId").val(id);
+                    $("#editLanguageId").val(langId);
+                    $("#editLanguageCode").val(langCode);
+                    $("#editEnglishText").val(englishText);
+                    $("#editTranslatedText").val(translatedText);
+
+                    // Show the modal
+                    $("#editTranslationModal").modal("show");
+                } catch (err) {
+                    console.error("Error handling edit button click:", err);
+                }
+
+                return false; // Ensure no further handling
+            });
+
+            // Handle save button click in the modal
+            $("#saveTranslationBtn").on("click", function(e) {
+                e.preventDefault();
+
+                try {
+                    // Get form data
+                    const id = $("#editTranslationId").val();
+                    const langId = $("#editLanguageId").val();
+                    const langCode = $("#editLanguageCode").val();
+                    const engText = $("#editEnglishText").val();
+                    const translatedText = $("#editTranslatedText").val();
+
+                    // Validate required fields
+                    if (!translatedText) {
+                        $("#editModalError").text("Translated text is required.").show();
+                        return;
+                    }
+
+                    // Show loading state
+                    const saveBtn = $(this);
+                    const originalText = saveBtn.text();
+                    saveBtn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+
+                    // Perform AJAX request to update translation
+                    $.ajax({
+                        url: "/Language/UpdateTranslationData",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            langId: langId,
+                            langCode: langCode,
+                            engText: engText,
+                            translatedText: translatedText
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.success) {
+                                // Close modal
+                                $("#editTranslationModal").modal("hide");
+
+                                // Update local data and refresh the table
+                                updateLocalTranslation(id, translatedText);
+                                displayCurrentPage();
+
+                                // Show success message (you could use a toast notification here)
+                                alert("Translation updated successfully.");
+                            } else {
+                                // Show error message
+                                $("#editModalError").text(response.message || "Failed to update translation.").show();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error updating translation:", status, error);
+                            $("#editModalError").text("An error occurred while saving. Please try again.").show();
+                        },
+                        complete: function() {
+                            // Reset button state
+                            saveBtn.prop("disabled", false).text(originalText);
+                        }
+                    });
+                } catch (err) {
+                    console.error("Error in save translation handler:", err);
+                    $("#editModalError").text("An unexpected error occurred.").show();
+                }
+            });
+
+            // Load translations via AJAX with timeout and better error handling
+            function loadTranslations(langCode) {
+                // Show loading indicator
+                $("#loadingIndicator").show();
+                $("#langTable").html('<tr><td colspan="4" class="text-center">Loading translations...</td></tr>');
+
+                // Cancel any previous AJAX requests
+                if (window.currentAjaxRequest) {
+                    window.currentAjaxRequest.abort();
+                }
+
+                window.currentAjaxRequest = $.ajax({
+                    url: "/Language/GetTranslationsTable11",
+                    type: "GET",
+                    data: { languageCode: langCode },
+                    dataType: "json",
+                    cache: false,
+                    timeout: 30000, // 30 second timeout
+                    success: function(data) {
+                        // Store the data
+                        try {
+                            allTranslations = Array.isArray(data) ? data : [];
+
+                            // Reset search and filter
+                            $("#searchInput").val("");
+                            filterTranslations();
+
+                            console.log(`Loaded ${allTranslations.length} translations for ${langCode}`);
+                        } catch (err) {
+                            console.error("Error processing translation data:", err);
+                            $("#langTable").html(
+                                '<tr><td colspan="4" class="text-center text-danger">' +
+                                'Error processing data. Please try again.' +
+                                '</td></tr>'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Don't show error for aborted requests
+                        if (status === "abort") {
+                            return;
+                        }
+
+                        console.error("Error loading translations:", status, error);
+                        let errorMessage = 'Failed to load translations.';
+
+                        if (status === "timeout") {
+                            errorMessage = 'Request timed out. Please try again.';
+                        } else if (status === "parsererror") {
+                            errorMessage = 'Invalid response from server. Please try again.';
+                        }
+
+                        $("#langTable").html(
+                            '<tr><td colspan="4" class="text-center text-danger">' +
+                            errorMessage +
+                            '</td></tr>'
+                        );
+                        $("#paginationContainer").hide();
+                    },
+                    complete: function() {
+                        // Hide loading indicator
+                        $("#loadingIndicator").hide();
+                        window.currentAjaxRequest = null;
+                    }
+                });
+
+                return window.currentAjaxRequest;
+            }
+
+            // Function to update local translation data after saving
+            function updateLocalTranslation(id, newTranslatedText) {
+                // Update in allTranslations array
+                for (let i = 0; i < allTranslations.length; i++) {
+                    if (allTranslations[i].id == id) {
+                        allTranslations[i].translatedText = newTranslatedText;
+                        break;
+                    }
+                }
+
+                // Update in filteredTranslations array
+                for (let i = 0; i < filteredTranslations.length; i++) {
+                    if (filteredTranslations[i].id == id) {
+                        filteredTranslations[i].translatedText = newTranslatedText;
+                        break;
+                    }
+                }
+            }
+
+
+        
+
+
+            function filterTranslations() {
+                const searchText = $("#searchInput").val().toLowerCase().trim();
+
+                if (!searchText) {
+                    filteredTranslations = [...allTranslations];
+                } else {
+                    filteredTranslations = allTranslations.filter(item =>
+                        item.engText && item.engText.toLowerCase().includes(searchText)
+                    );
+                }
+
+                currentPage = 1; // Reset to first page when filtering
+                displayCurrentPage();
+                setupPagination();
+            }
+
+
+            // Display current page data
+            function displayCurrentPage() {
+                const startIndex = (currentPage - 1) * rowsPerPage;
+                const endIndex = Math.min(startIndex + rowsPerPage, filteredTranslations.length);
+                const pageItems = filteredTranslations.slice(startIndex, endIndex);
+
+                const tableBody = $("#langTable");
+                tableBody.empty();
+
+                if (pageItems.length === 0) {
+                    tableBody.html('<tr><td colspan="4" class="text-center">No translations found</td></tr>');
+                    return;
+                }
+
+                console.log(pageItems);
+
+                pageItems.forEach((item, index) => {
+                    const rowNum = startIndex + index + 1;
+                    const englishText = item.engText || '';
+                    const translatedText = item.translatedText || '';
+                    const langCode = item.langCode || '';
+                    const langId = item.langId || '';
+
+                    const row = `
+                        <tr>
+                            <td>${rowNum}</td>
+                            <td>${escapeHtml(englishText)}</td>
+                            <td>${escapeHtml(translatedText)}</td>
+                            <td>${escapeHtml(langCode)}</td>
+
+                            <td>
+                                <button class="btn btn-primary btn-sm edit-btn"
+                                    data-id="${item.id}"
+                                    data-langid="${langId}"
+                                    data-langcode="${langCode}"
+                                    data-english="${escapeHtml(englishText)}"
+                                    data-translated="${escapeHtml(translatedText)}">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+
+                    tableBody.append(row);
+                });
+            }
+
+            // Setup pagination controls
+            function setupPagination() {
+                const totalPages = Math.ceil(filteredTranslations.length / rowsPerPage);
+                const paginationElement = $("#pagination");
+                paginationElement.empty();
+
+                if (totalPages <= 1) {
+                    $("#paginationContainer").hide();
+                    return;
+                }
+
+                $("#paginationContainer").show();
+
+                // Previous button
+                paginationElement.append(`
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                `);
+
+                // Page numbers
+                // Show at most 5 page numbers
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, startPage + 4);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationElement.append(`
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>
+                    `);
+                }
+
+                // Next button
+                paginationElement.append(`
+                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                `);
+
+                // Attach click event to pagination links with proper error handling
+                $(".page-link").on("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    try {
+                        const pageNum = parseInt($(this).data("page"), 10);
+
+                        if (isNaN(pageNum)) {
+                            console.error("Invalid page number");
+                            return false;
+                        }
+
+                        if (pageNum >= 1 && pageNum <= totalPages && pageNum !== currentPage) {
+                            currentPage = pageNum;
+                            displayCurrentPage();
+                            setupPagination();
+
+                            // Use a simpler scroll method to avoid potential issues
+                            window.scrollTo({
+                                top: $("#langTable").offset().top - 100,
+                                behavior: 'smooth'
+                            });
+                        }
+                    } catch (err) {
+                        console.error("Error in pagination click handler:", err);
+                    }
+
+                    return false;
+                });
+            }
+
+            // Reset table to initial state
+            function resetTable() {
+                allTranslations = [];
+                filteredTranslations = [];
+                $("#langTable").html('<tr><td colspan="4" class="text-center">Please select a language to load translations</td></tr>');
+                $("#paginationContainer").hide();
+                $("#searchInput").val("");
+            }
+
+            // Helper function to escape HTML
+            function escapeHtml(text) {
+                if (!text) return '';
+                return text
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+            });
+        } catch (err) {
+            console.error("Fatal error in document ready:", err);
+        }
+    </script>
+}

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AspNetUsers
+public partial class AspNetUser
 {
     public string Id { get; set; }
 
@@ -17,7 +17,7 @@ public partial class AspNetUsers
 
     public int? EmployeeId { get; set; }
 
-    public string NIDNumber { get; set; }
+    public string Nidnumber { get; set; }
 
     public string PresentAddress { get; set; }
 
@@ -59,13 +59,13 @@ public partial class AspNetUsers
 
     public int AccessFailedCount { get; set; }
 
-    public virtual ICollection<AspNetUserClaims> AspNetUserClaims { get; set; } = new List<AspNetUserClaims>();
+    public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; } = new List<AspNetUserClaim>();
 
-    public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; } = new List<AspNetUserLogins>();
+    public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; } = new List<AspNetUserLogin>();
 
-    public virtual ICollection<AspNetUserTokens> AspNetUserTokens { get; set; } = new List<AspNetUserTokens>();
+    public virtual ICollection<AspNetUserToken> AspNetUserTokens { get; set; } = new List<AspNetUserToken>();
 
-    public virtual Employees Employee { get; set; }
+    public virtual Employee Employee { get; set; }
 
-    public virtual ICollection<AspNetRoles> Role { get; set; } = new List<AspNetRoles>();
+    public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 }

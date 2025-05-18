@@ -41,8 +41,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entityToRestore.ActionTakenName = model.ActionTakenName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.LIP = GetLocalIP();
-                    entityToRestore.LMAC = GetMacAddress();
+                    entityToRestore.Lip = GetLocalIP();
+                    entityToRestore.Lmac = GetMacAddress();
 
                     entityToRestore.DeletedAt = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
@@ -55,8 +55,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entity.ActionTakenName = model.ActionTakenName;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
-                    entity.LIP = GetLocalIP();
-                    entity.LMAC = GetMacAddress();
+                    entity.Lip = GetLocalIP();
+                    entity.Lmac = GetMacAddress();
 
                     await _genericRepository.AddAsync(entity);
                 }
@@ -90,8 +90,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 entity.ActionTakenName = model.ActionTakenName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
-                entity.LIP = GetLocalIP();
-                entity.LMAC = GetMacAddress();
+                entity.Lip = GetLocalIP();
+                entity.Lmac = GetMacAddress();
 
                 await _genericRepository.UpdateAsync(entity);
                 await _genericRepository.CommitTransactionAsync();
@@ -117,7 +117,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
 
                 return new ActionTakenVM
                 {
-                    ActionTakenID = data.ActionTakenID,
+                    ActionTakenID = data.ActionTakenId,
                     ActionTakenName = data.ActionTakenName,
                 };
             }
@@ -176,7 +176,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.ActionTakenID));
+                var data = await _genericRepository.FindAsync(x => ids.Contains(x.ActionTakenId));
                 if (data == null || data.Count == 0)
                 {
                     return new ActionTakenVM
@@ -218,9 +218,9 @@ namespace GCTL.Service.MasterSetup.ActionTakens
             {
                 query = sortColumn switch
                 {
-                    "ActionTakenID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ActionTakenID) : query.OrderBy(x => x.ActionTakenID),
+                    "ActionTakenID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ActionTakenId) : query.OrderBy(x => x.ActionTakenId),
                     "ActionTakenName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ActionTakenName) : query.OrderBy(x => x.ActionTakenName),
-                    _ => query.OrderBy(x => x.ActionTakenID)
+                    _ => query.OrderBy(x => x.ActionTakenId)
                 };
             }
 
@@ -228,7 +228,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 term => x => EF.Functions.Like(x.ActionTakenName, $"%{term}%"),
                 x => new ActionTakenVM
                 {
-                    ActionTakenID = x.ActionTakenID,
+                    ActionTakenID = x.ActionTakenId,
                     ActionTakenName = x.ActionTakenName ?? "-",
                 });
 

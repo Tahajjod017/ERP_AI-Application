@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AspNetUserTokens
+public partial class AspNetUserToken
 {
     public string UserId { get; set; }
 
@@ -15,5 +15,5 @@ public partial class AspNetUserTokens
 
     public string Value { get; set; }
 
-    public virtual AspNetUsers User { get; set; }
+    public virtual AspNetUser User { get; set; }
 }

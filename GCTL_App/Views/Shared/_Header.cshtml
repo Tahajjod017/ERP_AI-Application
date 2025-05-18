@@ -1,4 +1,22 @@
-﻿<nav class="navbar navbar-top fixed-top navbar-expand" id="navbarDefault">
+﻿@inject GCTL.Service.Language.ILanguageTableService TranslationService
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+@{
+    // Access HttpContext via HttpContextAccessor
+    var languageCode = HttpContextAccessor.HttpContext?.Items["Language"] as string ?? "en";
+}
+
+@{
+
+
+
+    var LangugesInd = await TranslationService.GetLangInd();
+}
+
+
+
+<nav class="navbar navbar-top fixed-top navbar-expand" id="navbarDefault">
     <div class="collapse navbar-collapse justify-content-between">
         <div class="navbar-logo">
 
@@ -151,6 +169,24 @@
                 </div>
             </div>
         </div>
+
+
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item me-2">
+                <select id="languageCode" name="languageCode" class="form-control form-control-sm" onchange="window.location.href='/Language/ChangeLanguage?languageCode=' + this.value;">
+                    <option value="">🌐</option>
+                    @foreach (var language in LangugesInd)
+                    {
+                        <option value="@language">@language</option>
+                    }
+                </select>
+            </li>
+
+
+        </ul>
+
+
+
         <ul class="navbar-nav navbar-nav-icons flex-row">
             <li class="nav-item">
                 <div class="theme-control-toggle fa-icon-wait px-2">
@@ -444,3 +480,9 @@
         </ul>
     </div>
 </nav>
+
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/language/language.js"></script>
+
