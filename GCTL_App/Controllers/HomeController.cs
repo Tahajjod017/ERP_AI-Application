@@ -20,8 +20,9 @@ namespace GCTL_App.Controllers
         public IActionResult Index()
         {
             var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int pageCode = 612000; 
+            int pageCode = 612000;
 
+            var ip = GetLocalIP();
            
             ViewBag.welcome = _translateService.GetTranslationInd("Welcome to GCTL Dashboard", (pageCode++).ToString(), languageCode);
            // ViewBag.welcomeNote = _translateService.GetTranslationInd("Your data, your insights, your control. Let’s build something amazing today", (pageCode++).ToString(), languageCode);
