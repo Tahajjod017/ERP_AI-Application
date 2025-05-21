@@ -12,6 +12,10 @@ using System.Threading.Tasks;
 using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using static Dapper.SqlMapper;
 using GCTL.Service.Pagination;
+using GCTL.Core.ViewModels;
+using GCTL.Service.ActionLogAudit;
+using GCTL.Core.Helpers;
+using Newtonsoft.Json;
 
 namespace GCTL.Service.MasterSetup.ActionTakens
 {
@@ -19,10 +23,11 @@ namespace GCTL.Service.MasterSetup.ActionTakens
     {
         #region Repositories
         private readonly IGenericRepository<ActionTaken> _genericRepository;
-
-        public ActionTakenService(IGenericRepository<ActionTaken> genericRepository) : base(genericRepository)
+        private readonly IUserInfoService userInfoService;
+        public ActionTakenService(IGenericRepository<ActionTaken> genericRepository, IUserInfoService userInfoService) : base(genericRepository)
         {
             _genericRepository = genericRepository;
+            this.userInfoService = userInfoService;
         }
         #endregion
 
@@ -36,29 +41,34 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 var existingEntity = await _genericRepository.FindAsync(b => b.ActionTakenName == model.ActionTakenName && b.DeletedAt != null);
                 if (existingEntity.Any())
                 {
-                    var entityToRestore = existingEntity.FirstOrDefault();
 
+                    var entityToRestore = existingEntity.FirstOrDefault();
+                    if (entityToRestore == null) return false;
+                   
                     entityToRestore.ActionTakenName = model.ActionTakenName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.Lip = GetLocalIP();
-                    entityToRestore.Lmac = GetMacAddress();
+                    entityToRestore.Lip =model.LIP;
+                    entityToRestore.Lmac = model.LMAC;
+                    entityToRestore.UpdatedBy = model.UpdatedBy ?? null;
 
                     entityToRestore.DeletedAt = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
+                    var afterEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entityToRestore));
+                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entityToRestore, entityToRestore.ActionTakenId, model);
                 }
                 else
                 {
                     ActionTaken entity = new ActionTaken();
                     entity.ActionTakenName = model.ActionTakenName;
                     entity.CreatedAt = DateTime.Now;
-                    entity.CreatedBy = model.CreatedBy;
-                    entity.Lip = GetLocalIP();
-                    entity.Lmac = GetMacAddress();
-
+                    entity.Lip = model.LIP;
+                    entity.Lmac = model.LMAC;
+                    entity.CreatedBy = model.CreatedBy ?? null;
                     await _genericRepository.AddAsync(entity);
+                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entity, entity.ActionTakenId, model);
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -86,14 +96,16 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 {
                     return false;
                 }
-
+                var beforeEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entity));
                 entity.ActionTakenName = model.ActionTakenName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
-                entity.Lip = GetLocalIP();
-                entity.Lmac = GetMacAddress();
-
+                entity.Lip = model.LIP;
+                entity.Lmac =model.LMAC;
+                entity.UpdatedBy=model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
+                var afterEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entity));
+                await userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ActionTakenId, model);
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;
@@ -130,35 +142,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #endregion
 
 
-        #region IP & Mac Address
-        public string GetLocalIP()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            return string.Empty;
-        }
-
-        public string GetMacAddress()
-        {
-            var nics = NetworkInterface.GetAllNetworkInterfaces();
-            var macAddress = string.Empty;
-            foreach (var adapter in nics)
-            {
-                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                {
-                    macAddress = adapter.GetPhysicalAddress().ToString();
-                    break;
-                }
-            }
-            return macAddress;
-        }
-        #endregion
+   
 
 
         #region IsNameUniqueAsync
@@ -170,8 +154,49 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #endregion
 
 
-        #region Soft Delete
-        public async Task<ActionTakenVM> SoftDeleteAsync(List<int> ids)
+        #region Soft Delete  SoftDeleteAsync22(DeleteRequestVM requestVM);
+
+
+        public async Task<ActionTakenVM> SoftDeleteAsync22(DeleteRequestVM requestVM)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.ActionTakenId));
+                if (data == null || data.Count == 0)
+                {
+                    return new ActionTakenVM
+                    {
+                        Message = "No data found to delete."
+                    };
+                }
+
+                foreach (var item in data)
+                {
+                    //item.IsDeleted = true; 
+                    item.DeletedAt = DateTime.Now;
+                    item.Lip = requestVM.LIP;
+                    item.Lmac = requestVM.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy ?? null;
+                }
+
+                await _genericRepository.UpdateRangeAsync(data);
+
+                await _genericRepository.CommitTransactionAsync();
+
+                return new ActionTakenVM
+                {
+                    Message = $"{data.Count} data(s) deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                throw new Exception("Error occurred during the deletion of data.", ex);
+            }
+        }
+
+        public async Task<ActionTakenVM> SoftDeleteAsync(List<int> ids, BaseViewModel baseViewModel)
         {
             await _genericRepository.BeginTransactionAsync();
             try
@@ -189,6 +214,9 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 {
                     //item.IsDeleted = true; 
                     item.DeletedAt = DateTime.Now;
+                    item.Lip = baseViewModel.LIP;
+                    item.Lmac = baseViewModel.LMAC;
+                    item.DeletedBy = baseViewModel.DeletedBy ?? null;
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);

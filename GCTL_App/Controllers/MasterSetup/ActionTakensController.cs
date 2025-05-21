@@ -1,4 +1,7 @@
-﻿using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.MasterSetup.ActionTakens;
 using GCTL_App.ViewModels.MasterSetup.ActionTakens;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +12,11 @@ namespace GCTL_App.Controllers.MasterSetup
     {
         #region Services & Repositories
         private readonly IActionTakenService _actionTakenService;
-
-        public ActionTakensController(IActionTakenService actionTakenService)
+        private readonly IUserInfoService userInfoService;
+        public ActionTakensController(IActionTakenService actionTakenService, IUserInfoService userInfoService )
         {
             _actionTakenService = actionTakenService;
+            this.userInfoService = userInfoService;
         }
         #endregion
 
@@ -35,6 +39,7 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
+                   // userInfoService.SetUserInfo(model, User, HttpContext);
                     var uniqueName = await _actionTakenService.IsNameUniqueAsync(model.ActionTakenName);
                     if (!uniqueName)
                     {
@@ -63,6 +68,7 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
+                   // userInfoService.SetUserInfo(model, User, HttpContext);
                     await _actionTakenService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }
@@ -130,17 +136,19 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Delete
+        //
+
         [HttpPost]
-        public async Task<IActionResult> Delete(List<int> ids)
+        public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
         {
             try
             {
-                if (ids == null || !ids.Any() || ids.Count == 0)
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
                 {
                     return Json(new { isSuccess = false, message = "No bank selected to delete." });
                 }
-
-                var result = await _actionTakenService.SoftDeleteAsync(ids);
+               
+                var result = await _actionTakenService.SoftDeleteAsync22(requestVM);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No banks found to delete." });
@@ -153,6 +161,32 @@ namespace GCTL_App.Controllers.MasterSetup
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+        //
+
+        //[HttpPost]
+        //public async Task<IActionResult> Delete(List<int> ids)
+        //{
+        //    try
+        //    {
+        //        if (ids == null || !ids.Any() || ids.Count == 0)
+        //        {
+        //            return Json(new { isSuccess = false, message = "No bank selected to delete." });
+        //        }
+        //        var userInfo = new BaseViewModel();
+        //        userInfoService.SetUserInfo(userInfo, User, HttpContext);
+        //        var result = await _actionTakenService.SoftDeleteAsync(ids, userInfo);
+        //        if (result == null)
+        //        {
+        //            return Json(new { isSuccess = false, message = "No banks found to delete." });
+        //        }
+
+        //        return Json(new { isSuccess = true, message = "Deleted Successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
         #endregion
     }
 }

@@ -3,9 +3,19 @@ using GCTL.Service.AccessPermissions;
 using GCTL.Service;
 using GCTL_App.Extensions;
 using Microsoft.AspNetCore.Identity;
+using GCTL.Service.ActionLogAudit;
+using GCTL.Service.VisitingPath;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Globally retrieve LIP, LMAC, and CreatedBy, UpdatedBy, DeletedBy fields. [Added by Siam]
+builder.Services.AddHttpContextAccessor(); // 1?? Required for accessing HttpContext
+builder.Services.AddScoped<UserInfoActionFilter>();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.AddService<UserInfoActionFilter>(); // 2?? Global filter registration
+});
+//end
 // Add services to the container.
 #region Manual
 builder.Services.ConfigureContext(builder.Configuration);
@@ -103,7 +113,7 @@ app.Use(async (context, next) =>
 
 
 app.UseRouting();
-
+app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 app.UseAuthorization();
 app.UseAuthorization();
 

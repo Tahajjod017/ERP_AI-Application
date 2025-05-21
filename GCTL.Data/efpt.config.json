@@ -55,6 +55,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LanguageInd_bn]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LanguageLists]",
          "ObjectType": 0
       },
@@ -73,6 +77,10 @@
       {
          "Name": "[dbo].[RoleModulePermissions]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[UserVisitLogs]",
+         "ObjectType": 0
       }
    ],
    "UiHint": null,
@@ -80,7 +88,6 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
-   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -99,6 +106,5 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false,
-   "UseT4Split": false
+   "UseT4": false
 }

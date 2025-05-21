@@ -8,6 +8,7 @@ using GCTL.Core.Repository;
 using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
 using GCTL.Service.Language;
+using GCTL.Service.ActionLogAudit;
 
 namespace GCTL_App.Extensions
 {
@@ -36,6 +37,11 @@ namespace GCTL_App.Extensions
 
             // Master Setup Start
             services.AddScoped<IActionTakenService, ActionTakenService>();
+
+
+            //Siam 
+            services.AddScoped<IActionLogService, ActionLogService>();
+            services.AddScoped<IUserInfoService, UserInfoService>();
 
             #region
 

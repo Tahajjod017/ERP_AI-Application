@@ -18,7 +18,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ActionTaken> ActionTakens { get; set; }
 
-    //public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+   // public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
 
     //public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
 
@@ -35,6 +35,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Employee> Employees { get; set; }
 
+    public virtual DbSet<LanguageIndBn> LanguageIndBns { get; set; }
+
     public virtual DbSet<LanguageList> LanguageLists { get; set; }
 
     public virtual DbSet<LanguageMainTable> LanguageMainTables { get; set; }
@@ -45,24 +47,35 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<RoleModulePermission> RoleModulePermissions { get; set; }
 
+    public virtual DbSet<UserVisitLog> UserVisitLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<ActionLog>(entity =>
         {
-            entity.HasKey(e => e.ActionLogId).HasName("PK__ActionLo__428D61A2A11F96FF");
+            entity.HasKey(e => e.ActionLogId).HasName("PK__ActionLo__428D61A251957296");
 
             entity.Property(e => e.ActionLogId).HasColumnName("ActionLogID");
             entity.Property(e => e.ActionName).HasMaxLength(150);
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Lip)
                 .HasMaxLength(20)
                 .HasColumnName("LIP");
             entity.Property(e => e.Lmac)
                 .HasMaxLength(30)
                 .HasColumnName("LMAC");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.TargetId).HasColumnName("TargetID");
+            entity.Property(e => e.TargetType).HasMaxLength(255);
             entity.Property(e => e.UserEmail).HasMaxLength(150);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ActionLogs)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByActionLogs");
         });
 
         modelBuilder.Entity<ActionTaken>(entity =>
@@ -156,12 +169,17 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
         //});
 
+        //
         modelBuilder.Entity<ApplicationUser>()
-            .HasOne(u => u.Employee)
-            .WithMany(e => e.AspNetUsers)
-            .HasForeignKey(u => u.EmployeeId)
-            .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
+  .HasDiscriminator<string>("Discriminator")
+  .HasValue<ApplicationUser>("ApplicationUser");
+        modelBuilder.Entity<ApplicationUser>()
+        .HasOne(u => u.Employee)
+        .WithMany(e => e.AspNetUsers)
+        .HasForeignKey(u => u.EmployeeId)
+        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+       
+        //
         modelBuilder.Entity<Employee>(entity =>
         {
             entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04FF1C958FE8F");
@@ -205,6 +223,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasMaxLength(50)
                 .HasColumnName("TIN");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<LanguageIndBn>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Language__3214EC07E7871778");
+
+            entity.ToTable("LanguageInd_bn");
+
+            entity.Property(e => e.TranslatedText).UseCollation("Indic_General_90_CI_AS");
         });
 
         modelBuilder.Entity<LanguageList>(entity =>
@@ -253,6 +280,26 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Permission).WithMany(p => p.RoleModulePermissions).HasForeignKey(d => d.PermissionId);
 
             entity.HasOne(d => d.Role).WithMany(p => p.RoleModulePermissions).HasForeignKey(d => d.RoleId);
+        });
+
+        modelBuilder.Entity<UserVisitLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserVisi__3214EC07C863650B");
+
+            entity.Property(e => e.ControllerName).HasMaxLength(100);
+            entity.Property(e => e.Ipaddress)
+                .HasMaxLength(50)
+                .HasColumnName("IPAddress");
+            entity.Property(e => e.Lmac)
+                .HasMaxLength(100)
+                .HasColumnName("LMAC");
+            entity.Property(e => e.LoginTime).HasColumnType("datetime");
+            entity.Property(e => e.LogoutTime).HasColumnType("datetime");
+            entity.Property(e => e.Method).HasMaxLength(10);
+            entity.Property(e => e.Path).HasMaxLength(2048);
+            entity.Property(e => e.UserId).HasMaxLength(256);
+            entity.Property(e => e.ViewName).HasMaxLength(100);
+            entity.Property(e => e.VisitTime).HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -9,6 +9,7 @@ namespace GCTL.Core.ViewModels
 {
     public class BaseViewModel
     {
+       
         public decimal Id { get; set; }
         public string? Code { get; set; }
         public string Message { get; set; } = string.Empty;
@@ -25,5 +26,7 @@ namespace GCTL.Core.ViewModels
         public string? LMAC { get; set; }
         public DefaultRoles Role { get; set; }
         public bool IsAdmin { get; set; }
+        public string? UserId { get; set; }
+        public string? Email { get; set; }
     }
 }
