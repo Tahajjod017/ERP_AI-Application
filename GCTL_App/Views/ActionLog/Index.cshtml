@@ -1,0 +1,266 @@
+﻿@using Newtonsoft.Json
+@* @{
+    var today = DateTime.Now.Date;
+    var twoDayesAgo = today.AddDays(-2);
+} *@
+<style>
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 1050;
+        padding: 15px;
+    }
+
+    .header-info span {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+
+</style>
+
+<div class="row g-3 justify-content-between align-items-end mb-4">
+
+
+    <div class="container-fluid">
+        <div class="row g-2 align-items-end mb-2">
+
+            <div class="col-md-6">
+                <div class="form-floating form-floating-advance-select">
+                    <label for="UserNameDD">User Name</label>
+                    <select class="form-select form-control-lg" id="UserNameDD" asp-items="@ViewBag.UserNameDD">
+                        <option>Select User </option>
+                    </select>
+
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating form-floating-advance-select">
+                    <label for="ActionNameDD">Action Name</label>
+                    <select class="form-select form-control-lg" id="ActionNameDD" asp-items="@ViewBag.ActionNameDD">
+                        <option>Select Action Name</option>
+                    </select>
+
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row g-2 align-items-end">
+
+            <div class="col-md-2">
+                <div class="dropdown">
+                    <button class="btn btn-phoenix-secondary dropdown-toggle w-100" type="button" id="pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Showing: <span id="selectedPageSize">5</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
+                        <li><a class="dropdown-item" href="#" data-size="5">5</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="10">10</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="25">25</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="50">50</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="100">100</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+            @*  <div class="col-md-2">
+                <div class="form-floating form-floating-advance-select">
+                    <label for="UserNameDD">User Name</label>
+                    <select class="form-select" id="UserNameDD"  asp-items="@ViewBag.UserNameDD">
+                        <option>Select User </option>
+                    </select>
+
+                </div>
+            </div> *@
+
+            <div class="col">
+                <div class="form-floating">
+                    <input class="form-control  datetimepicker" id="FromDate" type="date" />   @* value="@twoDayesAgo.ToString("yyyy-MM-dd")" *@
+                    <label for="FromDate">From Date</label>
+                </div>
+            </div>
+
+            <div class="col">
+
+                <div class="form-floating">
+
+
+                    <input class="form-control  datetimepicker" id="ToDate" type="date" />  @*  value="@today.ToString("yyyy-MM-dd")" *@
+                    <label for="ToDate">To Date</label>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="form-floating form-floating-advance-select">
+                    <label for="TargetTypeDD">Target</label>
+                    <select class="form-select form-control-lg" id="TargetTypeDD" asp-items="@ViewBag.TargetTypeDD">
+                        <option value="">Select Target</option>
+                    </select>
+
+                </div>
+            </div>
+
+          
+
+        </div>
+    </div>
+
+
+</div>
+
+
+<div class="table-responsive ms-n1 ps-1 scrollbar">
+    <table class="table fs-9 mb-0 border-top border-translucent">
+        <thead>
+
+            <tr>
+
+                <th class="sort align-middle ps-2" scope="col" data-sort="fieldId">Action ID</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="profession">User Name</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="profession">User Email</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Terget Type</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Action Name</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Comparison</th>
+                <th class="sort align-middle text-start" scope="col">Details</th>
+            </tr>
+
+        </thead>
+
+        <tbody class="list" id="project-summary-table-body">
+            <tr class="no-data">
+                <td colspan="7" class="text-center">No data available</td>
+            </tr>
+        </tbody>
+
+    </table>
+</div>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+    <div class="d-flex">
+        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="paginationInfo"></p>
+
+
+    </div>
+    <div class="d-flex">
+        <button class="page-link" data-list-pagination="prev" id="prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+        <ul class="mb-0 pagination" id="paginationLinks"></ul>
+        <button class="page-link pe-0" data-list-pagination="next" id="nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+    </div>
+</div>
+
+
+<div class="modal fade" id="actionDetailModal" tabindex="-1" aria-labelledby="actionDetailModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+
+            <div class="modal-header position-relative">
+                <h3 class="mx-auto text-center">Action Details</h3>
+
+                <button type="button" class="btn btn-link text-danger position-absolute end-0 top-50 translate-middle-y me-3 fs-8" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times fa-sm"></i>
+                </button>
+            </div>
+
+
+            <div class="d-flex flex-column gap-2  fs-8 small-font pe-4 ps-4">
+
+                <div class="container-fluid fs-8">
+
+                    <div class="row mb-2">
+                        <div class="col-md-6 d-flex align-items-center">
+                            <i class="fas fa-user me-2 text-primary"></i>
+                            <span id="userName"></span>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <i class="fas fa-envelope me-2 text-primary" style="width: 20px;"></i>
+                            <span id="userEmail"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-6 d-flex align-items-center">
+                            <i class="fas fa-crosshairs me-2 text-primary" style="width: 20px;"></i>
+                            <span id="TargetType"></span>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <i class="fas fa-tasks me-2 text-primary" style="width: 20px;"></i>
+                            <span id="ActionName"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 d-flex align-items-center">
+                            <i class="fas fa-hashtag me-2 text-primary" style="width: 20px;"></i>
+                            <span id="TargetID"></span>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <i class="fas fa-calendar-alt me-2 text-primary" style="width: 20px;"></i>
+                            <span id="createdAt"></span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="modal-body">
+
+
+                <div>
+                    <div id="actionDetailsTableContainer" class="table-responsive"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+
+
+    window.targetTypeData = @Html.Raw(JsonConvert.SerializeObject(
+        ((SelectList)ViewBag.TargetTypeDD).Select(x => new { Value = x.Value, Text = x.Text })
+    ))
+
+    window.actionNameData = @Html.Raw(JsonConvert.SerializeObject(
+        ((SelectList)ViewBag.ActionNameDD).Select(x => new { Value = x.Value, Text = x.Text })
+    ))
+
+    window.userNameData = @Html.Raw(JsonConvert.SerializeObject(
+        ((SelectList)ViewBag.UserNameDD).Select(x => new { Value = x.Value, Text = x.Text })
+    ))
+
+</script>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+@section Scripts
+{
+    @{
+
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+
+    }
+   
+
+    <script src="~/js/pages/actionlog/actionlog.js"></script>
+  
+}

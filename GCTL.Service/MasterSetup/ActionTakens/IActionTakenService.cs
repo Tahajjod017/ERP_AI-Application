@@ -1,4 +1,6 @@
-﻿using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;
@@ -14,7 +16,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #region CRUD
         Task<bool> AddAsync(ActionTakenVM model);
         Task<bool> UpdateAsync(ActionTakenVM model);
-        Task<ActionTakenVM> SoftDeleteAsync(List<int> ids);
+        Task<ActionTakenVM> SoftDeleteAsync(List<int> ids,BaseViewModel baseViewModel);
+        Task<ActionTakenVM> SoftDeleteAsync22(DeleteRequestVM requestVM);
         Task<ActionTakenVM> GetByIdAsync(int id);
         Task<PaginationService<ActionTaken, ActionTakenVM>.PaginationResult<ActionTakenVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "ActionTakenID", string sortOrder = "desc");
@@ -25,10 +28,5 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         Task<bool> IsNameUniqueAsync(string name);
         #endregion
 
-
-        #region IP & Mac Address
-        string GetLocalIP();
-        string GetMacAddress();
-        #endregion
     }
 }
