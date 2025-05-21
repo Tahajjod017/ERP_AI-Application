@@ -1,0 +1,225 @@
+﻿<div class="mb-9">
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+        <div class="col-auto">
+        </div>
+
+
+    </div>
+
+    <div class="px-3 mb-5">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="search-box me-3 mb-3">
+                    <form class="position-relative">
+                        <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+
+                    </form>
+                </div>
+
+                <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
+
+                    <form action="">
+                        <div class="col-12 col-xl-12 col-xxl-12">
+
+                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
+                                    <a class="nav-link "  href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>Personal Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
+                                    <a class="nav-link"  href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Official Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
+                                    <a class="nav-link"  href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Payroll Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
+                                    <a class="nav-link"  href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Additional Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
+                                    <a class="nav-link"  href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Education Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
+                                    <a class="nav-link active"  href="#" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Tranning Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
+                                    <a class="nav-link"  href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Family Info.</a>
+                                </li>
+
+                            </ul>
+
+                            <div class="card tab-content bg-white accordion" id="myTabContent">
+
+                               
+
+                                <div class="tab-pane fade p-2" role="tranningInfo" id="tranningInfo" aria-labelledby="tranningInfo">
+
+                                    <div class=" px-25 ">
+                                        <div class="d-flex justify-content-center my-8 ">
+
+                                            <div class="col-12 row flex gy-3 ">
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Training Title" required />
+                                                        <label for="">Training Title</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Country" required />
+                                                        <label for="">Country</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Topics Covered" required />
+                                                        <label for="">Topics Covered</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <select class="form-select" id="year-of-passing" name="year-of-passing" required>
+                                                            <option value="">Select Training Year</option>
+                                                            <option value="2024">2024</option>
+                                                            <option value="2023">2023</option>
+                                                            <option value="2022">2022</option>
+                                                            <option value="2021">2021</option>
+                                                            <option value="2020">2020</option>
+                                                            <option value="2019">2019</option>
+                                                            <option value="2018">2018</option>
+                                                            <option value="2017">2017</option>
+                                                            <option value="2016">2016</option>
+                                                            <option value="2015">2015</option>
+                                                            <option value="2014">2014</option>
+                                                            <option value="2013">2013</option>
+                                                            <option value="2012">2012</option>
+                                                            <option value="2011">2011</option>
+                                                            <option value="2010">2010</option>
+                                                            <option value="2009">2009</option>
+                                                            <!-- Add more years if needed -->
+                                                        </select>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Training Year</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Institute Name" required />
+                                                        <label for="">Institute Name </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Duration" />
+                                                        <label for="">Duration (Years)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-12">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Achievement" />
+                                                        <label for="">Location</label>
+                                                    </div>
+                                                </div>
+
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="button" style="width: 100px;">Add</button>
+
+                                            </div>
+                                        </div>
+
+                                        <h4 class="border-bottom">Tranning Summary</h4>
+
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Training Title</th>
+                                                        <th scope="col">Topic</th>
+                                                        <th scope="col">Institute	</th>
+                                                        <th scope="col">Country</th>
+                                                        <th scope="col">Location</th>
+                                                        <th scope="col">Year</th>
+                                                        <th scope="col">Duration</th>
+                                                        <th scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">Data Science Masters Pro</th>
+                                                        <td>Python,NLP, LLM, CV, ML, DL</td>
+                                                        <td>Inuron</td>
+                                                        <td>India</td>
+                                                        <td>A/2, Kalkata-1216</td>
+                                                        <td>2023</td>
+                                                        <td>1 year</td>
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                                            <div class="btn-reveal-trigger position-static g-3">
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_traning">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row">Professional Diploma In Games Development</th>
+                                                        <td>2D Physics,3D,AR,VR.</td>
+                                                        <td>Bangladesh Computer Council</td>
+                                                        <td>Bangladesh</td>
+                                                        <td>ICT Minstry, Agarga, Dhaka,-1216</td>
+                                                        <td>2018</td>
+                                                        <td>1 year</td>
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                                            <div class="btn-reveal-trigger position-static g-3">
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_traning">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+
+
+
+                                </div>
+
+                            
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>

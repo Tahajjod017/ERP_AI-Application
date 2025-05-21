@@ -69,8 +69,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Lmac)
                 .HasMaxLength(30)
                 .HasColumnName("LMAC");
+
             entity.Property(e => e.TargetId).HasColumnName("TargetID");
             entity.Property(e => e.TargetType).HasMaxLength(255);
+
+            //entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
             entity.Property(e => e.UserEmail).HasMaxLength(150);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ActionLogs)

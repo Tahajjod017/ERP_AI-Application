@@ -1,10 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">@ViewBag.welcome!</h1>
-    <p>
-        @ViewBag.welcomeNote ! 🚀
-    </p>
+﻿
+<div class="text-center">   
+    <h1 class="display-4">@Html.SmartLocalize("Welcome to GCTL Dashboard")</h1>
+    <p>@Html.SmartLocalize("Empowering businesses with smart, scalable, and seamless ERP solutions.") 🚀</p>
 </div>

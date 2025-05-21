@@ -23,11 +23,16 @@ public partial class ActionLog
 
     public int? CreatedBy { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+
 
     public string TargetType { get; set; }
 
     public int? TargetId { get; set; }
 
     public virtual Employee CreatedByNavigation { get; set; }
+
+
+    public DateTime? CreatedAt { get; set; }
+
+
 }

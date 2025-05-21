@@ -44,86 +44,95 @@ namespace GCTL_App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Attempt to sign in the user with the provided credentials
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-                if (result.Succeeded)
+                if (ModelState.IsValid)
                 {
-                    // Fetch the user from the database
-                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    // Attempt to sign in the user with the provided credentials
+                    var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
-                    // Get the user's roles
-                    var userRoles = await _userManager.GetRolesAsync(user);
+                    if (result.Succeeded)
+                    {
+                        // Fetch the user from the database
+                        var user = await _userManager.FindByEmailAsync(model.Email);
 
-                    // Create the claims for the authenticated user
-                    var claims = new List<Claim>
+                        // Get the user's roles
+                        var userRoles = await _userManager.GetRolesAsync(user);
+
+                        // Create the claims for the authenticated user
+                        var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, model.Email),
                 new Claim(ClaimTypes.Name, user.UserName),
             };
 
-                    // Add roles to claims
-                    foreach (var role in userRoles)
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, role));
+                        // Add roles to claims
+                        foreach (var role in userRoles)
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, role));
+                        }
+
+                        // Fetch the user's permissions from the database
+                        var userPermissions = await _Db.RoleModulePermissions
+                            .Where(rmp => userRoles.Contains(rmp.RoleId) && rmp.IsGranted) // Check if the user's role has the permission
+                            .Include(rmp => rmp.MenuTab)
+                            .Include(rmp => rmp.Permission)
+                            .Select(rmp => $"{rmp.MenuTab.Title}.{rmp.Permission.Name}")
+                            .ToListAsync();
+
+                        // Add permissions to claims
+                        foreach (var permission in userPermissions)
+                        {
+                            claims.Add(new Claim("Permission", permission));
+                        }
+
+                        // Create claims identity and principal
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                        // Set the authentication properties
+                        var authProps = new AuthenticationProperties
+                        {
+                            IsPersistent = model.RememberMe,
+                            ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                        };
+
+                        // Sign the user in
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProps);
+
+                        //
+
+                        //
+                        var actiondata = new ActionLog
+                        {
+                            CreatedBy = user.EmployeeId,
+                            UserEmail = model.Email,
+                            ActionName = ActionName.LogIn,
+                            Lip = GetLocalIP(),
+                            Lmac = GetMacAddress(),
+                            CreatedAt = DateTime.Now
+                        };
+                        await actionLogs.AddAsync(actiondata);
+                        // Redirect to the home page or dashboard upon successful login
+                        return RedirectToAction("index", "Home");
                     }
-
-                    // Fetch the user's permissions from the database
-                    var userPermissions = await _Db.RoleModulePermissions
-                        .Where(rmp => userRoles.Contains(rmp.RoleId) && rmp.IsGranted) // Check if the user's role has the permission
-                        .Include(rmp => rmp.MenuTab)
-                        .Include(rmp => rmp.Permission)
-                        .Select(rmp => $"{rmp.MenuTab.Title}.{rmp.Permission.Name}")
-                        .ToListAsync();
-
-                    // Add permissions to claims
-                    foreach (var permission in userPermissions)
+                    else
                     {
-                        claims.Add(new Claim("Permission", permission));
+                        ViewData["ErrorMessage"] = "Invalid login attempt.";
+                        return View(model); // Return the view with error message
                     }
-
-                    // Create claims identity and principal
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-                    // Set the authentication properties
-                    var authProps = new AuthenticationProperties
-                    {
-                        IsPersistent = model.RememberMe,
-                        ExpiresUtc = DateTime.UtcNow.AddDays(1)
-                    };
-
-                    // Sign the user in
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authProps);
-
-                    //
-
-                    //
-                    var actiondata = new ActionLog
-                    {
-                        CreatedBy = user.EmployeeId,
-                        UserEmail = model.Email,
-                        ActionName = ActionName.LogIn,
-                        Lip = GetLocalIP(),
-                        Lmac = GetMacAddress(),
-                        CreatedAt = DateTime.Now
-                    };
-                    await actionLogs.AddAsync(actiondata);
-                    // Redirect to the home page or dashboard upon successful login
-                    return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    ViewData["ErrorMessage"] = "Invalid login attempt.";
-                    return View(model); // Return the view with error message
-                }
+
+                // If model is invalid or login failed, return to the view with the model to display errors
+                return View(model);
             }
+            catch (Exception)
+            {
 
-            // If model is invalid or login failed, return to the view with the model to display errors
-            return View(model);
+                throw;
+            }
+            
         }
 
 
