@@ -1,0 +1,306 @@
+﻿<div class="mb-9">
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+        <div class="col-auto">
+        </div>
+
+
+    </div>
+
+    <div class="px-3 mb-5">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="search-box me-3 mb-3">
+                    <form class="position-relative">
+                        <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+
+                    </form>
+                </div>
+
+                <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
+
+                    <form action="">
+                        <div class="col-12 col-xl-12 col-xxl-12">
+
+                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
+                                    <a class="nav-link active"  href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>Personal Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
+                                    <a class="nav-link"  href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Official Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
+                                    <a class="nav-link"  href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Payroll Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
+                                    <a class="nav-link"  href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Additional Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
+                                    <a class="nav-link"  href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Education Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
+                                    <a class="nav-link"  href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Tranning Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
+                                    <a class="nav-link"  href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Family Info.</a>
+                                </li>
+
+                            </ul>
+                            <div class="card tab-content bg-white accordion" id="myTabContent">
+
+                              
+
+                                <div class="tab-pane fade p-2" role="empPayroleInfo" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
+
+                                    <div class=" px-25 ">
+
+                                        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                                            <li class="nav-item" role="presentation"><a class="nav-link " id="empSalary-tab"  href="/EmployeeSalary/index" role="tab" aria-controls="tab-empSalary" aria-selected="true">Employee Salary Settings</a></li>
+                                            <li class="nav-item" role="presentation"><a class="nav-link active" id="empBenefits-tab"  href="#" role="tab" aria-controls="tab-empBenefits" aria-selected="false" tabindex="-1">Employee Benefits</a></li>
+                                            <li class="nav-item" role="presentation"><a class="nav-link" id="empAllowance-tab"  href="/EmployeeAllowance/index" role="tab" aria-controls="tab-empAllowance" aria-selected="false" tabindex="-1">Employee Allowance</a></li>
+                                        </ul>
+                                        <div class="tab-content mt-3" id="myTabContent">
+                                           
+
+                                            <div class="tab-pane fade" id="tab-empBenefits" role="tabpanel" aria-labelledby="empBenefits-tab">
+                                                <div class="card">
+
+                                                    <div class="d-flex justify-content-center mt-2 ">
+
+                                                        <div class="col-12 row flex gy-3 ">
+
+
+                                                            <form action="add-shift-ui.html" class="row g-3 mb-4">
+
+                                                                <div class="col-md-12">
+                                                                    <div class="mb-3">
+                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                            <h5>Add Employee Benefits</h5>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+
+                                                                    <div class="mb-3">
+                                                                        <div class="content-head d-flex justify-content-between align-items-center">
+                                                                            <label class="form-label" for="organizerSingle">Company Name</label>
+                                                                            <div class="form-check form-switch">
+                                                                            </div>
+                                                                        </div>
+                                                                        <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
+                                                                                data-coreui-search="true">
+                                                                            <option value="0">Select Company...</option>
+                                                                            <option value="1">CSL</option>
+                                                                            <option value="2">GCTL</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <div class="content-head d-flex justify-content-between align-items-center">
+                                                                            <label class="form-label" for="timepicker1">Health Insurance</label>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                            </div>
+                                                                        </div>
+                                                                        <input class="form-control" id="timepicker1" type="text" placeholder="Ex: 500 tk Per Month">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <div class="content-head d-flex justify-content-between align-items-center">
+                                                                            <label class="form-label" for="timepicker1">Performance Bonus</label>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                            </div>
+                                                                        </div>
+                                                                        <input class="form-control" id="" type="text" placeholder="Ex: 10,000 tk Yearly">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <div class="content-head d-flex justify-content-between align-items-center">
+                                                                            <label class="form-label" for="timepicker1">Yearly End Bonus</label>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                            </div>
+                                                                        </div>
+                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select one...</option>
+                                                                            <option>1 Month of Gross Salary</option>
+                                                                            <option>1 Month of Basic Salary</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-12">
+                                                                    <div class="mb-3">
+                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                            <h5>Fastival Bonus</h5>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="timepicker1">Fastival Bonus Rate</label>
+                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select %</option>
+                                                                            <option>35 %</option>
+                                                                            <option>40 %</option>
+                                                                            <option>45 %</option>
+                                                                            <option>50 %</option>
+                                                                            <option>60 %</option>
+                                                                            <option>70 %</option>
+                                                                            <option>100 %</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="timepicker1">Bonus Depends on</label>
+                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select Salary...</option>
+                                                                            <option>Gross Salary</option>
+                                                                            <option>Basic Salary</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-12">
+                                                                    <div class="mb-3">
+
+                                                                        <div class="content-head d-flex justify-content-between  border-bottom">
+                                                                            <h5>Providant Fund</h5>
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="timepicker1">Employee Contrebution</label>
+                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select %</option>
+                                                                            <option>5 %</option>
+                                                                            <option>6 %</option>
+                                                                            <option>7 %</option>
+                                                                            <option>8 %</option>
+                                                                            <option>9 %</option>
+                                                                            <option>10 %</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="timepicker1">Organization Contrebution</label>
+                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select %</option>
+                                                                            <option>5 %</option>
+                                                                            <option>6 %</option>
+                                                                            <option>7 %</option>
+                                                                            <option>8 %</option>
+                                                                            <option>9 %</option>
+                                                                            <option>10 %</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="timepicker1">Bonus Depends on</label>
+                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select Salary...</option>
+                                                                            <option>Gross Salary</option>
+                                                                            <option>Basic Salary</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label" for="timepicker1">Minimum Service Year</label>
+                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
+                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                            <option value="">Select Year...</option>
+                                                                            <option>05 Years</option>
+                                                                            <option>06 Years</option>
+                                                                            <option>07 Years</option>
+                                                                            <option>08 Years</option>
+                                                                            <option>09 Years</option>
+                                                                            <option>10 Years</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="col-12">
+                                                                    <div class="row g-3 justify-content-end">
+                                                                        <div class="col-auto">
+                                                                            <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                                                                        </div>
+                                                                        <div class="col-auto">
+                                                                            <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        
+
+                                        </div>
+
+
+
+                                    </div>
+
+                                </div>
+
+                             
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>

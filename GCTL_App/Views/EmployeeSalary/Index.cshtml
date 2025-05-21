@@ -1,0 +1,390 @@
+﻿<div class="mb-9">
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+        <div class="col-auto">
+        </div>
+
+
+    </div>
+
+    <div class="px-3 mb-5">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="search-box me-3 mb-3">
+                    <form class="position-relative">
+                        <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+
+                    </form>
+                </div>
+
+                <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
+
+                    <form action="">
+                        <div class="col-12 col-xl-12 col-xxl-12">
+
+                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
+                                    <a class="nav-link "  href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>Personal Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
+                                    <a class="nav-link"  href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Official Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
+                                    <a class="nav-link active"  href="#" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Payroll Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
+                                    <a class="nav-link"  href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Additional Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
+                                    <a class="nav-link"  href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Education Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
+                                    <a class="nav-link"  href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Tranning Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
+                                    <a class="nav-link"  href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Family Info.</a>
+                                </li>
+
+                            </ul>
+                            <div class="card tab-content bg-white accordion" id="myTabContent">
+
+                              
+
+                                <div class="tab-pane fade p-2" role="empPayroleInfo" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
+
+                                    <div class=" px-25 ">
+
+                                        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                                            <li class="nav-item" role="presentation"><a class="nav-link active" id="empSalary-tab"  href="#" role="tab" aria-controls="tab-empSalary" aria-selected="true">Employee Salary Settings</a></li>
+                                            <li class="nav-item" role="presentation"><a class="nav-link" id="empBenefits-tab"  href="/EmployeeAllowance/index" role="tab" aria-controls="tab-empBenefits" aria-selected="false" tabindex="-1">Employee Benefits</a></li>
+                                            <li class="nav-item" role="presentation"><a class="nav-link" id="empAllowance-tab"  href="/EmployeeBenifit/index" role="tab" aria-controls="tab-empAllowance" aria-selected="false" tabindex="-1">Employee Allowance</a></li>
+                                        </ul>
+                                        <div class="tab-content mt-3" id="myTabContent">
+                                            <div class="tab-pane fade show active" id="tab-empSalary" role="tabpanel" aria-labelledby="empSalary-tab">
+
+                                                <div class="card">
+                                                    <div class="d-flex justify-content-center mt-2 ">
+
+                                                        <div class="col-12 row flex gy-3 ">
+
+                                                            <p class="border-bottom mt-6">Salary Account Information</p>
+
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Address" />
+                                                                    <label for="">Bank Name</label>
+                                                                </div>
+                                                            </div>
+                                                            <!-- <div class="col-sm-12 col-md-4">
+                                                              <div class="form-floating form-floating-advance-select">
+                                                                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                  <option selected="selected">Select Bank</option>
+                                                                  <option value="1">City Bank LTD</option>
+                                                                  <option value="1">Dhaka Bank LTD</option>
+                                                                  <option value="1">Islami Bank LTD</option>
+                                                                </select>
+                                                                <label for="floatingSelectLitigation">Bank Name</label>
+                                                              </div>
+
+                                                              <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
+                                                              <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                                                                <div class="card position-relative border-0">
+                                                                  <div class="card-body p-0">
+                                                                    <div class="mx-3">
+                                                                      <form action="">
+                                                                        <h5 class="mb-3">Bank Name</h5>
+                                                                        <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
+                                                                        <div class="text-end">
+                                                                          <button class="btn btn-link text-danger" type="button">Cancel</button>
+                                                                          <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
+                                                                        </div>
+                                                                      </form>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
+                                                            </div> -->
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Address" />
+                                                                    <label for="">Branch Name</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Address" />
+                                                                    <label for="">Address</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="A/C Name" />
+                                                                    <label for="">A/C Name</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="A/C Number" />
+                                                                    <label for="">A/C Number</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="ATM Card No" />
+                                                                    <label for="">ATM Card NO</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Routing No" />
+                                                                    <label for="">Routing No</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Swift Code" />
+                                                                    <label for="">Swift Code</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="IFSC CODE" />
+                                                                    <label for="">IFSC CODE</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Bkash A/C Number" />
+                                                                    <label for="">Bkash A/C Number</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Rocket A/C Number" />
+                                                                    <label for="">Rocket A/C Number</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Nagad A/C Number" />
+                                                                    <label for="">Nagad A/C Number</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <p class="border-bottom mt-6">Salary Information</p>
+
+                                                            <div class="col-sm-6 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="#empDev34" />
+                                                                    <label for="">Employee ID</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-sm-6 col-md-4">
+                                                                <div class="form-floating form-floating-advance-select">
+                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                        <option selected="selected">Basic Salary</option>
+                                                                        <option value="1">Gross Salary</option>
+                                                                    </select>
+                                                                    <label for="floatingSelectLitigation">Salary Type</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-sm-6 col-md-4">
+                                                                <div class="form-floating form-floating-advance-select">
+                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                        <option selected="selected">Select Grade No</option>
+                                                                        <option value="1">G-3</option>
+                                                                        <option value="1">G-4</option>
+                                                                        <option value="1">G-6</option>
+                                                                        <option value="1">G-9</option>
+                                                                        <option value="1">G-10</option>
+                                                                        <option value="1">G-11</option>
+                                                                    </select>
+                                                                    <label for="floatingSelectLitigation">Grade No</label>
+                                                                </div>
+
+                                                                <!-- <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
+                                                                <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                                                                  <div class="card position-relative border-0">
+                                                                    <div class="card-body p-0">
+                                                                      <div class="mx-3">
+                                                                        <form action="">
+                                                                          <h5 class="mb-3">Enter Grade Id</h5>
+                                                                          <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
+                                                                          <h5 class="mb-3">Enter Grade Name</h5>
+                                                                          <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
+                                                                          <div class="text-end">
+                                                                            <button class="btn btn-link text-danger" type="button">Cancel</button>
+                                                                            <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
+                                                                          </div>
+                                                                        </form>
+                                                                      </div>
+                                                                    </div>
+                                                                  </div>
+                                                                </div> -->
+                                                            </div>
+
+                                                            <div class="col-sm-6 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input class="form-control" id="" type="text" placeholder="Enter Salary " />
+                                                                    <label for="">Salary</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-6 col-md-4">
+                                                                <div class="form-floating form-floating-advance-select">
+                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                        <option selected="selected">Curancy</option>
+                                                                        <option value="1">BDT</option>
+                                                                        <option value="1">USD</option>
+                                                                    </select>
+                                                                    <label for="floatingSelectLitigation">Curancy</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating form-floating-advance-select">
+                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                        <option selected="selected">Monthly</option>
+                                                                        <option value="1">Daily</option>
+                                                                        <option value="1">Weekly</option>
+                                                                        <option value="1">Monthly</option>
+                                                                        <option value="1">Quaterly</option>
+                                                                        <option value="1">Half-Yearly</option>
+                                                                        <option value="1">Yearly</option>
+                                                                    </select>
+                                                                    <label for="floatingSelectLitigation">Payment Period</label>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-sm-12 col-md-4 mb-4">
+                                                                <div class="form-floating form-floating-advance-select">
+                                                                    <label for="organizerMultiple">Payment Mode</label>
+                                                                    <select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
+
+                                                                        <option value="1">Bank Account</option>
+                                                                        <option value="1" selected>Cash</option>
+                                                                        <option value="1">CHK</option>
+                                                                        <option value="1">Bkash</option>
+                                                                        <option value="1">Rocket</option>
+                                                                        <option value="1">Nagad</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                            <!-- Hidden div that will be shown when multiple options are selected -->
+                                                            <div class="row" id="multyPayment" style="display: none;">
+                                                                <div class="d-flex">
+                                                                    <div class="col-sm-6 col-md-4 me-3">
+                                                                        <div class="form-floating form-floating-advance-select">
+                                                                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                                <option selected="selected">Select Payment Mode</option>
+                                                                                <option value="1">Bank Account</option>
+                                                                                <option value="1" selected>Cash</option>
+                                                                                <option value="1">CHK</option>
+                                                                                <option value="1">Bkash</option>
+                                                                                <option value="1">Rocket</option>
+                                                                                <option value="1">Nagad</option>
+                                                                            </select>
+                                                                            <label for="floatingSelectLitigation">Primary Payment Mode</label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-sm-6 col-md-4 me-3">
+                                                                        <div class="form-floating">
+                                                                            <input class="form-control" id="" type="text" placeholder="% of Primary Payment Mode" />
+                                                                            <label for="">% of Primary Payment Mode</label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-sm-6 col-md-4">
+                                                                        <div class="form-floating form-floating-advance-select">
+                                                                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                                <option selected="selected">Select Payment Mode</option>
+                                                                                <option value="1">Bank Account</option>
+                                                                                <option value="1">Cash</option>
+                                                                                <option value="1">CHK</option>
+                                                                                <option value="1">Bkash</option>
+                                                                                <option value="1">Rocket</option>
+                                                                                <option value="1">Nagad</option>
+                                                                            </select>
+                                                                            <label for="floatingSelectLitigation">Secondary Payment Mode</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                            </div>
+
+                                                            <script>
+                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                    const selectElement = document.getElementById('organizerMultiple');
+                                                                    const multiPaymentDiv = document.getElementById('multyPayment');
+
+                                                                    selectElement.addEventListener('change', function() {
+                                                                        // Get all selected options (excluding the placeholder if selected)
+                                                                        const selectedOptions = Array.from(this.selectedOptions)
+                                                                            .filter(option => option.value !== '');
+
+                                                                        // Show the div if more than one option is selected, otherwise hide it
+                                                                        if (selectedOptions.length > 1) {
+                                                                            multiPaymentDiv.style.display = 'block';
+                                                                        } else {
+                                                                            multiPaymentDiv.style.display = 'none';
+                                                                        }
+                                                                    });
+                                                                });
+                                                            </script>
+
+                                                            <div class="col-12 mb-3">
+                                                                <div class="row g-3 justify-content-end">
+                                                                    <div class="col-auto">
+                                                                        <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                           
+
+                                        </div>
+
+
+
+                                    </div>
+
+                                </div>
+
+                               
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
