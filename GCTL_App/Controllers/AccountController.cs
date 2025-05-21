@@ -113,7 +113,7 @@ namespace GCTL_App.Controllers
                     };
                     await actionLogs.AddAsync(actiondata);
                     // Redirect to the home page or dashboard upon successful login
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Test", "Home");
                 }
                 else
                 {
