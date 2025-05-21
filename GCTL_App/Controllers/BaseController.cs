@@ -6,15 +6,60 @@ namespace GCTL_App.Controllers
 {
     public abstract class BaseController : Controller
     {
+
+
+
+
+
+
         protected readonly ITranslateService _translateService;
+
+        private int _pageCode;
+        protected string LanguageCode => HttpContext.Items["Language"] as string ?? "en";
+
+       
+
+
+        
+        private int _smartPageCode = 0;
 
         protected BaseController(ITranslateService translateService)
         {
             _translateService = translateService;
         }
 
+        protected void SetSmartPageCode(int code)
+        {
+            _smartPageCode = code;
+            ViewData["SmartPageCode"] = _smartPageCode;
+            ViewData["BaseControllerInstance"] = this;
+        }
 
-        //Added LIP LMacAddress
+        protected string SmartLocalizeText(string defaultText)
+        {
+            string lang = HttpContext.Items["Language"] as string ?? "en";
+            return _translateService.GetTranslationInd(defaultText, (_smartPageCode++).ToString(), lang);
+        }
+
+
+       
+
+
+
+
+
+
+        // Call this in each controller to set the correct pageCode
+        protected void SetPageCode(int startCode)
+        {
+            _pageCode = startCode;
+        }
+
+        protected string Translate(string defaultText)
+        {
+            return _translateService.GetTranslationInd(defaultText, (_pageCode++).ToString(), LanguageCode);
+        }
+
         public string GetLocalIP()
         {
             string ipAddress = string.Empty;
@@ -36,12 +81,12 @@ namespace GCTL_App.Controllers
             return ipAddress;
         }
 
-
         public string GetMacAddress()
         {
             string macAddress = string.Empty;
             var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-           .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
+                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
+
             foreach (var networkInterface in networkInterfaces)
             {
                 macAddress = networkInterface.GetPhysicalAddress().ToString();
