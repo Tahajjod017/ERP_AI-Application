@@ -61,7 +61,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Lmac)
                 .HasMaxLength(30)
                 .HasColumnName("LMAC");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            //entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserEmail).HasMaxLength(150);
         });
 

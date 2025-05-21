@@ -1,0 +1,369 @@
+﻿<div class="mb-9">
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+        <div class="col-auto">
+        </div>
+
+
+    </div>
+
+    <div class="px-3 mb-5">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="search-box me-3 mb-3">
+                    <form class="position-relative">
+                        <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+
+                    </form>
+                </div>
+
+                <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
+
+                    <form action="">
+                        <div class="col-12 col-xl-12 col-xxl-12">
+
+                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
+                                    <a class="nav-link "  href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>Personal Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
+                                    <a class="nav-link active"  href="#" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Official Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
+                                    <a class="nav-link"  href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>Payroll Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
+                                    <a class="nav-link"  href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Additional Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
+                                    <a class="nav-link"  href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Education Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
+                                    <a class="nav-link"  href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Tranning Info.</a>
+                                </li>
+
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
+                                    <a class="nav-link"  href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Family Info.</a>
+                                </li>
+
+                            </ul>
+                            <div class="card tab-content bg-white accordion" id="myTabContent">
+
+                              
+                                <div class="tab-pane fade p-2" role="empOfficialInfo" id="empOfficialInfo" aria-labelledby="empOfficialInfo">
+
+                                    <div class=" px-25 ">
+                                        <div class="d-flex justify-content-center mt-2 ">
+                                            <div class="col-12 row flex gy-3 pb-3">
+
+                                                <p class="border-bottom">Basic Information</p>
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option>Select Organization</option>
+                                                            <option value="1">CSL</option>
+                                                            <option value="1">GCTL</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Organization</label>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Branch</option>
+                                                            <option value="1">Main office</option>
+                                                            <option value="1">Branch office</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Branch</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Employee Type</option>
+                                                            <option value="1">Inhouse</option>
+                                                            <option value="1">Remote</option>
+                                                            <option value="1">Part Time</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Employee Type</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Department</option>
+                                                            <option value="1">IT</option>
+                                                            <option value="1">Management</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Department</label>
+                                                    </div>
+
+                                                    <!-- <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
+                                                    <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                                                      <div class="card position-relative border-0">
+                                                        <div class="card-body p-0">
+                                                          <div class="mx-3">
+                                                            <form action="">
+                                                              <h5 class="mb-3">Enter Department Name</h5>
+                                                              <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
+                                                              <div class="text-end">
+                                                                <button class="btn btn-link text-danger" type="button">Cancel</button>
+                                                                <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
+                                                              </div>
+                                                            </form>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    </div> -->
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Designation</option>
+                                                            <option value="1">Cheaf Executive Director</option>
+                                                            <option value="1">Executive Director</option>
+                                                            <option value="1">Manager</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Designation</label>
+                                                    </div>
+
+
+                                                </div>
+
+                                                <!-- <div class="col-sm-12 col-md-4">
+                                                  <div class="form-floating form-floating-advance-select">
+                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                      <option selected="selected">Select Employee Class</option>
+                                                      <option value="1">Officer</option>
+                                                      <option value="1">Warker</option>
+                                                      <option value="1">Staff</option>
+                                                    </select>
+                                                    <label for="floatingSelectLitigation">Employee Class</label>
+                                                  </div>
+
+                                                  <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
+                                                  <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
+                                                    <div class="card position-relative border-0">
+                                                      <div class="card-body p-0">
+                                                        <div class="mx-3">
+                                                          <form action="">
+                                                            <h5 class="mb-3">Employee Type Name</h5>
+                                                            <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
+                                                            <div class="text-end">
+                                                              <button class="btn btn-link text-danger" type="button">Cancel</button>
+                                                              <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
+                                                            </div>
+                                                          </form>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div> -->
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Employment Nature</option>
+                                                            <option value="1">Full Time</option>
+                                                            <option value="1">Part Time</option>
+                                                            <option value="1">Contractual</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Employment Nature </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Immediate Supervisor</option>
+                                                            <option value="1">Alamin Hossain</option>
+                                                            <option value="1">Rakibul Islam</option>
+                                                            <option value="1">Abdulla al Mamun</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Senior Supervisor</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Immediate Supervisor</option>
+                                                            <option value="1">Alamin Hossain</option>
+                                                            <option value="1">Rakibul Islam</option>
+                                                            <option value="1">Abdulla al Mamun</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Immediate Supervisor</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Head of Department</option>
+                                                            <option value="1">Alamin Hossain</option>
+                                                            <option value="1">Rakibul Islam</option>
+                                                            <option value="1">Abdulla al Mamun</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Head of Department</label>
+                                                    </div>
+                                                </div>
+
+
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Enter Official Phone " />
+                                                        <label for="">Official Phone </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Official Email" />
+                                                        <label for="">Official Email</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4 mb-4">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Attendence ID" />
+                                                        <label for="">Attendence ID</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Select Employee Status</option>
+                                                            <option value="1">Active</option>
+                                                            <option value="1">Inactive office</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Employee Status </label>
+                                                    </div>
+                                                </div>
+
+                                                <p class="border-bottom">Joining Information</p>
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Appointment Letter No " />
+                                                        <label for="">Appointment Letter No </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
+                                                        <div class="form-floating">
+                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Appointment Letter Date" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="floatingInputReportDate">Appointment Letter Issue Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
+                                                        <div class="form-floating">
+                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Joining Date" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="floatingInputReportDate">Joining Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
+                                                        <div class="form-floating">
+                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Joining Date" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="floatingInputReportDate">Probation Period Start Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Probation Period" />
+                                                        <label for="">Probation Period</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-2 col-md-2">
+                                                    <div class="form-floating form-floating-advance-select">
+                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option selected="selected">Month</option>
+                                                            <option value="1">Days</option>
+                                                            <option value="1">Month</option>
+                                                            <option value="1">Year</option>
+                                                        </select>
+                                                        <label for="floatingSelectLitigation">Time</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
+                                                        <div class="form-floating">
+                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Confirmation Dat" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="floatingInputReportDate">Confirmation Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Confirmation Ref/letter No." />
+                                                        <label for="">Confirmation Letter No. </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
+                                                        <div class="form-floating">
+                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Contract End Date" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="floatingInputReportDate">Contract End Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <div class="row g-3 justify-content-end">
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+
+
+                                </div>
+
+                              
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
