@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,8 @@ namespace GCTL.Service.VisitingPath
     public class UserVisitLoggingMiddleware
     {
         private readonly RequestDelegate _next;
+        private static readonly string[] IgnoredExtensions = { ".ico", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".css", ".js", ".json" };
+        private static readonly string[] IgnoredPaths = { "/img/", "/css/", "/js/", "/fonts/", "/lib/" };
 
         public UserVisitLoggingMiddleware(RequestDelegate next)
         {
@@ -22,33 +25,19 @@ namespace GCTL.Service.VisitingPath
         {
             var path = context.Request.Path.ToString().ToLower();
 
-            // ❌ Skip logging for static files or specific paths
-            string[] ignorePaths = new[]
-            {
-        "/favicon.ico",
-        ".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".css", ".js", ".json",
-        "/img/", "/css/", "/js/", "/fonts/", "/lib/"
-    };
-
-            if (ignorePaths.Any(p => path.Contains(p)))
+            if (ShouldIgnorePath(path))
             {
                 await _next(context);
                 return;
             }
 
-            var userId = context.User.Identity.IsAuthenticated ? context.User.Identity.Name : "Anonymous";
-            var method = context.Request.Method;
-            var ipAddress = context.Connection.RemoteIpAddress?.ToString();
-
             var visit = new UserVisitLog
             {
-                UserId = userId,
+                UserId = context.User.Identity.IsAuthenticated ? context.User.Identity.Name : "Anonymous",
                 Path = path,
-                Method = method,
-                Lmac = ipAddress,
-                Ipaddress = ipAddress,
-                LoginTime = DateTime.UtcNow,
-                LogoutTime = DateTime.UtcNow,
+                Method = context.Request.Method,
+                Ipaddress = GetLocalIP(),
+                Lmac = GetMacAddress(),
                 VisitTime = DateTime.UtcNow
             };
 
@@ -58,6 +47,36 @@ namespace GCTL.Service.VisitingPath
             await _next(context);
         }
 
+        private static bool ShouldIgnorePath(string path)
+        {
+            // Ignore root path or empty path
+            if (string.IsNullOrWhiteSpace(path) || path == "/")
+                return true;
+
+            return IgnoredExtensions.Any(ext => path.EndsWith(ext)) ||
+                   IgnoredPaths.Any(p => path.Contains(p));
+        }
+
+        
+
+        private static string GetLocalIP()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .SelectMany(n => n.GetIPProperties().UnicastAddresses)
+                .Where(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .Select(ip => ip.Address.ToString())
+                .FirstOrDefault() ?? string.Empty;
+        }
+
+        private static string GetMacAddress()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .Select(n => n.GetPhysicalAddress().ToString())
+                .FirstOrDefault(mac => !string.IsNullOrEmpty(mac)) ?? string.Empty;
+        }
     }
+
 
 }
