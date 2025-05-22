@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AspNetUserClaim
+public partial class AspNetUserClaims
 {
     public int Id { get; set; }
 
@@ -15,5 +15,5 @@ public partial class AspNetUserClaim
 
     public string ClaimValue { get; set; }
 
-    public virtual AspNetUser User { get; set; }
+    public virtual AspNetUsers User { get; set; }
 }

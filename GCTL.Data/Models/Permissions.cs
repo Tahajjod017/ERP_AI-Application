@@ -5,15 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AspNetRoleClaim
+public partial class Permissions
 {
     public int Id { get; set; }
 
-    public string RoleId { get; set; }
+    public string Name { get; set; }
 
-    public string ClaimType { get; set; }
-
-    public string ClaimValue { get; set; }
-
-    public virtual AspNetRole Role { get; set; }
+    public virtual ICollection<RoleModulePermissions> RoleModulePermissions { get; set; } = new List<RoleModulePermissions>();
 }

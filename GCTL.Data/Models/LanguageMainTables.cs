@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LanguageList
+public partial class LanguageMainTables
 {
-    public int Id { get; set; }
+    public int ID { get; set; }
 
-    public string LanguageCode { get; set; }
+    public string TextCode { get; set; }
 
-    public string LanguageName { get; set; }
+    public string EnglishText { get; set; }
+
+    public bool IsModified { get; set; }
 }

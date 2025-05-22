@@ -11,43 +11,60 @@ using System.Threading.Tasks;
 
 namespace GCTL.Service.ActionLogAudit
 {
-    public class ActionLogService : AppService<ActionLog>, IActionLogService
+    public class ActionLogService : AppService<ActionLogs>, IActionLogService
     {
-        private readonly IGenericRepository<ActionLog> _actionLogs;
+        private readonly IGenericRepository<ActionLogs> _actionLogs;
 
-        public ActionLogService(IGenericRepository<ActionLog> actionLogs) : base(actionLogs)
+        public ActionLogService(IGenericRepository<ActionLogs> actionLogs) : base(actionLogs)
         {
             _actionLogs = actionLogs;
         }
 
-        public async Task<PaginationService<ActionLog, ActionLogSetupVM>.PaginationResult<ActionLogSetupVM>> GetPaginateActionLog(
+        public async Task<PaginationService<ActionLogs, ActionLogSetupVM>.PaginationResult<ActionLogSetupVM>> GetPaginateActionLog(
     int pageNumber = 1,
     int pageSize = 5,
     string searchTerm = "",
-    string sortColumn = "fdrBnkName",
-    string sortOrder = "asc", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
+    string currentSortColumn = "",
+    string currentSortOrder = "", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
         {
             try
             {
                 Console.WriteLine($"From: {fromDate}, To: {toDate}");
 
-                var query = _actionLogs.All().OrderByDescending(x => x.ActionLogId).Where(x =>
+                var query = _actionLogs.All().OrderByDescending(x => x.ActionLogID).Include(x => x.CreatedByNavigation).Where(x =>
     (fromDate == null || x.CreatedAt >= fromDate.Value.Date) &&
-    (toDate == null || x.CreatedAt <= toDate.Value.Date) && (string.IsNullOrEmpty(tergetType) || x.TargetType == tergetType) && (string.IsNullOrEmpty(actionName) || x.ActionName == actionName) && (createdBy == null || x.CreatedBy == createdBy)).Include(x => x.CreatedByNavigation);
+    (toDate == null || x.CreatedAt <= toDate.Value.Date) && (string.IsNullOrEmpty(tergetType) || x.TargetType == tergetType) && (string.IsNullOrEmpty(actionName) || x.ActionName == actionName) && (createdBy == null || x.CreatedBy == createdBy));
 
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
 
-                return await PaginationService<ActionLog, ActionLogSetupVM>.GetPaginatedData(
+                if (!string.IsNullOrEmpty(currentSortColumn))
+                {
+                    bool ascending = currentSortOrder?.ToLower() == "asc";
+
+                    query = currentSortColumn switch
+                    {
+                        "ActionLogID" => ascending ? query.OrderBy(x => x.ActionLogID) : query.OrderByDescending(x => x.ActionLogID),
+                        "EmployeeUserName" => ascending ? query.OrderBy(x => x.CreatedByNavigation.FirstName).ThenBy(x => x.CreatedByNavigation.LastName)
+                                                        : query.OrderByDescending(x => x.CreatedByNavigation.FirstName).ThenByDescending(x => x.CreatedByNavigation.LastName),
+                        "UserEmail" => ascending ? query.OrderBy(x => x.UserEmail) : query.OrderByDescending(x => x.UserEmail),
+                        "TargetType" => ascending ? query.OrderBy(x => x.TargetType) : query.OrderByDescending(x => x.TargetType),
+                        "ActionName" => ascending ? query.OrderBy(x => x.ActionName) : query.OrderByDescending(x => x.ActionName),
+                        _ => query
+                    };
+                }
+
+
+                var result = await PaginationService<ActionLogs, ActionLogSetupVM>.GetPaginatedData(
                     query,
                     pageNumber,
                     pageSize,
                     searchTerm,
-                    sortColumn,
-                    sortOrder,
-                    term => b => EF.Functions.Like(b.ActionLogId.ToString(), $"%{term}%") ||
+                    currentSortColumn,
+                    currentSortOrder,
+                    term => b => EF.Functions.Like(b.ActionLogID.ToString(), $"%{term}%") ||
                                  EF.Functions.Like((b.ActionName ?? ""), $"%{term}%") ||
                                  EF.Functions.Like((b.UserEmail ?? ""), $"%{term}%") ||
                                  EF.Functions.Like((b.CreatedByNavigation != null ? (b.CreatedByNavigation.FirstName + " " + b.CreatedByNavigation.LastName) : ""), $"%{term}%") ||
@@ -58,25 +75,26 @@ namespace GCTL.Service.ActionLogAudit
 
                     b => new ActionLogSetupVM
                     {
-                        ActionLogID = b.ActionLogId,
+                        ActionLogID = b.ActionLogID,
                         ActionName = b.ActionName ?? "",
                         ActionBefore = b.ActionBefore ?? "",
                         ActionAfter = b.ActionAfter ?? "",
                         UserEmail = b.UserEmail ?? "",
                         CreatedBy = b.CreatedBy ?? 0,
                         CreatedAt = b.CreatedAt ?? DateTime.MinValue,
-                        TargetID = b.TargetId ?? 0,
+                        TargetID = b.TargetID ?? 0,
                         TargetType = b.TargetType ?? "",
                         EmployeeUserName = b.CreatedByNavigation != null
                             ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}"
                             : ""
                     });
+                return result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetPaginateActionLog: {ex.Message}");
 
-                return new PaginationService<ActionLog, ActionLogSetupVM>.PaginationResult<ActionLogSetupVM>
+                return new PaginationService<ActionLogs, ActionLogSetupVM>.PaginationResult<ActionLogSetupVM>
                 {
                     Data = new List<ActionLogSetupVM>(),
                     TotalCount = 0

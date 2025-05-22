@@ -48,8 +48,9 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entityToRestore.ActionTakenName = model.ActionTakenName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.Lip =model.LIP;
-                    entityToRestore.Lmac = model.LMAC;
+                    entityToRestore.LIP = model.LIP;
+
+                    entityToRestore.LMAC = model.LMAC;
                     entityToRestore.UpdatedBy = model.UpdatedBy ?? null;
 
                     entityToRestore.DeletedAt = null;
@@ -57,18 +58,18 @@ namespace GCTL.Service.MasterSetup.ActionTakens
 
                     await _genericRepository.UpdateAsync(entityToRestore);
                     var afterEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entityToRestore));
-                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entityToRestore, entityToRestore.ActionTakenId, model);
+                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entityToRestore, entityToRestore.ActionTakenID, model);
                 }
                 else
                 {
                     ActionTaken entity = new ActionTaken();
                     entity.ActionTakenName = model.ActionTakenName;
                     entity.CreatedAt = DateTime.Now;
-                    entity.Lip = model.LIP;
-                    entity.Lmac = model.LMAC;
+                    entity.LIP = model.LIP;
+                    entity.LMAC = model.LMAC;
                     entity.CreatedBy = model.CreatedBy ?? null;
                     await _genericRepository.AddAsync(entity);
-                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entity, entity.ActionTakenId, model);
+                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entity, entity.ActionTakenID, model);
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -100,12 +101,12 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 entity.ActionTakenName = model.ActionTakenName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
-                entity.Lip = model.LIP;
-                entity.Lmac =model.LMAC;
+                entity.LIP = model.LIP;
+                entity.LMAC =model.LMAC;
                 entity.UpdatedBy=model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
                 var afterEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entity));
-                await userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ActionTakenId, model);
+                await userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ActionTakenID, model);
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;
@@ -129,7 +130,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
 
                 return new ActionTakenVM
                 {
-                    ActionTakenID = data.ActionTakenId,
+                    ActionTakenID = data.ActionTakenID,
                     ActionTakenName = data.ActionTakenName,
                 };
             }
@@ -162,7 +163,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.ActionTakenId));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.ActionTakenID));
                 if (data == null || data.Count == 0)
                 {
                     return new ActionTakenVM
@@ -175,8 +176,9 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 {
                     //item.IsDeleted = true; 
                     item.DeletedAt = DateTime.Now;
-                    item.Lip = requestVM.LIP;
-                    item.Lmac = requestVM.LMAC;
+                    item.LIP = requestVM.LIP;
+
+                    item.LMAC = requestVM.LMAC;
                     item.DeletedBy = requestVM.DeletedBy ?? null;
                 }
 
@@ -201,7 +203,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.ActionTakenId));
+                var data = await _genericRepository.FindAsync(x => ids.Contains(x.ActionTakenID));
                 if (data == null || data.Count == 0)
                 {
                     return new ActionTakenVM
@@ -214,8 +216,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 {
                     //item.IsDeleted = true; 
                     item.DeletedAt = DateTime.Now;
-                    item.Lip = baseViewModel.LIP;
-                    item.Lmac = baseViewModel.LMAC;
+                   
                     item.DeletedBy = baseViewModel.DeletedBy ?? null;
                 }
 
@@ -246,9 +247,9 @@ namespace GCTL.Service.MasterSetup.ActionTakens
             {
                 query = sortColumn switch
                 {
-                    "ActionTakenID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ActionTakenId) : query.OrderBy(x => x.ActionTakenId),
+                    "ActionTakenID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ActionTakenID) : query.OrderBy(x => x.ActionTakenID),
                     "ActionTakenName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ActionTakenName) : query.OrderBy(x => x.ActionTakenName),
-                    _ => query.OrderBy(x => x.ActionTakenId)
+                    _ => query.OrderBy(x => x.ActionTakenID)
                 };
             }
 
@@ -256,7 +257,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 term => x => EF.Functions.Like(x.ActionTakenName, $"%{term}%"),
                 x => new ActionTakenVM
                 {
-                    ActionTakenID = x.ActionTakenId,
+                    ActionTakenID = x.ActionTakenID,
                     ActionTakenName = x.ActionTakenName ?? "-",
                 });
 

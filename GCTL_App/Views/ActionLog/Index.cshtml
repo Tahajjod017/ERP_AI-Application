@@ -68,18 +68,6 @@
                 </div>
             </div>
 
-
-
-            @*  <div class="col-md-2">
-                <div class="form-floating form-floating-advance-select">
-                    <label for="UserNameDD">User Name</label>
-                    <select class="form-select" id="UserNameDD"  asp-items="@ViewBag.UserNameDD">
-                        <option>Select User </option>
-                    </select>
-
-                </div>
-            </div> *@
-
             <div class="col">
                 <div class="form-floating">
                     <input class="form-control  datetimepicker" id="FromDate" type="date" />   @* value="@twoDayesAgo.ToString("yyyy-MM-dd")" *@
@@ -122,11 +110,11 @@
 
             <tr>
 
-                <th class="sort align-middle ps-2" scope="col" data-sort="fieldId">Action ID</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="profession">User Name</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="profession">User Email</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Terget Type</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Action Name</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="ActionLogID">Action ID</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="EmployeeUserName">User Name</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="UserEmail">User Email</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="TargetType">Terget Type</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ActionName">Action Name</th>
                 <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Comparison</th>
                 <th class="sort align-middle text-start" scope="col">Details</th>
             </tr>

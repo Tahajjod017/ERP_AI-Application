@@ -29,5 +29,5 @@ public partial class MenuTab
 
     public virtual MenuTab Parent { get; set; }
 
-    public virtual ICollection<RoleModulePermission> RoleModulePermissions { get; set; } = new List<RoleModulePermission>();
+    public virtual ICollection<RoleModulePermissions> RoleModulePermissions { get; set; } = new List<RoleModulePermissions>();
 }

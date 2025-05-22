@@ -111,7 +111,7 @@ namespace GCTL.Service.Language
         {
             try
             {
-                LanguageMainTable mainTable = new LanguageMainTable
+                LanguageMainTables mainTable = new LanguageMainTables
                 {
                     TextCode = code,
                     EnglishText = key,

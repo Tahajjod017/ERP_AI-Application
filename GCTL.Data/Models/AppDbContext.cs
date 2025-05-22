@@ -14,60 +14,125 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    public virtual DbSet<ActionLog> ActionLogs { get; set; }
+    public virtual DbSet<ActionLogs> ActionLogs { get; set; }
 
-    public virtual DbSet<ActionTaken> ActionTakens { get; set; }
+    public virtual DbSet<ActionTaken> ActionTaken { get; set; }
 
-    //public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
 
-    //public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
+    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
 
-    //public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
+    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
 
-    //public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
+    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
 
-    //public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
+    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
 
-    //public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
+    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+    public virtual DbSet<BloodGroup> BloodGroup { get; set; }
 
-    public virtual DbSet<Employee> Employees { get; set; }
+    public virtual DbSet<Country> Country { get; set; }
 
-    public virtual DbSet<LanguageIndBn> LanguageIndBns { get; set; }
+    public virtual DbSet<Currencies> Currencies { get; set; }
 
-    public virtual DbSet<LanguageList> LanguageLists { get; set; }
+    public virtual DbSet<Degree> Degree { get; set; }
 
-    public virtual DbSet<LanguageMainTable> LanguageMainTables { get; set; }
+    public virtual DbSet<Departments> Departments { get; set; }
 
-    public virtual DbSet<MenuTab> MenuTabs { get; set; }
+    public virtual DbSet<Designations> Designations { get; set; }
 
-    public virtual DbSet<Permission> Permissions { get; set; }
+    public virtual DbSet<EducationBoard> EducationBoard { get; set; }
 
-    public virtual DbSet<RoleModulePermission> RoleModulePermissions { get; set; }
+    public virtual DbSet<EducationLevels> EducationLevels { get; set; }
 
-    public virtual DbSet<UserVisitLog> UserVisitLogs { get; set; }
+    public virtual DbSet<EmployeeAdditionalInfo> EmployeeAdditionalInfo { get; set; }
+
+    public virtual DbSet<EmployeeBaseAllowances> EmployeeBaseAllowances { get; set; }
+
+    public virtual DbSet<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; }
+
+    public virtual DbSet<EmployeeBasePaymentModes> EmployeeBasePaymentModes { get; set; }
+
+    public virtual DbSet<EmployeeEducationalInfo> EmployeeEducationalInfo { get; set; }
+
+    public virtual DbSet<EmployeeFamilyInfo> EmployeeFamilyInfo { get; set; }
+
+    public virtual DbSet<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; }
+
+    public virtual DbSet<EmployeeSalarySettings> EmployeeSalarySettings { get; set; }
+
+    public virtual DbSet<EmployeeTranningInfo> EmployeeTranningInfo { get; set; }
+
+    public virtual DbSet<EmployeeType> EmployeeType { get; set; }
+
+    public virtual DbSet<Employees> Employees { get; set; }
+
+    public virtual DbSet<EmploymentNature> EmploymentNature { get; set; }
+
+    public virtual DbSet<Genders> Genders { get; set; }
+
+    public virtual DbSet<Grade> Grade { get; set; }
+
+    public virtual DbSet<LanguageInd_bn> LanguageInd_bn { get; set; }
+
+    public virtual DbSet<LanguageLists> LanguageLists { get; set; }
+
+    public virtual DbSet<LanguageMainTables> LanguageMainTables { get; set; }
+
+    public virtual DbSet<LicenceTypes> LicenceTypes { get; set; }
+
+    public virtual DbSet<MaritalStatus> MaritalStatus { get; set; }
+
+    public virtual DbSet<MenuTab> MenuTab { get; set; }
+
+    public virtual DbSet<Organization> Organization { get; set; }
+
+    public virtual DbSet<OrganizationBranches> OrganizationBranches { get; set; }
+
+    public virtual DbSet<PassingYears> PassingYears { get; set; }
+
+    public virtual DbSet<PaymenPeriodTypes> PaymenPeriodTypes { get; set; }
+
+    public virtual DbSet<PaymentModes> PaymentModes { get; set; }
+
+    public virtual DbSet<Permissions> Permissions { get; set; }
+
+    public virtual DbSet<ProvisionPeriodTtimeTypes> ProvisionPeriodTtimeTypes { get; set; }
+
+    public virtual DbSet<Religions> Religions { get; set; }
+
+    public virtual DbSet<ResultTypes> ResultTypes { get; set; }
+
+    public virtual DbSet<RoleModulePermissions> RoleModulePermissions { get; set; }
+
+    public virtual DbSet<ServiceYears> ServiceYears { get; set; }
+
+    public virtual DbSet<Statuses> Statuses { get; set; }
+
+    public virtual DbSet<TenantInfo> TenantInfo { get; set; }
+
+    public virtual DbSet<TrainingYears> TrainingYears { get; set; }
+
+    public virtual DbSet<UserVisitLogs> UserVisitLogs { get; set; }
+
+    public virtual DbSet<YearlyEndBonusTypes> YearlyEndBonusTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<ActionLog>(entity =>
+        modelBuilder.Entity<ActionLogs>(entity =>
         {
-            entity.HasKey(e => e.ActionLogId).HasName("PK__ActionLo__428D61A251957296");
+            entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2DEF8C716");
 
-            entity.Property(e => e.ActionLogId).HasColumnName("ActionLogID");
             entity.Property(e => e.ActionName).HasMaxLength(150);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Lip)
-                .HasMaxLength(20)
-                .HasColumnName("LIP");
-            entity.Property(e => e.Lmac)
-                .HasMaxLength(30)
-                .HasColumnName("LMAC");
-            entity.Property(e => e.TargetId).HasColumnName("TargetID");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.TargetType).HasMaxLength(255);
             entity.Property(e => e.UserEmail).HasMaxLength(150);
 
@@ -78,33 +143,17 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<ActionTaken>(entity =>
         {
-            entity.HasKey(e => e.ActionTakenId).HasName("PK__ActionTa__DC44289D6296AC07");
+            entity.HasKey(e => e.ActionTakenID).HasName("PK__ActionTa__DC44289DFAE6A087");
 
-            entity.ToTable("ActionTaken");
-
-            entity.Property(e => e.ActionTakenId).HasColumnName("ActionTakenID");
             entity.Property(e => e.ActionTakenName).HasMaxLength(50);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.Lip)
-                .HasMaxLength(20)
-                .HasColumnName("LIP");
-            entity.Property(e => e.Lmac)
-                .HasMaxLength(30)
-                .HasColumnName("LMAC");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
-        //modelBuilder.Entity<AspNetRole>(entity =>
-        //{
-        //    entity.Property(e => e.Discriminator)
-        //        .IsRequired()
-        //        .HasMaxLength(21);
-        //    entity.Property(e => e.Name).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
-        //});
-
-        //modelBuilder.Entity<AspNetRoleClaim>(entity =>
+        //modelBuilder.Entity<AspNetRoleClaims>(entity =>
         //{
         //    entity.Property(e => e.RoleId)
         //        .IsRequired()
@@ -113,34 +162,16 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
         //});
 
-        //modelBuilder.Entity<AspNetUser>(entity =>
+        //modelBuilder.Entity<AspNetRoles>(entity =>
         //{
         //    entity.Property(e => e.Discriminator)
         //        .IsRequired()
         //        .HasMaxLength(21);
-        //    entity.Property(e => e.Email).HasMaxLength(256);
-        //    entity.Property(e => e.Nidnumber).HasColumnName("NIDNumber");
-        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
-        //    entity.Property(e => e.UserName).HasMaxLength(256);
-
-        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.EmployeeId)
-        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        //    entity.HasMany(d => d.Roles).WithMany(p => p.Users)
-        //        .UsingEntity<Dictionary<string, object>>(
-        //            "AspNetUserRole",
-        //            r => r.HasOne<AspNetRole>().WithMany().HasForeignKey("RoleId"),
-        //            l => l.HasOne<AspNetUser>().WithMany().HasForeignKey("UserId"),
-        //            j =>
-        //            {
-        //                j.HasKey("UserId", "RoleId");
-        //                j.ToTable("AspNetUserRoles");
-        //            });
+        //    entity.Property(e => e.Name).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
         //});
 
-        //modelBuilder.Entity<AspNetUserClaim>(entity =>
+        //modelBuilder.Entity<AspNetUserClaims>(entity =>
         //{
         //    entity.Property(e => e.UserId)
         //        .IsRequired()
@@ -149,7 +180,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
         //});
 
-        //modelBuilder.Entity<AspNetUserLogin>(entity =>
+        //modelBuilder.Entity<AspNetUserLogins>(entity =>
         //{
         //    entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
 
@@ -160,13 +191,37 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
         //});
 
-        //modelBuilder.Entity<AspNetUserToken>(entity =>
+        //modelBuilder.Entity<AspNetUserTokens>(entity =>
         //{
         //    entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
 
         //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
         //});
 
+        //modelBuilder.Entity<AspNetUsers>(entity =>
+        //{
+        //    entity.Property(e => e.Discriminator)
+        //        .IsRequired()
+        //        .HasMaxLength(21);
+        //    entity.Property(e => e.Email).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+        //    entity.Property(e => e.UserName).HasMaxLength(256);
+
+        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.EmployeeId)
+        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+        //    entity.HasMany(d => d.Role).WithMany(p => p.User)
+        //        .UsingEntity<Dictionary<string, object>>(
+        //            "AspNetUserRoles",
+        //            r => r.HasOne<AspNetRoles>().WithMany().HasForeignKey("RoleId"),
+        //            l => l.HasOne<AspNetUsers>().WithMany().HasForeignKey("UserId"),
+        //            j =>
+        //            {
+        //                j.HasKey("UserId", "RoleId");
+        //            });
+        //});
 
         modelBuilder.Entity<ApplicationUser>()
 .HasDiscriminator<string>("Discriminator")
@@ -177,81 +232,966 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
-        modelBuilder.Entity<Employee>(entity =>
+        modelBuilder.Entity<BloodGroup>(entity =>
         {
-            entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04FF1C958FE8F");
+            entity.HasKey(e => e.BloodGroupID).HasName("PK__BloodGro__4398C6AF7A18FF50");
 
-            entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
-            entity.Property(e => e.BirthCertificateNo).HasMaxLength(40);
-            entity.Property(e => e.BirthPlace).HasMaxLength(100);
-            entity.Property(e => e.BloodGroupId).HasColumnName("BloodGroupID");
-            entity.Property(e => e.CardNo).HasMaxLength(50);
+            entity.HasIndex(e => e.BloodGroupName, "UQ__BloodGro__C45CCC5D3439354D").IsUnique();
+
+            entity.HasIndex(e => e.BloodGroupName, "UQ__BloodGro__C45CCC5D7BA57645").IsUnique();
+
+            entity.Property(e => e.BloodGroupName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BloodGroupCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDBloodGroup");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BloodGroupDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByBloodGroup");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BloodGroupUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByBloodGroup");
+        });
+
+        modelBuilder.Entity<Country>(entity =>
+        {
+            entity.HasKey(e => e.CountryID).HasName("PK__Country__10D160BF16010B8E");
+
+            entity.HasIndex(e => e.CountryName, "UQ__Country__E056F2013BF1ACAC").IsUnique();
+
+            entity.HasIndex(e => e.CountryName, "UQ__Country__E056F20147250C70").IsUnique();
+
+            entity.Property(e => e.CountryCode).HasMaxLength(10);
+            entity.Property(e => e.CountryName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CountryCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCountry");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.CountryDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByCountry");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CountryUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByCountry");
+        });
+
+        modelBuilder.Entity<Currencies>(entity =>
+        {
+            entity.HasKey(e => e.CurrencyID).HasName("PK__Currenci__14470B101163756C");
+
+            entity.HasIndex(e => e.CurrencyCode, "UQ__Currenci__408426BF317F03C5").IsUnique();
+
+            entity.HasIndex(e => e.CurrencyCode, "UQ__Currenci__408426BF7E517D45").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CurrencyCode)
+                .IsRequired()
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.CurrencyName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Symbol).HasMaxLength(3);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CurrenciesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByCurrencies");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.CurrenciesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByCurrencies");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CurrenciesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByCurrencies");
+        });
+
+        modelBuilder.Entity<Degree>(entity =>
+        {
+            entity.HasKey(e => e.DegreeID).HasName("PK__Degree__4D9492CE3F20088B");
+
+            entity.HasIndex(e => e.DegreeName, "UQ__Degree__9C9AC10B6780EE1D").IsUnique();
+
+            entity.HasIndex(e => e.DegreeName, "UQ__Degree__9C9AC10B916710DA").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DegreeName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DegreeCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByDegree");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.DegreeDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByDegree");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DegreeUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByDegree");
+        });
+
+        modelBuilder.Entity<Departments>(entity =>
+        {
+            entity.HasKey(e => e.DepartmentID).HasName("PK__Departme__B2079BCD6DF54C09");
+
+            entity.HasIndex(e => e.DepartmentName, "UQ__Departme__D949CC34BEF71A7F").IsUnique();
+
+            entity.HasIndex(e => e.DepartmentName, "UQ__Departme__D949CC34E9EEFD1A").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DepartmentName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DepartmentsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByDepartments");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.DepartmentsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByDepartments");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DepartmentsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByDepartments");
+        });
+
+        modelBuilder.Entity<Designations>(entity =>
+        {
+            entity.HasKey(e => e.DesignationID).HasName("PK__Designat__BABD603E8F785965");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DesignationName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DesignationsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByDesignations");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.DesignationsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByDesignations");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DesignationsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByDesignations");
+        });
+
+        modelBuilder.Entity<EducationBoard>(entity =>
+        {
+            entity.HasKey(e => e.EducationBoardID).HasName("PK__Educatio__ED26EA02AE0533BD");
+
+            entity.HasIndex(e => e.EducationBoardName, "UQ__Educatio__41B5FCB30FB76DFB").IsUnique();
+
+            entity.HasIndex(e => e.EducationBoardName, "UQ__Educatio__41B5FCB37223DE45").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EducationBoardName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EducationBoardDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByEducationBoard");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EducationBoardUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByEducationBoard");
+        });
+
+        modelBuilder.Entity<EducationLevels>(entity =>
+        {
+            entity.HasKey(e => e.EducationLevelID).HasName("PK__Educatio__6F6237AD6F4B34F6");
+
+            entity.HasIndex(e => e.EducationLevelName, "UQ__Educatio__DD98BCBA0EF0044D").IsUnique();
+
+            entity.HasIndex(e => e.EducationLevelName, "UQ__Educatio__DD98BCBA8D82F52E").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EducationLevelName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EducationLevelsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByEducationLevels");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EducationLevelsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByEducationLevels");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EducationLevelsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByEducationLevels");
+        });
+
+        modelBuilder.Entity<EmployeeAdditionalInfo>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeAdditionalInfoID).HasName("PK__Employee__9A13352D02AF7CCE");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DrivingLicenceExpireDate).HasColumnType("datetime");
+            entity.Property(e => e.DrivingLicenceIssueDate).HasColumnType("datetime");
+            entity.Property(e => e.DrivingLicenceNo).HasMaxLength(50);
+            entity.Property(e => e.DrivingLicencePlaceOfIssue).HasMaxLength(100);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PasportExpireDate).HasColumnType("datetime");
+            entity.Property(e => e.PasportIssueDate).HasColumnType("datetime");
+            entity.Property(e => e.PasportName).HasMaxLength(100);
+            entity.Property(e => e.PasportNo).HasMaxLength(100);
+            entity.Property(e => e.PasportPlaceOfIssue).HasMaxLength(100);
+            entity.Property(e => e.SymbolOfVehicleClass).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.VisaExpireDate).HasColumnType("datetime");
+            entity.Property(e => e.WorkPermaitNumber).HasMaxLength(100);
+            entity.Property(e => e.WorkPermitEffectiveDate).HasColumnType("datetime");
+            entity.Property(e => e.WorkPermitExpireDate).HasColumnType("datetime");
+            entity.Property(e => e.WorkPermitType).HasMaxLength(100);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeAdditionalInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeA__Creat__6F7F8B4B");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeAdditionalInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeA__Delet__725BF7F6");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeAdditionalInfoEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeA__Emplo__6D9742D9");
+
+            entity.HasOne(d => d.LicenceType).WithMany(p => p.EmployeeAdditionalInfo)
+                .HasForeignKey(d => d.LicenceTypeID)
+                .HasConstraintName("FK__EmployeeA__Licen__6E8B6712");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeAdditionalInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeA__Updat__7073AF84");
+        });
+
+        modelBuilder.Entity<EmployeeBaseAllowances>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeBaseAllowanceID).HasName("PK__Employee__F24C32E3DED63E8B");
+
+            entity.Property(e => e.ConveyanceAllowancePercentage).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.HouseRentAllowancePercentage).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MedicalAllowancePercentage).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MobileInternetAllowance).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ShiftAllowance).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeBaseAllowancesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeB__Creat__6225902D");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeBaseAllowancesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeB__Delet__6501FCD8");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeBaseAllowancesEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeB__Emplo__5C6CB6D7");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeBaseAllowancesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeB__Updat__6319B466");
+        });
+
+        modelBuilder.Entity<EmployeeBaseBenefits>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeBaseBenefitID).HasName("PK__Employee__0F68172FB74CFDB6");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.FastivalBonusPercentage).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.HealthInsurance).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PerformanceBonus).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ProvidantFundEmployeePercentage).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ProvidantFundOrganizationPercentage).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeBaseBenefitsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeB__Creat__55BFB948");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeBaseBenefitsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeB__Delet__589C25F3");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeBaseBenefitsEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeB__Emplo__4E1E9780");
+
+            entity.HasOne(d => d.ServiceYear).WithMany(p => p.EmployeeBaseBenefits)
+                .HasForeignKey(d => d.ServiceYearID)
+                .HasConstraintName("FK__EmployeeB__Servi__54CB950F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeBaseBenefitsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeB__Updat__56B3DD81");
+
+            entity.HasOne(d => d.YearlyEndBonusType).WithMany(p => p.EmployeeBaseBenefits)
+                .HasForeignKey(d => d.YearlyEndBonusTypeID)
+                .HasConstraintName("FK__EmployeeB__Yearl__50FB042B");
+        });
+
+        modelBuilder.Entity<EmployeeBasePaymentModes>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeBasePaymentModeID).HasName("PK__Employee__CD40A86BB816CB20");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Percentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeBasePaymentModesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeB__Creat__29E1370A");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeBasePaymentModesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeB__Delet__2CBDA3B5");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeBasePaymentModesEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK_Employees_EmployeeID_EmployeeSalarySettings");
+
+            entity.HasOne(d => d.PaymentMode).WithMany(p => p.EmployeeBasePaymentModes)
+                .HasForeignKey(d => d.PaymentModeID)
+                .HasConstraintName("FK__EmployeeB__Payme__27F8EE98");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeBasePaymentModesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeB__Updat__2AD55B43");
+        });
+
+        modelBuilder.Entity<EmployeeEducationalInfo>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeEducationalInfoID).HasName("PK__Employee__D878EC55BC20EFD7");
+
+            entity.Property(e => e.Achievement).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.InstitutionName).HasMaxLength(200);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MajorSubject).HasMaxLength(200);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.YearDuration).HasMaxLength(50);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeEducationalInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeE__Creat__1F2E9E6D");
+
+            entity.HasOne(d => d.Degree).WithMany(p => p.EmployeeEducationalInfo)
+                .HasForeignKey(d => d.DegreeID)
+                .HasConstraintName("FK__EmployeeE__Degre__1B5E0D89");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeEducationalInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeE__Delet__220B0B18");
+
+            entity.HasOne(d => d.EducationBoard).WithMany(p => p.EmployeeEducationalInfo)
+                .HasForeignKey(d => d.EducationBoardID)
+                .HasConstraintName("FK__EmployeeE__Educa__1C5231C2");
+
+            entity.HasOne(d => d.EducationLevel).WithMany(p => p.EmployeeEducationalInfo)
+                .HasForeignKey(d => d.EducationLevelID)
+                .HasConstraintName("FK__EmployeeE__Educa__1A69E950");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeEducationalInfoEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeE__Emplo__1975C517");
+
+            entity.HasOne(d => d.PassingYear).WithMany(p => p.EmployeeEducationalInfo)
+                .HasForeignKey(d => d.PassingYearID)
+                .HasConstraintName("FK__EmployeeE__Passi__1E3A7A34");
+
+            entity.HasOne(d => d.ResultType).WithMany(p => p.EmployeeEducationalInfo)
+                .HasForeignKey(d => d.ResultTypeID)
+                .HasConstraintName("FK__EmployeeE__Resul__1D4655FB");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeEducationalInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeE__Updat__2022C2A6");
+        });
+
+        modelBuilder.Entity<EmployeeFamilyInfo>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeFamilyInfoID).HasName("PK__Employee__B16C597BEEA9D8CF");
+
+            entity.Property(e => e.Address).HasMaxLength(200);
+            entity.Property(e => e.ContactNumber).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.FullName).HasMaxLength(100);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Occupation).HasMaxLength(50);
+            entity.Property(e => e.RelationToEmployee).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeFamilyInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeF__Creat__351DDF8C");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeFamilyInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeF__Delet__37FA4C37");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeFamilyInfoEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeF__Emplo__3429BB53");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeFamilyInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeF__Updat__361203C5");
+        });
+
+        modelBuilder.Entity<EmployeeOfficeInfo>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeOfficeInfoID).HasName("PK__Employee__A15025C8F57ED9BB");
+
+            entity.Property(e => e.AppointmentLetterNo).HasMaxLength(40);
+            entity.Property(e => e.AttendanceId).HasMaxLength(50);
+            entity.Property(e => e.ConfirmationLetterNo).HasMaxLength(40);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(50);
-            entity.Property(e => e.EmployeeCode)
-                .HasMaxLength(20)
-                .IsUnicode(false);
+            entity.Property(e => e.EmployeeOfficeId).HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OfficeEmail).HasMaxLength(150);
+            entity.Property(e => e.OfficePhone).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeOfficeInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_EmployeeOfficeInfo_CreatedBy");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeOfficeInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_EmployeeOfficeInfo_DeletedBy");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.DepartmentID)
+                .HasConstraintName("FK_Departments_DepartmentID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.Designation).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.DesignationID)
+                .HasConstraintName("FK_Designations_DesignationID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.EmployeeType).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.EmployeeTypeID)
+                .HasConstraintName("FK_EmployeeType_EmployeeTypeID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.EmploymentNature).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.EmploymentNatureID)
+                .HasConstraintName("FK_EmploymentNature_EmploymentNatureID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.EmploymentStatus).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.EmploymentStatusId)
+                .HasConstraintName("FK_Statuses_StatusID_EmploymentStatusId");
+
+            entity.HasOne(d => d.HeadOfDepartment).WithMany(p => p.EmployeeOfficeInfoHeadOfDepartment)
+                .HasForeignKey(d => d.HeadOfDepartmentId)
+                .HasConstraintName("FK_Employees_EmployeeID_HeadOfDepartmentId_");
+
+            entity.HasOne(d => d.ImmediateSupervisor).WithMany(p => p.EmployeeOfficeInfoImmediateSupervisor)
+                .HasForeignKey(d => d.ImmediateSupervisorId)
+                .HasConstraintName("FK_Employees_EmployeeID_ImmediateSupervisorId_");
+
+            entity.HasOne(d => d.OrganizationBranch).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.OrganizationBranchID)
+                .HasConstraintName("FK_OrganizationBranches_OrganizationBranchID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.ProvisionPeriodTtimeType).WithMany(p => p.EmployeeOfficeInfo)
+                .HasForeignKey(d => d.ProvisionPeriodTtimeTypeID)
+                .HasConstraintName("FK_ProvisionPeriodTtimeTypes_ProvisionPeriodTtimeTypeID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.SeniorSupervisor).WithMany(p => p.EmployeeOfficeInfoSeniorSupervisor)
+                .HasForeignKey(d => d.SeniorSupervisorId)
+                .HasConstraintName("FK_Employees_EmployeeID_EmployeeOfficeInfo");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeOfficeInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_EmployeeOfficeInfo_UpdatedBy");
+        });
+
+        modelBuilder.Entity<EmployeeSalarySettings>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeSalarySettingsID).HasName("PK__Employee__4D6BEBB55BF56BE8");
+
+            entity.Property(e => e.ATMCardNo).HasMaxLength(30);
+            entity.Property(e => e.AccountName).HasMaxLength(50);
+            entity.Property(e => e.AccountNo).HasMaxLength(30);
+            entity.Property(e => e.Address).HasMaxLength(100);
+            entity.Property(e => e.BankName).HasMaxLength(100);
+            entity.Property(e => e.BranchName).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EmployeeGID).HasMaxLength(30);
+            entity.Property(e => e.IFSCCode).HasMaxLength(30);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.NagodAccountNo).HasMaxLength(30);
+            entity.Property(e => e.RoketAccountNo).HasMaxLength(30);
+            entity.Property(e => e.RoutingNo).HasMaxLength(30);
+            entity.Property(e => e.SWIFTCode).HasMaxLength(30);
+            entity.Property(e => e.Salary).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.bKashAccountNo).HasMaxLength(30);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeSalarySettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeS__Creat__6DCC4D03");
+
+            entity.HasOne(d => d.Currency).WithMany(p => p.EmployeeSalarySettings)
+                .HasForeignKey(d => d.CurrencyID)
+                .HasConstraintName("FK__EmployeeS__Curre__6CD828CA");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeSalarySettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeS__Delet__70A8B9AE");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeSalarySettingsEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeS__Emplo__6AEFE058");
+
+            entity.HasOne(d => d.Grade).WithMany(p => p.EmployeeSalarySettings)
+                .HasForeignKey(d => d.GradeID)
+                .HasConstraintName("FK__EmployeeS__Grade__6BE40491");
+
+            entity.HasOne(d => d.PaymenPeriodType).WithMany(p => p.EmployeeSalarySettings)
+                .HasForeignKey(d => d.PaymenPeriodTypeID)
+                .HasConstraintName("FK_PaymenPeriodTypes_PaymenPeriodTypeID");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeSalarySettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeS__Updat__6EC0713C");
+        });
+
+        modelBuilder.Entity<EmployeeTranningInfo>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeTranningInfoID).HasName("PK__Employee__377FAE0D84C80AE4");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.InstituteName).HasMaxLength(200);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LocationName).HasMaxLength(200);
+            entity.Property(e => e.TopicCovered).HasMaxLength(200);
+            entity.Property(e => e.TranningTitle).HasMaxLength(200);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.YearDuration).HasMaxLength(50);
+
+            entity.HasOne(d => d.Country).WithMany(p => p.EmployeeTranningInfo)
+                .HasForeignKey(d => d.CountryID)
+                .HasConstraintName("FK__EmployeeT__Count__2C88998B");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeTranningInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeT__Creat__2E70E1FD");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeTranningInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeT__Delet__314D4EA8");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeTranningInfoEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__EmployeeT__Emplo__2B947552");
+
+            entity.HasOne(d => d.TrainingYear).WithMany(p => p.EmployeeTranningInfo)
+                .HasForeignKey(d => d.TrainingYearID)
+                .HasConstraintName("FK__EmployeeT__Train__2D7CBDC4");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeTranningInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeT__Updat__2F650636");
+        });
+
+        modelBuilder.Entity<EmployeeType>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeTypeID).HasName("PK__Employee__1F1B6AB4DC72062C");
+
+            entity.HasIndex(e => e.EmployeeTypeName, "UQ__Employee__681CE2118412387C").IsUnique();
+
+            entity.HasIndex(e => e.EmployeeTypeName, "UQ__Employee__681CE21185B1E465").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EmployeeTypeName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeTypeCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByEmployeeType");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeTypeDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByEmployeeType");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeTypeUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByEmployeeType");
+        });
+
+        modelBuilder.Entity<Employees>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeID).HasName("PK__Employee__7AD04FF15EA560DB");
+
+            entity.Property(e => e.AboutEmployee).HasMaxLength(255);
+            entity.Property(e => e.BirthCertificateNo).HasMaxLength(40);
+            entity.Property(e => e.City).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
             entity.Property(e => e.EmployeeImageFileName).HasMaxLength(50);
             entity.Property(e => e.EmployeeSignatureFileName).HasMaxLength(50);
             entity.Property(e => e.FatherName).HasMaxLength(70);
             entity.Property(e => e.FirstName).HasMaxLength(50);
-            entity.Property(e => e.GenderId).HasColumnName("GenderID");
+            entity.Property(e => e.HouseNo).HasMaxLength(20);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.Lip)
-                .HasMaxLength(20)
-                .HasColumnName("LIP");
-            entity.Property(e => e.Lmac)
-                .HasMaxLength(30)
-                .HasColumnName("LMAC");
-            entity.Property(e => e.MaritalStatusId).HasColumnName("MaritalStatusID");
-            entity.Property(e => e.MobileNumber)
+            entity.Property(e => e.MobileNumber).HasMaxLength(50);
+            entity.Property(e => e.MotherName).HasMaxLength(70);
+            entity.Property(e => e.NID)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.PostalCode).HasMaxLength(20);
+            entity.Property(e => e.RoadNo).HasMaxLength(20);
+            entity.Property(e => e.State).HasMaxLength(100);
+            entity.Property(e => e.TIN).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BloodGroup).WithMany(p => p.Employees)
+                .HasForeignKey(d => d.BloodGroupID)
+                .HasConstraintName("FK_BloodGroup_BloodGroupID_Employees");
+
+            entity.HasOne(d => d.Country).WithMany(p => p.EmployeesCountry)
+                .HasForeignKey(d => d.CountryID)
+                .HasConstraintName("FK_Country_CountryID_Employees");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InverseCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_Employees_CreatedBy");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.InverseDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_Employees_DeletedBy");
+
+            entity.HasOne(d => d.Gender).WithMany(p => p.Employees)
+                .HasForeignKey(d => d.GenderID)
+                .HasConstraintName("FK_Genders_GenderID_Employees");
+
+            entity.HasOne(d => d.MaritalStatus).WithMany(p => p.Employees)
+                .HasForeignKey(d => d.MaritalStatusID)
+                .HasConstraintName("FK_MaritalStatus_MaritalStatusID_Employees");
+
+            entity.HasOne(d => d.Nationality).WithMany(p => p.EmployeesNationality)
+                .HasForeignKey(d => d.NationalityID)
+                .HasConstraintName("FK_Country_NationalityID_Employees");
+
+            entity.HasOne(d => d.Religion).WithMany(p => p.Employees)
+                .HasForeignKey(d => d.ReligionID)
+                .HasConstraintName("FK_Religions_ReligionID_Employees");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InverseUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_Employees_UpdatedBy");
+        });
+
+        modelBuilder.Entity<EmploymentNature>(entity =>
+        {
+            entity.HasKey(e => e.EmploymentNatureID).HasName("PK__Employme__2D8410D3C5A149BF");
+
+            entity.HasIndex(e => e.EmploymentNatureName, "UQ__Employme__B089C2810BE97E73").IsUnique();
+
+            entity.HasIndex(e => e.EmploymentNatureName, "UQ__Employme__B089C281E95BC61C").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EmploymentNatureName)
                 .IsRequired()
                 .HasMaxLength(50);
-            entity.Property(e => e.MotherName).HasMaxLength(70);
-            entity.Property(e => e.NationalityId).HasColumnName("NationalityID");
-            entity.Property(e => e.Nid)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("NID");
-            entity.Property(e => e.OtherActivities).HasMaxLength(255);
-            entity.Property(e => e.ReligionId).HasColumnName("ReligionID");
-            entity.Property(e => e.Tin)
-                .HasMaxLength(50)
-                .HasColumnName("TIN");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmploymentNatureCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByEmploymentNature");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmploymentNatureDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByEmploymentNature");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmploymentNatureUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByEmploymentNature");
         });
 
-        modelBuilder.Entity<LanguageIndBn>(entity =>
+        modelBuilder.Entity<Genders>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Language__3214EC07E7871778");
+            entity.HasKey(e => e.GenderID).HasName("PK__Genders__4E24E817AB5715C2");
 
-            entity.ToTable("LanguageInd_bn");
+            entity.HasIndex(e => e.GenderName, "UQ__Genders__F7C1771598306287").IsUnique();
 
-            entity.Property(e => e.TranslatedText).UseCollation("Indic_General_90_CI_AS");
+            entity.HasIndex(e => e.GenderName, "UQ__Genders__F7C17715A6EEAC60").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.GenderName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.GendersCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByGenders");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.GendersDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByGenders");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.GendersUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByGenders");
         });
 
-        modelBuilder.Entity<LanguageList>(entity =>
+        modelBuilder.Entity<Grade>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Language__3214EC27120A36B7");
+            entity.HasKey(e => e.GradeID).HasName("PK__Grade__54F87A37239C87D4");
 
-            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.HasIndex(e => e.GradeName, "UQ__Grade__4AA309AA473EF26B").IsUnique();
+
+            entity.HasIndex(e => e.GradeName, "UQ__Grade__4AA309AA87306608").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.GradeName)
+                .IsRequired()
+                .HasMaxLength(20);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.GradeCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByGrade");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.GradeDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByGrade");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.GradeUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByGrade");
+        });
+
+        modelBuilder.Entity<LanguageInd_bn>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Language__3214EC072DB8735C");
+        });
+
+        modelBuilder.Entity<LanguageLists>(entity =>
+        {
+            entity.HasKey(e => e.ID).HasName("PK__Language__3214EC275D38258A");
+
             entity.Property(e => e.LanguageCode).IsRequired();
             entity.Property(e => e.LanguageName).IsRequired();
         });
 
-        modelBuilder.Entity<LanguageMainTable>(entity =>
+        modelBuilder.Entity<LanguageMainTables>(entity =>
         {
-            entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.EnglishText).IsRequired();
             entity.Property(e => e.TextCode).IsRequired();
         });
 
+        modelBuilder.Entity<LicenceTypes>(entity =>
+        {
+            entity.HasKey(e => e.LicenceTypeID).HasName("PK__LicenceT__2B57D29E574F5BD7");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LicenceTypeName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LicenceTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LicenceTy__Creat__67DE6983");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LicenceTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LicenceTy__Delet__6ABAD62E");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LicenceTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LicenceTy__Updat__68D28DBC");
+        });
+
+        modelBuilder.Entity<MaritalStatus>(entity =>
+        {
+            entity.HasKey(e => e.MaritalStatusID).HasName("PK__MaritalS__C8B1BA527423DC3A");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MaritalStatusName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.MaritalStatusCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_MaritalStatus_CreatedBy");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.MaritalStatusUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_MaritalStatus_UpdatedBy");
+        });
+
         modelBuilder.Entity<MenuTab>(entity =>
         {
-            entity.HasKey(e => e.MenuTabId).HasName("PK__MenuTab__72B9B8C60A8F4C38");
-
-            entity.ToTable("MenuTab");
+            entity.HasKey(e => e.MenuTabId).HasName("PK__MenuTab__72B9B8C6949178C1");
 
             entity.Property(e => e.ControllerName).HasMaxLength(100);
             entity.Property(e => e.Icon).HasMaxLength(500);
@@ -268,7 +1208,235 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent).HasForeignKey(d => d.ParentId);
         });
 
-        modelBuilder.Entity<RoleModulePermission>(entity =>
+        modelBuilder.Entity<Organization>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationID).HasName("PK__Organiza__CADB0B72B927AD08");
+
+            entity.HasIndex(e => e.OrganizationName, "UQ__Organiza__F50959E4B7D82892").IsUnique();
+
+            entity.HasIndex(e => e.OrganizationName, "UQ__Organiza__F50959E4D9205E7E").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OrganizationName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrganizationCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByOffices");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OrganizationDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByOffices");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByOffices");
+        });
+
+        modelBuilder.Entity<OrganizationBranches>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationBranchID);
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OrganizationBranchName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrganizationBranchesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_OrganizationBranches_CreatedBy");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OrganizationBranchesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_OrganizationBranches_DeletedBy");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.OrganizationBranches)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_OrganizationBranches");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationBranchesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_OrganizationBranches_UpdatedBy");
+        });
+
+        modelBuilder.Entity<PassingYears>(entity =>
+        {
+            entity.HasKey(e => e.PassingYearID).HasName("PK__PassingY__36B489A4B45D31CF");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PassingYearName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PassingYearsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PassingYe__Creat__13BCEBC1");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PassingYearsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PassingYe__Delet__1699586C");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PassingYearsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PassingYe__Updat__14B10FFA");
+        });
+
+        modelBuilder.Entity<PaymenPeriodTypes>(entity =>
+        {
+            entity.HasKey(e => e.PaymenPeriodTypeID).HasName("PK__PaymenPe__94F2560C7F464F06");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PaymenPeriodTypeName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaymenPeriodTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaymenPer__Creat__1B9317B3");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaymenPeriodTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaymenPer__Delet__1E6F845E");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymenPeriodTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaymenPer__Updat__1C873BEC");
+        });
+
+        modelBuilder.Entity<PaymentModes>(entity =>
+        {
+            entity.HasKey(e => e.PaymentModeID).HasName("PK__PaymentM__F959952902CC84E4");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PaymentModeName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaymentModesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaymentMo__Creat__22401542");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaymentModesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaymentMo__Delet__251C81ED");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymentModesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaymentMo__Updat__2334397B");
+        });
+
+        modelBuilder.Entity<ProvisionPeriodTtimeTypes>(entity =>
+        {
+            entity.HasKey(e => e.ProvisionPeriodTtimeTypeID).HasName("PK__Provisio__32423B109C50DA39");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.ProvisionPeriodTtimeTypeName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProvisionPeriodTtimeTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_ProvisionPeriodTtimeTypes_CreatedBy");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ProvisionPeriodTtimeTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_ProvisionPeriodTtimeTypes_DeletedBy");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProvisionPeriodTtimeTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeID_ProvisionPeriodTtimeTypes_UpdatedBy");
+        });
+
+        modelBuilder.Entity<Religions>(entity =>
+        {
+            entity.HasKey(e => e.ReligionID).HasName("PK__Religion__D3ADAB4A824D3BC2");
+
+            entity.HasIndex(e => e.ReligionName, "UQ__Religion__C476AA405AC501E7").IsUnique();
+
+            entity.HasIndex(e => e.ReligionName, "UQ__Religion__C476AA4083C2757D").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.ReligionName)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ReligionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByReligions");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ReligionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByReligions");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ReligionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByReligions");
+        });
+
+        modelBuilder.Entity<ResultTypes>(entity =>
+        {
+            entity.HasKey(e => e.ResultTypeID).HasName("PK__ResultTy__95B71CAD6F8C665A");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.ResultTypeName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ResultTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ResultTyp__Creat__0E04126B");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ResultTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ResultTyp__Delet__10E07F16");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ResultTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ResultTyp__Updat__0EF836A4");
+        });
+
+        modelBuilder.Entity<RoleModulePermissions>(entity =>
         {
             entity.Property(e => e.RoleId).HasMaxLength(450);
 
@@ -279,9 +1447,109 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Role).WithMany(p => p.RoleModulePermissions).HasForeignKey(d => d.RoleId);
         });
 
-        modelBuilder.Entity<UserVisitLog>(entity =>
+        modelBuilder.Entity<ServiceYears>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserVisi__3214EC07FEB8310B");
+            entity.HasKey(e => e.ServiceYearID).HasName("PK__ServiceY__8FFE3647DF07BCA1");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.ServiceYearName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ServiceYearsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ServiceYe__Creat__4865BE2A");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ServiceYearsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ServiceYe__Delet__4B422AD5");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ServiceYearsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ServiceYe__Updat__4959E263");
+        });
+
+        modelBuilder.Entity<Statuses>(entity =>
+        {
+            entity.HasKey(e => e.StatusID).HasName("PK__Statuses__C8EE204374CEEB10");
+
+            entity.HasIndex(e => e.StatusName, "UQ__Statuses__05E7698A20FD05C3").IsUnique();
+
+            entity.HasIndex(e => e.StatusName, "UQ__Statuses__05E7698A4AF2D0F1").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.StatusName).HasMaxLength(50);
+            entity.Property(e => e.StatusType).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.StatusesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDCreatedByStatuses");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.StatusesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDDeletedByStatuses");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.StatusesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Employees_EmployeeIDUpdatedByStatuses");
+        });
+
+        modelBuilder.Entity<TenantInfo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__TenantIn__3214EC073635E484");
+
+            entity.HasIndex(e => e.Identifier, "UQ__TenantIn__821FB0198A3C0222").IsUnique();
+
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.Identifier)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.TenantName)
+                .IsRequired()
+                .HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<TrainingYears>(entity =>
+        {
+            entity.HasKey(e => e.TrainingYearID).HasName("PK__Training__8D2E4A9BCA01D4A5");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.TrainingYearName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TrainingYearsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__TrainingY__Creat__25DB9BFC");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.TrainingYearsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__TrainingY__Delet__28B808A7");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.TrainingYearsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__TrainingY__Updat__26CFC035");
+        });
+
+        modelBuilder.Entity<UserVisitLogs>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserVisi__3214EC0775560001");
 
             entity.Property(e => e.Ipaddress).HasMaxLength(45);
             entity.Property(e => e.Lmac).HasMaxLength(50);
@@ -292,6 +1560,32 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .IsRequired()
                 .HasMaxLength(1024);
             entity.Property(e => e.UserId).HasMaxLength(256);
+        });
+
+        modelBuilder.Entity<YearlyEndBonusTypes>(entity =>
+        {
+            entity.HasKey(e => e.YearlyEndBonusTypeID).HasName("PK__YearlyEn__2CB3C00FB90C45BC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.YearlyEndBonusTypeName).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.YearlyEndBonusTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__YearlyEnd__Creat__42ACE4D4");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.YearlyEndBonusTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__YearlyEnd__Delet__4589517F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.YearlyEndBonusTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__YearlyEnd__Updat__43A1090D");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class UserVisitLog
+public partial class UserVisitLogs
 {
     public int Id { get; set; }
 

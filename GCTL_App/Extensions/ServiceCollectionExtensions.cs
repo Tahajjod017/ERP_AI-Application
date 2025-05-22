@@ -9,6 +9,7 @@ using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
 using GCTL.Service.Language;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.VisitingPath;
 
 namespace GCTL_App.Extensions
 {
@@ -42,7 +43,7 @@ namespace GCTL_App.Extensions
             //Siam 
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
-
+            services.AddScoped<IVisitingPathService, VisitingPathService>();
             #region
 
             services.AddScoped<ITranslateService, TranslateService>();

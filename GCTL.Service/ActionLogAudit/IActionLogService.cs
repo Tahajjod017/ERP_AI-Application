@@ -12,7 +12,7 @@ namespace GCTL.Service.ActionLogAudit
     public interface IActionLogService
     {
 
-        Task<PaginationService<ActionLog, ActionLogSetupVM>.PaginationResult<ActionLogSetupVM>> GetPaginateActionLog(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-     string sortColumn = "fdrBnkName", string sortOrder = "asc", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null);
+        Task<PaginationService<ActionLogs, ActionLogSetupVM>.PaginationResult<ActionLogSetupVM>> GetPaginateActionLog(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+     string currentSortColumn = "", string currentSortOrder = "", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null);
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LanguageIndBn
+public partial class LanguageInd_bn
 {
     public int Id { get; set; }
 

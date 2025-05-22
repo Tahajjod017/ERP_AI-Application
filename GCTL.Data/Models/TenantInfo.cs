@@ -5,13 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LanguageMainTable
+public partial class TenantInfo
 {
     public int Id { get; set; }
 
-    public string TextCode { get; set; }
+    public string TenantName { get; set; }
 
-    public string EnglishText { get; set; }
+    public string Identifier { get; set; }
 
-    public bool IsModified { get; set; }
+    public string ConnectionString { get; set; }
+
+    public string Description { get; set; }
 }
