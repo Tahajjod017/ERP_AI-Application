@@ -9,8 +9,6 @@ public partial class Employee
 {
     public int EmployeeId { get; set; }
 
-    public string EmployeeCode { get; set; }
-
     public string FirstName { get; set; }
 
     public string LastName { get; set; }
@@ -19,45 +17,37 @@ public partial class Employee
 
     public string MotherName { get; set; }
 
-    public DateOnly? DateOfBirth { get; set; }
-
-    public string BirthCertificateNo { get; set; }
-
-    public string BirthPlace { get; set; }
-
-    public int? GenderId { get; set; }
-
-    public int? BloodGroupId { get; set; }
-
-    public int? NationalityId { get; set; }
-
-    public string Nid { get; set; }
-
-    public int? ReligionId { get; set; }
-
-    public int? MaritalStatusId { get; set; }
-
-    public string CardNo { get; set; }
-
     public string MobileNumber { get; set; }
 
     public string Email { get; set; }
 
+    public string BirthCertificateNo { get; set; }
+
     public string Tin { get; set; }
+
+    public DateOnly? DateOfBirth { get; set; }
+
+    public string AboutEmployee { get; set; }
+
+    public string Nid { get; set; }
+
+    public string State { get; set; }
+
+    public string City { get; set; }
+
+    public string HouseNo { get; set; }
+
+    public string RoadNo { get; set; }
+
+    public string PostalCode { get; set; }
 
     public string EmployeeImageFileName { get; set; }
 
     public string EmployeeSignatureFileName { get; set; }
 
-    public string OtherActivities { get; set; }
-
     public string Lip { get; set; }
 
     public string Lmac { get; set; }
-
-    public int? CreatedBy { get; set; }
-
-    public int? UpdatedBy { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -67,7 +57,279 @@ public partial class Employee
 
     public int? DeletedBy { get; set; }
 
+    public bool? HasUser { get; set; }
+
+    public int? MaritalStatusId { get; set; }
+
+    public int? GenderId { get; set; }
+
+    public int? BloodGroupId { get; set; }
+
+    public int? NationalityId { get; set; }
+
+    public int? ReligionId { get; set; }
+
+    public int? CountryId { get; set; }
+
+    public int? CreatedBy { get; set; }
+
+    public int? UpdatedBy { get; set; }
+
+    public string EmployeeCode { get; set; }
+
     public virtual ICollection<ActionLog> ActionLogs { get; set; } = new List<ActionLog>();
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+
+    public virtual BloodGroup BloodGroup { get; set; }
+
+    public virtual ICollection<BloodGroup> BloodGroupCreatedByNavigations { get; set; } = new List<BloodGroup>();
+
+    public virtual ICollection<BloodGroup> BloodGroupDeletedByNavigations { get; set; } = new List<BloodGroup>();
+
+    public virtual ICollection<BloodGroup> BloodGroupUpdatedByNavigations { get; set; } = new List<BloodGroup>();
+
+    public virtual Country Country { get; set; }
+
+    public virtual ICollection<Country> CountryCreatedByNavigations { get; set; } = new List<Country>();
+
+    public virtual ICollection<Country> CountryDeletedByNavigations { get; set; } = new List<Country>();
+
+    public virtual ICollection<Country> CountryUpdatedByNavigations { get; set; } = new List<Country>();
+
+    public virtual Employee CreatedByNavigation { get; set; }
+
+    public virtual ICollection<Currency> CurrencyCreatedByNavigations { get; set; } = new List<Currency>();
+
+    public virtual ICollection<Currency> CurrencyDeletedByNavigations { get; set; } = new List<Currency>();
+
+    public virtual ICollection<Currency> CurrencyUpdatedByNavigations { get; set; } = new List<Currency>();
+
+    public virtual ICollection<Degree> DegreeCreatedByNavigations { get; set; } = new List<Degree>();
+
+    public virtual ICollection<Degree> DegreeDeletedByNavigations { get; set; } = new List<Degree>();
+
+    public virtual ICollection<Degree> DegreeUpdatedByNavigations { get; set; } = new List<Degree>();
+
+    public virtual Employee DeletedByNavigation { get; set; }
+
+    public virtual ICollection<Department> DepartmentCreatedByNavigations { get; set; } = new List<Department>();
+
+    public virtual ICollection<Department> DepartmentDeletedByNavigations { get; set; } = new List<Department>();
+
+    public virtual ICollection<Department> DepartmentUpdatedByNavigations { get; set; } = new List<Department>();
+
+    public virtual ICollection<Designation> DesignationCreatedByNavigations { get; set; } = new List<Designation>();
+
+    public virtual ICollection<Designation> DesignationDeletedByNavigations { get; set; } = new List<Designation>();
+
+    public virtual ICollection<Designation> DesignationUpdatedByNavigations { get; set; } = new List<Designation>();
+
+    public virtual ICollection<EducationBoard> EducationBoardDeletedByNavigations { get; set; } = new List<EducationBoard>();
+
+    public virtual ICollection<EducationBoard> EducationBoardUpdatedByNavigations { get; set; } = new List<EducationBoard>();
+
+    public virtual ICollection<EducationLevel> EducationLevelCreatedByNavigations { get; set; } = new List<EducationLevel>();
+
+    public virtual ICollection<EducationLevel> EducationLevelDeletedByNavigations { get; set; } = new List<EducationLevel>();
+
+    public virtual ICollection<EducationLevel> EducationLevelUpdatedByNavigations { get; set; } = new List<EducationLevel>();
+
+    public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoCreatedByNavigations { get; set; } = new List<EmployeeAdditionalInfo>();
+
+    public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoDeletedByNavigations { get; set; } = new List<EmployeeAdditionalInfo>();
+
+    public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoEmployees { get; set; } = new List<EmployeeAdditionalInfo>();
+
+    public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigations { get; set; } = new List<EmployeeAdditionalInfo>();
+
+    public virtual ICollection<EmployeeBaseAllowance> EmployeeBaseAllowanceCreatedByNavigations { get; set; } = new List<EmployeeBaseAllowance>();
+
+    public virtual ICollection<EmployeeBaseAllowance> EmployeeBaseAllowanceDeletedByNavigations { get; set; } = new List<EmployeeBaseAllowance>();
+
+    public virtual ICollection<EmployeeBaseAllowance> EmployeeBaseAllowanceEmployees { get; set; } = new List<EmployeeBaseAllowance>();
+
+    public virtual ICollection<EmployeeBaseAllowance> EmployeeBaseAllowanceUpdatedByNavigations { get; set; } = new List<EmployeeBaseAllowance>();
+
+    public virtual ICollection<EmployeeBaseBenefit> EmployeeBaseBenefitCreatedByNavigations { get; set; } = new List<EmployeeBaseBenefit>();
+
+    public virtual ICollection<EmployeeBaseBenefit> EmployeeBaseBenefitDeletedByNavigations { get; set; } = new List<EmployeeBaseBenefit>();
+
+    public virtual ICollection<EmployeeBaseBenefit> EmployeeBaseBenefitEmployees { get; set; } = new List<EmployeeBaseBenefit>();
+
+    public virtual ICollection<EmployeeBaseBenefit> EmployeeBaseBenefitUpdatedByNavigations { get; set; } = new List<EmployeeBaseBenefit>();
+
+    public virtual ICollection<EmployeeBasePaymentMode> EmployeeBasePaymentModeCreatedByNavigations { get; set; } = new List<EmployeeBasePaymentMode>();
+
+    public virtual ICollection<EmployeeBasePaymentMode> EmployeeBasePaymentModeDeletedByNavigations { get; set; } = new List<EmployeeBasePaymentMode>();
+
+    public virtual ICollection<EmployeeBasePaymentMode> EmployeeBasePaymentModeEmployees { get; set; } = new List<EmployeeBasePaymentMode>();
+
+    public virtual ICollection<EmployeeBasePaymentMode> EmployeeBasePaymentModeUpdatedByNavigations { get; set; } = new List<EmployeeBasePaymentMode>();
+
+    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoCreatedByNavigations { get; set; } = new List<EmployeeEducationalInfo>();
+
+    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoDeletedByNavigations { get; set; } = new List<EmployeeEducationalInfo>();
+
+    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoEmployees { get; set; } = new List<EmployeeEducationalInfo>();
+
+    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoUpdatedByNavigations { get; set; } = new List<EmployeeEducationalInfo>();
+
+    public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoCreatedByNavigations { get; set; } = new List<EmployeeFamilyInfo>();
+
+    public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoDeletedByNavigations { get; set; } = new List<EmployeeFamilyInfo>();
+
+    public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoEmployees { get; set; } = new List<EmployeeFamilyInfo>();
+
+    public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoUpdatedByNavigations { get; set; } = new List<EmployeeFamilyInfo>();
+
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoCreatedByNavigations { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoDeletedByNavigations { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoHeadOfDepartments { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoImmediateSupervisors { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoSeniorSupervisors { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoUpdatedByNavigations { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeSalarySetting> EmployeeSalarySettingCreatedByNavigations { get; set; } = new List<EmployeeSalarySetting>();
+
+    public virtual ICollection<EmployeeSalarySetting> EmployeeSalarySettingDeletedByNavigations { get; set; } = new List<EmployeeSalarySetting>();
+
+    public virtual ICollection<EmployeeSalarySetting> EmployeeSalarySettingEmployees { get; set; } = new List<EmployeeSalarySetting>();
+
+    public virtual ICollection<EmployeeSalarySetting> EmployeeSalarySettingUpdatedByNavigations { get; set; } = new List<EmployeeSalarySetting>();
+
+    public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfoCreatedByNavigations { get; set; } = new List<EmployeeTranningInfo>();
+
+    public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfoDeletedByNavigations { get; set; } = new List<EmployeeTranningInfo>();
+
+    public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfoEmployees { get; set; } = new List<EmployeeTranningInfo>();
+
+    public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfoUpdatedByNavigations { get; set; } = new List<EmployeeTranningInfo>();
+
+    public virtual ICollection<EmployeeType> EmployeeTypeCreatedByNavigations { get; set; } = new List<EmployeeType>();
+
+    public virtual ICollection<EmployeeType> EmployeeTypeDeletedByNavigations { get; set; } = new List<EmployeeType>();
+
+    public virtual ICollection<EmployeeType> EmployeeTypeUpdatedByNavigations { get; set; } = new List<EmployeeType>();
+
+    public virtual ICollection<EmploymentNature> EmploymentNatureCreatedByNavigations { get; set; } = new List<EmploymentNature>();
+
+    public virtual ICollection<EmploymentNature> EmploymentNatureDeletedByNavigations { get; set; } = new List<EmploymentNature>();
+
+    public virtual ICollection<EmploymentNature> EmploymentNatureUpdatedByNavigations { get; set; } = new List<EmploymentNature>();
+
+    public virtual Gender Gender { get; set; }
+
+    public virtual ICollection<Gender> GenderCreatedByNavigations { get; set; } = new List<Gender>();
+
+    public virtual ICollection<Gender> GenderDeletedByNavigations { get; set; } = new List<Gender>();
+
+    public virtual ICollection<Gender> GenderUpdatedByNavigations { get; set; } = new List<Gender>();
+
+    public virtual ICollection<Grade> GradeCreatedByNavigations { get; set; } = new List<Grade>();
+
+    public virtual ICollection<Grade> GradeDeletedByNavigations { get; set; } = new List<Grade>();
+
+    public virtual ICollection<Grade> GradeUpdatedByNavigations { get; set; } = new List<Grade>();
+
+    public virtual ICollection<Employee> InverseCreatedByNavigation { get; set; } = new List<Employee>();
+
+    public virtual ICollection<Employee> InverseDeletedByNavigation { get; set; } = new List<Employee>();
+
+    public virtual ICollection<Employee> InverseUpdatedByNavigation { get; set; } = new List<Employee>();
+
+    public virtual ICollection<LicenceType> LicenceTypeCreatedByNavigations { get; set; } = new List<LicenceType>();
+
+    public virtual ICollection<LicenceType> LicenceTypeDeletedByNavigations { get; set; } = new List<LicenceType>();
+
+    public virtual ICollection<LicenceType> LicenceTypeUpdatedByNavigations { get; set; } = new List<LicenceType>();
+
+    public virtual MaritalStatus MaritalStatus { get; set; }
+
+    public virtual ICollection<MaritalStatus> MaritalStatusCreatedByNavigations { get; set; } = new List<MaritalStatus>();
+
+    public virtual ICollection<MaritalStatus> MaritalStatusUpdatedByNavigations { get; set; } = new List<MaritalStatus>();
+
+    public virtual Country Nationality { get; set; }
+
+    public virtual ICollection<OrganizationBranch> OrganizationBranchCreatedByNavigations { get; set; } = new List<OrganizationBranch>();
+
+    public virtual ICollection<OrganizationBranch> OrganizationBranchDeletedByNavigations { get; set; } = new List<OrganizationBranch>();
+
+    public virtual ICollection<OrganizationBranch> OrganizationBranchUpdatedByNavigations { get; set; } = new List<OrganizationBranch>();
+
+    public virtual ICollection<Organization> OrganizationCreatedByNavigations { get; set; } = new List<Organization>();
+
+    public virtual ICollection<Organization> OrganizationDeletedByNavigations { get; set; } = new List<Organization>();
+
+    public virtual ICollection<Organization> OrganizationUpdatedByNavigations { get; set; } = new List<Organization>();
+
+    public virtual ICollection<PassingYear> PassingYearCreatedByNavigations { get; set; } = new List<PassingYear>();
+
+    public virtual ICollection<PassingYear> PassingYearDeletedByNavigations { get; set; } = new List<PassingYear>();
+
+    public virtual ICollection<PassingYear> PassingYearUpdatedByNavigations { get; set; } = new List<PassingYear>();
+
+    public virtual ICollection<PaymenPeriodType> PaymenPeriodTypeCreatedByNavigations { get; set; } = new List<PaymenPeriodType>();
+
+    public virtual ICollection<PaymenPeriodType> PaymenPeriodTypeDeletedByNavigations { get; set; } = new List<PaymenPeriodType>();
+
+    public virtual ICollection<PaymenPeriodType> PaymenPeriodTypeUpdatedByNavigations { get; set; } = new List<PaymenPeriodType>();
+
+    public virtual ICollection<PaymentMode> PaymentModeCreatedByNavigations { get; set; } = new List<PaymentMode>();
+
+    public virtual ICollection<PaymentMode> PaymentModeDeletedByNavigations { get; set; } = new List<PaymentMode>();
+
+    public virtual ICollection<PaymentMode> PaymentModeUpdatedByNavigations { get; set; } = new List<PaymentMode>();
+
+    public virtual ICollection<ProvisionPeriodTtimeType> ProvisionPeriodTtimeTypeCreatedByNavigations { get; set; } = new List<ProvisionPeriodTtimeType>();
+
+    public virtual ICollection<ProvisionPeriodTtimeType> ProvisionPeriodTtimeTypeDeletedByNavigations { get; set; } = new List<ProvisionPeriodTtimeType>();
+
+    public virtual ICollection<ProvisionPeriodTtimeType> ProvisionPeriodTtimeTypeUpdatedByNavigations { get; set; } = new List<ProvisionPeriodTtimeType>();
+
+    public virtual Religion Religion { get; set; }
+
+    public virtual ICollection<Religion> ReligionCreatedByNavigations { get; set; } = new List<Religion>();
+
+    public virtual ICollection<Religion> ReligionDeletedByNavigations { get; set; } = new List<Religion>();
+
+    public virtual ICollection<Religion> ReligionUpdatedByNavigations { get; set; } = new List<Religion>();
+
+    public virtual ICollection<ResultType> ResultTypeCreatedByNavigations { get; set; } = new List<ResultType>();
+
+    public virtual ICollection<ResultType> ResultTypeDeletedByNavigations { get; set; } = new List<ResultType>();
+
+    public virtual ICollection<ResultType> ResultTypeUpdatedByNavigations { get; set; } = new List<ResultType>();
+
+    public virtual ICollection<ServiceYear> ServiceYearCreatedByNavigations { get; set; } = new List<ServiceYear>();
+
+    public virtual ICollection<ServiceYear> ServiceYearDeletedByNavigations { get; set; } = new List<ServiceYear>();
+
+    public virtual ICollection<ServiceYear> ServiceYearUpdatedByNavigations { get; set; } = new List<ServiceYear>();
+
+    public virtual ICollection<Status> StatusCreatedByNavigations { get; set; } = new List<Status>();
+
+    public virtual ICollection<Status> StatusDeletedByNavigations { get; set; } = new List<Status>();
+
+    public virtual ICollection<Status> StatusUpdatedByNavigations { get; set; } = new List<Status>();
+
+    public virtual ICollection<TrainingYear> TrainingYearCreatedByNavigations { get; set; } = new List<TrainingYear>();
+
+    public virtual ICollection<TrainingYear> TrainingYearDeletedByNavigations { get; set; } = new List<TrainingYear>();
+
+    public virtual ICollection<TrainingYear> TrainingYearUpdatedByNavigations { get; set; } = new List<TrainingYear>();
+
+    public virtual Employee UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<YearlyEndBonusType> YearlyEndBonusTypeCreatedByNavigations { get; set; } = new List<YearlyEndBonusType>();
+
+    public virtual ICollection<YearlyEndBonusType> YearlyEndBonusTypeDeletedByNavigations { get; set; } = new List<YearlyEndBonusType>();
+
+    public virtual ICollection<YearlyEndBonusType> YearlyEndBonusTypeUpdatedByNavigations { get; set; } = new List<YearlyEndBonusType>();
 }
