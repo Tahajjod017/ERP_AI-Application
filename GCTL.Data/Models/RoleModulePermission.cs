@@ -22,4 +22,5 @@ public partial class RoleModulePermission
     public virtual Permission Permission { get; set; }
 
     public virtual ApplicationRole Role { get; set; }
+
 }

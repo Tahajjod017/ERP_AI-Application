@@ -15,17 +15,11 @@ public partial class UserVisitLog
 
     public string Method { get; set; }
 
-    public string Ipaddress { get; set; }
-
     public string Lmac { get; set; }
+
+    public string Ipaddress { get; set; }
 
     public DateTime VisitTime { get; set; }
 
-    public DateTime? LoginTime { get; set; }
-
-    public DateTime? LogoutTime { get; set; }
-
-    public string ControllerName { get; set; }
-
-    public string ViewName { get; set; }
+    public double? DurationInSeconds { get; set; }
 }

@@ -69,6 +69,5 @@ public partial class Employee
 
     public virtual ICollection<ActionLog> ActionLogs { get; set; } = new List<ActionLog>();
 
-    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new
- List<ApplicationUser>();
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 }
