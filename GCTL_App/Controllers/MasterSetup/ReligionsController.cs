@@ -121,7 +121,7 @@ namespace GCTL_App.Controllers.MasterSetup
                         return Json(new { isSuccess = false, message = "This name already exists!" });
                     }
                     await _religionService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.Id });
+                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ReligionID });
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 

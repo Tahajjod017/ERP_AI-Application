@@ -11,5 +11,6 @@ namespace GCTL.Service.Employees.EmployeePersonal
     public interface IEmployeePersonalService
     {
         Task<CommonReturnViewModel> SaveEmployeePersonalInfo(EmployeePersonalPostViewModel model);
+        Task<CommonReturnViewModel> CheckValidEmployeeInfo(EmployeePersonalPostViewModel model);
     }
 }

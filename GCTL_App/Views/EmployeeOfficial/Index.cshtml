@@ -1,4 +1,7 @@
-﻿<div class="mb-9">
+﻿@model GCTL.Core.ViewModels.Employee.EmployeeOfficial.EmployeeOfficialPostViewModel
+
+
+<div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 mb-4">
         <div class="col-auto">
         </div>
@@ -9,7 +12,7 @@
     <div class="px-3 mb-5">
         <div class="row">
             <div class="col-12">
-
+                <!--
                 <div class="search-box me-3 mb-3">
                     <form class="position-relative">
                         <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
@@ -17,6 +20,45 @@
 
                     </form>
                 </div>
+                -->
+
+                <div class="row g-2 align-items-center">
+
+                    
+                    <div class="col-md-3">
+                        <div class="position-relative">
+                            <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3"></div>
+
+                    
+                    <div class="col-md-2">
+                        <div class="form-floating form-floating-advance-select mb-2">
+                            <label asp-for="EmployeePersonalId">Choose Employee</label>
+                            <select class="form-select" asp-for="EmployeePersonalId" asp-items="@ViewBag.EmployeeDD as SelectList">
+                                <option value="">Select Employee</option>
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input asp-for="PersonalEmail" class="form-control" id="" type="text" placeholder="Email" />
+                            <label asp-for="PersonalEmail">Email</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input asp-for="PersonalPhone" class="form-control" id="" type="text" placeholder="Enter Phone " />
+                            <label asp-for="PersonalPhone">Phone </label>
+                        </div>
+                    </div>
+
+                </div>
+
 
                 <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
 
@@ -367,3 +409,19 @@
 
 
 </div>
+
+
+@section Scripts
+{
+    @{
+
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+
+    }
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/pages/employees/employeeofficial.js"></script>
+ 
+
+}

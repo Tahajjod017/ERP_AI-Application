@@ -1,6 +1,40 @@
 ﻿$(document).ready(function () {
 
 
+    //#region tostr
+  
+
+    const toastrElement = document.getElementById('toastr-data');
+    if (toastrElement) {
+        const message = toastrElement.getAttribute('data-message');
+        const type = toastrElement.getAttribute('data-type');
+
+        if (message && message.trim() !== '') {
+            switch (type) {
+                case 'success':
+                    toastr.success(message);
+                    break;
+                case 'error':
+                    toastr.error(message);
+                    break;
+                case 'info':
+                    toastr.info(message);
+                    break;
+                case 'warning':
+                    toastr.warning(message);
+                    break;
+                default:
+                    toastr.info(message);
+                    break;
+            }
+        }
+    }
+
+    //#endregion
+
+
+
+
     $('#submitButton').on('click', function (e) {
         e.preventDefault();
 
@@ -11,9 +45,9 @@
             $('#addNationalityModal').modal('show');
         }
 
-        if (confirm("Are you sure you want to submit the form?")) {
+      
             $('#employeeForm').submit();
-        }
+        
     });
 
 
@@ -28,16 +62,7 @@
     //#region Choice Min Js
 
 
-    //let blooodGroupChoices;
-    //function initBloodGroupChoices() {
-    //    blooodGroupChoices = new Choices('#BloodGroup', {
-    //        removeItemButton: true,
-    //        shouldSort: false,
-    //        placeholderValue: 'Select Blood Group'
-    //    });
-    //}
-    //document.addEventListener('DOMContentLoaded', initBloodGroupChoices);
-    //initBloodGroupChoices();
+   
 
 
     let maritalChoices;

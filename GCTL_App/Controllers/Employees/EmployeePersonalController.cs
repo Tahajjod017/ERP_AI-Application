@@ -55,20 +55,40 @@ namespace GCTL_App.Controllers.Employees
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SavePersonalInfo(EmployeePersonalPostViewModel model)
+        public async Task<IActionResult> Index(EmployeePersonalPostViewModel model)
         {
             if (ModelState.IsValid)
             {
+                var chkDuplicate = await _employeePersonalService.CheckValidEmployeeInfo(model);
+
+                if (!chkDuplicate.Success)
+                {
+                    TempData["ToastrMessage"] = chkDuplicate.Message;
+                    TempData["ToastrType"] = "warning";
+
+                 
+                    return View(model); 
+                }
+
                 // Save and get the new employee ID
                 CommonReturnViewModel result = await _employeePersonalService.SaveEmployeePersonalInfo(model);
 
-                if (result.Success) // Assuming `Id` holds the new employee's ID
+                if (result.Success)
                 {
+                    TempData["ToastrMessage"] = "Employee saved successfully!";
+                    TempData["ToastrType"] = "success";
                     return RedirectToAction("Index", "EmployeeOfficial", new { id = result.Data });
                 }
+                else
+                {
+                    TempData["ToastrMessage"] = result.Message;
+                    TempData["ToastrType"] = "error";
 
-                // Handle failure case if needed
-                ModelState.AddModelError(string.Empty, result.Message ?? "Failed to save employee info.");
+
+                    return View(model);
+                }
+
+                
             }
 
             //TempData["EmployeeModel"] = JsonConvert.SerializeObject(model); 
