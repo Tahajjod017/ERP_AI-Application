@@ -19,9 +19,9 @@ namespace GCTL.Service.Employees.EmployeePersonal
 {
     public class EmployeePersonalService : IEmployeePersonalService
     {
-        private readonly IGenericRepository<Employee> _employeePersonalRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeePersonalRepository;
 
-        public EmployeePersonalService(IGenericRepository<Employee> employeePersonalRepository)
+        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository)
         {
             _employeePersonalRepository = employeePersonalRepository;
         }
@@ -43,7 +43,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     return result;
                 }
 
-                Employee employee;
+                GCTL.Data.Models.Employees employee;
 
                 string EmployeeImageFileName = "";
                 string EmployeeSignatureFileName = "";
@@ -64,7 +64,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                 if (model.EmployeeId == 0)
                 {
                     // New employee
-                    employee = new Employee
+                    employee = new GCTL.Data.Models.Employees
                     {
                         FirstName = model.FirstName,
                         LastName = model.LastName,
@@ -72,10 +72,10 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         MotherName = model.MotherName,
                         MobileNumber = model.PersonalMobile,
                         Email = model.Email,
-                        Tin = model.TinNo,
+                        TIN = model.TinNo,
                         DateOfBirth =  model.DateOfBirth.ToDateOnly(),
                         AboutEmployee = model.AboutEmployee,
-                        Nid = model.NationalId,
+                        NID = model.NationalId,
                         State = model.State,
                         City = model.City,
                         HouseNo = model.HouseNo,
@@ -83,12 +83,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         PostalCode = model.PostalCode,
                         EmployeeImageFileName = EmployeeImageFileName,
                         EmployeeSignatureFileName = EmployeeSignatureFileName,
-                        MaritalStatusId = Convert.ToInt32(model.MaritalStatus),
-                        GenderId = Convert.ToInt32(model.Gender),
-                        BloodGroupId = Convert.ToInt32(model.BloodGroup),
-                        NationalityId = Convert.ToInt32(model.NationalId),
-                        ReligionId = Convert.ToInt32(model.Religion),
-                        CountryId = Convert.ToInt32(model.Country),
+                        MaritalStatusID = Convert.ToInt32(model.MaritalStatus),
+                        GenderID = Convert.ToInt32(model.Gender),
+                        BloodGroupID = Convert.ToInt32(model.BloodGroup),
+                        NationalityID = Convert.ToInt32(model.NationalId),
+                        ReligionID = Convert.ToInt32(model.Religion),
+                        CountryID = Convert.ToInt32(model.Country),
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy
                     };
@@ -100,7 +100,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     DateTime? nullableDateTime = DateTime.Now;
                     DateOnly? dateOnly = nullableDateTime.ToDateOnly();
 
-                    employee = await _employeePersonalRepository.AllActive().FirstOrDefaultAsync(e=>e.EmployeeId == model.EmployeeId);
+                    employee = await _employeePersonalRepository.AllActive().FirstOrDefaultAsync(e=>e.EmployeeID == model.EmployeeId);
 
                     if (employee == null)
                     {
@@ -115,10 +115,10 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     employee.MotherName = model.MotherName;
                     employee.MobileNumber = model.PersonalMobile;
                     employee.Email = model.Email;
-                    employee.Tin = model.TinNo;
+                    employee.TIN = model.TinNo;
                     employee.DateOfBirth = model.DateOfBirth.ToDateOnly();
                     employee.AboutEmployee = model.AboutEmployee;
-                    employee.Nid = model.NationalId;
+                    employee.NID = model.NationalId;
                     employee.State = model.State;
                     employee.City = model.City;
                     employee.HouseNo = model.HouseNo;
@@ -126,12 +126,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     employee.PostalCode = model.PostalCode;
                     employee.EmployeeImageFileName = EmployeeImageFileName;
                     employee.EmployeeSignatureFileName = EmployeeSignatureFileName;
-                    employee.MaritalStatusId = Convert.ToInt32(model.MaritalStatus);
-                    employee.GenderId = Convert.ToInt32(model.Gender);
-                    employee.BloodGroupId = Convert.ToInt32(model.BloodGroup);
-                    employee.NationalityId = Convert.ToInt32(model.NationalId);
-                    employee.ReligionId = Convert.ToInt32(model.Religion);
-                    employee.CountryId = Convert.ToInt32(model.Country);
+                    employee.MaritalStatusID = Convert.ToInt32(model.MaritalStatus);
+                    employee.GenderID = Convert.ToInt32(model.Gender);
+                    employee.BloodGroupID = Convert.ToInt32(model.BloodGroup);
+                    employee.NationalityID = Convert.ToInt32(model.NationalId);
+                    employee.ReligionID = Convert.ToInt32(model.Religion);
+                    employee.CountryID = Convert.ToInt32(model.Country);
                     employee.UpdatedAt = DateTime.UtcNow;
                     employee.UpdatedBy = model.UpdatedBy;
 
@@ -142,7 +142,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
                 result.Success = true;
                 result.Message = "Employee personal information saved successfully.";
-                result.Data = employee.EmployeeId;
+                result.Data = employee.EmployeeID;
                 return result;
             }
             catch (Exception ex)

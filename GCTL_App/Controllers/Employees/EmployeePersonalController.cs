@@ -7,6 +7,8 @@ using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Language;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -14,19 +16,40 @@ namespace GCTL_App.Controllers.Employees
     {
         private readonly IEmployeePersonalService _employeePersonalService;
         private readonly IGenericRepository<MaritalStatus> _maritalRepository;
-        public EmployeePersonalController(ITranslateService translateService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository) : base(translateService)
+        private readonly IGenericRepository<Religions> _religionRepository;
+        private readonly IGenericRepository<Genders> _genderRepository;
+        private readonly IGenericRepository<Country> _countryRepository;
+        public EmployeePersonalController(ITranslateService translateService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository) : base(translateService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;
+            _religionRepository = religionRepository;
+            _genderRepository = genderRepository;
+            _countryRepository = countryRepository;
         }
 
         public IActionResult Index()
         {
-            // ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusId", "MaritalStatusName");
-            ViewBag.MaritalStatusDD = _maritalRepository.All().ToList();
-
             SetSmartPageCode(111000);
+
+            ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusID", "MaritalStatusName");
+            ViewBag.ReligionDD = new SelectList(_religionRepository.All(), "ReligionID", "ReligionName");
+            ViewBag.GenderDD = new SelectList(_genderRepository.All(), "GenderID", "GenderName");
+            //ViewBag.MaritalStatusDD = _maritalRepository.All().ToList();
+
+
+
+            //EmployeePersonalPostViewModel model = null;
+
+            //if (TempData["EmployeeModel"] != null)
+            //{
+            //    model = JsonConvert.DeserializeObject<EmployeePersonalPostViewModel>(TempData["EmployeeModel"].ToString());
+            //}
+
+            //return View(model);
+
             return View();
+            
         }
 
 
@@ -48,9 +71,47 @@ namespace GCTL_App.Controllers.Employees
                 ModelState.AddModelError(string.Empty, result.Message ?? "Failed to save employee info.");
             }
 
-            // If validation fails, return the same view with the model to display errors
+            //TempData["EmployeeModel"] = JsonConvert.SerializeObject(model); 
+            //return RedirectToAction(nameof(Index));
+          
             return View(model);
         }
+
+        #region Nationality
+
+        [HttpGet]
+        public IActionResult GetNationalities()
+        {
+            var nationalities = _countryRepository.All()
+                .OrderBy(n => n.CountryName)
+                .Select(n => n.CountryName)
+                .ToList();
+
+            return Json(nationalities);
+        }
+
+
+        [HttpPost]
+        public async Task< IActionResult> SaveNationality([FromBody] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Nationality name is required.");
+
+            // Example: Save to database (pseudo code)
+            var exists = _countryRepository.All().Any(n => n.CountryName == name);
+            if (!exists)
+            {
+                var nationality = new Country { CountryName = name };
+
+                await _countryRepository.AddAsync(nationality);
+                
+            }
+
+            return Ok(new { success = true, name });
+        }
+
+        #endregion
+
 
     }
 }
