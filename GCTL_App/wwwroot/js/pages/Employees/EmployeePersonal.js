@@ -16,6 +16,51 @@
     //});
 
 
+    //#region ChoiceMin
+
+    window.choicesInstances = {};
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropdownConfigs = [
+           
+            { selector: '#MaritalStatus', placeholder: 'Select Merital Status', dataKey: 'maritalStatus' },
+           // { selector: '#OccupationID', placeholder: 'Select Taxpayer\'s Profession', dataKey: 'occupationData' },
+          //  { selector: '#TaxZoneID', placeholder: 'Select Tax Zone', dataKey: 'taxZoneData' },
+         //   { selector: '#TaxCircleID', placeholder: 'Select Circle', dataKey: 'taxCircleData' }
+        ];
+
+        dropdownConfigs.forEach(config => {
+            const element = document.querySelector(config.selector);
+            const data = window[config.dataKey];
+
+            if (element && data) {
+                const instance = new Choices(element, {
+                    removeItemButton: true,
+                    placeholder: true,
+                    placeholderValue: config.placeholder,
+                    searchEnabled: true
+                });
+
+                window.choicesInstances[config.selector] = {
+                    instance: instance,
+                    placeholder: config.placeholder,
+                    data: data
+                };
+              
+
+                element.addEventListener('change', function () {
+                    $(element).valid(); 
+                });
+                
+            }
+        });
+
+
+    //#endregion
+
+
+
+
     $(function () {
         function setupImagePreview($fileInput, $previewImg, $closeBtn) {
             $fileInput.on('change', function () {

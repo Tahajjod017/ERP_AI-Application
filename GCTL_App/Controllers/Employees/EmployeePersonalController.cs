@@ -1,22 +1,30 @@
-﻿using GCTL.Core.ViewModels;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee;
 using GCTL.Core.ViewModels.Employee.EmployeePersonal;
+using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Language;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.Employees
 {
     public class EmployeePersonalController : BaseController
     {
         private readonly IEmployeePersonalService _employeePersonalService;
-        public EmployeePersonalController(ITranslateService translateService, IEmployeePersonalService employeePersonalService) : base(translateService)
+        private readonly IGenericRepository<MaritalStatus> _maritalRepository;
+        public EmployeePersonalController(ITranslateService translateService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository) : base(translateService)
         {
             _employeePersonalService = employeePersonalService;
+            _maritalRepository = maritalRepository;
         }
 
         public IActionResult Index()
         {
+            // ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusId", "MaritalStatusName");
+            ViewBag.MaritalStatusDD = _maritalRepository.All().ToList();
+
             SetSmartPageCode(111000);
             return View();
         }

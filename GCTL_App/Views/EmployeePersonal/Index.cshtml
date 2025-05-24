@@ -190,13 +190,31 @@
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-4">
-                                                        <select class="form-select" asp-for="MaritalStatus" id="maritalStatus" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                      <!--  <select class="form-select" asp-for="MaritalStatus" id="maritalStatus" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                                                             <option selected="selected">@Html.SmartLocalize("Select Marital Status")</option>
-                                                            
+
+                                                          </select> -->
+
+
+                                                        <select asp-for="MaritalStatus" class="form-select form-control-lg">
+                                                            @if (ViewBag.MaritalStatusDD != null)
+                                                            {
+                                                                foreach (var item in ViewBag.MaritalStatusDD)
+                                                                {
+                                                                    <option value="@item.MaritalStatusId">@item.MaritalStatusName</option>
+                                                                }
+                                                            }
                                                         </select>
+
+
                                                         <label asp-for="MaritalStatus" for="floatingSelectLitigation">@Html.SmartLocalize("Marital Status")</label>
                                                     </div>
                                                 </div>
+
+
+                                               
+
+
 
                                                 <div class="col-sm-12 col-md-12">
                                                     <div class="form-floating mb-4">
