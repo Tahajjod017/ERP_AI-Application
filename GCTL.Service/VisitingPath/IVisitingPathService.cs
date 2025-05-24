@@ -13,6 +13,6 @@ namespace GCTL.Service.VisitingPath
     public interface IVisitingPathService
     {
         Task<PaginationService<UserVisitLogs, UserVisitTreeViewModel>.PaginationResult<UserVisitTreeViewModel>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "", string sortOrder = "");
+        string currentSortColumn = "", string currentSortOrder = "");
     }
 }

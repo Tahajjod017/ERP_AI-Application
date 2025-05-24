@@ -1,39 +1,43 @@
 ﻿
-<div class="row g-3 justify-content-between align-items-end mb-4">
+<div class="d-flex mb-1" id="">
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold"><span class="pe-2">User Path</span><span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span></h3>
 
-
-    <div class="container-fluid">
-       
-        <div class="row g-2 align-items-end">
-
-            <div class="col-md-2">
-                <div class="dropdown">
-                    <button class="btn btn-phoenix-secondary dropdown-toggle w-100" type="button" id="pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        Showing: <span id="selectedPageSize">5</span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
-                        <li><a class="dropdown-item" href="#" data-size="5">5</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="10">10</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="25">25</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="50">50</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="100">100</a></li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
     </div>
-
 </div>
 
+<div class="row g-3 justify-content-between align-items-end mb-2">
 
-<ul id="userVisitList"></ul>
+    <div class="row align-items-end justify-content-between pb-4 g-3">
+        <div class="col-auto">
+            <div class="dropdown me-3">
+                <button class="btn btn-phoenix-secondary dropdown-toggle" type="button" id="pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Showing: <span id="selectedPageSize">5</span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
+                    <li><a class="dropdown-item" href="#" data-size="5">5</a></li>
+                    <li><a class="dropdown-item" href="#" data-size="10">10</a></li>
+                    <li><a class="dropdown-item" href="#" data-size="25">25</a></li>
+                    <li><a class="dropdown-item" href="#" data-size="50">50</a></li>
+                    <li><a class="dropdown-item" href="#" data-size="100">100</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="table-responsive ms-n1 ps-1 scrollbar">
+   @*  <ul id="userVisitList"></ul> *@
+    <div class="row" id="userVisitList"></div>
+
+</div>
 
 <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
     <div class="d-flex">
         <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="paginationInfo"></p>
 
-
+        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
     </div>
     <div class="d-flex">
         <button class="page-link" data-list-pagination="prev" id="prevPageBtn"><span class="fas fa-chevron-left"></span></button>
@@ -41,7 +45,6 @@
         <button class="page-link pe-0" data-list-pagination="next" id="nextPageBtn"><span class="fas fa-chevron-right"></span></button>
     </div>
 </div>
-
 
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -60,3 +63,7 @@
     <script src="~/js/pages/visitingpath/vitingpath.js"></script>
 
 }
+
+
+
+

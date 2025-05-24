@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.ActionLogVM;
 using GCTL.Core.ViewModels.VisitingVM;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,12 +24,12 @@ namespace GCTL.Service.VisitingPath
         }
 
         public async Task<PaginationService<UserVisitLogs, UserVisitTreeViewModel>.PaginationResult<UserVisitTreeViewModel>> GetAllAsync(
-   int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "", string sortOrder = "")
+          int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+          string currentSortColumn = "", string currentSortOrder = "")
         {
             try
             {
-                var query = _repository.All().AsQueryable();
+                var query = _repository.All().Where(x=>x.VisitTime !=null).OrderByDescending(x=>x.UserId).AsQueryable();
 
                 // Filter by search term
                 if (!string.IsNullOrEmpty(searchTerm))
@@ -46,14 +47,14 @@ namespace GCTL.Service.VisitingPath
                         {
                             Path = v.Path,
                             VisitTime = v.VisitTime,
-                            DurationInSeconds = v.DurationInSeconds ?? 0
+                            DurationInSeconds = Math.Round(v.DurationInSeconds ?? 0, 2)
                         }).ToList()
-                    }).OrderByDescending(x=>x.UserId);
+                    }).OrderByDescending(x => x.UserId);
 
                 // Apply Sorting
-                grouped = sortColumn switch
+                grouped = currentSortColumn switch
                 {
-                    "UserId" => (sortOrder == "asc") ? grouped.OrderByDescending(x => x.UserId) : grouped.OrderByDescending(x => x.UserId),
+                    "UserId" => (currentSortOrder == "asc") ? grouped.OrderBy(x => x.UserId) : grouped.OrderByDescending(x => x.UserId),
                     _ => grouped.OrderByDescending(x => x.UserId) // Default fallback
                 };
 
@@ -64,13 +65,24 @@ namespace GCTL.Service.VisitingPath
                 var pagedData = await grouped
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
-                    
                     .ToListAsync();
+
+                // Construct PaginationInfo
+                var paginationInfo = new PaginationService<UserVisitLogs, UserVisitTreeViewModel>.PaginationInfo
+                {
+                    StartItem = totalCount == 0 ? 0 : ((pageNumber - 1) * pageSize) + 1,
+                    EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                    TotalItems = totalCount,
+                    PageNumbers = Enumerable.Range(1, (int)Math.Ceiling((double)totalCount / pageSize)).ToList(),
+                    TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                    CurrentPage = pageNumber
+                };
 
                 return new PaginationService<UserVisitLogs, UserVisitTreeViewModel>.PaginationResult<UserVisitTreeViewModel>
                 {
                     Data = pagedData,
-                    TotalCount = totalCount
+                    TotalCount = totalCount,
+                    PaginationInfo = paginationInfo
                 };
             }
             catch (Exception ex)
@@ -79,11 +91,23 @@ namespace GCTL.Service.VisitingPath
                 return new PaginationService<UserVisitLogs, UserVisitTreeViewModel>.PaginationResult<UserVisitTreeViewModel>
                 {
                     Data = new List<UserVisitTreeViewModel>(),
-                    TotalCount = 0 
+                    TotalCount = 0,
+                    PaginationInfo = new PaginationService<UserVisitLogs, UserVisitTreeViewModel>.PaginationInfo
+                    {
+                        StartItem = 0,
+                        EndItem = 0,
+                        TotalItems = 0,
+                        PageNumbers = new List<int>(),
+                        TotalPages = 0,
+                        CurrentPage = pageNumber
+                    }
                 };
             }
         }
 
+        //
+
+        //
 
 
     }
