@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 using GCTL.Core.ServiceExtensions;
+using System.Text.RegularExpressions;
 
 
 namespace GCTL.Service.Employees.EmployeePersonal
@@ -43,6 +44,9 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     return result;
                 }
 
+                
+
+
                 GCTL.Data.Models.Employees employee;
 
                 string EmployeeImageFileName = "";
@@ -61,7 +65,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                 
 
 
-                if (model.EmployeeId == 0)
+                if (model.EmployeeId == 0 || model.EmployeeId == null)
                 {
                     // New employee
                     employee = new GCTL.Data.Models.Employees
@@ -71,7 +75,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         FatherName = model.FatherName,
                         MotherName = model.MotherName,
                         MobileNumber = model.PersonalMobile,
-                        Email = model.Email,
+                        Email = model.UserEmail,
                         TIN = model.TinNo,
 
                         DateOfBirth =  model.DateOfBirth.ToDateOnly(),
@@ -94,6 +98,16 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         CreatedBy = model.CreatedBy
                     };
 
+
+                    if (employee.BloodGroupID == 0) employee.BloodGroupID = null;
+                    if (employee.GenderID == 0) employee.GenderID = null;
+                    if (employee.MaritalStatusID == 0) employee.MaritalStatusID = null;
+                    if (employee.NationalityID == 0) employee.NationalityID = null;
+                    if (employee.ReligionID == 0) employee.ReligionID = null;
+                    if (employee.CountryID == 0) employee.CountryID = null;
+
+
+
                     await _employeePersonalRepository.AddAsync(employee);
                 }
                 else
@@ -115,7 +129,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     employee.FatherName = model.FatherName;
                     employee.MotherName = model.MotherName;
                     employee.MobileNumber = model.PersonalMobile;
-                    employee.Email = model.Email;
+                    employee.Email = model.UserEmail;
                     employee.TIN = model.TinNo;
                     employee.DateOfBirth = model.DateOfBirth.ToDateOnly();
                     employee.AboutEmployee = model.AboutEmployee;
@@ -178,6 +192,127 @@ namespace GCTL.Service.Employees.EmployeePersonal
         }
 
 
+
+        #endregion
+
+
+        #region Validation
+
+
+        public async Task<CommonReturnViewModel> CheckValidEmployeeInfo(EmployeePersonalPostViewModel model)
+        {
+            var result = new CommonReturnViewModel();
+
+
+            result.Success = true;
+
+
+            if (
+                
+                string.IsNullOrEmpty(model.FirstName) ||
+                string.IsNullOrEmpty(model.LastName) ||
+               
+                string.IsNullOrEmpty(model.PersonalMobile) ||
+                string.IsNullOrEmpty(model.PersonalEmail)
+               
+
+               )
+            {
+                result.Success = false;
+                result.Message = "Please fill out the form.";
+            }
+            else if (!IsValidEmail(model.PersonalEmail))
+            {
+                result.Success = false;
+                result.Message = "Please enter a valid email address.";
+            }
+            //else if(model.EmployeePicture.Length > 1048576) // 1MB
+            //{
+            //    result.Success = false;
+            //    result.Message = "Employee Picture size should not exceed 1MB.";
+            //}
+            //else if (model.Signature.Length > 1048576) // 1MB
+            //{
+            //    result.Success = false;
+            //    result.Message = "Signature size should not exceed 1MB.";
+            //}
+            //else if(model.EmployeePicture.ContentType != "image/jpeg" && model.EmployeePicture.ContentType != "image/png")
+            //{
+            //    result.Success = false;
+            //    result.Message = "Employee Picture should be in JPEG or PNG format.";
+            //}
+            //else if (model.Signature.ContentType != "image/jpeg" && model.Signature.ContentType != "image/png")
+            //{
+            //    result.Success = false;
+            //    result.Message = "Signature should be in JPEG or PNG format.";
+            //}
+            else if (CheckDuplicateFields(model, out string duplicateMessage))
+            {
+                result.Success = false;
+                result.Message = duplicateMessage;
+            }
+            else
+            {
+                result.Success = true;
+                result.Message = "Employee information is valid.";
+            }
+
+            return result;
+
+        }
+
+        private bool CheckDuplicateFields(EmployeePersonalPostViewModel model, out string duplicateMessage)
+        {
+            List<string> duplicateFields = new List<string>();
+
+            var allEmployees = _employeePersonalRepository.AllActive();
+
+            if (!string.IsNullOrWhiteSpace(model.PersonalEmail) &&
+                allEmployees.Any(e => e.Email == model.PersonalEmail))
+            {
+                duplicateFields.Add("Personal UserEmail");
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.PersonalMobile) &&
+                allEmployees.Any(e => e.MobileNumber == model.PersonalMobile))
+            {
+                duplicateFields.Add("Mobile Number");
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.TinNo) &&
+                allEmployees.Any(e => e.TIN == model.TinNo))
+            {
+                duplicateFields.Add("TIN");
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.NationalId) &&
+                allEmployees.Any(e => e.NID == model.NationalId))
+            {
+                duplicateFields.Add("National ID");
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.BirthCertificateNo) &&
+                allEmployees.Any(e => e.BirthCertificateNo == model.BirthCertificateNo))
+            {
+                duplicateFields.Add("Birth Certificate No");
+            }
+
+            if (duplicateFields.Any())
+            {
+                duplicateMessage = $"{string.Join(", ", duplicateFields)} already exist.";
+                return true;
+            }
+
+            duplicateMessage = null;
+            return false;
+        }
+
+
+        private bool IsValidEmail(string email)
+        {
+            var emailRegex = new Regex(@"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$");
+            return emailRegex.IsMatch(email);
+        }
 
         #endregion
     }

@@ -55,7 +55,7 @@ namespace GCTL_App.Controllers
                 //    {
                 //        Id = u.Id,
                 //        UserName = u.UserName,
-                //        Email = u.Email,
+                //        UserEmail = u.UserEmail,
                 //        FullName = u.FullName,
                 //        Gender = u.Gender,
                 //        EmployeeId = u.EmployeeId,

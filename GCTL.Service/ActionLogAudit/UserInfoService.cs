@@ -44,7 +44,7 @@ namespace GCTL.Service.ActionLogAudit
                  var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
 
                 model.UserId = userId;
-                model.Email = email;
+                model.UserEmail = email;
                 model.CreatedBy = employeeId;
                 model.UpdatedBy = employeeId;
                 model.DeletedBy = employeeId;
@@ -99,7 +99,7 @@ namespace GCTL.Service.ActionLogAudit
                 //ActionAfter = JsonConvert.SerializeObject(CleanObject(after), jsonSettings),
                 ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
                 ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
-                UserEmail = entityVM.Email,
+                UserEmail = entityVM.UserEmail,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
                 CreatedAt = DateTime.Now,
@@ -123,7 +123,7 @@ namespace GCTL.Service.ActionLogAudit
                     ActionName = actionName,
                     ActionBefore = beforeList != null ? JsonConvert.SerializeObject(beforeList[i]) : null,
                     ActionAfter = afterList != null ? JsonConvert.SerializeObject(afterList[i]) : null,
-                    UserEmail = entityVM.Email,
+                    UserEmail = entityVM.UserEmail,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
