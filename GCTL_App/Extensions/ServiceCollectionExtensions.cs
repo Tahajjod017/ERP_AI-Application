@@ -9,6 +9,7 @@ using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
 using GCTL.Service.Language;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.Employees.EmployeePersonal;
 
 namespace GCTL_App.Extensions
 {
@@ -43,13 +44,20 @@ namespace GCTL_App.Extensions
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
 
-            #region
+            #region Language Services
 
             services.AddScoped<ITranslateService, TranslateService>();
             services.AddScoped<ILanguageTableService, LanguageTableService>();
 
             #endregion
 
+
+            #region Employee Services
+
+            services.AddScoped<IEmployeePersonalService, EmployeePersonalService>();
+
+
+            #endregion
 
         }
     }
