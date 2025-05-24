@@ -170,7 +170,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                         Message = "No data found to delete."
                     };
                 }
-
+                var beforeEntity = JsonConvert.DeserializeObject<List<ActionTakenVM>>(JsonConvert.SerializeObject(data));
+                var targetIds = data.Select(x => (int?)x.ActionTakenID).ToList();
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
@@ -180,6 +181,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
+                await userInfoService.ActionLogDeleteAsync("Action Taken", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

@@ -1,5 +1,7 @@
-﻿var currentPage = 1;
+﻿
+var currentPage = 1;
 var pageSize = 5;
+
 
 $('.dropdown-item').on('click', function () {
     var selectedSize = $(this).data("size");
@@ -14,31 +16,32 @@ $('.dropdown-item').on('click', function () {
     loadTableData();
 })
 
-
 $(document).ready(function () {
     loadTableData();
 
-    $("#actionTaken-searchInput").on("input", function () {
-        currentPage = 1;
+    // Handle search input change
+    $("#searchInput").on("input", function () {
+        currentPage = 1;  // Reset to first page when searching
         loadTableData();
     });
 
-    $("#actionTaken-prevPageBtn").on('click', function () {
+    // Handle pagination
+    $("#prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
             loadTableData();
         }
     });
 
-    $("#actionTaken-nextPageBtn").on('click', function () {
+    $("#nextPageBtn").on('click', function () {
         currentPage++;
         loadTableData();
     });
 });
 
-
-let currentSortColumn = 'BankIssuedLetterID';
-let currentSortOrder = 'desc';
+// Declare sortColumn and sortOrder globally so they are accessible
+let currentSortColumn = "";
+let currentSortOrder = '';
 
 $('th.sort').on('click', function () {
     const column = $(this).data('sort');
@@ -51,28 +54,26 @@ $('th.sort').on('click', function () {
     }
 
     loadTableData(currentSortColumn, currentSortOrder);
-    updateSortingIndicator(column, currentSortOrder);
 });
 
+function formatDate(dateString) {
+    const date = new Date(dateString);
 
-function updateSortingIndicator() {
-    $('th.sort').each(function () {
-        const $th = $(this);
-        const column = $th.data('sort');
-        $th.find('.sort-icon').remove();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = date.getFullYear();
 
-        if (column === currentSortColumn) {
-            const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
-            $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
-        } else {
-            $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
-        }
-    });
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert to 12-hour format and show 12 instead of 0
+
+    return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
 }
-
-
-function loadTableData(sortColumn, sortOrder) {
-    var searchTerm = $("#actionTaken-searchInput").val();
+function loadTableData(currentSortColumn, currentSortOrder) {
+    var searchTerm = $("#searchInput").val();
+    
 
     $.ajax({
         url: '/VisitingPath/GetAll',
@@ -81,63 +82,112 @@ function loadTableData(sortColumn, sortOrder) {
             pageNumber: currentPage,
             pageSize: pageSize,
             searchTerm: searchTerm,
-            sortColumn: sortColumn,
-            sortOrder: sortOrder
+            currentSortColumn: currentSortColumn,
+            currentSortOrder: currentSortOrder,
+           
+
         },
         success: function (response) {
-            var paginationInfo = response.paginationInfo;
 
-            
+ 
+            console.log(response);
 
-            // Clear the current list
+
+            //$("#userVisitList").empty();
+
+            //            // Loop through users
+            //            response.data.forEach(function (user) {
+            //                var userHtml = `
+            //                    <li>
+            //                        <strong class="text-bg-success">👤 User: ${user.userId}</strong>
+            //                        <ul>
+            //                `;
+
+            //                user.visits.forEach(function (visit) {
+            //                    userHtml += `
+            //                        <li>
+            //                            📄 <strong>${visit.path}</strong> – ${visit.durationInSeconds} seconds
+            //                            <br /><small>Visited:${formatDate(visit.visitTime)}</small>
+            //                        </li>
+            //                    `;
+            //                });
+
+            //                userHtml += `
+            //                        </ul>
+            //                       </li>`;
+
+            //                // Append to the container
+            //                $("#userVisitList").append(userHtml);
+            //            });
+
+
+            //
             $("#userVisitList").empty();
 
-            // Loop through users
             response.data.forEach(function (user) {
                 var userHtml = `
-                    <li>
-                        <strong class="text-bg-success">👤 User: ${user.userId}</strong>
-                        <ul>
-                `;
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-user me-2"></i>User ID: <strong>${user.userId}</strong></span>
+                    <span class="badge bg-light text-dark">${user.visits.length} Visits</span>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+    `;
 
                 user.visits.forEach(function (visit) {
                     userHtml += `
-                        <li>
-                            📄 <strong>${visit.path}</strong> – ${visit.durationInSeconds} seconds
-                            <br /><small>Visited: ${new Date(visit.visitTime).toLocaleString()}</small>
-                        </li>
-                    `;
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <i class="fas fa-map-marker-alt text-success me-2"></i>
+                        <strong>${visit.path}</strong>
+                        <div class="text-muted small">Visited: ${formatDate(visit.visitTime)}</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-secondary">${visit.durationInSeconds} sec</span>
+                    </div>
+                </div>
+            </li>
+        `;
                 });
 
                 userHtml += `
-                        </ul>
-                       </li>`;
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
 
-                // Append to the container
                 $("#userVisitList").append(userHtml);
             });
+
+            //
+
             var paginationInfo = response.paginationInfo;
 
+            // Update pagination info text to show range of items
             $("#paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
             $("#totalCount").text(`(${paginationInfo.totalItems})`);
+
+            // Update pagination buttons
             updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
         }
-
     });
 }
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
-    const paginationLinks = $("#actionTaken-paginationLinks");
+    const paginationLinks = $("#paginationLinks");
     paginationLinks.empty();
-    // Window size (number of pages before/after the current page)
+    // Window size (number of pages before/after the current page)  
     const windowSize = 1;
-
+    // Helper function to generate page button
     const createPageButton = (page) => `
-                        <li class="page-item ${page === currentPage ? 'active' : ''}">
-                            <button class="page-link page-btn" data-page="${page}">${page}</button>
-                        </li>
-                    `;
-
+        <li class="page-item ${page === currentPage ? 'active' : ''}">
+            <button class="page-link" onclick="goToPage(${page})">${page}</button>
+        </li>
+    `;
     // Helper function for ellipsis
     const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
     // Add "First Page" and ellipsis if needed
@@ -155,12 +205,11 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
         paginationLinks.append(addEllipsis(), createPageButton(totalPages));
     }
     // Disable or enable previous/next buttons
-    $("#actionTaken-prevPageBtn").prop('disabled', currentPage === 1);
-    $("#actionTaken-nextPageBtn").prop('disabled', currentPage === totalPages);
+    $("#prevPageBtn").prop('disabled', currentPage === 1);
+    $("#nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
-$(document).on('click', '.page-btn', function () {
-    const page = $(this).data('page');
+function goToPage(page) {
     currentPage = page;
     loadTableData();
-});
+}

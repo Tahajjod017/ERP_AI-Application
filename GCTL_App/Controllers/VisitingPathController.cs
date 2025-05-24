@@ -29,9 +29,9 @@ namespace GCTL_App.Controllers
         #region GetAll
         [HttpGet]
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "", string sortOrder = "")
+        string currentSortColumn = "", string currentSortOrder = "")
         {
-            var result = await visitingPathService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await visitingPathService.GetAllAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder);
 
             return Json(result);
         }

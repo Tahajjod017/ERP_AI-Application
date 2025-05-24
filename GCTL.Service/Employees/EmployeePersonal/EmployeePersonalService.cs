@@ -73,6 +73,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         MobileNumber = model.PersonalMobile,
                         Email = model.Email,
                         TIN = model.TinNo,
+
                         DateOfBirth =  model.DateOfBirth.ToDateOnly(),
                         AboutEmployee = model.AboutEmployee,
                         NID = model.NationalId,

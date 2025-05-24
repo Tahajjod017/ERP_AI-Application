@@ -55,8 +55,13 @@ namespace GCTL.Service.VisitingPath
                 DurationInSeconds = duration
             };
 
-            dbContext.UserVisitLogs.Add(visit);
-            await dbContext.SaveChangesAsync();
+            // dbContext.UserVisitLogs.Add(visit);
+            // await dbContext.SaveChangesAsync();
+            if (visit.DurationInSeconds != null)
+            {
+                dbContext.UserVisitLogs.Add(visit);
+                await dbContext.SaveChangesAsync();
+            }
         }
 
         private static bool ShouldIgnorePath(string path)
@@ -64,9 +69,20 @@ namespace GCTL.Service.VisitingPath
             if (string.IsNullOrWhiteSpace(path) || path == "/")
                 return true;
 
+            // Explicitly ignored API paths
+            var explicitlyIgnoredPaths = new[]
+            {
+                "/language/getlanguageonsession",
+                "/visitingpath/getall"
+            };
+
+            if (explicitlyIgnoredPaths.Any(p => path.Equals(p, StringComparison.OrdinalIgnoreCase)))
+                return true;
+
             return IgnoredExtensions.Any(ext => path.EndsWith(ext)) ||
                    IgnoredPaths.Any(p => path.Contains(p));
         }
+
 
         private static string GetLocalIP()
         {
