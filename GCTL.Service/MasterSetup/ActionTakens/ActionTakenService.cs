@@ -48,7 +48,12 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entityToRestore.ActionTakenName = model.ActionTakenName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.LIP =model.LIP;
+
+                    entityToRestore.LIP = model.LIP;
+
+
+         
+
                     entityToRestore.LMAC = model.LMAC;
                     entityToRestore.UpdatedBy = model.UpdatedBy ?? null;
 
@@ -165,7 +170,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                         Message = "No data found to delete."
                     };
                 }
-
+                var beforeEntity = JsonConvert.DeserializeObject<List<ActionTakenVM>>(JsonConvert.SerializeObject(data));
+                var targetIds = data.Select(x => (int?)x.ActionTakenID).ToList();
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
@@ -175,6 +181,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
+                await userInfoService.ActionLogDeleteAsync("Action Taken", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -189,6 +196,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+
         #endregion
 
 

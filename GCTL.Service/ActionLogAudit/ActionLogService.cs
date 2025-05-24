@@ -24,29 +24,54 @@ namespace GCTL.Service.ActionLogAudit
     int pageNumber = 1,
     int pageSize = 5,
     string searchTerm = "",
-    string sortColumn = "fdrBnkName",
-    string sortOrder = "asc", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
+    string currentSortColumn = "",
+    string currentSortOrder = "", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
         {
             try
             {
                 Console.WriteLine($"From: {fromDate}, To: {toDate}");
 
-                var query = _actionLogs.All().OrderByDescending(x => x.ActionLogID).Where(x =>
+
+                var query = _actionLogs.All().OrderByDescending(x => x.ActionLogID).Include(x => x.CreatedByNavigation).Where(x =>
+
+
     (fromDate == null || x.CreatedAt >= fromDate.Value.Date) &&
-    (toDate == null || x.CreatedAt <= toDate.Value.Date) && (string.IsNullOrEmpty(tergetType) || x.TargetType == tergetType) && (string.IsNullOrEmpty(actionName) || x.ActionName == actionName) && (createdBy == null || x.CreatedBy == createdBy)).Include(x => x.CreatedByNavigation);
+    (toDate == null || x.CreatedAt <= toDate.Value.Date) && (string.IsNullOrEmpty(tergetType) || x.TargetType == tergetType) && (string.IsNullOrEmpty(actionName) || x.ActionName == actionName) && (createdBy == null || x.CreatedBy == createdBy));
 
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
 
-                return await PaginationService<ActionLogs, ActionLogSetupVM>.GetPaginatedData(
+
+                if (!string.IsNullOrEmpty(currentSortColumn))
+                {
+                    bool ascending = currentSortOrder?.ToLower() == "asc";
+
+                    query = currentSortColumn switch
+                    {
+                        "ActionLogID" => ascending ? query.OrderBy(x => x.ActionLogID) : query.OrderByDescending(x => x.ActionLogID),
+                        "EmployeeUserName" => ascending ? query.OrderBy(x => x.CreatedByNavigation.FirstName).ThenBy(x => x.CreatedByNavigation.LastName)
+                                                        : query.OrderByDescending(x => x.CreatedByNavigation.FirstName).ThenByDescending(x => x.CreatedByNavigation.LastName),
+                        "UserEmail" => ascending ? query.OrderBy(x => x.UserEmail) : query.OrderByDescending(x => x.UserEmail),
+                        "TargetType" => ascending ? query.OrderBy(x => x.TargetType) : query.OrderByDescending(x => x.TargetType),
+                        "ActionName" => ascending ? query.OrderBy(x => x.ActionName) : query.OrderByDescending(x => x.ActionName),
+                        _ => query
+                    };
+                }
+
+
+                var result = await PaginationService<ActionLogs, ActionLogSetupVM>.GetPaginatedData(
+
+
                     query,
                     pageNumber,
                     pageSize,
                     searchTerm,
-                    sortColumn,
-                    sortOrder,
+
+                    currentSortColumn,
+                    currentSortOrder,
+
                     term => b => EF.Functions.Like(b.ActionLogID.ToString(), $"%{term}%") ||
                                  EF.Functions.Like((b.ActionName ?? ""), $"%{term}%") ||
                                  EF.Functions.Like((b.UserEmail ?? ""), $"%{term}%") ||
@@ -71,6 +96,7 @@ namespace GCTL.Service.ActionLogAudit
                             ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}"
                             : ""
                     });
+                return result;
             }
             catch (Exception ex)
             {

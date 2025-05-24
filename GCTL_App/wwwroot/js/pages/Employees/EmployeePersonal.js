@@ -2,11 +2,20 @@
 
 
     $('#submitButton').on('click', function (e) {
-        e.preventDefault()
+        e.preventDefault();
+
+        const enteredNationality = $('#nationalitySearch').val().trim();
+
+        if (enteredNationality && !nationalities.includes(enteredNationality)) {
+            $('#newNationalityName').val(enteredNationality);
+            $('#addNationalityModal').modal('show');
+        }
+
         if (confirm("Are you sure you want to submit the form?")) {
-            $('#employeeForm').submit(); 
+            $('#employeeForm').submit();
         }
     });
+
 
 
     //$('#employeeForm').on('submit', function (e) {
@@ -15,6 +24,62 @@
     //    }
     //});
 
+
+    //#region Choice Min Js
+
+
+    //let blooodGroupChoices;
+    //function initBloodGroupChoices() {
+    //    blooodGroupChoices = new Choices('#BloodGroup', {
+    //        removeItemButton: true,
+    //        shouldSort: false,
+    //        placeholderValue: 'Select Blood Group'
+    //    });
+    //}
+    //document.addEventListener('DOMContentLoaded', initBloodGroupChoices);
+    //initBloodGroupChoices();
+
+
+    let maritalChoices;
+    function initMaritalChoices() {
+        maritalChoices = new Choices('#MaritalStatus', {
+            removeItemButton: true,
+            shouldSort: false,
+            placeholderValue: 'Select Marital Status'
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initMaritalChoices);
+    initMaritalChoices();
+
+
+    let ReligionChoices;
+    function initReligionChoices() {
+        ReligionChoices = new Choices('#Religion', {
+            removeItemButton: true,
+            shouldSort: false,
+            placeholderValue: 'Select Religion'
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initReligionChoices);
+    initReligionChoices();
+
+    let GenderChoices;
+    function initGenderChoices() {
+        GenderChoices = new Choices('#Gender', {
+            removeItemButton: true,
+            shouldSort: false,
+            placeholderValue: 'Select Gender'
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initReligionChoices);
+    initGenderChoices();
+
+
+
+
+    //#endregion
+
+    //#region Image Perview
 
     $(function () {
         function setupImagePreview($fileInput, $previewImg, $closeBtn) {
@@ -58,6 +123,133 @@
         );
     });
 
+    //#endregion
 
+    //#region Auto suggest
+
+    let nationalities = [];
+
+
+
+    $.ajax({
+        url: '/EmployeePersonal/GetNationalities', 
+        method: 'GET',
+        success: function (data) {
+            nationalities = data; 
+        },
+        error: function () {
+            alert('Failed to load nationalities');
+        }
+    });
+
+
+
+    function showSuggestions(query) {
+        const $list = $('#nationalityList');
+        const $noResults = $('#noResults');
+        $list.empty();
+        $noResults.hide();
+
+        if (!query) return;
+
+        const filtered = nationalities.filter(item =>
+            item.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (filtered.length > 0) {
+            filtered.forEach(item => {
+                $list.append(`<button type="button" class="list-group-item list-group-item-action nationality-item">${item}</button>`);
+            });
+        } else {
+            $noResults.show();
+        }
+    }
+
+    // On input typing
+    $('#nationalitySearch').on('input', function () {
+        const query = $(this).val();
+        $('#searchResults').show();
+        $('#removeNationalityBtn').toggle(!!query);
+        showSuggestions(query);
+    });
+
+    // On selecting a suggestion
+    $(document).on('click', '.nationality-item', function () {
+        const selected = $(this).text();
+        $('#nationalitySearch').val(selected);
+        $('#searchResults').hide();
+        $('#removeNationalityBtn').show();
+    });
+
+    // Clear selected value
+    $('#removeNationalityBtn').on('click', function () {
+        $('#nationalitySearch').val('');
+        $('#nationalityList').empty();
+        $('#noResults').hide();
+        $('#searchResults').hide();
+        $(this).hide();
+    });
+
+    // Show modal when clicking "Click Here"
+    $('#addNewNationalityBtn').on('click', function () {
+        const newValue = $('#nationalitySearch').val();
+        $('#newNationalityName').val(newValue);
+        $('#addNationalityModal').modal('show');
+    });
+
+    
+    //$('#confirmAddNationalityBtn').on('click', function () {
+    //    const newNationality = $('#newNationalityName').val().trim();
+    //    if (newNationality && !nationalities.includes(newNationality)) {
+    //        nationalities.push(newNationality);
+    //        $('#nationalitySearch').val(newNationality);
+    //        $('#searchResults').hide();
+    //        $('#removeNationalityBtn').show();
+    //        $('#addNationalityModal').modal('hide');
+    //    }
+    //});
+
+    // Optional: hide suggestion list when clicking outside
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#nationalitySearch, #searchResults').length) {
+            $('#searchResults').hide();
+        }
+    });
+
+
+    //#endregion
+
+    //#region Save Nationality
+
+    $('#confirmAddNationalityBtn').on('click', function () {
+        const newNationality = $('#newNationalityName').val().trim();
+
+        if (!newNationality) {
+            alert('Please enter a nationality name.');
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeePersonal/SaveNationality', // <-- Update with your actual route
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(newNationality),
+            success: function (response) {
+                if (response.success) {
+                    nationalities.push(newNationality);
+                    $('#nationalitySearch').val(newNationality);
+                    $('#searchResults').hide();
+                    $('#removeNationalityBtn').show();
+                    $('#addNationalityModal').modal('hide');
+                }
+            },
+            error: function (xhr) {
+                alert('Error saving nationality: ' + xhr.responseText);
+            }
+        });
+    });
+
+
+    //#endregion 
 
 });

@@ -127,11 +127,11 @@ namespace GCTL_App.Controllers
 
 
         #region GetBanks With Pagination
-        public async Task<IActionResult> ActionLogDataTable(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "fullName", string sortOrder = "asc", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
+        public async Task<IActionResult> ActionLogDataTable(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
         {
             // fromDate ??= DateTime.Today.AddDays(-2); // default FromDate = 2 days ago
             // toDate ??= DateTime.Today;
-            var result = await actionLogService.GetPaginateActionLog(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, fromDate, toDate, tergetType, actionName, createdBy);
+            var result = await actionLogService.GetPaginateActionLog(pageNumber, pageSize, searchTerm, currentSortOrder, currentSortOrder, fromDate, toDate, tergetType, actionName, createdBy);
             return Json(result);
 
 
@@ -223,7 +223,7 @@ namespace GCTL_App.Controllers
             if (log == null)
                 return NotFound();
 
-            // Initialize the dictionaries to avoid null reference errors.
+           
             var actionBefore = new Dictionary<string, object>();
             var actionAfter = new Dictionary<string, object>();
 
@@ -286,7 +286,7 @@ namespace GCTL_App.Controllers
             });
 
 
-            // return Ok(changedValues);
+          
         }
 
 
