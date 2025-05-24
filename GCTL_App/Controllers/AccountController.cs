@@ -243,6 +243,7 @@ namespace GCTL_App.Controllers
                 UserEmail = userEmail,
                 ActionName = ActionName.LogOut,
                 LIP = GetLocalIP(),
+
                 LMAC = GetMacAddress(),
                 CreatedAt = DateTime.Now
             };

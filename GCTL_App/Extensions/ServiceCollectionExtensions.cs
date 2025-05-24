@@ -9,6 +9,9 @@ using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
 using GCTL.Service.Language;
 using GCTL.Service.ActionLogAudit;
+
+using GCTL.Service.VisitingPath;
+
 using GCTL.Service.MasterSetup.BloodGroups;
 using GCTL.Service.MasterSetup.Countries;
 using GCTL.Service.MasterSetup.Currency;
@@ -26,6 +29,7 @@ using GCTL.Service.MasterSetup.PaymenPeriodType;
 using GCTL.Service.MasterSetup.PaymentMode;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.Statuse;
+
 
 namespace GCTL_App.Extensions
 {
@@ -78,7 +82,12 @@ namespace GCTL_App.Extensions
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
 
+            services.AddScoped<IVisitingPathService, VisitingPathService>();
+           
+
+
             #region Language Services
+
 
             services.AddScoped<ITranslateService, TranslateService>();
             services.AddScoped<ILanguageTableService, LanguageTableService>();

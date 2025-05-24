@@ -89,9 +89,9 @@ $(document).ready(function () {
 });
 
 // Declare sortColumn and sortOrder globally so they are accessible
-var currentSortColumn = 'fdrBnkName';
+var currentSortColumn = '';
 
-let currentSortOrder = 'asc';
+let currentSortOrder = '';
 
 $('th.sort').on('click', function () {
     const column = $(this).data('sort');
@@ -132,7 +132,7 @@ function renderFields(jsonString) {
 // On DOM ready, set TaxpayerID from URL
 
 
-function loadTableData(sortColumn, sortOrder) {
+function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#searchInput").val();
     var fromDate = $('#FromDate').val();
     var toDate = $('#ToDate').val();
@@ -152,8 +152,8 @@ function loadTableData(sortColumn, sortOrder) {
             pageNumber: currentPage,
             pageSize: pageSize,
             searchTerm: searchTerm,
-            sortColumn: sortColumn,
-            sortOrder: sortOrder,
+            currentSortColumn: currentSortColumn,
+            currentSortOrder: currentSortOrder,
             fromDate: fromDate,
             toDate: toDate,
             tergetType: tergetType,

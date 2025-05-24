@@ -13,7 +13,9 @@ namespace GCTL.Data.Models
     public class ApplicationUser : IdentityUser
     {
        public int? EmployeeId { get; set; }
+
         public virtual Employees? Employees { get; set; }
+
     }
 
    

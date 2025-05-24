@@ -48,7 +48,12 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entityToRestore.ActionTakenName = model.ActionTakenName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.LIP =model.LIP;
+
+                    entityToRestore.LIP = model.LIP;
+
+
+         
+
                     entityToRestore.LMAC = model.LMAC;
                     entityToRestore.UpdatedBy = model.UpdatedBy ?? null;
 
@@ -189,6 +194,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+
         #endregion
 
 

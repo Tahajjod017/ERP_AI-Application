@@ -99,8 +99,52 @@
     <script src="~/js/vendors/leaflet.markercluster/leaflet.markercluster.js"></script>
     <script src="~/js/vendors/leaflet.tilelayer.colorfilter/leaflet-tilelayer-colorfilter.min.js"></script>
 
+
+        function showDeleteModal(deleteCallback) {
+            // Show the modal
+            $('#confirmDeleteModal').modal('show');
+
+            $('#confirmDeleteBtn').off('click').on('click', function () {
+                deleteCallback();
+                $('#confirmDeleteModal').modal('hide');
+            });
+        };
+        function showLoadingIndicator() {
+            if ($('#loadingIndicator').length === 0) {
+                $('body').append(`
+                    <div id="loadingIndicator" style="display:none; position: fixed; top: 35%; left: 35%; z-index: 9999;">
+                        <img src="/images/spinner4-unscreen.gif" alt="Loading..." />
+                    </div>
+                `);
+            }
+
+            $("#loadingIndicator").show();
+            // $('body').css('filter', 'blur(5px)');
+        }
+        function hideLoadingIndicator() {
+            $("#loadingIndicator").hide();
+        }
+
+        // For sort icon
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll("th.sort").forEach(function (th) {
+                const icon = document.createElement("span");
+                icon.className = "sort-icon ms-2";
+                icon.innerHTML = `<i class="fas fa-sort small text-muted"></i>`;
+                th.appendChild(icon);
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            feather.replace();
+        });
+
+
+    </script>
+
     <!--    JS for Layout -->
     <script src="~/js/layout/layout.js"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
