@@ -1,0 +1,38 @@
+﻿@model GCTL.Core.ViewModels.MasterSetup.BloodGroup.BloodGroupVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@ViewBag.AddBloodGroup</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="BloodGroups" method="post" enctype="multipart/form-data" id="bloodGroup-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="BloodGroupID" />
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="BloodGroupName" type="text" placeholder="Blood Group Name" autocomplete="off" />
+                        <label asp-for="BloodGroupName">@ViewBag.BloodGroupName <span style="color: red;">*</span></label>
+                    </div>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="bloodGroup-resetBtn">@ViewBag.Reset</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="bloodGroup-saveBtn">@ViewBag.Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

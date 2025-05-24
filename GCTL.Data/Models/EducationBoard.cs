@@ -7,13 +7,13 @@ namespace GCTL.Data.Models;
 
 public partial class EducationBoard
 {
-    public int EducationBoardId { get; set; }
+    public int EducationBoardID { get; set; }
 
     public string EducationBoardName { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -27,9 +27,9 @@ public partial class EducationBoard
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfos { get; set; } = new List<EmployeeEducationalInfo>();
+    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfo { get; set; } = new List<EmployeeEducationalInfo>();
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

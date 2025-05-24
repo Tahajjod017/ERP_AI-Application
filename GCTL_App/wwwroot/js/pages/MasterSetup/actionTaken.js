@@ -21,8 +21,11 @@
 
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
-                
+
+                var token = $('#actionTaken-form input[name="__RequestVerificationToken"]').val();
+
                 var formData = {
+                    __RequestVerificationToken: token,
                     ActionTakenID: $('#ActionTakenID').val(),
                     ActionTakenName: $('#ActionTakenName').val(),
                 }
@@ -267,17 +270,15 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('.dropdown-item').on('click', function () {
-            var selectedSize = $(this).data("size");
+        $('#actionTaken-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
-            } else {
-                return;
+                loadTableData();
+                currentPage = 1;
             }
-
-            $('#selectedPageSize').text(selectedSize);
-            loadTableData();
-        })
+        });
 
 
         $(document).ready(function () {

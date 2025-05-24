@@ -50,7 +50,7 @@ namespace GCTL.Service
             if (role == null) return false;
 
             // Match controller to MenuTab
-            var module = await _context.MenuTabs.FirstOrDefaultAsync(m => m.ControllerName == controllerName);
+            var module = await _context.MenuTab.FirstOrDefaultAsync(m => m.ControllerName == controllerName);
             if (module == null) return false;
 
             // Check VIEW permission for that module

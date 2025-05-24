@@ -7,15 +7,15 @@ namespace GCTL.Data.Models;
 
 public partial class Country
 {
-    public int CountryId { get; set; }
+    public int CountryID { get; set; }
 
     public string CountryCode { get; set; }
 
     public string CountryName { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -29,15 +29,15 @@ public partial class Country
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Employee> EmployeeCountries { get; set; } = new List<Employee>();
+    public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfo { get; set; } = new List<EmployeeTranningInfo>();
 
-    public virtual ICollection<Employee> EmployeeNationalities { get; set; } = new List<Employee>();
+    public virtual ICollection<Employees> EmployeesCountry { get; set; } = new List<Employees>();
 
-    public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfos { get; set; } = new List<EmployeeTranningInfo>();
+    public virtual ICollection<Employees> EmployeesNationality { get; set; } = new List<Employees>();
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

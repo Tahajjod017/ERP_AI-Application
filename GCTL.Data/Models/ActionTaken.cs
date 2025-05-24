@@ -7,7 +7,7 @@ namespace GCTL.Data.Models;
 
 public partial class ActionTaken
 {
-    public int ActionTakenId { get; set; }
+    public int ActionTakenID { get; set; }
 
     public string ActionTakenName { get; set; }
 
@@ -23,7 +23,7 @@ public partial class ActionTaken
 
     public DateTime? DeletedAt { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 }

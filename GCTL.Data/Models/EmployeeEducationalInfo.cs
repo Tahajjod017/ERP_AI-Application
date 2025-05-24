@@ -7,31 +7,31 @@ namespace GCTL.Data.Models;
 
 public partial class EmployeeEducationalInfo
 {
-    public int EmployeeEducationalInfoId { get; set; }
+    public int EmployeeEducationalInfoID { get; set; }
 
-    public int? EmployeeId { get; set; }
+    public int? EmployeeID { get; set; }
 
-    public int? EducationLevelId { get; set; }
+    public int? EducationLevelID { get; set; }
 
-    public int? DegreeId { get; set; }
+    public int? DegreeID { get; set; }
 
     public string MajorSubject { get; set; }
 
-    public int? EducationBoardId { get; set; }
+    public int? EducationBoardID { get; set; }
 
     public string InstitutionName { get; set; }
 
-    public int? ResultTypeId { get; set; }
+    public int? ResultTypeID { get; set; }
 
-    public int? PassingYearId { get; set; }
+    public int? PassingYearID { get; set; }
 
     public string YearDuration { get; set; }
 
     public string Achievement { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -45,21 +45,21 @@ public partial class EmployeeEducationalInfo
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Degree Degree { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual EducationBoard EducationBoard { get; set; }
 
-    public virtual EducationLevel EducationLevel { get; set; }
+    public virtual EducationLevels EducationLevel { get; set; }
 
-    public virtual Employee Employee { get; set; }
+    public virtual Employees Employee { get; set; }
 
-    public virtual PassingYear PassingYear { get; set; }
+    public virtual PassingYears PassingYear { get; set; }
 
-    public virtual ResultType ResultType { get; set; }
+    public virtual ResultTypes ResultType { get; set; }
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

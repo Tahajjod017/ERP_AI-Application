@@ -7,13 +7,13 @@ namespace GCTL.Data.Models;
 
 public partial class Degree
 {
-    public int DegreeId { get; set; }
+    public int DegreeID { get; set; }
 
     public string DegreeName { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -27,11 +27,11 @@ public partial class Degree
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfos { get; set; } = new List<EmployeeEducationalInfo>();
+    public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfo { get; set; } = new List<EmployeeEducationalInfo>();
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

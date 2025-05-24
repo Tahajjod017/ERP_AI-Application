@@ -18,6 +18,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ViewModels\MasterSetup\LicenceTypes\" />
+    <Folder Include="ViewModels\MasterSetup\Organization\" />
+    <Folder Include="ViewModels\MasterSetup\PassingYears\" />
+    <Folder Include="ViewModels\MasterSetup\ProvisionPeriodTtimeTypes\" />
+    <Folder Include="ViewModels\MasterSetup\ResultTypes\" />
+    <Folder Include="ViewModels\MasterSetup\ServiceYears\" />
+    <Folder Include="ViewModels\MasterSetup\TrainingYears\" />
+    <Folder Include="ViewModels\MasterSetup\YearlyEndBonusTypes\" />
     <Folder Include="wwwroot\media\logo\" />
   </ItemGroup>
 

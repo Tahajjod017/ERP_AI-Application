@@ -7,13 +7,13 @@ namespace GCTL.Data.Models;
 
 public partial class MaritalStatus
 {
-    public int MaritalStatusId { get; set; }
+    public int MaritalStatusID { get; set; }
 
     public string MaritalStatusName { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -27,9 +27,9 @@ public partial class MaritalStatus
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+    public virtual ICollection<Employees> Employees { get; set; } = new List<Employees>();
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

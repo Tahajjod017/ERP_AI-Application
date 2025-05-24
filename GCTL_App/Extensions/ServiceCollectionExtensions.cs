@@ -9,6 +9,23 @@ using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
 using GCTL.Service.Language;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.MasterSetup.BloodGroups;
+using GCTL.Service.MasterSetup.Countries;
+using GCTL.Service.MasterSetup.Currency;
+using GCTL.Service.MasterSetup.Degrees;
+using GCTL.Service.MasterSetup.Department;
+using GCTL.Service.MasterSetup.Designation;
+using GCTL.Service.MasterSetup.EducationBoards;
+using GCTL.Service.MasterSetup.EducationLevel;
+using GCTL.Service.MasterSetup.EmployeeTypes;
+using GCTL.Service.MasterSetup.EmploymentNatures;
+using GCTL.Service.MasterSetup.Gender;
+using GCTL.Service.MasterSetup.Grades;
+using GCTL.Service.MasterSetup.MaritalStatuses;
+using GCTL.Service.MasterSetup.PaymenPeriodType;
+using GCTL.Service.MasterSetup.PaymentMode;
+using GCTL.Service.MasterSetup.Religion;
+using GCTL.Service.MasterSetup.Statuse;
 
 namespace GCTL_App.Extensions
 {
@@ -35,8 +52,26 @@ namespace GCTL_App.Extensions
             services.AddScoped<IMenuTabsService, MenuTabsService>();
             //services.AddScoped<IPaginationService, PaginationService>();
 
-            // Master Setup Start
+            #region Added by Md. Rakib Hasan
             services.AddScoped<IActionTakenService, ActionTakenService>();
+            services.AddScoped<IBloodGroupService, BloodGroupService>();
+            services.AddScoped<ICountryService, CountryService>();
+            services.AddScoped<ICurrencyService, CurrencyService>();
+            services.AddScoped<IDegreeService, DegreeService>();
+            services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<IDesignationService, DesignationService>();
+            services.AddScoped<IEducationBoardService, EducationBoardService>();
+            services.AddScoped<IEducationLevelsService, EducationLevelService>();
+            services.AddScoped<IEmployeeTypesService, EmployeeTypesService>();
+            services.AddScoped<IEmploymentNatureService, EmploymentNatureService>();
+            services.AddScoped<IGenderService, GenderService>();
+            services.AddScoped<IGradeService, GradeService>();
+            services.AddScoped<IMaritalStatusService, MaritalStatusService>();
+            services.AddScoped<IPaymentPeriodsService, PaymentPeriodsService>();
+            services.AddScoped<IPaymentModeService, PaymentModesService>();
+            services.AddScoped<IReligionService, ReligionService>();
+            services.AddScoped<IStatusService, StatusService>();
+            #endregion
 
 
             //Siam 
