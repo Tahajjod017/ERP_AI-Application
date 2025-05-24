@@ -35,12 +35,14 @@ namespace GCTL.Service.VisitingPath
                 return;
             }
 
+
             var startTime = DateTime.UtcNow;
 
             await _next(context); // Process the request
 
             var endTime = DateTime.UtcNow;
             var duration = (endTime - startTime).TotalSeconds;
+
 
             var visit = new UserVisitLogs
             {

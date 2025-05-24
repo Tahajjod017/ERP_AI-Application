@@ -11,7 +11,7 @@ namespace GCTL_App.Controllers.Employees
 
         public IActionResult Index()
         {
-            SetPageCode(113000);
+            SetSmartPageCode(113000);
             return View();
         }
     }

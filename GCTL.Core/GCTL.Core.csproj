@@ -8,10 +8,22 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GCTL.Data\GCTL.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\MasterSetup\LicenceTypes\" />
+    <Folder Include="ViewModels\MasterSetup\Organization\" />
+    <Folder Include="ViewModels\MasterSetup\PassingYears\" />
+    <Folder Include="ViewModels\MasterSetup\ProvisionPeriodTtimeTypes\" />
+    <Folder Include="ViewModels\MasterSetup\ResultTypes\" />
+    <Folder Include="ViewModels\MasterSetup\ServiceYears\" />
+    <Folder Include="ViewModels\MasterSetup\TrainingYears\" />
+    <Folder Include="ViewModels\MasterSetup\YearlyEndBonusTypes\" />
   </ItemGroup>
 
 </Project>

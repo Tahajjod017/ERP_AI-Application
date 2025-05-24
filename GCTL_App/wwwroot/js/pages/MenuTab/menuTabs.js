@@ -178,6 +178,7 @@
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
                 loadTableData();
+                currentPage = 1;
             }
         });
 

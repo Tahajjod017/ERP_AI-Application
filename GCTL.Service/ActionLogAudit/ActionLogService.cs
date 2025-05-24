@@ -31,7 +31,10 @@ namespace GCTL.Service.ActionLogAudit
             {
                 Console.WriteLine($"From: {fromDate}, To: {toDate}");
 
+
                 var query = _actionLogs.All().OrderByDescending(x => x.ActionLogID).Include(x => x.CreatedByNavigation).Where(x =>
+
+
     (fromDate == null || x.CreatedAt >= fromDate.Value.Date) &&
     (toDate == null || x.CreatedAt <= toDate.Value.Date) && (string.IsNullOrEmpty(tergetType) || x.TargetType == tergetType) && (string.IsNullOrEmpty(actionName) || x.ActionName == actionName) && (createdBy == null || x.CreatedBy == createdBy));
 
@@ -39,6 +42,7 @@ namespace GCTL.Service.ActionLogAudit
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
+
 
                 if (!string.IsNullOrEmpty(currentSortColumn))
                 {
@@ -58,12 +62,16 @@ namespace GCTL.Service.ActionLogAudit
 
 
                 var result = await PaginationService<ActionLogs, ActionLogSetupVM>.GetPaginatedData(
+
+
                     query,
                     pageNumber,
                     pageSize,
                     searchTerm,
+
                     currentSortColumn,
                     currentSortOrder,
+
                     term => b => EF.Functions.Like(b.ActionLogID.ToString(), $"%{term}%") ||
                                  EF.Functions.Like((b.ActionName ?? ""), $"%{term}%") ||
                                  EF.Functions.Like((b.UserEmail ?? ""), $"%{term}%") ||

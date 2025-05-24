@@ -17,4 +17,15 @@
     <ProjectReference Include="..\GCTL.Data\GCTL.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MasterSetup\LicenceTypes\" />
+    <Folder Include="MasterSetup\Organization\" />
+    <Folder Include="MasterSetup\PassingYears\" />
+    <Folder Include="MasterSetup\ProvisionPeriodTtimeTypes\" />
+    <Folder Include="MasterSetup\ResultTypes\" />
+    <Folder Include="MasterSetup\ServiceYears\" />
+    <Folder Include="MasterSetup\TrainingYears\" />
+    <Folder Include="MasterSetup\YearlyEndBonusTypes\" />
+  </ItemGroup>
+
 </Project>

@@ -48,7 +48,11 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entityToRestore.ActionTakenName = model.ActionTakenName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
+
                     entityToRestore.LIP = model.LIP;
+
+
+         
 
                     entityToRestore.LMAC = model.LMAC;
                     entityToRestore.UpdatedBy = model.UpdatedBy ?? null;
@@ -120,7 +124,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #endregion
 
 
-        #region Get
+        #region GetByIdAsync
         public async Task<ActionTakenVM> GetByIdAsync(int id)
         {
             try
@@ -143,9 +147,6 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #endregion
 
 
-   
-
-
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
@@ -155,10 +156,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #endregion
 
 
-        #region Soft Delete  SoftDeleteAsync22(DeleteRequestVM requestVM);
-
-
-        public async Task<ActionTakenVM> SoftDeleteAsync22(DeleteRequestVM requestVM)
+        #region SoftDeleteAsync
+        public async Task<ActionTakenVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
@@ -174,10 +173,8 @@ namespace GCTL.Service.MasterSetup.ActionTakens
 
                 foreach (var item in data)
                 {
-                    //item.IsDeleted = true; 
                     item.DeletedAt = DateTime.Now;
                     item.LIP = requestVM.LIP;
-
                     item.LMAC = requestVM.LMAC;
                     item.DeletedBy = requestVM.DeletedBy ?? null;
                 }
@@ -198,43 +195,6 @@ namespace GCTL.Service.MasterSetup.ActionTakens
             }
         }
 
-        public async Task<ActionTakenVM> SoftDeleteAsync(List<int> ids, BaseViewModel baseViewModel)
-        {
-            await _genericRepository.BeginTransactionAsync();
-            try
-            {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.ActionTakenID));
-                if (data == null || data.Count == 0)
-                {
-                    return new ActionTakenVM
-                    {
-                        Message = "No data found to delete."
-                    };
-                }
-
-                foreach (var item in data)
-                {
-                    //item.IsDeleted = true; 
-                    item.DeletedAt = DateTime.Now;
-                   
-                    item.DeletedBy = baseViewModel.DeletedBy ?? null;
-                }
-
-                await _genericRepository.UpdateRangeAsync(data);
-
-                await _genericRepository.CommitTransactionAsync();
-
-                return new ActionTakenVM
-                {
-                    Message = $"{data.Count} data(s) deleted successfully."
-                };
-            }
-            catch (Exception ex)
-            {
-                await _genericRepository.RollbackTransactionAsync();
-                throw new Exception("Error occurred during the deletion of data.", ex);
-            }
-        }
         #endregion
 
 

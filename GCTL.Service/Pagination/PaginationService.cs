@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace GCTL.Service.Pagination
 {
     public class PaginationService<TEntity, TViewModel> where TEntity : class
     {
+        #region PaginationResult & PaginationInfo Class
         public class PaginationResult<T>
         {
             public IEnumerable<T> Data { get; set; }
@@ -26,33 +28,28 @@ namespace GCTL.Service.Pagination
             public int TotalPages { get; set; }
             public int CurrentPage { get; set; }
         }
+        #endregion
 
-        // Method to get paginated data
-        public static async Task<PaginationResult<TViewModel>> GetPaginatedData(
-            IQueryable<TEntity> query,
-            int pageNumber,
-            int pageSize,
-            string searchTerm,
-            string sortColumn,
-            string sortOrder,
-            Func<string, Expression<Func<TEntity, bool>>> searchPredicate,
-            Func<TEntity, TViewModel> selector)
+
+        #region GetPaginatedData
+        public static async Task<PaginationResult<TViewModel>> GetPaginatedData(IQueryable<TEntity> query,
+            int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder,
+            Func<string, Expression<Func<TEntity, bool>>> searchPredicate, Func<TEntity, TViewModel> selector)
         {
-            // Apply search filter if search term is provided
+            // Searching
             if (!string.IsNullOrEmpty(searchTerm) && searchPredicate != null)
             {
+                searchTerm = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
                 query = query.Where(searchPredicate(searchTerm));
             }
 
-            // Apply sorting based on the column and direction
+            // Sorting based on the column and direction
             if (!string.IsNullOrEmpty(sortColumn))
             {
                 var propertyInfo = typeof(TEntity).GetProperty(sortColumn);
                 if (propertyInfo != null)
                 {
-                    query = sortOrder.ToLower() == "asc"
-                        ? query.OrderBy(e => EF.Property<object>(e, sortColumn))
-                        : query.OrderByDescending(e => EF.Property<object>(e, sortColumn));
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(e => EF.Property<object>(e, sortColumn)) : query.OrderByDescending(e => EF.Property<object>(e, sortColumn));
                 }
             }
 
@@ -60,12 +57,7 @@ namespace GCTL.Service.Pagination
             var totalItems = await query.CountAsync();
 
             // Apply pagination 
-            // Was ToListAsync() before
-            var paginatedData = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(selector)
-                .ToList();
+            var paginatedData = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).Select(selector).ToList();
 
             // Calculate pagination info
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
@@ -88,5 +80,6 @@ namespace GCTL.Service.Pagination
                 }
             };
         }
+        #endregion
     }
 }
