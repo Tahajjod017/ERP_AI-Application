@@ -9,18 +9,36 @@ namespace GCTL_App.Controllers
 
 
 
+        //protected readonly ITranslateService _translateService;
 
+        //private int _smartPageCode = 0;
+
+        //protected BaseController()
+        //{
+        //}
+
+        //protected BaseController(ITranslateService translateService)
+        //{
+        //    _translateService = translateService;
+        //}
+
+        //protected void SetSmartPageCode(int code)
+        //{
+        //    _smartPageCode = code;
+        //    ViewData["SmartPageCode"] = _smartPageCode;
+        //    ViewData["BaseControllerInstance"] = this;
+        //}
+
+        //protected string SmartLocalizeText(string defaultText)
+        //{
+        //    string lang = HttpContext.Items["Language"] as string ?? "en";
+        //    return _translateService.GetTranslationInd(defaultText, (_smartPageCode++).ToString(), lang) ?? defaultText;
+        //}
 
 
         protected readonly ITranslateService _translateService;
 
-        private int _pageCode;
-        protected string LanguageCode => HttpContext.Items["Language"] as string ?? "en";
 
-       
-
-
-        
         private int _smartPageCode = 0;
 
         protected BaseController(ITranslateService translateService)
@@ -42,23 +60,24 @@ namespace GCTL_App.Controllers
         }
 
 
-       
 
 
 
 
+        //private int _pageCode;
+        //protected string LanguageCode => HttpContext.Items["Language"] as string ?? "en";
 
 
         // Call this in each controller to set the correct pageCode
-        protected void SetPageCode(int startCode)
-        {
-            _pageCode = startCode;
-        }
+        //protected void SetPageCode(int startCode)
+        //{
+        //    _pageCode = startCode;
+        //}
 
-        protected string Translate(string defaultText)
-        {
-            return _translateService.GetTranslationInd(defaultText, (_pageCode++).ToString(), LanguageCode);
-        }
+        //protected string Translate(string defaultText)
+        //{
+        //    return _translateService.GetTranslationInd(defaultText, (_pageCode++).ToString(), LanguageCode);
+        //}
 
         public string GetLocalIP()
         {

@@ -78,13 +78,20 @@ namespace GCTL_App.Extensions
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
 
-            #region
+            #region Language Services
 
             services.AddScoped<ITranslateService, TranslateService>();
             services.AddScoped<ILanguageTableService, LanguageTableService>();
 
             #endregion
 
+
+            #region Employee Services
+
+            services.AddScoped<IEmployeePersonalService, EmployeePersonalService>();
+
+
+            #endregion
 
         }
     }
