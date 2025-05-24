@@ -1,0 +1,47 @@
+﻿@model GCTL.Core.ViewModels.MasterSetup.Designations.DesignationVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@ViewBag.AddDesignation</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="Designation" method="post" enctype="multipart/form-data" id="designation-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="DesignationID" />
+
+                @* <div class="flatpickr-input-container">
+                    <div class="form-floating form-floating-advance-select">
+                        <select class="form-select designationSelectTwo" asp-for="DepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList">
+                            <option value="">-- @ViewBag.DepartmentName --</option>
+                        </select>
+                    </div>
+                </div> *@
+
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="DesignationName" type="text" placeholder="Designation Name" autocomplete="off" />
+                        <label asp-for="DesignationName">@ViewBag.DesignationName <span style="color: red;">*</span></label>
+                    </div>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="designation-resetBtn">@ViewBag.Reset</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="designation-saveBtn">@ViewBag.Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

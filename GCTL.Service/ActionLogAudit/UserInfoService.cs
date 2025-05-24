@@ -198,7 +198,7 @@ namespace GCTL.Service.ActionLogAudit
             //}
 
 
-            var log = new ActionLog
+            var log = new ActionLogs
             {
                 CreatedBy = entityVM.CreatedBy,
                 ActionName = actionName,
@@ -207,11 +207,11 @@ namespace GCTL.Service.ActionLogAudit
                 ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
                 ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
                 UserEmail = entityVM.Email,
-                Lip = entityVM.LIP,
-                Lmac = entityVM.LMAC,
+                LIP = entityVM.LIP,
+                LMAC = entityVM.LMAC,
                 CreatedAt = DateTime.Now,
                 TargetType = tergetType,
-                TargetId = targetID
+                TargetID = targetID
 
             };
             await _context.ActionLogs.AddAsync(log);
@@ -220,22 +220,22 @@ namespace GCTL.Service.ActionLogAudit
 
         public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM)
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<ActionLogs>();
 
             for (int i = 0; i < targetIds.Count; i++)
             {
-                logs.Add(new ActionLog
+                logs.Add(new ActionLogs
                 {
                     CreatedBy = entityVM.CreatedBy,
                     ActionName = actionName,
                     ActionBefore = beforeList != null ? JsonConvert.SerializeObject(beforeList[i]) : null,
                     ActionAfter = afterList != null ? JsonConvert.SerializeObject(afterList[i]) : null,
                     UserEmail = entityVM.Email,
-                    Lip = entityVM.LIP,
-                    Lmac = entityVM.LMAC,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
                     TargetType = targetType,
-                    TargetId = targetIds[i]
+                    TargetID = targetIds[i]
                 });
             }
 

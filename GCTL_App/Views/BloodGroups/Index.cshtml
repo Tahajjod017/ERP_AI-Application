@@ -1,0 +1,35 @@
+﻿@model GCTL_App.ViewModels.MasterSetup.BloodGroup.BloodGroupPageVM
+
+@{
+    ViewData["Title"] = @ViewBag.AddBloodGroup;
+}
+
+<nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item active">@ViewBag.AddBloodGroup</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-12">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top">
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 mx-lg-n4">
+    <div class="row g-4">
+        <div class="col-12 col-md-7 col-xl-5 col-xxl-5">
+            <partial name="_Form" model="Model.Setup" />
+        </div>
+
+        <div class="col-12 col-md-7 col-xl-7 col-xxl-7">
+            <partial name="_Table" />
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/pages/mastersetup/bloodgroup.js"></script>

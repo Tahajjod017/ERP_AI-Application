@@ -31,7 +31,7 @@ namespace GCTL.Service.VisitingPath
                 return;
             }
 
-            var visit = new UserVisitLog
+            var visit = new UserVisitLogs
             {
                 UserId = context.User.Identity.IsAuthenticated ? context.User.Identity.Name : "Anonymous",
                 Path = path,

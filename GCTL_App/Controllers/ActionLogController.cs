@@ -143,7 +143,7 @@ namespace GCTL_App.Controllers
         [HttpGet]
         public IActionResult GetActionLogDetails1(int actionLogId)
         {
-            var log = appDbContext.ActionLogs.Include(x => x.CreatedByNavigation).FirstOrDefault(x => x.ActionLogId == actionLogId);
+            var log = appDbContext.ActionLogs.Include(x => x.CreatedByNavigation).FirstOrDefault(x => x.ActionLogID == actionLogId);
 
             if (log == null)
                 return NotFound();
@@ -200,11 +200,11 @@ namespace GCTL_App.Controllers
             {
                 ActionBefore = filteredBefore,
                 ActionAfter = filteredAfter,
-                ActionLogID = log.ActionLogId,
+                ActionLogID = log.ActionLogID,
                 CreatedAt = log.CreatedAt,
                 UserEmail = log.UserEmail,
                 TargetType = log.TargetType,
-                TargetID = log.TargetId,
+                TargetID = log.TargetID,
                 ActionName = log.ActionName,
                 EmployeeID = log.CreatedBy,
                 EmployeeUserName = log.CreatedByNavigation != null ? $"{log.CreatedByNavigation.FirstName} {log.CreatedByNavigation.LastName}" : "",
@@ -218,7 +218,7 @@ namespace GCTL_App.Controllers
         public IActionResult GetActionLogDetails(int actionLogId)
         {
             var log = appDbContext.ActionLogs.Include(x => x.CreatedByNavigation)
-                .FirstOrDefault(x => x.ActionLogId == actionLogId);
+                .FirstOrDefault(x => x.ActionLogID == actionLogId);
 
             if (log == null)
                 return NotFound();
@@ -274,11 +274,11 @@ namespace GCTL_App.Controllers
 
             return Ok(new
             {
-                ActionLogID = log.ActionLogId,
+                ActionLogID = log.ActionLogID,
                 CreatedAt = log.CreatedAt,
                 UserEmail = log.UserEmail,
                 TargetType = log.TargetType,
-                TargetID = log.TargetId,
+                TargetID = log.TargetID,
                 ActionName = log.ActionName,
                 EmployeeID = log.CreatedBy ?? 0,
                 EmployeeUserName = log.CreatedByNavigation != null ? $"{log.CreatedByNavigation.FirstName} {log.CreatedByNavigation.LastName}" : "",

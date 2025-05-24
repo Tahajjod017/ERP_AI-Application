@@ -12,11 +12,9 @@ namespace GCTL_App.Controllers.MasterSetup
     {
         #region Services & Repositories
         private readonly IActionTakenService _actionTakenService;
-        private readonly IUserInfoService userInfoService;
-        public ActionTakensController(IActionTakenService actionTakenService, IUserInfoService userInfoService )
+        public ActionTakensController(IActionTakenService actionTakenService)
         {
             _actionTakenService = actionTakenService;
-            this.userInfoService = userInfoService;
         }
         #endregion
 
@@ -25,13 +23,14 @@ namespace GCTL_App.Controllers.MasterSetup
         public IActionResult Index()
         {
             ActionTakenPageVM model = new ActionTakenPageVM();
-
+            
             return View(model);
         }
         #endregion
 
 
         #region Create
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ActionTakenVM model)
         {
@@ -62,6 +61,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Update(ActionTakenVM model)
         {
             try
@@ -136,8 +137,6 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Delete
-        //
-
         [HttpPost]
         public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
         {
@@ -148,7 +147,7 @@ namespace GCTL_App.Controllers.MasterSetup
                     return Json(new { isSuccess = false, message = "No bank selected to delete." });
                 }
                
-                var result = await _actionTakenService.SoftDeleteAsync22(requestVM);
+                var result = await _actionTakenService.SoftDeleteAsync(requestVM);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No banks found to delete." });
@@ -161,32 +160,6 @@ namespace GCTL_App.Controllers.MasterSetup
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
-        //
-
-        //[HttpPost]
-        //public async Task<IActionResult> Delete(List<int> ids)
-        //{
-        //    try
-        //    {
-        //        if (ids == null || !ids.Any() || ids.Count == 0)
-        //        {
-        //            return Json(new { isSuccess = false, message = "No bank selected to delete." });
-        //        }
-        //        var userInfo = new BaseViewModel();
-        //        userInfoService.SetUserInfo(userInfo, User, HttpContext);
-        //        var result = await _actionTakenService.SoftDeleteAsync(ids, userInfo);
-        //        if (result == null)
-        //        {
-        //            return Json(new { isSuccess = false, message = "No banks found to delete." });
-        //        }
-
-        //        return Json(new { isSuccess = true, message = "Deleted Successfully." });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { isSuccess = false, message = ex.Message });
-        //    }
-        //}
         #endregion
     }
 }

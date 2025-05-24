@@ -7,13 +7,13 @@ namespace GCTL.Data.Models;
 
 public partial class Grade
 {
-    public int GradeId { get; set; }
+    public int GradeID { get; set; }
 
     public string GradeName { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -27,11 +27,11 @@ public partial class Grade
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeSalarySetting> EmployeeSalarySettings { get; set; } = new List<EmployeeSalarySetting>();
+    public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettings { get; set; } = new List<EmployeeSalarySettings>();
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -3,13 +3,12 @@ using GCTL.Data.Models;
 using GCTL.Service.Language;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-using System.Linq;
+using OpenQA.Selenium;
+using Microsoft.EntityFrameworkCore;
 
-namespace GCTL_NBR.Controllers.Language
+namespace GCTL_App.Controllers.Language
 {
     public class LanguageController : Controller
     {
@@ -64,10 +63,10 @@ namespace GCTL_NBR.Controllers.Language
             return View(result);
         }
 
-       
+
         public IActionResult GetTranslationsTable(string languageCode)
         {
-           // var translations = _languageTableService.GetTranslations(languageCode);
+            // var translations = _languageTableService.GetTranslations(languageCode);
 
             return Ok();
         }
@@ -97,21 +96,21 @@ namespace GCTL_NBR.Controllers.Language
 
             await _languageTableService.AddTableWithInd(languageCode);
 
-           
-            
+
+
             var getData = await _languageTableService.GetDataWithIndAsync(languageCode);
-            var englishTexts = await _dbContext.LanguageMainTables.ToListAsync() ;
-            
+            var englishTexts = await _dbContext.LanguageMainTables.ToListAsync();
+
             var engTextList = getData
                 .Where(x => !string.IsNullOrWhiteSpace(x.EngText))
                 .Select(x => x.EngText.ToLower())
                 .ToList();
-            
+
             englishTexts = englishTexts
                 .Where(et => !string.IsNullOrWhiteSpace(et.EnglishText) &&
                              !engTextList.Contains(et.EnglishText.ToLower()))
                 .ToList();
-                        
+
 
             int total = englishTexts.Count;
             ViewBag.total = total;
@@ -164,7 +163,7 @@ namespace GCTL_NBR.Controllers.Language
                     await _languageTableService.SaveBulkDataWithInd(listDto);
 
 
-                     await _hubContext.Clients.All.SendAsync("OperationCompleted");
+                    await _hubContext.Clients.All.SendAsync("OperationCompleted");
                 }
                 catch (Exception ex)
                 {
@@ -204,6 +203,5 @@ namespace GCTL_NBR.Controllers.Language
 
 
 
-    } 
-
+    }
 }

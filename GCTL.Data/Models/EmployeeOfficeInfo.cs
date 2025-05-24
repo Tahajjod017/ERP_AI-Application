@@ -7,23 +7,23 @@ namespace GCTL.Data.Models;
 
 public partial class EmployeeOfficeInfo
 {
-    public int EmployeeOfficeInfoId { get; set; }
+    public int EmployeeOfficeInfoID { get; set; }
 
-    public int? EmployeeId { get; set; }
+    public int? EmployeeID { get; set; }
 
     public string EmployeeOfficeId { get; set; }
 
-    public int? OrganizationId { get; set; }
+    public int? OrganizationID { get; set; }
 
-    public int? OrganizationBranchId { get; set; }
+    public int? OrganizationBranchID { get; set; }
 
-    public int? DepartmentId { get; set; }
+    public int? DepartmentID { get; set; }
 
-    public int? DesignationId { get; set; }
+    public int? DesignationID { get; set; }
 
-    public int? EmployeeTypeId { get; set; }
+    public int? EmployeeTypeID { get; set; }
 
-    public int? EmploymentNatureId { get; set; }
+    public int? EmploymentNatureID { get; set; }
 
     public int? SeniorSupervisorId { get; set; }
 
@@ -49,7 +49,7 @@ public partial class EmployeeOfficeInfo
 
     public int? ProvisionPeriod { get; set; }
 
-    public int? ProvisionPeriodTtimeTypeId { get; set; }
+    public int? ProvisionPeriodTtimeTypeID { get; set; }
 
     public DateOnly? ConfirmationDate { get; set; }
 
@@ -57,9 +57,9 @@ public partial class EmployeeOfficeInfo
 
     public DateOnly? ContractEndDate { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -73,31 +73,31 @@ public partial class EmployeeOfficeInfo
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Department Department { get; set; }
+    public virtual Departments Department { get; set; }
 
-    public virtual Designation Designation { get; set; }
+    public virtual Designations Designation { get; set; }
 
     public virtual EmployeeType EmployeeType { get; set; }
 
     public virtual EmploymentNature EmploymentNature { get; set; }
 
-    public virtual Status EmploymentStatus { get; set; }
+    public virtual Statuses EmploymentStatus { get; set; }
 
-    public virtual Employee HeadOfDepartment { get; set; }
+    public virtual Employees HeadOfDepartment { get; set; }
 
-    public virtual Employee ImmediateSupervisor { get; set; }
+    public virtual Employees ImmediateSupervisor { get; set; }
 
     public virtual Organization Organization { get; set; }
 
-    public virtual OrganizationBranch OrganizationBranch { get; set; }
+    public virtual OrganizationBranches OrganizationBranch { get; set; }
 
-    public virtual ProvisionPeriodTtimeType ProvisionPeriodTtimeType { get; set; }
+    public virtual ProvisionPeriodTtimeTypes ProvisionPeriodTtimeType { get; set; }
 
-    public virtual Employee SeniorSupervisor { get; set; }
+    public virtual Employees SeniorSupervisor { get; set; }
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

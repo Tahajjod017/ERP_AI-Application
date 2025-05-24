@@ -7,9 +7,9 @@ namespace GCTL.Data.Models;
 
 public partial class EmployeeAdditionalInfo
 {
-    public int EmployeeAdditionalInfoId { get; set; }
+    public int EmployeeAdditionalInfoID { get; set; }
 
-    public int? EmployeeId { get; set; }
+    public int? EmployeeID { get; set; }
 
     public string PasportName { get; set; }
 
@@ -23,7 +23,7 @@ public partial class EmployeeAdditionalInfo
 
     public string DrivingLicenceNo { get; set; }
 
-    public int? LicenceTypeId { get; set; }
+    public int? LicenceTypeID { get; set; }
 
     public DateTime? DrivingLicenceIssueDate { get; set; }
 
@@ -43,9 +43,9 @@ public partial class EmployeeAdditionalInfo
 
     public DateTime? VisaExpireDate { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -59,13 +59,13 @@ public partial class EmployeeAdditionalInfo
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Employee Employee { get; set; }
+    public virtual Employees Employee { get; set; }
 
-    public virtual LicenceType LicenceType { get; set; }
+    public virtual LicenceTypes LicenceType { get; set; }
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }

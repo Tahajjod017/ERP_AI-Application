@@ -56,7 +56,7 @@ namespace GCTL.Service.RolePermissions
                 return;
             }
 
-            var module = await db.MenuTabs.FirstOrDefaultAsync(m => m.ControllerName == _controllerName);
+            var module = await db.MenuTab.FirstOrDefaultAsync(m => m.ControllerName == _controllerName);
             if (module == null)
             {
                 context.Result = new NotFoundResult();

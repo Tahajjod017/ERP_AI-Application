@@ -408,7 +408,7 @@ namespace GCTL.Service.Language
                 {
                     var tes = _dbContext.LanguageMainTables.Select(e => new CommonLanguageVM
                     {
-                        Id = e.Id,
+                        Id = e.ID,
                         EngText = e.EnglishText,
                         TranslatedText = e.EnglishText,
                         LangCode = languageCode
@@ -426,7 +426,7 @@ namespace GCTL.Service.Language
                               from td in leftJoin.DefaultIfEmpty()
                               select new CommonLanguageVM
                               {
-                                  Id = lm.Id,
+                                  Id = lm.ID,
                                   LangId = td != null ? td.Id : 0,
                                   EngText = lm.EnglishText,
                                   TranslatedText = td != null ? td.TranslatedText : "",

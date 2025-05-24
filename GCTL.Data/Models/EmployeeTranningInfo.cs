@@ -7,17 +7,17 @@ namespace GCTL.Data.Models;
 
 public partial class EmployeeTranningInfo
 {
-    public int EmployeeTranningInfoId { get; set; }
+    public int EmployeeTranningInfoID { get; set; }
 
-    public int? EmployeeId { get; set; }
+    public int? EmployeeID { get; set; }
 
     public string TranningTitle { get; set; }
 
-    public int? CountryId { get; set; }
+    public int? CountryID { get; set; }
 
     public string TopicCovered { get; set; }
 
-    public int? TrainingYearId { get; set; }
+    public int? TrainingYearID { get; set; }
 
     public string InstituteName { get; set; }
 
@@ -25,9 +25,9 @@ public partial class EmployeeTranningInfo
 
     public string LocationName { get; set; }
 
-    public string Lip { get; set; }
+    public string LIP { get; set; }
 
-    public string Lmac { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -43,13 +43,13 @@ public partial class EmployeeTranningInfo
 
     public virtual Country Country { get; set; }
 
-    public virtual Employee CreatedByNavigation { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employee DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Employee Employee { get; set; }
+    public virtual Employees Employee { get; set; }
 
-    public virtual TrainingYear TrainingYear { get; set; }
+    public virtual TrainingYears TrainingYear { get; set; }
 
-    public virtual Employee UpdatedByNavigation { get; set; }
+    public virtual Employees UpdatedByNavigation { get; set; }
 }
