@@ -83,7 +83,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Genders")]
+        //[Permission("Edit", "Genders")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(GenderVM model)
         {
@@ -106,7 +107,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Genders")]
+        //[Permission("Create", "Genders")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(GenderVM model)
         {

@@ -85,7 +85,9 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "EducationBoards")]
+        //[Permission("Edit", "EducationBoards")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Update(EducationBoardVM model)
         {
             try
@@ -107,7 +109,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "EducationBoards")]
+        //[Permission("Create", "EducationBoards")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(EducationBoardVM model)
         {

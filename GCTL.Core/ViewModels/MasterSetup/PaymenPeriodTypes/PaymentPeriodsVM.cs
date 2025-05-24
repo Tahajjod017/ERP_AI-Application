@@ -8,8 +8,8 @@ namespace GCTL.Core.ViewModels.MasterSetup.PaymenPeriodTypes
 {
     public class PaymentPeriodsVM : BaseViewModel
     {
-        public int PaymenPeriodTypeID { get; set; }
+        public int PaymentPeriodTypeID { get; set; }
 
-        public string PaymenPeriodTypeName { get; set; }
+        public string PaymentPeriodTypeName { get; set; }
     }
 }

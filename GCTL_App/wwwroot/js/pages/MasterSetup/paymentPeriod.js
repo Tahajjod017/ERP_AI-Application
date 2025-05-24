@@ -1,14 +1,14 @@
 ﻿(function ($) {
-    $.actiontaken = function (options) {
+    $.paymentPeriod = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#actionTaken-form',
-            saveBtn: '#actionTaken-saveBtn',
-            editBtn: '#actionTaken-editBtn',
-            resetBtn: '#actionTaken-resetBtn',
-            bulkDelBtn: '#actionTaken-bulkDelBtn',
-            singleDeleteBtn: '#actionTaken-singleDelBtn',
+            form: '#paymentPeriod-form',
+            saveBtn: '#paymentPeriod-saveBtn',
+            editBtn: '#paymentPeriod-editBtn',
+            resetBtn: '#paymentPeriod-resetBtn',
+            bulkDelBtn: '#paymentPeriod-bulkDelBtn',
+            singleDeleteBtn: '#paymentPeriod-singleDelBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -19,9 +19,6 @@
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
 
-
-
-
             $('#paymentPeriod-saveBtn').on('click', function (e) {
                 e.preventDefault();
 
@@ -29,13 +26,13 @@
 
                 var formData = {
                     __RequestVerificationToken: token,
-                    PaymentPeriodID: $('#PaymentPeriodID').val(),
-                    PaymentPeriodName: $('#PaymentPeriodName').val(),
+                    PaymentPeriodTypeID: $('#PaymentPeriodTypeID').val(),
+                    PaymentPeriodTypeName: $('#PaymentPeriodTypeName').val(),
                 }
 
                 validateName();
 
-                var id = $('#paymentPeriod-form #PaymentPeriodID').val();
+                var id = $('#paymentPeriod-form #PaymentPeriodTypeID').val();
                 var url = '';
                 if (id > 0) {
                     url = '/PaymentPeriods/Update';
@@ -74,8 +71,8 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#paymentPeriod-form #PaymentPeriodID').val(data.paymentPeriodID);
-                            $('#paymentPeriod-form #PaymentPeriodName').val(data.paymentPeriodName);
+                            $('#paymentPeriod-form #PaymentPeriodTypeID').val(data.paymentPeriodTypeID);
+                            $('#paymentPeriod-form #PaymentPeriodTypeName').val(data.paymentPeriodTypeName);
 
                             $('#paymentPeriod-form #paymentPeriod-saveBtn').text('Update');
                         } else {
@@ -155,7 +152,7 @@
 
             function clear() {
                 $('#paymentPeriod-form')[0].reset();
-                $('#PaymentPeriodID').val('0');
+                $('#PaymentPeriodTypeID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -171,18 +168,18 @@
             }
 
 
-            $('#PaymentPeriodName').on('input', function () {
+            $('#PaymentPeriodTypeName').on('input', function () {
                 validateName();
             });
 
 
             function validateName() {
-                var name = $('#PaymentPeriodName').val().trim();
+                var name = $('#PaymentPeriodTypeName').val().trim();
 
                 if (name === '') {
-                    $('#PaymentPeriodName').css('border', '1px solid red');
+                    $('#PaymentPeriodTypeName').css('border', '1px solid red');
                 } else {
-                    $('#PaymentPeriodName').css('border', '1px solid #ccc');
+                    $('#PaymentPeriodTypeName').css('border', '1px solid #ccc');
                 }
             }
 
@@ -192,7 +189,7 @@
             });
 
             function checkNameUnique() {
-                $('#PaymentPeriodName').on('input', function () {
+                $('#PaymentPeriodTypeName').on('input', function () {
                     var value = $(this).val();
 
                     $.ajax({
@@ -202,10 +199,10 @@
                         success: function (response) {
                             if (response === true) {
                                 $('#nameError').hide();
-                                $('input[name="PaymentPeriodName"]').removeClass('is-invalid');
+                                $('input[name="PaymentPeriodTypeName"]').removeClass('is-invalid');
                             } else {
                                 $('#nameError').text(response).show();
-                                $('input[name="PaymentPeriodName"]').addClass('is-invalid');
+                                $('input[name="PaymentPeriodTypeName"]').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -265,18 +262,15 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('.dropdown-item').on('click', function () {
-            var selectedSize = $(this).data("size");
+        $('#paymentPeriod-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
                 currentPage = 1;
-            } else {
-                return;
+                loadTableData();
             }
-
-            $('#selectedPageSize').text(selectedSize);
-            loadTableData();
-        })
+        });
 
 
         $(document).ready(function () {
@@ -301,8 +295,8 @@
         });
 
 
-        let currentSortColumn = 'PaymentPeriodName';
-        let currentSortOrder = 'asc';
+        let currentSortColumn = 'PaymentPeriodTypeID';
+        let currentSortOrder = 'desc';
 
         $('th.sort').on('click', function () {
             const column = $(this).data('sort');
@@ -357,14 +351,14 @@
                             tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input paymentPeriod-selectItem" data-id="${item.paymentPeriodID}" />
+                                <input type="checkbox" class="form-check-input paymentPeriod-selectItem" data-id="${item.paymentPeriodTypeID}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.paymentPeriodName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.paymentPeriodTypeName}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 paymentPeriod-bulkDelete" href="#!" id="paymentPeriod-edit" data-id="${item.paymentPeriodID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 paymentPeriod-bulkEdit" href="#!" id="paymentPeriod-single-delete" data-id="${item.paymentPeriodID}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 paymentPeriod-bulkDelete" href="#!" id="paymentPeriod-edit" data-id="${item.paymentPeriodTypeID}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 paymentPeriod-bulkEdit" href="#!" id="paymentPeriod-single-delete" data-id="${item.paymentPeriodTypeID}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -392,12 +386,11 @@
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
-            // Helper function to generate page button
             const createPageButton = (page) => `
-        <li class="page-item ${page === currentPage ? 'active' : ''}">
-            <button class="page-link" onclick="goToPage(${page})">${page}</button>
-        </li>
-    `;
+                <li class="page-item ${page === currentPage ? 'active' : ''}">
+                    <button class="page-link page-btn" data-page="${page}">${page}</button>
+                </li>
+            `;
             // Helper function for ellipsis
             const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
             // Add "First Page" and ellipsis if needed
@@ -419,12 +412,11 @@
             $("#paymentPeriod-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
-        function goToPage(page) {
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
             currentPage = page;
             loadTableData();
-        }
-
-
+        });
     }
 }(jQuery));
 

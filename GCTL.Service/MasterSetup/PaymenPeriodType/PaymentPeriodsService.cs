@@ -35,12 +35,12 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var existingEntity = await _genericRepository.FindAsync(b => b.PaymenPeriodTypeName == model.PaymenPeriodTypeName && b.DeletedAt != null);
+                var existingEntity = await _genericRepository.FindAsync(b => b.PaymenPeriodTypeName == model.PaymentPeriodTypeName && b.DeletedAt != null);
                 if (existingEntity.Any())
                 {
                     var entityToRestore = existingEntity.FirstOrDefault();
 
-                    entityToRestore.PaymenPeriodTypeName = model.PaymenPeriodTypeName;
+                    entityToRestore.PaymenPeriodTypeName = model.PaymentPeriodTypeName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
                     entityToRestore.LIP = model.LIP;
@@ -55,7 +55,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
                 else
                 {
                     PaymenPeriodTypes entity = new PaymenPeriodTypes();
-                    entity.PaymenPeriodTypeName = model.PaymenPeriodTypeName;
+                    entity.PaymenPeriodTypeName = model.PaymentPeriodTypeName;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
                     entity.LIP = model.LIP;
@@ -85,7 +85,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var entity = await _genericRepository.GetByIdAsync(model.PaymenPeriodTypeID);
+                var entity = await _genericRepository.GetByIdAsync(model.PaymentPeriodTypeID);
                 if (entity == null)
                 {
                     return false;
@@ -93,7 +93,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
 
                 var beforeEntity = JsonConvert.DeserializeObject<PaymentPeriodsVM>(JsonConvert.SerializeObject(entity));
 
-                entity.PaymenPeriodTypeName = model.PaymenPeriodTypeName;
+                entity.PaymenPeriodTypeName = model.PaymentPeriodTypeName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
                 entity.LIP = model.LIP;
@@ -127,8 +127,8 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
 
                 return new PaymentPeriodsVM
                 {
-                    PaymenPeriodTypeID = data.PaymenPeriodTypeID,
-                    PaymenPeriodTypeName = data.PaymenPeriodTypeName,
+                    PaymentPeriodTypeID = data.PaymenPeriodTypeID,
+                    PaymentPeriodTypeName = data.PaymenPeriodTypeName,
                 };
             }
             catch (Exception ex)
@@ -196,7 +196,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
 
 
         #region GetAllAsync
-        public async Task<PaginationService<PaymenPeriodTypes, PaymentPeriodsVM>.PaginationResult<PaymentPeriodsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PaymenPeriodTypeName", string sortOrder = "asc")
+        public async Task<PaginationService<PaymenPeriodTypes, PaymentPeriodsVM>.PaginationResult<PaymentPeriodsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PaymentPeriodTypeID", string sortOrder = "desc")
         {
             var query = _genericRepository.All();
             query = query.Where(x => x.DeletedAt == null);
@@ -205,8 +205,8 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
             {
                 query = sortColumn switch
                 {
-                    "PaymenPeriodTypeID" => sortOrder == "desc" ? query.OrderByDescending(x => x.PaymenPeriodTypeID) : query.OrderBy(x => x.PaymenPeriodTypeID),
-                    "PaymenPeriodTypeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.PaymenPeriodTypeName) : query.OrderBy(x => x.PaymenPeriodTypeName),
+                    "PaymentPeriodTypeID" => sortOrder == "desc" ? query.OrderByDescending(x => x.PaymenPeriodTypeID) : query.OrderBy(x => x.PaymenPeriodTypeID),
+                    "PaymentPeriodTypeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.PaymenPeriodTypeName) : query.OrderBy(x => x.PaymenPeriodTypeName),
                     _ => query.OrderBy(x => x.PaymenPeriodTypeID)
                 };
             }
@@ -215,8 +215,8 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
                 term => x => EF.Functions.Like(x.PaymenPeriodTypeName, $"%{term}%"),
                 x => new PaymentPeriodsVM
                 {
-                    PaymenPeriodTypeID = x.PaymenPeriodTypeID,
-                    PaymenPeriodTypeName = x.PaymenPeriodTypeName ?? "-",
+                    PaymentPeriodTypeID = x.PaymenPeriodTypeID,
+                    PaymentPeriodTypeName = x.PaymenPeriodTypeName ?? "-",
                 });
         }
         #endregion

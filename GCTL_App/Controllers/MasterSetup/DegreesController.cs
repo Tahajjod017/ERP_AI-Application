@@ -83,7 +83,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Degrees")]
+        //[Permission("Edit", "Degrees")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(DegreeVM model)
         {
@@ -106,7 +107,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Degrees")]
+        //[Permission("Create", "Degrees")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(DegreeVM model)
         {

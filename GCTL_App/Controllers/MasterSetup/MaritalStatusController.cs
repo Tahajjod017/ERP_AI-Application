@@ -84,7 +84,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "MaritalStatus")]
+        //[Permission("Edit", "MaritalStatus")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(MaritalStatusVM model)
         {
@@ -107,7 +108,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "MaritalStatus")]
+        //[Permission("Create", "MaritalStatus")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(MaritalStatusVM model)
         {

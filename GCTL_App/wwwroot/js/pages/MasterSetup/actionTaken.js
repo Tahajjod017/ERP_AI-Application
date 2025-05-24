@@ -275,14 +275,8 @@
 
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
-
                 currentPage = 1;
-            } else {
-                return;
-
                 loadTableData();
-                currentPage = 1;
-
             }
         });
 
@@ -416,8 +410,7 @@
             // Helper function for ellipsis
             const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
             // Add "First Page" and ellipsis if needed
-            if (currentPage > windowSize + 1)
-            {
+            if (currentPage > windowSize + 1) {
                 paginationLinks.append(createPageButton(1), addEllipsis());
             }
             // Add page number buttons within the window range
@@ -427,8 +420,7 @@
                 paginationLinks.append(createPageButton(i));
             }
             // Add ellipsis and "Last Page" button if needed
-            if (currentPage < totalPages - windowSize)
-            {
+            if (currentPage < totalPages - windowSize) {
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons

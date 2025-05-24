@@ -30,10 +30,12 @@ namespace GCTL_App.Controllers.MasterSetup
         [Permission("View", "Status")]
         public IActionResult Index()
         {
+            StatusPageVM model = new StatusPageVM();
+
+            #region Language
             var languageCode = HttpContext.Items["Language"] as string ?? "en";
             int PageCode = 329100; // Unique page code for status translations
 
-            // Adding translations for all labels
             ViewBag.Title = _translationService.GetTranslationInd("Add Status", (PageCode++).ToString(), languageCode);
             ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
             ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
@@ -45,8 +47,8 @@ namespace GCTL_App.Controllers.MasterSetup
             ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
             ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
             ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
+            #endregion
 
-            StatusPageVM model = new StatusPageVM();
             return View(model);
         }
         #endregion
@@ -74,7 +76,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "StatusName", string sortOrder = "asc")
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "StatusID", string sortOrder = "desc")
         {
             var result = await _statusService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
@@ -84,7 +86,9 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Status")]
+        //[Permission("Edit", "Status")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Update(StatusVM model)
         {
             try
@@ -106,7 +110,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Status")]
+        //[Permission("Create", "Status")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(StatusVM model)
         {

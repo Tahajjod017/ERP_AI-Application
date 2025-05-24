@@ -84,7 +84,9 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "EmploymentNatures")]
+        //[Permission("Edit", "EmploymentNatures")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Update(EmploymentNatureVM model)
         {
             try
@@ -106,7 +108,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "EmploymentNatures")]
+        //[Permission("Create", "EmploymentNatures")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(EmploymentNatureVM model)
         {

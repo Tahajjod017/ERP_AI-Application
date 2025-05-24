@@ -18,7 +18,7 @@ namespace GCTL.Service.MasterSetup.Statuse
         Task<StatusVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
         Task<StatusVM> GetByIdAsync(int id);
         Task<PaginationService<Statuses, StatusVM>.PaginationResult<StatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "StatusName", string sortOrder = "asc");
+        string sortColumn = "StatusID", string sortOrder = "desc");
         #endregion
 
 

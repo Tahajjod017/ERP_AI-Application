@@ -5,7 +5,7 @@ using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.PaymenPeriodType;
 using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
-using GCTL_App.ViewModels.MasterSetup.PaymentModes;
+using GCTL_App.ViewModels.MasterSetup.PaymenPeriodTypes;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -30,11 +30,13 @@ namespace GCTL_App.Controllers.MasterSetup
         [Permission("View", "PaymentPeriods")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 328000; // Unique page code for payment mode translations
+            PaymentPeriodPageVM model = new PaymentPeriodPageVM();
 
-            // Adding translations for all labels
-            ViewBag.Title = _translationService.GetTranslationInd("Add Payment Mode", (PageCode++).ToString(), languageCode);
+            #region Language
+            var languageCode = HttpContext.Items["Language"] as string ?? "en";
+            int PageCode = 328000;
+
+            ViewBag.Title = _translationService.GetTranslationInd("Add Payment Period", (PageCode++).ToString(), languageCode);
             ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
             ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
             ViewBag.PaymentModeName = _translationService.GetTranslationInd("Payment Mode Name", (PageCode++).ToString(), languageCode);
@@ -45,8 +47,8 @@ namespace GCTL_App.Controllers.MasterSetup
             ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
             ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
             ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
+            #endregion
 
-            PaymentModePageVM model = new PaymentModePageVM();
             return View(model);
         }
         #endregion
@@ -84,7 +86,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "PaymentPeriods")]
+        //[Permission("Edit", "PaymentPeriods")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(PaymentPeriodsVM model)
         {
@@ -107,7 +110,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "PaymentPeriods")]
+        //[Permission("Create", "PaymentPeriods")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(PaymentPeriodsVM model)
         {
@@ -115,13 +119,13 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _paymentPeriodsService.IsNameUniqueAsync(model.PaymenPeriodTypeName);
+                    var uniqueName = await _paymentPeriodsService.IsNameUniqueAsync(model.PaymentPeriodTypeName);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
                     }
                     await _paymentPeriodsService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.PaymenPeriodTypeID });
+                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.PaymentPeriodTypeID });
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 

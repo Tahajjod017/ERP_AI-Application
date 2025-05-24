@@ -31,5 +31,21 @@
 
 <partial name="_ConfirmDelete" />
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/js/pages/mastersetup/status.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+	<script src="~/js/pages/mastersetup/statuse.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "Status")'
+            };
+            options.load = () => {
+
+            };
+
+            $.statuse(options);
+        });
+    </script>
+}

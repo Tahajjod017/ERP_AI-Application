@@ -196,7 +196,7 @@ namespace GCTL.Service.MasterSetup.Statuse
 
 
         #region GetAllAsync
-        public async Task<PaginationService<Statuses, StatusVM>.PaginationResult<StatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "StatusName", string sortOrder = "asc")
+        public async Task<PaginationService<Statuses, StatusVM>.PaginationResult<StatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "StatusID", string sortOrder = "desc")
         {
             var query = _genericRepository.All();
             query = query.Where(x => x.DeletedAt == null);

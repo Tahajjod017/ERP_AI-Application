@@ -84,7 +84,9 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Countrys")]
+        //[Permission("Edit", "Countrys")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Update(CountryVM model)
         {
             try
@@ -106,7 +108,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Countrys")]
+        //[Permission("Create", "Countrys")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(CountryVM model)
         {

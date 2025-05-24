@@ -74,7 +74,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ReligionName", string sortOrder = "asc")
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ReligionID", string sortOrder = "desc")
         {
             var result = await _religionService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
@@ -84,7 +84,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Religions")]
+        //[Permission("Edit", "Religions")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ReligionVM model)
         {
@@ -107,7 +108,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Religions")]
+        //[Permission("Create", "Religions")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ReligionVM model)
         {

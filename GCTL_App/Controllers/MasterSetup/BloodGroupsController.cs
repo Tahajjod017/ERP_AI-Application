@@ -84,7 +84,9 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "BloodGroups")]
+        //[Permission("Edit", "BloodGroups")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Update(BloodGroupVM model)
         {
             try
@@ -106,7 +108,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "BloodGroups")]
+        //[Permission("Create", "BloodGroups")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(BloodGroupVM model)
         {

@@ -86,7 +86,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Designations")]
+        //[Permission("Edit", "Designations")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(DesignationVM model)
         {
@@ -109,7 +110,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Designations")]
+        //[Permission("Create", "Designations")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(DesignationVM model)
         {

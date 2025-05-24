@@ -1,14 +1,14 @@
 ﻿(function ($) {
-    $.actiontaken = function (options) {
+    $.gender = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#actionTaken-form',
-            saveBtn: '#actionTaken-saveBtn',
-            editBtn: '#actionTaken-editBtn',
-            resetBtn: '#actionTaken-resetBtn',
-            bulkDelBtn: '#actionTaken-bulkDelBtn',
-            singleDeleteBtn: '#actionTaken-singleDelBtn',
+            form: '#gender-form',
+            saveBtn: '#gender-saveBtn',
+            editBtn: '#gender-editBtn',
+            resetBtn: '#gender-resetBtn',
+            bulkDelBtn: '#gender-bulkDelBtn',
+            singleDeleteBtn: '#gender-singleDelBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -18,8 +18,6 @@
         var getByIdUrl = settings.baseUrl + '/GetById';
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
-
-
 
             $('#gender-saveBtn').on('click', function (e) {
                 e.preventDefault();
@@ -262,18 +260,15 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('.dropdown-item').on('click', function () {
-            var selectedSize = $(this).data("size");
+        $('#gender-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
                 currentPage = 1;
-            } else {
-                return;
+                loadTableData();
             }
-
-            $('#selectedPageSize').text(selectedSize);
-            loadTableData();
-        })
+        });
 
 
         $(document).ready(function () {
@@ -389,12 +384,11 @@
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
-            // Helper function to generate page button
             const createPageButton = (page) => `
-        <li class="page-item ${page === currentPage ? 'active' : ''}">
-            <button class="page-link" onclick="goToPage(${page})">${page}</button>
-        </li>
-    `;
+                <li class="page-item ${page === currentPage ? 'active' : ''}">
+                    <button class="page-link page-btn" data-page="${page}">${page}</button>
+                </li>
+            `;
             // Helper function for ellipsis
             const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
             // Add "First Page" and ellipsis if needed
@@ -416,12 +410,11 @@
             $("#gender-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
-        function goToPage(page) {
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
             currentPage = page;
             loadTableData();
-        }
-
-
+        });
     }
 }(jQuery));
 

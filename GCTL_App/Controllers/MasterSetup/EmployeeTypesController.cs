@@ -83,7 +83,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "EmployeeTypes")]
+        //[Permission("Edit", "EmployeeTypes")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(EmployeeTypesVM model)
         {
@@ -106,7 +107,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "EmployeeTypes")]
+        //[Permission("Create", "EmployeeTypes")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeTypesVM model)
         {

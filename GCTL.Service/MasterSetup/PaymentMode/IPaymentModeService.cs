@@ -18,7 +18,7 @@ namespace GCTL.Service.MasterSetup.PaymentMode
         Task<PaymentModeVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
         Task<PaymentModeVM> GetByIdAsync(int id);
         Task<PaginationService<PaymentModes, PaymentModeVM>.PaginationResult<PaymentModeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "PaymentModeName", string sortOrder = "asc");
+        string sortColumn = "PaymentModeID", string sortOrder = "desc");
         #endregion
 
 

@@ -1,4 +1,4 @@
-﻿@model GCTL_App.ViewModels.MasterSetup.PaymentModes.PaymentModePageVM
+﻿@model GCTL_App.ViewModels.MasterSetup.PaymenPeriodTypes.PaymentPeriodPageVM
 
 @{
     ViewData["Title"] = ViewBag.Title;
@@ -31,5 +31,21 @@
 
 <partial name="_ConfirmDelete" />
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/js/pages/mastersetup/paymentMode.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/mastersetup/paymentPeriod.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "PaymentPeriods")'
+            };
+            options.load = () => {
+
+            };
+
+            $.paymentPeriod(options);
+        });
+    </script>
+}

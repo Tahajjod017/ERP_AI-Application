@@ -1,14 +1,14 @@
 ﻿(function ($) {
-    $.actiontaken = function (options) {
+    $.paymentMode = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#actionTaken-form',
-            saveBtn: '#actionTaken-saveBtn',
-            editBtn: '#actionTaken-editBtn',
-            resetBtn: '#actionTaken-resetBtn',
-            bulkDelBtn: '#actionTaken-bulkDelBtn',
-            singleDeleteBtn: '#actionTaken-singleDelBtn',
+            form: '#paymentMode-form',
+            saveBtn: '#paymentMode-saveBtn',
+            editBtn: '#paymentMode-editBtn',
+            resetBtn: '#paymentMode-resetBtn',
+            bulkDelBtn: '#paymentMode-bulkDelBtn',
+            singleDeleteBtn: '#paymentMode-singleDelBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -18,11 +18,6 @@
         var getByIdUrl = settings.baseUrl + '/GetById';
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
-
-
-
-
-
 
             $('#paymentMode-saveBtn').on('click', function (e) {
                 e.preventDefault();
@@ -266,18 +261,15 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('.dropdown-item').on('click', function () {
-            var selectedSize = $(this).data("size");
+        $('#paymentMode-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
                 currentPage = 1;
-            } else {
-                return;
+                loadTableData();
             }
-
-            $('#selectedPageSize').text(selectedSize);
-            loadTableData();
-        })
+        });
 
 
         $(document).ready(function () {
@@ -302,8 +294,8 @@
         });
 
 
-        let currentSortColumn = 'PaymentModeName';
-        let currentSortOrder = 'asc';
+        let currentSortColumn = 'PaymentModeID';
+        let currentSortOrder = 'desc';
 
         $('th.sort').on('click', function () {
             const column = $(this).data('sort');
@@ -393,12 +385,11 @@
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
-            // Helper function to generate page button
             const createPageButton = (page) => `
-        <li class="page-item ${page === currentPage ? 'active' : ''}">
-            <button class="page-link" onclick="goToPage(${page})">${page}</button>
-        </li>
-    `;
+                <li class="page-item ${page === currentPage ? 'active' : ''}">
+                    <button class="page-link page-btn" data-page="${page}">${page}</button>
+                </li>
+            `;
             // Helper function for ellipsis
             const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
             // Add "First Page" and ellipsis if needed
@@ -420,12 +411,11 @@
             $("#paymentMode-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
-        function goToPage(page) {
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
             currentPage = page;
             loadTableData();
-        }
-
-
+        });
     }
 }(jQuery));
 

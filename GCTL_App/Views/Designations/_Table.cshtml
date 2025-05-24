@@ -11,17 +11,17 @@
         <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
             <div class="row g-3 justify-content-between align-items-end mb-4">
                 <div class="col-12 col-sm-auto">
-                    <div class="dropdown me-3">
-                        <button class="btn btn-phoenix-secondary dropdown-toggle" type="button" id="designation-pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            @ViewBag.Showing: <span id="selectedPageSize">5</span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="designation-pageSizeDropdown">
-                            <li><a class="dropdown-item" href="#" data-size="5">5</a></li>
-                            <li><a class="dropdown-item" href="#" data-size="10">10</a></li>
-                            <li><a class="dropdown-item" href="#" data-size="25">25</a></li>
-                            <li><a class="dropdown-item" href="#" data-size="50">50</a></li>
-                            <li><a class="dropdown-item" href="#" data-size="100">100</a></li>
-                        </ul>
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">Showing:</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="designation-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">5</option>
+                                <option class="dropdown-item" value="10">10</option>
+                                <option class="dropdown-item" value="25">25</option>
+                                <option class="dropdown-item" value="50">50</option>
+                                <option class="dropdown-item" value="100">100</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-auto">

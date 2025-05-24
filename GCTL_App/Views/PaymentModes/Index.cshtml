@@ -31,5 +31,21 @@
 
 <partial name="_ConfirmDelete" />
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/js/pages/mastersetup/paymentMode.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/mastersetup/paymentMode.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "PaymentModes")'
+            };
+            options.load = () => {
+
+            };
+
+            $.paymentMode(options);
+        });
+    </script>
+}

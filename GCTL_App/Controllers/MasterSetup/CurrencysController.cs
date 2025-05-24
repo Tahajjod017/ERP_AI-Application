@@ -85,7 +85,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "Currencys")]
+        //[Permission("Edit", "Currencys")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(CurrencyVM model)
         {
@@ -108,7 +109,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "Currencys")]
+        //[Permission("Create", "Currencys")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(CurrencyVM model)
         {

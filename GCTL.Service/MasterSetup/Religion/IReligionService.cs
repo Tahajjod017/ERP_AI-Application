@@ -18,7 +18,7 @@ namespace GCTL.Service.MasterSetup.Religion
         Task<ReligionVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
         Task<ReligionVM> GetByIdAsync(int id);
         Task<PaginationService<Religions, ReligionVM>.PaginationResult<ReligionVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "ReligionName", string sortOrder = "asc");
+        string sortColumn = "ReligionID", string sortOrder = "desc");
         #endregion
 
 

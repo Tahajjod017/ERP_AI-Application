@@ -196,7 +196,7 @@ namespace GCTL.Service.MasterSetup.Religion
 
 
         #region GetAllAsync
-        public async Task<PaginationService<Religions, ReligionVM>.PaginationResult<ReligionVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ReligionName", string sortOrder = "asc")
+        public async Task<PaginationService<Religions, ReligionVM>.PaginationResult<ReligionVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ReligionID", string sortOrder = "desc")
         {
             var query = _genericRepository.All();
             query = query.Where(x => x.DeletedAt == null);

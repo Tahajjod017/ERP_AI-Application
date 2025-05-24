@@ -196,7 +196,7 @@ namespace GCTL.Service.MasterSetup.PaymentMode
 
 
         #region GetAllAsync
-        public async Task<PaginationService<PaymentModes, PaymentModeVM>.PaginationResult<PaymentModeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PaymentModeName", string sortOrder = "asc")
+        public async Task<PaginationService<PaymentModes, PaymentModeVM>.PaginationResult<PaymentModeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PaymentModeID", string sortOrder = "desc")
         {
             var query = _genericRepository.All();
             query = query.Where(x => x.DeletedAt == null);

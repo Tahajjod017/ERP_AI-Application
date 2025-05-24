@@ -74,7 +74,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PaymentModeName", string sortOrder = "asc")
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PaymentModeID", string sortOrder = "desc")
         {
             var result = await _paymentModeService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
@@ -84,7 +84,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
-        [Permission("Edit", "PaymentModes")]
+        //[Permission("Edit", "PaymentModes")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(PaymentModeVM model)
         {
@@ -107,7 +108,8 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        [Permission("Create", "PaymentModes")]
+        //[Permission("Create", "PaymentModes")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(PaymentModeVM model)
         {
