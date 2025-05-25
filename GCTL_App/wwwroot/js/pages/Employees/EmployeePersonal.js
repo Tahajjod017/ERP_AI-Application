@@ -1,8 +1,134 @@
 ﻿$(document).ready(function () {
 
 
+    //#region Validation
+
+    function isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    function showError(inputId, message) {
+        const $input = $("#" + inputId);
+        if ($input.next(".text-danger").length === 0) {
+            const $error = $('<span class="text-danger">' + message + '</span>').css({
+                position: 'absolute',
+                fontSize: '0.8rem',
+                zIndex: 10,
+                marginTop: '2px',
+                left: 0
+            });
+            $input.after($error);
+        }
+    }
+
+
+    function removeError(inputId) {
+        const $input = $("#" + inputId);
+        $input.next(".text-danger").remove();
+    }
+
+    function clearErrors() {
+        $(".text-danger").remove();
+    }
+
+
+    function attachInputValidationHandler(selectors) {
+        $(selectors).on("input", function () {
+            const id = $(this).attr("id");
+            const value = $(this).val().trim();
+
+            if (value !== "") {
+                if (id === "personalEmail" && !isValidEmail(value)) {
+                    return; // still invalid email, keep error
+                }
+                removeError(id);
+            }
+        });
+    }
+
+    //$("#firstName, #lastName, #personalMobile, #personalEmail").on("input", function () {
+    //    const id = $(this).attr("id");
+    //    const value = $(this).val().trim();
+
+    //    if (value !== "") {
+    //        if (id === "personalEmail" && !isValidEmail(value)) {
+    //            return; // still invalid email, keep error
+    //        }
+    //        removeError(id);
+    //    }
+    //});
+
+
+    attachInputValidationHandler("#firstName, #lastName, #personalMobile, #personalEmail");
+    
+
+    //#endregion
+
+
+    //#region Submit 
+
+
+    $('#submitButton').on('click', function (e) {
+        e.preventDefault();
+
+        const enteredNationality = $('#nationalitySearch').val().trim();
+
+        if (enteredNationality && !nationalities.includes(enteredNationality)) {
+            $('#newNationalityName').val(enteredNationality);
+            $('#addNationalityModal').modal('show');
+        }
+
+        clearErrors();
+        let valid = true;
+
+        const firstName = $("#firstName").val().trim();
+        const lastName = $("#lastName").val().trim();
+        const email = $("#personalEmail").val().trim();
+        const mobile = $("#personalMobile").val().trim();
+
+        if (!firstName) {
+            showError("firstName", "First Name is required.");
+            valid = false;
+        }
+
+        if (!lastName) {
+            showError("lastName", "Last Name is required.");
+            valid = false;
+        }
+
+        if (!email) {
+            showError("personalEmail", "Email is required.");
+            valid = false;
+        } else if (!isValidEmail(email)) {
+            showError("personalEmail", "Invalid email format.");
+            valid = false;
+        }
+
+        if (!mobile) {
+            showError("personalMobile", "Mobile number is required.");
+            valid = false;
+        }
+
+        if (valid) {
+            $('#employeeForm').submit();
+        }
+
+      
+           
+        
+    });
+
+    //#endregion
+
+    //$('#employeeForm').on('submit', function (e) {
+    //    if (!confirm("Are you sure you want to submit the formooo?")) {
+    //        e.preventDefault();
+    //    }
+    //});
+
     //#region tostr
-  
+
 
     const toastrElement = document.getElementById('toastr-data');
     if (toastrElement) {
@@ -31,33 +157,6 @@
     }
 
     //#endregion
-
-
-
-
-    $('#submitButton').on('click', function (e) {
-        e.preventDefault();
-
-        const enteredNationality = $('#nationalitySearch').val().trim();
-
-        if (enteredNationality && !nationalities.includes(enteredNationality)) {
-            $('#newNationalityName').val(enteredNationality);
-            $('#addNationalityModal').modal('show');
-        }
-
-      
-            $('#employeeForm').submit();
-        
-    });
-
-
-
-    //$('#employeeForm').on('submit', function (e) {
-    //    if (!confirm("Are you sure you want to submit the formooo?")) {
-    //        e.preventDefault();
-    //    }
-    //});
-
 
     //#region Choice Min Js
 

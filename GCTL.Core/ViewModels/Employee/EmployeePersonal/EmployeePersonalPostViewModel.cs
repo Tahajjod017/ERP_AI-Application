@@ -16,11 +16,11 @@ namespace GCTL.Core.ViewModels.Employee.EmployeePersonal
 
         public string? LastName { get; set; }
 
-        public string? Gender { get; set; }
 
         public string? PersonalMobile { get; set; }
 
         public string? PersonalEmail { get; set; }
+        public string? Gender { get; set; }
 
         public string? TinNo { get; set; }
 

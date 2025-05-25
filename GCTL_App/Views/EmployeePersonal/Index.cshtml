@@ -13,6 +13,10 @@
     }
 </style>
 
+
+
+
+
 <div id="toastr-data" data-message="@TempData["ToastrMessage"]" data-type="@TempData["ToastrType"]" style="display:none;"></div>
 
 <div class="mb-9">
@@ -111,6 +115,7 @@
                                                     <div class="form-floating mb-4">
                                                         <input class="form-control"  asp-for="FirstName" id="firstName" type="text" placeholder="@Html.SmartLocalize("Enter First Name")" required />
                                                         <label asp-for="FirstName" for="firstName">@Html.SmartLocalize("First Name")</label>
+                                                        
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">

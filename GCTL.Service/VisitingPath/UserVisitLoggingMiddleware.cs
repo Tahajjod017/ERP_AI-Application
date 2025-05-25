@@ -27,41 +27,50 @@ namespace GCTL.Service.VisitingPath
 
         public async Task InvokeAsync(HttpContext context, AppDbContext dbContext)
         {
-            var path = context.Request.Path.ToString().ToLower();
-
-            if (ShouldIgnorePath(path))
+            try
             {
-                await _next(context);
-                return;
+                var path = context.Request.Path.ToString().ToLower();
+
+                if (ShouldIgnorePath(path))
+                {
+                    await _next(context);
+                    return;
+                }
+
+
+                var startTime = DateTime.UtcNow;
+
+                await _next(context); // Process the request
+
+                var endTime = DateTime.UtcNow;
+                var duration = (endTime - startTime).TotalSeconds;
+
+
+                var visit = new UserVisitLogs
+                {
+                    UserId = context.User.Identity.IsAuthenticated ? context.User.Identity.Name : "Anonymous",
+                    Path = path,
+                    Method = context.Request.Method,
+                    Ipaddress = GetLocalIP(),
+                    Lmac = GetMacAddress(),
+                    VisitTime = startTime,
+                    DurationInSeconds = duration
+                };
+
+                // dbContext.UserVisitLogs.Add(visit);
+                // await dbContext.SaveChangesAsync();
+                if (visit.DurationInSeconds != null)
+                {
+                    dbContext.UserVisitLogs.Add(visit);
+                    await dbContext.SaveChangesAsync();
+                }
             }
-
-
-            var startTime = DateTime.UtcNow;
-
-            await _next(context); // Process the request
-
-            var endTime = DateTime.UtcNow;
-            var duration = (endTime - startTime).TotalSeconds;
-
-
-            var visit = new UserVisitLogs
+            catch (Exception)
             {
-                UserId = context.User.Identity.IsAuthenticated ? context.User.Identity.Name : "Anonymous",
-                Path = path,
-                Method = context.Request.Method,
-                Ipaddress = GetLocalIP(),
-                Lmac = GetMacAddress(),
-                VisitTime = startTime,
-                DurationInSeconds = duration
-            };
 
-            // dbContext.UserVisitLogs.Add(visit);
-            // await dbContext.SaveChangesAsync();
-            if (visit.DurationInSeconds != null)
-            {
-                dbContext.UserVisitLogs.Add(visit);
-                await dbContext.SaveChangesAsync();
+                throw;
             }
+            
         }
 
         private static bool ShouldIgnorePath(string path)

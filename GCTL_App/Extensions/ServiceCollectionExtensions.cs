@@ -30,6 +30,7 @@ using GCTL.Service.MasterSetup.PaymentMode;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.Employees.EmployeePersonal;
+using GCTL.Service.Employees.EmployeeOfficial;
 
 
 namespace GCTL_App.Extensions
@@ -99,6 +100,7 @@ namespace GCTL_App.Extensions
             #region Employee Services
 
             services.AddScoped<IEmployeePersonalService, EmployeePersonalService>();
+            services.AddScoped<IEmployeeOfficialService, EmployeeOfficialService>();
 
 
             #endregion
