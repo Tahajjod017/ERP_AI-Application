@@ -1,12 +1,12 @@
 ﻿@model GCTL_App.ViewModels.MasterSetup.Degree.DegreePageVM
 
 @{
-    ViewData["Title"] = @ViewBag.AddDegree;
+    ViewData["Title"] = @Html.SmartLocalize("Add Degree");
 }
 
 <nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item active">@ViewBag.AddDegree</li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
     </ol>
 </nav>
 

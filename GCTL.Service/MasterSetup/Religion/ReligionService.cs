@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.Religion
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.ReligionName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ReligionName != null);
+
+            var nameList = existingNames.Select(b => b.ReligionName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

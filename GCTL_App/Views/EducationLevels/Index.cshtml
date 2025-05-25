@@ -1,12 +1,12 @@
 ﻿@model GCTL_App.ViewModels.MasterSetup.EducationLevels.EducationLevelPageVM
 
 @{
-    ViewData["Title"] = @ViewBag.AddEducationLevel;
+    ViewData["Title"] = @Html.SmartLocalize("Add Education Level");
 }
 
 <nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item active">@ViewBag.AddEducationLevel</li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
     </ol>
 </nav>
 

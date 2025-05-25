@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.PaymentPeriodTypeName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.PaymentPeriodTypeName != null);
+
+            var nameList = existingNames.Select(b => b.PaymentPeriodTypeName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

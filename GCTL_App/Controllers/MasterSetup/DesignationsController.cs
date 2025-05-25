@@ -10,44 +10,27 @@ using GCTL_App.ViewModels.MasterSetup.Designations;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class DesignationsController : Controller
+    public class DesignationsController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IDesignationService _designationService;
         private readonly ITranslateService _translationService;
 
 
-        public DesignationsController(IDesignationService designationService, IUserInfoService userInfoService, ITranslateService translationService)
+        public DesignationsController(IDesignationService designationService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _designationService = designationService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "Designations")]
+        //[Permission("View", "Designations")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 313000;
-
-            // Adding translations for all labels
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.DepartmentName = _translationService.GetTranslationInd("Department Name", (PageCode++).ToString(), languageCode);
-            ViewBag.DesignationName = _translationService.GetTranslationInd("Designation Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddDesignation = _translationService.GetTranslationInd("Add Designation", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfDesignations = _translationService.GetTranslationInd("Information of Designation's", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
             DesignationPageVM model = new DesignationPageVM();
+            SetSmartPageCode(206000);
             ViewBag.DepartmentDD = new SelectList(_designationService.GetDepartments(), "Id", "Name");
             return View(model);
         }
@@ -85,30 +68,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "Designations")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(DesignationVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _designationService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "Designations")]
         [ValidateAntiForgeryToken]
@@ -129,6 +88,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "Designations")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(DesignationVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _designationService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

@@ -9,44 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.Grade;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class GradesController : Controller
+    public class GradesController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IGradeService _gradeService;
         private readonly ITranslateService _translationService;
 
 
-        public GradesController(IGradeService gradeService, IUserInfoService userInfoService, ITranslateService translationService)
+        public GradesController(IGradeService gradeService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _gradeService = gradeService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "Grades")]
+        //[Permission("View", "Grades")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 319100; // Unique page code for grade translations
-
-            // Adding translations for all labels
-            ViewBag.Title = _translationService.GetTranslationInd("Add Grade", (PageCode++).ToString(), languageCode);
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.GradeName = _translationService.GetTranslationInd("Grade Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddGrade = _translationService.GetTranslationInd("Add Grade", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfGrades = _translationService.GetTranslationInd("Information of Grades", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
             GradePageVM model = new GradePageVM();
+            SetSmartPageCode(201300);
             return View(model);
         }
         #endregion
@@ -83,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "Grades")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(GradeVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _gradeService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "Grades")]
         [ValidateAntiForgeryToken]
@@ -127,6 +86,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "Grades")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(GradeVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _gradeService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

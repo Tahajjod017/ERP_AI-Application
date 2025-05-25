@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.TrainingYear
 {
     public class TrainingYearService : AppService<TrainingYears>, ITrainingYearService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<TrainingYears> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.TrainingYear
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(TrainingYearVM model)

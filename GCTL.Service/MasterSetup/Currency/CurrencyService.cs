@@ -150,8 +150,11 @@ namespace GCTL.Service.MasterSetup.Currency
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.CurrencyName == name && b.DeletedAt == null);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.CurrencyName != null);
+
+            var nameList = existingNames.Select(b => b.CurrencyName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

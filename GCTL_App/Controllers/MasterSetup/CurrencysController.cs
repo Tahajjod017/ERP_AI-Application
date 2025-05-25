@@ -9,45 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.Currencies;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class CurrencysController : Controller
+    public class CurrencysController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly ICurrencyService _currencyService;
         private readonly ITranslateService _translationService;
 
 
-        public CurrencysController(ICurrencyService currencyService, IUserInfoService userInfoService, ITranslateService translationService)
+        public CurrencysController(ICurrencyService currencyService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _currencyService = currencyService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "Currencys")]
+        //[Permission("View", "Currencys")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 390000; // Unique page code for currency translations
-
-            // Adding translations for all labels
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.CurrencyCode = _translationService.GetTranslationInd("Currency Code", (PageCode++).ToString(), languageCode);
-            ViewBag.CurrencyName = _translationService.GetTranslationInd("Currency Name", (PageCode++).ToString(), languageCode);
-            ViewBag.Symbol = _translationService.GetTranslationInd("Symbol", (PageCode++).ToString(), languageCode);
-            ViewBag.AddCurrency = _translationService.GetTranslationInd("Add Currency", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfCurrencys = _translationService.GetTranslationInd("Information of Currency's", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
             CurrencyPageVM model = new CurrencyPageVM();
+            SetSmartPageCode(203000);
             return View(model);
         }
         #endregion
@@ -84,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "Currencys")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(CurrencyVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _currencyService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "Currencys")]
         [ValidateAntiForgeryToken]
@@ -128,6 +86,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "Currencys")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(CurrencyVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _currencyService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

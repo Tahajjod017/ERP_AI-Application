@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.TrainingYear;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.TrainingYear;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.TrainingYear;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class TrainingYearController : Controller
+    public class TrainingYearController : BaseController
     {
         #region Services & Repositories
         private readonly ITrainingYearService _trainingYearService;
 
-        public TrainingYearController(ITrainingYearService trainingYearService)
+        public TrainingYearController(ITrainingYearService trainingYearService, ITranslateService translateService) : base(translateService)
         {
             _trainingYearService = trainingYearService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", " TrainingYear")]
         public IActionResult Index()
         {
             TrainingYearPageVM model = new TrainingYearPageVM();
-
+            SetSmartPageCode(202600);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "TrainingYear")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(TrainingYearVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "TrainingYear")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(TrainingYearVM model)

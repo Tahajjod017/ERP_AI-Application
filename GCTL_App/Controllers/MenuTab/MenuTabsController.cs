@@ -1,18 +1,20 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MenuTab;
+using GCTL.Service.Language;
 using GCTL.Service.MenuTabs;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MenuTab;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MenuTab
 {
-    public class MenuTabsController : Controller
+    public class MenuTabsController : BaseController
     {
         #region Services & Repositories
         private readonly IMenuTabsService _menuTabService;
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
 
-        public MenuTabsController(IMenuTabsService menuTabsService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository)
+        public MenuTabsController(IMenuTabsService menuTabsService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, ITranslateService translateService) : base(translateService)
         {
             _menuTabService = menuTabsService;
             _menuTabRepository = menuTabRepository;
@@ -21,6 +23,7 @@ namespace GCTL_App.Controllers.MenuTab
 
 
         #region Index
+        [Permission("View", " MenuTabs")]
         public IActionResult Index()
         {
             var menuTabs = _menuTabRepository.All()

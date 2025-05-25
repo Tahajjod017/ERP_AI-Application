@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.ServiceYear;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ServiceYear;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.ServiceYear;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class ServiceYearController : Controller
+    public class ServiceYearController : BaseController
     {
         #region Services & Repositories
         private readonly IServiceYearService _serviceYearService;
 
-        public ServiceYearController(IServiceYearService serviceYearService)
+        public ServiceYearController(IServiceYearService serviceYearService, ITranslateService translateService) : base(translateService)
         {
             _serviceYearService = serviceYearService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", " ServiceYear")]
         public IActionResult Index()
         {
             ServiceYearPageVM model = new ServiceYearPageVM();
-
+            SetSmartPageCode(202400);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "Service Year")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ServiceYearVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "ServiceYear")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ServiceYearVM model)

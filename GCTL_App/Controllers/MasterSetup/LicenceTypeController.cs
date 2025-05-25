@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.LicenceType;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.LicenceType;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.LicenceType;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class LicenceTypeController : Controller
+    public class LicenceTypeController : BaseController
     {
         #region Services & Repositories
         private readonly ILicenceTypeService _licenceTypeService;
 
-        public LicenceTypeController(ILicenceTypeService licenceTypeService)
+        public LicenceTypeController(ILicenceTypeService licenceTypeService, ITranslateService translateService) : base(translateService)
         {
             _licenceTypeService = licenceTypeService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", "LicenceType")]
         public IActionResult Index()
         {
             LicenceTypePageVM model = new LicenceTypePageVM();
-
+            SetSmartPageCode(201400);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "LicenceType")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(LicenceTypeVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "LicenceType")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(LicenceTypeVM model)

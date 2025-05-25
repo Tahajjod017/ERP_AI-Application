@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
 {
     public class YearlyEndBonusTypeService : AppService<YearlyEndBonusTypes>, IYearlyEndBonusTypeService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<YearlyEndBonusTypes> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(YearlyEndBonusTypeVM model)

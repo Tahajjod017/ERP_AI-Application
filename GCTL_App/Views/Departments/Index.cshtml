@@ -1,12 +1,12 @@
 ﻿@model GCTL_App.ViewModels.MasterSetup.Departments.DepartmentPageVM
 
 @{
-    ViewData["Title"] = @ViewBag.AddDepartment;
+    ViewData["Title"] = @Html.SmartLocalize("Add Department");
 }
 
 <nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item active">@ViewBag.AddDepartment</li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
     </ol>
 </nav>
 

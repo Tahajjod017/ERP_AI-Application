@@ -9,44 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.EmploymentNature;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class EmploymentNaturesController : Controller
+    public class EmploymentNaturesController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IEmploymentNatureService _employmentNatureService;
         private readonly ITranslateService _translationService;
 
 
-        public EmploymentNaturesController(IEmploymentNatureService employmentNatureService, IUserInfoService userInfoService, ITranslateService translationService)
+        public EmploymentNaturesController(IEmploymentNatureService employmentNatureService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _employmentNatureService = employmentNatureService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "EmploymentNatures")]
+        //[Permission("View", "EmploymentNatures")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 316000; // Unique page code for employment nature translations
-
-            // Adding translations for all labels
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.EmploymentNatureName = _translationService.GetTranslationInd("Employment Nature Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddEmploymentNature = _translationService.GetTranslationInd("Add Employment Nature", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfEmploymentNature = _translationService.GetTranslationInd("Information of Employment Nature", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
-
             EmploymentNaturePageVM model = new EmploymentNaturePageVM();
+            SetSmartPageCode(201100);
             return View(model);
         }
         #endregion
@@ -83,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "EmploymentNatures")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(EmploymentNatureVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _employmentNatureService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "EmploymentNatures")]
         [ValidateAntiForgeryToken]
@@ -127,6 +86,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "EmploymentNatures")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(EmploymentNatureVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _employmentNatureService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

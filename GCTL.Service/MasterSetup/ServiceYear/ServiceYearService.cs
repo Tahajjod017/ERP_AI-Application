@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.ServiceYear
 {
     public class ServiceYearService : AppService<ServiceYears>, IServiceYearService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<ServiceYears> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.ServiceYear
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(ServiceYearVM model)

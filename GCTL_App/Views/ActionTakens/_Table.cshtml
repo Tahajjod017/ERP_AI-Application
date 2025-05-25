@@ -2,7 +2,7 @@
     <div class="card-header border-bottom-1">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
-                <h3 class="text-body-emphasis mt-3">Information's of Action Taken</h3>
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Information's of Action Taken")</h3>
             </div>
         </div>
     </div>
@@ -12,14 +12,14 @@
             <div class="row g-3 justify-content-between align-items-end mb-4">
                 <div class="col-12 col-sm-auto">
                     <div class="d-flex align-items-center me-3" style="width: auto;">
-                        <span class="ms-2">Showing:</span> &nbsp;
+                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
                         <div style="width: 100%;">
                             <select id="actionTaken-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                                <option class="dropdown-item" value="5">5</option>
-                                <option class="dropdown-item" value="10">10</option>
-                                <option class="dropdown-item" value="25">25</option>
-                                <option class="dropdown-item" value="50">50</option>
-                                <option class="dropdown-item" value="100">100</option>
+                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
                             </select>
                         </div>
                     </div>
@@ -29,13 +29,13 @@
                     <div class="d-flex align-items-center">
                         <div class="d-none me-3" id="actionTaken-bulkSelectActions">
                             <div class="position-relative">
-                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="actionTaken-bulkDelBtn">Delete</button>
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="actionTaken-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
                             </div>
                         </div>
 
                         <div class="search-box me-3" id="actionTaken-searchBox">
                             <form class="position-relative" id="actionTaken-searchForm">
-                                <input class="form-control search-input search" id="actionTaken-searchInput" type="search" placeholder="Search here" aria-label="Search" />
+                                <input class="form-control search-input search" id="actionTaken-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
                                 <span class="fas fa-search search-box-icon"></span>
                             </form>
                         </div>
@@ -50,9 +50,9 @@
                             <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input" id="actionTaken-check-all" />
                             </th>
-                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">Sl. No</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ActionTakenName">Action Taken Name</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Action" style="width: 10%;">Action</th>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Sl. No")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ActionTakenName">@Html.SmartLocalize("Action Taken Name")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Action" style="width: 10%;">@Html.SmartLocalize("Action")</th>
                         </tr>
                     </thead>
                     <tbody id="actionTaken-tBody">

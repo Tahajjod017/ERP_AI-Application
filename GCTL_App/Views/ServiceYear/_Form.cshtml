@@ -1,4 +1,78 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@* @model GCTL.Core.ViewModels.MasterSetup.ServiceYear.ServiceYearVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">Add Service Year</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="ServiceYear" method="post" enctype="multipart/form-data" id="serviceYear-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="ServiceYearID" />
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="ServiceYearName" type="text" placeholder="Service Year Name" />
+                        <label asp-for="ServiceYearName">Service Year Name <span style="color: red;">*</span></label>
+                    </div>
+                    <span asp-validation-for="ServiceYearName" class="text-danger"></span>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="serviceYear-resetBtn">Reset</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="serviceYear-saveBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div> *@
+@model GCTL.Core.ViewModels.MasterSetup.ServiceYear.ServiceYearVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Add Service Year")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="ServiceYear" method="post" enctype="multipart/form-data" id="serviceYear-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="ServiceYearID" />
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="ServiceYearName" type="text" placeholder="@Html.SmartLocalize("Service Year Name")" />
+                        <label asp-for="ServiceYearName">@Html.SmartLocalize("Service Year Name") <span style="color: red;">*</span></label>
+                    </div>
+                    <span asp-validation-for="ServiceYearName" class="text-danger"></span>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="serviceYear-resetBtn">@Html.SmartLocalize("Reset")</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="serviceYear-saveBtn">@Html.SmartLocalize("Save")</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
