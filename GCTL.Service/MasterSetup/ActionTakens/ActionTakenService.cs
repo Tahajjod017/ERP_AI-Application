@@ -145,8 +145,11 @@ namespace GCTL.Service.MasterSetup.ActionTakens
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.ActionTakenName == name && b.DeletedAt == null);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ActionTakenName != null);
+
+            var nameList = existingNames.Select(b => b.ActionTakenName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

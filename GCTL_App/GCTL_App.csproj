@@ -7,6 +7,37 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ViewModels\MasterSetup\LicenceTypes\**" />
+    <Compile Remove="ViewModels\MasterSetup\Organization\**" />
+    <Compile Remove="ViewModels\MasterSetup\PassingYears\**" />
+    <Compile Remove="ViewModels\MasterSetup\ResultTypes\**" />
+    <Compile Remove="ViewModels\MasterSetup\ServiceYears\**" />
+    <Compile Remove="ViewModels\MasterSetup\TrainingYears\**" />
+    <Compile Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <Content Remove="ViewModels\MasterSetup\LicenceTypes\**" />
+    <Content Remove="ViewModels\MasterSetup\Organization\**" />
+    <Content Remove="ViewModels\MasterSetup\PassingYears\**" />
+    <Content Remove="ViewModels\MasterSetup\ResultTypes\**" />
+    <Content Remove="ViewModels\MasterSetup\ServiceYears\**" />
+    <Content Remove="ViewModels\MasterSetup\TrainingYears\**" />
+    <Content Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\LicenceTypes\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\Organization\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\PassingYears\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\ResultTypes\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\ServiceYears\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\TrainingYears\**" />
+    <EmbeddedResource Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <None Remove="ViewModels\MasterSetup\LicenceTypes\**" />
+    <None Remove="ViewModels\MasterSetup\Organization\**" />
+    <None Remove="ViewModels\MasterSetup\PassingYears\**" />
+    <None Remove="ViewModels\MasterSetup\ResultTypes\**" />
+    <None Remove="ViewModels\MasterSetup\ServiceYears\**" />
+    <None Remove="ViewModels\MasterSetup\TrainingYears\**" />
+    <None Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GCTL.Core\GCTL.Core.csproj" />
     <ProjectReference Include="..\GCTL.Data\GCTL.Data.csproj" />
     <ProjectReference Include="..\GCTL.Service\GCTL.Service.csproj" />
@@ -18,14 +49,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\MasterSetup\LicenceTypes\" />
-    <Folder Include="ViewModels\MasterSetup\Organization\" />
-    <Folder Include="ViewModels\MasterSetup\PassingYears\" />
-    <Folder Include="ViewModels\MasterSetup\ProvisionPeriodTtimeTypes\" />
-    <Folder Include="ViewModels\MasterSetup\ResultTypes\" />
-    <Folder Include="ViewModels\MasterSetup\ServiceYears\" />
-    <Folder Include="ViewModels\MasterSetup\TrainingYears\" />
-    <Folder Include="ViewModels\MasterSetup\YearlyEndBonusTypes\" />
     <Folder Include="wwwroot\media\logo\" />
   </ItemGroup>
 

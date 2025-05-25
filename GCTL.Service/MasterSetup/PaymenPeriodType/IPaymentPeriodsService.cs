@@ -17,7 +17,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
         Task<bool> UpdateAsync(PaymentPeriodsVM model);
         Task<PaymentPeriodsVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
         Task<PaymentPeriodsVM> GetByIdAsync(int id);
-        Task<PaginationService<PaymenPeriodTypes, PaymentPeriodsVM>.PaginationResult<PaymentPeriodsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<PaginationService<PaymentPeriodTypes, PaymentPeriodsVM>.PaginationResult<PaymentPeriodsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "PaymentPeriodTypeID", string sortOrder = "desc");
         #endregion
 

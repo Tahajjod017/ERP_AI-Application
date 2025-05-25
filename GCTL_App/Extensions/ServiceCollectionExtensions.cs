@@ -30,6 +30,14 @@ using GCTL.Service.MasterSetup.PaymentMode;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.Employees.EmployeePersonal;
+using GCTL.Service.MasterSetup.LicenceType;
+using GCTL.Service.MasterSetup.Organizations;
+using GCTL.Service.MasterSetup.PassingYear;
+using GCTL.Service.MasterSetup.ProvisionPeriodTimeType;
+using GCTL.Service.MasterSetup.ResultType;
+using GCTL.Service.MasterSetup.ServiceYear;
+using GCTL.Service.MasterSetup.TrainingYear;
+using GCTL.Service.MasterSetup.YearlyEndBonusType;
 
 
 namespace GCTL_App.Extensions
@@ -76,6 +84,14 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPaymentModeService, PaymentModesService>();
             services.AddScoped<IReligionService, ReligionService>();
             services.AddScoped<IStatusService, StatusService>();
+            services.AddScoped<ILicenceTypeService, LicenceTypeService>();
+            services.AddScoped<IOrganizationsService, OrganizationsService>();
+            services.AddScoped<IPassingYearService, PassingYearService>();
+            services.AddScoped<IProvisionPeriodTtimeTypesService, ProvisionPeriodTtimeTypesService>();
+            services.AddScoped<IResultTypeService, ResultTypeService>();
+            services.AddScoped<IServiceYearService, ServiceYearService>();
+            services.AddScoped<ITrainingYearService, TrainingYearService>();
+            services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             #endregion
 
 

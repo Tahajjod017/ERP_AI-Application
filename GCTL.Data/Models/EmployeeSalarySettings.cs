@@ -75,7 +75,7 @@ public partial class EmployeeSalarySettings
 
     public virtual Grade Grade { get; set; }
 
-    public virtual PaymenPeriodTypes PaymenPeriodType { get; set; }
+    public virtual PaymentPeriodTypes PaymenPeriodType { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
