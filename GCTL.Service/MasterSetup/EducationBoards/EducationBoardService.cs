@@ -141,8 +141,11 @@ namespace GCTL.Service.MasterSetup.EducationBoards
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.EducationBoardName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.EducationBoardName != null);
+
+            var nameList = existingNames.Select(b => b.EducationBoardName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

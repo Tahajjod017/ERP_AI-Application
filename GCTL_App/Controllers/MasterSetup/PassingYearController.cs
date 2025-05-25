@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.PassingYear;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.PassingYear;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.PassingYear;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class PassingYearController : Controller
+    public class PassingYearController : BaseController
     {
         #region Services & Repositories
         private readonly IPassingYearService _passingYearService;
 
-        public PassingYearController(IPassingYearService passingYearService)
+        public PassingYearController(IPassingYearService passingYearService, ITranslateService translateService) : base(translateService)
         {
             _passingYearService = passingYearService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", "PassingYear")]
         public IActionResult Index()
         {
             PassingYearPageVM model = new PassingYearPageVM();
-
+            SetSmartPageCode(201700);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "PassingYear")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(PassingYearVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "PassingYear")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(PassingYearVM model)

@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.ProvisionPeriodTtimeTypes;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ProvisionPeriodTimeType;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.ProvisionPeriodTtimeTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class ProvisionPeriodTimeController : Controller
+    public class ProvisionPeriodTimeController : BaseController
     {
         #region Services & Repositories
         private readonly IProvisionPeriodTtimeTypesService _provisionPeriodTtimeTypesService;
 
-        public ProvisionPeriodTimeController(IProvisionPeriodTtimeTypesService provisionPeriodTtimeTypesService)
+        public ProvisionPeriodTimeController(IProvisionPeriodTtimeTypesService provisionPeriodTtimeTypesService, ITranslateService translateService) : base(translateService)
         {
             _provisionPeriodTtimeTypesService = provisionPeriodTtimeTypesService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", " ProvisionPeriodTime")]
         public IActionResult Index()
         {
             ProvisionPeriodTtimeTypesPageVM model = new ProvisionPeriodTtimeTypesPageVM();
-
+            SetSmartPageCode(202100);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "ProvisionPeriodTime")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ProvisionPeriodTtimeTypesVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "ProvisionPeriodTime")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ProvisionPeriodTtimeTypesVM model)

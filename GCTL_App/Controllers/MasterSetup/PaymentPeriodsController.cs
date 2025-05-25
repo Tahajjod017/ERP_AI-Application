@@ -9,46 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.PaymenPeriodTypes;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class PaymentPeriodsController : Controller
+    public class PaymentPeriodsController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IPaymentPeriodsService _paymentPeriodsService;
         private readonly ITranslateService _translationService;
 
 
-        public PaymentPeriodsController(IPaymentPeriodsService paymentPeriodsService, IUserInfoService userInfoService, ITranslateService translationService)
+        public PaymentPeriodsController(IPaymentPeriodsService paymentPeriodsService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _paymentPeriodsService = paymentPeriodsService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "PaymentPeriods")]
+        //[Permission("View", "PaymentPeriods")]
         public IActionResult Index()
         {
             PaymentPeriodPageVM model = new PaymentPeriodPageVM();
-
-            #region Language
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 328000;
-
-            ViewBag.Title = _translationService.GetTranslationInd("Add Payment Period", (PageCode++).ToString(), languageCode);
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.PaymentModeName = _translationService.GetTranslationInd("Payment Mode Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddPaymentMode = _translationService.GetTranslationInd("Add Payment Mode", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfPaymentMode = _translationService.GetTranslationInd("Information of Payment Mode", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-            #endregion
-
+            SetSmartPageCode(201900);
             return View(model);
         }
         #endregion
@@ -85,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "PaymentPeriods")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(PaymentPeriodsVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _paymentPeriodsService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "PaymentPeriods")]
         [ValidateAntiForgeryToken]
@@ -129,6 +86,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "PaymentPeriods")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(PaymentPeriodsVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _paymentPeriodsService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

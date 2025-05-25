@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.Grades
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.GradeName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.GradeName != null);
+
+            var nameList = existingNames.Select(b => b.GradeName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

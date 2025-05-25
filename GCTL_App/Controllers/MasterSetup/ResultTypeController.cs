@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.ResultType;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ResultType;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.ResultType;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class ResultTypeController : Controller
+    public class ResultTypeController : BaseController
     {
         #region Services & Repositories
         private readonly IResultTypeService _resultTypeService;
 
-        public ResultTypeController(IResultTypeService resultTypeService)
+        public ResultTypeController(IResultTypeService resultTypeService, ITranslateService translateService) : base(translateService)
         {
             _resultTypeService = resultTypeService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", " ResultType")]
         public IActionResult Index()
         {
             ResultTypePageVM model = new ResultTypePageVM();
-
+            SetSmartPageCode(202300);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "ResultType")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ResultTypeVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "ResultType")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ResultTypeVM model)

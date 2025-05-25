@@ -4,7 +4,7 @@
     <div class="card-header border-bottom-1">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
-                <h3 class="text-body-emphasis mt-3">Add Action Taken</h3>
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Add Action Taken")</h3>
             </div>
         </div>
     </div>
@@ -16,8 +16,8 @@
                 <input type="hidden" asp-for="ActionTakenID" />
                 <div class="flatpickr-input-container">
                     <div class="form-floating">
-                        <input class="form-control" asp-for="ActionTakenName" type="text" placeholder="Action Taken Name" />
-                        <label asp-for="ActionTakenName">Action Taken Name <span style="color: red;">*</span></label>
+                        <input class="form-control" asp-for="ActionTakenName" type="text" placeholder="@Html.SmartLocalize("Action Taken Name")" />
+                        <label asp-for="ActionTakenName">@Html.SmartLocalize("Action Taken Name") <span style="color: red;">*</span></label>
                     </div>
                     <span asp-validation-for="ActionTakenName" class="text-danger"></span>
                     <span id="nameError" class="text-danger" style="display:none;"></span>
@@ -27,10 +27,10 @@
             <div class="col-12 mb-4">
                 <div class="row g-3 justify-content-end">
                     <div class="col-auto">
-                        <button type="reset" class="btn btn-phoenix-primary px-5" id="actionTaken-resetBtn">Reset</button>
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="actionTaken-resetBtn">@Html.SmartLocalize("Reset")</button>
                     </div>
                     <div class="col-auto">
-                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="actionTaken-saveBtn">Save</button>
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="actionTaken-saveBtn">@Html.SmartLocalize("Save")</button>
                     </div>
                 </div>
             </div>

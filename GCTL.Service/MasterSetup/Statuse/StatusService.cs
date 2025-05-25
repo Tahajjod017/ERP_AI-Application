@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.Statuse
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.StatusName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.StatusName != null);
+
+            var nameList = existingNames.Select(b => b.StatusName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

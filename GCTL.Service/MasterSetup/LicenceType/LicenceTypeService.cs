@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.LicenceType
 {
     public class LicenceTypeService : AppService<LicenceTypes>, ILicenceTypeService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<LicenceTypes> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.LicenceType
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(LicenceTypeVM model)

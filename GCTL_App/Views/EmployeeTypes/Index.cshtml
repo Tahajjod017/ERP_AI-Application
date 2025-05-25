@@ -1,12 +1,12 @@
 ﻿@model GCTL_App.ViewModels.MasterSetup.EmployeeType.EmployeeTypesPageVM
 
 @{
-    ViewData["Title"] = @ViewBag.AddEmployeeType;
+    ViewData["Title"] = @Html.SmartLocalize("Add Employee Type");
 }
 
 <nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item active">@ViewBag.AddEmployeeType</li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
     </ol>
 </nav>
 

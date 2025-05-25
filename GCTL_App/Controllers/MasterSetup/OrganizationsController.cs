@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.Organizations;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.Organizations;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.Organizations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class OrganizationsController : Controller
+    public class OrganizationsController : BaseController
     {
         #region Services & Repositories
         private readonly IOrganizationsService _organizationsService;
 
-        public OrganizationsController(IOrganizationsService organizationsService)
+        public OrganizationsController(IOrganizationsService organizationsService, ITranslateService translateService) : base(translateService)
         {
             _organizationsService = organizationsService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", "Organizations")]
         public IActionResult Index()
         {
             OrganizationsPageVM model = new OrganizationsPageVM();
-
+            SetSmartPageCode(201600);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "Organizations")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(OrganizationsVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "Organizations")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(OrganizationsVM model)

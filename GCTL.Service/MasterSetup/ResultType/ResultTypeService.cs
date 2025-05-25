@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.ResultType
 {
     public class ResultTypeService : AppService<ResultTypes>, IResultTypeService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<ResultTypes> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.ResultType
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(ResultTypeVM model)

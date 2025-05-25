@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.Organizations
 {
     public class OrganizationsService : AppService<Organization>, IOrganizationsService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<Organization> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.Organizations
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(OrganizationsVM model)

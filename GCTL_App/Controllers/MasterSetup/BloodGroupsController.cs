@@ -9,44 +9,24 @@ using GCTL_App.ViewModels.MasterSetup.BloodGroup;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class BloodGroupsController : Controller
+    public class BloodGroupsController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IBloodGroupService _bloodGroupService;
-        private readonly ITranslateService _translationService;
 
-
-        public BloodGroupsController(IBloodGroupService bloodGroupService, IUserInfoService userInfoService, ITranslateService translationService)
+        public BloodGroupsController(ITranslateService translateService, IBloodGroupService bloodGroupService) : base(translateService)
         {
             _bloodGroupService = bloodGroupService;
-            _userInfoService = userInfoService;
-            _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "BloodGroups")]
+        //[Permission("View", "BloodGroups")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 370000; // Unique page code for blood group translations
-
-            // Adding translations for all labels
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.BloodGroupName = _translationService.GetTranslationInd("Blood Group Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddBloodGroup = _translationService.GetTranslationInd("Add Blood Group", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfBloodGroups = _translationService.GetTranslationInd("Information of Blood Group's", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
-
             BloodGroupPageVM model = new BloodGroupPageVM();
+            SetSmartPageCode(201000);
             return View(model);
         }
         #endregion

@@ -16,6 +16,7 @@ namespace GCTL.Service.MasterSetup.ProvisionPeriodTimeType
 {
     public class ProvisionPeriodTtimeTypesService : AppService<ProvisionPeriodTtimeTypes>, IProvisionPeriodTtimeTypesService
     {
+        #region Services & Repositories
         private readonly IGenericRepository<ProvisionPeriodTtimeTypes> _genericRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -24,6 +25,8 @@ namespace GCTL.Service.MasterSetup.ProvisionPeriodTimeType
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
+
 
         #region AddAsync
         public async Task<bool> AddAsync(ProvisionPeriodTtimeTypesVM model)

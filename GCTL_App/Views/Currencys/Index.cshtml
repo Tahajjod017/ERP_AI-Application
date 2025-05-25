@@ -1,12 +1,12 @@
 ﻿@model GCTL_App.ViewModels.MasterSetup.Currencies.CurrencyPageVM
 
 @{
-    ViewData["Title"] = @ViewBag.AddCurrency;
+    ViewData["Title"] = @Html.SmartLocalize("Add Currency");
 }
 
 <nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item active">@ViewBag.AddCurrency</li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
     </ol>
 </nav>
 

@@ -1,17 +1,19 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.YearlyEndBonusType;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class YearlyEndBonusTypeController : Controller
+    public class YearlyEndBonusTypeController : BaseController
     {
         #region Services & Repositories
         private readonly IYearlyEndBonusTypeService _yearlyEndBonusTypeService;
 
-        public YearlyEndBonusTypeController(IYearlyEndBonusTypeService yearlyEndBonusTypeService)
+        public YearlyEndBonusTypeController(IYearlyEndBonusTypeService yearlyEndBonusTypeService, ITranslateService translateService) : base(translateService)
         {
             _yearlyEndBonusTypeService = yearlyEndBonusTypeService;
         }
@@ -19,16 +21,18 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        //[Permission("View", " YearlyEndBonusType")]
         public IActionResult Index()
         {
             YearlyEndBonusTypePageVM model = new YearlyEndBonusTypePageVM();
-
+            SetSmartPageCode(202700);
             return View(model);
         }
         #endregion
 
 
         #region Create
+        //[Permission("Create", "YearlyEndBonusType")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(YearlyEndBonusTypeVM model)
@@ -60,6 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        //[Permission("Edit", "YearlyEndBonusType")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(YearlyEndBonusTypeVM model)

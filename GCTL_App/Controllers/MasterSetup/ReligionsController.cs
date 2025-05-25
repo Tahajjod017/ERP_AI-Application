@@ -9,44 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.Religions;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class ReligionsController : Controller
+    public class ReligionsController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IReligionService _religionService;
         private readonly ITranslateService _translationService;
 
 
-        public ReligionsController(IReligionService religionService, IUserInfoService userInfoService, ITranslateService translationService)
+        public ReligionsController(IReligionService religionService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _religionService = religionService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "Religions")]
+        //[Permission("View", "Religions")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 329000; // Unique page code for religion translations
-
-            // Adding translations for all labels
-            ViewBag.Title = _translationService.GetTranslationInd("Add Religion", (PageCode++).ToString(), languageCode);
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.ReligionName = _translationService.GetTranslationInd("Religion Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddReligion = _translationService.GetTranslationInd("Add Religion", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfReligion = _translationService.GetTranslationInd("Information of Religion", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
             ReligionPageVM model = new ReligionPageVM();
+            SetSmartPageCode(202200);
             return View(model);
         }
         #endregion
@@ -83,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "Religions")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(ReligionVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _religionService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "Religions")]
         [ValidateAntiForgeryToken]
@@ -127,6 +86,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "Religions")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(ReligionVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _religionService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)
