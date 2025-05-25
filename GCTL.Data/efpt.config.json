@@ -111,6 +111,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmployeeRosters]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Employees]",
          "ObjectType": 0
       },
@@ -136,6 +140,10 @@
       },
       {
          "Name": "[dbo].[Grade]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Holidays]",
          "ObjectType": 0
       },
       {
@@ -175,11 +183,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[PaymenPeriodTypes]",
+         "Name": "[dbo].[PaymentModes]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[PaymentModes]",
+         "Name": "[dbo].[PaymentPeriodTypes]",
          "ObjectType": 0
       },
       {
@@ -203,7 +211,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Rosters]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ServiceYears]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Shifts]",
          "ObjectType": 0
       },
       {

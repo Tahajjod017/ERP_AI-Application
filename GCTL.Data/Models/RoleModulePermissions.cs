@@ -21,5 +21,5 @@ public partial class RoleModulePermissions
 
     public virtual Permissions Permission { get; set; }
 
-    public virtual ApplicationRole Role { get; set; }
+    public virtual AspNetRoles Role { get; set; }
 }
