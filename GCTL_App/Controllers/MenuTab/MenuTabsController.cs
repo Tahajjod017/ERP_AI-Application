@@ -23,7 +23,7 @@ namespace GCTL_App.Controllers.MenuTab
 
 
         #region Index
-        [Permission("View", " MenuTabs")]
+        //[Permission("View", " MenuTabs")]
         public IActionResult Index()
         {
             var menuTabs = _menuTabRepository.All()
