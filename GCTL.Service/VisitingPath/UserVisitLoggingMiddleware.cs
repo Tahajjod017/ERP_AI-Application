@@ -1,4 +1,5 @@
-﻿using GCTL.Data.Models;
+﻿using GCTL.Core.Helpers.LipLmacAddress;
+using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -43,7 +44,7 @@ namespace GCTL.Service.VisitingPath
                 await _next(context); // Process the request
 
                 var endTime = DateTime.UtcNow;
-                var duration = (endTime - startTime).TotalSeconds;
+                var duration =Math.Round((endTime - startTime).TotalSeconds);
 
 
                 var visit = new UserVisitLogs
@@ -51,24 +52,24 @@ namespace GCTL.Service.VisitingPath
                     UserId = context.User.Identity.IsAuthenticated ? context.User.Identity.Name : "Anonymous",
                     Path = path,
                     Method = context.Request.Method,
-                    Ipaddress = GetLocalIP(),
-                    Lmac = GetMacAddress(),
-                    VisitTime = startTime,
+                    Ipaddress =NetworkHelper.GetLocalIP(),
+                    Lmac =NetworkHelper.GetMacAddress(),
+                    VisitTime = DateTime.Now,
                     DurationInSeconds = duration
                 };
-
+                                                              
                 // dbContext.UserVisitLogs.Add(visit);
                 // await dbContext.SaveChangesAsync();
-                if (visit.DurationInSeconds != null)
+                if (visit.DurationInSeconds >=2)
                 {
                     dbContext.UserVisitLogs.Add(visit);
                     await dbContext.SaveChangesAsync();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                throw ;
             }
             
         }
@@ -93,23 +94,7 @@ namespace GCTL.Service.VisitingPath
         }
 
 
-        private static string GetLocalIP()
-        {
-            return NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                .SelectMany(n => n.GetIPProperties().UnicastAddresses)
-                .Where(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                .Select(ip => ip.Address.ToString())
-                .FirstOrDefault() ?? string.Empty;
-        }
-
-        private static string GetMacAddress()
-        {
-            return NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                .Select(n => n.GetPhysicalAddress().ToString())
-                .FirstOrDefault(mac => !string.IsNullOrEmpty(mac)) ?? string.Empty;
-        }
+        
     }
 
 

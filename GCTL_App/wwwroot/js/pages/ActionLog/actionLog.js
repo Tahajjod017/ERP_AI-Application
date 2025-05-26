@@ -178,7 +178,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     tableBody.append(`
                     <tr class="position-static">
 
-                        <td class="align-middle white-space-nowrap ps-0">${item.actionLogID}</td>
+                        <td class="align-middle white-space-nowrap ps-0 text-center">${item.actionLogID}</td>
                         <td class="align-middle white-space-nowrap ps-0">${item.employeeUserName}</td>
                         <td class="align-middle white-space-nowrap ps-0">${item.userEmail}</td>
                         <td class="align-middle white-space-nowrap ps-0">${item.targetType}</td>

@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.LipLmacAddress;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
@@ -16,14 +17,10 @@ namespace GCTL.Service.ActionLogAudit
     public class UserInfoService : IUserInfoService
     {
         private readonly AppDbContext _context;
-
         public UserInfoService(AppDbContext context)
         {
             _context = context;
         }
-
-    
-
 
         #region  Base View Model 
 
@@ -48,8 +45,8 @@ namespace GCTL.Service.ActionLogAudit
                 model.CreatedBy = employeeId;
                 model.UpdatedBy = employeeId;
                 model.DeletedBy = employeeId;
-                model.LIP = GetLocalIP();
-                model.LMAC = GetMacAddress();
+                model.LIP =NetworkHelper.GetLocalIP();
+                model.LMAC =NetworkHelper.GetMacAddress();
 
             }
         }
@@ -136,45 +133,6 @@ namespace GCTL.Service.ActionLogAudit
             await _context.SaveChangesAsync();
         }
         #endregion
-
-
-
-        #region LIP LMAC Adderess Method
-
-        private static string GetLocalIP()
-        {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                var properties = networkInterface.GetIPProperties();
-                var ipv4Address = properties.UnicastAddresses
-                    .FirstOrDefault(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-                if (ipv4Address != null)
-                    return ipv4Address.Address.ToString();
-            }
-
-            return string.Empty;
-        }
-
-        private static string GetMacAddress()
-        {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                var macAddress = networkInterface.GetPhysicalAddress().ToString();
-                if (!string.IsNullOrEmpty(macAddress))
-                    return macAddress;
-            }
-
-            return string.Empty;
-        }
-        #endregion
-
 
 
 
