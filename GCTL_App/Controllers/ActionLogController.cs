@@ -1,5 +1,6 @@
 ﻿using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.Language;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -7,69 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 namespace GCTL_App.Controllers
 {
-    public class ActionLogController : Controller
+    public class ActionLogController : BaseController
     {
         private readonly IActionLogService actionLogService;
         private readonly AppDbContext appDbContext;
 
 
-        public ActionLogController(IActionLogService actionLogService, AppDbContext appDbContext)
+
+
+        public ActionLogController(ITranslateService translateService, IActionLogService actionLogService, AppDbContext appDbContext) : base(translateService)
         {
             this.actionLogService = actionLogService;
             this.appDbContext = appDbContext;
         }
-
-        //public async Task<IActionResult> Index()
-        //{
-        //    try
-        //    {
-        //        var targetTypes = await appDbContext.ActionLogs
-        //        .Where(a => !string.IsNullOrEmpty(a.TargetType))
-        //        .Select(a => a.TargetType).Distinct().ToListAsync();
-        //        var actionNames = await appDbContext.ActionLogs
-        //           .Where(a => !string.IsNullOrEmpty(a.ActionName))
-        //           .Select(a => a.ActionName).Distinct().ToListAsync();
-
-        //        ViewBag.TargetTypeDD = targetTypes.Select(t => new SelectListItem
-        //        {
-        //            Value = t,
-        //            Text = t
-        //        }).ToList();
-        //        ViewBag.ActionNameDD = actionNames.Select(t => new SelectListItem
-        //        {
-        //            Value = t,
-        //            Text = t
-        //        }).ToList();
-
-
-
-        //        var userNameEmail = await appDbContext.ActionLogs.Include(x => x.CreatedByNavigation).Where(x => x.CreatedByNavigation != null).GroupBy(x => x.CreatedBy)
-        //.Select(g => new
-        //{
-        //    CreatedBy = g.Key,
-        //    UserEmail = g.Select(x => x.UserEmail).FirstOrDefault(),
-        //    FirstName = g.Select(x => x.CreatedByNavigation.FirstName).FirstOrDefault(),
-        //    LastName = g.Select(x => x.CreatedByNavigation.LastName).FirstOrDefault()
-        //})
-        //.ToListAsync();
-
-        //        ViewBag.UserNameDD = userNameEmail.Select(x => new SelectListItem
-        //        {
-        //            Value = x.CreatedBy.ToString(),
-        //            Text = $"{x.FirstName} {x.LastName} ({x.UserEmail})"
-        //        }).ToList();
-
-        //        //
-        //        return View();
-        //    }
-        //    catch (Exception ex)
-        //    { 
-        //        Console.WriteLine(ex.Message);   
-        //        return View();
-        //    }
-
-        //}
-
 
         public async Task<IActionResult> Index()
         {
@@ -115,7 +66,7 @@ namespace GCTL_App.Controllers
                     }),
                     "Value", "Text"
                 );
-
+                SetSmartPageCode(3001000);
                 return View();
             }
             catch (Exception ex)
@@ -126,12 +77,12 @@ namespace GCTL_App.Controllers
         }
 
 
-        #region GetBanks With Pagination
+        #region Get With Pagination
         public async Task<IActionResult> ActionLogDataTable(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", DateTime? fromDate = null, DateTime? toDate = null, string? tergetType = null, string? actionName = null, int? createdBy = null)
         {
             // fromDate ??= DateTime.Today.AddDays(-2); // default FromDate = 2 days ago
             // toDate ??= DateTime.Today;
-            var result = await actionLogService.GetPaginateActionLog(pageNumber, pageSize, searchTerm, currentSortOrder, currentSortOrder, fromDate, toDate, tergetType, actionName, createdBy);
+            var result = await actionLogService.GetPaginateActionLog(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, fromDate, toDate, tergetType, actionName, createdBy);
             return Json(result);
 
 

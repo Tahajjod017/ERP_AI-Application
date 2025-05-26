@@ -153,12 +153,12 @@ namespace GCTL.Service.MasterSetup.EducationLevel
 
 
         #region Soft Delete
-        public async Task<EducationLevelVM> SoftDeleteAsync(BaseViewModel model, List<int> ids)
+        public async Task<EducationLevelVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.EducationLevelID));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.EducationLevelID));
                 if (data == null || data.Count == 0)
                 {
                     return new EducationLevelVM
@@ -173,14 +173,14 @@ namespace GCTL.Service.MasterSetup.EducationLevel
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = model.DeletedBy;
-                    item.LIP = model.LIP;
-                    item.LMAC = model.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Education Level", ActionName.DataDeleted, null, beforeEntity, targetIds, model);
+                await _userInfoService.ActionLogDeleteAsync("Education Level", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

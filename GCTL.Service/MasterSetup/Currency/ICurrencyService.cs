@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Currency
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Currency
         #region CRUD
         Task<bool> AddAsync(CurrencyVM model);
         Task<bool> UpdateAsync(CurrencyVM model);
-        Task<CurrencyVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<CurrencyVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<CurrencyVM> GetByIdAsync(int id);
         Task<PaginationService<Currencies, CurrencyVM>.PaginationResult<CurrencyVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "CurrencyID", string sortOrder = "desc");

@@ -31,9 +31,9 @@
 
             <div class="col-md-6">
                 <div class="form-floating form-floating-advance-select">
-                    <label for="UserNameDD">User Name</label>
+                    <label for="UserNameDD">@Html.SmartLocalize("User Name")</label>
                     <select class="form-select form-control-lg" id="UserNameDD" asp-items="@ViewBag.UserNameDD">
-                        <option>Select User </option>
+                        <option>@Html.SmartLocalize("Select User")</option>
                     </select>
 
                 </div>
@@ -41,14 +41,13 @@
 
             <div class="col-md-6">
                 <div class="form-floating form-floating-advance-select">
-                    <label for="ActionNameDD">Action Name</label>
+                    <label for="ActionNameDD">@Html.SmartLocalize("Action Name")</label>
                     <select class="form-select form-control-lg" id="ActionNameDD" asp-items="@ViewBag.ActionNameDD">
-                        <option>Select Action Name</option>
+                        <option>@Html.SmartLocalize("Select Action Name")</option>
                     </select>
 
                 </div>
             </div>
-
 
         </div>
         <div class="row g-2 align-items-end">
@@ -56,14 +55,14 @@
             <div class="col-md-2">
                 <div class="dropdown">
                     <button class="btn btn-phoenix-secondary dropdown-toggle w-100" type="button" id="pageSizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        Showing: <span id="selectedPageSize">5</span>
+                       @Html.SmartLocalize("Showing"): <span id="selectedPageSize">5</span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
-                        <li><a class="dropdown-item" href="#" data-size="5">5</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="10">10</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="25">25</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="50">50</a></li>
-                        <li><a class="dropdown-item" href="#" data-size="100">100</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="5">@Html.SmartLocalize("5")</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="10">@Html.SmartLocalize("10")</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="25">@Html.SmartLocalize("25")</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="50">@Html.SmartLocalize("50")</a></li>
+                        <li><a class="dropdown-item" href="#" data-size="100">@Html.SmartLocalize("100")</a></li>
                     </ul>
                 </div>
             </div>
@@ -71,7 +70,7 @@
             <div class="col">
                 <div class="form-floating">
                     <input class="form-control  datetimepicker" id="FromDate" type="date" />   @* value="@twoDayesAgo.ToString("yyyy-MM-dd")" *@
-                    <label for="FromDate">From Date</label>
+                    <label for="FromDate">@Html.SmartLocalize("From Date")</label>
                 </div>
             </div>
 
@@ -81,15 +80,15 @@
 
 
                     <input class="form-control  datetimepicker" id="ToDate" type="date" />  @*  value="@today.ToString("yyyy-MM-dd")" *@
-                    <label for="ToDate">To Date</label>
+                    <label for="ToDate">@Html.SmartLocalize("To Date")</label>
                 </div>
             </div>
 
             <div class="col">
                 <div class="form-floating form-floating-advance-select">
-                    <label for="TargetTypeDD">Target</label>
+                    <label for="TargetTypeDD">@Html.SmartLocalize("Target")</label>
                     <select class="form-select form-control-lg" id="TargetTypeDD" asp-items="@ViewBag.TargetTypeDD">
-                        <option value="">Select Target</option>
+                        <option value="">@Html.SmartLocalize("Select Target")</option>
                     </select>
 
                 </div>
@@ -110,20 +109,20 @@
 
             <tr>
 
-                <th class="sort align-middle ps-2" scope="col" data-sort="ActionLogID">Action ID</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="EmployeeUserName">User Name</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="UserEmail">User Email</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="TargetType">Terget Type</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ActionName">Action Name</th>
-                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">Comparison</th>
-                <th class="sort align-middle text-start" scope="col">Details</th>
+                <th class="sort align-middle ps-2" scope="col" data-sort="ActionLogID">@Html.SmartLocalize("Action ID")</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="EmployeeUserName">@Html.SmartLocalize("User Name")</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="UserEmail">@Html.SmartLocalize("User Email")</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="TargetType">@Html.SmartLocalize("Terget Type")</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ActionName">@Html.SmartLocalize("Action Name")</th>
+                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="fileName">@Html.SmartLocalize("Comparison")</th>
+                <th class="sort align-middle text-start" scope="col">@Html.SmartLocalize("Details")</th>
             </tr>
 
         </thead>
 
         <tbody class="list" id="project-summary-table-body">
             <tr class="no-data">
-                <td colspan="7" class="text-center">No data available</td>
+                <td colspan="7" class="text-center">@Html.SmartLocalize("No data available")</td>
             </tr>
         </tbody>
 
@@ -150,7 +149,7 @@
 
 
             <div class="modal-header position-relative">
-                <h3 class="mx-auto text-center">Action Details</h3>
+                <h3 class="mx-auto text-center">@Html.SmartLocalize("Action Details")</h3>
 
                 <button type="button" class="btn btn-link text-danger position-absolute end-0 top-50 translate-middle-y me-3 fs-8" data-bs-dismiss="modal" aria-label="Close">
                     <i class="fas fa-times fa-sm"></i>

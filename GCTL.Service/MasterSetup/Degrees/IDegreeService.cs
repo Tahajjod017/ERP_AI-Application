@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Degrees
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Degrees
         #region CRUD
         Task<bool> AddAsync(DegreeVM model);
         Task<bool> UpdateAsync(DegreeVM model);
-        Task<DegreeVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<DegreeVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<DegreeVM> GetByIdAsync(int id);
         Task<PaginationService<Degree, DegreeVM>.PaginationResult<DegreeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "DegreeID", string sortOrder = "desc");
