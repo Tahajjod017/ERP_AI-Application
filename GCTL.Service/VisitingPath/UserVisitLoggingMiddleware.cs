@@ -44,7 +44,7 @@ namespace GCTL.Service.VisitingPath
                 await _next(context); // Process the request
 
                 var endTime = DateTime.UtcNow;
-                var duration =Math.Round((endTime - startTime).TotalSeconds);
+                var duration =(endTime - startTime).TotalSeconds;
 
 
                 var visit = new UserVisitLogs
@@ -53,23 +53,20 @@ namespace GCTL.Service.VisitingPath
                     Path = path,
                     Method = context.Request.Method,
                     Ipaddress =NetworkHelper.GetLocalIP(),
-                    Lmac =NetworkHelper.GetMacAddress(),
+                    Lmac =NetworkHelper. GetMacAddress(),
                     VisitTime = DateTime.Now,
                     DurationInSeconds = duration
                 };
-                                                              
-                // dbContext.UserVisitLogs.Add(visit);
-                // await dbContext.SaveChangesAsync();
-                if (visit.DurationInSeconds >=2)
+                if (visit.DurationInSeconds !=null)
                 {
                     dbContext.UserVisitLogs.Add(visit);
                     await dbContext.SaveChangesAsync();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
-                throw ;
+                throw;
             }
             
         }
