@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Grades
         #region CRUD
         Task<bool> AddAsync(GradeVM model);
         Task<bool> UpdateAsync(GradeVM model);
-        Task<GradeVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<GradeVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<GradeVM> GetByIdAsync(int id);
         Task<PaginationService<Grade, GradeVM>.PaginationResult<GradeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "GradeName", string sortOrder = "asc");

@@ -6,6 +6,7 @@ using GCTL.Service.MasterSetup.EmploymentNatures;
 using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.EmploymentNature;
+using GCTL.Core.Helpers;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -144,15 +145,15 @@ namespace GCTL_App.Controllers.MasterSetup
         #region SoftDelete
         [Permission("Delete", "EmploymentNatures")]
         [HttpPost]
-        public async Task<IActionResult> SoftDelete(BaseViewModel model, List<int> ids)
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {
             try
             {
-                if (ids == null || !ids.Any() || ids.Count == 0)
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
                 {
                     return Json(new { isSuccess = false, message = "No id selected to delete." });
                 }
-                var result = await _employmentNatureService.SoftDeleteAsync(model, ids);
+                var result = await _employmentNatureService.SoftDeleteAsync(requestVM);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No id found to delete." });

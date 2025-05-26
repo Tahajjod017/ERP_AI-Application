@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.BloodGroups
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.BloodGroups
         #region CRUD
         Task<bool> AddAsync(BloodGroupVM model);
         Task<bool> UpdateAsync(BloodGroupVM model);
-        Task<BloodGroupVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<BloodGroupVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<BloodGroupVM> GetByIdAsync(int id);
         Task<PaginationService<BloodGroup, BloodGroupVM>.PaginationResult<BloodGroupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "BloodGroupID", string sortOrder = "desc");

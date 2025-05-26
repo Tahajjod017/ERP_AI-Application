@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Statuse
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Statuse
         #region CRUD
         Task<bool> AddAsync(StatusVM model);
         Task<bool> UpdateAsync(StatusVM model);
-        Task<StatusVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<StatusVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<StatusVM> GetByIdAsync(int id);
         Task<PaginationService<Statuses, StatusVM>.PaginationResult<StatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "StatusID", string sortOrder = "desc");

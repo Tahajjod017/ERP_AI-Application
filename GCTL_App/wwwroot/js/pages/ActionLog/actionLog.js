@@ -47,6 +47,32 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 //
 
+
+
+
+
+function formatKey(key) {
+
+    return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+}
+
+// Optional: Render condensed key-values for preview (used in row preview column)
+function renderFields(jsonString) {
+    try {
+        const obj = JSON.parse(jsonString);
+        return Object.entries(obj)
+            .filter(([k, v]) => v !== null && v !== "")
+            .map(([k, v]) => `${formatKey(k)}: ${v}`)
+            .join(', ');
+    } catch (err) {
+        return 'N/A';
+    }
+}
+
+
+
+// On DOM ready, set TaxpayerID from URL
+
 var currentPage = 1;
 var pageSize = 5;
 
@@ -94,8 +120,9 @@ var currentSortColumn = '';
 let currentSortOrder = '';
 
 $('th.sort').on('click', function () {
+   
     const column = $(this).data('sort');
-
+   
     if (currentSortColumn === column) {
         currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
     } else {
@@ -105,32 +132,6 @@ $('th.sort').on('click', function () {
 
     loadTableData(currentSortColumn, currentSortOrder);
 });
-
-
-
-
-function formatKey(key) {
-
-    return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-}
-
-// Optional: Render condensed key-values for preview (used in row preview column)
-function renderFields(jsonString) {
-    try {
-        const obj = JSON.parse(jsonString);
-        return Object.entries(obj)
-            .filter(([k, v]) => v !== null && v !== "")
-            .map(([k, v]) => `${formatKey(k)}: ${v}`)
-            .join(', ');
-    } catch (err) {
-        return 'N/A';
-    }
-}
-
-
-
-// On DOM ready, set TaxpayerID from URL
-
 
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#searchInput").val();
