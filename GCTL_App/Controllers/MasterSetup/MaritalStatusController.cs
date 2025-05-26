@@ -9,44 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.MaritalStatus;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class MaritalStatusController : Controller
+    public class MaritalStatusController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IMaritalStatusService _maritalStatusService;
         private readonly ITranslateService _translationService;
 
 
-        public MaritalStatusController(IMaritalStatusService maritalStatusService, IUserInfoService userInfoService, ITranslateService translationService)
+        public MaritalStatusController(IMaritalStatusService maritalStatusService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _maritalStatusService = maritalStatusService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "MaritalStatus")]
+        //[Permission("View", "MaritalStatus")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 324000; // Unique page code for marital status translations
-
-            // Adding translations for all labels
-            ViewBag.Title = _translationService.GetTranslationInd("Add Marital Status", (PageCode++).ToString(), languageCode);
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.MaritalStatusName = _translationService.GetTranslationInd("Marital Status Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddMaritalStatus = _translationService.GetTranslationInd("Add Marital Status", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfMaritalStatus = _translationService.GetTranslationInd("Information of Marital Status", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
             MaritalStatusPageVM model = new MaritalStatusPageVM();
+            SetSmartPageCode(201500);
             return View(model);
         }
         #endregion
@@ -83,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "MaritalStatus")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(MaritalStatusVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _maritalStatusService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "MaritalStatus")]
         [ValidateAntiForgeryToken]
@@ -127,6 +86,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "MaritalStatus")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(MaritalStatusVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _maritalStatusService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

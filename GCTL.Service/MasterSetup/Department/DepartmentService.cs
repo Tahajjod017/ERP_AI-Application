@@ -142,8 +142,11 @@ namespace GCTL.Service.MasterSetup.Department
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.DepartmentName == name && b.DeletedAt == null);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.DepartmentName != null);
+
+            var nameList = existingNames.Select(b => b.DepartmentName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

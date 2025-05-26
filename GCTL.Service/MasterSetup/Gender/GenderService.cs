@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.Gender
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.GenderName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.GenderName != null);
+
+            var nameList = existingNames.Select(b => b.GenderName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

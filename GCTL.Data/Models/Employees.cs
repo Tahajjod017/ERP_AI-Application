@@ -79,9 +79,7 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
-
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
-
 
     public virtual BloodGroup BloodGroup { get; set; }
 
@@ -197,6 +195,14 @@ public partial class Employees
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoUpdatedByNavigation { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<EmployeeRosters> EmployeeRostersCreatedByNavigation { get; set; } = new List<EmployeeRosters>();
+
+    public virtual ICollection<EmployeeRosters> EmployeeRostersDeletedByNavigation { get; set; } = new List<EmployeeRosters>();
+
+    public virtual ICollection<EmployeeRosters> EmployeeRostersEmployee { get; set; } = new List<EmployeeRosters>();
+
+    public virtual ICollection<EmployeeRosters> EmployeeRostersUpdatedByNavigation { get; set; } = new List<EmployeeRosters>();
+
     public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettingsCreatedByNavigation { get; set; } = new List<EmployeeSalarySettings>();
 
     public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettingsDeletedByNavigation { get; set; } = new List<EmployeeSalarySettings>();
@@ -239,6 +245,12 @@ public partial class Employees
 
     public virtual ICollection<Grade> GradeUpdatedByNavigation { get; set; } = new List<Grade>();
 
+    public virtual ICollection<Holidays> HolidaysCreatedByNavigation { get; set; } = new List<Holidays>();
+
+    public virtual ICollection<Holidays> HolidaysDeletedByNavigation { get; set; } = new List<Holidays>();
+
+    public virtual ICollection<Holidays> HolidaysUpdatedByNavigation { get; set; } = new List<Holidays>();
+
     public virtual ICollection<Employees> InverseCreatedByNavigation { get; set; } = new List<Employees>();
 
     public virtual ICollection<Employees> InverseDeletedByNavigation { get; set; } = new List<Employees>();
@@ -277,17 +289,17 @@ public partial class Employees
 
     public virtual ICollection<PassingYears> PassingYearsUpdatedByNavigation { get; set; } = new List<PassingYears>();
 
-    public virtual ICollection<PaymenPeriodTypes> PaymenPeriodTypesCreatedByNavigation { get; set; } = new List<PaymenPeriodTypes>();
-
-    public virtual ICollection<PaymenPeriodTypes> PaymenPeriodTypesDeletedByNavigation { get; set; } = new List<PaymenPeriodTypes>();
-
-    public virtual ICollection<PaymenPeriodTypes> PaymenPeriodTypesUpdatedByNavigation { get; set; } = new List<PaymenPeriodTypes>();
-
     public virtual ICollection<PaymentModes> PaymentModesCreatedByNavigation { get; set; } = new List<PaymentModes>();
 
     public virtual ICollection<PaymentModes> PaymentModesDeletedByNavigation { get; set; } = new List<PaymentModes>();
 
     public virtual ICollection<PaymentModes> PaymentModesUpdatedByNavigation { get; set; } = new List<PaymentModes>();
+
+    public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesCreatedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
+
+    public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesDeletedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
+
+    public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesUpdatedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
 
     public virtual ICollection<ProvisionPeriodTtimeTypes> ProvisionPeriodTtimeTypesCreatedByNavigation { get; set; } = new List<ProvisionPeriodTtimeTypes>();
 
@@ -309,11 +321,23 @@ public partial class Employees
 
     public virtual ICollection<ResultTypes> ResultTypesUpdatedByNavigation { get; set; } = new List<ResultTypes>();
 
+    public virtual ICollection<Rosters> RostersCreatedByNavigation { get; set; } = new List<Rosters>();
+
+    public virtual ICollection<Rosters> RostersDeletedByNavigation { get; set; } = new List<Rosters>();
+
+    public virtual ICollection<Rosters> RostersUpdatedByNavigation { get; set; } = new List<Rosters>();
+
     public virtual ICollection<ServiceYears> ServiceYearsCreatedByNavigation { get; set; } = new List<ServiceYears>();
 
     public virtual ICollection<ServiceYears> ServiceYearsDeletedByNavigation { get; set; } = new List<ServiceYears>();
 
     public virtual ICollection<ServiceYears> ServiceYearsUpdatedByNavigation { get; set; } = new List<ServiceYears>();
+
+    public virtual ICollection<Shifts> ShiftsCreatedByNavigation { get; set; } = new List<Shifts>();
+
+    public virtual ICollection<Shifts> ShiftsDeletedByNavigation { get; set; } = new List<Shifts>();
+
+    public virtual ICollection<Shifts> ShiftsUpdatedByNavigation { get; set; } = new List<Shifts>();
 
     public virtual ICollection<Statuses> StatusesCreatedByNavigation { get; set; } = new List<Statuses>();
 

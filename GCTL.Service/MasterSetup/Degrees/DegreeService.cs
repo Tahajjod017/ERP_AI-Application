@@ -142,8 +142,11 @@ namespace GCTL.Service.MasterSetup.Degrees
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _degreeRepository.FindAsync(b => b.DegreeName == name && b.DeletedAt == null);
-            return !existingName.Any();
+            var existingNames = await _degreeRepository.FindAsync(b => b.DeletedAt == null && b.DegreeName != null);
+
+            var nameList = existingNames.Select(b => b.DegreeName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

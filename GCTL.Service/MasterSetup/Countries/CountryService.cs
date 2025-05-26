@@ -147,8 +147,11 @@ namespace GCTL.Service.MasterSetup.Countries
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.CountryName == name && b.DeletedAt == null);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.CountryName != null);
+
+            var nameList = existingNames.Select(b => b.CountryName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

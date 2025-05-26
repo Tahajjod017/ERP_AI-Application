@@ -1,12 +1,12 @@
 ﻿@model GCTL_App.ViewModels.MasterSetup.EmploymentNature.EmploymentNaturePageVM
 
 @{
-    ViewData["Title"] = @ViewBag.AddEmploymentNature;
+    ViewData["Title"] = @Html.SmartLocalize("Add Employment Nature");
 }
 
 <nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item active">@ViewBag.AddEmploymentNature</li>
+        <li class="breadcrumb-item active">@ViewData["Title"]</li>
     </ol>
 </nav>
 

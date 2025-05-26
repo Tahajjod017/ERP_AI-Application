@@ -35,5 +35,7 @@ public partial class Organization
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
+    public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

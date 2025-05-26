@@ -9,43 +9,27 @@ using GCTL_App.ViewModels.MasterSetup.Degree;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class DegreesController : Controller
+    public class DegreesController : BaseController
     {
         #region Services & Repositories
-        private readonly IUserInfoService _userInfoService;
         private readonly IDegreeService _degreeService;
         private readonly ITranslateService _translationService;
 
 
-        public DegreesController(IDegreeService degreeService, IUserInfoService userInfoService, ITranslateService translationService)
+        public DegreesController(IDegreeService degreeService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
         {
             _degreeService = degreeService;
-            _userInfoService = userInfoService;
             _translationService = translationService;
         }
         #endregion
 
 
         #region Index
-        [Permission("View", "Degrees")]
+        //[Permission("View", "Degrees")]
         public IActionResult Index()
         {
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 3110000; // Unique page code for degree translations
-
-            // Adding translations for all labels
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.DegreeName = _translationService.GetTranslationInd("Degree Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddDegree = _translationService.GetTranslationInd("Add Degree", (PageCode++).ToString(), languageCode);
-            ViewBag.InformationOfDegrees = _translationService.GetTranslationInd("Information of Degree's", (PageCode++).ToString(), languageCode);
-            ViewBag.Showing = _translationService.GetTranslationInd("Showing", (PageCode++).ToString(), languageCode);
-            ViewBag.SearchHere = _translationService.GetTranslationInd("Search here", (PageCode++).ToString(), languageCode);
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.ID = _translationService.GetTranslationInd("ID", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-
             DegreePageVM model = new DegreePageVM();
+            SetSmartPageCode(204000);
             return View(model);
         }
         #endregion
@@ -82,30 +66,6 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
 
-        #region Update
-        //[Permission("Edit", "Degrees")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Update(DegreeVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _degreeService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
-        #endregion
-
-
         #region Create
         //[Permission("Create", "Degrees")]
         [ValidateAntiForgeryToken]
@@ -127,6 +87,30 @@ namespace GCTL_App.Controllers.MasterSetup
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "Degrees")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(DegreeVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _degreeService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

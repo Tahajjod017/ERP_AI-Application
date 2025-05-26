@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.BloodGroups
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.BloodGroupName == name && b.DeletedAt == null);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.BloodGroupName != null);
+
+            var nameList = existingNames.Select(b => b.BloodGroupName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

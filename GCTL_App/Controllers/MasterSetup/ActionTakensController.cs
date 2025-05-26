@@ -2,17 +2,21 @@
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ActionTakens;
+using GCTL.Service.RolePermissions;
 using GCTL_App.ViewModels.MasterSetup.ActionTakens;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
-    public class ActionTakensController : Controller
+    public class ActionTakensController : BaseController
     {
         #region Services & Repositories
         private readonly IActionTakenService _actionTakenService;
-        public ActionTakensController(IActionTakenService actionTakenService)
+
+
+        public ActionTakensController(IActionTakenService actionTakenService, ITranslateService translateService) : base(translateService)
         {
             _actionTakenService = actionTakenService;
         }
@@ -20,16 +24,20 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
+        [Permission("View", "ActionTakens")]
         public IActionResult Index()
         {
             ActionTakenPageVM model = new ActionTakenPageVM();
-            
+
+            SetSmartPageCode(200000);
+
             return View(model);
         }
         #endregion
 
 
         #region Create
+        [Permission("Create", "ActionTakens")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ActionTakenVM model)
@@ -61,6 +69,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Update
+        [Permission("Edit", "ActionTakens")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ActionTakenVM model)

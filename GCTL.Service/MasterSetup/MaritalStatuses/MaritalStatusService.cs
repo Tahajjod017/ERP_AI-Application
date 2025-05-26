@@ -143,8 +143,11 @@ namespace GCTL.Service.MasterSetup.MaritalStatuses
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingName = await _genericRepository.FindAsync(b => b.MaritalStatusName == name);
-            return !existingName.Any();
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.MaritalStatusName != null);
+
+            var nameList = existingNames.Select(b => b.MaritalStatusName);
+
+            return !DuplicateChecker.IsDuplicate(name, nameList);
         }
         #endregion
 

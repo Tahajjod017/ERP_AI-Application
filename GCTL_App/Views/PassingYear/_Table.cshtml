@@ -1,0 +1,153 @@
+﻿@* <div class="card mb-2">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">Information's of Passing Year</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body py-0 scrollbar to-do-list-body">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">Showing:</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="passingYear-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">5</option>
+                                <option class="dropdown-item" value="10">10</option>
+                                <option class="dropdown-item" value="25">25</option>
+                                <option class="dropdown-item" value="50">50</option>
+                                <option class="dropdown-item" value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="passingYear-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="passingYear-bulkDelBtn">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="passingYear-searchBox">
+                            <form class="position-relative" id="passingYear-searchForm">
+                                <input class="form-control search-input search" id="passingYear-searchInput" type="search" placeholder="Search here" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                <table class="table fs-9 mb-0 border-top border-translucent">
+                    <thead>
+                        <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="passingYear-check-all" />
+                            </th>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">Sl. No</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="passingYearName">Passing Year Name</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="passingYear-tBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="passingYear-paginationInfo"></p>
+
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="passingYear-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="passingYear-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="passingYear-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> *@
+<div class="card mb-2">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Information's of Passing Year")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body py-0 scrollbar to-do-list-body">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="passingYear-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="passingYear-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="passingYear-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="passingYear-searchBox">
+                            <form class="position-relative" id="passingYear-searchForm">
+                                <input class="form-control search-input search" id="passingYear-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                <table class="table fs-9 mb-0 border-top border-translucent">
+                    <thead>
+                        <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="passingYear-check-all" />
+                            </th>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Sl. No")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="passingYearName">@Html.SmartLocalize("Passing Year Name")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="passingYear-tBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="passingYear-paginationInfo"></p>
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="passingYear-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="passingYear-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="passingYear-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

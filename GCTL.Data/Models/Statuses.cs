@@ -35,5 +35,7 @@ public partial class Statuses
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

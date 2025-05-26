@@ -5,11 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class PaymenPeriodTypes
+public partial class EmployeeRosters
 {
-    public int PaymenPeriodTypeID { get; set; }
+    public int EmployeeRosterID { get; set; }
 
-    public string PaymenPeriodTypeName { get; set; }
+    public int? RosterID { get; set; }
+
+    public int? EmployeeID { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,7 +37,9 @@ public partial class PaymenPeriodTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettings { get; set; } = new List<EmployeeSalarySettings>();
+    public virtual Employees Employee { get; set; }
+
+    public virtual Rosters Roster { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
