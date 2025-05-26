@@ -41,6 +41,8 @@ using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.Employees.EmployeeSalary;
+using GCTL.Service.Employees.EmployeeBenifit;
 
 
 
@@ -120,6 +122,8 @@ namespace GCTL_App.Extensions
 
             services.AddScoped<IEmployeePersonalService, EmployeePersonalService>();
             services.AddScoped<IEmployeeOfficialService, EmployeeOfficialService>();
+            services.AddScoped<IEmployeeSalaryService, EmployeeSalaryService>();
+            services.AddScoped<IEmployeeBenifitService, EmployeeBenifitService>();
 
 
             #endregion

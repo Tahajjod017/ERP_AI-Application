@@ -124,23 +124,8 @@ namespace GCTL_App.Controllers.Employees
             }, "TimeUnitID", "TimeUnitName");
             #endregion
 
-            //var empPersonal = _employeeRepository.AllActive().FirstOrDefault(e => e.EmployeeID == id);
-
-            //EmployeeOfficialPostViewModel model = new EmployeeOfficialPostViewModel();
-
-
-            //if (empPersonal != null)
-            //{
-            //    model.EmployeePersonalId = empPersonal.EmployeeID;
-            //    model.PersonalEmail = empPersonal.Email;
-            //    model.PersonalPhone = empPersonal.MobileNumber;
-            //}
-
-
             EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);
-
-
-             
+       
             SetSmartPageCode(112000);
             return View(model);
         }
@@ -192,6 +177,7 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+        #region GetEmployeeDetails
 
         [HttpGet]
         public IActionResult GetEmployeeDetails(int id)
@@ -248,6 +234,6 @@ namespace GCTL_App.Controllers.Employees
             return model;
         }
 
-
+        #endregion
     }
 }

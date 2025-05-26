@@ -336,7 +336,7 @@
     //#region Submit
    
         $('#employeeOfficialForm').on('submit', function (e) {
-            e.preventDefault(); // Stop default form submission
+            e.preventDefault(); 
 
             if (!validateOfficialForm()) {
                 // Scroll to first error

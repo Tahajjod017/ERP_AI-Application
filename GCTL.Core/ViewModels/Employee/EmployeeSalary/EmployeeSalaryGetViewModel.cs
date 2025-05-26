@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Employee.EmployeeSalary
 {
-    public class EmployeeSalaryPostViewModel : BaseViewModel
+    public class EmployeeSalaryGetViewModel
     {
         public int EmployeePersonalId { get; set; }
         public string? PersonalPhone { get; set; }
@@ -15,7 +15,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeSalary
 
         public int? EmployeeSalarySettingsID { get; set; }
 
-       // public int? EmployeeID { get; set; }
+        // public int? EmployeeID { get; set; }
 
         public string? BankName { get; set; }
 
@@ -57,13 +57,11 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeSalary
 
 
         public List<int> PaymentModeIds { get; set; }
- 
+
         public int? PrimaryPaymentModeId { get; set; }
         public decimal? PrimaryPaymentPercent { get; set; }
 
 
         public int? SecondaryPaymentModeId { get; set; }
-
-
     }
 }
