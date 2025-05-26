@@ -30,6 +30,9 @@ using GCTL.Service.MasterSetup.PaymentMode;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.Employees.EmployeePersonal;
+
+using GCTL.Service.Employees.EmployeeOfficial;
+
 using GCTL.Service.MasterSetup.LicenceType;
 using GCTL.Service.MasterSetup.Organizations;
 using GCTL.Service.MasterSetup.PassingYear;
@@ -38,6 +41,7 @@ using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+
 
 
 namespace GCTL_App.Extensions
@@ -115,6 +119,7 @@ namespace GCTL_App.Extensions
             #region Employee Services
 
             services.AddScoped<IEmployeePersonalService, EmployeePersonalService>();
+            services.AddScoped<IEmployeeOfficialService, EmployeeOfficialService>();
 
 
             #endregion

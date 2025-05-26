@@ -75,7 +75,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         FatherName = model.FatherName,
                         MotherName = model.MotherName,
                         MobileNumber = model.PersonalMobile,
-                        Email = model.UserEmail,
+                        Email = model.PersonalEmail,
                         TIN = model.TinNo,
 
                         DateOfBirth =  model.DateOfBirth.ToDateOnly(),
@@ -129,7 +129,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     employee.FatherName = model.FatherName;
                     employee.MotherName = model.MotherName;
                     employee.MobileNumber = model.PersonalMobile;
-                    employee.Email = model.UserEmail;
+                    employee.Email = model.PersonalEmail;
                     employee.TIN = model.TinNo;
                     employee.DateOfBirth = model.DateOfBirth.ToDateOnly();
                     employee.AboutEmployee = model.AboutEmployee;
@@ -266,6 +266,11 @@ namespace GCTL.Service.Employees.EmployeePersonal
             List<string> duplicateFields = new List<string>();
 
             var allEmployees = _employeePersonalRepository.AllActive();
+
+            if (model.EmployeeId != null || model.EmployeeId != 0)
+            {
+                allEmployees = allEmployees.Where(e => e.EmployeeID != model.EmployeeId);
+            }
 
             if (!string.IsNullOrWhiteSpace(model.PersonalEmail) &&
                 allEmployees.Any(e => e.Email == model.PersonalEmail))
