@@ -30,16 +30,10 @@ namespace GCTL.Service.ActionLogAudit
             {
                 var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 var email = user.FindFirstValue(ClaimTypes.Email);
-
-
                 var userEmail = user.Identity.IsAuthenticated ? user.FindFirstValue(ClaimTypes.Email) : "Unknown";
-
                // var employeUser = _context.Users.FirstOrDefault(u => u.Employee.EmployeeCode == userEmail);
 
-
-
-                 var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
-
+                var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
                 model.UserId = userId;
                 model.UserEmail = email;
                 model.CreatedBy = employeeId;
@@ -57,43 +51,10 @@ namespace GCTL.Service.ActionLogAudit
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
-
-            //var jsonSettings = new JsonSerializerSettings
-            //{
-            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            //    ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
-            //    {
-            //        // Optionally: ignore virtual/navigation properties if you know they are all virtual
-            //        IgnoreSerializableInterface = true
-            //    }
-            //};
-
-            //object CleanObject(object obj)
-            //{
-            //    if (obj == null) return null;
-
-            //    var type = obj.GetType();
-            //    var cleanObj = new Dictionary<string, object>();
-
-            //    foreach (var prop in type.GetProperties())
-            //    {
-            //        // Skip navigation properties
-            //        if (prop.GetGetMethod()?.IsVirtual == true && !prop.PropertyType.IsSealed) continue;
-
-            //        var value = prop.GetValue(obj);
-            //        cleanObj[prop.Name] = value;
-            //    }
-
-            //    return cleanObj;
-            //}
-
-
             var log = new ActionLogs
             {
                 CreatedBy = entityVM.CreatedBy,
                 ActionName = actionName,
-                //ActionBefore = JsonConvert.SerializeObject(CleanObject(before), jsonSettings),
-                //ActionAfter = JsonConvert.SerializeObject(CleanObject(after), jsonSettings),
                 ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
                 ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
                 UserEmail = entityVM.UserEmail,
