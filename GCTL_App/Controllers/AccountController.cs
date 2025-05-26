@@ -10,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Service.Language;
+using GCTL.Core.Helpers.LipLmacAddress;
 
 namespace GCTL_App.Controllers
 {
@@ -109,8 +110,8 @@ namespace GCTL_App.Controllers
                             CreatedBy = user.EmployeeId,
                             UserEmail = model.Email,
                             ActionName = ActionName.LogIn,
-                            LIP = GetLocalIP(),
-                            LMAC = GetMacAddress(),
+                            LIP =NetworkHelper.GetLocalIP(),
+                            LMAC =NetworkHelper.GetMacAddress(),
                             CreatedAt = DateTime.Now
                         };
                         await actionLogs.AddAsync(actiondata);
@@ -242,9 +243,8 @@ namespace GCTL_App.Controllers
                 CreatedBy = user.EmployeeId,
                 UserEmail = userEmail,
                 ActionName = ActionName.LogOut,
-                LIP = GetLocalIP(),
-
-                LMAC = GetMacAddress(),
+                LIP =NetworkHelper.GetLocalIP(),
+                LMAC =NetworkHelper.GetMacAddress(),
                 CreatedAt = DateTime.Now
             };
             await actionLogs.AddAsync(actiondata);
