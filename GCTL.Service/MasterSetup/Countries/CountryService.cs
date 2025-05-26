@@ -157,12 +157,12 @@ namespace GCTL.Service.MasterSetup.Countries
 
 
         #region Soft Delete
-        public async Task<CountryVM> SoftDeleteAsync(BaseViewModel model, List<int> ids)
+        public async Task<CountryVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.CountryID));
+                var data = await _genericRepository.FindAsync(x =>requestVM.Ids.Contains(x.CountryID));
                 if (data == null || data.Count == 0)
                 {
                     return new CountryVM
@@ -177,14 +177,14 @@ namespace GCTL.Service.MasterSetup.Countries
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = model.DeletedBy;
-                    item.LIP = model.LIP;
-                    item.LMAC = model.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Country", ActionName.DataDeleted, null, beforeEntity, targetIds, model);
+                await _userInfoService.ActionLogDeleteAsync("Country", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

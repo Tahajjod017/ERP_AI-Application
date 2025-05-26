@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.MasterSetup.EmployeeType;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.EmployeeTypes
         #region CRUD
         Task<bool> AddAsync(EmployeeTypesVM model);
         Task<bool> UpdateAsync(EmployeeTypesVM model);
-        Task<EmployeeTypesVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<EmployeeTypesVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<EmployeeTypesVM> GetByIdAsync(int id);
         Task<PaginationService<EmployeeType, EmployeeTypesVM>.PaginationResult<EmployeeTypesVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "EmployeeTypeName", string sortOrder = "asc");

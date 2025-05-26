@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.MaritalStatuses
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.MaritalStatuses
         #region CRUD
         Task<bool> AddAsync(MaritalStatusVM model);
         Task<bool> UpdateAsync(MaritalStatusVM model);
-        Task<MaritalStatusVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<MaritalStatusVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<MaritalStatusVM> GetByIdAsync(int id);
         Task<PaginationService<MaritalStatus, MaritalStatusVM>.PaginationResult<MaritalStatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "MaritalStatusName", string sortOrder = "asc");
