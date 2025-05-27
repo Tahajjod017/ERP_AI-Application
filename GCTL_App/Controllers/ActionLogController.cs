@@ -28,28 +28,22 @@ namespace GCTL_App.Controllers
             {
                 var targetTypes = await appDbContext.ActionLogs
                     .Where(a => !string.IsNullOrEmpty(a.TargetType))
-                    .Select(a => a.TargetType)
-                    .Distinct()
-                    .ToListAsync();
+                    .Select(a => a.TargetType).Distinct().ToListAsync();
 
                 var actionNames = await appDbContext.ActionLogs
                     .Where(a => !string.IsNullOrEmpty(a.ActionName))
-                    .Select(a => a.ActionName)
-                    .Distinct()
-                    .ToListAsync();
+                    .Select(a => a.ActionName).Distinct().ToListAsync();
 
                 var userNameEmail = await appDbContext.ActionLogs
                     .Include(x => x.CreatedByNavigation)
-                    .Where(x => x.CreatedByNavigation != null)
-                    .GroupBy(x => x.CreatedBy)
+                    .Where(x => x.CreatedByNavigation != null).GroupBy(x => x.CreatedBy)
                     .Select(g => new
                     {
                         CreatedBy = g.Key,
                         UserEmail = g.Select(x => x.UserEmail).FirstOrDefault(),
                         FirstName = g.Select(x => x.CreatedByNavigation.FirstName).FirstOrDefault(),
                         LastName = g.Select(x => x.CreatedByNavigation.LastName).FirstOrDefault()
-                    })
-                    .ToListAsync();
+                    }).ToListAsync();
 
                 //ViewBag.TargetTypeDD = new SelectList(targetTypes);
                 //ViewBag.ActionNameDD = new SelectList(actionNames);

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.RoleModule
 {
-    public class RoleManagementViewModel
+    public class RoleManagementViewModel:BaseViewModel   // inherit BaseVM by 404
     {
         [Required]
         [Display(Name = "Role Name")]

@@ -49,6 +49,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ViewModels\ProjectManagements\" />
+    <Folder Include="wwwroot\js\pages\ProjectManagements\" />
     <Folder Include="wwwroot\media\logo\" />
   </ItemGroup>
 
