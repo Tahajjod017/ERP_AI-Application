@@ -32,6 +32,7 @@ namespace GCTL.Core.Helpers.LipLmacAddress
                 return ipAddress;
             } catch(Exception ex)
             {
+
                 Console.WriteLine(ex.Message);
                 return "0.0.0.0";
             }
@@ -64,5 +65,6 @@ namespace GCTL.Core.Helpers.LipLmacAddress
             }
             
         }
+
     }
 }

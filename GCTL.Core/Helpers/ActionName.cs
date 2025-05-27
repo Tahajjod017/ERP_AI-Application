@@ -17,6 +17,7 @@ namespace GCTL.Core.Helpers
         public const string DataDeleted = "Data Deleted";
         public const string AccountUpdate = "Account Update";
         public const string RoleAdd = "Role Add";
+        public const string RoleAssign = "Role Assign";
         public const string RoleDelete = "Role Delete";
         public const string PermissionchangeforRole = "Permission change for Role";
         public const string PasswordChanged = "Password Changed";
