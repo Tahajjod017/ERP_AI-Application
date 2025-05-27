@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.MasterSetup.Organizations;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -164,7 +165,8 @@ namespace GCTL.Service.MasterSetup.Organizations
                         Message = "No data found to delete."
                     };
                 }
-
+                var beforeEntity = JsonConvert.DeserializeObject<List<OrganizationsVM>>(JsonConvert.SerializeObject(data));
+                var targetIds = data.Select(x => (int?)x.OrganizationID).ToList();
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
@@ -174,7 +176,7 @@ namespace GCTL.Service.MasterSetup.Organizations
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
-
+                await _userInfoService.ActionLogDeleteAsync("Organizations", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
                 await _genericRepository.CommitTransactionAsync();
 
                 return new OrganizationsVM
