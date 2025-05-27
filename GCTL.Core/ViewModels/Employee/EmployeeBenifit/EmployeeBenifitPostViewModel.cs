@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Employee.EmployeeBenifit
 {
-    public class EmployeeBenifitPostViewModel : BaseViewModel
+    public class EmployeeBenifitPostViewModel : EmployeeBaseViewModel
     {
-        public int EmployeePersonalId { get; set; }
-        public string? PersonalPhone { get; set; }
-        public string? PersonalEmail { get; set; }
-
-
+   
         public int EmployeeBaseBenefitID { get; set; }
 
         
@@ -20,6 +16,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeBenifit
         public decimal? HealthInsurance { get; set; }
 
         public bool IsHealthInsuranceEnabled { get; set; }
+        public bool IsBenifitEnabled { get; set; }
 
         public decimal? PerformanceBonus { get; set; }
 

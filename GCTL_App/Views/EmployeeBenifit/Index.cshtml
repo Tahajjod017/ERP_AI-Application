@@ -104,7 +104,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Add Employee Benefits")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsHealthInsuranceEnabled" id="healthInsuranceSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsBenifitEnabled" id="empBeniftSwitch">
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -139,13 +139,15 @@
                                                                             <input class="form-check-input" type="checkbox" role="switch" asp-for="IsYearlyEndBonusTypeIDEnabled" id="yearlyEndBonusSwitch">
                                                                         </div>
                                                                     </div>
-                                                                    <select asp-for="YearlyEndBonusTypeID" class="form-select" id="yearlyEndBonusSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                    <select class="form-select" asp-for="YearlyEndBonusTypeID" asp-items="@ViewBag.YearlyEndBonusTypeDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select one...")</option>
-                                                                        <option value="1">@Html.SmartLocalize("1 Month of Gross Salary")</option>
-                                                                        <option value="2">@Html.SmartLocalize("1 Month of Basic Salary")</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
+
+
+
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
@@ -159,34 +161,24 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="FastivalBonusPercentage">@Html.SmartLocalize("Festival Bonus Rate")</label>
-                                                                    <select asp-for="FastivalBonusPercentage" class="form-select mb-3" id="festivalBonusRateSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                   
+
+                                                                    <select class="form-select" id="festivalBonusRateSelect" asp-for="FastivalBonusPercentage" asp-items="@ViewBag.FastivalBonusPercentageDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                        <option value="35">35 %</option>
-                                                                        <option value="40">40 %</option>
-                                                                        <option value="45">45 %</option>
-                                                                        <option value="50">50 %</option>
-                                                                        <option value="60">60 %</option>
-                                                                        <option value="70">70 %</option>
-                                                                        <option value="100">100 %</option>
                                                                     </select>
+
+
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                <div class="mb-3">
-                                                                    <label>@Html.SmartLocalize("Bonus Depends on")</label>
-                                                                    <select class="form-select" id="bonusDependsOnSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                        <option value="">@Html.SmartLocalize("Select Salary...")</option>
-                                                                        <option>@Html.SmartLocalize("Gross Salary")</option>
-                                                                        <option>@Html.SmartLocalize("Basic Salary")</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
+
+
+
                                                             <div class="col-lg-12">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between border-bottom">
                                                                         <h5>@Html.SmartLocalize("Provident Fund")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsProvidantFundEnabled" id="providentFundSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsProvidantFundEnabled" id="providentFundSwitch1">
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -194,53 +186,35 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="ProvidantFundEmployeePercentage">@Html.SmartLocalize("Employee Contribution")</label>
-                                                                    <select asp-for="ProvidantFundEmployeePercentage" class="form-select mb-3" id="employeeContributionSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                    <select asp-for="ProvidantFundEmployeePercentage" asp-items="ViewBag.PFEmployeeContributionDD" class="form-select mb-3" id="employeeContributionSelect">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                        <option value="5">5 %</option>
-                                                                        <option value="6">6 %</option>
-                                                                        <option value="7">7 %</option>
-                                                                        <option value="8">8 %</option>
-                                                                        <option value="9">9 %</option>
-                                                                        <option value="10">10 %</option>
                                                                     </select>
+
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="ProvidantFundOrganizationPercentage">@Html.SmartLocalize("Organization Contribution")</label>
-                                                                    <select asp-for="ProvidantFundOrganizationPercentage" class="form-select mb-3" id="organizationContributionSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                    <select asp-for="ProvidantFundOrganizationPercentage" asp-items="ViewBag.PFOrgContributionDD" class="form-select mb-3" id="organizationContributionSelect">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                        <option value="5">5 %</option>
-                                                                        <option value="6">6 %</option>
-                                                                        <option value="7">7 %</option>
-                                                                        <option value="8">8 %</option>
-                                                                        <option value="9">9 %</option>
-                                                                        <option value="10">10 %</option>
                                                                     </select>
+
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                <div class="mb-3">
-                                                                    <label>@Html.SmartLocalize("Provident Fund Depends on")</label>
-                                                                    <select class="form-select" id="providentFundDependsOnSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                        <option value="">@Html.SmartLocalize("Select Salary...")</option>
-                                                                        <option>@Html.SmartLocalize("Gross Salary")</option>
-                                                                        <option>@Html.SmartLocalize("Basic Salary")</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
+
+                                                          
+
+
+
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="ServiceYearID">@Html.SmartLocalize("Minimum Service Year")</label>
-                                                                    <select asp-for="ServiceYearID" class="form-select" id="serviceYearSelect" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                                   
+
+                                                                    <select class="form-select" asp-for="ServiceYearID" id="serviceYearSelect" asp-items="@ViewBag.ServiceYearDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select Year...")</option>
-                                                                        <option value="5">05 Years</option>
-                                                                        <option value="6">06 Years</option>
-                                                                        <option value="7">07 Years</option>
-                                                                        <option value="8">08 Years</option>
-                                                                        <option value="9">09 Years</option>
-                                                                        <option value="10">10 Years</option>
                                                                     </select>
+
                                                                 </div>
                                                             </div>
                                                             <div class="col-12">

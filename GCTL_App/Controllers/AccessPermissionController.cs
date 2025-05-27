@@ -1,7 +1,10 @@
-﻿using GCTL.Core.ViewModels.RoleModule;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
 using GCTL.Service.AccessPermissions;
 using Microsoft.AspNetCore.Authorization;
+using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +20,15 @@ namespace GCTL_App.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAccessControlService _accessControlService;
         private readonly AppDbContext _Db;
-
-        public AccessPermissionController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IAccessControlService accessControlService)
+        private readonly IUserInfoService userInfoService;
+        public AccessPermissionController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IAccessControlService accessControlService, IUserInfoService userInfoService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _accessControlService = accessControlService;
             _Db = db;
+            this.userInfoService = userInfoService;
         }
         //[Authorize(Policy = "Admin.VIEW")]
         public async Task<IActionResult> Index()
@@ -151,6 +155,17 @@ namespace GCTL_App.Controllers
 
                 if (result.Succeeded)
                 {
+                    //added by Siam 
+
+                    await userInfoService.ActionLogAsync(
+                       tergetType: "Role Create",
+                       actionName: ActionName.RoleAdd,
+                       before: null,
+                       after: role,
+                       targetID: null, // or role.Id if you get it
+                       entityVM: model
+                   );
+                    //
                     TempData["Message"] = "Role created successfully.";
                 }
                 else
@@ -166,6 +181,11 @@ namespace GCTL_App.Controllers
             return RedirectToAction("Index");
         }
 
+
+
+
+
+        //
         public async Task<IActionResult> SearchUsers(string query)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -222,6 +242,7 @@ namespace GCTL_App.Controllers
                 {
                     return BadRequest("Failed to assign role to one or more users.");
                 }
+
             }
 
 

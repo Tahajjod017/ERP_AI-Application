@@ -56,6 +56,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ViewModels\ProjectManagements\" />
+    <Folder Include="wwwroot\js\pages\ProjectManagements\" />
+    <Folder Include="wwwroot\media\logo\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="Views\EmployeePersonal\Index - Copy.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
