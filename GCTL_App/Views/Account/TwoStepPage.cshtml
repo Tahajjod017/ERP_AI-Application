@@ -1,0 +1,77 @@
+﻿@{
+    Layout = "~/Views/Shared/LoginLayouts/_LayoutTwoFA.cshtml";
+}
+@await Html.PartialAsync("_Alerts")
+<div class="container">
+    <div class="row flex-center min-vh-100 py-5">
+        <div class="col-sm-10 col-md-8 col-lg-5 col-xxl-4">
+            <a class="d-flex flex-center text-decoration-none mb-4" href="../../../index.html">
+                <div class="d-flex align-items-center fw-bolder fs-3 d-inline-block">
+                    <img src="../img/icons/logonbr.png" alt="phoenix" width="58" />
+                </div>
+            </a>
+            <div class="px-xxl-5">
+                <div class="text-center mb-6">
+                    <h4 class="text-body-highlight">Enter the verification code</h4>
+                    <p class="text-body-tertiary mb-0">An email containing a 6-digit verification code has been sent to the email address - exa*********.com </p>
+                    <P class="fs-10 mb-5">Don’t have access? <a href="#!">Use another method</a></P>
+                    <form class="verification-form" asp-action="TwoStepPageToEmail" method="post" onsubmit="return combineOtp();">
+                        <input type="hidden" name="email" value="@TempData["Email"]" />
+                        <input type="hidden" id="otp" name="otp" />
+
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <input class="form-control px-2 text-center otp-digit" type="text" maxlength="1" />
+                            <input class="form-control px-2 text-center otp-digit" type="text" maxlength="1" />
+                            <input class="form-control px-2 text-center otp-digit" type="text" maxlength="1" /><span>-</span>
+                            <input class="form-control px-2 text-center otp-digit" type="text" maxlength="1" />
+                            <input class="form-control px-2 text-center otp-digit" type="text" maxlength="1" />
+                            <input class="form-control px-2 text-center otp-digit" type="text" maxlength="1" />
+                        </div>
+
+                        <div class="form-check text-start mb-4">
+                            <input class="form-check-input" id="2fa-checkbox" type="checkbox" />
+                            <label for="2fa-checkbox">Don’t ask again on this device</label>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mb-5" type="submit">Verify</button>
+                        <a class="fs-9" href="#!">Didn’t receive the code?</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function combineOtp() {
+        const digits = document.querySelectorAll('.otp-digit');
+        let otp = '';
+        digits.forEach(input => otp += input.value);
+        document.getElementById('otp').value = otp;
+
+        return true; // continue submitting
+    }
+
+    // Optional: auto-move to next input
+    document.querySelectorAll('.otp-digit').forEach((input, index, arr) => {
+        input.addEventListener('input', () => {
+            if (input.value.length === 1 && index < arr.length - 1) {
+                arr[index + 1].focus();
+            }
+        });
+    });
+</script>
+
+<script>
+    var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+    var navbarTop = document.querySelector('.navbar-top');
+    if (navbarTopStyle === 'darker') {
+      navbarTop.setAttribute('data-navbar-appearance', 'darker');
+    }
+
+    var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+    var navbarVertical = document.querySelector('.navbar-vertical');
+    if (navbarVertical && navbarVerticalStyle === 'darker') {
+      navbarVertical.setAttribute('data-navbar-appearance', 'darker');
+    }
+</script>

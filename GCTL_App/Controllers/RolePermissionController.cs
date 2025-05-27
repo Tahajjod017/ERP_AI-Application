@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers
 {
+    [Authorize]
     public class RolePermissionController : Controller
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
@@ -31,11 +33,13 @@ namespace GCTL_App.Controllers
                 .Select(r => new { r.Id, r.Name })
                 .ToListAsync();
 
-            return View("Index");
+            return View();
         }
 
 
         [HttpGet]
+      
+
         public async Task<IActionResult> LoadPermissions(string roleId)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -233,8 +237,6 @@ namespace GCTL_App.Controllers
             return RedirectToAction("Index", "RolePermission");
             // return Ok(new { message = "Permissions updated successfully" });
         }
-
-
         [HttpGet]
         public async Task<IActionResult> GetUserNavModules()
         {
@@ -279,5 +281,7 @@ namespace GCTL_App.Controllers
 
             return Json(modules);
         }
+
+
     }
 }

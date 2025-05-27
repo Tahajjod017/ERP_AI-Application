@@ -29,6 +29,10 @@ namespace GCTL_App.Controllers
             
             return View();
         }
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
 
         public IActionResult Error()
         {
