@@ -31,5 +31,6 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeAllowance
         public decimal? ConveyanceAllowancePercentage { get; set; }
 
         public bool IsConveyanceAllowancePercentageEnabled { get; set; }
+        public bool IsEmployeeAllowanceEnabled { get; set; }
     }
 }

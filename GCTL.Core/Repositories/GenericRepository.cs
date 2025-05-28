@@ -1,4 +1,5 @@
-﻿using GCTL.Data.Models;
+﻿using GCTL.Core.ViewModels;
+using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -90,6 +91,47 @@ namespace GCTL.Core.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddAsync(T entity, object model)
+        {
+            if (entity == null || model == null)
+                return;
+
+            var modelType = model.GetType();
+            var entityType = entity.GetType();
+
+            var propertiesToUpdate = new[] { "CreatedBy", "CreatedAt", "LIP", "LMAC" };
+
+            foreach (var propertyName in propertiesToUpdate)
+            {
+                var entityProperty = entityType.GetProperty(propertyName);
+
+                // Skip if entity does not have this property or it's not writable
+                if (entityProperty == null || !entityProperty.CanWrite)
+                    continue;
+
+                object value = null;
+
+                if (propertyName == "CreatedAt")
+                {
+                    value = DateTime.UtcNow;
+                }
+                else
+                {
+                    var modelProperty = modelType.GetProperty(propertyName);
+                    if (modelProperty != null)
+                    {
+                        value = modelProperty.GetValue(model);
+                    }
+                }
+
+                entityProperty.SetValue(entity, value);
+            }
+
+            await _context.Set<T>().AddAsync(entity);
+            await _context.SaveChangesAsync();
+        }
+
+
         public async Task AddRangeAsync(IEnumerable<T> entities)
         {
             await _context.Set<T>().AddRangeAsync(entities);
@@ -104,6 +146,47 @@ namespace GCTL.Core.Repository
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateAsync(T entity, object model)
+        {
+            if (entity == null || model == null)
+                return;
+
+            var modelType = model.GetType();
+            var entityType = entity.GetType();
+
+            var propertiesToUpdate = new[] { "UpdatedBy", "UpdatedAt", "LIP", "LMAC" };
+
+            foreach (var propertyName in propertiesToUpdate)
+            {
+                var entityProperty = entityType.GetProperty(propertyName);
+
+                // Skip if entity does not have this property or it's not writable
+                if (entityProperty == null || !entityProperty.CanWrite)
+                    continue;
+
+                object value = null;
+
+                if (propertyName == "UpdatedAt")
+                {
+                    value = DateTime.UtcNow;
+                }
+                else
+                {
+                    var modelProperty = modelType.GetProperty(propertyName);
+                    if (modelProperty != null)
+                    {
+                        value = modelProperty.GetValue(model);
+                    }
+                }
+
+                entityProperty.SetValue(entity, value);
+            }
+
+            _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task UpdateRangeAsync(IEnumerable<T> entities)
         {

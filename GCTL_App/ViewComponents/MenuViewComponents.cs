@@ -29,9 +29,7 @@ namespace GCTL_App.ViewComponents
         private List<MenuTab> BuildMenuHierarchy(List<MenuTab> menus)
         {
             // Select only parent menus (where ParentId is null)
-            return menus
-                .Where(m => m.ParentId == null)
-                .OrderBy(m => m.OrderBy)  // Optional: order menus
+            return menus.Where(m => m.ParentId == null).OrderBy(m => m.OrderBy)  // Optional: order menus
                 .Select(m => new MenuTab
                 {
                     MenuTabId = m.MenuTabId,
@@ -40,16 +38,13 @@ namespace GCTL_App.ViewComponents
                     Icon = m.Icon,
                     IsActive = m.IsActive,
                     InverseParent = GetChildMenus(menus, m.MenuTabId)  // Get child menus
-                })
-                .ToList();
+                }).ToList();
         }
 
         private List<MenuTab> GetChildMenus(List<MenuTab> menus, int parentId)
         {
             // Recursively get child menus based on ParentId
-            return menus
-                .Where(m => m.ParentId == parentId)
-                .OrderBy(m => m.OrderBy)
+            return menus.Where(m => m.ParentId == parentId).OrderBy(m => m.OrderBy)
                 .Select(m => new MenuTab
                 {
                     MenuTabId = m.MenuTabId,
@@ -58,8 +53,7 @@ namespace GCTL_App.ViewComponents
                     Icon = m.Icon,
                     IsActive = m.IsActive,
                     InverseParent = GetChildMenus(menus, m.MenuTabId)  // Recursive call for deeper levels
-                })
-                .ToList();
+                }).ToList();
         }
     }
 }

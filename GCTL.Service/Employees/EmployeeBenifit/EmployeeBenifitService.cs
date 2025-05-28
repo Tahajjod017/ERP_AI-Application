@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers.Entity;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +15,16 @@ namespace GCTL.Service.Employees.EmployeeBenifit
 {
     public class EmployeeBenifitService : IEmployeeBenifitService
     {
+        private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
         private readonly IGenericRepository<EmployeeBaseBenefits> _employeeBenifitRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
 
 
-        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository)
+        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeRepository = employeeRepository;
+            _employeeSalaryRepository = employeeSalaryRepository;
         }
 
         public Task<EmployeeBenifitGetViewModel> GetEmployeeBenifitByEmployeeIdAsync(int employeeId)
@@ -34,8 +39,15 @@ namespace GCTL.Service.Employees.EmployeeBenifit
 
             var benefits = await (from eb in _employeeBenifitRepository.AllActive()
                                   join emp in _employeeRepository.AllActive()
-                                  on eb.EmployeeID equals emp.EmployeeID
+                                  on eb.EmployeeID equals emp.EmployeeID into empGroup 
+                                  from emp in empGroup.DefaultIfEmpty()
+
+                                  join empSaley in _employeeSalaryRepository.AllActive()
+                                  on emp.EmployeeID equals empSaley.EmployeeID into empSaleyGroup 
+                                  from empSaley in empSaleyGroup.DefaultIfEmpty()
+
                                   where eb.EmployeeID == id
+
                                   select new EmployeeBenifitPostViewModel
                                   {
                                       EmployeeBaseBenefitID = eb.EmployeeBaseBenefitID,
@@ -55,7 +67,8 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                                       ProvidantFundEmployeePercentage = eb.ProvidantFundEmployeePercentage ?? 0,
                                       ProvidantFundOrganizationPercentage = eb.ProvidantFundOrganizationPercentage ?? 0,
                                       IsProvidantFundEnabled = eb.IsProvidantFundEnabled,
-                                      ServiceYearID = eb.ServiceYearID ?? 0
+                                      ServiceYearID = eb.ServiceYearID ?? 0,
+                                      IsBenifitEnabled = empSaley.IsBenefitsEnabled
                                   }).FirstOrDefaultAsync();
 
 
@@ -79,19 +92,19 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             
         }
 
-        public async Task<bool> SaveOrUpdateEmployeeBenefitsAsync(EmployeeBenifitPostViewModel model)
+        public async Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync(EmployeeBenifitPostViewModel model)
         {
             try
             {
                 var existingBenefit = await _employeeBenifitRepository.AllActive()
-                .FirstOrDefaultAsync(e => e.EmployeeBaseBenefitID == model.EmployeeBaseBenefitID);
+                .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
 
                 if (existingBenefit == null)
                 {
 
                     var newBenefit = new EmployeeBaseBenefits
                     {
-                        EmployeeBaseBenefitID = model.EmployeeBaseBenefitID,
+                        //EmployeeBaseBenefitID = model.EmployeeBaseBenefitID,
                         EmployeeID = model.EmployeePersonalId,
 
                         HealthInsurance = model.HealthInsurance,
@@ -107,13 +120,36 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                         IsProvidantFundEnabled = model.IsProvidantFundEnabled,
                         ServiceYearID = model.ServiceYearID
                     };
+
+
+                    var empSalary = await _employeeSalaryRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
+
+                    if (empSalary == null)
+                    {
+                        empSalary = new EmployeeSalarySettings()
+                        {
+                            EmployeeID = model.EmployeePersonalId,
+                            IsBenefitsEnabled = model.IsBenifitEnabled,
+                            //CreatedBy = model.CreatedBy,
+                            //CreatedAt = DateTime.UtcNow,
+                            //LIP = model.LIP,
+                            //LMAC = model.LMAC
+                        };
+                        await _employeeSalaryRepository.AddAsync(empSalary, model);
+                    }
+                    else
+                    {
+                        empSalary.IsBenefitsEnabled = model.IsBenifitEnabled;
+                        await _employeeSalaryRepository.UpdateAsync(empSalary, model);
+                    }
+
+                    EntityHelper.Create(newBenefit, model);
+
                     await _employeeBenifitRepository.AddAsync(newBenefit);
                 }
                 else
                 {
                   
-
-                   
                     existingBenefit.HealthInsurance = model.HealthInsurance;
                     existingBenefit.IsHealthInsuranceEnabled = model.IsHealthInsuranceEnabled;
                     existingBenefit.PerformanceBonus = model.PerformanceBonus;
@@ -127,15 +163,43 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                     existingBenefit.IsProvidantFundEnabled = model.IsProvidantFundEnabled;
                     existingBenefit.ServiceYearID = model.ServiceYearID;
 
+                    var empSalary = await _employeeSalaryRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
+
+                    if (empSalary == null)
+                    {
+                        empSalary = new EmployeeSalarySettings()
+                        {
+                            EmployeeID = model.EmployeePersonalId,
+                            IsBenefitsEnabled = model.IsBenifitEnabled,
+                           
+                        };
+                        await _employeeSalaryRepository.AddAsync(empSalary, model);
+                    }
+                    else
+                    {
+                        empSalary.IsBenefitsEnabled = model.IsBenifitEnabled;
+                        await _employeeSalaryRepository.UpdateAsync(empSalary , model);
+                    }
+
+                    EntityHelper.Update(existingBenefit, model);
+
                     await _employeeBenifitRepository.UpdateAsync(existingBenefit);
                 }
 
-                return true;
+                return new CommonReturnViewModel()
+                {
+                    Success = true,
+                    Message = "Employee benefits saved successfully.",
+                    Data = model.EmployeePersonalId
+                };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return new CommonReturnViewModel()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
             }
             
             

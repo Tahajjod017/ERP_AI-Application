@@ -1,0 +1,72 @@
+﻿<div class="mb-9 mt-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+            <h4 class="mb-1">Assign Default Shift</h4>
+        </div>
+        <div class="card-body">
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <form action="shift-roster-ui.html">
+                    <div class="modal-body pb-0">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" for="organizerSingleCompany">Company</label>
+                                    <select class="form-multi-select" multiple data-coreui-search="true">
+                                        <option value="1">CSL</option>
+                                        <option value="2">GCTL</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" for="organizerSingle">Department</label>
+                                    <select class="form-multi-select" multiple data-coreui-search="true">
+                                        <option value="0">Developer</option>
+                                        <option value="1">Manager</option>
+                                        <option value="2">Designer</option>
+                                        <option value="3">Finance</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" for="organizerSingle">Employee Name</label>
+                                    <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                                        <optgroup label="Developer">
+                                            <option value="2">Alam</option>
+                                            <option value="3">Momin</option>
+                                        </optgroup>
+                                        <optgroup label="Designer">
+                                            <option value="4">Name (id)</option>
+                                            <option value="5">Name (id)</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="div" class=" p-3  rounded mb-3">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <select class="form-select " id="organizerSingle3">
+                                            <option value="">Select Shift</option>
+                                            <option>Shift 1 (09:00 - 17:00)</option>
+                                            <option>Shift 2 (08:00 - 16:00)</option>
+                                            <option>Shift 3 (10:00 - 18:00)</option>
+                                            <option>Day off</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

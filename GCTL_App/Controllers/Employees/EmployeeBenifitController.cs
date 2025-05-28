@@ -26,8 +26,10 @@ namespace GCTL_App.Controllers.Employees
             _serviceYearsRepository = serviceYearsRepository;
         }
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index(int id)
         {
+            var model = await _employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
+
             #region Voriwe Bag
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
@@ -85,8 +87,9 @@ namespace GCTL_App.Controllers.Employees
 
             #endregion
 
+
             SetSmartPageCode(118000);
-            return View();
+            return View(model);
         }
 
         [HttpGet]
@@ -96,6 +99,8 @@ namespace GCTL_App.Controllers.Employees
             return Ok(employeeBenifitData);
 
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeeBenefits(string employeeId)
@@ -147,32 +152,29 @@ namespace GCTL_App.Controllers.Employees
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(EmployeeBenifitPostViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                return BadRequest(errors);
+            }
+
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                    return Json(new { success = false, message = "Validation failed: " + string.Join(", ", errors) });
-                }
+                var result =  await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
 
-                // Save or update the employee benefits
-                bool isSuccess = await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
-                if (isSuccess)
-                {
-                    return Json(new { success = true, message = "Employee benefits saved successfully." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to save employee benefits." });
-                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return Json(new { success = false, message = "An error occurred while saving employee benefits." });
+                return Json(new { success = false, message = ex.Message });
             }
         }
 
