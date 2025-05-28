@@ -1,15 +1,12 @@
 ﻿@inject GCTL.Service.Language.ILanguageTableService TranslationService
 @inject IHttpContextAccessor HttpContextAccessor
-
-
+@using GCTL_App.ViewComponents
 @{
     // Access HttpContext via HttpContextAccessor
     var languageCode = HttpContextAccessor.HttpContext?.Items["Language"] as string ?? "en";
 }
 
 @{
-
-
 
     var LangugesInd = await TranslationService.GetLangInd();
 }
@@ -435,7 +432,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar avatar-l ">
-                        <img class="rounded-circle " src="~/img/team/40x40/57.webp" alt="" />
+                        <img class="rounded-circle " src="@Url.Content(ViewData["ProfilePicturePath"]?.ToString())" alt="" />
 
                     </div>
                 </a>
@@ -444,10 +441,10 @@
                         <div class="card-body p-0">
                             <div class="text-center pt-4 pb-3">
                                 <div class="avatar avatar-xl ">
-                                    <img class="rounded-circle " src="~/img/team/72x72/57.webp" alt="" />
+                                    <img class="rounded-circle" src="@Url.Content(ViewData["ProfilePicturePath"]?.ToString())" alt="" />
 
                                 </div>
-                                <h6 class="mt-2 text-body-emphasis">Jerry Seinfield</h6>
+                                <h6 class="mt-2 text-body-emphasis">@ViewData["FullName"]</h6>
                             </div>
                             <div class="mb-3 mx-3">
                                 <input class="form-control form-control-sm" id="statusUpdateInput" type="text" placeholder="Update your status" />

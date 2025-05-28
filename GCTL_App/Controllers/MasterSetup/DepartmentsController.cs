@@ -7,6 +7,7 @@ using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.Departments;
 using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -17,7 +18,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public DepartmentsController(IDepartmentService departmentService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public DepartmentsController(IDepartmentService departmentService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _departmentService = departmentService;
             _translationService = translationService;

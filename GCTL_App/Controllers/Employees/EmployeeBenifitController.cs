@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -16,7 +17,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<YearlyEndBonusTypes> _yearlyEndBonusTypesRepository;
         private readonly IGenericRepository<ServiceYears> _serviceYearsRepository;
         private readonly IEmployeeBenifitService _employeeBenifitService;
-        public EmployeeBenifitController(ITranslateService translateService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository) : base(translateService)
+        public EmployeeBenifitController(ITranslateService translateService,IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository) : base(translateService,userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeBenifitService = employeeBenifitService;
