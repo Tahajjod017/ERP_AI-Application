@@ -9,11 +9,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers
 {
     [Authorize]
-    public class AccessPermissionController : Controller
+    public class AccessPermissionController : BaseController 
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -21,15 +23,17 @@ namespace GCTL_App.Controllers
         private readonly IAccessControlService _accessControlService;
         private readonly AppDbContext _Db;
         private readonly IUserInfoService userInfoService;
-        public AccessPermissionController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IAccessControlService accessControlService, IUserInfoService userInfoService)
+
+        public AccessPermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAccessControlService accessControlService, AppDbContext db, IUserInfoService userInfoService) : base(translateService, userProfileService)
         {
+            _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
             _accessControlService = accessControlService;
             _Db = db;
             this.userInfoService = userInfoService;
         }
+
         //[Authorize(Policy = "Admin.VIEW")]
         public async Task<IActionResult> Index()
         {

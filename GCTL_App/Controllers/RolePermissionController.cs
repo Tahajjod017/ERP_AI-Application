@@ -1,5 +1,7 @@
 ﻿using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,21 +11,21 @@ using System.Security.Claims;
 namespace GCTL_App.Controllers
 {
     [Authorize]
-    public class RolePermissionController : Controller
+    public class RolePermissionController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _Db;
 
-        public RolePermissionController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db)
+        public RolePermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db) : base(translateService, userProfileService)
         {
+            _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
             _Db = db;
-
         }
+
         public async Task<IActionResult> Index()
         {// Get current user ID
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
