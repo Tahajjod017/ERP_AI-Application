@@ -8,47 +8,51 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--    Document Title-->
     <title> GCTL-HRM &nbsp; @ViewData["Title"]</title>
-    <!--    Document Title-->
-    <title> GCTL-HRM &nbsp; @ViewData["Title"]</title>
-    <!--    Favicons-->
+
+    <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="~/img/favicons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="~/img/favicons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="~/img/favicons/favicon-16x16.png">
-    <link rel="shortcut icon" type="image/x-icon" href="~/img/favicons/favicon.ico">
+    <link rel="shortcut icon" href="~/img/favicons/favicon.ico">
     <link rel="manifest" href="~/img/favicons/manifest.json">
     <meta name="msapplication-TileImage" content="~/img/favicons/mstile-150x150.png">
     <meta name="theme-color" content="#ffffff">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&amp;display=swap" rel="stylesheet">
-    <link href="~/js/vendors/simplebar/simplebar.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
-    <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-    <!--    Choices -->
-    <link href="~/js/vendors/choices/choices.min.css" rel="stylesheet" />
-    <!--    Select2 -->
-    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+    <!-- Vendor CSS -->
+    <link href="~/js/vendors/simplebar/simplebar.min.css" rel="stylesheet" />
+    <link href="~/js/vendors/choices/choices.min.css" rel="stylesheet" />
+	<link href="~/js/layout/select2/css/select2.min.css" rel="stylesheet" />
     <link href="~/js/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
-    <link href="~/css/theme-rtl.css" type="text/css" rel="stylesheet" id="style-rtl">
-    <link href="~/css/theme.min.css" type="text/css" rel="stylesheet" id="style-default">
-    <link href="~/css/user-rtl.min.css" type="text/css" rel="stylesheet" id="user-style-rtl">
-    <link href="~/css/user.min.css" type="text/css" rel="stylesheet" id="user-style-default">
-    <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+	<link href="~/js/layout/toastr.js/toastr.min.css" rel="stylesheet" />
     <link href="~/js/vendors/dropzone/dropzone.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet/leaflet.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet.markercluster/markercluster.default.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet.markercluster/markercluster.css" rel="stylesheet" />
+
+    <!-- CoreUI CSS -->
+    <link href="~/js/layout/coreui/coreui.min.css" rel="stylesheet" />
+
+	<!-- Theme CSS -->
+    <link href="~/css/theme.min.css" rel="stylesheet" id="style-default" />
+    <link href="~/css/user.min.css" rel="stylesheet" id="user-style-default" />
+    <link href="~/css/theme-rtl.css" rel="stylesheet" id="style-rtl" />
+    <link href="~/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl" />
 </head>
+
 <body>
     <div class="col-auto">
         <main class="main" id="top">
             @await Component.InvokeAsync(typeof(MenuViewComponents))
             <partial name="_Header" />
 
-            <div class="content card">
+            <div class="content card bg-light">
                 <div id="mainContent">
                     @RenderBody()
                 </div>
@@ -56,7 +60,12 @@
                 <footer class="footer position-absolute">
                     <div class="row g-0 justify-content-between align-items-center h-100">
                         <div class="col-12 col-sm-auto text-center">
-                            <p class="mb-0 mt-2 mt-sm-0 text-body">Thank you for creating with GCTL<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2024 &copy;<a class="mx-1" href="http://gctlinfosys.com" target="_blank">GCTL</a></p>
+                            <p class="mb-0 mt-2 mt-sm-0 text-body">
+                                Thank you for creating with GCTL
+                                <span class="d-none d-sm-inline-block mx-1">|</span>
+                                <br class="d-sm-none" />2024 &copy;
+                                <a class="mx-1" href="http://gctlinfosys.com" target="_blank">GCTL</a>
+                            </p>
                         </div>
                         <div class="col-12 col-sm-auto text-center">
                             <p class="mb-0 text-body-tertiary text-opacity-85">v1.19.0</p>
@@ -64,44 +73,47 @@
                     </div>
                 </footer>
             </div>
+
             <partial name="_SearchBoxModal" />
         </main>
     </div>
-    <!-- ===============================================-->
-    <!--    JavaScripts-->
-    <!-- ===============================================-->
-    <!-- jQuery -->
+
+    <!-- JavaScript Libraries -->
+    <!-- Core Libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/vendors/simplebar/simplebar.min.js"></script>
-    <script src="~/js/config.js"></script>
     <script src="~/js/vendors/popper/popper.min.js"></script>
     <script src="~/js/vendors/bootstrap/bootstrap.min.js"></script>
+
+    <!-- Vendor Plugins -->
+    <script src="~/js/vendors/simplebar/simplebar.min.js"></script>
     <script src="~/js/vendors/anchorjs/anchor.min.js"></script>
     <script src="~/js/vendors/is/is.min.js"></script>
     <script src="~/js/vendors/fontawesome/all.min.js"></script>
     <script src="~/js/vendors/lodash/lodash.min.js"></script>
-    @* <script src="~/js/vendors/list.js/list.min.js"></script> *@
     <script src="~/js/vendors/feather-icons/feather.min.js"></script>
     <script src="~/js/vendors/dayjs/dayjs.min.js"></script>
-    <!--    Choices -->
     <script src="~/js/vendors/choices/choices.min.js"></script>
-    <!--    Select2 -->
-    <script src="~/lib/select2/js/select2.min.js"></script>
-
+	<script src="~/js/layout/select2/js/select2.min.js"></script>
     <script src="~/js/vendors/flatpickr/flatpickr.min.js"></script>
-    <script src="~/js/phoenix.js"></script>
-    <script src="~/lib/toastr.js/toastr.min.js"></script>
+	<script src="~/js/layout/toastr.js/toastr.min.js"></script>
     <script src="~/js/vendors/dropzone/dropzone-min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/vendors/echarts/echarts.min.js"></script>
-    @* <script src="~/js/crm-dashboard.js"></script> *@
     <script src="~/js/vendors/leaflet/leaflet.js"></script>
     <script src="~/js/vendors/leaflet.markercluster/leaflet.markercluster.js"></script>
     <script src="~/js/vendors/leaflet.tilelayer.colorfilter/leaflet-tilelayer-colorfilter.min.js"></script>
 
-    <!--    JS for Layout -->
-    <script src="~/js/layout/layout.js"></script>
+    <!-- CoreUI JavaScript -->
+	<script src="~/js/layout/coreui/coreui.bundle.min.js"></script>
 
+    <!-- App Configuration -->
+    <script src="~/js/config.js"></script>
+    <script src="~/js/phoenix.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Layout Scripts -->
+    <script src="~/js/layout/language/language.js"></script>
+	<script src="~/js/layout/layout.js"></script>
+	
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

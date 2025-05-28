@@ -38,27 +38,17 @@ namespace GCTL.Service.MenuTabs
             var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return new List<MenuTab>();
 
-            var roleId = await _context.UserRoles
-                .Where(ur => ur.UserId == userId)
-                .Select(ur => ur.RoleId)
-                .FirstOrDefaultAsync();
+            var roleId = await _context.UserRoles.Where(ur => ur.UserId == userId).Select(ur => ur.RoleId).FirstOrDefaultAsync();
 
             if (roleId == null) return new List<MenuTab>();
 
-            var viewPermissionId = await _context.Permissions
-                .Where(p => p.Name == "View")
-                .Select(p => p.Id)
-                .FirstOrDefaultAsync();
+            var viewPermissionId = await _context.Permissions.Where(p => p.Name == "View").Select(p => p.Id).FirstOrDefaultAsync();
 
             if (viewPermissionId == 0) return new List<MenuTab>();
 
-            var menus = await _context.MenuTab
-                .Where(m =>
-                m.IsActive == true &&  // ✅ Only active menus for left menu and others inactive menu is for l4 and l5
+            var menus = await _context.MenuTab.Where(m =>m.IsActive == true &&  // ✅ Only active menus for left menu and others inactive menu is for l4 and l5
                 _context.RoleModulePermissions
-                    .Any(rmp => rmp.RoleId == roleId && rmp.MenuTabId == m.MenuTabId && rmp.PermissionId == viewPermissionId && rmp.IsGranted))
-                .OrderBy(m => m.OrderBy)
-                .ToListAsync();
+                .Any(rmp => rmp.RoleId == roleId && rmp.MenuTabId == m.MenuTabId && rmp.PermissionId == viewPermissionId && rmp.IsGranted)).OrderBy(m => m.OrderBy).ToListAsync();
 
             //await _hubContext.Clients.All.SendAsync("ReceiveMenuUpdate");
             return menus;
