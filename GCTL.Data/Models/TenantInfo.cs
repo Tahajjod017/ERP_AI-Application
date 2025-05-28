@@ -16,4 +16,10 @@ public partial class TenantInfo
     public string ConnectionString { get; set; }
 
     public string Description { get; set; }
+
+    public virtual ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
+
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+
+    public virtual ICollection<Organization> Organization { get; set; } = new List<Organization>();
 }

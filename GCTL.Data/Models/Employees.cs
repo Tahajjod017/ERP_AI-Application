@@ -89,6 +89,18 @@ public partial class Employees
 
     public virtual ICollection<BloodGroup> BloodGroupUpdatedByNavigation { get; set; } = new List<BloodGroup>();
 
+    public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesCreatedByNavigation { get; set; } = new List<CompensationDayExchanges>();
+
+    public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesDeletedByNavigation { get; set; } = new List<CompensationDayExchanges>();
+
+    public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesUpdatedByNavigation { get; set; } = new List<CompensationDayExchanges>();
+
+    public virtual ICollection<CompensationTypes> CompensationTypesCreatedByNavigation { get; set; } = new List<CompensationTypes>();
+
+    public virtual ICollection<CompensationTypes> CompensationTypesDeletedByNavigation { get; set; } = new List<CompensationTypes>();
+
+    public virtual ICollection<CompensationTypes> CompensationTypesUpdatedByNavigation { get; set; } = new List<CompensationTypes>();
+
     public virtual Country Country { get; set; }
 
     public virtual ICollection<Country> CountryCreatedByNavigation { get; set; } = new List<Country>();
@@ -104,6 +116,12 @@ public partial class Employees
     public virtual ICollection<Currencies> CurrenciesDeletedByNavigation { get; set; } = new List<Currencies>();
 
     public virtual ICollection<Currencies> CurrenciesUpdatedByNavigation { get; set; } = new List<Currencies>();
+
+    public virtual ICollection<DefaultShifts> DefaultShiftsCreatedByNavigation { get; set; } = new List<DefaultShifts>();
+
+    public virtual ICollection<DefaultShifts> DefaultShiftsDeletedByNavigation { get; set; } = new List<DefaultShifts>();
+
+    public virtual ICollection<DefaultShifts> DefaultShiftsUpdatedByNavigation { get; set; } = new List<DefaultShifts>();
 
     public virtual ICollection<Degree> DegreeCreatedByNavigation { get; set; } = new List<Degree>();
 
@@ -195,14 +213,6 @@ public partial class Employees
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoUpdatedByNavigation { get; set; } = new List<EmployeeOfficeInfo>();
 
-    public virtual ICollection<EmployeeRosters> EmployeeRostersCreatedByNavigation { get; set; } = new List<EmployeeRosters>();
-
-    public virtual ICollection<EmployeeRosters> EmployeeRostersDeletedByNavigation { get; set; } = new List<EmployeeRosters>();
-
-    public virtual ICollection<EmployeeRosters> EmployeeRostersEmployee { get; set; } = new List<EmployeeRosters>();
-
-    public virtual ICollection<EmployeeRosters> EmployeeRostersUpdatedByNavigation { get; set; } = new List<EmployeeRosters>();
-
     public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettingsCreatedByNavigation { get; set; } = new List<EmployeeSalarySettings>();
 
     public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettingsDeletedByNavigation { get; set; } = new List<EmployeeSalarySettings>();
@@ -256,6 +266,20 @@ public partial class Employees
     public virtual ICollection<Employees> InverseDeletedByNavigation { get; set; } = new List<Employees>();
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsCreatedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsDeletedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsEmployee { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsUpdatedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypesCreatedByNavigation { get; set; } = new List<LeaveTypes>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypesDeletedByNavigation { get; set; } = new List<LeaveTypes>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypesUpdatedByNavigation { get; set; } = new List<LeaveTypes>();
 
     public virtual ICollection<LicenceTypes> LicenceTypesCreatedByNavigation { get; set; } = new List<LicenceTypes>();
 
@@ -321,11 +345,21 @@ public partial class Employees
 
     public virtual ICollection<ResultTypes> ResultTypesUpdatedByNavigation { get; set; } = new List<ResultTypes>();
 
-    public virtual ICollection<Rosters> RostersCreatedByNavigation { get; set; } = new List<Rosters>();
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDaysCreatedByNavigation { get; set; } = new List<RosterInHolyDays>();
 
-    public virtual ICollection<Rosters> RostersDeletedByNavigation { get; set; } = new List<Rosters>();
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDaysDeletedByNavigation { get; set; } = new List<RosterInHolyDays>();
 
-    public virtual ICollection<Rosters> RostersUpdatedByNavigation { get; set; } = new List<Rosters>();
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDaysEmployee { get; set; } = new List<RosterInHolyDays>();
+
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDaysUpdatedByNavigation { get; set; } = new List<RosterInHolyDays>();
+
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysCreatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
+
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysDeletedByNavigation { get; set; } = new List<RosterInOfficeDays>();
+
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysEmployee { get; set; } = new List<RosterInOfficeDays>();
+
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysUpdatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<ServiceYears> ServiceYearsCreatedByNavigation { get; set; } = new List<ServiceYears>();
 
@@ -338,6 +372,24 @@ public partial class Employees
     public virtual ICollection<Shifts> ShiftsDeletedByNavigation { get; set; } = new List<Shifts>();
 
     public virtual ICollection<Shifts> ShiftsUpdatedByNavigation { get; set; } = new List<Shifts>();
+
+    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetailsCreatedByNavigation { get; set; } = new List<SpiralPatternDetails>();
+
+    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetailsDeletedByNavigation { get; set; } = new List<SpiralPatternDetails>();
+
+    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralPatternDetails>();
+
+    public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesCreatedByNavigation { get; set; } = new List<SpiralPatternTypes>();
+
+    public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesDeletedByNavigation { get; set; } = new List<SpiralPatternTypes>();
+
+    public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesUpdatedByNavigation { get; set; } = new List<SpiralPatternTypes>();
+
+    public virtual ICollection<SpiralPatterns> SpiralPatternsCreatedByNavigation { get; set; } = new List<SpiralPatterns>();
+
+    public virtual ICollection<SpiralPatterns> SpiralPatternsDeletedByNavigation { get; set; } = new List<SpiralPatterns>();
+
+    public virtual ICollection<SpiralPatterns> SpiralPatternsUpdatedByNavigation { get; set; } = new List<SpiralPatterns>();
 
     public virtual ICollection<Statuses> StatusesCreatedByNavigation { get; set; } = new List<Statuses>();
 
