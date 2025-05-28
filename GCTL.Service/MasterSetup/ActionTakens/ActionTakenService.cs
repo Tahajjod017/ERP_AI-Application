@@ -23,11 +23,11 @@ namespace GCTL.Service.MasterSetup.ActionTakens
     {
         #region Repositories
         private readonly IGenericRepository<ActionTaken> _genericRepository;
-        private readonly IUserInfoService userInfoService;
+        private readonly IUserInfoService _userInfoService;
         public ActionTakenService(IGenericRepository<ActionTaken> genericRepository, IUserInfoService userInfoService) : base(genericRepository)
         {
             _genericRepository = genericRepository;
-            this.userInfoService = userInfoService;
+            _userInfoService = userInfoService;
         }
         #endregion
 
@@ -57,7 +57,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
 
                     await _genericRepository.UpdateAsync(entityToRestore);
                     var afterEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entityToRestore));
-                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entityToRestore, entityToRestore.ActionTakenID, model);
+                    await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entityToRestore, entityToRestore.ActionTakenID, model);
                 }
                 else
                 {
@@ -68,7 +68,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                     entity.LMAC = model.LMAC;
                     entity.CreatedBy = model.CreatedBy ?? null;
                     await _genericRepository.AddAsync(entity);
-                    await userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entity, entity.ActionTakenID, model);
+                    await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entity, entity.ActionTakenID, model);
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -105,7 +105,7 @@ namespace GCTL.Service.MasterSetup.ActionTakens
                 entity.UpdatedBy=model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
                 var afterEntity = JsonConvert.DeserializeObject<ActionTakenVM>(JsonConvert.SerializeObject(entity));
-                await userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ActionTakenID, model);
+                await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ActionTakenID, model);
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;

@@ -41,6 +41,7 @@ using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeBenifit;
 
@@ -49,6 +50,7 @@ using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 
 using GCTL.Service.UserProfile;
 using GCTL.Service.Employees.EmployeeAllowance;
+
 
 
 
@@ -104,6 +106,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IServiceYearService, ServiceYearService>();
             services.AddScoped<ITrainingYearService, TrainingYearService>();
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
+            services.AddScoped<IAddShiftService, AddShiftService>();
             #endregion
 
 

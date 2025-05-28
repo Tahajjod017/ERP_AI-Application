@@ -1697,6 +1697,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.RosterInHolyDayID).HasName("PK__RosterIn__1E29F0C25CB4D7CE");
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
@@ -1746,6 +1747,46 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
+            entity.HasOne(d => d.CompensationType).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.CompensationTypeID)
+                .HasConstraintName("FK__RosterInH__Compe__789EE131");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RosterInHolyDaysCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__RosterInH__Creat__7A8729A3");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RosterInHolyDaysDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__RosterInH__Delet__7C6F7215");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.RosterInHolyDaysEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__RosterInH__Emplo__77AABCF8");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__RosterInH__Organ__76B698BF");
+
+            entity.HasOne(d => d.Shift).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.ShiftID)
+                .HasConstraintName("FK__RosterInH__Shift__7993056A");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInHolyDaysUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__RosterInH__Updat__7B7B4DDC");
+        });
+
+        modelBuilder.Entity<RosterInOfficeDays>(entity =>
+        {
+            entity.HasKey(e => e.RosterInOfficeDayID).HasName("PK__RosterIn__E8BE446FDCD652D8");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RosterInOfficeDaysCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__RosterInO__Creat__6D2D2E85");
@@ -1804,6 +1845,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__RosterInO__Delet__6F1576F7");
 
+
             entity.HasOne(d => d.Employee).WithMany(p => p.RosterInOfficeDaysEmployee)
                 .HasForeignKey(d => d.EmployeeID)
                 .HasConstraintName("FK__RosterInO__Emplo__6B44E613");
@@ -1815,6 +1857,19 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Shift).WithMany(p => p.RosterInOfficeDays)
                 .HasForeignKey(d => d.ShiftID)
                 .HasConstraintName("FK__RosterInO__Shift__6C390A4C");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.RosterInOfficeDaysEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__RosterInO__Emplo__6B44E613");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.RosterInOfficeDays)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__RosterInO__Organ__6A50C1DA");
+
+            entity.HasOne(d => d.Shift).WithMany(p => p.RosterInOfficeDays)
+                .HasForeignKey(d => d.ShiftID)
+                .HasConstraintName("FK__RosterInO__Shift__6C390A4C");
+
 
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInOfficeDaysUpdatedByNavigation)
