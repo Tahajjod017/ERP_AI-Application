@@ -118,8 +118,15 @@ app.Use(async (context, next) =>
 
 #endregion
 
+
+
+app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
+app.UseRouting();
+app.UseAuthorization();
+
 app.UseRouting();
 app.UseAuthentication(); 
+
 app.UseAuthorization();
 //app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 
