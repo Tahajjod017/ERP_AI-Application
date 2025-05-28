@@ -29,11 +29,17 @@ public partial class Organization
 
     public virtual Employees CreatedByNavigation { get; set; }
 
+    public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
+
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
+
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
+
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
 

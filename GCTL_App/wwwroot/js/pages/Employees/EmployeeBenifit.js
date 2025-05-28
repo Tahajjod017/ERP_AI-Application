@@ -123,7 +123,7 @@
             ServiceYearID: $('#serviceYearSelect').val()
         };
 
-        debugger
+    
 
         $.ajax({
             url: '/EmployeeBenifit/Index',

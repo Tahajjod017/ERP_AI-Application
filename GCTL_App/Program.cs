@@ -111,9 +111,8 @@ app.Use(async (context, next) =>
 #endregion
 
 
-
-app.UseRouting();
 app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
+app.UseRouting();
 app.UseAuthorization();
 app.UseAuthorization();
 

@@ -5,11 +5,25 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Statuses
+public partial class LeaveApplications
 {
-    public int StatusID { get; set; }
+    public int LeaveApplicationID { get; set; }
 
-    public string StatusName { get; set; }
+    public int? EmployeeID { get; set; }
+
+    public bool IsFullDay { get; set; }
+
+    public DateOnly FromDate { get; set; }
+
+    public DateOnly ToDate { get; set; }
+
+    public TimeOnly? PartialFromTime { get; set; }
+
+    public TimeOnly? PartialToTime { get; set; }
+
+    public int? StatusID { get; set; }
+
+    public int? LeaveTypeID { get; set; }
 
     public string LIP { get; set; }
 
@@ -23,8 +37,6 @@ public partial class Statuses
 
     public DateTime? UpdatedAt { get; set; }
 
-    public string StatusType { get; set; }
-
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
@@ -33,11 +45,11 @@ public partial class Statuses
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+    public virtual Employees Employee { get; set; }
 
-    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
+    public virtual LeaveTypes LeaveType { get; set; }
 
-    public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

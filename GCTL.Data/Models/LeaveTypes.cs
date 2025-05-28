@@ -5,17 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeRosters
+public partial class LeaveTypes
 {
-    public int EmployeeRosterID { get; set; }
+    public int LeaveTypeID { get; set; }
 
-    public int? RosterID { get; set; }
-
-    public int? EmployeeID { get; set; }
-
-    public DateTime? StartDate { get; set; }
-
-    public DateTime? EndDate { get; set; }
+    public string LeaveTypeName { get; set; }
 
     public string LIP { get; set; }
 
@@ -37,9 +31,7 @@ public partial class EmployeeRosters
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Employees Employee { get; set; }
-
-    public virtual Rosters Roster { get; set; }
+    public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
