@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
 using GCTL.Service.AccessPermissions;
+using Microsoft.AspNetCore.Authorization;
 using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers
 {
+    [Authorize]
     public class AccessPermissionController : Controller
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
@@ -28,7 +30,6 @@ namespace GCTL_App.Controllers
             _Db = db;
             this.userInfoService = userInfoService;
         }
-
         //[Authorize(Policy = "Admin.VIEW")]
         public async Task<IActionResult> Index()
         {
@@ -59,7 +60,7 @@ namespace GCTL_App.Controllers
                 //    {
                 //        Id = u.Id,
                 //        UserName = u.UserName,
-                //        UserEmail = u.UserEmail,
+                //        Email = u.Email,
                 //        FullName = u.FullName,
                 //        Gender = u.Gender,
                 //        EmployeeId = u.EmployeeId,
@@ -281,5 +282,7 @@ namespace GCTL_App.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
     }
 }

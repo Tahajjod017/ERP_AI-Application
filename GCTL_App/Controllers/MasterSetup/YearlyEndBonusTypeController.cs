@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.YearlyEndBonusType;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IYearlyEndBonusTypeService _yearlyEndBonusTypeService;
 
-        public YearlyEndBonusTypeController(IYearlyEndBonusTypeService yearlyEndBonusTypeService, ITranslateService translateService) : base(translateService)
+        public YearlyEndBonusTypeController(IYearlyEndBonusTypeService yearlyEndBonusTypeService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _yearlyEndBonusTypeService = yearlyEndBonusTypeService;
         }

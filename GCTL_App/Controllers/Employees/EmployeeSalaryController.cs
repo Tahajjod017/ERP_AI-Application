@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.Employee.EmployeeSalary;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<PaymentModes> _paymentModeRepository;
         private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
         private readonly IEmployeeSalaryService _employeeSalaryService;
-        public EmployeeSalaryController(ITranslateService translateService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService) : base(translateService)
+        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _gradeRepository = gradeRepository;

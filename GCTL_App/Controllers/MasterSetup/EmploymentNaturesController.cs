@@ -7,6 +7,7 @@ using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.EmploymentNature;
 using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -17,7 +18,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public EmploymentNaturesController(IEmploymentNatureService employmentNatureService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public EmploymentNaturesController(IEmploymentNatureService employmentNatureService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _employmentNatureService = employmentNatureService;
             _translationService = translationService;

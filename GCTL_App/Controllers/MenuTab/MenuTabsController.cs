@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MenuTab;
 using GCTL.Service.Language;
 using GCTL.Service.MenuTabs;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MenuTab;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ namespace GCTL_App.Controllers.MenuTab
         private readonly IMenuTabsService _menuTabService;
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
 
-        public MenuTabsController(IMenuTabsService menuTabsService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, ITranslateService translateService) : base(translateService)
+        public MenuTabsController(IMenuTabsService menuTabsService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _menuTabService = menuTabsService;
             _menuTabRepository = menuTabRepository;

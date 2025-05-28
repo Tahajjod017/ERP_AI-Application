@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.ServiceYear;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.ServiceYear;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IServiceYearService _serviceYearService;
 
-        public ServiceYearController(IServiceYearService serviceYearService, ITranslateService translateService) : base(translateService)
+        public ServiceYearController(IServiceYearService serviceYearService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _serviceYearService = serviceYearService;
         }

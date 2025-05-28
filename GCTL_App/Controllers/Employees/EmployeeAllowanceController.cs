@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.Employee.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -10,6 +11,8 @@ namespace GCTL_App.Controllers.Employees
     public class EmployeeAllowanceController : BaseController
     {
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
+        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
+        {
         private readonly IEmployeeAllowanceService _employeeAllowanceService;
         public EmployeeAllowanceController(ITranslateService translateService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService) : base(translateService)
         {

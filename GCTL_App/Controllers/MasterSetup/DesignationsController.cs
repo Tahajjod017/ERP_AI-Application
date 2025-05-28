@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using GCTL_App.ViewModels.MasterSetup.Designations;
 using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -18,7 +19,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public DesignationsController(IDesignationService designationService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public DesignationsController(IDesignationService designationService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _designationService = designationService;
             _translationService = translationService;
