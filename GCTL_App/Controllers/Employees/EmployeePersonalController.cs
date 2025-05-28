@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels.Employee.EmployeePersonal;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Religions> _religionRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<Country> _countryRepository;
-        public EmployeePersonalController(ITranslateService translateService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository) : base(translateService)
+        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository) : base(translateService, userProfileService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;

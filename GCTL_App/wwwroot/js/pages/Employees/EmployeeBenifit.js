@@ -95,56 +95,55 @@
 
     //#endregion
 
-    
+
+
 
     //#region Submit
 
     $('form').on('submit', function (e) {
-        e.preventDefault(); // Prevent default form submission
-
-        // Collect form data
-        var formData = {
-            EmployeeBaseBenefitID: $('#EmployeeBaseBenefitID').val(),
-            EmployeePersonalId: $('#EmployeePersonalId').val(),
-            PersonalEmail: $('#PersonalEmail').val(),
-            PersonalPhone: $('#PersonalPhone').val(),
-            IsBenifitEnabled: $('#empBeniftSwitch').is(':checked'),
-            HealthInsurance: $('#HealthInsurance').val(),
-            IsHealthInsuranceEnabled: $('#healthInsuranceSwitch').is(':checked'),
-            PerformanceBonus: $('#PerformanceBonus').val(),
-            IsPerformanceBonusEnabled: $('#performanceBonusSwitch').is(':checked'),
-            YearlyEndBonusTypeID: $('#YearlyEndBonusTypeID').val(),
-            IsYearlyEndBonusTypeIDEnabled: $('#yearlyEndBonusSwitch').is(':checked'),
-            FastivalBonusPercentage: $('#festivalBonusRateSelect').val(),
-            IsFastivalBonusPercentageEnabled: $('#festivalBonusSwitch').is(':checked'),
-            ProvidantFundEmployeePercentage: $('#employeeContributionSelect').val(),
-            ProvidantFundOrganizationPercentage: $('#organizationContributionSelect').val(),
-            IsProvidantFundEnabled: $('#providentFundSwitch1').is(':checked'),
-            ServiceYearID: $('#serviceYearSelect').val()
-        };
+        e.preventDefault();
 
     
 
+        // Get the form element
+        var form = $(this);
+        var formData = new FormData(form[0]);
+
         $.ajax({
-            url: '/EmployeeBenifit/Index',
-            type: 'POST',
+            url: form.attr('action'),
+            type: form.attr('method'),
             data: formData,
+            processData: false,
+            contentType: false,
             success: function (response) {
                 if (response.success) {
-                    alert('Employee benefits saved successfully.');
-                    clearForm(); 
+                    toastr.success(response.message || 'Employee benefits saved successfully.');
+                    window.location.href = '/EmployeeAllowance/Index/' + response.data;
+                    
                 } else {
-                    alert('Error saving employee benefits: ' + (response.message || 'Unknown error'));
+                    toastr.error( 'Error saving employee benefits');
+                    console.error(response.message)
                 }
             },
-            error: function (xhr, status, error) {
-                console.error('Error saving employee benefits:', error);
-                alert('Failed to save employee benefits. Please try again.');
+            error: function (xhr) {
+                if (xhr.status === 400 && xhr.responseJSON) {
+                    // Handle validation errors
+                    var errors = xhr.responseJSON;
+                    for (var field in errors) {
+                        if (errors.hasOwnProperty(field)) {
+                            toastr.error(errors[field][0]); // Show first error for each field
+                        }
+                    }
+                } else {
+                    toastr.error('Failed to save employee benefits. Please try again.');
+                }
             }
         });
     });
 
     //#endregion
+
+  
 
     //#region Populate Data
    

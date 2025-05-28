@@ -5,6 +5,7 @@ using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ActionTakens;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.ActionTakens;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly IActionTakenService _actionTakenService;
 
 
-        public ActionTakensController(IActionTakenService actionTakenService, ITranslateService translateService) : base(translateService)
+        public ActionTakensController(IActionTakenService actionTakenService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService,userProfileService)
         {
             _actionTakenService = actionTakenService;
         }

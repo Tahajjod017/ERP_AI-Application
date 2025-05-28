@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.PassingYear;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.PassingYear;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.PassingYear;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IPassingYearService _passingYearService;
 
-        public PassingYearController(IPassingYearService passingYearService, ITranslateService translateService) : base(translateService)
+        public PassingYearController(IPassingYearService passingYearService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _passingYearService = passingYearService;
         }

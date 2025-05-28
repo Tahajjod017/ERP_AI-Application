@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.ResultType;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.ResultType;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IResultTypeService _resultTypeService;
 
-        public ResultTypeController(IResultTypeService resultTypeService, ITranslateService translateService) : base(translateService)
+        public ResultTypeController(IResultTypeService resultTypeService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _resultTypeService = resultTypeService;
         }

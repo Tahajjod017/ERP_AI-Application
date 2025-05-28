@@ -43,7 +43,12 @@ using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeBenifit;
+
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
+
+
+using GCTL.Service.UserProfile;
+using GCTL.Service.Employees.EmployeeAllowance;
 
 
 
@@ -106,7 +111,14 @@ namespace GCTL_App.Extensions
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
             services.AddScoped<IVisitingPathService, VisitingPathService>();
+
             services.AddScoped<ILeaveRequestService , LeaveRequestService>();
+
+
+            #region Asad
+            services.AddScoped<IUserProfileService, UserProfileService>();
+            #endregion
+
 
             #region Language Services
 
@@ -123,6 +135,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeOfficialService, EmployeeOfficialService>();
             services.AddScoped<IEmployeeSalaryService, EmployeeSalaryService>();
             services.AddScoped<IEmployeeBenifitService, EmployeeBenifitService>();
+            services.AddScoped<IEmployeeAllowanceService, EmployeeAllowanceService>();
 
 
             #endregion

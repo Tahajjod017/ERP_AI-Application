@@ -7,6 +7,7 @@ using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.Genders;
 using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -16,7 +17,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly IGenderService _genderService;
         private readonly ITranslateService _translationService;
 
-        public GendersController(IGenderService genderService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public GendersController(IGenderService genderService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _genderService = genderService;
             _translationService = translationService;

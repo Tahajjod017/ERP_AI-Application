@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -16,7 +17,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<YearlyEndBonusTypes> _yearlyEndBonusTypesRepository;
         private readonly IGenericRepository<ServiceYears> _serviceYearsRepository;
         private readonly IEmployeeBenifitService _employeeBenifitService;
-        public EmployeeBenifitController(ITranslateService translateService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository) : base(translateService)
+        public EmployeeBenifitController(ITranslateService translateService,IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository) : base(translateService,userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeBenifitService = employeeBenifitService;
@@ -25,8 +26,10 @@ namespace GCTL_App.Controllers.Employees
             _serviceYearsRepository = serviceYearsRepository;
         }
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index(int id)
         {
+            var model = await _employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
+
             #region Voriwe Bag
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
@@ -84,8 +87,9 @@ namespace GCTL_App.Controllers.Employees
 
             #endregion
 
+
             SetSmartPageCode(118000);
-            return View();
+            return View(model);
         }
 
         [HttpGet]
@@ -95,6 +99,8 @@ namespace GCTL_App.Controllers.Employees
             return Ok(employeeBenifitData);
 
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeeBenefits(string employeeId)
@@ -146,32 +152,29 @@ namespace GCTL_App.Controllers.Employees
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(EmployeeBenifitPostViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                return BadRequest(errors);
+            }
+
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                    return Json(new { success = false, message = "Validation failed: " + string.Join(", ", errors) });
-                }
+                var result =  await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
 
-                // Save or update the employee benefits
-                bool isSuccess = await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
-                if (isSuccess)
-                {
-                    return Json(new { success = true, message = "Employee benefits saved successfully." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to save employee benefits." });
-                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return Json(new { success = false, message = "An error occurred while saving employee benefits." });
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,7 @@ namespace GCTL_App.Controllers
         private readonly IActionLogService actionLogService;
         private readonly AppDbContext appDbContext;
 
-
-
-
-        public ActionLogController(ITranslateService translateService, IActionLogService actionLogService, AppDbContext appDbContext) : base(translateService)
+        public ActionLogController(ITranslateService translateService, IUserProfileService userProfileService, IActionLogService actionLogService, AppDbContext appDbContext) : base(translateService, userProfileService)
         {
             this.actionLogService = actionLogService;
             this.appDbContext = appDbContext;

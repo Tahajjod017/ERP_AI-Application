@@ -3,15 +3,19 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
 using GCTL.Service.AccessPermissions;
+using Microsoft.AspNetCore.Authorization;
 using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers
 {
-    public class AccessPermissionController : Controller
+    [Authorize]
+    public class AccessPermissionController : BaseController 
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -19,11 +23,12 @@ namespace GCTL_App.Controllers
         private readonly IAccessControlService _accessControlService;
         private readonly AppDbContext _Db;
         private readonly IUserInfoService userInfoService;
-        public AccessPermissionController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db, IAccessControlService accessControlService, IUserInfoService userInfoService)
+
+        public AccessPermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAccessControlService accessControlService, AppDbContext db, IUserInfoService userInfoService) : base(translateService, userProfileService)
         {
+            _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
             _accessControlService = accessControlService;
             _Db = db;
             this.userInfoService = userInfoService;
@@ -59,7 +64,7 @@ namespace GCTL_App.Controllers
                 //    {
                 //        Id = u.Id,
                 //        UserName = u.UserName,
-                //        UserEmail = u.UserEmail,
+                //        Email = u.Email,
                 //        FullName = u.FullName,
                 //        Gender = u.Gender,
                 //        EmployeeId = u.EmployeeId,
@@ -281,5 +286,7 @@ namespace GCTL_App.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
     }
 }

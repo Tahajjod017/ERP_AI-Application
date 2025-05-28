@@ -17,9 +17,17 @@ public partial class AspNetRoles
 
     public string ConcurrencyStamp { get; set; }
 
+    public int? TenantInfoId { get; set; }
+
+    public int? OrganizationID { get; set; }
+
     public virtual ICollection<AspNetRoleClaims> AspNetRoleClaims { get; set; } = new List<AspNetRoleClaims>();
 
+    public virtual Organization Organization { get; set; }
+
     public virtual ICollection<RoleModulePermissions> RoleModulePermissions { get; set; } = new List<RoleModulePermissions>();
+
+    public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual ICollection<AspNetUsers> User { get; set; } = new List<AspNetUsers>();
 }
