@@ -17,15 +17,21 @@ public partial class Shifts
 
     public DateTime? EndTime { get; set; }
 
-    public int? GraceTimeInMinute { get; set; }
+    public bool IsLateCount { get; set; }
 
-    public bool IsAllowMealBreak { get; set; }
+    public bool IsAutomaticORManualBreakTime { get; set; }
 
-    public int? MealBreakInMinute { get; set; }
+    public bool IsMealBreakCompulsaryDeductWithShift { get; set; }
+
+    public bool IsMealBreakComplementoryWithShift { get; set; }
+
+    public bool IsAllowStartAndEndTime { get; set; }
 
     public DateTime? MealBreakStartTime { get; set; }
 
     public DateTime? MealBreakEndTime { get; set; }
+
+    public bool IsAllowOvertime { get; set; }
 
     public string LIP { get; set; }
 
@@ -43,25 +49,29 @@ public partial class Shifts
 
     public int? DeletedBy { get; set; }
 
+    public TimeOnly? GraceTime { get; set; }
+
+    public TimeOnly? MinimumWorkingTime { get; set; }
+
+    public TimeOnly? MinimumRequiredOvertime { get; set; }
+
+    public TimeOnly? MaximumAllowedOvertime { get; set; }
+
+    public TimeOnly? MealBreakTime { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
+
+    public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Organization Organization { get; set; }
 
-    public virtual ICollection<Rosters> RostersFridayShift { get; set; } = new List<Rosters>();
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
 
-    public virtual ICollection<Rosters> RostersMondayShift { get; set; } = new List<Rosters>();
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
-    public virtual ICollection<Rosters> RostersSaturdayShift { get; set; } = new List<Rosters>();
-
-    public virtual ICollection<Rosters> RostersSundayShift { get; set; } = new List<Rosters>();
-
-    public virtual ICollection<Rosters> RostersThursdayShift { get; set; } = new List<Rosters>();
-
-    public virtual ICollection<Rosters> RostersTuesdayShift { get; set; } = new List<Rosters>();
-
-    public virtual ICollection<Rosters> RostersWednesdayShift { get; set; } = new List<Rosters>();
+    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetails { get; set; } = new List<SpiralPatternDetails>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

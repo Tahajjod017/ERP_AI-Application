@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Organization
+public partial class CompensationTypes
 {
-    public int OrganizationID { get; set; }
+    public int CompensationTypeID { get; set; }
 
-    public string OrganizationName { get; set; }
+    public string CompensationTypeName { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,19 +29,9 @@ public partial class Organization
 
     public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
-
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
-
-    public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
-
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
-
-    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
-
-    public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

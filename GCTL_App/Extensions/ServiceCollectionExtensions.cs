@@ -38,6 +38,7 @@ using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 
 
 namespace GCTL_App.Extensions
@@ -92,6 +93,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IServiceYearService, ServiceYearService>();
             services.AddScoped<ITrainingYearService, TrainingYearService>();
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
+            services.AddScoped<IAddShiftService, AddShiftService>();
             #endregion
 
 

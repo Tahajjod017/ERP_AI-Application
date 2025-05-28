@@ -55,11 +55,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[CompensationDayExchanges]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CompensationTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Country]",
          "ObjectType": 0
       },
       {
          "Name": "[dbo].[Currencies]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DefaultShifts]",
          "ObjectType": 0
       },
       {
@@ -108,10 +120,6 @@
       },
       {
          "Name": "[dbo].[EmployeeOfficeInfo]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[EmployeeRosters]",
          "ObjectType": 0
       },
       {
@@ -211,7 +219,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Rosters]",
+         "Name": "[dbo].[RosterInHolyDays]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RosterInOfficeDays]",
          "ObjectType": 0
       },
       {
@@ -220,6 +232,18 @@
       },
       {
          "Name": "[dbo].[Shifts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralPatternDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralPatterns]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralPatternTypes]",
          "ObjectType": 0
       },
       {

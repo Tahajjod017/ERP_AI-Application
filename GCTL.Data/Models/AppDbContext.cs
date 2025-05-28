@@ -34,9 +34,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<BloodGroup> BloodGroup { get; set; }
 
+    public virtual DbSet<CompensationDayExchanges> CompensationDayExchanges { get; set; }
+
+    public virtual DbSet<CompensationTypes> CompensationTypes { get; set; }
+
     public virtual DbSet<Country> Country { get; set; }
 
     public virtual DbSet<Currencies> Currencies { get; set; }
+
+    public virtual DbSet<DefaultShifts> DefaultShifts { get; set; }
 
     public virtual DbSet<Degree> Degree { get; set; }
 
@@ -61,8 +67,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<EmployeeFamilyInfo> EmployeeFamilyInfo { get; set; }
 
     public virtual DbSet<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; }
-
-    public virtual DbSet<EmployeeRosters> EmployeeRosters { get; set; }
 
     public virtual DbSet<EmployeeSalarySettings> EmployeeSalarySettings { get; set; }
 
@@ -112,11 +116,19 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<RoleModulePermissions> RoleModulePermissions { get; set; }
 
-    public virtual DbSet<Rosters> Rosters { get; set; }
+    public virtual DbSet<RosterInHolyDays> RosterInHolyDays { get; set; }
+
+    public virtual DbSet<RosterInOfficeDays> RosterInOfficeDays { get; set; }
 
     public virtual DbSet<ServiceYears> ServiceYears { get; set; }
 
     public virtual DbSet<Shifts> Shifts { get; set; }
+
+    public virtual DbSet<SpiralPatternDetails> SpiralPatternDetails { get; set; }
+
+    public virtual DbSet<SpiralPatternTypes> SpiralPatternTypes { get; set; }
+
+    public virtual DbSet<SpiralPatterns> SpiralPatterns { get; set; }
 
     public virtual DbSet<Statuses> Statuses { get; set; }
 
@@ -275,6 +287,59 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK_Employees_EmployeeIDUpdatedByBloodGroup");
         });
 
+        modelBuilder.Entity<CompensationDayExchanges>(entity =>
+        {
+            entity.HasKey(e => e.CompensationDayExchangeID).HasName("PK__Compensa__06A8A6569F88CA6B");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.ExchangeDate).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SelectDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompensationDayExchangesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Compensat__Creat__004002F9");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.CompensationDayExchangesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Compensat__Delet__02284B6B");
+
+            entity.HasOne(d => d.RosterInHolyDay).WithMany(p => p.CompensationDayExchanges)
+                .HasForeignKey(d => d.RosterInHolyDayID)
+                .HasConstraintName("FK__Compensat__Roste__7F4BDEC0");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CompensationDayExchangesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Compensat__Updat__01342732");
+        });
+
+        modelBuilder.Entity<CompensationTypes>(entity =>
+        {
+            entity.HasKey(e => e.CompensationTypeID).HasName("PK__Compensa__D7BF9EEF7A22875B");
+
+            entity.Property(e => e.CompensationTypeName).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CompensationTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Compensat__Creat__71F1E3A2");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.CompensationTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Compensat__Delet__73DA2C14");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CompensationTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Compensat__Updat__72E607DB");
+        });
+
         modelBuilder.Entity<Country>(entity =>
         {
             entity.HasKey(e => e.CountryID).HasName("PK__Country__10D160BF16010B8E");
@@ -344,6 +409,37 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CurrenciesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeIDUpdatedByCurrencies");
+        });
+
+        modelBuilder.Entity<DefaultShifts>(entity =>
+        {
+            entity.HasKey(e => e.DefaultShiftID).HasName("PK__DefaultS__E8BE446F3B49186F");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DefaultShiftsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__DefaultSh__Creat__658C0CBD");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.DefaultShiftsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__DefaultSh__Delet__6774552F");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.DefaultShifts)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_TeamID");
+
+            entity.HasOne(d => d.Shift).WithMany(p => p.DefaultShifts)
+                .HasForeignKey(d => d.ShiftID)
+                .HasConstraintName("FK__DefaultSh__Shift__6497E884");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DefaultShiftsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__DefaultSh__Updat__668030F6");
         });
 
         modelBuilder.Entity<Degree>(entity =>
@@ -825,41 +921,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeOfficeInfoUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeID_EmployeeOfficeInfo_UpdatedBy");
-        });
-
-        modelBuilder.Entity<EmployeeRosters>(entity =>
-        {
-            entity.HasKey(e => e.EmployeeRosterID).HasName("PK__Employee__B25BC19C0003479C");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeRostersCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__EmployeeR__Creat__2A6B46EF");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeRostersDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__EmployeeR__Delet__2D47B39A");
-
-            entity.HasOne(d => d.Employee).WithMany(p => p.EmployeeRostersEmployee)
-                .HasForeignKey(d => d.EmployeeID)
-                .HasConstraintName("FK__EmployeeR__Emplo__297722B6");
-
-            entity.HasOne(d => d.Roster).WithMany(p => p.EmployeeRosters)
-                .HasForeignKey(d => d.RosterID)
-                .HasConstraintName("FK__EmployeeR__Roste__2882FE7D");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeRostersUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__EmployeeR__Updat__2B5F6B28");
         });
 
         modelBuilder.Entity<EmployeeSalarySettings>(entity =>
@@ -1506,58 +1567,82 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Role).WithMany(p => p.RoleModulePermissions).HasForeignKey(d => d.RoleId);
         });
 
-        modelBuilder.Entity<Rosters>(entity =>
+        modelBuilder.Entity<RosterInHolyDays>(entity =>
         {
-            entity.HasKey(e => e.RosterID).HasName("PK__Rosters__66F6BAAA383A3F3B");
+            entity.HasKey(e => e.RosterInHolyDayID).HasName("PK__RosterIn__1E29F0C25CB4D7CE");
 
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.RosterName).HasMaxLength(20);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RostersCreatedByNavigation)
+            entity.HasOne(d => d.CompensationType).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.CompensationTypeID)
+                .HasConstraintName("FK__RosterInH__Compe__789EE131");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RosterInHolyDaysCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__Rosters__Created__21D600EE");
+                .HasConstraintName("FK__RosterInH__Creat__7A8729A3");
 
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RostersDeletedByNavigation)
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RosterInHolyDaysDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__Rosters__Deleted__24B26D99");
+                .HasConstraintName("FK__RosterInH__Delet__7C6F7215");
 
-            entity.HasOne(d => d.FridayShift).WithMany(p => p.RostersFridayShift)
-                .HasForeignKey(d => d.FridayShiftID)
-                .HasConstraintName("FK__Rosters__FridayS__20E1DCB5");
+            entity.HasOne(d => d.Employee).WithMany(p => p.RosterInHolyDaysEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__RosterInH__Emplo__77AABCF8");
 
-            entity.HasOne(d => d.MondayShift).WithMany(p => p.RostersMondayShift)
-                .HasForeignKey(d => d.MondayShiftID)
-                .HasConstraintName("FK__Rosters__MondayS__1D114BD1");
+            entity.HasOne(d => d.Organization).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__RosterInH__Organ__76B698BF");
 
-            entity.HasOne(d => d.SaturdayShift).WithMany(p => p.RostersSaturdayShift)
-                .HasForeignKey(d => d.SaturdayShiftID)
-                .HasConstraintName("FK__Rosters__Saturda__1B29035F");
+            entity.HasOne(d => d.Shift).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.ShiftID)
+                .HasConstraintName("FK__RosterInH__Shift__7993056A");
 
-            entity.HasOne(d => d.SundayShift).WithMany(p => p.RostersSundayShift)
-                .HasForeignKey(d => d.SundayShiftID)
-                .HasConstraintName("FK__Rosters__SundayS__1C1D2798");
-
-            entity.HasOne(d => d.ThursdayShift).WithMany(p => p.RostersThursdayShift)
-                .HasForeignKey(d => d.ThursdayShiftID)
-                .HasConstraintName("FK__Rosters__Thursda__1FEDB87C");
-
-            entity.HasOne(d => d.TuesdayShift).WithMany(p => p.RostersTuesdayShift)
-                .HasForeignKey(d => d.TuesdayShiftID)
-                .HasConstraintName("FK__Rosters__Tuesday__1E05700A");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RostersUpdatedByNavigation)
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInHolyDaysUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__Rosters__Updated__22CA2527");
+                .HasConstraintName("FK__RosterInH__Updat__7B7B4DDC");
+        });
 
-            entity.HasOne(d => d.WednesdayShift).WithMany(p => p.RostersWednesdayShift)
-                .HasForeignKey(d => d.WednesdayShiftID)
-                .HasConstraintName("FK__Rosters__Wednesd__1EF99443");
+        modelBuilder.Entity<RosterInOfficeDays>(entity =>
+        {
+            entity.HasKey(e => e.RosterInOfficeDayID).HasName("PK__RosterIn__E8BE446FDCD652D8");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RosterInOfficeDaysCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__RosterInO__Creat__6D2D2E85");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RosterInOfficeDaysDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__RosterInO__Delet__6F1576F7");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.RosterInOfficeDaysEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__RosterInO__Emplo__6B44E613");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.RosterInOfficeDays)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__RosterInO__Organ__6A50C1DA");
+
+            entity.HasOne(d => d.Shift).WithMany(p => p.RosterInOfficeDays)
+                .HasForeignKey(d => d.ShiftID)
+                .HasConstraintName("FK__RosterInO__Shift__6C390A4C");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInOfficeDaysUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__RosterInO__Updat__6E2152BE");
         });
 
         modelBuilder.Entity<ServiceYears>(entity =>
@@ -1588,11 +1673,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<Shifts>(entity =>
         {
-            entity.HasKey(e => e.ShiftID).HasName("PK__Shifts__C0A838E1A0649C91");
+            entity.HasKey(e => e.ShiftID).HasName("PK__Shifts__C0A838E1065A58E5");
 
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.EndTime).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
@@ -1605,19 +1688,103 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ShiftsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__Shifts__CreatedB__147C05D0");
+                .HasConstraintName("FK__Shifts__CreatedB__5FD33367");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ShiftsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__Shifts__DeletedB__1758727B");
+                .HasConstraintName("FK__Shifts__DeletedB__61BB7BD9");
 
             entity.HasOne(d => d.Organization).WithMany(p => p.Shifts)
                 .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK__Shifts__Organiza__1387E197");
+                .HasConstraintName("FK__Shifts__Organiza__5EDF0F2E");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ShiftsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__Shifts__UpdatedB__15702A09");
+                .HasConstraintName("FK__Shifts__UpdatedB__60C757A0");
+        });
+
+        modelBuilder.Entity<SpiralPatternDetails>(entity =>
+        {
+            entity.HasKey(e => e.SpiralPatternDetailID).HasName("PK__SpiralPa__98F5DFEF326C3E3B");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SpiralPatternDetailsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SpiralPat__Creat__190BB0C3");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SpiralPatternDetailsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SpiralPat__Delet__1AF3F935");
+
+            entity.HasOne(d => d.Shift).WithMany(p => p.SpiralPatternDetails)
+                .HasForeignKey(d => d.ShiftID)
+                .HasConstraintName("FK__SpiralPat__Shift__18178C8A");
+
+            entity.HasOne(d => d.SpiralPattern).WithMany(p => p.SpiralPatternDetails)
+                .HasForeignKey(d => d.SpiralPatternID)
+                .HasConstraintName("FK__SpiralPat__Spira__162F4418");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralPatternDetailsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SpiralPat__Updat__19FFD4FC");
+        });
+
+        modelBuilder.Entity<SpiralPatternTypes>(entity =>
+        {
+            entity.HasKey(e => e.SpiralPatternTypeID).HasName("PK__SpiralPa__4CF93977EDE63E13");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SpiralPatternTypeName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SpiralPatternTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SpiralPat__Creat__09C96D33");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SpiralPatternTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SpiralPat__Delet__0BB1B5A5");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralPatternTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SpiralPat__Updat__0ABD916C");
+        });
+
+        modelBuilder.Entity<SpiralPatterns>(entity =>
+        {
+            entity.HasKey(e => e.SpiralPatternID).HasName("PK__SpiralPa__927DF4A57D630ECA");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SpiralPatternsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SpiralPat__Creat__116A8EFB");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SpiralPatternsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SpiralPat__Delet__1352D76D");
+
+            entity.HasOne(d => d.SpiralPatternType).WithMany(p => p.SpiralPatterns)
+                .HasForeignKey(d => d.SpiralPatternTypeID)
+                .HasConstraintName("FK__SpiralPat__Spira__10766AC2");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralPatternsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SpiralPat__Updat__125EB334");
         });
 
         modelBuilder.Entity<Statuses>(entity =>
@@ -1692,7 +1859,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<UserVisitLogs>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserVisi__3214EC0775560001");
+            entity.HasKey(e => e.Id).HasName("PK__UserVisi__3214EC07BAFFAD68");
 
             entity.Property(e => e.Ipaddress).HasMaxLength(45);
             entity.Property(e => e.Lmac).HasMaxLength(50);
