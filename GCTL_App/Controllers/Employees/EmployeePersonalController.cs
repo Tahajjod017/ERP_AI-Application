@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels.Employee.EmployeePersonal;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Religions> _religionRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<Country> _countryRepository;
-        public EmployeePersonalController(ITranslateService translateService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository) : base(translateService)
+        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository) : base(translateService, userProfileService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;
@@ -55,20 +56,40 @@ namespace GCTL_App.Controllers.Employees
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SavePersonalInfo(EmployeePersonalPostViewModel model)
+        public async Task<IActionResult> Index(EmployeePersonalPostViewModel model)
         {
             if (ModelState.IsValid)
             {
+                var chkDuplicate = await _employeePersonalService.CheckValidEmployeeInfo(model);
+
+                if (!chkDuplicate.Success)
+                {
+                    TempData["ToastrMessage"] = chkDuplicate.Message;
+                    TempData["ToastrType"] = "warning";
+
+                 
+                    return View(model); 
+                }
+
                 // Save and get the new employee ID
                 CommonReturnViewModel result = await _employeePersonalService.SaveEmployeePersonalInfo(model);
 
-                if (result.Success) // Assuming `Id` holds the new employee's ID
+                if (result.Success)
                 {
+                    TempData["ToastrMessage"] = "Employee saved successfully!";
+                    TempData["ToastrType"] = "success";
                     return RedirectToAction("Index", "EmployeeOfficial", new { id = result.Data });
                 }
+                else
+                {
+                    TempData["ToastrMessage"] = result.Message;
+                    TempData["ToastrType"] = "error";
 
-                // Handle failure case if needed
-                ModelState.AddModelError(string.Empty, result.Message ?? "Failed to save employee info.");
+
+                    return View(model);
+                }
+
+                
             }
 
             //TempData["EmployeeModel"] = JsonConvert.SerializeObject(model); 

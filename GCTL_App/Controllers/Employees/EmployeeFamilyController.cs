@@ -1,11 +1,12 @@
 ﻿using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeFamilyController : BaseController
     {
-        public EmployeeFamilyController(ITranslateService translateService) : base(translateService)
+        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
         }
 

@@ -160,12 +160,12 @@ namespace GCTL.Service.MasterSetup.Currency
 
 
         #region Soft Delete
-        public async Task<CurrencyVM> SoftDeleteAsync(BaseViewModel model, List<int> ids)
+        public async Task<CurrencyVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.CurrencyID));
+                var data = await _genericRepository.FindAsync(x =>requestVM.Ids.Contains(x.CurrencyID));
                 if (data == null || data.Count == 0)
                 {
                     return new CurrencyVM
@@ -180,14 +180,14 @@ namespace GCTL.Service.MasterSetup.Currency
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = model.DeletedBy;
-                    item.LIP = model.LIP;
-                    item.LMAC = model.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Currency", ActionName.DataDeleted, null, beforeEntity, targetIds, model);
+                await _userInfoService.ActionLogDeleteAsync("Currency", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

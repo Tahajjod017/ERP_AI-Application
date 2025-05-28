@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.LicenceType;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.LicenceType;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.LicenceType;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly ILicenceTypeService _licenceTypeService;
 
-        public LicenceTypeController(ILicenceTypeService licenceTypeService, ITranslateService translateService) : base(translateService)
+        public LicenceTypeController(ILicenceTypeService licenceTypeService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _licenceTypeService = licenceTypeService;
         }

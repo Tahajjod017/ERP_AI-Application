@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--    Document Title-->
-    <title> GCTL-NBR _ @ViewData["Title"]</title>
+    <title> GCTL-HRM  @ViewData["Title"]</title>
     <!--    Favicons-->
     <link rel="apple-touch-icon" sizes="180x180" href="~/img/favicons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="~/img/favicons/favicon-32x32.png">
@@ -15,6 +15,11 @@
     <link rel="manifest" href="~/img/favicons/manifest.json">
     <meta name="msapplication-TileImage" content="~/img/favicons/mstile-150x150.png">
     <meta name="theme-color" content="#ffffff">
+
+    <!--    Stylesheets-->
+    @*     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
+    @*     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+    @*     <link rel="stylesheet" href="~/GCTL_NBR.styles.css" asp-append-version="true" /> *@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -30,19 +35,27 @@
 </head>
 <body>
     <main class="main" id="top">
-        <div id="mainContent">
-            @RenderBody()
-        </div>
+       
+
+        
+            <div id="mainContent">
+                @RenderBody()
+            </div>
+
+            
+       
+      
     </main>
     <!-- ===============================================-->
     <!--    JavaScripts-->
     <!-- ===============================================-->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
     <script src="~/js/vendors/simplebar/simplebar.min.js"></script>
     <script src="~/js/config.js"></script>
     <script src="~/js/vendors/popper/popper.min.js"></script>
-    <script src="~/js/vendors/bootstrap/bootstrap.min.js"></script>
+    @* This bootstrap was project inbuild *@
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+    @* This bootstrap form Phoenix *@
+    <script src="~/js/vendors/bootstrap/bootstrap.min.js"></script> 
     <script src="~/js/vendors/anchorjs/anchor.min.js"></script>
     <script src="~/js/vendors/is/is.min.js"></script>
     <script src="~/js/vendors/fontawesome/all.min.js"></script>
@@ -52,12 +65,43 @@
     <script src="~/js/vendors/dayjs/dayjs.min.js"></script>
     <script src="~/js/vendors/choices/choices.min.js"></script>
     <script src="~/js/vendors/flatpickr/flatpickr.min.js"></script>
-    <script src="~/js/phoenix.js"></script>
+	<script src="~/js/phoenix.js"></script>
 
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    
+    <script>
+        var phoenixIsRTL = window.config.config.phoenixIsRTL;
+        if (phoenixIsRTL) {
+          var linkDefault = document.getElementById('style-default');
+          var userLinkDefault = document.getElementById('user-style-default');
+          linkDefault.setAttribute('disabled', true);
+          userLinkDefault.setAttribute('disabled', true);
+          document.querySelector('html').setAttribute('dir', 'rtl');
+        } else {
+          var linkRTL = document.getElementById('style-rtl');
+          var userLinkRTL = document.getElementById('user-style-rtl');
+          linkRTL.setAttribute('disabled', true);
+          userLinkRTL.setAttribute('disabled', true);
+        }
+    </script>
+
+    <script>
+        var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+        var navbarTop = document.querySelector('.navbar-top');
+        if (navbarTopStyle === 'darker') {
+          navbarTop.setAttribute('data-navbar-appearance', 'darker');
+        }
+
+        var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+        var navbarVertical = document.querySelector('.navbar-vertical');
+        if (navbarVertical && navbarVerticalStyle === 'darker') {
+          navbarVertical.setAttribute('data-navbar-appearance', 'darker');
+        }
+    </script>
+
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

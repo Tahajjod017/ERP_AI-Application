@@ -1,0 +1,180 @@
+﻿@model GCTL_App.ViewModels.Security.UserProfileViewModel
+<style>
+    /* General Styling for the message box */
+    #passwordChangeStatus {
+        font-size: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+        font-family: Arial, sans-serif;
+        display: none; /* Initially hide the message */
+    }
+
+    /* Success Message Styling */
+    .success-message {
+        background-color: #28a745; /* Green background for success */
+        color: white;
+        border-left: 5px solid #155724; /* Left border for additional styling */
+        padding-left: 15px; /* Padding to give space to the text */
+        display: inline-block;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out; /* Smooth transition */
+    }
+
+    /* Error Message Styling */
+    .error-message {
+        background-color: #dc3545; /* Red background for error */
+        color: white;
+        border-left: 5px solid #721c24; /* Left border for additional styling */
+        padding-left: 15px;
+        display: inline-block;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out; /* Smooth transition */
+    }
+
+
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis">
+            <div class="col-12 col-xl-12 col-xxl-12">
+
+                <!-- Tabs -->
+                <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="profileTab" role="tablist">
+
+                    <li class="nav-item text-nowrap me-2" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#profileInfo" role="tab" aria-selected="true" aria-controls="profileInfo">
+                            <span class="fa-solid fa-user me-2 tab-icon-color"></span>Profile Info
+                        </a>
+                    </li>
+
+                    <li class="nav-item text-nowrap me-2" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#securitySettings" role="tab" aria-selected="false" aria-controls="securitySettings">
+                            <span class="fa-solid fa-lock me-2 tab-icon-color"></span>Security Settings
+                        </a>
+                    </li>
+
+                </ul>
+
+                <!-- Tab Contents -->
+                <div class="tab-content bg-white accordion" id="profileTabContent">
+
+                    <div class="tab-pane fade show active p-3" id="profileInfo" role="tabpanel">
+                        <div class="col-md-6 col-lg-5 px-3">
+
+                            <!-- Heading -->
+                            <div class="text-start mb-4">
+                                <h4 class="text-body-highlight mb-1">Profile Information</h4>
+                                <p class="text-body-tertiary small">Your basic account details are shown below.</p>
+                            </div>
+
+                            <!-- Profile Details Card -->
+                            <div class="card border shadow-sm rounded-3">
+                                <div class="card-body">
+
+                                    <!-- Username -->
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div class="text-body-tertiary small">Username</div>
+                                        <div class="fw-semibold">@Model.FullName</div>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div class="text-body-tertiary small">Email</div>
+                                        <div class="fw-semibold">@Model.Email</div>
+                                    </div>
+
+                                    <!-- Add more fields easily -->
+                                    <!-- Example -->
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div class="text-body-tertiary small">Phone</div>
+                                        <div class="fw-semibold">@Model.PhoneNumber</div>
+                                    </div>
+                                    <!-- Designation -->
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div class="text-body-tertiary small">Designation</div>
+                                        <div class="fw-semibold">@Model.Designation</div>
+                                    </div>
+
+                                    <!-- Department -->
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div class="text-body-tertiary small">Department</div>
+                                        <div class="fw-semibold">@Model.Department</div>
+                                    </div>
+                                    <!-- Example -->
+                                    <div class="d-flex justify-content-between">
+                                        <div class="text-body-tertiary small">Role</div>
+                                        <div class="fw-semibold">@Model.Role</div>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="text-body-tertiary small">Employee Code</div>
+                                        <div class="fw-semibold">@Model.EmployeeCode</div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <!-- Security Settings Tab -->
+                    <!-- Security Settings Tab -->
+                    <div class="tab-pane fade p-3" id="securitySettings" role="tabpanel">
+                        <div class="col-md-6 col-lg-5 px-3">
+
+                            <!-- Title -->
+                            <div class="text-start mb-4">
+                                <h4 class="text-body-highlight">Change Password</h4>
+                                <p class="text-body-tertiary mb-2 small">Update your current password for security reasons.</p>
+                            </div>
+
+                            <!-- Password Change Form -->
+                            <form id="changePasswordForm" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+
+                                <!-- Current Password -->
+                                <div class="mb-3">
+                                    <label class="form-label" for="oldPassword">Current Password</label>
+                                    <input asp-for="PasswordRequest.OldPassword" class="form-control" placeholder="Enter current password" />
+                                    <span asp-validation-for="PasswordRequest.OldPassword" class="text-danger"></span>
+                                </div>
+
+                                <!-- New Password -->
+                                <div class="mb-3">
+                                    <label class="form-label" for="newPassword">New Password</label>
+                                    <input asp-for="PasswordRequest.NewPassword" class="form-control" placeholder="Enter new password" type="password" />
+                                    <span asp-validation-for="PasswordRequest.NewPassword" class="text-danger"></span>
+                                </div>
+
+                                <!-- Confirm New Password -->
+                                <div class="mb-3">
+                                    <label class="form-label" for="confirmNewPassword">Confirm New Password</label>
+                                    <input asp-for="PasswordRequest.ConfirmPassword" class="form-control" placeholder="Confirm new password" type="password" />
+                                    <span asp-validation-for="PasswordRequest.ConfirmPassword" class="text-danger"></span>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit" class="btn btn-primary">Change Password</button>
+                            </form>
+
+                            <!-- Message Container for Success/Error -->
+                            <div id="passwordChangeStatus"></div>
+
+
+
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/pages/authjs/userprofiles.js"></script>

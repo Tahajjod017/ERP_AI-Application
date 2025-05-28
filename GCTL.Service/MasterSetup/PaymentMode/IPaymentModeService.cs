@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.PaymentMode
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.PaymentMode
         #region CRUD
         Task<bool> AddAsync(PaymentModeVM model);
         Task<bool> UpdateAsync(PaymentModeVM model);
-        Task<PaymentModeVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<PaymentModeVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<PaymentModeVM> GetByIdAsync(int id);
         Task<PaginationService<PaymentModes, PaymentModeVM>.PaginationResult<PaymentModeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "PaymentModeID", string sortOrder = "desc");

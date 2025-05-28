@@ -1,0 +1,24 @@
+﻿@{
+    var alertType = TempData["AlertType"] as string;
+    var alertMessage = TempData["AlertMessage"] as string;
+}
+
+@if (!string.IsNullOrEmpty(alertType) && !string.IsNullOrEmpty(alertMessage))
+{
+    <div class="alert alert-subtle-@alertType alert-dismissible fade show text-center" id="tempAlert"
+         style="font-size: 14px; padding: 10px 16px; max-width: 500px; margin: 12px auto;">
+        @alertMessage
+       
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $("#tempAlert").fadeOut("slow", function () {
+                    $(this).alert('close');
+                });
+            }, 4000);
+        });
+    </script>
+}
+

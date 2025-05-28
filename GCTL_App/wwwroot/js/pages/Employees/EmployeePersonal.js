@@ -1,6 +1,74 @@
 ﻿$(document).ready(function () {
 
 
+    //#region Validation
+
+    function isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    function showError(inputId, message) {
+        const $input = $("#" + inputId);
+        if ($input.next(".text-danger").length === 0) {
+            const $error = $('<span class="text-danger">' + message + '</span>').css({
+                position: 'absolute',
+                fontSize: '0.8rem',
+                zIndex: 10,
+                marginTop: '2px',
+                left: 0
+            });
+            $input.after($error);
+        }
+    }
+
+
+    function removeError(inputId) {
+        const $input = $("#" + inputId);
+        $input.next(".text-danger").remove();
+    }
+
+    function clearErrors() {
+        $(".text-danger").remove();
+    }
+
+
+    function attachInputValidationHandler(selectors) {
+        $(selectors).on("input", function () {
+            const id = $(this).attr("id");
+            const value = $(this).val().trim();
+
+            if (value !== "") {
+                if (id === "personalEmail" && !isValidEmail(value)) {
+                    return; // still invalid email, keep error
+                }
+                removeError(id);
+            }
+        });
+    }
+
+    //$("#firstName, #lastName, #personalMobile, #personalEmail").on("input", function () {
+    //    const id = $(this).attr("id");
+    //    const value = $(this).val().trim();
+
+    //    if (value !== "") {
+    //        if (id === "personalEmail" && !isValidEmail(value)) {
+    //            return; // still invalid email, keep error
+    //        }
+    //        removeError(id);
+    //    }
+    //});
+
+
+    attachInputValidationHandler("#firstName, #lastName, #personalMobile, #personalEmail");
+    
+
+    //#endregion
+
+
+    //#region Submit 
+
+
     $('#submitButton').on('click', function (e) {
         e.preventDefault();
 
@@ -11,12 +79,47 @@
             $('#addNationalityModal').modal('show');
         }
 
-        if (confirm("Are you sure you want to submit the form?")) {
+        clearErrors();
+        let valid = true;
+
+        const firstName = $("#firstName").val().trim();
+        const lastName = $("#lastName").val().trim();
+        const email = $("#personalEmail").val().trim();
+        const mobile = $("#personalMobile").val().trim();
+
+        if (!firstName) {
+            showError("firstName", "First Name is required.");
+            valid = false;
+        }
+
+        if (!lastName) {
+            showError("lastName", "Last Name is required.");
+            valid = false;
+        }
+
+        if (!email) {
+            showError("personalEmail", "Email is required.");
+            valid = false;
+        } else if (!isValidEmail(email)) {
+            showError("personalEmail", "Invalid email format.");
+            valid = false;
+        }
+
+        if (!mobile) {
+            showError("personalMobile", "Mobile number is required.");
+            valid = false;
+        }
+
+        if (valid) {
             $('#employeeForm').submit();
         }
+
+      
+           
+        
     });
 
-
+    //#endregion
 
     //$('#employeeForm').on('submit', function (e) {
     //    if (!confirm("Are you sure you want to submit the formooo?")) {
@@ -24,20 +127,41 @@
     //    }
     //});
 
+    //#region tostr
+
+
+    const toastrElement = document.getElementById('toastr-data');
+    if (toastrElement) {
+        const message = toastrElement.getAttribute('data-message');
+        const type = toastrElement.getAttribute('data-type');
+
+        if (message && message.trim() !== '') {
+            switch (type) {
+                case 'success':
+                    toastr.success(message);
+                    break;
+                case 'error':
+                    toastr.error(message);
+                    break;
+                case 'info':
+                    toastr.info(message);
+                    break;
+                case 'warning':
+                    toastr.warning(message);
+                    break;
+                default:
+                    toastr.info(message);
+                    break;
+            }
+        }
+    }
+
+    //#endregion
 
     //#region Choice Min Js
 
 
-    //let blooodGroupChoices;
-    //function initBloodGroupChoices() {
-    //    blooodGroupChoices = new Choices('#BloodGroup', {
-    //        removeItemButton: true,
-    //        shouldSort: false,
-    //        placeholderValue: 'Select Blood Group'
-    //    });
-    //}
-    //document.addEventListener('DOMContentLoaded', initBloodGroupChoices);
-    //initBloodGroupChoices();
+   
 
 
     let maritalChoices;

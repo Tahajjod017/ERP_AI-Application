@@ -39,10 +39,11 @@
                                 <label asp-for="NewRoleName">Role Name</label>
                                 <span asp-validation-for="NewRoleName" class="text-danger"></span>
                             </div>
-                            @if (ViewBag.CanCreate == true)
+                            @* @if (ViewBag.CanCreate == true)
                             {
                                 <button type="submit" class="btn btn-primary mt-3">Add Role</button>
-                            }
+                            } *@
+                            <button type="submit" class="btn btn-primary mt-3">Add Role</button>
                         </form>
                     </div>
                 </div>

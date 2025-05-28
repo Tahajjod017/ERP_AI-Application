@@ -59,6 +59,10 @@ public partial class AspNetUsers
 
     public int AccessFailedCount { get; set; }
 
+    public int? OrganizationID { get; set; }
+
+    public int? TenantInfoId { get; set; }
+
     public virtual ICollection<AspNetUserClaims> AspNetUserClaims { get; set; } = new List<AspNetUserClaims>();
 
     public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; } = new List<AspNetUserLogins>();
@@ -66,6 +70,10 @@ public partial class AspNetUsers
     public virtual ICollection<AspNetUserTokens> AspNetUserTokens { get; set; } = new List<AspNetUserTokens>();
 
     public virtual Employees Employee { get; set; }
+
+    public virtual Organization Organization { get; set; }
+
+    public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual ICollection<AspNetRoles> Role { get; set; } = new List<AspNetRoles>();
 }

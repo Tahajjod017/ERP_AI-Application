@@ -22,12 +22,15 @@ namespace GCTL.Core.Repository
 
         #region Adds
         Task AddAsync(T entity);
+
+        Task AddAsync(T entity, object model);
         Task AddRangeAsync(IEnumerable<T> entities);
         #endregion
 
 
         #region Updates
         Task UpdateAsync(T entity);
+        Task UpdateAsync(T entity, object model);
         Task UpdateRangeAsync(IEnumerable<T> entities);
         #endregion
 

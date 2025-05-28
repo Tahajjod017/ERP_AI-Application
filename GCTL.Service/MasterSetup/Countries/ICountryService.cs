@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Countries
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Countries
         #region CRUD
         Task<bool> AddAsync(CountryVM model);
         Task<bool> UpdateAsync(CountryVM model);
-        Task<CountryVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<CountryVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<CountryVM> GetByIdAsync(int id);
         Task<PaginationService<Country, CountryVM>.PaginationResult<CountryVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "CountryID", string sortOrder = "desc");

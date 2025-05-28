@@ -267,6 +267,20 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<LeaveApplications> LeaveApplicationsCreatedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsDeletedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsEmployee { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveApplications> LeaveApplicationsUpdatedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypesCreatedByNavigation { get; set; } = new List<LeaveTypes>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypesDeletedByNavigation { get; set; } = new List<LeaveTypes>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypesUpdatedByNavigation { get; set; } = new List<LeaveTypes>();
+
     public virtual ICollection<LicenceTypes> LicenceTypesCreatedByNavigation { get; set; } = new List<LicenceTypes>();
 
     public virtual ICollection<LicenceTypes> LicenceTypesDeletedByNavigation { get; set; } = new List<LicenceTypes>();

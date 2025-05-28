@@ -175,7 +175,7 @@ namespace GCTL_App.Controllers.Language
                 }
             }
 
-            return RedirectToAction("TranslateToMultipleInd", "Langauge");
+            return RedirectToAction("Index");
         }
 
         public IActionResult ChangeLanguage(string languageCode)

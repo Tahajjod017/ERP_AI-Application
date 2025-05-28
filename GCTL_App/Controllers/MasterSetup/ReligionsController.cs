@@ -6,6 +6,8 @@ using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.Religions;
+using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -16,7 +18,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public ReligionsController(IReligionService religionService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public ReligionsController(IReligionService religionService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _religionService = religionService;
             _translationService = translationService;
@@ -82,7 +84,7 @@ namespace GCTL_App.Controllers.MasterSetup
                         return Json(new { isSuccess = false, message = "This name already exists!" });
                     }
                     await _religionService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.Id });
+                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ReligionID });
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
@@ -144,15 +146,15 @@ namespace GCTL_App.Controllers.MasterSetup
         #region SoftDelete
         [Permission("Delete", "Religions")]
         [HttpPost]
-        public async Task<IActionResult> SoftDelete(BaseViewModel model, List<int> ids)
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {
             try
             {
-                if (ids == null || !ids.Any() || ids.Count == 0)
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
                 {
                     return Json(new { isSuccess = false, message = "No id selected to delete." });
                 }
-                var result = await _religionService.SoftDeleteAsync(model, ids);
+                var result = await _religionService.SoftDeleteAsync(requestVM);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No id found to delete." });

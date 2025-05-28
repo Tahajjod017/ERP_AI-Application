@@ -1,49 +1,26 @@
 ﻿using System.Net.NetworkInformation;
+using System.Security.Claims;
+using GCTL.Data.Models;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.DevTools.V134.Debugger;
 
 namespace GCTL_App.Controllers
 {
     public abstract class BaseController : Controller
     {
 
-
-
-        //protected readonly ITranslateService _translateService;
-
-        //private int _smartPageCode = 0;
-
-        //protected BaseController()
-        //{
-        //}
-
-        //protected BaseController(ITranslateService translateService)
-        //{
-        //    _translateService = translateService;
-        //}
-
-        //protected void SetSmartPageCode(int code)
-        //{
-        //    _smartPageCode = code;
-        //    ViewData["SmartPageCode"] = _smartPageCode;
-        //    ViewData["BaseControllerInstance"] = this;
-        //}
-
-        //protected string SmartLocalizeText(string defaultText)
-        //{
-        //    string lang = HttpContext.Items["Language"] as string ?? "en";
-        //    return _translateService.GetTranslationInd(defaultText, (_smartPageCode++).ToString(), lang) ?? defaultText;
-        //}
-
-
+        protected readonly IUserProfileService _userProfileService;
         protected readonly ITranslateService _translateService;
-
-
         private int _smartPageCode = 0;
 
-        protected BaseController(ITranslateService translateService)
+        protected BaseController(ITranslateService translateService, IUserProfileService userProfileService)
         {
             _translateService = translateService;
+            _userProfileService = userProfileService;
         }
 
         protected void SetSmartPageCode(int code)
@@ -58,65 +35,29 @@ namespace GCTL_App.Controllers
             string lang = HttpContext.Items["Language"] as string ?? "en";
             return _translateService.GetTranslationInd(defaultText, (_smartPageCode++).ToString(), lang);
         }
-
-
-
-
-
-
-        //private int _pageCode;
-        //protected string LanguageCode => HttpContext.Items["Language"] as string ?? "en";
-
-
-        // Call this in each controller to set the correct pageCode
-        //protected void SetPageCode(int startCode)
-        //{
-        //    _pageCode = startCode;
-        //}
-
-        //protected string Translate(string defaultText)
-        //{
-        //    return _translateService.GetTranslationInd(defaultText, (_pageCode++).ToString(), LanguageCode);
-        //}
-
-        public string GetLocalIP()
+        protected void SetUserProfile()
         {
-            string ipAddress = string.Empty;
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
+            string fullName = "Guest User";
+            string profilePicturePath = "/img/team/72x72/default.webp";
 
-            foreach (var networkInterface in networkInterfaces)
+            if (User?.Identity?.IsAuthenticated == true && _userProfileService!=null)
             {
-                var properties = networkInterface.GetIPProperties();
-                var ipv4Address = properties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-                if (ipv4Address != null)
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(userId))
                 {
-                    ipAddress = ipv4Address.Address.ToString();
-                    break;
+                    (fullName, profilePicturePath) = _userProfileService.GetUserProfileAsync(userId);
                 }
             }
 
-            return ipAddress;
+            ViewData["FullName"] = fullName;
+            ViewData["ProfilePicturePath"] = profilePicturePath;
         }
-
-        public string GetMacAddress()
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            string macAddress = string.Empty;
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                macAddress = networkInterface.GetPhysicalAddress().ToString();
-                if (!string.IsNullOrEmpty(macAddress))
-                {
-                    break;
-                }
-            }
-
-            return macAddress;
+            SetUserProfile();
+            base.OnActionExecuting(context);
         }
+
     }
 
 

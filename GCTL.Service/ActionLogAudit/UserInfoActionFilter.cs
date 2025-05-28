@@ -10,8 +10,6 @@ using GCTL.Core.ViewModels;
 using Microsoft.AspNetCore.Http;
 namespace GCTL.Service.ActionLogAudit
 {
-    
-
     public class UserInfoActionFilter : IActionFilter
     {
         private readonly IUserInfoService _userInfoService;
