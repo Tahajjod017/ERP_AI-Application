@@ -41,6 +41,8 @@ namespace GCTL_App.Controllers.Employees
             return View();
         }
 
+        #region GetEmployeeSalaryData
+
         [HttpGet]
         public async Task<IActionResult> GetEmployeeSalaryData(int employeeId)
         {
@@ -99,6 +101,8 @@ namespace GCTL_App.Controllers.Employees
             }
         }
 
+
+        #endregion
 
         [HttpPost]
         public async Task<IActionResult> Index(EmployeeSalaryPostViewModel model)

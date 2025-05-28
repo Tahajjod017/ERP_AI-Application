@@ -258,7 +258,7 @@ namespace GCTL.Service.Employees.EmployeeSalary
 
                 result.Success = true;
                 result.Message = "Employee salary info updated successfully.";
-                result.Data = entity.EmployeeSalarySettingsID;
+                result.Data = model.EmployeePersonalId;
             }
             catch (Exception ex)
             {
