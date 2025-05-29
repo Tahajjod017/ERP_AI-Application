@@ -19,7 +19,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
-                            <select class="form-multi-select coreUiDD" asp-for="OrganizationID" asp-items="ViewBag.OrganizationDD as SelectList" multiple data-coreui-selection-type="tags" data-coreui-search="true">
+                            <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" multiple data-coreui-selection-type="tags" data-coreui-search="true">
                             </select>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" asp-for="EndTime">@Html.SmartLocalize("End Time")</label>
-                            <input id="EndTimePicker" class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="hour : minute"
+                            <input id="EndTimePicker" class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                        data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
                             @* <input class="form-control datetimepicker timepicker-12hr" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                         </div>

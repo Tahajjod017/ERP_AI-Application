@@ -31,13 +31,13 @@
                 var formData = {
                     __RequestVerificationToken: token,
                     ShiftName: $('#ShiftName').val(),
-                    OrganizationID: $('#OrganizationID').val(),
+                    OrganizationIDs: $('#OrganizationIDs').val(),
                     StartTime: $('#StartTime').val(),
                     EndTime: $('#EndTime').val(),
                     IsLateCount: $('#IsLateCount').prop('checked'),
                     IsAutomaticORManualBreakTime: $('#IsAutomaticORManualBreakTime').prop('checked'),
-                    /*IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('input[name=IsMealBreakCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",*/
-                    IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('#IsMealBreakCompulsaryOrComplementaryDeductWithShift').prop('checked'),
+                    IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('input[name=IsMealBreakCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
+                    /*IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('#IsMealBreakCompulsaryOrComplementaryDeductWithShift').prop('checked'),*/
                     IsMealBreakComplementoryWithShift: $('#IsMealBreakComplementoryWithShift').prop('checked'),
                     IsAllowStartAndEndTime: $('#IsAllowStartAndEndTime').prop('checked'),
                     MealBreakStartTime: $('#MealBreakStartTime').val(),
@@ -92,7 +92,7 @@
                             var data = response.data;
                             $(settings.form).find('#ShiftID').val(data.shiftID);
                             $(settings.form).find('#ShiftName').val(data.shiftName);
-                            $(settings.form).find('#OrganizationID').val(data.organizationID);
+                            $(settings.form).find('#OrganizationIDs').val(data.organizationIDs);
                             $(settings.form).find('#StartTime')[0]._flatpickr.setDate(data.startTime);
                             $(settings.form).find('#EndTime').val(data.endTime);
                             $(settings.form).find('#IsLateCount').prop('checked', data.isLateCount);
