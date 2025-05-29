@@ -8,10 +8,9 @@ namespace GCTL.Data.Models
     {
         public int? TenantInfoId { get; set; }
         public virtual TenantInfo? TenantInfo { get; set; } // check for add application user/Role to tenant info
-        public int? OrganizationID { get; set; } 
+        public int? OrganizationID { get; set; }
         public virtual Organization? Organization { get; set; } // check for add application user/Role to organization
-        public ICollection<RoleModulePermissions>? RoleModulePermissions { get; set; } // check for add application user/Role to role module permissions
-
+        public ICollection<RoleModulePermissions>? RoleModulePermissions { get; set; }
     }
     public class ApplicationUser : IdentityUser
     {

@@ -20,23 +20,21 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public string? OrganizationName { get; set; }
 
-        public DateTime? StartTime { get; set; }
+        public TimeOnly? StartTime { get; set; }
 
-        public DateTime? EndTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
 
         public bool IsLateCount { get; set; }
 
         public bool IsAutomaticORManualBreakTime { get; set; }
 
-        public bool IsMealBreakCompulsaryDeductWithShift { get; set; }
-
-        public bool IsMealBreakComplementoryWithShift { get; set; }
+        public bool IsMealBreakCompulsaryOrComplementaryDeductWithShift { get; set; }
 
         public bool IsAllowStartAndEndTime { get; set; }
 
-        public DateTime? MealBreakStartTime { get; set; }
+        public TimeOnly? MealBreakStartTime { get; set; }
 
-        public DateTime? MealBreakEndTime { get; set; }
+        public TimeOnly? MealBreakEndTime { get; set; }
 
         public bool IsAllowOvertime { get; set; }
 

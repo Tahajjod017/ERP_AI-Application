@@ -243,15 +243,23 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[SpiralPatternDetails]",
+         "Name": "[dbo].[SpiralBioWeeklyPattern]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[SpiralPatterns]",
+         "Name": "[dbo].[SpiralBioWeeklyPatternDetails]",
          "ObjectType": 0
       },
       {
          "Name": "[dbo].[SpiralPatternTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralWeeklyPattern]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralWeeklyPatternDetails]",
          "ObjectType": 0
       },
       {

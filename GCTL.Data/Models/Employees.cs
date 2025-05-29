@@ -373,11 +373,17 @@ public partial class Employees
 
     public virtual ICollection<Shifts> ShiftsUpdatedByNavigation { get; set; } = new List<Shifts>();
 
-    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetailsCreatedByNavigation { get; set; } = new List<SpiralPatternDetails>();
+    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternCreatedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();
 
-    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetailsDeletedByNavigation { get; set; } = new List<SpiralPatternDetails>();
+    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternDeletedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();
 
-    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralPatternDetails>();
+    public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetailsCreatedByNavigation { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetailsDeletedByNavigation { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternUpdatedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();
 
     public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesCreatedByNavigation { get; set; } = new List<SpiralPatternTypes>();
 
@@ -385,11 +391,17 @@ public partial class Employees
 
     public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesUpdatedByNavigation { get; set; } = new List<SpiralPatternTypes>();
 
-    public virtual ICollection<SpiralPatterns> SpiralPatternsCreatedByNavigation { get; set; } = new List<SpiralPatterns>();
+    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPatternCreatedByNavigation { get; set; } = new List<SpiralWeeklyPattern>();
 
-    public virtual ICollection<SpiralPatterns> SpiralPatternsDeletedByNavigation { get; set; } = new List<SpiralPatterns>();
+    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPatternDeletedByNavigation { get; set; } = new List<SpiralWeeklyPattern>();
 
-    public virtual ICollection<SpiralPatterns> SpiralPatternsUpdatedByNavigation { get; set; } = new List<SpiralPatterns>();
+    public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetailsCreatedByNavigation { get; set; } = new List<SpiralWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetailsDeletedByNavigation { get; set; } = new List<SpiralWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPatternUpdatedByNavigation { get; set; } = new List<SpiralWeeklyPattern>();
 
     public virtual ICollection<Statuses> StatusesCreatedByNavigation { get; set; } = new List<Statuses>();
 

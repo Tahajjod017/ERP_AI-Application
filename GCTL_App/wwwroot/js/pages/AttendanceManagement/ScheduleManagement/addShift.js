@@ -36,8 +36,8 @@
                     EndTime: $('#EndTime').val(),
                     IsLateCount: $('#IsLateCount').prop('checked'),
                     IsAutomaticORManualBreakTime: $('#IsAutomaticORManualBreakTime').prop('checked'),
-                    /*IsMealBreakCompulsaryDeductWithShift: $('input[name=IsMealBreakCompulsaryDeductWithShift]:checked').val() === "true",*/
-                    IsMealBreakCompulsaryDeductWithShift: $('#IsMealBreakCompulsaryDeductWithShift').prop('checked'),
+                    /*IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('input[name=IsMealBreakCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",*/
+                    IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('#IsMealBreakCompulsaryOrComplementaryDeductWithShift').prop('checked'),
                     IsMealBreakComplementoryWithShift: $('#IsMealBreakComplementoryWithShift').prop('checked'),
                     IsAllowStartAndEndTime: $('#IsAllowStartAndEndTime').prop('checked'),
                     MealBreakStartTime: $('#MealBreakStartTime').val(),
@@ -97,7 +97,7 @@
                             $(settings.form).find('#EndTime').val(data.endTime);
                             $(settings.form).find('#IsLateCount').prop('checked', data.isLateCount);
                             $(settings.form).find('#IsAutomaticORManualBreakTime').val(data.isAutomaticORManualBreakTime);
-                            $(settings.form).find('#IsMealBreakCompulsaryDeductWithShift').val(data.isMealBreakCompulsaryDeductWithShift);
+                            $(settings.form).find('#IsMealBreakCompulsaryOrComplementaryDeductWithShift').val(data.IsMealBreakCompulsaryOrComplementaryDeductWithShift);
                             $(settings.form).find('#IsMealBreakComplementoryWithShift').val(data.isMealBreakComplementoryWithShift);
                             $(settings.form).find('#IsAllowStartAndEndTime').val(data.isAllowStartAndEndTime);
                             $(settings.form).find('#MealBreakStartTime').val(data.mealBreakStartTime);
@@ -237,12 +237,8 @@
 
                 if ($(this).is(':checked')) {
                     $('#addShift-GraceTimeDiv').removeClass('d-none');
-                    $('#addShift-EnableLateCount').addClass('d-none');
-                    $('#addShift-DisableLateCount').removeClass('d-none');
                 } else {
                     $('#addShift-GraceTimeDiv').addClass('d-none');
-                    $('#addShift-EnableLateCount').removeClass('d-none');
-                    $('#addShift-DisableLateCount').addClass('d-none');
                 }
             });
 
@@ -251,12 +247,8 @@
 
                 if ($(this).is(':checked')) {
                     $('#addShift-BreakTimeDiv').removeClass('d-none');
-                    $('#addShift-AutomaticBreakTime').addClass('d-none');
-                    $('#addShift-ManualBreakTime').removeClass('d-none');
                 } else {
                     $('#addShift-BreakTimeDiv').addClass('d-none');
-                    $('#addShift-AutomaticBreakTime').removeClass('d-none');
-                    $('#addShift-ManualBreakTime').addClass('d-none');
                 }
             });
 
@@ -446,7 +438,7 @@
                             tableBody.append(`
                                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
-                                        <input type="checkbox" class="form-check-input addShift-selectItem" data-id="${item.addShiftID}" />
+                                        <input type="checkbox" class="form-check-input addShift-selectItem" data-id="${item.shiftID}" />
                                     </td>
                                     <td class="shiftName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
                                         <h5>${item.shiftName}</h5>
@@ -460,11 +452,11 @@
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime}</td>
                                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                         <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_shift">
-                                                <i class="fas fa-edit text-success"></i>
+                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_shift" data-id="${item.shiftID}">
+                                                <i class="fas fa-edit text-black"></i>
                                             </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal" id="addShift-singleDelBtn" data-id="${item.addShiftID}">
-                                                <i class="fas fa-trash text-danger"></i>
+                                            <a href="#" class="nav-item mx-2" id="addShift-singleDelBtn" data-id="${item.shiftID}">
+                                                <i class="far fa-trash-alt text-black"></i>
                                             </a>
                                         </div>
                                     </td>

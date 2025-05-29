@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,7 +15,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private readonly IGenericRepository<LeaveTypes> leaveType;
         private readonly IGenericRepository<Statuses> status;
         private ILeaveRequestService  leaveRequestService;
-        public LeaveRequestController(ITranslateService translateService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService) : base(translateService)
+
+        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService) : base(translateService, userProfileService)
         {
             this.leaveType = leaveType;
             this.status = status;

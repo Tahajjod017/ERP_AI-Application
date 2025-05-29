@@ -41,6 +41,8 @@ public partial class LeaveApplications
 
     public int? DeletedBy { get; set; }
 
+    public string Reason { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

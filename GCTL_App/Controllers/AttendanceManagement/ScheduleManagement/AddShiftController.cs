@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,8 +15,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #region Services & Repositories
         private readonly IAddShiftService _addShiftService;
 
-
-        public AddShiftController(IAddShiftService addShiftService, ITranslateService translateService) : base(translateService)
+        public AddShiftController(ITranslateService translateService, IUserProfileService userProfileService, IAddShiftService addShiftService) : base(translateService, userProfileService)
         {
             _addShiftService = addShiftService;
         }
