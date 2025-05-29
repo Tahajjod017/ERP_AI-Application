@@ -16,7 +16,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
         [Required(ErrorMessage = "{0} is required."), DisplayName("Shift Name")]
         public string ShiftName { get; set; }
 
-        public int? OrganizationID { get; set; }
+        public List<int>? OrganizationIDs { get; set; }
 
         public string? OrganizationName { get; set; }
 
