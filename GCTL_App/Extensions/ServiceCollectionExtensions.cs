@@ -50,6 +50,10 @@ using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 
 using GCTL.Service.UserProfile;
 using GCTL.Service.Employees.EmployeeAllowance;
+using GCTL.Service.Employees.EmployeeAdditional;
+using GCTL.Service.Employees.EmployeeTraining;
+using GCTL.Service.Employees.EmployeeEducational;
+using GCTL.Service.Employees.EmployeeFamily;
 
 
 
@@ -140,6 +144,10 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeBenifitService, EmployeeBenifitService>();
             services.AddScoped<IEmployeeAllowanceService, EmployeeAllowanceService>();
 
+            services.AddScoped<IEmployeeAdditionalService, EmployeeAdditionalService>();
+            services.AddScoped<IEmployeeTrainingService, EmployeeTrainingService>();
+            services.AddScoped<IEmployeeEducationalService, EmployeeEducationalService>();
+            services.AddScoped<IEmployeeFamilyService, EmployeeFamilyService>();
 
             #endregion
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Employee.EmployeeAllowance
 {
-    public class EmployeeAllowancePostViewModel : EmployeeBaseViewModel
+    public class EmployeeAdditionalPostViewModel : EmployeeBaseViewModel
     {
         public int EmployeeBaseAllowanceID { get; set; }
 

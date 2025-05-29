@@ -26,7 +26,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             _employeeSalaryRepository = employeeSalaryRepository;
         }
 
-        public async Task<EmployeeAllowancePostViewModel> GetEmployeeAllowance(int employeeId)
+        public async Task<EmployeeAdditionalPostViewModel> GetEmployeeAllowance(int employeeId)
         {
             var allowance = await(from eb in _employeeAllowancesRepository.AllActive()
                                   join emp in _employeeRepository.AllActive()
@@ -39,7 +39,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
 
                                   where eb.EmployeeID == employeeId
 
-                                  select new EmployeeAllowancePostViewModel
+                                  select new EmployeeAdditionalPostViewModel
                                  {
                                      EmployeePersonalId = emp.EmployeeID,
                                      PersonalEmail = emp.Email ?? "N/A",
@@ -66,7 +66,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             }
             else
             {
-                var emp = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeAllowancePostViewModel
+                var emp = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeAdditionalPostViewModel
                 {
                     EmployeePersonalId = (int)m.EmployeeID,
 
@@ -78,7 +78,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             }
         }
 
-        public async Task<CommonReturnViewModel> SaveEmployeeAllowanceAsync(EmployeeAllowancePostViewModel model)
+        public async Task<CommonReturnViewModel> SaveEmployeeAllowanceAsync(EmployeeAdditionalPostViewModel model)
         {
             try
             {
