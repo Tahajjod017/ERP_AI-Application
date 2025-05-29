@@ -1,0 +1,198 @@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift.ShiftsSetupVM
+
+<div class="card">
+    <div class="card-header ">
+        <h4 class="mb-1">@Html.SmartLocalize("Add New Shift")</h4>
+        <div class="">
+            <form asp-action="Create" asp-controller="AddShift" method="post" enctype="multipart/form-data" id="addShift-form">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="ShiftName">@Html.SmartLocalize("Shift Name")</label>
+                            <input class="form-control" asp-for="ShiftName" type="text" placeholder="@Html.SmartLocalize("Enter Name")" />
+                        </div>
+                        <span asp-validation-for="ShiftName" class="text-danger"></span>
+                        <span id="nameError" class="text-danger" style="display:none;"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
+                            <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" multiple data-coreui-selection-type="tags" data-coreui-search="true">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="StartTime">@Html.SmartLocalize("Start Time")</label>
+                            <input class="form-control datetimepicker timepicker-12hr" asp-for="StartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="EndTime">@Html.SmartLocalize("End Time")</label>
+                            <input id="EndTimePicker" class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
+                                       data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
+                            @* <input class="form-control datetimepicker timepicker-12hr" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="mb-3 mt-3">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <label class="form-check-label me-2" asp-for="IsLateCount">@Html.SmartLocalize("Disable Late count")</label>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch ">
+                                            <input class="form-check-input mt-2" type="checkbox" asp-for="IsLateCount">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <label class="form-check-label me-2" asp-for="IsLateCount">@Html.SmartLocalize("Enable Late Count")</label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 d-none" id="addShift-GraceTimeDiv">
+                        <div class="mb-1">
+                            <label class="form-label" for="organizerSingle">Grace Time</label>
+                            <input class="form-control datetimepicker timepicker-12hr" asp-for="GraceTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="mb-3 mt-3">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <label class="form-check-label me-2" asp-for="IsAutomaticORManualBreakTime">@Html.SmartLocalize("Automatic Break Time")</label>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input bg-success mt-2" type="checkbox" asp-for="IsAutomaticORManualBreakTime">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <label class="form-check-label me-2" asp-for="IsAutomaticORManualBreakTime">@Html.SmartLocalize("Manual Break Time")</label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="p-3 mb-2 border d-none rounded-3" id="addShift-BreakTimeDiv">
+                        <div class="d-flex col-md-12  px-3">
+                            <div class="col-md-4 me-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Break Time")</label>
+                                    <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 me-2">
+                                <div class="mt-5 ">
+                                    <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" name="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-CompulsaryDeduct" type="radio" value="true" />
+                                    @* <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-CompulsaryDeduct" type="checkbox" /> *@
+                                    <label class="form-check-label" for="addShift-CompulsaryDeduct">@Html.SmartLocalize("Compulsary Deduct With Shift")</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 ">
+                                <div class="mt-5">
+                                    <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" name="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-Complementary" type="radio" value="false" />
+                                    @* <input class="form-check-input" asp-for="IsMealBreakComplementoryWithShift" id="addShift-Complementary" type="checkbox" /> *@
+                                    <label class="form-check-label" for="addShift-Complementary">@Html.SmartLocalize("Complementory With Shift")</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="d-flex justify-content-start">
+                            <div>
+                                <label class="form-check-label me-2 d-none" asp-for="IsAllowStartAndEndTime" id="addShift-DenyStartEndTime">@Html.SmartLocalize("Deny Start and End Time")</label>
+                            </div>
+                            <div class="form-check form-switch flex-row">
+                                <label class="form-check-label me-2" asp-for="IsAllowStartAndEndTime" id="addShift-AllowStartEndTime">@Html.SmartLocalize("Allow Start and End Time")</label>
+                                <input class="form-check-input" type="checkbox" asp-for="IsAllowStartAndEndTime">
+                            </div>
+                        </div>
+
+                        <div class=" p-3 d-none" id="addShift-StartEndTimeDiv">
+                            <div class="d-flex col-md-12  px-3">
+                                <div class="col-md-3 me-4">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="timepicker1">Start Time</label>
+                                        <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="">
+                                        <label class="form-label" for="timepicker1">End Time</label>
+                                        <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-start mb-3">
+                            <div>
+                                <label class="form-check-label me-2 d-none" asp-for="IsAllowOvertime" id="addShift-DisableOvertime">@Html.SmartLocalize("Disable Overtime")</label>
+                            </div>
+                            <div class="form-check form-switch flex-row">
+                                <label class="form-check-label me-2" asp-for="IsAllowOvertime" id="addShift-AllowOvertime">@Html.SmartLocalize("Allow Overtime")</label>
+                                <input class="form-check-input" type="checkbox" asp-for="IsAllowOvertime">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row d-none" id="addShift-OvertimeDiv">
+                        <div class="d-flex justify-content-between border rounded-3">
+                            <div class="col-md-4 me-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="organizerSingle">
+                                        Minimum working time eligable for
+                                        overtime
+                                    </label>
+                                    <input class="form-control datetimepicker timepicker-12hr" asp-for="MinimumWorkingTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 me-3">
+                                <div class="mb-4">
+                                    <label class="form-label" for="organizerSingle">Minimum Required Overtime</label>
+                                    <input class="form-control datetimepicker timepicker-12hr" asp-for="MinimumRequiredOvertime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-1">
+                                    <label class="form-label" for="organizerSingle">Maximum Allowed Overtime</label>
+                                    <input class="form-control datetimepicker timepicker-12hr" asp-for="MaximumAllowedOvertime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-4">
+                    <div class="row g-3 justify-content-end">
+                        <div class="col-auto">
+                            <button type="reset" class="btn btn-phoenix-primary px-5" id="addShift-resetBtn">@Html.SmartLocalize("Reset")</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-5 px-sm-15" id="addShift-saveBtn">@Html.SmartLocalize("Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

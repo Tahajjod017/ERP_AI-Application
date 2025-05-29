@@ -41,13 +41,20 @@ using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeBenifit;
+
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
+
+
+using GCTL.Service.UserProfile;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
+
 
 
 
@@ -103,15 +110,21 @@ namespace GCTL_App.Extensions
             services.AddScoped<IServiceYearService, ServiceYearService>();
             services.AddScoped<ITrainingYearService, TrainingYearService>();
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
+            services.AddScoped<IAddShiftService, AddShiftService>();
             #endregion
 
 
             //Siam 
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
-
             services.AddScoped<IVisitingPathService, VisitingPathService>();
-           
+
+            services.AddScoped<ILeaveRequestService , LeaveRequestService>();
+
+
+            #region Asad
+            services.AddScoped<IUserProfileService, UserProfileService>();
+            #endregion
 
 
             #region Language Services

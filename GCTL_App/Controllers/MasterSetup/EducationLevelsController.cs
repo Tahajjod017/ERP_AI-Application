@@ -7,6 +7,7 @@ using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.EducationLevels;
 using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -17,7 +18,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public EducationLevelsController(IEducationLevelsService educationLevelsService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public EducationLevelsController(IEducationLevelsService educationLevelsService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _educationLevelsService = educationLevelsService;
             _translationService = translationService;

@@ -103,7 +103,7 @@
     $('form').on('submit', function (e) {
         e.preventDefault();
 
-        debugger
+    
 
         // Get the form element
         var form = $(this);

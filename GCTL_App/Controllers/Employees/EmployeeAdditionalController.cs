@@ -1,8 +1,13 @@
+
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeAdditional;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Language;
+
+﻿using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +16,14 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeAdditionalController : BaseController
     {
+
         private readonly IEmployeeAdditionalService _employeeAdditionalService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.LicenceTypes> _licenceTypesRepository;
         public EmployeeAdditionalController(ITranslateService translateService, IEmployeeAdditionalService employeeAdditionalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.LicenceTypes> licenceTypesRepository) : base(translateService)
+
+        public EmployeeAdditionalController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
+
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeRepository = employeeRepository;

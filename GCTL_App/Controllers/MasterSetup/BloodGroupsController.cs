@@ -7,6 +7,7 @@ using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -15,7 +16,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IBloodGroupService _bloodGroupService;
 
-        public BloodGroupsController(ITranslateService translateService, IBloodGroupService bloodGroupService) : base(translateService)
+        public BloodGroupsController(ITranslateService translateService, IUserProfileService userProfileService, IBloodGroupService bloodGroupService) : base(translateService, userProfileService)
         {
             _bloodGroupService = bloodGroupService;
         }

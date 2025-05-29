@@ -6,15 +6,21 @@ namespace GCTL.Data.Models
 {
     public class ApplicationRole : IdentityRole
     {
+        public int? TenantInfoId { get; set; }
+        public virtual TenantInfo? TenantInfo { get; set; } // check for add application user/Role to tenant info
+        public int? OrganizationID { get; set; }
+        public virtual Organization? Organization { get; set; } // check for add application user/Role to organization
         public ICollection<RoleModulePermissions>? RoleModulePermissions { get; set; }
-      
-       
     }
     public class ApplicationUser : IdentityUser
     {
-       public int? EmployeeId { get; set; }
+        public int? TenantInfoId { get; set; }
+        public virtual TenantInfo? TenantInfo { get; set; }
+        public int? OrganizationID { get; set; }
+        public virtual Organization? Organization { get; set; }
+        public int? EmployeeId { get; set; }
 
-        public virtual Employees? Employees { get; set; }
+        public virtual Employees? Employees { get; set; } // check for add application user/Role to employee
 
     }
 
