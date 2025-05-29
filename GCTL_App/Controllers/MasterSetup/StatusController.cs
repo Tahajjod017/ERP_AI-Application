@@ -6,6 +6,8 @@ using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.Statuses;
+using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -16,7 +18,7 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public StatusController(IStatusService statusService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public StatusController(IStatusService statusService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _statusService = statusService;
             _translationService = translationService;
@@ -145,16 +147,16 @@ namespace GCTL_App.Controllers.MasterSetup
         #region SoftDelete
         [Permission("Delete", "Status")]
         [HttpPost]
-        public async Task<IActionResult> SoftDelete(BaseViewModel model, List<int> ids)
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {
             try
             {
-                if (ids == null || !ids.Any() || ids.Count == 0)
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
                 {
                     return Json(new { isSuccess = false, message = "No id selected to delete." });
                 }
-                
-                var result = await _statusService.SoftDeleteAsync(model, ids);
+
+                var result = await _statusService.SoftDeleteAsync(requestVM);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No id found to delete." });

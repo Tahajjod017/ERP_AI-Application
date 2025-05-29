@@ -152,12 +152,12 @@ namespace GCTL.Service.MasterSetup.Degrees
 
 
         #region Soft Delete
-        public async Task<DegreeVM> SoftDeleteAsync(BaseViewModel model, List<int> ids)
+        public async Task<DegreeVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _degreeRepository.BeginTransactionAsync();
             try
             {
-                var data = await _degreeRepository.FindAsync(x => ids.Contains(x.DegreeID));
+                var data = await _degreeRepository.FindAsync(x => requestVM.Ids.Contains(x.DegreeID));
                 if (data == null || data.Count == 0)
                 {
                     return new DegreeVM
@@ -172,14 +172,14 @@ namespace GCTL.Service.MasterSetup.Degrees
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = model.DeletedBy;
-                    item.LIP = model.LIP;
-                    item.LMAC = model.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
                 }
 
                 await _degreeRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Degree", ActionName.DataDeleted, null, beforeEntity, targetIds, model);
+                await _userInfoService.ActionLogDeleteAsync("Degree", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _degreeRepository.CommitTransactionAsync();
 

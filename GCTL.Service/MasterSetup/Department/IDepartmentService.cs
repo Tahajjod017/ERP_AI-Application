@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Department
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Department
         #region CRUD
         Task<bool> AddAsync(DepartmentVM model);
         Task<bool> UpdateAsync(DepartmentVM model);
-        Task<DepartmentVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<DepartmentVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<DepartmentVM> GetByIdAsync(int id);
         Task<PaginationService<Departments, DepartmentVM>.PaginationResult<DepartmentVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "DepartmentID", string sortOrder = "desc");

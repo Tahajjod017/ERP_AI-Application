@@ -6,6 +6,8 @@ using GCTL.Service.MasterSetup.Countries;
 using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Mvc;
 using GCTL_App.ViewModels.MasterSetup.Country;
+using GCTL.Core.Helpers;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.MasterSetup
 {
@@ -16,10 +18,11 @@ namespace GCTL_App.Controllers.MasterSetup
         private readonly ITranslateService _translationService;
 
 
-        public CountrysController(ICountryService countryService, ITranslateService translationService, ITranslateService translateService) : base(translateService)
+        public CountrysController(ICountryService countryService, ITranslateService translationService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _countryService = countryService;
             _translationService = translationService;
+
         }
         #endregion
 
@@ -146,15 +149,15 @@ namespace GCTL_App.Controllers.MasterSetup
         #region SoftDelete
         [Permission("Delete", "Countrys")]
         [HttpPost]
-        public async Task<IActionResult> SoftDelete(BaseViewModel model, List<int> ids)
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {
             try
             {
-                if (ids == null || !ids.Any() || ids.Count == 0)
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
                 {
                     return Json(new { isSuccess = false, message = "No id selected to delete." });
                 }
-                var result = await _countryService.SoftDeleteAsync(model, ids);
+                var result = await _countryService.SoftDeleteAsync(requestVM);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No id found to delete." });

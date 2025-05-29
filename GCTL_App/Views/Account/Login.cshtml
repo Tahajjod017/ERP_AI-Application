@@ -1,7 +1,8 @@
 ﻿@model GCTL.Core.ViewModels.Login.LoginViewModel
 @{
-    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    Layout = "~/Views/Shared/LoginLayouts/_LayoutLogin.cshtml";
 }
+@await Html.PartialAsync("_Alerts")
 @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
 {
     <div class="alert alert-danger">
@@ -18,11 +19,13 @@
         <div class="row flex-center min-vh-100 py-5">
             <div class="col-sm-10 col-md-8 col-lg-5 col-xl-5 col-xxl-3">
                 <!-- Logo -->
-                  <a class="d-flex flex-center text-decoration-none mb-4" href="">
-                    <div class="d-flex align-items-center fw-bolder fs-3 d-inline-block">
-                        <img src="../img/icons/logonbr.png" alt="phoenix" width="90" />
-                    </div>
+                
+                <a class="d-flex flex-column align-items-center text-decoration-none mb-4" href="#">
+                    <img src="../img/NBR-Transparent.png" alt="hrm" width="90" />
+                    <span class="fw-semibold fs-7 text-muted mt-2">HRM</span>
                 </a>
+
+               
                 <div class="text-center mb-7">
                     <h3 class="text-body-highlight">Sign In</h3>
                     <p class="text-body-tertiary">Get access to your account</p>
@@ -48,7 +51,7 @@
                         <label asp-for="Password" class="form-label" for="password">Password</label>
                         <div asp-for="Password" class="form-icon-container" data-password="data-password">
                             <input asp-for="Password" class="form-control form-icon-input pe-6" id="password" type="password" placeholder="Password" data-password-input="data-password-input" /><span class="fas fa-key text-body fs-9 form-icon"></span>
-                            <button class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
+                            <button type="button" class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
                         </div>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
@@ -60,7 +63,7 @@
                                 <label asp-for="RememberMe" class="form-check-label mb-0" for="basic-checkbox">Remember me</label>
                             </div>
                         </div>
-                        <div class="col-auto"><a class="fs-9 fw-semibold" href="../../../pages/authentication/simple/forgot-password.html">Forgot Password?</a></div>
+                        <div class="col-auto"><a class="fs-9 fw-semibold" href="/Account/EmailOtpPage">Forgot Password?</a></div>
                     </div>
                     <!-- Submit Button -->
                     <button class="btn btn-primary w-100 mb-3" type="submit">Sign In</button>
@@ -72,7 +75,6 @@
         </div>
     </div>
 </main>
-
 
 
 

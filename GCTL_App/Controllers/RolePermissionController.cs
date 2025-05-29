@@ -1,5 +1,8 @@
 ﻿using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,21 +10,22 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers
 {
-    public class RolePermissionController : Controller
+    [Authorize]
+    public class RolePermissionController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _Db;
 
-        public RolePermissionController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, AppDbContext db)
+        public RolePermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db) : base(translateService, userProfileService)
         {
+            _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
             _Db = db;
-
         }
+
         public async Task<IActionResult> Index()
         {// Get current user ID
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -31,11 +35,13 @@ namespace GCTL_App.Controllers
                 .Select(r => new { r.Id, r.Name })
                 .ToListAsync();
 
-            return View("Index");
+            return View();
         }
 
 
         [HttpGet]
+      
+
         public async Task<IActionResult> LoadPermissions(string roleId)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -233,8 +239,6 @@ namespace GCTL_App.Controllers
             return RedirectToAction("Index", "RolePermission");
             // return Ok(new { message = "Permissions updated successfully" });
         }
-
-
         [HttpGet]
         public async Task<IActionResult> GetUserNavModules()
         {
@@ -279,5 +283,7 @@ namespace GCTL_App.Controllers
 
             return Json(modules);
         }
+
+
     }
 }

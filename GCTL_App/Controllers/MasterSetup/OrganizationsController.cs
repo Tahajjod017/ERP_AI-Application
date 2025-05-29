@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.Organizations;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.Organizations;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.Organizations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IOrganizationsService _organizationsService;
 
-        public OrganizationsController(IOrganizationsService organizationsService, ITranslateService translateService) : base(translateService)
+        public OrganizationsController(IOrganizationsService organizationsService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _organizationsService = organizationsService;
         }

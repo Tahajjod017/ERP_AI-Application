@@ -1,4 +1,7 @@
-﻿<div class="mb-9">
+﻿@model GCTL.Core.ViewModels.Employee.EmployeeOfficial.EmployeeOfficialPostViewModel
+
+
+<div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 mb-4">
         <div class="col-auto">
         </div>
@@ -9,32 +12,64 @@
     <div class="px-3 mb-5">
         <div class="row">
             <div class="col-12">
+                
+                <form id="employeeOfficialForm" asp-controller="EmployeeOfficial" asp-action="Index" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-2 align-items-center">
 
-                <div class="search-box me-3 mb-3">
-                    <form class="position-relative">
-                        <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
-                        <span class="fas fa-search search-box-icon"></span>
 
-                    </form>
-                </div>
+                        <div class="col-md-3">
+                            <div class="position-relative">
+                                <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                            </div>
+                        </div>
 
-                <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
+                        <div class="col-md-3"></div>
 
-                    <form action="">
+
+                        <div class="col-md-2">
+                            <div class="form-floating form-floating-advance-select mb-2">
+                                <label asp-for="EmployeePersonalId">@Html.SmartLocalize("Choose Employee")</label>
+                                <select class="form-select" asp-for="EmployeePersonalId" asp-items="@ViewBag.EmployeeDD as SelectList">
+                                    <option value="">@Html.SmartLocalize("Select Employee")</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-floating">
+                                <input asp-for="PersonalEmail" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Email")" />
+                                <label asp-for="PersonalEmail">@Html.SmartLocalize("Email")</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-floating">
+                                <input asp-for="PersonalPhone" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Enter Phone")" />
+                                <label asp-for="PersonalPhone">@Html.SmartLocalize("Phone")</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
+
+
                         <div class="col-12 col-xl-12 col-xxl-12">
 
                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
 
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
-                                    <a class="nav-link active" href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
+                                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
                                 </li>
 
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
-                                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")</a>
+                                    <a class="nav-link active" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")</a>
                                 </li>
 
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
-                                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")</a>
+                                    <a class="nav-link" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")</a>
                                 </li>
 
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
@@ -56,167 +91,116 @@
                             </ul>
                             <div class="card tab-content bg-white accordion" id="myTabContent">
 
-                              
+
                                 <div class="tab-pane fade show active p-2" role="empOfficialInfo" id="empOfficialInfo" aria-labelledby="empOfficialInfo">
 
                                     <div class=" px-25 ">
                                         <div class="d-flex justify-content-center mt-2 ">
                                             <div class="col-12 row flex gy-3 pb-3">
 
-                                                <p class="border-bottom">Basic Information</p>
+                                                <p class="border-bottom">@Html.SmartLocalize("Office Information")</p>
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option>Select Organization</option>
-                                                            <option value="1">CSL</option>
-                                                            <option value="1">GCTL</option>
+
+
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="OrganizationID">@Html.SmartLocalize("Choose Organization")</label>
+                                                        <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Organization")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Organization</label>
+
                                                     </div>
 
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Branch</option>
-                                                            <option value="1">Main office</option>
-                                                            <option value="1">Branch office</option>
+
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="OrganizationBranchID">@Html.SmartLocalize("Choose Branch")</label>
+                                                        <select class="form-select" asp-for="OrganizationBranchID" asp-items="@ViewBag.BranchDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Branch")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Branch</label>
+
                                                     </div>
+
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Employee Type</option>
-                                                            <option value="1">Inhouse</option>
-                                                            <option value="1">Remote</option>
-                                                            <option value="1">Part Time</option>
-                                                        </select>
-                                                        <label for="floatingSelectLitigation">Employee Type</label>
-                                                    </div>
-                                                </div>
 
-                                                <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Department</option>
-                                                            <option value="1">IT</option>
-                                                            <option value="1">Management</option>
-                                                        </select>
-                                                        <label for="floatingSelectLitigation">Department</label>
-                                                    </div>
 
-                                                    <!-- <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
-                                                    <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
-                                                      <div class="card position-relative border-0">
-                                                        <div class="card-body p-0">
-                                                          <div class="mx-3">
-                                                            <form action="">
-                                                              <h5 class="mb-3">Enter Department Name</h5>
-                                                              <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
-                                                              <div class="text-end">
-                                                                <button class="btn btn-link text-danger" type="button">Cancel</button>
-                                                                <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
-                                                              </div>
-                                                            </form>
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    </div> -->
-                                                </div>
-
-                                                <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Designation</option>
-                                                            <option value="1">Cheaf Executive Director</option>
-                                                            <option value="1">Executive Director</option>
-                                                            <option value="1">Manager</option>
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="EmployeeTypeID">@Html.SmartLocalize("Employee Type")</label>
+                                                        <select class="form-select" asp-for="EmployeeTypeID" asp-items="@ViewBag.EmployeeTypeDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Employee Type")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Designation</label>
+
                                                     </div>
 
 
                                                 </div>
 
-                                                <!-- <div class="col-sm-12 col-md-4">
-                                                  <div class="form-floating form-floating-advance-select">
-                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                      <option selected="selected">Select Employee Class</option>
-                                                      <option value="1">Officer</option>
-                                                      <option value="1">Warker</option>
-                                                      <option value="1">Staff</option>
-                                                    </select>
-                                                    <label for="floatingSelectLitigation">Employee Class</label>
-                                                  </div>
+                                                <div class="col-sm-12 col-md-4">
 
-                                                  <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
-                                                  <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
-                                                    <div class="card position-relative border-0">
-                                                      <div class="card-body p-0">
-                                                        <div class="mx-3">
-                                                          <form action="">
-                                                            <h5 class="mb-3">Employee Type Name</h5>
-                                                            <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
-                                                            <div class="text-end">
-                                                              <button class="btn btn-link text-danger" type="button">Cancel</button>
-                                                              <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
-                                                            </div>
-                                                          </form>
-                                                        </div>
-                                                      </div>
+
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="DepartmentID">@Html.SmartLocalize("Choose Department")</label>
+                                                        <select class="form-select" asp-for="DepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Department")</option>
+                                                        </select>
+
                                                     </div>
-                                                  </div>
-                                                </div> -->
+
+
+                                                </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Employment Nature</option>
-                                                            <option value="1">Full Time</option>
-                                                            <option value="1">Part Time</option>
-                                                            <option value="1">Contractual</option>
+
+
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="DesignationID">@Html.SmartLocalize("Choose Designation")</label>
+                                                        <select class="form-select" asp-for="DesignationID" asp-items="@ViewBag.DesignationDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Designation")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Employment Nature </label>
+
+                                                    </div>
+
+
+                                                </div>
+
+
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="EmploymentNatureID">@Html.SmartLocalize("Employment Nature")</label>
+                                                        <select class="form-select" asp-for="EmploymentNatureID" asp-items="@ViewBag.EmploymentNatureDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Employment Nature")</option>
+                                                        </select>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Immediate Supervisor</option>
-                                                            <option value="1">Alamin Hossain</option>
-                                                            <option value="1">Rakibul Islam</option>
-                                                            <option value="1">Abdulla al Mamun</option>
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="SeniorSupervisorId">@Html.SmartLocalize("Senior Supervisor")</label>
+                                                        <select class="form-select" asp-for="SeniorSupervisorId" asp-items="@ViewBag.SeniorSupervisorDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Senior Supervisor")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Senior Supervisor</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Immediate Supervisor</option>
-                                                            <option value="1">Alamin Hossain</option>
-                                                            <option value="1">Rakibul Islam</option>
-                                                            <option value="1">Abdulla al Mamun</option>
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="ImmediateSupervisorId">@Html.SmartLocalize("Immediate Supervisor")</label>
+                                                        <select class="form-select" asp-for="ImmediateSupervisorId" asp-items="@ViewBag.ImmediateSupervisorDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Immediate Supervisor")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Immediate Supervisor</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Head of Department</option>
-                                                            <option value="1">Alamin Hossain</option>
-                                                            <option value="1">Rakibul Islam</option>
-                                                            <option value="1">Abdulla al Mamun</option>
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="HeadOfDepartmentId">@Html.SmartLocalize("Head of Department")</label>
+                                                        <select class="form-select" asp-for="HeadOfDepartmentId" asp-items="@ViewBag.HeadOfDepartmentDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Head of Department")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Head of Department</label>
                                                     </div>
                                                 </div>
 
@@ -224,49 +208,47 @@
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="" type="text" placeholder="Enter Official Phone " />
-                                                        <label for="">Official Phone </label>
+                                                        <input asp-for="OfficePhone" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Enter Official Phone")" />
+                                                        <label asp-for="OfficePhone">@Html.SmartLocalize("Official Phone")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="" type="text" placeholder="Official Email" />
-                                                        <label for="">Official Email</label>
+                                                        <input asp-for="OfficeEmail" class="form-control" id="" type="email" placeholder="@Html.SmartLocalize("Official Email")" />
+                                                        <label asp-for="OfficeEmail">@Html.SmartLocalize("Official Email")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4 mb-4">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="" type="text" placeholder="Attendence ID" />
-                                                        <label for="">Attendence ID</label>
+                                                        <input asp-for="AttendanceId" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Attendance ID")" />
+                                                        <label asp-for="AttendanceId">@Html.SmartLocalize("Attendance ID")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Select Employee Status</option>
-                                                            <option value="1">Active</option>
-                                                            <option value="1">Inactive office</option>
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="EmploymentStatusId">@Html.SmartLocalize("Employee Status")</label>
+                                                        <select class="form-select" asp-for="EmploymentStatusId" asp-items="@ViewBag.EmployeeStatusDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Employee Status")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Employee Status </label>
                                                     </div>
                                                 </div>
 
-                                                <p class="border-bottom">Joining Information</p>
+                                                <p class="border-bottom">@Html.SmartLocalize("Joining Information")</p>
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="" type="text" placeholder="Appointment Letter No " />
-                                                        <label for="">Appointment Letter No </label>
+                                                        <input asp-for="AppointmentLetterNo" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Appointment Letter No")" />
+                                                        <label asp-for="AppointmentLetterNo">@Html.SmartLocalize("Appointment Letter No")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Appointment Letter Date" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" for="floatingInputReportDate">Appointment Letter Issue Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input asp-for="AppointmentLetterIssueDate" class="form-control datetimepicker" id="floatingInputAppointmentDate" type="text" placeholder="@Html.SmartLocalize("Appointment Letter Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" asp-for="AppointmentLetterIssueDate">@Html.SmartLocalize("Appointment Letter Issue Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -274,8 +256,8 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Joining Date" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" for="floatingInputReportDate">Joining Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input asp-for="JoiningDate" class="form-control datetimepicker" id="floatingInputJoiningDate" type="text" placeholder="@Html.SmartLocalize("Joining Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" asp-for="JoiningDate">@Html.SmartLocalize("Joining Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -283,52 +265,49 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Joining Date" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" for="floatingInputReportDate">Probation Period Start Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input asp-for="ProvisionPeriodStartDate" class="form-control datetimepicker" id="floatingInputProbationStartDate" type="text" placeholder="@Html.SmartLocalize("Probation Period Start Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" asp-for="ProvisionPeriodStartDate">@Html.SmartLocalize("Probation Period Start Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-2 col-md-2">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="" type="text" placeholder="Probation Period" />
-                                                        <label for="">Probation Period</label>
+                                                        <input asp-for="ProvisionPeriod" class="form-control" id="" type="number" placeholder="@Html.SmartLocalize("Probation Period")" />
+                                                        <label asp-for="ProvisionPeriod">@Html.SmartLocalize("Probation Period")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-2 col-md-2">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option selected="selected">Month</option>
-                                                            <option value="1">Days</option>
-                                                            <option value="1">Month</option>
-                                                            <option value="1">Year</option>
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="ProvisionPeriodTtimeTypeID">@Html.SmartLocalize("Time Unit")</label>
+                                                        <select class="form-select" asp-for="ProvisionPeriodTtimeTypeID" asp-items="@ViewBag.TimeUnitDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Unit")</option>
                                                         </select>
-                                                        <label for="floatingSelectLitigation">Time</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Confirmation Dat" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" for="floatingInputReportDate">Confirmation Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input asp-for="ConfirmationDate" class="form-control datetimepicker" id="floatingInputConfirmationDate" type="text" placeholder="@Html.SmartLocalize("Confirmation Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" asp-for="ConfirmationDate">@Html.SmartLocalize("Confirmation Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
-                                                        <input class="form-control" id="" type="text" placeholder="Confirmation Ref/letter No." />
-                                                        <label for="">Confirmation Letter No. </label>
+                                                        <input asp-for="ConfirmationLetterNo" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Confirmation Letter No")" />
+                                                        <label asp-for="ConfirmationLetterNo">@Html.SmartLocalize("Confirmation Letter No")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input class="form-control datetimepicker" id="floatingInputReportDate" type="text" placeholder="Contract End Date" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" for="floatingInputReportDate">Contract End Date</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input asp-for="ContractEndDate" class="form-control datetimepicker" id="floatingInputContractEndDate" type="text" placeholder="@Html.SmartLocalize("Contract End Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" asp-for="ContractEndDate">@Html.SmartLocalize("Contract End Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -336,10 +315,10 @@
                                                 <div class="col-12">
                                                     <div class="row g-3 justify-content-end">
                                                         <div class="col-auto">
-                                                            <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                                                            <button type="button" class="btn btn-phoenix-primary px-5">@Html.SmartLocalize("Cancel")</button>
                                                         </div>
                                                         <div class="col-auto">
-                                                            <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                            <button type="submit" class="btn btn-primary px-5 px-sm-15">@Html.SmartLocalize("Save")</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -354,12 +333,14 @@
 
                                 </div>
 
-                              
+
 
                             </div>
                         </div>
-                    </form>
-                </div>
+
+                    </div>
+
+                </form>
             </div>
         </div>
     </div>
@@ -367,3 +348,13 @@
 
 
 </div>
+
+
+@section Scripts
+{
+   @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/pages/employees/employeeofficial.js"></script>
+}

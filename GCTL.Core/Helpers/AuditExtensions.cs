@@ -16,7 +16,7 @@ namespace GCTL.Core.Helpers
     //    {
     //        model.LIP = info.LIP;
     //        model.LMAC = info.LMAC;
-    //        model.Email = info.Email;
+    //        model.UserEmail = info.UserEmail;
            
 
     //        return model;

@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.LipLmacAddress;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
@@ -16,14 +17,10 @@ namespace GCTL.Service.ActionLogAudit
     public class UserInfoService : IUserInfoService
     {
         private readonly AppDbContext _context;
-
         public UserInfoService(AppDbContext context)
         {
             _context = context;
         }
-
-    
-
 
         #region  Base View Model 
 
@@ -33,23 +30,17 @@ namespace GCTL.Service.ActionLogAudit
             {
                 var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 var email = user.FindFirstValue(ClaimTypes.Email);
-
-
                 var userEmail = user.Identity.IsAuthenticated ? user.FindFirstValue(ClaimTypes.Email) : "Unknown";
-
                // var employeUser = _context.Users.FirstOrDefault(u => u.Employee.EmployeeCode == userEmail);
 
-
-
-                 var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
-
+                var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
                 model.UserId = userId;
-                model.Email = email;
+                model.UserEmail = email;
                 model.CreatedBy = employeeId;
                 model.UpdatedBy = employeeId;
                 model.DeletedBy = employeeId;
-                model.LIP = GetLocalIP();
-                model.LMAC = GetMacAddress();
+                model.LIP =NetworkHelper.GetLocalIP();
+                model.LMAC =NetworkHelper.GetMacAddress();
 
             }
         }
@@ -60,46 +51,13 @@ namespace GCTL.Service.ActionLogAudit
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
-
-            //var jsonSettings = new JsonSerializerSettings
-            //{
-            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            //    ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
-            //    {
-            //        // Optionally: ignore virtual/navigation properties if you know they are all virtual
-            //        IgnoreSerializableInterface = true
-            //    }
-            //};
-
-            //object CleanObject(object obj)
-            //{
-            //    if (obj == null) return null;
-
-            //    var type = obj.GetType();
-            //    var cleanObj = new Dictionary<string, object>();
-
-            //    foreach (var prop in type.GetProperties())
-            //    {
-            //        // Skip navigation properties
-            //        if (prop.GetGetMethod()?.IsVirtual == true && !prop.PropertyType.IsSealed) continue;
-
-            //        var value = prop.GetValue(obj);
-            //        cleanObj[prop.Name] = value;
-            //    }
-
-            //    return cleanObj;
-            //}
-
-
             var log = new ActionLogs
             {
                 CreatedBy = entityVM.CreatedBy,
                 ActionName = actionName,
-                //ActionBefore = JsonConvert.SerializeObject(CleanObject(before), jsonSettings),
-                //ActionAfter = JsonConvert.SerializeObject(CleanObject(after), jsonSettings),
                 ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
                 ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
-                UserEmail = entityVM.Email,
+                UserEmail = entityVM.UserEmail,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
                 CreatedAt = DateTime.Now,
@@ -123,7 +81,7 @@ namespace GCTL.Service.ActionLogAudit
                     ActionName = actionName,
                     ActionBefore = beforeList != null ? JsonConvert.SerializeObject(beforeList[i]) : null,
                     ActionAfter = afterList != null ? JsonConvert.SerializeObject(afterList[i]) : null,
-                    UserEmail = entityVM.Email,
+                    UserEmail = entityVM.UserEmail,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -136,45 +94,6 @@ namespace GCTL.Service.ActionLogAudit
             await _context.SaveChangesAsync();
         }
         #endregion
-
-
-
-        #region LIP LMAC Adderess Method
-
-        private static string GetLocalIP()
-        {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                var properties = networkInterface.GetIPProperties();
-                var ipv4Address = properties.UnicastAddresses
-                    .FirstOrDefault(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-                if (ipv4Address != null)
-                    return ipv4Address.Address.ToString();
-            }
-
-            return string.Empty;
-        }
-
-        private static string GetMacAddress()
-        {
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                var macAddress = networkInterface.GetPhysicalAddress().ToString();
-                if (!string.IsNullOrEmpty(macAddress))
-                    return macAddress;
-            }
-
-            return string.Empty;
-        }
-        #endregion
-
 
 
 

@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.TrainingYear;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.TrainingYear;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly ITrainingYearService _trainingYearService;
 
-        public TrainingYearController(ITrainingYearService trainingYearService, ITranslateService translateService) : base(translateService)
+        public TrainingYearController(ITrainingYearService trainingYearService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _trainingYearService = trainingYearService;
         }

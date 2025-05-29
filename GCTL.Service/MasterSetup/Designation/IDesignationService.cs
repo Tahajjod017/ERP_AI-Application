@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Designation
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Designation
         #region CRUD
         Task<bool> AddAsync(DesignationVM model);
         Task<bool> UpdateAsync(DesignationVM model);
-        Task<DesignationVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<DesignationVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<DesignationVM> GetByIdAsync(int id);
         Task<PaginationService<Designations, DesignationVM>.PaginationResult<DesignationVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "DesignationID", string sortOrder = "desc");

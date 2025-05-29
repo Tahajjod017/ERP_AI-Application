@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Gender
 {
@@ -16,7 +17,7 @@ namespace GCTL.Service.MasterSetup.Gender
         #region CRUD
         Task<bool> AddAsync(GenderVM model);
         Task<bool> UpdateAsync(GenderVM model);
-        Task<GenderVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<GenderVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<GenderVM> GetByIdAsync(int id);
         Task<PaginationService<Genders, GenderVM>.PaginationResult<GenderVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "GenderName", string sortOrder = "asc");

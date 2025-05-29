@@ -1,0 +1,36 @@
+﻿@model GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestPageVM
+<!-- Add Leaves -->
+<div class="modal fade" id="apply_leave">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Leave</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+           
+            @await Html.PartialAsync("_AddLeaveForm",Model.SetupForm)
+        </div>
+    </div>
+</div>
+<!-- /Add Leaves -->
+<!-- Edit Leaves -->
+<div class="modal fade" id="edit_leaves">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Leave</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+           <partial name="_EditLeaveForm"/>
+        </div>
+    </div>
+</div>
+<!-- /Edit Leaves -->
+<!-- Breadcrumb -->
+<partial name="_BreadCrumLeaveReq"/>
+<!-- /Breadcrumb -->
+
+<partial name="_LeaveStatusDisplay" />
+
+<partial name="_LeaveRequestTableList" />
+

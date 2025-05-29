@@ -11,8 +11,6 @@ namespace GCTL.Data.Models
         public int? OrganizationID { get; set; }
         public virtual Organization? Organization { get; set; } // check for add application user/Role to organization
         public ICollection<RoleModulePermissions>? RoleModulePermissions { get; set; }
-      
-       
     }
     public class ApplicationUser : IdentityUser
     {
@@ -22,7 +20,7 @@ namespace GCTL.Data.Models
         public virtual Organization? Organization { get; set; }
         public int? EmployeeId { get; set; }
 
-        public virtual Employees? Employees { get; set; }
+        public virtual Employees? Employees { get; set; } // check for add application user/Role to employee
 
     }
 

@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.MasterSetup.ProvisionPeriodTtimeTypes;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ProvisionPeriodTimeType;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.ProvisionPeriodTtimeTypes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region Services & Repositories
         private readonly IProvisionPeriodTtimeTypesService _provisionPeriodTtimeTypesService;
 
-        public ProvisionPeriodTimeController(IProvisionPeriodTtimeTypesService provisionPeriodTtimeTypesService, ITranslateService translateService) : base(translateService)
+        public ProvisionPeriodTimeController(IProvisionPeriodTtimeTypesService provisionPeriodTtimeTypesService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _provisionPeriodTtimeTypesService = provisionPeriodTtimeTypesService;
         }

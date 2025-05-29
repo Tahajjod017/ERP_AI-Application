@@ -79,6 +79,7 @@ namespace GCTL.Service.MasterSetup.Gender
         #endregion
 
 
+
         #region Update
         public async Task<bool> UpdateAsync(GenderVM model)
         {
@@ -153,12 +154,12 @@ namespace GCTL.Service.MasterSetup.Gender
 
 
         #region Soft Delete
-        public async Task<GenderVM> SoftDeleteAsync(BaseViewModel model, List<int> ids)
+        public async Task<GenderVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => ids.Contains(x.GenderID));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.GenderID));
                 if (data == null || data.Count == 0)
                 {
                     return new GenderVM
@@ -173,14 +174,14 @@ namespace GCTL.Service.MasterSetup.Gender
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = model.DeletedBy;
-                    item.LIP = model.LIP;
-                    item.LMAC = model.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Gender", ActionName.DataDeleted, null, beforeEntity, targetIds, model);
+                await _userInfoService.ActionLogDeleteAsync("Gender", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

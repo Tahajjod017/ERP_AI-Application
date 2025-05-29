@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.MasterSetup.Religion
 {
@@ -15,7 +16,7 @@ namespace GCTL.Service.MasterSetup.Religion
         #region CRUD
         Task<bool> AddAsync(ReligionVM model);
         Task<bool> UpdateAsync(ReligionVM model);
-        Task<ReligionVM> SoftDeleteAsync(BaseViewModel model, List<int> ids);
+        Task<ReligionVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<ReligionVM> GetByIdAsync(int id);
         Task<PaginationService<Religions, ReligionVM>.PaginationResult<ReligionVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "ReligionID", string sortOrder = "desc");
