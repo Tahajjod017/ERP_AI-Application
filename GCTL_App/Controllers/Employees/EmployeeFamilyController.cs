@@ -1,12 +1,15 @@
-﻿using GCTL.Service.Language;
+﻿using GCTL.Service.Employees.EmployeeFamily;
+using GCTL.Service.Language;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeFamilyController : BaseController
     {
-        public EmployeeFamilyController(ITranslateService translateService) : base(translateService)
+        private readonly IEmployeeFamilyService _employeeFamilyService;
+        public EmployeeFamilyController(ITranslateService translateService, IEmployeeFamilyService employeeFamilyService) : base(translateService)
         {
+            _employeeFamilyService = employeeFamilyService;
         }
 
         public IActionResult Index()

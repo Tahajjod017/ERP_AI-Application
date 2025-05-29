@@ -64,7 +64,7 @@ namespace GCTL_App.Controllers.Employees
 
 
         [HttpPost]
-        public async Task<IActionResult> Index(EmployeeAllowancePostViewModel model)
+        public async Task<IActionResult> Index(EmployeeAdditionalPostViewModel model)
         {
             if (!ModelState.IsValid)
             {

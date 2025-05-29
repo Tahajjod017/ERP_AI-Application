@@ -1,15 +1,18 @@
-﻿using GCTL.Service.Language;
+﻿using GCTL.Service.Employees.EmployeeEducational;
+using GCTL.Service.Language;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeEducationController : BaseController
     {
-        public EmployeeEducationController(ITranslateService translateService) : base(translateService)
+        private readonly IEmployeeEducationalService _employeeEducationalService;
+        public EmployeeEducationController(ITranslateService translateService, IEmployeeEducationalService employeeEducationalService) : base(translateService)
         {
+            _employeeEducationalService = employeeEducationalService;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int id)
         {
             SetSmartPageCode(114000);
             return View();
