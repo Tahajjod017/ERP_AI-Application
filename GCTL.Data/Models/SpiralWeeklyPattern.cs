@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Statuses
+public partial class SpiralWeeklyPattern
 {
-    public int StatusID { get; set; }
+    public int SpiralWeeklyPatternID { get; set; }
 
-    public string StatusName { get; set; }
+    public string SpiralWeeklyPatternName { get; set; }
 
     public string LIP { get; set; }
 
@@ -23,8 +23,6 @@ public partial class Statuses
 
     public DateTime? UpdatedAt { get; set; }
 
-    public string StatusType { get; set; }
-
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
@@ -33,11 +31,7 @@ public partial class Statuses
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
-
-    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
-
-    public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
+    public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetails { get; set; } = new List<SpiralWeeklyPatternDetails>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

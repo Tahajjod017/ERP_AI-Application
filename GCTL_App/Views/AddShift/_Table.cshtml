@@ -54,12 +54,12 @@
                         <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
                             <input type="checkbox" class="form-check-input" id="addShift-check-all" />
                         </th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="shiftName">@Html.SmartLocalize("Shift Name")</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="companyName">@Html.SmartLocalize("Company Name")</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="startTime">@Html.SmartLocalize("Start Time")</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="endTime">@Html.SmartLocalize("End Time")</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="graceTime">@Html.SmartLocalize("Grace Time")</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="breakTime">@Html.SmartLocalize("Break Time")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="ShiftName">@Html.SmartLocalize("Shift Name")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="OrganizationName">@Html.SmartLocalize("Company Name")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="StartTime">@Html.SmartLocalize("Start Time")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EndTime">@Html.SmartLocalize("End Time")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="GraceTime">@Html.SmartLocalize("Grace Time")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="MealBreakTime">@Html.SmartLocalize("Break Time")</th>
                         <th class="text-end align-middle pe-0 ps-5 text-uppercase" scope="col">@Html.SmartLocalize("Action")</th>
                     </tr>
                 </thead>
@@ -69,16 +69,6 @@
             </table>
         </div>
 
-        @* <div class="row align-items-center justify-content-between pe-0 fs-9">
-            <div class="col-auto d-flex">
-                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-            </div>
-            <div class="col-auto d-flex">
-                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                <ul class="mb-0 pagination"></ul>
-                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
-            </div>
-        </div> *@
         <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
             <div class="d-flex">
                 <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="addShift-paginationInfo"></p>

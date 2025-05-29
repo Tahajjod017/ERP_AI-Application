@@ -13,23 +13,21 @@ public partial class Shifts
 
     public int? OrganizationID { get; set; }
 
-    public DateTime? StartTime { get; set; }
+    public TimeOnly? StartTime { get; set; }
 
-    public DateTime? EndTime { get; set; }
+    public TimeOnly? EndTime { get; set; }
 
     public bool IsLateCount { get; set; }
 
     public bool IsAutomaticORManualBreakTime { get; set; }
 
-    public bool IsMealBreakCompulsaryDeductWithShift { get; set; }
-
-    public bool IsMealBreakComplementoryWithShift { get; set; }
+    public bool IsMealBreakCompulsaryOrComplementaryDeductWithShift { get; set; }
 
     public bool IsAllowStartAndEndTime { get; set; }
 
-    public DateTime? MealBreakStartTime { get; set; }
+    public TimeOnly? MealBreakStartTime { get; set; }
 
-    public DateTime? MealBreakEndTime { get; set; }
+    public TimeOnly? MealBreakEndTime { get; set; }
 
     public bool IsAllowOvertime { get; set; }
 
@@ -71,7 +69,9 @@ public partial class Shifts
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
-    public virtual ICollection<SpiralPatternDetails> SpiralPatternDetails { get; set; } = new List<SpiralPatternDetails>();
+    public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
+
+    public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetails { get; set; } = new List<SpiralWeeklyPatternDetails>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -34,9 +34,9 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" asp-for="EndTime">@Html.SmartLocalize("End Time")</label>
-                            @* <input id="EndTimePicker" class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="hour : minute"
-                                       data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly"> *@
-                            <input class="form-control datetimepicker timepicker-12hr" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                            <input id="EndTimePicker" class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="hour : minute"
+                                       data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
+                            @* <input class="form-control datetimepicker timepicker-12hr" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                         </div>
                     </div>
 
@@ -45,13 +45,15 @@
                             <table>
                                 <tr>
                                     <td>
+                                        <label class="form-check-label me-2" asp-for="IsLateCount">@Html.SmartLocalize("Disable Late count")</label>
+                                    </td>
+                                    <td>
                                         <div class="form-check form-switch ">
                                             <input class="form-check-input mt-2" type="checkbox" asp-for="IsLateCount">
                                         </div>
                                     </td>
                                     <td>
-                                        <label class="form-check-label me-2" asp-for="IsLateCount" id="addShift-EnableLateCount">@Html.SmartLocalize("Enable Late Count")</label>
-                                        <label class="form-check-label me-2 d-none" asp-for="IsLateCount" id="addShift-DisableLateCount">@Html.SmartLocalize("Disable Late count")</label>
+                                        <label class="form-check-label me-2" asp-for="IsLateCount">@Html.SmartLocalize("Enable Late Count")</label>
                                     </td>
                                 </tr>
                             </table>
@@ -70,20 +72,22 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <div class="form-check form-switch ">
-                                            <input class="form-check-input mt-2" type="checkbox" asp-for="IsAutomaticORManualBreakTime">
+                                        <label class="form-check-label me-2" asp-for="IsAutomaticORManualBreakTime">@Html.SmartLocalize("Automatic Break Time")</label>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input bg-success mt-2" type="checkbox" asp-for="IsAutomaticORManualBreakTime">
                                         </div>
                                     </td>
                                     <td>
-                                        <label class="form-check-label me-2" asp-for="IsAutomaticORManualBreakTime" id="addShift-AutomaticBreakTime">@Html.SmartLocalize("Automatic Break Time")</label>
-                                        <label class="form-check-label me-2 d-none" asp-for="IsAutomaticORManualBreakTime" id="addShift-ManualBreakTime">@Html.SmartLocalize("Manual Break Time")</label>
+                                        <label class="form-check-label me-2" asp-for="IsAutomaticORManualBreakTime">@Html.SmartLocalize("Manual Break Time")</label>
                                     </td>
                                 </tr>
                             </table>
                         </div>
                     </div>
 
-                    <div class=" p-3 mb-2 border d-none" id="addShift-BreakTimeDiv">
+                    <div class="p-3 mb-2 border d-none rounded-3" id="addShift-BreakTimeDiv">
                         <div class="d-flex col-md-12  px-3">
                             <div class="col-md-4 me-3">
                                 <div class="mb-3">
@@ -94,25 +98,27 @@
 
                             <div class="col-md-3 me-2">
                                 <div class="mt-5 ">
-                                    @* <input class="form-check-input" asp-for="IsMealBreakCompulsaryDeductWithShift" name="IsMealBreakCompulsaryDeductWithShift" id="addShift-CompulsaryDeduct" type="radio" value="true" /> *@
-                                    <input class="form-check-input" asp-for="IsMealBreakCompulsaryDeductWithShift" id="addShift-CompulsaryDeduct" type="checkbox" />
+                                    <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" name="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-CompulsaryDeduct" type="radio" value="true" />
+                                    @* <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-CompulsaryDeduct" type="checkbox" /> *@
                                     <label class="form-check-label" for="addShift-CompulsaryDeduct">@Html.SmartLocalize("Compulsary Deduct With Shift")</label>
                                 </div>
                             </div>
 
                             <div class="col-md-3 ">
                                 <div class="mt-5">
-                                    @* <input class="form-check-input" asp-for="IsMealBreakCompulsaryDeductWithShift" name="IsMealBreakCompulsaryDeductWithShift" id="addShift-Complementary" type="radio" value="false" /> *@
-                                    <input class="form-check-input" asp-for="IsMealBreakComplementoryWithShift" id="addShift-Complementary" type="checkbox" />
+                                    <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" name="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-Complementary" type="radio" value="false" />
+                                    @* <input class="form-check-input" asp-for="IsMealBreakComplementoryWithShift" id="addShift-Complementary" type="checkbox" /> *@
                                     <label class="form-check-label" for="addShift-Complementary">@Html.SmartLocalize("Complementory With Shift")</label>
                                 </div>
                             </div>
 
                         </div>
                         <div class="d-flex justify-content-start">
+                            <div>
+                                <label class="form-check-label me-2 d-none" asp-for="IsAllowStartAndEndTime" id="addShift-DenyStartEndTime">@Html.SmartLocalize("Deny Start and End Time")</label>
+                            </div>
                             <div class="form-check form-switch flex-row">
                                 <label class="form-check-label me-2" asp-for="IsAllowStartAndEndTime" id="addShift-AllowStartEndTime">@Html.SmartLocalize("Allow Start and End Time")</label>
-                                <label class="form-check-label me-2 d-none" asp-for="IsAllowStartAndEndTime" id="addShift-DenyStartEndTime">@Html.SmartLocalize("Deny Start and End Time")</label>
                                 <input class="form-check-input" type="checkbox" asp-for="IsAllowStartAndEndTime">
                             </div>
                         </div>
@@ -137,17 +143,19 @@
                     </div>
 
                     <div class="col-md-12">
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <label class="form-check-label me-2" asp-for="IsAllowOvertime" id="addShift-AllowOvertime">@Html.SmartLocalize("Allow Overtime")</label>
+                        <div class="d-flex justify-content-start mb-3">
+                            <div>
                                 <label class="form-check-label me-2 d-none" asp-for="IsAllowOvertime" id="addShift-DisableOvertime">@Html.SmartLocalize("Disable Overtime")</label>
+                            </div>
+                            <div class="form-check form-switch flex-row">
+                                <label class="form-check-label me-2" asp-for="IsAllowOvertime" id="addShift-AllowOvertime">@Html.SmartLocalize("Allow Overtime")</label>
                                 <input class="form-check-input" type="checkbox" asp-for="IsAllowOvertime">
                             </div>
                         </div>
                     </div>
 
                     <div class="row d-none" id="addShift-OvertimeDiv">
-                        <div class="d-flex justify-content-between border">
+                        <div class="d-flex justify-content-between border rounded-3">
                             <div class="col-md-4 me-3">
                                 <div class="mb-3">
                                     <label class="form-label" for="organizerSingle">

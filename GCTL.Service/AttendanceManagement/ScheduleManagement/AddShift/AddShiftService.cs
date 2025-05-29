@@ -53,8 +53,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     entityToRestore.EndTime = model.EndTime;
                     entityToRestore.IsLateCount = model.IsLateCount;
                     entityToRestore.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                    entityToRestore.IsMealBreakCompulsaryDeductWithShift = model.IsMealBreakCompulsaryDeductWithShift;
-                    entityToRestore.IsMealBreakComplementoryWithShift = model.IsMealBreakComplementoryWithShift;
+                    entityToRestore.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
                     entityToRestore.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
                     entityToRestore.MealBreakStartTime = model.MealBreakStartTime;
                     entityToRestore.MealBreakEndTime = model.MealBreakEndTime;
@@ -86,8 +85,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     entity.EndTime = model.EndTime;
                     entity.IsLateCount = model.IsLateCount;
                     entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                    entity.IsMealBreakCompulsaryDeductWithShift = model.IsMealBreakCompulsaryDeductWithShift;
-                    entity.IsMealBreakComplementoryWithShift = model.IsMealBreakComplementoryWithShift;
+                    entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
                     entity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
                     entity.MealBreakStartTime = model.MealBreakStartTime;
                     entity.MealBreakEndTime = model.MealBreakEndTime;
@@ -138,8 +136,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.EndTime = model.EndTime;
                 entity.IsLateCount = model.IsLateCount;
                 entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                entity.IsMealBreakCompulsaryDeductWithShift = model.IsMealBreakCompulsaryDeductWithShift;
-                entity.IsMealBreakComplementoryWithShift = model.IsMealBreakComplementoryWithShift;
+                entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
                 entity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
                 entity.MealBreakStartTime = model.MealBreakStartTime;
                 entity.MealBreakEndTime = model.MealBreakEndTime;
@@ -188,8 +185,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     EndTime = data.EndTime,
                     IsLateCount = data.IsLateCount,
                     IsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
-                    IsMealBreakCompulsaryDeductWithShift = data.IsMealBreakCompulsaryDeductWithShift,
-                    IsMealBreakComplementoryWithShift = data.IsMealBreakComplementoryWithShift,
+                    IsMealBreakCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
                     IsAllowStartAndEndTime = data.IsAllowStartAndEndTime,
                     MealBreakStartTime = data.MealBreakStartTime,
                     MealBreakEndTime = data.MealBreakEndTime,
@@ -289,8 +285,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     EndTime = x.EndTime,
                     IsLateCount = x.IsLateCount,
                     IsAutomaticORManualBreakTime = x.IsAutomaticORManualBreakTime,
-                    IsMealBreakCompulsaryDeductWithShift = x.IsMealBreakCompulsaryDeductWithShift,
-                    IsMealBreakComplementoryWithShift = x.IsMealBreakComplementoryWithShift,
+                    IsMealBreakCompulsaryOrComplementaryDeductWithShift = x.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
                     IsAllowStartAndEndTime = x.IsAllowStartAndEndTime,
                     MealBreakStartTime = x.MealBreakStartTime,
                     MealBreakEndTime = x.MealBreakEndTime,

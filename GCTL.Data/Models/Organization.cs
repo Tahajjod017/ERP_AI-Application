@@ -27,6 +27,12 @@ public partial class Organization
 
     public int? DeletedBy { get; set; }
 
+    public int? TenantInfoId { get; set; }
+
+    public virtual ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
+
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
@@ -42,6 +48,8 @@ public partial class Organization
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
+
+    public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
