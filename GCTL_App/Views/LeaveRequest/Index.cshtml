@@ -1,5 +1,17 @@
 ﻿@model GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestPageVM
 <!-- Add Leaves -->
+
+<style>
+    .input-validation-error {
+        border-color: #dc3545 !important;
+    }
+
+    .field-validation-error {
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+</style>
+
 <div class="modal fade" id="apply_leave">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -34,3 +46,16 @@
 
 <partial name="_LeaveRequestTableList" />
 
+
+
+
+<partial name="_ConfirmDelete" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/attendancemanagement/leavemanagements/leaverequest/leaverequest.js"></script>
+   
+}
