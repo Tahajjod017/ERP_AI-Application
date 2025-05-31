@@ -31,28 +31,32 @@ class UniversalChoices {
         });
     }
 
-    clearChoice(id) {
-        const instance = this.instances[id];
-        if (instance) {
-            instance.removeActiveItems();
-            instance.setChoiceByValue('');
-            $(`#${id}`).val('').trigger('change');
-        } else {
-            $(`#${id}`).val('').trigger('change');
-        }
+    //clearChoice(id) {
+    //    const instance = this.instances[id];
+    //    if (instance) {
+    //        instance.removeActiveItems();
+    //        instance.setChoiceByValue('');
+    //        $(`#${id}`).val('').trigger('change');
+    //    } else {
+    //        $(`#${id}`).val('').trigger('change');
+    //    }
+    //}
+
+    clearChoice(...ids) {
+        ids.forEach(id => {
+            const instance = this.instances[id];
+            if (instance) {
+                instance.removeActiveItems();
+                instance.setChoiceByValue('');
+                $(`#${id}`).val('').trigger('change');
+            } else {
+                $(`#${id}`).val('').trigger('change');
+            }
+        });
     }
 
 
-    // ✅ Add this method to support edit value setting
-    //setChoiceValue(id, value) {
-    //    const instance = this.instances[id];
-    //    if (instance) {
-    //        instance.setChoiceByValue(value);
-    //        $(`#${id}`).val(value).trigger('change');
-    //    } else {
-    //        $(`#${id}`).val(value).trigger('change');
-    //    }
-    //}
+   
 
 
     setChoiceValue(id, value) {
