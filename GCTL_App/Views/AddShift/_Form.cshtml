@@ -4,7 +4,7 @@
     <div class="card-header ">
         <h4 class="mb-1">@Html.SmartLocalize("Add New Shift")</h4>
         <div class="">
-            <form asp-action="Create" asp-controller="AddShift" method="post" enctype="multipart/form-data" id="addShift-form">
+            <form asp-action="Create" asp-controller="AddShift" method="post" enctype="multipart/form-data" id="addShift-Addform">
                 @Html.AntiForgeryToken()
                 <div class="row">
                     <div class="col-md-6">
@@ -18,7 +18,7 @@
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
+                            <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Company Name")</label>
                             <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" multiple data-coreui-selection-type="tags" data-coreui-search="true">
                             </select>
                         </div>
@@ -27,14 +27,16 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" asp-for="StartTime">@Html.SmartLocalize("Start Time")</label>
-                            <input class="form-control datetimepicker timepicker-12hr" asp-for="StartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                            <input class="form-control datetimepicker flatpickr-input" asp-for="StartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
+                                   data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
+                            @* <input class="form-control datetimepicker timepicker-12hr" asp-for="StartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" asp-for="EndTime">@Html.SmartLocalize("End Time")</label>
-                            <input id="EndTimePicker" class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
+                            <input class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                        data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
                             @* <input class="form-control datetimepicker timepicker-12hr" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                         </div>
@@ -68,7 +70,7 @@
                     </div>
 
                     <div class="col-md-12">
-                        <div class="mb-3 mt-3">
+                        <div class="mb-2 mt-3">
                             <table>
                                 <tr>
                                     <td>
@@ -127,15 +129,19 @@
                             <div class="d-flex col-md-12  px-3">
                                 <div class="col-md-3 me-4">
                                     <div class="mb-3">
-                                        <label class="form-label" for="timepicker1">Start Time</label>
-                                        <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                        <label class="form-label" asp-for="MealBreakStartTime">Start Time</label>
+                                        <input class="form-control datetimepicker flatpickr-input" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
+                                               data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
+                                        @* <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                                     </div>
                                 </div>
 
                                 <div class="col-md-3">
                                     <div class="">
-                                        <label class="form-label" for="timepicker1">End Time</label>
-                                        <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                                        <label class="form-label" asp-for="MealBreakEndTime">End Time</label>
+                                        <input class="form-control datetimepicker flatpickr-input" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
+                                               data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
+                                        @* <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                                     </div>
                                 </div>
                             </div>

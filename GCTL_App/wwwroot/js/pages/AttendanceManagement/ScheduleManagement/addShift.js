@@ -3,12 +3,16 @@
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#addShift-form',
+            addform: '#addShift-Addform',
+            updateform: '#addShift-Updateform',
             saveBtn: '#addShift-saveBtn',
             editBtn: '#addShift-editBtn',
             resetBtn: '#addShift-resetBtn',
             bulkDelBtn: '#addShift-bulkDelBtn',
             singleDeleteBtn: '#addShift-singleDelBtn',
+            modalCloseBtn: '#editShiftModalCloseBtn',
+            modalCancelBtn: '#editShiftModalCancelBtn',
+            modalUpdateBtn: '#editShiftModalUpdateBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -21,12 +25,11 @@
 
 
             $(settings.saveBtn).on('click', function (e) {
-                debugger
                 e.preventDefault();
 
-                /*var formData = new FormData($('#addShift-form')[0]);*/
+                /*var formData = new FormData($('#addShift-Addform')[0]);*/
 
-                var token = $('#addShift-form input[name="__RequestVerificationToken"]').val();
+                var token = $('#addShift-Addform input[name="__RequestVerificationToken"]').val();
 
                 var formData = {
                     __RequestVerificationToken: token,
@@ -51,8 +54,9 @@
                 }
 
                 validateName();
+                validateCompany();
 
-                var id = $(settings.form).find('#ShiftID').val();
+                var id = $(settings.updateform).find('#UpdateShiftID').val();
                 var url = '';
                 if (id > 0) {
                     url = updateUrl;
@@ -66,6 +70,7 @@
                     data: formData,
                     success: function (data) {
                         if (data.isSuccess) {
+                            clear();
                             toastr.success(data.message);
                         } else {
                             toastr.info(data.message);
@@ -90,24 +95,56 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $(settings.form).find('#ShiftID').val(data.shiftID);
-                            $(settings.form).find('#ShiftName').val(data.shiftName);
-                            $(settings.form).find('#OrganizationIDs').val(data.organizationIDs);
-                            $(settings.form).find('#StartTime')[0]._flatpickr.setDate(data.startTime);
-                            $(settings.form).find('#EndTime').val(data.endTime);
-                            $(settings.form).find('#IsLateCount').prop('checked', data.isLateCount);
-                            $(settings.form).find('#IsAutomaticORManualBreakTime').val(data.isAutomaticORManualBreakTime);
-                            $(settings.form).find('#IsMealBreakCompulsaryOrComplementaryDeductWithShift').val(data.IsMealBreakCompulsaryOrComplementaryDeductWithShift);
-                            $(settings.form).find('#IsMealBreakComplementoryWithShift').val(data.isMealBreakComplementoryWithShift);
-                            $(settings.form).find('#IsAllowStartAndEndTime').val(data.isAllowStartAndEndTime);
-                            $(settings.form).find('#MealBreakStartTime').val(data.mealBreakStartTime);
-                            $(settings.form).find('#MealBreakEndTime').val(data.mealBreakEndTime);
-                            $(settings.form).find('#IsAllowOvertime').val(data.isAllowOvertime);
-                            $(settings.form).find('#GraceTime').val(data.graceTime);
-                            $(settings.form).find('#MinimumWorkingTime').val(data.minimumWorkingTime);
-                            $(settings.form).find('#MinimumRequiredOvertime').val(data.minimumRequiredOvertime);
-                            $(settings.form).find('#MaximumAllowedOvertime').val(data.maximumAllowedOvertime);
-                            $(settings.form).find('#MealBreakTime').val(data.mealBreakTime);                            
+
+                            $('#editShiftModal').modal('show');
+
+                            $(settings.updateform).find('#UpdateShiftID').val(data.updateShiftID);
+                            $(settings.updateform).find('#UpdateShiftName').val(data.updateShiftName);
+                            $(settings.updateform).find('#UpdateOrganizationIDs').val(data.updateOrganizationIDs).trigger('change');
+                            $(settings.updateform).find('#UpdateStartTime').val(data.updateStartTime);
+                            $(settings.updateform).find('#UpdateEndTime').val(data.updateEndTime);
+                            $(settings.updateform).find('#UpdateIsLateCount').prop('checked', data.updateIsLateCount);
+                            if ($('#UpdateIsLateCount').is(':checked')) {
+                                $('#addShift-UpdateGraceTimeDiv').removeClass('d-none');
+                            } else {
+                                $('#addShift-UpdateGraceTimeDiv').addClass('d-none');
+                            }
+                            $(settings.updateform).find('#UpdateIsAutomaticORManualBreakTime').prop('checked', data.updateIsAutomaticORManualBreakTime);
+                            if ($('#UpdateIsAutomaticORManualBreakTime').is(':checked')) {
+                                $('#addShift-UpdateBreakTimeDiv').removeClass('d-none');
+                            } else {
+                                $('#addShift-UpdateBreakTimeDiv').addClass('d-none');
+                            }
+                            $(settings.updateform).find('#UpdateIsMBCompulsaryOrComplementaryDeductWithShift').val(data.updateIsMBCompulsaryOrComplementaryDeductWithShift);
+
+                            $(settings.updateform).find('#UpdateIsMealBreakComplementoryWithShift').prop('checked', data.updateIsMealBreakComplementoryWithShift);
+                            $(settings.updateform).find('#UpdateIsAllowStartAndEndTime').prop('checked', data.updateIsAllowStartAndEndTime);
+                            if ($('#UpdateIsAllowStartAndEndTime').is(':checked')) {
+                                $('#addShift-UpdateStartEndTimeDiv').removeClass('d-none');
+                                $('#addShift-UpdateAllowStartEndTime').addClass('d-none');
+                                $('#addShift-UpdateDenyStartEndTime').removeClass('d-none');
+                            } else {
+                                $('#addShift-UpdateStartEndTimeDiv').addClass('d-none');
+                                $('#addShift-UpdateAllowStartEndTime').removeClass('d-none');
+                                $('#addShift-UpdateDenyStartEndTime').addClass('d-none');
+                            }
+                            $(settings.updateform).find('#UpdateMealBreakStartTime').val(data.updateMealBreakStartTime);
+                            $(settings.updateform).find('#UpdateMealBreakEndTime').val(data.updateMealBreakEndTime);
+                            $(settings.updateform).find('#UpdateIsAllowOvertime').prop('checked', data.updateIsAllowOvertime);
+                            if ($('#UpdateIsAllowOvertime').is(':checked')) {
+                                $('#addShift-UpdateOvertimeDiv').removeClass('d-none');
+                                $('#addShift-UpdateAllowOvertime').addClass('d-none');
+                                $('#addShift-UpdateDisableOvertime').removeClass('d-none');
+                            } else {
+                                $('#addShift-UpdateOvertimeDiv').addClass('d-none');
+                                $('#addShift-UpdateAllowOvertime').removeClass('d-none');
+                                $('#addShift-UpdateDisableOvertime').addClass('d-none');
+                            }
+                            $(settings.updateform).find('#UpdateGraceTime').val(data.updateGraceTime);
+                            $(settings.updateform).find('#UpdateMinimumWorkingTime').val(data.updateMinimumWorkingTime);
+                            $(settings.updateform).find('#UpdateMinimumRequiredOvertime').val(data.updateMinimumRequiredOvertime);
+                            $(settings.updateform).find('#UpdateMaximumAllowedOvertime').val(data.updateMaximumAllowedOvertime);
+                            $(settings.updateform).find('#UpdateMealBreakTime').val(data.updateMealBreakTime);                            
 
                             $(settings.form).find(settings.saveBtn).text('Update');
                         } else {
@@ -125,7 +162,7 @@
             });
 
             function clear() {
-                $(settings.form)[0].reset();
+                $(settings.addform)[0].reset();
                 $('#ShiftID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
@@ -134,7 +171,7 @@
                         $(this).css('border-color', '#ccc');
                     }
                 });
-                $(settings.form).find(settings.saveBtn).text('Save');
+                $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#addShift-check-all").prop('checked', false);
                 $('.addShift-selectItem').prop('checked', false);
                 loadTableData();
@@ -159,34 +196,73 @@
                 }
             }
 
+            function validateCompany() {
+                var selectedOrgs = $('#OrganizationIDs').val();
+
+                if (!selectedOrgs || selectedOrgs.length === 0) {
+                    $('.coreUiDD').css({
+                        'border': '1px solid red',
+                        'border-radius': '7px'
+                    });
+                } else {
+                    $('coreUiDD').css({
+                        'border': '1px solid #ccc',
+                        'border-radius': ''
+                    })
+                }
+            }
+
 
             $(document).ready(function () {
-                checkNameUnique();
+                $('#ShiftName').on('input', function () {
+                    checkNameUnique();
+                });
+
+                $('#OrganizationIDs').on('hidden.coreui.multi-select', function () {
+                    checkNameUnique();
+                    validateCompany();
+                });                
             });
 
             function checkNameUnique() {
-                $('#ShiftName').on('input', function () {
-                    var value = $(this).val();
+                var name = $('#ShiftName').val().trim();
+                var orgId = $('#OrganizationIDs').val();
 
-                    $.ajax({
-                        url: uniqueNameUrl,
-                        type: 'POST',
-                        data: { name: value },
-                        success: function (response) {
-                            if (response === true) {
-                                $('#nameError').hide();
-                                $('input[name="ShiftName"]').removeClass('is-invalid');
-                            } else {
-                                $('#nameError').text(response).show();
-                                $('input[name="ShiftName"]').addClass('is-invalid');
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.log("Error occurred while checking name uniqueness: " + error);
+                if (!name || orgId === null || orgId.length === 0) {
+                    $('#nameError').hide();
+                    $('input[name="ShiftName"]').removeClass('is-invalid');
+                    return;
+                }
+
+                //if (Array.isArray(orgId)) {
+                //    orgId = orgId[0];
+                //}
+
+                $.ajax({
+                    url: uniqueNameUrl,
+                    type: 'POST',
+                    data: {
+                        id: orgId, 
+                        name: name
+                    },
+                    success: function (response) {
+                        if (response === true) {
+                            $('#nameError').hide();
+                            $('input[name="ShiftName"]').removeClass('is-invalid');
+                            $('.coreUiDD').removeClass('is-invalid');
+                        } else {
+                            $('#nameError').text(response).show();
+                            $('input[name="ShiftName"]').addClass('is-invalid');
+                            $('.coreUiDD').addClass('is-invalid');
                         }
-                    });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error checking name uniqueness:", error);
+                    }
                 });
             }
+
+
 
 
 
@@ -219,13 +295,13 @@
                 if (checkedItems.length > 1) {
                     $('#addShift-bulkSelectActions').removeClass('d-none');
                     $('#addShift-searchBox').addClass('d-none');
-                    $('.addShift-bulkDelete').addClass('disabled');
-                    $('.addShift-bulkEdit').addClass('disabled');
+                    $('#addShift-tBody .addShift-bulkDelete').addClass('disabled');
+                    $('#addShift-tBody .addShift-bulkEdit').addClass('disabled');
                 } else {
                     $('#addShift-bulkSelectActions').addClass('d-none');
                     $('#addShift-searchBox').removeClass('d-none');
-                    $('.addShift-bulkDelete').removeClass('disabled');
-                    $('.addShift-bulkEdit').removeClass('disabled');
+                    $('#addShift-tBody .addShift-bulkDelete').removeClass('disabled');
+                    $('#addShift-tBody .addShift-bulkEdit').removeClass('disabled');
                 }
             }
 
@@ -283,23 +359,6 @@
             });
 
 
-            //$('#addShift-CompulsaryDeduct').on('change', function () {
-            //    if ($(this).is(':checked')) {
-            //        $('#addShift-Complementary').prop('disabled', true);
-            //    } else {
-            //        $('#addShift-Complementary').prop('disabled', false);
-            //    }
-            //});
-
-            //$('#addShift-Complementary').on('change', function () {
-            //    if ($(this).is(':checked')) {
-            //        $('#addShift-CompulsaryDeduct').prop('disabled', true);
-            //    } else {
-            //        $('#addShift-CompulsaryDeduct').prop('disabled', false);
-            //    }
-            //});
-
-
 
             $(".timepicker-12hr").flatpickr({
                 enableTime: true,       // ✅ Enables time selection (hours & minutes)
@@ -337,14 +396,75 @@
             //    }
             //});
 
-            
+
+
+
+            $(document).ready(function () {
+                
+                $('#UpdateIsLateCount').on('change', function () {
+                    $('#addShift-UpdateGraceTimeDiv').toggleClass('d-none', !this.checked);
+                });
+
+                $('#UpdateIsAutomaticORManualBreakTime').on('change', function () {
+                    $('#addShift-UpdateBreakTimeDiv').toggleClass('d-none', !this.checked);
+                });
+
+
+                $('#UpdateIsAllowStartAndEndTime').on('change', function (e) {
+                    e.preventDefault();
+
+                    if ($(this).is(':checked')) {
+                        $('#addShift-UpdateStartEndTimeDiv').removeClass('d-none');
+                        $('#addShift-UpdateAllowStartEndTime').addClass('d-none');
+                        $('#addShift-UpdateDenyStartEndTime').removeClass('d-none');
+                    } else {
+                        $('#addShift-UpdateStartEndTimeDiv').addClass('d-none');
+                        $('#addShift-UpdateAllowStartEndTime').removeClass('d-none');
+                        $('#addShift-UpdateDenyStartEndTime').addClass('d-none');
+                    }
+                });
+
+
+                $('#UpdateIsAllowOvertime').on('change', function (e) {
+                    e.preventDefault();
+
+                    if ($(this).is(':checked')) {
+                        $('#addShift-UpdateOvertimeDiv').removeClass('d-none');
+                        $('#addShift-UpdateAllowOvertime').addClass('d-none');
+                        $('#addShift-UpdateDisableOvertime').removeClass('d-none');
+                    } else {
+                        $('#addShift-UpdateOvertimeDiv').addClass('d-none');
+                        $('#addShift-UpdateAllowOvertime').removeClass('d-none');
+                        $('#addShift-UpdateDisableOvertime').addClass('d-none');
+                    }
+                });
+            });
+
+
+            $(settings.modalCloseBtn).on('click', function () {
+                $('#editShiftModal').modal('hide');
+            });
+            $(settings.modalCancelBtn).on('click', function () {
+                $('#editShiftModal').modal('hide');
+            });
+
+
+
+            let companyChoice;
+            function initcompanyChoice() {
+                companyChoice = new Choices('#UpdateOrganizationID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select...'
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initcompanyChoice);
+
+
 
         });
 
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //                                                  Pagination Starts
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         var currentPage = 1;
         var pageSize = 5;
 
@@ -452,12 +572,8 @@
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime}</td>
                                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                         <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_shift" data-id="${item.shiftID}">
-                                                <i class="fas fa-edit text-black"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" id="addShift-singleDelBtn" data-id="${item.shiftID}">
-                                                <i class="far fa-trash-alt text-black"></i>
-                                            </a>
+                                            <a href="#!" class="nav-item mx-2 addShift-bulkEdit" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
+                                            <a href="#!" class="nav-item mx-2 addShift-bulkDelete" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>

@@ -16,16 +16,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
     {
         #region CRUD
         Task<bool> AddAsync(ShiftsSetupVM model);
-        Task<bool> UpdateAsync(ShiftsSetupVM model);
+        Task<bool> UpdateAsync(ShiftUpdateSetupVM model);
         Task<ShiftsSetupVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<ShiftsSetupVM> GetByIdAsync(int id);
+        Task<ShiftUpdateSetupVM> GetByIdAsync(int id);
         Task<PaginationService<Shifts, ShiftsSetupVM>.PaginationResult<ShiftsSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "ShiftID", string sortOrder = "desc");
         #endregion
 
 
         #region Others
-        Task<bool> IsNameUniqueAsync(string name);
+        Task<bool> IsNameUniqueAsync(int id, string name);
         IEnumerable<CommonSelectVM> GetOrganizations();
         #endregion
     }

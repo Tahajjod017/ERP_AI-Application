@@ -1,5 +1,7 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
+using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -7,6 +9,7 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
@@ -14,10 +17,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
     {
         #region Services & Repositories
         private readonly IAddShiftService _addShiftService;
+        private readonly IGenericRepository<Shifts> _genericRepository;
 
-        public AddShiftController(ITranslateService translateService, IUserProfileService userProfileService, IAddShiftService addShiftService) : base(translateService, userProfileService)
+        public AddShiftController(ITranslateService translateService, 
+            IUserProfileService userProfileService, 
+            IAddShiftService addShiftService, 
+            IGenericRepository<Shifts> genericRepository) : base(translateService, userProfileService)
         {
             _addShiftService = addShiftService;
+            _genericRepository = genericRepository;
         }
         #endregion
 
@@ -47,12 +55,20 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    // userInfoService.SetUserInfo(model, User, HttpContext);
-                    var uniqueName = await _addShiftService.IsNameUniqueAsync(model.ShiftName);
-                    if (!uniqueName)
+                    if (model.OrganizationIDs == null || model.OrganizationIDs.Count <= 0) return Json(new { isSuccess = false, message = "Please Select a Company!" });
+
+                    foreach(var orgId in model.OrganizationIDs)
                     {
-                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                        if (orgId > 0)
+                        {
+                            var uniqueName = await _addShiftService.IsNameUniqueAsync(orgId, model.ShiftName);
+                            if (!uniqueName)
+                            {
+                                return Json(new { isSuccess = false, message = $"{model.ShiftName} Shift is already exists!" });
+                            }
+                        }
                     }
+                    // userInfoService.SetUserInfo(model, User, HttpContext);
 
                     await _addShiftService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
@@ -73,7 +89,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         //[Permission("Edit", "Add Shift")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Update(ShiftsSetupVM model)
+        public async Task<IActionResult> Update(ShiftUpdateSetupVM model)
         {
             try
             {
@@ -96,14 +112,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region CheckNameUnique
         [HttpPost]
-        public async Task<IActionResult> CheckNameUnique(string name)
+        public async Task<IActionResult> CheckNameUnique(int id, string name)
         {
             try
             {
-                bool isUnique = await _addShiftService.IsNameUniqueAsync(name);
+                bool isUnique = await _addShiftService.IsNameUniqueAsync(id, name);
                 if (!isUnique)
                 {
-                    return Json("This name already exists.");
+                    var orgId = await _genericRepository.All().Include(x => x.Organization).FirstOrDefaultAsync(x => x.OrganizationID == id);
+
+                    string orgName = orgId.Organization.OrganizationName;
+
+                    return Json($"{name} shift is already exists for {orgName ?? "this company"}.");
                 }
                 return Json(true);
             }

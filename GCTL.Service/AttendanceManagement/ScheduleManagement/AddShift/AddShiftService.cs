@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Helpers;
+﻿using GCTL.Core;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
@@ -121,34 +122,34 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
 
 
         #region Update
-        public async Task<bool> UpdateAsync(ShiftsSetupVM model)
+        public async Task<bool> UpdateAsync(ShiftUpdateSetupVM model)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var entity = await _genericRepository.GetByIdAsync(model.ShiftID);
+                var entity = await _genericRepository.GetByIdAsync(model.UpdateShiftID);
                 if (entity == null)
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
 
-                entity.ShiftName = model.ShiftName;
+                entity.ShiftName = model.UpdateShiftName;
                 //entity.OrganizationID = model.OrganizationID;
-                entity.StartTime = model.StartTime;
-                entity.EndTime = model.EndTime;
-                entity.IsLateCount = model.IsLateCount;
-                entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
-                entity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
-                entity.MealBreakStartTime = model.MealBreakStartTime;
-                entity.MealBreakEndTime = model.MealBreakEndTime;
-                entity.IsAllowOvertime = model.IsAllowOvertime;
-                entity.GraceTime = model.GraceTime;
-                entity.MinimumWorkingTime = model.MinimumWorkingTime;
-                entity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
-                entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
-                entity.MealBreakTime = model.MealBreakTime;
+                //entity.StartTime = model.UpdateStartTime;
+                //entity.EndTime = model.UpdateEndTime;
+                entity.IsLateCount = model.UpdateIsLateCount;
+                entity.IsAutomaticORManualBreakTime = model.UpdateIsAutomaticORManualBreakTime;
+                entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.UpdateIsMBCompulsaryOrComplementaryDeductWithShift;
+                entity.IsAllowStartAndEndTime = model.UpdateIsAllowStartAndEndTime;
+                //entity.MealBreakStartTime = model.UpdateMealBreakStartTime;
+                //entity.MealBreakEndTime = model.UpdateMealBreakEndTime;
+                entity.IsAllowOvertime = model.UpdateIsAllowOvertime;
+                entity.GraceTime = model.UpdateGraceTime;
+                entity.MinimumWorkingTime = model.UpdateMinimumWorkingTime;
+                entity.MinimumRequiredOvertime = model.UpdateMinimumRequiredOvertime;
+                entity.MaximumAllowedOvertime = model.UpdateMaximumAllowedOvertime;
+                entity.MealBreakTime = model.UpdateMealBreakTime;
 
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -156,7 +157,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
                 await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
                 await _genericRepository.CommitTransactionAsync();
 
@@ -168,51 +169,47 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 return false;
             }
         }
-        #endregion
-
-
-        #region GetByIdAsync
-        public async Task<ShiftsSetupVM> GetByIdAsync(int id)
+        public async Task<ShiftUpdateSetupVM> GetByIdAsync(int id)
         {
             try
             {
                 var data = await _genericRepository.GetByIdAsync(id);
                 if (data == null) return null;
 
-                return new ShiftsSetupVM
+                return new ShiftUpdateSetupVM
                 {
-                    ShiftID = data.ShiftID,
-                    ShiftName = data.ShiftName,
-                    //OrganizationID = data.OrganizationID,
-                    StartTime = data.StartTime,
-                    EndTime = data.EndTime,
-                    IsLateCount = data.IsLateCount,
-                    IsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
-                    IsMealBreakCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
-                    IsAllowStartAndEndTime = data.IsAllowStartAndEndTime,
-                    MealBreakStartTime = data.MealBreakStartTime,
-                    MealBreakEndTime = data.MealBreakEndTime,
-                    IsAllowOvertime = data.IsAllowOvertime,
-                    GraceTime = data.GraceTime,
-                    MinimumWorkingTime = data.MinimumWorkingTime,
-                    MinimumRequiredOvertime = data.MinimumRequiredOvertime,
-                    MaximumAllowedOvertime = data.MaximumAllowedOvertime,
-                    MealBreakTime = data.MealBreakTime,
+                    UpdateShiftID = data.ShiftID,
+                    UpdateShiftName = data.ShiftName,
+                    UpdateOrganizationID = data.OrganizationID,
+                    UpdateStartTime = data.StartTime?.ToString("hh:mm tt"),
+                    UpdateEndTime = data.EndTime?.ToString("hh:mm tt"),
+                    UpdateIsLateCount = data.IsLateCount,
+                    UpdateIsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
+                    UpdateIsMBCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
+                    UpdateIsAllowStartAndEndTime = data.IsAllowStartAndEndTime,
+                    UpdateMealBreakStartTime = data.MealBreakStartTime?.ToString("hh:mm tt"),
+                    UpdateMealBreakEndTime = data.MealBreakEndTime?.ToString("hh:mm tt"),
+                    UpdateIsAllowOvertime = data.IsAllowOvertime,
+                    UpdateGraceTime = data.GraceTime,
+                    UpdateMinimumWorkingTime = data.MinimumWorkingTime,
+                    UpdateMinimumRequiredOvertime = data.MinimumRequiredOvertime,
+                    UpdateMaximumAllowedOvertime = data.MaximumAllowedOvertime,
+                    UpdateMealBreakTime = data.MealBreakTime,
                 };
             }
             catch (Exception ex)
             {
-                // Log the exception (e.g., to a file or logging service)
-                throw; // Rethrow or return an error-specific response
+                // Log the exception (e.g., to a file or logging service)  
+                throw; // Rethrow or return an error-specific response  
             }
         }
         #endregion
 
 
         #region IsNameUniqueAsync
-        public async Task<bool> IsNameUniqueAsync(string name)
+        public async Task<bool> IsNameUniqueAsync(int id, string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ShiftName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ShiftName != null && b.OrganizationID == id);
 
             var nameList = existingNames.Select(b => b.ShiftName);
 
