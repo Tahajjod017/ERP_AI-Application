@@ -48,7 +48,7 @@
 
 
 
-    $("#Reason,").on("input", function () {
+    $("#Reason").on("input", function () {
         var reason = $("#Reason").val().trim();
         
 
