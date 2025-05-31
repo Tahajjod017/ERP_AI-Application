@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Employee.EmployeeTraining
 {
-    public class EmployeeTrainingPostViewModel : EmployeeBaseViewModel
+    public class EmployeeTrainingGetViewModel : EmployeeBaseViewModel
     {
         public int EmployeeTranningInfoID { get; set; }
 
@@ -14,11 +14,11 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeTraining
 
         public string TranningTitle { get; set; }
 
-        public int? CountryID { get; set; }
+        public string? CountryID { get; set; }
 
         public string TopicCovered { get; set; }
 
-        public int? TrainingYearID { get; set; }
+        public string? TrainingYearID { get; set; }
 
         public string InstituteName { get; set; }
 
