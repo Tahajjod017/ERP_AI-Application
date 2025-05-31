@@ -54,12 +54,21 @@ namespace GCTL.Core.Helpers
             return time.ToString(ApplicationConstants.TimeFormat);
         }
 
+        //public static TimeOnly ToTimeOnly(this string time)
+        //{
+        //    if (!string.IsNullOrEmpty(time))
+        //        return TimeOnly.ParseExact(time, ApplicationConstants.TimeFormat, CultureInfo.InvariantCulture);
+
+        //    // Optional: return a default TimeOnly value
+        //    return TimeOnly.MinValue;
+        //}
+
         public static TimeOnly ToTimeOnly(this string time)
         {
-            if (!string.IsNullOrEmpty(time))
-                return TimeOnly.ParseExact(time, ApplicationConstants.TimeFormat, CultureInfo.InvariantCulture);
+            string[] formats = { "h:mm tt", "hh:mm tt" };
+            if (!string.IsNullOrEmpty(time) && TimeOnly.TryParseExact(time, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                return result;
 
-            // Optional: return a default TimeOnly value
             return TimeOnly.MinValue;
         }
 

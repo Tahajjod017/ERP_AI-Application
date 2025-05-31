@@ -40,8 +40,6 @@
                     IsLateCount: $('#IsLateCount').prop('checked'),
                     IsAutomaticORManualBreakTime: $('#IsAutomaticORManualBreakTime').prop('checked'),
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('input[name=IsMealBreakCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
-                    /*IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('#IsMealBreakCompulsaryOrComplementaryDeductWithShift').prop('checked'),*/
-                    IsMealBreakComplementoryWithShift: $('#IsMealBreakComplementoryWithShift').prop('checked'),
                     IsAllowStartAndEndTime: $('#IsAllowStartAndEndTime').prop('checked'),
                     MealBreakStartTime: $('#MealBreakStartTime').val(),
                     MealBreakEndTime: $('#MealBreakEndTime').val(),
@@ -83,6 +81,66 @@
             });
 
 
+
+            $(settings.modalUpdateBtn).on('click', function (e) {
+                e.preventDefault();
+                /*var formData = new FormData($('#addShift-Addform')[0]);*/
+
+                var token = $('#addShift-Updateform input[name="__RequestVerificationToken"]').val();
+
+                var formData = {
+                    __RequestVerificationToken: token,
+                    UpdateShiftID: $('#UpdateShiftID').val(),
+                    UpdateShiftName: $('#UpdateShiftName').val(),
+                    UpdateOrganizationID: $('#UpdateOrganizationID').val(),
+                    UpdateStartTime: $('#UpdateStartTime').val(),
+                    UpdateEndTime: $('#UpdateEndTime').val(),
+                    UpdateIsLateCount: $('#UpdateIsLateCount').prop('checked'),
+                    UpdateIsAutomaticORManualBreakTime: $('#UpdateIsAutomaticORManualBreakTime').prop('checked'),
+                    UpdateIsMBCompulsaryOrComplementaryDeductWithShift: $('input[name=UpdateIsMBCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
+                    UpdateIsAllowStartAndEndTime: $('#UpdateIsAllowStartAndEndTime').prop('checked'),
+                    UpdateMealBreakStartTime: $('#UpdateMealBreakStartTime').val(),
+                    UpdateMealBreakEndTime: $('#UpdateMealBreakEndTime').val(),
+                    UpdateIsAllowOvertime: $('#UpdateIsAllowOvertime').prop('checked'),
+                    UpdateGraceTime: $('#UpdateGraceTime').val(),
+                    UpdateMinimumWorkingTime: $('#UpdateMinimumWorkingTime').val(),
+                    UpdateMinimumRequiredOvertime: $('#UpdateMinimumRequiredOvertime').val(),
+                    UpdateMaximumAllowedOvertime: $('#UpdateMaximumAllowedOvertime').val(),
+                    UpdateMealBreakTime: $('#UpdateMealBreakTime').val(),
+                }
+
+                //validateName();
+                //validateCompany();
+
+                var id = $(settings.updateform).find('#UpdateShiftID').val();
+                var url = '';
+                if (id > 0) {
+                    url = updateUrl;
+                } else {
+                    url = createUrl;
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (data) {
+                        if (data.isSuccess) {
+                            clear();
+                            $('#editShiftModal').modal('hide');
+                            toastr.success(data.message);
+                        } else {
+                            toastr.info(data.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            });
+
+
+
             $(document).on('click', settings.editBtn, function (e) {
                 e.preventDefault();
 
@@ -100,7 +158,7 @@
 
                             $(settings.updateform).find('#UpdateShiftID').val(data.updateShiftID);
                             $(settings.updateform).find('#UpdateShiftName').val(data.updateShiftName);
-                            $(settings.updateform).find('#UpdateOrganizationIDs').val(data.updateOrganizationIDs).trigger('change');
+                            $(settings.updateform).find('#UpdateOrganizationID').val(data.updateOrganizationID).trigger('change');
                             $(settings.updateform).find('#UpdateStartTime').val(data.updateStartTime);
                             $(settings.updateform).find('#UpdateEndTime').val(data.updateEndTime);
                             $(settings.updateform).find('#UpdateIsLateCount').prop('checked', data.updateIsLateCount);
@@ -116,8 +174,6 @@
                                 $('#addShift-UpdateBreakTimeDiv').addClass('d-none');
                             }
                             $(settings.updateform).find('#UpdateIsMBCompulsaryOrComplementaryDeductWithShift').val(data.updateIsMBCompulsaryOrComplementaryDeductWithShift);
-
-                            $(settings.updateform).find('#UpdateIsMealBreakComplementoryWithShift').prop('checked', data.updateIsMealBreakComplementoryWithShift);
                             $(settings.updateform).find('#UpdateIsAllowStartAndEndTime').prop('checked', data.updateIsAllowStartAndEndTime);
                             if ($('#UpdateIsAllowStartAndEndTime').is(':checked')) {
                                 $('#addShift-UpdateStartEndTimeDiv').removeClass('d-none');
@@ -163,6 +219,7 @@
 
             function clear() {
                 $(settings.addform)[0].reset();
+                $(settings.updateform)[0].reset();
                 $('#ShiftID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
@@ -566,10 +623,10 @@
                                     <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
                                         <span>${item.organizationName}</span>
                                     </td>
-                                    <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startTime}</td>
-                                    <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime}</td>
-                                    <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTime}</td>
-                                    <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime}</td>
+                                    <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startTime ?? '-'}</td>
+                                    <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime ?? '-'}</td>
+                                    <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTime ?? '-'}</td>
+                                    <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime ?? '-'}</td>
                                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                         <div class="btn-reveal-trigger position-static">
                                             <a href="#!" class="nav-item mx-2 addShift-bulkEdit" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
