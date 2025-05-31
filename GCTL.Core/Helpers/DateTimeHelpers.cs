@@ -47,5 +47,21 @@ namespace GCTL.Core.Helpers
 
             return DateTime.MinValue.AddYears(1904);
         }
+
+        public static string ToTimeFormat(this TimeOnly time)
+        {
+            // You can define a constant format like "hh:mm tt" or "HH:mm"
+            return time.ToString(ApplicationConstants.TimeFormat);
+        }
+
+        public static TimeOnly ToTimeOnly(this string time)
+        {
+            if (!string.IsNullOrEmpty(time))
+                return TimeOnly.ParseExact(time, ApplicationConstants.TimeFormat, CultureInfo.InvariantCulture);
+
+            // Optional: return a default TimeOnly value
+            return TimeOnly.MinValue;
+        }
+
     }
 }
