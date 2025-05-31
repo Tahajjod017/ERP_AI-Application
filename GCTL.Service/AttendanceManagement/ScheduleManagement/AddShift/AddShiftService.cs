@@ -132,18 +132,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
+                //var beforeEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
 
                 entity.ShiftName = model.UpdateShiftName;
-                //entity.OrganizationID = model.OrganizationID;
-                //entity.StartTime = model.UpdateStartTime;
-                //entity.EndTime = model.UpdateEndTime;
+                entity.OrganizationID = model.UpdateOrganizationID;
+                entity.StartTime = model.UpdateStartTime.ToTimeOnly();
+                entity.EndTime = model.UpdateEndTime.ToTimeOnly();
                 entity.IsLateCount = model.UpdateIsLateCount;
                 entity.IsAutomaticORManualBreakTime = model.UpdateIsAutomaticORManualBreakTime;
                 entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.UpdateIsMBCompulsaryOrComplementaryDeductWithShift;
                 entity.IsAllowStartAndEndTime = model.UpdateIsAllowStartAndEndTime;
-                //entity.MealBreakStartTime = model.UpdateMealBreakStartTime;
-                //entity.MealBreakEndTime = model.UpdateMealBreakEndTime;
+                entity.MealBreakStartTime = model.UpdateMealBreakStartTime.ToTimeOnly();
+                entity.MealBreakEndTime = model.UpdateMealBreakEndTime.ToTimeOnly();
                 entity.IsAllowOvertime = model.UpdateIsAllowOvertime;
                 entity.GraceTime = model.UpdateGraceTime;
                 entity.MinimumWorkingTime = model.UpdateMinimumWorkingTime;
@@ -157,8 +157,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
-                await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
+                //var afterEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
+                //await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;
@@ -270,6 +270,11 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 {
                     "ShiftID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ShiftID) : query.OrderBy(x => x.ShiftID),
                     "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ShiftName) : query.OrderBy(x => x.ShiftName),
+                    "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
+                    "StartTime" => sortOrder == "desc" ? query.OrderByDescending(x => x.StartTime) : query.OrderBy(x => x.StartTime),
+                    "EndTime" => sortOrder == "desc" ? query.OrderByDescending(x => x.EndTime) : query.OrderBy(x => x.EndTime),
+                    "GraceTime" => sortOrder == "desc" ? query.OrderByDescending(x => x.GraceTime) : query.OrderBy(x => x.GraceTime),
+                    "MealBreakTime" => sortOrder == "desc" ? query.OrderByDescending(x => x.MealBreakTime) : query.OrderBy(x => x.MealBreakTime),
                     _ => query.OrderBy(x => x.ShiftID)
                 };
             }
@@ -281,6 +286,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     ShiftID = x.ShiftID,
                     ShiftName = x.ShiftName ?? "-",
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
+                    //StartTime = x.StartTime.HasValue ? x.StartTime.Value.ToString("hh\\:mm") : "-",
                     StartTime = x.StartTime,
                     EndTime = x.EndTime,
                     IsLateCount = x.IsLateCount,
