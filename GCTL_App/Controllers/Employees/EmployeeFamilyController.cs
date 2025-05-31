@@ -13,9 +13,9 @@ namespace GCTL_App.Controllers.Employees
     {
 
         private readonly IEmployeeFamilyService _employeeFamilyService;
-        public EmployeeFamilyController(ITranslateService translateService, IEmployeeFamilyService employeeFamilyService) : base(translateService)
 
-        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
+
+        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeFamilyService employeeFamilyService) : base(translateService, userProfileService)
 
         {
             _employeeFamilyService = employeeFamilyService;
