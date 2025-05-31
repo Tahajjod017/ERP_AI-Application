@@ -2,7 +2,7 @@
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Language;
 
-using GCTL.Service.Language;
+
 using GCTL.Service.UserProfile;
 
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +13,8 @@ namespace GCTL_App.Controllers.Employees
     {
 
         private readonly IEmployeeTrainingService _employeeTrainingService;
-        public EmployeeTrainingController(ITranslateService translateService, IEmployeeTrainingService employeeTrainingService) : base(translateService)
 
-        public EmployeeTrainingController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
-
+        public EmployeeTrainingController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeTrainingService employeeTrainingService) : base(translateService, userProfileService)
         {
             _employeeTrainingService = employeeTrainingService;
         }

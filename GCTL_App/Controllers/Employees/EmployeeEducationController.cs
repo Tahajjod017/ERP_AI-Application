@@ -13,10 +13,8 @@ namespace GCTL_App.Controllers.Employees
     {
 
         private readonly IEmployeeEducationalService _employeeEducationalService;
-        public EmployeeEducationController(ITranslateService translateService, IEmployeeEducationalService employeeEducationalService) : base(translateService)
 
-        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
-
+        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService) : base(translateService, userProfileService)
         {
             _employeeEducationalService = employeeEducationalService;
         }
