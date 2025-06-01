@@ -41,45 +41,43 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var existingEntity = await _genericRepository.FindAsync(b => b.ShiftName == model.ShiftName && b.DeletedAt != null);
-                if (existingEntity.Any())
+                foreach (var organizationID in model.OrganizationIDs)
                 {
+                    var entityToRestore = await _genericRepository.FindAsync(b => b.DeletedAt != null && b.ShiftName == model.ShiftName && b.OrganizationID == organizationID);
 
-                    var entityToRestore = existingEntity.FirstOrDefault();
-                    if (entityToRestore == null) return false;
+                    var existingEntity = entityToRestore.FirstOrDefault();
+                    if (existingEntity != null)
+                    {
+                        existingEntity.ShiftName = model.ShiftName;
+                        existingEntity.OrganizationID = organizationID;
+                        existingEntity.StartTime = model.StartTime;
+                        existingEntity.EndTime = model.EndTime;
+                        existingEntity.IsLateCount = model.IsLateCount;
+                        existingEntity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
+                        existingEntity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
+                        existingEntity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
+                        existingEntity.MealBreakStartTime = model.MealBreakStartTime;
+                        existingEntity.MealBreakEndTime = model.MealBreakEndTime;
+                        existingEntity.IsAllowOvertime = model.IsAllowOvertime;
+                        existingEntity.GraceTime = model.GraceTime;
+                        existingEntity.MinimumWorkingTime = model.MinimumWorkingTime;
+                        existingEntity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
+                        existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
+                        existingEntity.MealBreakTime = model.MealBreakTime;
 
-                    entityToRestore.ShiftName = model.ShiftName;
-                    //entityToRestore.OrganizationID = model.OrganizationID;
-                    entityToRestore.StartTime = model.StartTime;
-                    entityToRestore.EndTime = model.EndTime;
-                    entityToRestore.IsLateCount = model.IsLateCount;
-                    entityToRestore.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                    entityToRestore.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
-                    entityToRestore.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
-                    entityToRestore.MealBreakStartTime = model.MealBreakStartTime;
-                    entityToRestore.MealBreakEndTime = model.MealBreakEndTime;
-                    entityToRestore.IsAllowOvertime = model.IsAllowOvertime;
-                    entityToRestore.GraceTime = model.GraceTime;
-                    entityToRestore.MinimumWorkingTime = model.MinimumWorkingTime;
-                    entityToRestore.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
-                    entityToRestore.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
-                    entityToRestore.MealBreakTime = model.MealBreakTime;
+                        existingEntity.CreatedAt = DateTime.Now;
+                        existingEntity.CreatedBy = model.CreatedBy;
+                        existingEntity.LIP = model.LIP;
+                        existingEntity.LMAC = model.LMAC;
+                        existingEntity.UpdatedBy = model.UpdatedBy ?? null;
+                        existingEntity.DeletedAt = null;
+                        existingEntity.UpdatedAt = DateTime.Now;
 
-                    entityToRestore.CreatedAt = DateTime.Now;
-                    entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.LIP = model.LIP;
-                    entityToRestore.LMAC = model.LMAC;
-                    entityToRestore.UpdatedBy = model.UpdatedBy ?? null;
-                    entityToRestore.DeletedAt = null;
-                    entityToRestore.UpdatedAt = DateTime.Now;
-
-                    await _genericRepository.UpdateAsync(entityToRestore);
-                    var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entityToRestore));
-                    await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entityToRestore, entityToRestore.ShiftID, model);
-                }
-                else
-                {
-                    foreach(var organizationID in model.OrganizationIDs)
+                        await _genericRepository.UpdateAsync(existingEntity);
+                        //var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entityToRestore));
+                        //await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, existingEntity, existingEntity.ShiftID, model);
+                    }
+                    else
                     {
                         Shifts entity = new Shifts();
                         entity.ShiftName = model.ShiftName;
@@ -103,7 +101,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.LIP = model.LIP;
                         entity.LMAC = model.LMAC;
                         await _genericRepository.AddAsync(entity);
-                        await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataAdd, null, entity, entity.ShiftID, model);
+                        await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, entity, entity.ShiftID, model);
                     }
                 }
 
@@ -158,7 +156,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
                 //var afterEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Action Taken", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
+                //await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;
@@ -169,6 +167,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 return false;
             }
         }
+        #endregion
+
+
+        #region GetByIdAsync
         public async Task<ShiftUpdateSetupVM> GetByIdAsync(int id)
         {
             try
@@ -260,9 +262,14 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
 
 
         #region GetAllAsync
-        public async Task<PaginationService<Shifts, ShiftsSetupVM>.PaginationResult<ShiftsSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc")
+        public async Task<PaginationService<Shifts, ShiftsSetupVM>.PaginationResult<ShiftsSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null)
         {
             var query = _genericRepository.All().AsNoTracking().Include(x => x.Organization).Where(x => x.DeletedAt == null);
+
+            if (organizationID.HasValue && organizationID.Value > 0)
+            {
+                query = query.Where(x => x.OrganizationID == organizationID.Value);
+            }
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
@@ -285,6 +292,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 {
                     ShiftID = x.ShiftID,
                     ShiftName = x.ShiftName ?? "-",
+                    OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
                     //StartTime = x.StartTime.HasValue ? x.StartTime.Value.ToString("hh\\:mm") : "-",
                     StartTime = x.StartTime,
@@ -308,7 +316,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         #endregion
 
 
-        #region 
+        #region GetOrganizations
         public IEnumerable<CommonSelectVM> GetOrganizations()
         {
             var data = _organizationRepository.AllActive()

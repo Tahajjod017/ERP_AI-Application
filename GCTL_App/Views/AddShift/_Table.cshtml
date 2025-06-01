@@ -3,10 +3,8 @@
         <h4 class="mb-1">@Html.SmartLocalize("Shift List")</h4>
         <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
             <div class="dropdown me-3">
-                <select class="form-select" id="addShift-dd-search" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                <select class="form-select" id="addShift-dd-search" asp-items="ViewBag.OrganizationDD as SelectList" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
                     <option value="">@Html.SmartLocalize("Company Name")</option>
-                    <option>@Html.SmartLocalize("GCTL")</option>
-                    <option>@Html.SmartLocalize("CSL")</option>
                 </select>
             </div>
         </div>
@@ -64,7 +62,6 @@
                     </tr>
                 </thead>
                 <tbody id="addShift-tBody">
-                    
                 </tbody>
             </table>
         </div>

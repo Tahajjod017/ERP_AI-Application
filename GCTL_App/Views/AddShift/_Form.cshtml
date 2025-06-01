@@ -29,7 +29,6 @@
                             <label class="form-label" asp-for="StartTime">@Html.SmartLocalize("Start Time")</label>
                             <input class="form-control datetimepicker flatpickr-input" asp-for="StartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                    data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
-                            @* <input class="form-control datetimepicker timepicker-12hr" asp-for="StartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                         </div>
                     </div>
 
@@ -37,8 +36,7 @@
                         <div class="mb-3">
                             <label class="form-label" asp-for="EndTime">@Html.SmartLocalize("End Time")</label>
                             <input class="form-control datetimepicker flatpickr-input" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
-                                       data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
-                            @* <input class="form-control datetimepicker timepicker-12hr" asp-for="EndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
+                                   data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
                         </div>
                     </div>
 
@@ -101,7 +99,6 @@
                             <div class="col-md-3 me-2">
                                 <div class="mt-5 ">
                                     <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" name="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-CompulsaryDeduct" type="radio" value="true" />
-                                    @* <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-CompulsaryDeduct" type="checkbox" /> *@
                                     <label class="form-check-label" for="addShift-CompulsaryDeduct">@Html.SmartLocalize("Compulsary Deduct With Shift")</label>
                                 </div>
                             </div>
@@ -109,7 +106,6 @@
                             <div class="col-md-3 ">
                                 <div class="mt-5">
                                     <input class="form-check-input" asp-for="IsMealBreakCompulsaryOrComplementaryDeductWithShift" name="IsMealBreakCompulsaryOrComplementaryDeductWithShift" id="addShift-Complementary" type="radio" value="false" />
-                                    @* <input class="form-check-input" asp-for="IsMealBreakComplementoryWithShift" id="addShift-Complementary" type="checkbox" /> *@
                                     <label class="form-check-label" for="addShift-Complementary">@Html.SmartLocalize("Complementory With Shift")</label>
                                 </div>
                             </div>
@@ -132,7 +128,6 @@
                                         <label class="form-label" asp-for="MealBreakStartTime">Start Time</label>
                                         <input class="form-control datetimepicker flatpickr-input" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                                data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
-                                        @* <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                                     </div>
                                 </div>
 
@@ -141,7 +136,6 @@
                                         <label class="form-label" asp-for="MealBreakEndTime">End Time</label>
                                         <input class="form-control datetimepicker flatpickr-input" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                                data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
-                                        @* <input class="form-control datetimepicker timepicker-12hr" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" /> *@
                                     </div>
                                 </div>
                             </div>
