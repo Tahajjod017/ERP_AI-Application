@@ -19,9 +19,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         private readonly IAddShiftService _addShiftService;
         private readonly IGenericRepository<Shifts> _genericRepository;
 
-        public AddShiftController(ITranslateService translateService, 
-            IUserProfileService userProfileService, 
-            IAddShiftService addShiftService, 
+        public AddShiftController(ITranslateService translateService,
+            IUserProfileService userProfileService,
+            IAddShiftService addShiftService,
             IGenericRepository<Shifts> genericRepository) : base(translateService, userProfileService)
         {
             _addShiftService = addShiftService;
@@ -57,7 +57,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 {
                     if (model.OrganizationIDs == null || model.OrganizationIDs.Count <= 0) return Json(new { isSuccess = false, message = "Please Select a Company!" });
 
-                    foreach(var orgId in model.OrganizationIDs)
+                    foreach (var orgId in model.OrganizationIDs)
                     {
                         if (orgId > 0)
                         {
@@ -157,9 +157,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc")
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null)
         {
-            var result = await _addShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _addShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
 
             return Json(result);
         }

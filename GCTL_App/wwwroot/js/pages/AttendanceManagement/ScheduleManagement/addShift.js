@@ -213,6 +213,68 @@
 
 
 
+            $(document).on('click', settings.bulkDelBtn, function () {
+                var selectedItems = $(".addShift-selectItem:checked");
+                var selectedIds = [];
+
+                selectedItems.each(function () {
+                    selectedIds.push($(this).data('id'));
+                });
+
+                if (selectedIds.length > 0) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'POST',
+                            data: { ids: selectedIds },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.info("Please select at least one item to delete.");
+                }
+            });
+
+            $(document).on('click', settings.singleDeleteBtn, function () {
+                var id = $(this).data('id');
+
+                if (id) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'POST',
+                            data: { ids: [id] },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.error("Invalid action.");
+                }
+            });
+
+
+
+
             $(settings.resetBtn).on('click', function () {
                 clear();
             });
@@ -519,6 +581,18 @@
 
 
 
+            $('#addShift-dd-search').on('change', function () {
+                const selectedValue = $(this).val();
+                if (selectedValue) {
+                    currentPage = 1;
+                    loadTableData(selectedValue);
+                } else {
+                    loadTableData();
+                }
+            })
+
+
+
         });
 
 
@@ -594,7 +668,7 @@
 
         function loadTableData(sortColumn, sortOrder) {
             var searchTerm = $("#addShift-searchInput").val();
-
+            var organizationID = $("#addShift-dd-search").val();
             $.ajax({
                 url: gridUrl,
                 method: 'GET',
@@ -603,7 +677,8 @@
                     pageSize: pageSize,
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
-                    sortOrder: sortOrder
+                    sortOrder: sortOrder,
+                    organizationID: organizationID
                 },
                 success: function (response) {
                     var tableBody = $("#addShift-tBody");
