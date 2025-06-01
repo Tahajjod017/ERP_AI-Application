@@ -16,8 +16,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
 
         public bool IsFullDay { get; set; }
 
+        [Required(ErrorMessage ="Required FromDate ")]
         public DateOnly? FromDate { get; set; }
-
+        [Required(ErrorMessage = "Required ToDate ")]
         public DateOnly? ToDate { get; set; }
 
         public TimeOnly? PartialFromTime { get; set; }
@@ -28,7 +29,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         [Required(ErrorMessage = "Select Leave Type")]
 
         public int? LeaveTypeID { get; set; }
-        [Required(ErrorMessage ="Required Field")]
+      
         public string? Reason { get; set; }
     }
 }

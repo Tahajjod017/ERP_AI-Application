@@ -1,4 +1,11 @@
 ﻿@model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
+<style>
+    .req::after {
+        content: '*';
+        color: red;
+        margin-left: 2px;
+    }
+</style>
 <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
 
     <div class="modal-body pb-0">
@@ -7,19 +14,20 @@
                 <div class="mb-3">
                     <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger" role="alert"></div>
 
-                    <label class="form-label">Name</label>
+                    <label class="form-label req">Name</label>
 
                     <select class="form-select choiceDD" asp-for="EmployeeID" asp-items="@ViewBag.EmployeeDD as SelectList">
                             <option>Select organizer</option>
                         </select>
-                
+                    <span asp-validation-for="EmployeeID" class="text-danger small"></span>
+                    <span id="EmployeeIDError" class="text-danger small"></span>
                 </div>
             </div>
             <div class="col-md-6">
 
                 <div class="col-md-12">
                    
-                        <label class="form-label">Leave Type</label>
+                        <label class="form-label req">Leave Type</label>
                         <select class="form-select choiceDD" asp-for="LeaveTypeID" asp-items="@ViewBag.LeaveTypeDD as SelectList">
                             <option>Select Type</option>
                         </select>
@@ -28,7 +36,7 @@
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label class="form-label">No of Days</label>
-                        <input type="text" class="form-control" value="Auto Calculation" disabled>
+                        <input type="text" id="NoOfDays" class="form-control"  readonly>
                     </div>
                 </div>
                 <div class="col-md-12">
@@ -43,9 +51,9 @@
                     <div class="mb-3">
                         <label class="form-label">Reason</label>
                         <textarea asp-for="Reason" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="Reason" class="text-danger small"></span>
+                       
                     </div>
-                    <span id="ReasonError" class="text-danger small"></span>
+                   
                 </div>
 
             </div>
@@ -60,19 +68,21 @@
                         <div class="row mt-3" >
                             <div class=" col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">From </label>
+                                    <label class="form-label req">From</label>
                                     <div class="input-icon-end position-relative">
                                         <input type="text" asp-for="FromDate" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
                                     </div>
+                                    <span asp-validation-for="FromDate" class="text-danger small"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">To </label>
+                                    <label class="form-label req">To</label>
                                     <div class="input-icon-end position-relative">
                                         
                                         <input type="text" asp-for="ToDate" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
                                     </div>
+                                    <span asp-validation-for="ToDate" class="text-danger small"></span>
                                 </div>
                             </div>
                         </div>
