@@ -14,6 +14,7 @@ namespace GCTL.Service.Employees.EmployeeTraining
         Task<CommonReturnViewModel> DeleteAsync(int id);
         Task<List<EmployeeTrainingGetViewModel>> GetEmployeeTrainingByIdAsync(int id);
         Task<EmployeeTrainingPostViewModel> GetEmployeeEduData(int id);
-        Task<CommonReturnViewModel> SubmitAsync(EmployeeTrainingPostViewModel model);
+        Task<CommonReturnViewModel> SaveAsync(EmployeeTrainingPostViewModel model);
+        Task<CommonReturnViewModel> UpdateAsync(EmployeeTrainingPostViewModel model);
     }
 }

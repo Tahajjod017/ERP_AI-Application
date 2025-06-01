@@ -43,28 +43,16 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task<IActionResult> Index(EmployeeTrainingPostViewModel model)
         {
-
-
-
-            var res = await _employeeTrainingService.SubmitAsync(model);
+            var res = await _employeeTrainingService.SaveAsync(model);
             return Ok(res);
-
-
-
         }
 
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-
-
-
             var res = await _employeeTrainingService.DeleteAsync(id);
             return Ok(res);
-
-
-
         }
 
 
@@ -80,12 +68,12 @@ namespace GCTL_App.Controllers.Employees
 
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployeeEduData(int id)
+        public async Task<IActionResult> GetEmployeeTrainingData(int id)
         {
             try
             {
                 var data = await _employeeTrainingService.GetEmployeeEduData(id);
-                return Json(data);
+                return Ok(data);
             }
             catch (Exception ex)
             {
@@ -93,6 +81,22 @@ namespace GCTL_App.Controllers.Employees
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Update([FromBody] EmployeeTrainingPostViewModel model)
+        {
+            if (model == null || model.EmployeeTranningInfoID <= 0)
+            {
+                return Ok(new { success = false, message = "Invalid data" });
+            }
+
+            var res = await _employeeTrainingService.UpdateAsync(model);
+            return Ok(res);
+        }
+
+
+
 
 
     }

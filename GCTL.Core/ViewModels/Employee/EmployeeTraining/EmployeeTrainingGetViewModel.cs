@@ -25,5 +25,6 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeTraining
         public string YearDuration { get; set; }
 
         public string LocationName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -31,7 +31,7 @@
     //#region Load Data
 
     function loadEmployeeEducationalData(selectedEmployeeId) {
-        debugger
+    
         if (!selectedEmployeeId || selectedEmployeeId === 0) {
             selectedEmployeeId = $('#EmployeePersonalId').val();
         }
@@ -42,13 +42,20 @@
             type: 'GET',
             data: { id: selectedEmployeeId },
             success: function (data) {
-                PopulateTable(data)
+                
                
                 var employee = Array.isArray(data) ? data[0] : data;
               
                 $('#PersonalEmail').val(employee.personalEmail);
                 $('#PersonalPhone').val(employee.personalPhone);
                 choiceManager.setChoiceValue('EmployeePersonalId', employee.employeePersonalId)
+
+                const tableBody = $('#educationalTable tbody');
+                tableBody.empty();
+
+                if (employee.isActive) {
+                    PopulateTable(data);
+                }
 
 
             },
@@ -59,13 +66,14 @@
     }
     //#endregion
 
+    let deleteId = null;
 
     //#region Populate Table
     function PopulateTable(data) {
         console.log('data for table ', data);
         const tableBody = $('#educationalTable tbody');
         tableBody.empty();
-        debugger
+        
         if (data && data.length > 0) {
             data.forEach(function (item) {
                 const row = `<tr data-id="${item.employeeEducationalInfoID}">
@@ -78,12 +86,13 @@
                 <td>${item.achievement || ''}</td>
                 <td class="align-middle white-space-nowrap ">
                     <div class="btn-reveal-trigger position-static g-3">
-                        <button class="nav-item me-2 btn-edit" data-id="${item.employeeEducationalInfoID}">
+                        <button class="nav-item me-2 btn-edit" data-id="${item.employeeEducationalInfoID}" data-bs-toggle="modal" data-bs-target="#edit_education">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="nav-item me-2 btn-delete" data-id="${item.employeeEducationalInfoID}">
+                        <button class="nav-item me-2 btn-delete" data-id="${item.employeeEducationalInfoID}" data-bs-toggle="modal" data-bs-target="#delete_modal">
                             <i class="fas fa-trash"></i>
                         </button>
+                        
                     </div>
                 </td>
 
@@ -100,16 +109,37 @@
                 EditEducationalRecord(id);
             });
 
-            // Add click handlers for delete buttons
+            
+         
+
+
+           
+
             $('.btn-delete').click(function (e) {
-                e.preventDefault();
-                const id = $(this).data('id');
-                DeleteEducationalRecord(id);
+                e.preventDefault()
+                deleteId = $(this).data('id'); // Store the id temporarily
             });
+
+
+
         } else {
             tableBody.append('<tr><td colspan="8">No educational records found.</td></tr>');
         }
     }
+
+
+    //#endregion
+
+
+    //#region Delete Button
+
+    $('#confirmDeleteBtn').click(function (e) {
+        e.preventDefault()
+        if (deleteId) {
+            debugger
+            DeleteEducationalRecord(deleteId);
+        }
+    });
 
 
     //#endregion
@@ -143,33 +173,77 @@
     //#region Populate from on edit
 
     function populateOnform(record) {
-        alert()
-        // Populate the form with the record data
-        $('#EmployeeEducationalInfoID').val(record.employeeEducationalInfoID);
-        $('#InstitutionName').val(record.institutionName);
-        $('#YearDuration').val(record.yearDuration);
-        $('#Achievement').val(record.achievement);
-        $('#MajorSubject').val(record.majorSubject);
-
-
-        choiceManager.setChoiceValue('EducationLevelID', record.educationLevelID)
-        choiceManager.setChoiceValue('DegreeID', record.degreeID)
-        choiceManager.setChoiceValue('EducationBoardID', record.educationBoardID)
-        choiceManager.setChoiceValue('ResultTypeID', record.resultTypeID)
-        choiceManager.setChoiceValue('PassingYearID', record.passingYearID)
        
+        // Populate the form with the record data
+        $('#editEmployeeEducationalInfoID').val(record.employeeEducationalInfoID);
+        $('#editInstitutionName').val(record.institutionName);
+        $('#editYearDuration').val(record.yearDuration);
+        $('#editAchievement').val(record.achievement);
+        $('#editMajorSubject').val(record.majorSubject);
 
-        // Scroll to form if needed
-        $('html, body').animate({
-            scrollTop: $('form').offset().top
-        }, 500);
+
+        choiceManager.setChoiceValue('editEducationLevelID', record.educationLevelID)
+        choiceManager.setChoiceValue('editDegreeID', record.degreeID)
+        choiceManager.setChoiceValue('editEducationBoardID', record.educationBoardID)
+        choiceManager.setChoiceValue('editResultTypeID', record.resultTypeID)
+        choiceManager.setChoiceValue('editPassingYearID', record.passingYearID)
+              
     }
+
+    //#endregion
+
+    //#region Edit Button Click
+
+    $(document).on('click', '#btnEditSubmit', function (e) {
+        e.preventDefault();
+        let formData = {
+            employeeEducationalInfoID: $('#editEmployeeEducationalInfoID').val(),
+            majorSubject: $('#editMajorSubject').val(),
+            institutionName: $('#editInstitutionName').val(),
+            yearDuration: $('#editYearDuration').val(),
+            achievement: $('#editAchievement').val(),
+
+            //educationLevelID: $('#editEducationLevelID').val(),
+            //degreeID: $('#editDegreeID').val(),
+            //educationBoardID: $('#editEducationBoardID').val(),
+            //resultTypeID: $('#editResultTypeID').val(),
+            //passingYearID: $('#editPassingYearID').val(),
+
+            educationLevelID: choiceManager.getChoiceValue('editEducationLevelID'),
+            degreeID: choiceManager.getChoiceValue('editDegreeID'),
+            educationBoardID: choiceManager.getChoiceValue('editEducationBoardID'),
+            resultTypeID: choiceManager.getChoiceValue('editResultTypeID'),
+            passingYearID: choiceManager.getChoiceValue('editPassingYearID'),
+
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/EmployeeEducation/Update", 
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function (response) {
+                if (response.success) {
+                    $('#edit_education').modal('hide'); 
+                    toastr.success(response.message || "Education info updated successfully!");
+
+                    loadEmployeeEducationalData();
+
+                } else {
+                    toastr.warning(response.message || "Failed to update education info. Try again!");
+                }
+            },
+            error: function () {
+                toastr.error("Error updating education info.");
+            }
+        });
+    });
 
     //#endregion
 
     //#region Delete record function
     function DeleteEducationalRecord(id) {
-        if (confirm('Are you sure you want to delete this educational record?')) {
+        
             // AJAX call to delete the record
             $.ajax({
                 url: '/EmployeeEducation/Delete',
@@ -179,17 +253,22 @@
                     if (response.success) {
                         toastr.success(response.message || ' Record  deleted');
 
+                        $('#delete_modal').modal('hide');
+
                         loadEmployeeEducationalData()
 
                     } else {
                         toastr.error(response.message || 'Failed to delete record');
+
+                        $('#delete_modal').modal('hide');
+
                     }
                 },
                 error: function () {
                     toastr.error('An error occurred while deleting the record');
                 }
             });
-        }
+        
     }
 
     //#endregion

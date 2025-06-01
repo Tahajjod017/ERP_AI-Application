@@ -58,7 +58,7 @@ namespace GCTL_App.Controllers.Employees
 
 
 
-            var res = await _employeeEducationalService.SubmitAsync(model);
+            var res = await _employeeEducationalService.SaveAsync(model);
             return Ok(res);
 
 
@@ -104,6 +104,19 @@ namespace GCTL_App.Controllers.Employees
                
                 return StatusCode(500, "Internal Server Error");
             }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Update([FromBody] EmployeeEducationalPostViewModel model)
+        {
+            if (model == null || model.EmployeeEducationalInfoID <= 0)
+            {
+                return Json(new { success = false, message = "Invalid data" });
+            }
+
+            var res = await _employeeEducationalService.UpdateAsync(model);
+            return Ok(res);
         }
 
     }

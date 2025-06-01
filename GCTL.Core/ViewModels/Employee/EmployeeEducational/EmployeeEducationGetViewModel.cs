@@ -29,5 +29,6 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeEducational
         public string YearDuration { get; set; }
 
         public string Achievement { get; set; }
+        public bool IsActive { get; set; }
     }
 }

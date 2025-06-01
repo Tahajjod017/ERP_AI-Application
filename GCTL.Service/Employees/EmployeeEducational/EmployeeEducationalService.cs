@@ -46,7 +46,7 @@ namespace GCTL.Service.Employees.EmployeeEducational
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee additional information deleted successfully.",
+                    Message = "Employee Educational information deleted successfully.",
                    // Data = existingInfo.EmployeeID
                 };
             }
@@ -55,7 +55,7 @@ namespace GCTL.Service.Employees.EmployeeEducational
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "Employee additional information not found.",
+                    Message = "Employee Educational information not found.",
                     Data = null
                 };
 
@@ -106,13 +106,15 @@ namespace GCTL.Service.Employees.EmployeeEducational
                                         YearDuration = ea.YearDuration,
                                         Achievement = ea.Achievement,
                                         PersonalEmail = emp.Email ?? "N/A",
-                                        PersonalPhone = emp.MobileNumber ?? "N/A"
+                                        PersonalPhone = emp.MobileNumber ?? "N/A",
+                                        IsActive = true,
+
 
 
                                     }).ToListAsync();
 
 
-            if (employee != null)
+            if (employee != null && employee.Count() != 0)
             {
                 return employee;
             }
@@ -124,6 +126,8 @@ namespace GCTL.Service.Employees.EmployeeEducational
 
                     PersonalEmail = m.Email ?? "N/A",
                     PersonalPhone = m.MobileNumber ?? "N/A",
+                    IsActive = false,
+
                 }).ToListAsync();
 
                 return emp;
@@ -167,7 +171,7 @@ namespace GCTL.Service.Employees.EmployeeEducational
 
         }
 
-        public async Task<CommonReturnViewModel> SubmitAsync(EmployeeEducationalPostViewModel model)
+        public async Task<CommonReturnViewModel> SaveAsync(EmployeeEducationalPostViewModel model)
         {
             if (model == null)
             {
@@ -243,7 +247,7 @@ namespace GCTL.Service.Employees.EmployeeEducational
                     return new CommonReturnViewModel
                     {
                         Success = true,
-                        Message = "Employee additional information updated successfully.",
+                        Message = "Employee Educational information updated successfully.",
                         Data = model.EmployeePersonalId
                     };
                 }
@@ -269,7 +273,7 @@ namespace GCTL.Service.Employees.EmployeeEducational
                     return new CommonReturnViewModel
                     {
                         Success = true,
-                        Message = "Employee additional information Added successfully.",
+                        Message = "Employee Educational information Added successfully.",
                         Data = model.EmployeePersonalId
 
                     };
@@ -282,13 +286,54 @@ namespace GCTL.Service.Employees.EmployeeEducational
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "An error occurred while submitting the employee additional information.",
+                    Message = "An error occurred while submitting the employee Educational information.",
                     Errors = new List<string> { ex.Message }
                 };
             }
         }
 
+        public async Task<CommonReturnViewModel> UpdateAsync(EmployeeEducationalPostViewModel model)
+        {
+            if (model == null || model.EmployeeEducationalInfoID <= 0)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Invalid data provided."
+                };
+            }
+            try
+            {
+                var existingInfo = await _employeeEducationalRepository.AllActive().Where(e => e.EmployeeEducationalInfoID == model.EmployeeEducationalInfoID).FirstOrDefaultAsync();
 
+
+                existingInfo.InstitutionName = model.InstitutionName;
+                existingInfo.EducationLevelID = model.EducationLevelID;
+                existingInfo.DegreeID = model.DegreeID;
+                existingInfo.MajorSubject = model.MajorSubject;
+                existingInfo.EducationBoardID = model.EducationBoardID;
+                existingInfo.ResultTypeID = model.ResultTypeID;
+                existingInfo.PassingYearID = model.PassingYearID;
+                existingInfo.YearDuration = model.YearDuration;
+                existingInfo.Achievement = model.Achievement;
+
+
+                await _employeeEducationalRepository.UpdateAsync(existingInfo, model);
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Employee Educational information updated successfully.",
+                    Data = model.EmployeePersonalId
+                };
+                
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         private string CheckRequiredField(object value, string propertyDisplayName)
         {

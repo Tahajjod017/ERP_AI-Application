@@ -17,6 +17,9 @@
                 if (selectedEmployeeId && selectedEmployeeId !== '') {
                     loadEmployeeTrainingData(selectedEmployeeId);
 
+                    
+
+
                 } else {
                     clearForm();
                 }
@@ -31,7 +34,7 @@
     //#region Load Data
 
     function loadEmployeeTrainingData(selectedEmployeeId) {
-        debugger
+        
         if (!selectedEmployeeId || selectedEmployeeId === 0) {
             selectedEmployeeId = $('#EmployeePersonalId').val();
         }
@@ -42,13 +45,20 @@
             type: 'GET',
             data: { id: selectedEmployeeId },
             success: function (data) {
-                PopulateTable(data)
+                
 
                 var employee = Array.isArray(data) ? data[0] : data;
 
                 $('#PersonalEmail').val(employee.personalEmail);
                 $('#PersonalPhone').val(employee.personalPhone);
                 choiceManager.setChoiceValue('EmployeePersonalId', employee.employeePersonalId)
+
+                const tableBody = $('#employeeTrainingTable tbody');
+                tableBody.empty();
+
+                if (employee.isActive) {
+                    PopulateTable(data);
+                }
 
             },
             error: function (xhr, status, error) {
@@ -58,13 +68,14 @@
     }
     //#endregion
 
+    let deleteId = null;
 
     //#region Populate Table
     function PopulateTable(data) {
         console.log('data for table ', data);
         const tableBody = $('#employeeTrainingTable tbody');
         tableBody.empty();
-        debugger
+        
         if (data && data.length > 0) {
             data.forEach(function (item) {
                 const row = `<tr data-id="${item.employeeTranningInfoID}">
@@ -77,10 +88,10 @@
                 <td>${item.yearDuration || ''}</td>
                 <td class="align-middle white-space-nowrap ">
                     <div class="btn-reveal-trigger position-static g-3">
-                        <button class="nav-item me-2 btn-edit" data-id="${item.employeeTranningInfoID}">
+                        <button class="nav-item me-2 btn-edit" data-id="${item.employeeTranningInfoID}" data-bs-toggle="modal" data-bs-target="#edit_traning">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="nav-item me-2 btn-delete" data-id="${item.employeeTranningInfoID}">
+                        <button class="nav-item me-2 btn-delete" data-id="${item.employeeTranningInfoID}" data-bs-toggle="modal" data-bs-target="#delete_modal">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -97,12 +108,15 @@
                 EditTrainingRecord(id);
             });
 
-            // Add click handlers for delete buttons
+           
+
+
             $('.btn-delete').click(function (e) {
-                e.preventDefault();
-                const id = $(this).data('id');
-                DeleteTrainingRecord(id);
+                e.preventDefault()
+                deleteId = $(this).data('id'); // Store the id temporarily
             });
+
+
         } else {
             tableBody.append('<tr><td colspan="8">No training records found.</td></tr>');
         }
@@ -110,6 +124,22 @@
 
     //#endregion
 
+    //#region Delete Model
+
+    $('#confirmDeleteBtn').click(function (e) {
+        e.preventDefault()
+        if (deleteId) {
+            
+            DeleteTrainingRecord(deleteId);
+
+
+
+
+
+        }
+    });
+
+    //#endregion
 
     //#region Edit record function
     function EditTrainingRecord(id) {
@@ -135,49 +165,45 @@
     //#region Populate from on edit
 
     function populateOnform(record) {
-        alert()
+     
         // Populate the form with the record data
-        $('#EmployeeTranningInfoID').val(record.employeeTranningInfoID);
-        $('#TranningTitle').val(record.tranningTitle);
-        $('#TopicCovered').val(record.topicCovered);
-        $('#InstituteName').val(record.instituteName);
-        $('#YearDuration').val(record.yearDuration);
-        $('#LocationName').val(record.locationName);
+        $('#editEmployeeTranningInfoID').val(record.employeeTranningInfoID);
+        $('#editTranningTitle').val(record.tranningTitle);
+        $('#editTopicCovered').val(record.topicCovered);
+        $('#editInstituteName').val(record.instituteName);
+        $('#editYearDuration').val(record.yearDuration);
+        $('#editLocationName').val(record.locationName);
 
-        choiceManager.setChoiceValue('CountryID', record.countryID)
-        choiceManager.setChoiceValue('TrainingYearID', record.trainingYearID)
+        choiceManager.setChoiceValue('editCountryID', record.countryID)
+        choiceManager.setChoiceValue('editTrainingYearID', record.trainingYearID)
 
-        // Scroll to form if needed
-        $('html, body').animate({
-            scrollTop: $('form').offset().top
-        }, 500);
+        
     }
 
     //#endregion
 
     //#region Delete record function
     function DeleteTrainingRecord(id) {
-        if (confirm('Are you sure you want to delete this training record?')) {
-            // AJAX call to delete the record
-            $.ajax({
-                url: '/EmployeeTraining/Delete',
-                type: 'POST',
-                data: { id: id },
-                success: function (response) {
-                    if (response.success) {
-                        toastr.success(response.message || 'Training record deleted');
+       
+        $.ajax({
+            url: '/EmployeeTraining/Delete',
+            type: 'POST',
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message || 'Training record deleted');
 
-                        loadEmployeeTrainingData()
+                    loadEmployeeTrainingData()
 
-                    } else {
-                        toastr.error(response.message || 'Failed to delete training record');
-                    }
-                },
-                error: function () {
-                    toastr.error('An error occurred while deleting the training record');
+                } else {
+                    toastr.error(response.message || 'Failed to delete training record');
                 }
-            });
-        }
+            },
+            error: function () {
+                toastr.error('An error occurred while deleting the training record');
+            }
+        });
+        
     }
 
     //#endregion
@@ -198,7 +224,6 @@
     }
 
     //#endregion
-
 
     //#region Form Submission
 
@@ -241,6 +266,48 @@
                 } else {
                     toastr.error('Failed to save employee training. Please try again.');
                 }
+            }
+        });
+    });
+
+    //#endregion
+
+    //#region Edit Button Click
+
+    $(document).on('click', '#btnEditSubmit', function (e) {
+        e.preventDefault();
+        let formData = {
+            employeeTranningInfoID: $('#editEmployeeTranningInfoID').val(),
+            tranningTitle: $('#editTranningTitle').val(),
+            topicCovered: $('#editTopicCovered').val(),
+            instituteName: $('#editInstituteName').val(),
+            yearDuration: $('#editYearDuration').val(),
+            locationName: $('#editLocationName').val(),
+
+            //countryID: $('#editCountryID').val(),
+            //trainingYearID: $('#editTrainingYearID').val(),
+
+            countryID: choiceManager.getChoiceValue('editCountryID'),
+            trainingYearID: choiceManager.getChoiceValue('editTrainingYearID')
+        }
+
+
+        $.ajax({
+            type: "POST",
+            url: "/EmployeeTraining/Update",
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function (response) {
+                if (response.success) {
+                    $('#edit_traning').modal('hide');
+                    toastr.success(response.message || "Employee Training info updated successfully!");
+                    loadEmployeeTrainingData()
+                } else {
+                    toastr.warning(response.message || "Failed to update Employee Training info. Try again!");
+                }
+            },
+            error: function () {
+                toastr.error("Error updating Employee Training info.");
             }
         });
     });

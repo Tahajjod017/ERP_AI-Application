@@ -1,5 +1,108 @@
 ﻿@model GCTL.Core.ViewModels.Employee.EmployeeTraining.EmployeeTrainingPostViewModel
 
+
+<!-- Delete Modal -->
+<div class="modal fade" id="delete_modal">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger text-danger mb-3">
+                    <i class="ti ti-trash-x fs-36"></i>
+                </span>
+                <h4 class="mb-1">Confirm Delete</h4>
+                <p class="mb-3">You want to delete all the marked items, this cant be undone once you delete.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);"  class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</a>
+                    <a id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Delete Modal -->
+
+
+<div class="modal fade" id="edit_traning">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content px-3">
+            <div class="modal-header">
+                <div class="d-flex align-items-center">
+                    <h4 class="modal-title me-2">Edit Traning</h4>
+                </div>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <input type="hidden" id="editEmployeeTranningInfoID" />
+            <div class="modal-body">
+                <div class="col-12 row flex gy-3 ">
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating">
+                            <input id="editTranningTitle" class="form-control" type="text" placeholder="@Html.SmartLocalize("Training Title")" required />
+                            <label id="editTranningTitle">@Html.SmartLocalize("Training Title")</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating form-floating-advance-select">
+                            <label id="editCountryID">@Html.SmartLocalize("Country")</label>
+                            <select class="form-select choiceDD" id="editCountryID" asp-items="@(new SelectList(ViewBag.Country.Items, "Value", "Text"))">
+                                <option value="" selected disabled>@Html.SmartLocalize("Select Country")</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating">
+                            <input id="editTopicCovered" class="form-control" type="text" placeholder="@Html.SmartLocalize("Topics Covered")" required />
+                            <label id="editTopicCovered">@Html.SmartLocalize("Topics Covered")</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating form-floating-advance-select">
+                            <label id="editTrainingYearID">@Html.SmartLocalize("Training Year")</label>
+                            <select class="form-select choiceDD" id="editTrainingYearID" asp-items="@(new SelectList(ViewBag.TrainingYear.Items, "Value", "Text"))">
+                                <option value="" selected disabled>@Html.SmartLocalize("Select Training Year")</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating">
+                            <input id="editInstituteName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Institute Name")" required />
+                            <label id="editInstituteName">@Html.SmartLocalize("Institute Name")</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-floating">
+                            <input id="editYearDuration" class="form-control" type="text" placeholder="@Html.SmartLocalize("Duration")" />
+                            <label id="editYearDuration">@Html.SmartLocalize("Duration (Years)")</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-12">
+                        <div class="form-floating">
+                            <input id="editLocationName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Location")" />
+                            <label id="editLocationName">@Html.SmartLocalize("Location")</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" id="btnEditSubmit" type="button" style="width: 100px;">Add</button>
+
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
 <div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 mb-4">
         <div class="col-auto">
@@ -10,7 +113,7 @@
         <div class="row">
             <form asp-controller="EmployeeTraining" asp-action="Index" method="post" id="trainingForm">
                 <div class="col-12">
-                    <input type="hidden" asp-for="EmployeeTranningInfoID" />
+                    
 
                     <div class="row g-2 align-items-center">
                         <div class="col-md-3">
@@ -171,5 +274,5 @@
     }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/pages/employees/employeevalidator.js"></script>
-	</script><script src="~/js/pages/employees/employeetraining.js"></script>
+	<script src="~/js/pages/employees/employeetraining.js"></script>
 }

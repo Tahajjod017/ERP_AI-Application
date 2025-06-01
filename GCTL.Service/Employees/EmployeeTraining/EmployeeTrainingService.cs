@@ -82,7 +82,9 @@ namespace GCTL.Service.Employees.EmployeeTraining
                                       LocationName = ea.LocationName,
 
                                       PersonalEmail = emp.Email ?? "N/A",
-                                      PersonalPhone = emp.MobileNumber ?? "N/A"
+                                      PersonalPhone = emp.MobileNumber ?? "N/A",
+
+                                      IsActive = true,
 
                                   }).ToListAsync();
 
@@ -99,6 +101,7 @@ namespace GCTL.Service.Employees.EmployeeTraining
 
                     PersonalEmail = m.Email ?? "N/A",
                     PersonalPhone = m.MobileNumber ?? "N/A",
+                    IsActive = false,
                 }).ToListAsync();
 
                 return emp;
@@ -140,7 +143,7 @@ namespace GCTL.Service.Employees.EmployeeTraining
 
         }
 
-        public async Task<CommonReturnViewModel> SubmitAsync(EmployeeTrainingPostViewModel model)
+        public async Task<CommonReturnViewModel> SaveAsync(EmployeeTrainingPostViewModel model)
         {
             if (model == null)
             {
@@ -161,21 +164,7 @@ namespace GCTL.Service.Employees.EmployeeTraining
             {
                 Check(model.EmployeePersonalId, "Employee"),
                 Check(model.TranningTitle, "Tranning Title Name"),
-                //Check(model.PasportNo, "Passport Number"),
-                //Check(model.PasportPlaceOfIssue, "Passport Place of Issue"),
-                //Check(model.PasportIssueDate, "Passport Issue Date"),
-                //Check(model.PasportExpireDate, "Passport Expire Date"),
-                //Check(model.DrivingLicenceNo, "Driving Licence Number"),
-                //Check(model.LicenceTypeID, "Licence Type"),
-                //Check(model.DrivingLicenceIssueDate, "Driving Licence Issue Date"),
-                //Check(model.DrivingLicenceExpireDate, "Driving Licence Expire Date"),
-                //Check(model.SymbolOfVehicleClass, "Symbol of Vehicle Class"),
-                //Check(model.DrivingLicencePlaceOfIssue, "Driving Licence Place of Issue"),
-                //Check(model.WorkPermaitNumber, "Work Permit Number"),
-                //Check(model.WorkPermitType, "Work Permit Type"),
-                //Check(model.WorkPermitEffectiveDate, "Work Permit Effective Date"),
-                //Check(model.WorkPermitExpireDate, "Work Permit Expire Date"),
-                //Check(model.VisaExpireDate, "Visa Expire Date")
+                
 
             }.Where(x => x != null));
 
@@ -284,6 +273,54 @@ namespace GCTL.Service.Employees.EmployeeTraining
             }
 
             return null;
+        }
+
+        public async Task<CommonReturnViewModel> UpdateAsync(EmployeeTrainingPostViewModel model)
+        {
+            try
+            {
+                if (model == null || model.EmployeeTranningInfoID <= 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Invalid data"
+                    };
+                }
+
+                var existingInfo = await _employeeTranningInfoRepository.AllActive().Where(e => e.EmployeeTranningInfoID == model.EmployeeTranningInfoID).FirstOrDefaultAsync();
+                if (existingInfo == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Employee training information not found.",
+                        Data = null
+                    };
+                }
+                //existingInfo.EmployeeID = model.EmployeePersonalId;
+                existingInfo.InstituteName = model.InstituteName;
+                existingInfo.TranningTitle = model.TranningTitle;
+                existingInfo.CountryID = model.CountryID;
+                existingInfo.TopicCovered = model.TopicCovered;
+                existingInfo.TrainingYearID = model.TrainingYearID;
+                existingInfo.YearDuration = model.YearDuration;
+                existingInfo.LocationName = model.LocationName;
+
+                await _employeeTranningInfoRepository.UpdateAsync(existingInfo, model);
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Employee Training information updated successfully.",
+                    Data = model.EmployeePersonalId
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
     }
 }
