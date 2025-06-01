@@ -1,11 +1,13 @@
 ﻿using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Security.Claims;
 
 namespace GCTL_App.Controllers
@@ -27,21 +29,84 @@ namespace GCTL_App.Controllers
         }
 
         public async Task<IActionResult> Index()
-        {// Get current user ID
+        {
+            // Get current user ID  
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Load roles into ViewBag (No tenant check here)
-            ViewBag.Roles = await _Db.Roles
-                .Select(r => new { r.Id, r.Name })
-                .ToListAsync();
+            //// Load roles into ViewBag (No tenant check here)  
+            //ViewBag.Companies = _Db.Organization.Select(x=> new
+            //{
+            //    Id= x.OrganizationID,
+            //    Name = x.OrganizationName // Assuming ToCleanRoleName() is an extension method to format the name
+            //}).ToList();
+            //ViewBag.Roles = new List<ApplicationRole>();
+            var user = await _userManager.Users
+                .Where(u => u.Id == currentUserId)
+                .Select(u => new { u.TenantInfoId, u.OrganizationID })
+                .FirstOrDefaultAsync();
 
-            return View();
+            ViewBag.TenantId = user?.TenantInfoId;
+            ViewBag.UserCompanyId = user?.OrganizationID;
+
+            if (user.OrganizationID == null)
+            {
+                // Super admin: show all companies
+                ViewBag.Companies = _Db.Organization
+                    .Select(x => new { Id = x.OrganizationID, Name = x.OrganizationName })
+                    .ToList();
+            }
+            else
+            {
+                // Restricted: show only the user’s company
+                ViewBag.Companies = _Db.Organization
+                    .Where(x => x.OrganizationID == user.OrganizationID)
+                    .Select(x => new { Id = x.OrganizationID, Name = x.OrganizationName })
+                    .ToList();
+            }
+
+            ViewBag.Roles = new List<ApplicationRole>();
+            return View(); 
+        }
+
+        [HttpGet]
+        public JsonResult GetRolesByCompany(int? companyId)
+        {
+            int tenantId = 1;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user =  _userManager.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new { u.TenantInfoId, u.OrganizationID })
+                .FirstOrDefault();
+            // Convert 0 to null manually
+            if (companyId == 0)
+            {
+                companyId = null;
+            }
+
+            // Restriction: If user has a specific company, enforce it
+            if (user.OrganizationID != null && user.OrganizationID != companyId)
+            {
+                return Json(new { success = false, message = "Access denied to selected company." });
+            }
+
+            var rolesQuery = _Db.ApplicationRoles.Where(r => r.TenantInfoId == tenantId);
+
+            if (companyId.HasValue)
+                rolesQuery = rolesQuery.Where(r => r.OrganizationID == companyId.Value);
+            else
+                rolesQuery = rolesQuery.Where(r => r.OrganizationID == null);
+
+            var roles = rolesQuery
+                .Select(r => new { Id = r.Id, Name = r.Name.ToCleanRoleName() })
+                .ToList();
+
+            return Json(roles);
         }
 
 
-        [HttpGet]
-      
 
+
+        [HttpGet]
         public async Task<IActionResult> LoadPermissions(string roleId)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -144,12 +209,9 @@ namespace GCTL_App.Controllers
             return false;
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> UpdatePermissions([FromBody] BulkPermissionUpdateModel model)
         {
-            // Check if the incoming model is valid
             if (model == null || string.IsNullOrEmpty(model.RoleId) || model.Permissions == null || !model.Permissions.Any())
             {
                 return BadRequest("Invalid data.");
@@ -157,88 +219,97 @@ namespace GCTL_App.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Get distinct permission names from the incoming permission model
-            var permissionNames = model.Permissions.Select(p => p.Permission).Distinct().ToList();
+            // Normalize and extract unique permission names and module IDs
+            var permissionNames = model.Permissions
+                .Select(p => p.Permission?.Trim().ToLower())
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Distinct()
+                .ToList();
 
-            // Get the permission IDs from the database based on the permission names
-            // List to store the PermissionIds based on the provided permission names
-            List<int> permissionIds = new List<int>();
+            var moduleIds = model.Permissions
+                .Select(p => p.MenuTabId)
+                .Distinct()
+                .ToList();
 
-            // Loop through each permission in the request model and fetch its PermissionId
-            foreach (var perm in model.Permissions)
+            // Fetch all permissions from DB and normalize names
+            var permissionsInDb = await _Db.Permissions.ToListAsync();
+            var permissionIdMap = permissionsInDb
+                .Where(p => permissionNames.Contains(p.Name.Trim().ToLower()))
+                .ToDictionary(p => p.Name.Trim().ToLower(), p => p.Id);
+
+            // Check for missing permissions
+            var matchedPermissionNames = permissionIdMap.Keys.ToList();
+            var missingPermissions = permissionNames.Except(matchedPermissionNames).ToList();
+
+            if (missingPermissions.Any())
             {
-                // Fetch the PermissionId from the Permissions table based on the permission name
-                var permission = await _Db.Permissions
-                     .FirstOrDefaultAsync(p => p.Name == perm.Permission);
-
-                if (permission == null)
-                {
-                    // Handle the case where the permission doesn't exist
-                    return BadRequest($"Permission '{perm.Permission}' not found in the database.");
-                }
-
-                // Add the PermissionId to the list
-                permissionIds.Add(permission.Id);
+                return BadRequest($"Permission(s) not found: {string.Join(", ", missingPermissions)}");
             }
 
+            // Fetch all existing RoleModulePermissions for that role and modules
+            var existingRolePerms = await _Db.RoleModulePermissions
+                .Where(p => p.RoleId == model.RoleId && moduleIds.Contains(p.MenuTabId))
+                .ToListAsync();
 
-
-            // Get distinct module IDs from the incoming permissions
-            var moduleIds = model.Permissions.Select(p => p.MenuTabId).Distinct().ToList();
-
-            // Retrieve existing permissions for the given role and modules
-            // Retrieve existing permissions for the given role, modules, and permission types (by PermissionId)
-            var existingPermissions = await _Db.RoleModulePermissions
-                 .Where(p => p.RoleId == model.RoleId && moduleIds.Contains(p.MenuTabId) && permissionIds.Contains(p.PermissionId))
-                 .ToListAsync();
-
-            // List to hold new permissions that are not yet added to the database
-            var newPermissions = new List<RoleModulePermissions>();
-
-            // Loop through the permissions to either update existing or add new
-            foreach (var perm in model.Permissions)
-            {
-                // Get the PermissionId for the current permission
-                var permissionId = permissionIds.First(id => _Db.Permissions.Any(p => p.Id == id && p.Name == perm.Permission));
-
-                // Check if the permission already exists based on RoleId, ModuleId, and PermissionId
-                var existing = existingPermissions.FirstOrDefault(p =>
-                     p.RoleId == model.RoleId &&
-                     p.MenuTabId == perm.MenuTabId &&
-                     p.PermissionId == permissionId);
-
-                if (existing != null)
+            // ====== ⛔ REMOVE SECTION ======
+            var permissionsToRemove = model.Permissions
+                .Where(p => !p.IsGranted)
+                .Select(p => new
                 {
-                    // Update existing permission
-                    existing.IsGranted = perm.IsGranted;
-                    _Db.Update(existing);
-                }
-                else
+                    p.MenuTabId,
+                    PermissionId = permissionIdMap.ContainsKey(p.Permission.Trim().ToLower())
+                        ? permissionIdMap[p.Permission.Trim().ToLower()]
+                        : 0
+                })
+                .Where(x => x.PermissionId > 0)
+                .Select(x => existingRolePerms.FirstOrDefault(ep =>
+                    ep.RoleId == model.RoleId &&
+                    ep.MenuTabId == x.MenuTabId &&
+                    ep.PermissionId == x.PermissionId &&
+                    ep.IsGranted == true))
+                .Where(ep => ep != null)
+                .ToList();
+
+            _Db.RoleModulePermissions.RemoveRange(permissionsToRemove);
+
+            // ====== ✅ ADD SECTION ======
+            var newPermissions = model.Permissions
+                .Where(p => p.IsGranted)
+                .Where(p => !existingRolePerms.Any(ep =>
+                    ep.RoleId == model.RoleId &&
+                    ep.MenuTabId == p.MenuTabId &&
+                    ep.PermissionId == permissionIdMap[p.Permission.Trim().ToLower()] &&
+                    ep.IsGranted == true))
+                .Select(p => new RoleModulePermissions
                 {
+                    RoleId = model.RoleId,
+                    MenuTabId = p.MenuTabId,
+                    PermissionId = permissionIdMap[p.Permission.Trim().ToLower()],
+                    IsGranted = true
+                })
+                .ToList();
 
-
-                    // Now create the new RoleModulePermission
-                    newPermissions.Add(new RoleModulePermissions
-                    {
-                        RoleId = model.RoleId,
-                        MenuTabId = perm.MenuTabId,
-                        PermissionId = permissionId, // Use permission ID
-                        IsGranted = perm.IsGranted
-                    });
-                }
-            }
-
-            // Add new permissions to the database if any
-            if (newPermissions.Any())
+            // ====== ✅ SAVE WITH ERROR HANDLING ======
+            try
             {
                 await _Db.RoleModulePermissions.AddRangeAsync(newPermissions);
+                await _Db.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update failed: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
             }
 
-            // Save changes to the database
-            await _Db.SaveChangesAsync();
-            return RedirectToAction("Index", "RolePermission");
-            // return Ok(new { message = "Permissions updated successfully" });
+            return Ok(new { message = "Permissions updated successfully." });
         }
+
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetUserNavModules()
         {

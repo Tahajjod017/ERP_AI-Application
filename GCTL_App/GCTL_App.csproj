@@ -4,8 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <Compile Remove="ViewModels\MasterSetup\Organization\**" />

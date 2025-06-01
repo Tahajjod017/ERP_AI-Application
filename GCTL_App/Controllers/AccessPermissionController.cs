@@ -1,42 +1,52 @@
-﻿using GCTL.Core.Helpers;
-using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.RoleModule;
+﻿using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
+using GCTL.Service;
 using GCTL.Service.AccessPermissions;
+using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
+using GCTL_App.EmailServicesMethod;
 using Microsoft.AspNetCore.Authorization;
-using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using GCTL.Service.Language;
-using GCTL.Service.UserProfile;
+using static System.Net.WebRequestMethods;
 
-namespace GCTL_App.Controllers
+namespace GCTL_App.Controllers 
 {
     [Authorize]
-    public class AccessPermissionController : BaseController 
+    public class AccessPermissionController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAccessControlService _accessControlService;
         private readonly AppDbContext _Db;
-        private readonly IUserInfoService userInfoService;
+        private readonly IRoleService _roleService;
+        private readonly ITranslateService _translationService;
+        private readonly IEmailService _emailService;
 
-        public AccessPermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAccessControlService accessControlService, AppDbContext db, IUserInfoService userInfoService) : base(translateService, userProfileService)
+        public AccessPermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAccessControlService accessControlService, AppDbContext db, IRoleService roleService, ITranslateService translationService, IEmailService emailService) : base(translateService, userProfileService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _accessControlService = accessControlService;
             _Db = db;
-            this.userInfoService = userInfoService;
+            _roleService = roleService;
+            _translationService = translationService;
+            _emailService = emailService;
         }
 
+
         //[Authorize(Policy = "Admin.VIEW")]
+        [Permission("VIEW", "AccessPermission")]
         public async Task<IActionResult> Index()
         {
+            var languageCode = HttpContext.Items["Language"] as string ?? "en";
+            int PageCode = 513000;
             int menuTabId = 34;  // Change this to match your actual MenuTabId
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -125,8 +135,6 @@ namespace GCTL_App.Controllers
 
                    .ToListAsync();
 
-
-
             }
 
 
@@ -137,39 +145,78 @@ namespace GCTL_App.Controllers
                 Users = userRoles,
                 RoleUserAssignments = roleUserAssignments
             };
+            var companies = _Db.Organization
+                         .Select(c => new SelectListItem
+                         {
+                             Value = c.OrganizationID.ToString(),
+                             Text = c.OrganizationName.ToString(),
+                         }).ToList();
+
+            ViewBag.CompanyList = companies;
 
 
             ViewBag.AvailableRoles = roles;
             ViewBag.CanCreate = await _accessControlService.HasPermissionAsync(menuTabId, "Create");
-
+            ViewBag.CreateNewRl = await _translationService.GetTranslationAsyncInd("Create New Role", (PageCode++).ToString(), languageCode);
             return View(viewModel);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableRoles(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int? companyId = null, int? tenantId = null)
+        {
+            var roles = await _roleService.GetPagedRolesAsync(searchTerm, pageNumber, pageSize,companyId,tenantId);
+            var totalCount = await _roleService.GetTotalRolesCountAsync(searchTerm);
 
+            var roleDtos = roles.Select(r => new { roleName = r.Name.ToCleanRoleName() }).ToList();
+
+            return Json(new { data = roleDtos, totalCount });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoleUserAssignments(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int? companyId = null, int? tenantId = null)
+        {
+            var data = await _roleService.GetPagedRoleUserAssignmentsAsync(searchTerm, pageNumber, pageSize,companyId,tenantId);
+            var total = await _roleService.GetTotalRolesCountAsync(searchTerm);
+
+            // Shape data for JSON: dictionary of role => list of users (userName only for now)
+            var result = data.ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value.Select(u => new { u.UserName,u.Id }).ToList()
+            );
+
+
+            return Json(new { data = result, totalCount = total });
+        }
+
+
+        [Permission("CREATE", "AccessPermission")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRole(RoleManagementViewModel model)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var normalizedRoleName = model.NewRoleName?.Trim() ?? "";
+            var tenantId = 1; // Fixed tenant ID
+            var combinedRoleName = $"{tenantId}_{model.SelectedCompanyId}_{normalizedRoleName}";
 
-
-            if (!string.IsNullOrEmpty(model.NewRoleName))
+            var exists = await _roleManager.Roles.AnyAsync(r => r.Name == combinedRoleName);
+            if (exists)
             {
-                var role = new ApplicationRole { Name = model.NewRoleName };
+                TempData["Error"] = "Role with the same name already exists.";
+                return RedirectToAction("Index");
+            }
+
+            if (!string.IsNullOrEmpty(normalizedRoleName) && model.SelectedCompanyId.HasValue)
+            {
+                var role = new ApplicationRole
+                {
+                    Name = combinedRoleName,
+                    OrganizationID = model.SelectedCompanyId,
+                    TenantInfoId = tenantId
+                };
+
                 var result = await _roleManager.CreateAsync(role);
 
                 if (result.Succeeded)
                 {
-                    //added by Siam 
-
-                    await userInfoService.ActionLogAsync(
-                       tergetType: "Role Create",
-                       actionName: ActionName.RoleAdd,
-                       before: null,
-                       after: role,
-                       targetID: null, // or role.Id if you get it
-                       entityVM: model
-                   );
-                    //
                     TempData["Message"] = "Role created successfully.";
                 }
                 else
@@ -179,80 +226,255 @@ namespace GCTL_App.Controllers
             }
             else
             {
-                TempData["Error"] = "Role name cannot be empty.";
+                TempData["Error"] = "Role name, tenant and company must be provided.";
             }
 
             return RedirectToAction("Index");
         }
 
 
-
-
-
-        //
+        [HttpGet]
         public async Task<IActionResult> SearchUsers(string query)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var users = await _Db.ApplicationUsers
-                .Where(u => u.UserName.Contains(query))
-                .Select(u => new { u.Id, u.UserName })
-                .Take(10)
+            var employees = await _Db.Employees
+                .Where(e => e.FirstName.Contains(query) || e.LastName.Contains(query) || e.EmployeeCode.Contains(query))
+                .Select(e => new
+                {
+                    id = e.EmployeeID,
+                    userName = e.FirstName + " " + e.LastName,
+                    hasUser = e.HasUser,
+                    employeeCode = e.EmployeeCode,
+                    currentRole = (from user in _Db.Users
+                                   join userRole in _Db.UserRoles on user.Id equals userRole.UserId
+                                   join role in _Db.Roles on userRole.RoleId equals role.Id
+                                   where user.EmployeeId == e.EmployeeID
+                                   select role.Name).FirstOrDefault()
+                })               
                 .ToListAsync();
 
-            return Json(users);
+            return Json(employees);
         }
-        // POST: Assign selected role to a user
+        [HttpGet]
+        //public async Task<IActionResult> CheckUserRole(string userId)
+        //{
+        //    if (string.IsNullOrEmpty(userId))
+        //        return BadRequest("User ID is required.");
+        //    // Find userId by EmployeeId
+        //    var userIdFromEmp = await _Db.Users
+        //        .Where(u => u.EmployeeId.ToString() == userId)
+        //        .Select(u => u.Id)
+        //        .FirstOrDefaultAsync();
+        //    var roleName = await (from user in _Db.Users
+        //                          join userRole in _Db.UserRoles on user.Id equals userRole.UserId
+        //                          join role in _Db.Roles on userRole.RoleId equals role.Id
+        //                          where user.Id == userIdFromEmp
+        //                          select role.Name)
+        //                         .FirstOrDefaultAsync();
+
+        //    return Json(new { hasRole = !string.IsNullOrEmpty(roleName), currentRole = roleName  });
+        //}
+        public async Task<IActionResult> CheckUserRole(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("User ID is required.");
+
+            var user = await _Db.Users.FirstOrDefaultAsync(u => u.EmployeeId.ToString() == userId);
+
+            if (user == null)
+            {
+                return Json(new
+                {
+                    found = false,
+                    message = "No user found. Do you want to create a user account?"
+                });
+            }
+
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                return Json(new
+                {
+                    found = true,
+                    hasEmail = false,
+                    message = "User found but no email. Please set email first in the Employee module."
+                });
+            }
+
+            var roleName = await (from userRole in _Db.UserRoles
+                                  join role in _Db.Roles on userRole.RoleId equals role.Id
+                                  where userRole.UserId == user.Id
+                                  select role.Name).FirstOrDefaultAsync();
+
+            return Json(new
+            {
+                found = true,
+                hasEmail = true,
+                hasRole = !string.IsNullOrEmpty(roleName),
+                currentRole = roleName
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUserForEmployee(string employeeId)
+        {
+            if (string.IsNullOrEmpty(employeeId))
+                return Json(new { success = false, message = "Employee ID is required." });
+
+            var employee = await _Db.Employees.FirstOrDefaultAsync(e => e.EmployeeID.ToString() == employeeId);
+            if (employee == null)
+                return Json(new { success = false, message = "Employee not found." });
+
+            if (string.IsNullOrEmpty(employee.Email))
+                return Json(new { success = false, message = "Email is required to create a user." });
+
+            // Check if user already exists
+            var existingUser = await _userManager.FindByEmailAsync(employee.Email);
+            if (existingUser != null)
+                return Json(new { success = false, message = "User already exists for this email." });
+
+            var user = new ApplicationUser
+            {
+                UserName = employee.Email,
+                Email = employee.Email,
+                EmailConfirmed = true,
+                EmployeeId = employee.EmployeeID,
+               // TenantInfoId = employee.TenantInfoId,
+               // OrganizationID = employee.em,
+
+            };
+
+            var createResult = await _userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+                return Json(new { success = false, message = "User creation failed." });
+
+            // Optionally assign default role
+            //await _userManager.AddToRoleAsync(user, "Employee");
+
+            // Optionally send a password setup link (reset token)
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action("ResetPasswordPage", "Account", new { token, email = user.Email }, Request.Scheme);
+
+            // Send email here using IEmailSender or your own email service
+            // Send email using your service
+            // Prepare data model for Razor template  
+            var model = new
+            {
+                Name = user.UserName, // or use user.FullName if available  
+                ResetLink = resetLink,
+            };
+
+            var emailResult = await _emailService.SendEmailAsync(
+                toEmail: employee.Email,
+                subject: "Set Your Password",
+                razorTemplateFile: "WelcomeAccountSetupTemplate.html", // Rename if needed, e.g., ResetPasswordTemplate.html
+                model: model,
+                 null,
+                 null
+            );
+
+            return Json(new { success = true });
+        }
+
+        [Permission("CREATE", "AccessPermission")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignRole(string role, List<string> selectedUsers)
         {
-
             if (string.IsNullOrEmpty(role) || selectedUsers == null || !selectedUsers.Any())
             {
-                return BadRequest("Invalid input data. Ensure all fields are selected.");
+                return Json(new { success = false, message = "Invalid input data. Please select both role and users." });
             }
-
 
             var roleEntity = await _roleManager.Roles.FirstOrDefaultAsync(r => r.Name == role);
             if (roleEntity == null)
             {
-                return NotFound("Role not found.");
+                return Json(new { success = false, message = "Specified role not found." });
             }
 
-
-            foreach (var userId in selectedUsers)
+            foreach (var empIdString in selectedUsers)
             {
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null)
+                if (!int.TryParse(empIdString, out int employeeId))
+                {
+                    continue; // Skip invalid employeeId
+                }
+
+                // Find userId by EmployeeId
+                var userId = await _Db.Users
+                    .Where(u => u.EmployeeId == employeeId)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+
+                ApplicationUser user = null;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    // No user found – try to create one
+                    var employee = await _Db.Employees.FirstOrDefaultAsync(e => e.EmployeeID == employeeId && e.DeletedAt == null);
+
+                    if (employee == null)
+                        continue;
+
+                    user = new ApplicationUser
+                    {
+                        UserName = employee.EmployeeCode,
+                        Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
+                        EmployeeId = employee.EmployeeID
+                    };
+
+                    var createResult = await _userManager.CreateAsync(user, "##Emp123%");
+                    if (createResult.Succeeded)
+                    {//   Mark password as needing reset
+                        //user.IsPasswordResetRequired = true;
+                        // Save changes
+                        await _userManager.UpdateAsync(user);
+                    }
+                    else
+                    {
+                        var errors = string.Join("; ", createResult.Errors.Select(e => e.Description));
+                        return Json(new { success = false, message = $"Failed to create user for Employee ID {employeeId}: {errors}" });
+
+                    }
+
+                    employee.HasUser = true;
+                    employee.UpdatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    user = await _userManager.FindByIdAsync(userId);
+                    if (user == null)
+                        continue; // Defensive check
+                }
+
+                var currentRoles = await _userManager.GetRolesAsync(user);
+
+                // Skip if already has the same role
+                if (currentRoles.Contains(role))
                 {
                     continue;
                 }
 
-
-                // if exists currentRole  then remove previous role and add new Role 
-                var currentRoles = await _userManager.GetRolesAsync(user);
+                // Enforce one-role-per-user
                 if (currentRoles.Any())
                 {
-                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    var removalResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removalResult.Succeeded)
+                    {
+                        return Json(new { success = false, message = $"Failed to remove existing roles for {user.UserName}." });
+                    }
                 }
-
-                // var appUser = await _Db.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userId);
-
-
 
                 var result = await _userManager.AddToRoleAsync(user, role);
                 if (!result.Succeeded)
                 {
-                    return BadRequest("Failed to assign role to one or more users.");
+                    var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                    return Json(new { success = false, message = $"Failed to assign role to {user.UserName}: {errors}" });
                 }
-
             }
 
-
             await _Db.SaveChangesAsync();
-            return Ok("Role assigned successfully.");
+            return Json(new { success = true, message = "Role(s) assigned successfully." });
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -286,6 +508,29 @@ namespace GCTL_App.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteRoleByName(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+                return BadRequest();
+
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role == null)
+                return NotFound();
+
+            // Remove related RoleModulePermissions
+            var relatedPermissions = _Db.RoleModulePermissions.Where(r => r.RoleId == role.Id);
+            _Db.RoleModulePermissions.RemoveRange(relatedPermissions);
+            await _Db.SaveChangesAsync();
+
+            // Now delete the role
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
+                return Ok();
+
+            return StatusCode(500, "Failed to delete role.");
+        }
+
 
 
     }

@@ -88,13 +88,13 @@
     </div>
 </main>
 <script>
-    var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+    var navbarTopStyle = window.config?.config?.phoenixNavbarTopStyle;
     var navbarTop = document.querySelector('.navbar-top');
     if (navbarTopStyle === 'darker') {
       navbarTop.setAttribute('data-navbar-appearance', 'darker');
     }
 
-    var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+    var navbarVerticalStyle = window.config?.config?.phoenixNavbarVerticalStyle;
     var navbarVertical = document.querySelector('.navbar-vertical');
     if (navbarVertical && navbarVerticalStyle === 'darker') {
       navbarVertical.setAttribute('data-navbar-appearance', 'darker');
@@ -105,7 +105,7 @@
 <script>
     $(document).ready(function () {
 
-        function toggleInputs() {
+        function toggleInputss() {
             if ($('#forSuperAdmin').is(':checked')) {
                 $('#companyName').prop('disabled', true);
                 $('#companyIsActive').prop('disabled', true);
@@ -117,10 +117,10 @@
 
 
         $('#forSuperAdmin').on('change', function () {
-            toggleInputs();
+            toggleInputss();
         });
 
         // Initialize the state on page load
-        toggleInputs();
+        toggleInputss();
     });
 </script>

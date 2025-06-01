@@ -30,9 +30,7 @@ using GCTL.Service.MasterSetup.PaymentMode;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.Employees.EmployeePersonal;
-
 using GCTL.Service.Employees.EmployeeOfficial;
-
 using GCTL.Service.MasterSetup.LicenceType;
 using GCTL.Service.MasterSetup.Organizations;
 using GCTL.Service.MasterSetup.PassingYear;
@@ -44,16 +42,14 @@ using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeBenifit;
-
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
-
-
 using GCTL.Service.UserProfile;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
+using GCTL.Service.RolePermissions;
 
 
 
@@ -124,6 +120,7 @@ namespace GCTL_App.Extensions
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
             #endregion
 
 
