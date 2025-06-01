@@ -31,7 +31,5 @@ public partial class SpiralPatternTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<SpiralPatterns> SpiralPatterns { get; set; } = new List<SpiralPatterns>();
-
     public virtual Employees UpdatedByNavigation { get; set; }
 }

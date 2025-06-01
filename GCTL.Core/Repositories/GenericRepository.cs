@@ -1,7 +1,9 @@
 ﻿using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
+using System.Web.Mvc;
 
 namespace GCTL.Core.Repository
 {
@@ -292,6 +294,231 @@ namespace GCTL.Core.Repository
         }
 
 
+
+
+
+
+
+
+        #endregion
+
+        #region SelectList Methods
+
+        public SelectList GetSelectListById( Expression<Func<T, int>> idSelector,Expression<Func<T, string>> nameSelector, Expression<Func<T, bool>>? filter = null, object selectedValue = null)
+        {
+            var query = _context.Set<T>().AsNoTracking();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            var idFunc = idSelector.Compile();
+            var nameFunc = nameSelector.Compile();
+
+            var data = query.ToList();
+
+            var items = data.Select(e => new
+            {
+                Value = idFunc(e).ToString(), 
+                Text = nameFunc(e)
+            }).ToList();
+
+            return new SelectList(items, "Value", "Text", selectedValue);
+        }
+
+        public async Task<SelectList> GetSelectListByIdAsync(
+            Expression<Func<T, int>> idSelector,
+            Expression<Func<T, string>> nameSelector,
+            Expression<Func<T, bool>>? filter = null,
+            object selectedValue = null)
+        {
+            var query = _context.Set<T>().AsNoTracking();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            var idFunc = idSelector.Compile();
+            var nameFunc = nameSelector.Compile();
+
+            var data = await query.ToListAsync();
+
+            var items = data.Select(e => new
+            {
+                Value = idFunc(e).ToString(), // Ensure Value is string for SelectList
+                Text = nameFunc(e)
+            }).ToList();
+
+            return new SelectList(items, "Value", "Text", selectedValue);
+        }
+
+        public SelectList GetSelectListByIdAlt(
+            Expression<Func<T, int>> idSelector,
+            Expression<Func<T, string>> nameSelector,
+            Expression<Func<T, bool>>? filter = null,
+            object selectedValue = null)
+        {
+            var query = _context.Set<T>().AsNoTracking();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            string idPropertyName = GetPropertyName(idSelector);
+            string namePropertyName = GetPropertyName(nameSelector);
+
+            var items = query
+                .Select(e => new
+                {
+                    Value = EF.Property<int>(e, idPropertyName).ToString(), // Ensure Value is string
+                    Text = EF.Property<string>(e, namePropertyName)
+                })
+                .ToList();
+
+            return new SelectList(items, "Value", "Text", selectedValue);
+        }
+
+        private string GetPropertyName<TProperty>(Expression<Func<T, TProperty>> expression)
+        {
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                return memberExpression.Member.Name;
+            }
+
+            if (expression.Body is UnaryExpression unaryExpression &&
+                unaryExpression.Operand is MemberExpression member)
+            {
+                return member.Member.Name;
+            }
+
+            throw new ArgumentException("Expression must be a property selector");
+        }
+
+        public SelectList GetActiveSelectListById(
+            Expression<Func<T, int>> idSelector,
+            Expression<Func<T, string>> nameSelector,
+            Expression<Func<T, bool>>? additionalFilter = null,
+            object selectedValue = null)
+        {
+            var query = AllActive().AsNoTracking();
+
+            if (additionalFilter != null)
+            {
+                query = query.Where(additionalFilter);
+            }
+
+            var idFunc = idSelector.Compile();
+            var nameFunc = nameSelector.Compile();
+
+            var data = query.ToList();
+
+            var items = data.Select(e => new
+            {
+                Value = idFunc(e).ToString(), // Ensure Value is string
+                Text = nameFunc(e)
+            }).ToList();
+
+            return new SelectList(items, "Value", "Text", selectedValue);
+        }
+
+        public async Task<SelectList> GetActiveSelectListByIdAsync(
+            Expression<Func<T, int>> idSelector,
+            Expression<Func<T, string>> nameSelector,
+            Expression<Func<T, bool>>? additionalFilter = null,
+            object selectedValue = null)
+        {
+            var query = AllActive().AsNoTracking();
+
+            if (additionalFilter != null)
+            {
+                query = query.Where(additionalFilter);
+            }
+
+            var idFunc = idSelector.Compile();
+            var nameFunc = nameSelector.Compile();
+
+            var data = await query.ToListAsync();
+
+            var items = data.Select(e => new
+            {
+                Value = idFunc(e).ToString(), // Ensure Value is string
+                Text = nameFunc(e)
+            }).ToList();
+
+            return new SelectList(items, "Value", "Text", selectedValue);
+        }
+
+        #endregion
+
+
+        #region soft del
+        public async Task SoftDeleteAsync(object id, object model)
+        {
+            var entity = await GetByIdAsync(id);
+            if (entity == null) return;
+
+            var entityType = entity.GetType();
+
+            // Set DeletedAt and DeletedBy properties if they exist
+            var deletedAtProperty = entityType.GetProperty("DeletedAt");
+            if (deletedAtProperty != null && deletedAtProperty.CanWrite)
+            {
+                deletedAtProperty.SetValue(entity, DateTime.UtcNow);
+            }
+
+            var deletedByProperty = entityType.GetProperty("DeletedBy");
+            if (deletedByProperty != null && deletedByProperty.CanWrite)
+            {
+                var modelType = model.GetType();
+                var userIdProperty = modelType.GetProperty("CreatedBy") ?? modelType.GetProperty("UpdatedBy");
+                if (userIdProperty != null)
+                {
+                    var userId = userIdProperty.GetValue(model);
+                    deletedByProperty.SetValue(entity, userId);
+                }
+            }
+
+            _context.Set<T>().Update(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        // Add FirstOrDefault methods
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<T?> FirstOrDefaultActiveAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await AllActive().FirstOrDefaultAsync(predicate);
+        }
+
+        // Add exists methods
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().AnyAsync(predicate);
+        }
+
+        public async Task<bool> ExistsActiveAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await AllActive().AnyAsync(predicate);
+        }
+
+        // Add count methods
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            var query = _context.Set<T>();
+            return predicate == null ? await query.CountAsync() : await query.CountAsync(predicate);
+        }
+
+        public async Task<int> CountActiveAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            var query = AllActive();
+            return predicate == null ? await query.CountAsync() : await query.CountAsync(predicate);
+        }
 
         #endregion
     }

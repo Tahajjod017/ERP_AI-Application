@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
+using System.Web.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Core.Repository
@@ -53,6 +55,26 @@ namespace GCTL.Core.Repository
         // 👇 
         List<object> GetDropdown(Expression<Func<T, int>> idSelector, Expression<Func<T, string>> nameSelector, Expression<Func<T, bool>>? filter = null);
         Task<List<object>> GetDropdownAsync(Expression<Func<T, int>> idSelector, Expression<Func<T, string>> nameSelector, Expression<Func<T, bool>>? filter = null);
+
+
+
+
         #endregion
+
+        #region SelectList Interface Methods
+
+        SelectList GetSelectListById(        Expression<Func<T, int>> idSelector,        Expression<Func<T, string>> nameSelector,        Expression<Func<T, bool>>? filter = null,        object selectedValue = null);
+
+        Task<SelectList> GetSelectListByIdAsync(            Expression<Func<T, int>> idSelector,            Expression<Func<T, string>> nameSelector,            Expression<Func<T, bool>>? filter = null,            object selectedValue = null);
+
+        SelectList GetSelectListByIdAlt(            Expression<Func<T, int>> idSelector,            Expression<Func<T, string>> nameSelector,            Expression<Func<T, bool>>? filter = null,            object selectedValue = null);
+
+        SelectList GetActiveSelectListById(            Expression<Func<T, int>> idSelector,            Expression<Func<T, string>> nameSelector,            Expression<Func<T, bool>>? additionalFilter = null,            object selectedValue = null);
+
+        Task<SelectList> GetActiveSelectListByIdAsync(            Expression<Func<T, int>> idSelector,            Expression<Func<T, string>> nameSelector,            Expression<Func<T, bool>>? additionalFilter = null,            object selectedValue = null);
+
+
+        #endregion
+
     }
 }

@@ -17,6 +17,7 @@ builder.Services.ConfigureContext(builder.Configuration);
 builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddMemoryCache();
+builder.Services.AddSignalR();
 #endregion
 
 //builder.Services.AddControllersWithViews();
@@ -74,12 +75,6 @@ builder.Services.AddControllersWithViews(options =>
 //end
 //builder.Services.AddHttpContextAccessor();
 #endregion
-#region Language
-
-builder.Services.AddHttpContextAccessor();
-
-#endregion
-
 
 
 var app = builder.Build();
@@ -96,8 +91,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 
-#region lang
-
+#region Language
 app.Use(async (context, next) =>
 {
     var language = context.Request.Cookies["Language"] ?? "en"; // Default to English
@@ -115,11 +109,17 @@ app.Use(async (context, next) =>
 
     await next();
 });
-
 #endregion
+
+
+
+app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
+app.UseRouting();
+app.UseAuthorization();
 
 app.UseRouting();
 app.UseAuthentication(); 
+
 app.UseAuthorization();
 //app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 

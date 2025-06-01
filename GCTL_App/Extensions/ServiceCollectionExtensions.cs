@@ -30,9 +30,7 @@ using GCTL.Service.MasterSetup.PaymentMode;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.Employees.EmployeePersonal;
-
 using GCTL.Service.Employees.EmployeeOfficial;
-
 using GCTL.Service.MasterSetup.LicenceType;
 using GCTL.Service.MasterSetup.Organizations;
 using GCTL.Service.MasterSetup.PassingYear;
@@ -41,11 +39,19 @@ using GCTL.Service.MasterSetup.ResultType;
 using GCTL.Service.MasterSetup.ServiceYear;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeBenifit;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.UserProfile;
 using GCTL.Service.Employees.EmployeeAllowance;
+using GCTL.Service.Employees.EmployeeAdditional;
+using GCTL.Service.Employees.EmployeeTraining;
+using GCTL.Service.Employees.EmployeeEducational;
+using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.RolePermissions;
+
+
 
 
 namespace GCTL_App.Extensions
@@ -100,19 +106,23 @@ namespace GCTL_App.Extensions
             services.AddScoped<IServiceYearService, ServiceYearService>();
             services.AddScoped<ITrainingYearService, TrainingYearService>();
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
+            services.AddScoped<IAddShiftService, AddShiftService>();
             #endregion
 
 
             //Siam 
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
-
             services.AddScoped<IVisitingPathService, VisitingPathService>();
+
+            services.AddScoped<ILeaveRequestService , LeaveRequestService>();
+
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IRoleService, RoleService>();
             #endregion
+
 
             #region Language Services
 
@@ -131,6 +141,10 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeBenifitService, EmployeeBenifitService>();
             services.AddScoped<IEmployeeAllowanceService, EmployeeAllowanceService>();
 
+            services.AddScoped<IEmployeeAdditionalService, EmployeeAdditionalService>();
+            services.AddScoped<IEmployeeTrainingService, EmployeeTrainingService>();
+            services.AddScoped<IEmployeeEducationalService, EmployeeEducationalService>();
+            services.AddScoped<IEmployeeFamilyService, EmployeeFamilyService>();
 
             #endregion
 

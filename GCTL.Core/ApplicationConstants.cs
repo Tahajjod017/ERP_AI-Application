@@ -11,5 +11,6 @@ namespace GCTL.Core
         public static string DateFormat = "dd/MM/yyyy";
         public const string DateTimeFormat = "dd/MM/yyyy hh:mm tt";
         public static string DateFormatYMD = "yyyy/MM/dd";
+        public const string TimeFormat = "hh:mm tt";
     }
 }

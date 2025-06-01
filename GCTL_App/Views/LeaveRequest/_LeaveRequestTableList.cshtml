@@ -1,0 +1,373 @@
+﻿@*  <div class="mb-2">
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">Leave List</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="me-3">
+                    <div class="input-icon-end position-relative">
+
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+
+                    </div>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Leave Type</option>
+                        <option>Medical Leave</option>
+                        <option>Casual Leave</option>
+                        <option>Annual Leave</option>
+                        <option>Compensation Leave</option>
+                    </select>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Select Status</option>
+                        <option>Approved</option>
+                        <option>Declined</option>
+                        <option>New</option>
+                    </select>
+                </div>
+
+                <div class="dropdown">
+                    <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Sort by: Last 7 days</option>
+                        <option>Recently Added</option>
+                        <option>Ascending</option>
+                        <option>Desending</option>
+                        <option>Last Month</option>
+                        <option>Last 7 days</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="border-translucent p-3">
+            <div id="employeeLeaveListTable">
+
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approveByEmployee">Approved by</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveType">Leave Type</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">From Date</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">To Date</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Total Day</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
+                                <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="purchasers-sellers-body">
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="fs-9 align-middle py-0">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
+                                    </div>
+                                </td>
+
+
+                                <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="avatar avatar-m avatar-bordered me-4">
+                                            <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                        </div>
+                                        <div class="ms-1">
+                                            <h6 class="fw-bold">Faruk Hasan</h6>
+                                            <span class="fs-12 fw-normal ">Admin</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                    <div class="d-flex align-items-center">
+                                        <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
+                                        <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                                              data-bs-title="I am currently experiencing a fever and design & Development">
+                                            <i class="ti ti-info-circle text-info"></i>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                                <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                                <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1 Day</td>
+
+                                <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+                                    <span class="badge text-bg-success">New</span>
+                                </td>
+
+                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                    <div class="btn-reveal-trigger position-static">
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_leaves">
+                                            <i class="fas fa-edit text-success"></i>
+                                        </a>
+
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="fs-9 align-middle py-0">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1","hdStatus":"Active"}' />
+                                    </div>
+                                </td>
+
+                                <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="avatar avatar-m avatar-bordered me-4">
+                                            <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                        </div>
+                                        <div class="ms-1">
+                                            <h6 class="fw-bold">Faruk Hasan</h6>
+                                            <span class="fs-12 fw-normal ">Admin</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                    <div class="d-flex align-items-center">
+                                        <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
+                                        <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                                              data-bs-title="I am currently experiencing a fever and design & Development">
+                                            <i class="ti ti-info-circle text-info"></i>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Jan 2024</td>
+                                <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Jan 2024</td>
+                                <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1 Day</td>
+
+                                <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+                                    <span class="badge badge-phoenix badge-phoenix-danger">Declineed</span>
+                                </td>
+
+                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                    <div class="btn-reveal-trigger position-static">
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_leaves">
+                                            <i class="fas fa-edit text-success"></i>
+                                        </a>
+
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="fs-9 align-middle py-0">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1","hdStatus":"Active"}' />
+                                    </div>
+                                </td>
+
+                                <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="avatar avatar-m avatar-bordered me-4">
+                                            <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                        </div>
+                                        <div class="ms-1">
+                                            <h6 class="fw-bold">Faruk Hasan</h6>
+                                            <span class="fs-12 fw-normal ">Admin</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                    <div class="d-flex align-items-center">
+                                        <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
+                                        <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                                              data-bs-title="I am currently experiencing a fever and design & Development">
+                                            <i class="ti ti-info-circle text-info"></i>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">19 Feb 2024</td>
+                                <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">19 Feb 2024</td>
+                                <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Second Half</td>
+
+                                <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+                                    <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
+                                </td>
+
+                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                    <div class="btn-reveal-trigger position-static">
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_leaves">
+                                            <i class="fas fa-edit text-success"></i>
+                                        </a>
+
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>  *@
+
+
+
+
+<div class="card mb-2">
+    
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+        <h4 class="mb-1">Leave List</h4>
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+            <div class="me-3">
+                <div class="input-icon-end position-relative">
+
+                    <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+
+                </div>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-select"  data-choices="data-choices" size="1" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Leave Type</option>
+                   
+                </select>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Status</option>
+                    
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <select class="form-select"  data-choices="data-choices" size="1" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Sort by: Last 7 days</option>
+                    <option>Recently Added</option>
+                    <option>Ascending</option>
+                    <option>Desending</option>
+                    <option>Last Month</option>
+                    <option>Last 7 days</option>
+                </select>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card-body py-0 scrollbar to-do-list-body">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="leaveRequest-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="leaveRequest-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="leaveRequest-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="leaveRequest-searchBox">
+                            <form class="position-relative" id="leaveRequest-searchForm">
+                                <input class="form-control search-input search" id="leaveRequest-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                <table class="table fs-9 mb-0 border-top border-translucent">
+                    <thead>
+                        <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="leaveRequest-check-all" />
+                            </th>
+                          
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Approved by")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Leave Type")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("From Date")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("To Date")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Total Day")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Status")</th>
+                            <th class=" white-space-nowrap align-middle ps-0"   style="width: 10%;">@Html.SmartLocalize("Action")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaveRequest-tBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="leaveRequest-paginationInfo"></p>
+
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="leaveRequest-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="leaveRequest-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="leaveRequest-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
