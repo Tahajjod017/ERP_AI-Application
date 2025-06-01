@@ -45,6 +45,7 @@ using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.UserProfile;
 using GCTL.Service.Employees.EmployeeAllowance;
+using GCTL.Service.RolePermissions;
 
 
 namespace GCTL_App.Extensions
@@ -110,6 +111,7 @@ namespace GCTL_App.Extensions
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
             #endregion
 
             #region Language Services

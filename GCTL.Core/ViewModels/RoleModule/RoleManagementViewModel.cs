@@ -13,7 +13,8 @@ namespace GCTL.Core.ViewModels.RoleModule
         [Display(Name = "Role Name")]
         public string? NewRoleName { get; set; }
 
-
+        public int? SelectedCompanyId { get; set; }
+        public int? SelectedTenantId { get; set; } // 404
         public List<UserRoleAssignment>? Users { get; set; }
 
         public Dictionary<string, List<UserRoleAssignment>>? RoleUserAssignments { get; set; }

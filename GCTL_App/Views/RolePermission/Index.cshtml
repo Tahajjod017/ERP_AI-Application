@@ -92,6 +92,25 @@
         <div class="card-body">
             <!-- Role Selection -->
             <div class="row mb-4">
+                <!-- Company Dropdown -->
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select id="companySelect" class="form-select">
+                            <option value="">-- Select Company --</option>
+                            <option value="0"> All Company </option>
+                            @if (ViewBag.Companies != null)
+                            {
+                                foreach (var company in ViewBag.Companies)
+                                {
+                                    <option value="@company.Id">@company.Name</option>
+                                }
+                            }
+                        </select>
+                        <label for="companySelect" class="font-weight-bold">Select Company</label>
+                    </div>
+                </div>
+
+                <!-- Role Dropdown (Your Original Code) -->
                 <div class="col-md-3">
                     <div class="form-floating">
                         <select id="roleSelect2" class="form-select">
@@ -107,6 +126,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Permissions Table -->
             <div class="table-responsive">
@@ -137,7 +157,35 @@
         <button id="savePermissions" class="btn btn-primary btn-lg">Save Permissions</button>
     </div>
 </main>
+<partial name="~/Views/Shared/RolesAlert/_ConfirmPermissionChangeModal.cshtml" />
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#companySelect').change(function () {
+            var companyId = $(this).val();
+            $('#roleSelect2').empty().append('<option>Loading...</option>');
+
+            if (companyId) {
+                $.ajax({
+                    url: '/RolePermission/GetRolesByCompany', // 🔁 update controller name
+                    type: 'GET',
+                    data: { companyId: companyId || null},
+                    success: function (data) {
+                        $('#roleSelect2').empty().append('<option value="">-- Select Role --</option>');
+                        $.each(data, function (i, role) {
+                            $('#roleSelect2').append('<option value="' + role.id + '">' + role.name + '</option>');
+                        });
+                    },
+                    error: function () {
+                        $('#roleSelect2').empty().append('<option>Error loading roles</option>');
+                    }
+                });
+            } else {
+                $('#roleSelect2').empty().append('<option value="">-- Select Role --</option>');
+            }
+        });
+    });
+</script>
 <script src="~/js/pages/authjs/rolepermission.js"></script>
