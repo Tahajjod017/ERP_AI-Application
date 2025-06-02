@@ -8,28 +8,89 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest
 {
-    public class LeaveApplicationsRequestVM:BaseViewModel
+    //public class LeaveApplicationsRequestVM : BaseViewModel
+    //{
+    //    public int LeaveApplicationID { get; set; }
+
+    //    //[Required(ErrorMessage = "Select Employee")]
+    //    public int? EmployeeID { get; set; }
+
+    //    public bool IsFullDay { get; set; } = true;
+
+    //    //[Required(ErrorMessage = "Required FromDate ")]
+    //    public DateOnly? FromDate { get; set; }
+    //   // [Required(ErrorMessage = "Required ToDate ")]
+    //    public DateOnly? ToDate { get; set; }
+    //    //[Required(ErrorMessage = "Required from Time")]
+    //    public TimeOnly? PartialFromTime { get; set; }
+
+    //    //[Required(ErrorMessage = "Required To Time")]
+    //    public TimeOnly? PartialToTime { get; set; }
+
+    //    public int? StatusID { get; set; }
+    //    //[Required(ErrorMessage = "Select Leave Type")]
+
+    //    public int? LeaveTypeID { get; set; }
+
+    //    public string? Reason { get; set; }
+    //}
+
+
+
+    public class LeaveApplicationsRequestVM : BaseViewModel
     {
         public int LeaveApplicationID { get; set; }
-        [Required(ErrorMessage ="Select Employee")]
+
+        [Required(ErrorMessage = "This Field is Required")]
         public int? EmployeeID { get; set; }
+        [Required(ErrorMessage = "This Field is Required")]
+        public int? LeaveTypeID { get; set; }
+        public bool IsFullDay { get; set; } = true;
 
-        public bool IsFullDay { get; set; }
-
-        [Required(ErrorMessage ="Required FromDate ")]
+        [RequiredIf(nameof(IsFullDay), true, ErrorMessage = "Required From Date")]
         public DateOnly? FromDate { get; set; }
-        [Required(ErrorMessage = "Required ToDate ")]
+
+        [RequiredIf(nameof(IsFullDay), true, ErrorMessage = "Required To Date")]
         public DateOnly? ToDate { get; set; }
 
+        [RequiredIf(nameof(IsFullDay), false, ErrorMessage = "Start Time is required")]
         public TimeOnly? PartialFromTime { get; set; }
 
+        [RequiredIf(nameof(IsFullDay), false, ErrorMessage = "End Time is required")]
         public TimeOnly? PartialToTime { get; set; }
-
+        [RequiredIf(nameof(IsFullDay), false, ErrorMessage = "Required To Date")]
+        public DateOnly? ToDateFromDateCombined { get; set; }
         public int? StatusID { get; set; }
-        [Required(ErrorMessage = "Select Leave Type")]
-
-        public int? LeaveTypeID { get; set; }
-      
         public string? Reason { get; set; }
+
+        public class RequiredIfAttribute : ValidationAttribute
+        {
+            private readonly string _propertyName;
+            private readonly object _desiredValue;
+
+            public RequiredIfAttribute(string propertyName, object desiredValue)
+            {
+                _propertyName = propertyName;
+                _desiredValue = desiredValue;
+            }
+
+            protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+            {
+                var property = validationContext.ObjectType.GetProperty(_propertyName);
+                if (property == null)
+                    return new ValidationResult($"Unknown property: {_propertyName}");
+
+                var propertyValue = property.GetValue(validationContext.ObjectInstance);
+
+                if (propertyValue?.ToString() == _desiredValue.ToString())
+                {
+                    if (value == null || (value is string s && string.IsNullOrWhiteSpace(s)))
+                        return new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.");
+                }
+
+                return ValidationResult.Success;
+            }
+        }
     }
+
 }
