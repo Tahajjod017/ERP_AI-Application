@@ -41,6 +41,8 @@ public partial class Organization
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
+
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();

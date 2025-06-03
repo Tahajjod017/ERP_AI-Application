@@ -271,7 +271,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //            });
         //});
 
-
         modelBuilder.Entity<ApplicationUser>()
              .HasDiscriminator<string>("Discriminator")
              .HasValue<ApplicationUser>("ApplicationUser");
@@ -310,8 +309,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(t => (IEnumerable<ApplicationRole>)t.AspNetRoles)
             .HasForeignKey(r => r.TenantInfoId)
             .IsRequired(false);
-
-
 
 
         modelBuilder.Entity<BloodGroup>(entity =>
@@ -732,10 +729,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.HouseRentAllowancePercentage).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.InternetAllowance).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.InternetAllowanceEffectiveFrom).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.MedicalAllowancePercentage).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.MobileAllowance).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MobileAllowanceEffectiveFrom).HasColumnType("datetime");
             entity.Property(e => e.ShiftAllowance).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -1420,6 +1419,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LeaveDays).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.LeaveTypeName).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -1430,6 +1430,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeaveTypesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__LeaveType__Delet__420DC656");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.LeaveTypes)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_LeaveTypes");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeaveTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)

@@ -51,6 +51,10 @@ public partial class EmployeeBaseAllowances
 
     public bool IsInternetAllowanceEnabled { get; set; }
 
+    public DateTime? MobileAllowanceEffectiveFrom { get; set; }
+
+    public DateTime? InternetAllowanceEffectiveFrom { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
