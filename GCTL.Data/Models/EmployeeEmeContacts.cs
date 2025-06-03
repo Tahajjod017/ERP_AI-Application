@@ -5,27 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeBaseAllowances
+public partial class EmployeeEmeContacts
 {
-    public int EmployeeBaseAllowanceID { get; set; }
+    public int EmployeeEmeContactID { get; set; }
 
     public int? EmployeeID { get; set; }
 
-    public decimal? ShiftAllowance { get; set; }
+    public string ContactName { get; set; }
 
-    public bool IsShiftAllowanceEnabled { get; set; }
+    public string Relationship { get; set; }
 
-    public decimal? HouseRentAllowancePercentage { get; set; }
+    public string ContactNumber { get; set; }
 
-    public bool IsHouseRentAllowancePercentageEnabled { get; set; }
-
-    public decimal? MedicalAllowancePercentage { get; set; }
-
-    public bool IsMedicalAllowancePercentageEnabled { get; set; }
-
-    public decimal? ConveyanceAllowancePercentage { get; set; }
-
-    public bool IsConveyanceAllowancePercentageEnabled { get; set; }
+    public string ContactEmail { get; set; }
 
     public string LIP { get; set; }
 
@@ -42,14 +34,6 @@ public partial class EmployeeBaseAllowances
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
-
-    public decimal? MobileAllowance { get; set; }
-
-    public decimal? InternetAllowance { get; set; }
-
-    public bool IsMobileAllowanceEnabled { get; set; }
-
-    public bool IsInternetAllowanceEnabled { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

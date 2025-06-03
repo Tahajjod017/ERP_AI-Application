@@ -115,6 +115,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmployeeEmeContacts]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[EmployeeFamilyInfo]",
          "ObjectType": 0
       },
@@ -296,7 +300,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
