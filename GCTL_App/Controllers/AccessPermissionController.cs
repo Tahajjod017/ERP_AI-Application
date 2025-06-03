@@ -12,11 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static System.Net.WebRequestMethods;
 
 namespace GCTL_App.Controllers 
 {
-    [Authorize]
+   
     public class AccessPermissionController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
@@ -42,7 +41,7 @@ namespace GCTL_App.Controllers
 
 
         //[Authorize(Policy = "Admin.VIEW")]
-        [Permission("VIEW", "AccessPermission")]
+        //[Permission("VIEW", "AccessPermission")]
         public async Task<IActionResult> Index()
         {
             var languageCode = HttpContext.Items["Language"] as string ?? "en";
@@ -166,7 +165,13 @@ namespace GCTL_App.Controllers
             var roles = await _roleService.GetPagedRolesAsync(searchTerm, pageNumber, pageSize,companyId,tenantId);
             var totalCount = await _roleService.GetTotalRolesCountAsync(searchTerm);
 
-            var roleDtos = roles.Select(r => new { roleName = r.Name.ToCleanRoleName() }).ToList();
+            var roleDtos = roles.Select(r => new 
+            {
+                roleId = r.Id,
+                roleName = r.Name.ToCleanRoleName() 
+            }).ToList();
+
+
 
             return Json(new { data = roleDtos, totalCount });
         }
@@ -314,7 +319,8 @@ namespace GCTL_App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUserForEmployee(string employeeId)
+        public async Task<IActionResult> CreateUserForEmployee(string employeeId, int? companyId, int? tenantId)
+
         {
             if (string.IsNullOrEmpty(employeeId))
                 return Json(new { success = false, message = "Employee ID is required." });
@@ -337,8 +343,9 @@ namespace GCTL_App.Controllers
                 Email = employee.Email,
                 EmailConfirmed = true,
                 EmployeeId = employee.EmployeeID,
-               // TenantInfoId = employee.TenantInfoId,
-               // OrganizationID = employee.em,
+                TenantInfoId = tenantId,
+                OrganizationID = companyId,
+
 
             };
 
@@ -377,18 +384,18 @@ namespace GCTL_App.Controllers
         [Permission("CREATE", "AccessPermission")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignRole(string role, List<string> selectedUsers)
+        public async Task<IActionResult> AssignRole(string roleId, string role, List<string> selectedUsers)
         {
             if (string.IsNullOrEmpty(role) || selectedUsers == null || !selectedUsers.Any())
             {
                 return Json(new { success = false, message = "Invalid input data. Please select both role and users." });
             }
-
-            var roleEntity = await _roleManager.Roles.FirstOrDefaultAsync(r => r.Name == role);
+            var roleEntity = await _roleManager.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
             if (roleEntity == null)
             {
                 return Json(new { success = false, message = "Specified role not found." });
             }
+            var roleName = roleEntity.Name;
 
             foreach (var empIdString in selectedUsers)
             {
@@ -445,9 +452,8 @@ namespace GCTL_App.Controllers
                 }
 
                 var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Contains(roleName))
 
-                // Skip if already has the same role
-                if (currentRoles.Contains(role))
                 {
                     continue;
                 }
@@ -462,7 +468,7 @@ namespace GCTL_App.Controllers
                     }
                 }
 
-                var result = await _userManager.AddToRoleAsync(user, role);
+                var result = await _userManager.AddToRoleAsync(user, roleName);
                 if (!result.Succeeded)
                 {
                     var errors = string.Join("; ", result.Errors.Select(e => e.Description));
@@ -509,26 +515,25 @@ namespace GCTL_App.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> DeleteRoleByName(string roleName)
+        public async Task<IActionResult> DeleteRoleById(string roleId)
         {
-            if (string.IsNullOrWhiteSpace(roleName))
-                return BadRequest();
+            if (string.IsNullOrWhiteSpace(roleId))
+                return BadRequest("Role ID is required.");
 
-            var role = await _roleManager.FindByNameAsync(roleName);
+            // Find the role by ID
+            var role = await _roleManager.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
             if (role == null)
-                return NotFound();
-
+                return NotFound("Role not found.");
             // Remove related RoleModulePermissions
             var relatedPermissions = _Db.RoleModulePermissions.Where(r => r.RoleId == role.Id);
             _Db.RoleModulePermissions.RemoveRange(relatedPermissions);
             await _Db.SaveChangesAsync();
 
-            // Now delete the role
             var result = await _roleManager.DeleteAsync(role);
             if (result.Succeeded)
                 return Ok();
-
-            return StatusCode(500, "Failed to delete role.");
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+            return StatusCode(500, $"Failed to delete role: {errors}");
         }
 
 

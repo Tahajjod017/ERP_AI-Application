@@ -8,9 +8,11 @@
 
 $(document).ready(function () {
     let roleNameToDelete = null;
+    let roleIdToDelete = null;
 
     $(document).on('click', '.open-confirm-delete-modal', function () {
         roleNameToDelete = $(this).data('role-name');
+        roleIdToDelete = $(this).data('role-id');
         $('#confirmDeleteModal .modal-title').text(`Are you sure you want to delete "${roleNameToDelete}"?`);
         $('#confirmDeleteModal').modal('show');
     });
@@ -19,9 +21,9 @@ $(document).ready(function () {
         if (!roleNameToDelete) return;
 
         $.ajax({
-            url: '/AccessPermission/DeleteRoleByName', // Backend endpoint for role deletion by name
+            url: '/AccessPermission/DeleteRoleById', // Backend endpoint for role deletion by name
             type: 'POST',
-            data: { roleName: roleNameToDelete },
+            data: { roleId: roleIdToDelete },
             success: function () {
                 toastr.success(`Role "${roleNameToDelete}" deleted successfully.`);
                 $(`tr[data-role-name="${roleNameToDelete}"]`).remove();
@@ -92,6 +94,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         var role = $(this).data('role');
+        const roleId = $(this).data('role-id'); 
         var selectedUsers = [];
 
         // Collect user IDs from the selected list
@@ -100,6 +103,7 @@ $(document).ready(function () {
         });
 
         // Store role and user IDs in the modal's data for later use
+        $('#confirmNewRoleModal').data('roleId', roleId);
         $('#confirmNewRoleModal').data('role', role);
         $('#confirmNewRoleModal').data('users', selectedUsers);
 
@@ -111,20 +115,22 @@ $(document).ready(function () {
     $(document).on("click", "#confirmNewRoleBtn", function () {
         const modal = $('#confirmNewRoleModal');
         const role = modal.data('role');
+        const roleId = modal.data('roleId');
         const selectedUsers = modal.data('users');
 
-        assignRole(role, selectedUsers);
+        assignRole(roleId, role, selectedUsers);
         modal.modal('hide');
     });
 
 
 
-    function assignRole(role, selectedUsers) {
+    function assignRole(roleId,role, selectedUsers) {
         $.ajax({
             url: '/AccessPermission/AssignRole',
             type: 'POST',
             data: {
                 __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                roleId: roleId,
                 role: role,
                 selectedUsers: selectedUsers
             },
@@ -329,10 +335,16 @@ $(document).ready(function () {
         updateAssignButtonState(selectedUsersList);
     }
     function createUserForEmployee(userId) {
+        const companyId = $('#SelectedCompanyId').val();
+        const tenantId = $('#SelectedTenantId').val();
         $.ajax({
             url: '/AccessPermission/CreateUserForEmployee',
             type: 'POST',
-            data: { employeeId: userId },
+            data: {
+                employeeId: userId,
+                companyId: companyId,
+                tenantId: tenantId
+            },
             success: function (response) {
                 if (response.success) {
                     toastr.success('User account created successfully.');
