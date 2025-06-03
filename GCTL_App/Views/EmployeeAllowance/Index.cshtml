@@ -8,44 +8,44 @@
 
     <div class="px-3 mb-5">
 
-        <form asp-controller="EmployeeAllowance" asp-action="Index" as method="post">
+        <form asp-controller="EmployeeAllowance" asp-action="Index" method="post">
 
-        <div class="row">
-            <div class="col-12">
-                <input type="hidden" asp-for="EmployeeBaseAllowanceID" />
+            <div class="row">
+                <div class="col-12">
+                    <input type="hidden" asp-for="EmployeeBaseAllowanceID" id="EmployeeBaseAllowanceID" />
 
-                <div class="row g-2 align-items-center">
-                    <div class="col-md-3">
-                        <div class="position-relative">
-                            <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
-                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-3">
+                            <div class="position-relative">
+                                <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-2">
+                            <div class="form-floating form-floating-advance-select mb-2">
+                                <label asp-for="EmployeePersonalId">@Html.SmartLocalize("Choose Employee")</label>
+                                <select class="form-select" asp-for="EmployeePersonalId" id="EmployeePersonalId" asp-items="@ViewBag.EmployeeDD as SelectList">
+                                    <option value="">@Html.SmartLocalize("Select Employee")</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <div class="form-floating">
+                                <input asp-for="PersonalEmail" id="PersonalEmail" class="form-control" type="email" placeholder="@Html.SmartLocalize("Email")" />
+                                <label asp-for="PersonalEmail">@Html.SmartLocalize("Email")</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <div class="form-floating">
+                                <input asp-for="PersonalPhone" id="PersonalPhone" class="form-control" type="text" placeholder="@Html.SmartLocalize("Enter Phone")" />
+                                <label asp-for="PersonalPhone">@Html.SmartLocalize("Phone")</label>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-3"></div>
-                    <div class="col-md-2">
-                        <div class="form-floating form-floating-advance-select mb-2">
-                            <label asp-for="EmployeePersonalId">@Html.SmartLocalize("Choose Employee")</label>
-                            <select class="form-select" asp-for="EmployeePersonalId" asp-items="@ViewBag.EmployeeDD as SelectList">
-                                <option value="">@Html.SmartLocalize("Select Employee")</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-floating">
-                            <input asp-for="PersonalEmail" class="form-control" type="email" placeholder="@Html.SmartLocalize("Email")" />
-                            <label asp-for="PersonalEmail">@Html.SmartLocalize("Email")</label>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-floating">
-                            <input asp-for="PersonalPhone" class="form-control" type="text" placeholder="@Html.SmartLocalize("Enter Phone")" />
-                            <label asp-for="PersonalPhone">@Html.SmartLocalize("Phone")</label>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis pb-4">
-                    
+                    <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis pb-4">
+
                         <div class="col-12 col-xl-12 col-xxl-12">
                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
@@ -83,6 +83,9 @@
                                         <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")
                                     </a>
                                 </li>
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
+                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
+                                </li>
                             </ul>
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
@@ -115,29 +118,75 @@
                                                                 </div>
                                                             </div>
 
-                                                           
-
-                                                            <div class="col-md-6">
+                                                            <div class="col-md-4">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="MobileInternetAllowance">@Html.SmartLocalize("Mobile/Internet Allowance")</label>
+                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsMobileInternetAllowanceEnabled" role="switch" id="mobileInternetAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
-                                                                    <input class="form-control" asp-for="MobileInternetAllowance" type="number" step="0.01" placeholder="@Html.SmartLocalize("Ex: 1000 tk Monthly")" />
+                                                                    <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
+                                                                            data-coreui-search="true">
+                                                                        <option value="0">@Html.SmartLocalize("Select Company...")</option>
+                                                                        <option value="1">CSL</option>
+                                                                        <option value="2">GCTL</option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-md-6">
+                                                            <div class="col-md-4">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="ShiftAllowance">@Html.SmartLocalize("Shift Allowance")</label>
+                                                                        <label class="form-label" asp-for="MobileAllowance">@Html.SmartLocalize("Mobile Allowance")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsShiftAllowanceEnabled" role="switch" id="shiftAllowanceEnabled" />
+                                                                            <input class="form-check-input" asp-for="IsMobileInternetAllowanceEnabled" type="checkbox" role="switch" id="mobileAllowanceEnabled">
                                                                         </div>
                                                                     </div>
-                                                                    <input class="form-control" asp-for="ShiftAllowance" type="number" step="0.01" placeholder="@Html.SmartLocalize("Ex: 500 tk Per Night Shift")" />
+                                                                    <input class="form-control" asp-for="MobileAllowance" id="MobileAllowance" type="text" placeholder="Ex: 1000 tk Monthly">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3 position-relative">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" asp-for="MobileAllowanceEffectiveFrom">@Html.SmartLocalize("Effective From")</label>
+                                                                        <div class="form-check form-switch">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="position-relative">
+                                                                        <input class="form-control datetimepicker" asp-for="MobileAllowanceEffectiveFromStr" id="mobileAllowanceEffectiveFrom" type="text" placeholder="dd/mm/yyyy"
+                                                                               data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                                                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                                                              style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" asp-for="InternetAllowance">@Html.SmartLocalize("Internet Allowance")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" asp-for="IsInternetAllowanceEnabled" type="checkbox" role="switch" id="internetAllowanceEnabled">
+                                                                        </div>
+                                                                    </div>
+                                                                    <input class="form-control" asp-for="InternetAllowance" id="InternetAllowance" type="text" placeholder="Ex: 1000 tk Monthly">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3 position-relative">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" asp-for="InternetAllowanceEffectiveFrom">@Html.SmartLocalize("Effective From")</label>
+                                                                        <div class="form-check form-switch">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="position-relative">
+                                                                        <input class="form-control datetimepicker" asp-for="InternetAllowanceEffectiveFromStr" id="internetAllowanceEffectiveFrom" type="text" placeholder="dd/mm/yyyy"
+                                                                               data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                                                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                                                              style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -146,7 +195,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("House Rent Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsHouseRentAllowancePercentageEnabled" role="switch" id="houseRentAllowanceEnabled" />
+                                                                            <input class="form-check-input" asp-for="IsHouseRentAllowancePercentageEnabled" type="checkbox" role="switch" id="houseRentAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -155,21 +204,18 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="HouseRentAllowancePercentage">@Html.SmartLocalize("House Rent Allowance Rate")</label>
-                                                                    <select class="form-select" asp-for="HouseRentAllowancePercentage" asp-items="@ViewBag.HouseRentAllowanceDD as SelectList">
+                                                                    <select class="form-select" asp-for="HouseRentAllowancePercentage" id="HouseRentAllowancePercentage" asp-items="@ViewBag.HouseRentAllowanceDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                       
                                                                     </select>
                                                                 </div>
                                                             </div>
-
-                                                           
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Medical Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsMedicalAllowancePercentageEnabled" role="switch" id="medicalAllowanceEnabled" />
+                                                                            <input class="form-check-input" asp-for="IsMedicalAllowancePercentageEnabled" type="checkbox" role="switch" id="medicalAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -178,21 +224,18 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="MedicalAllowancePercentage">@Html.SmartLocalize("Medical Allowance Rate")</label>
-                                                                    <select class="form-select" asp-for="MedicalAllowancePercentage" asp-items="@ViewBag.MedicalAllowanceDD as SelectList">
+                                                                    <select class="form-select" asp-for="MedicalAllowancePercentage" id="MedicalAllowancePercentage" asp-items="@ViewBag.MedicalAllowanceDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                     
                                                                     </select>
                                                                 </div>
                                                             </div>
-
-                                                           
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Conveyance Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsConveyanceAllowancePercentageEnabled" role="switch" id="conveyanceAllowanceEnabled" />
+                                                                            <input class="form-check-input" asp-for="IsConveyanceAllowancePercentageEnabled" type="checkbox" role="switch" id="conveyanceAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -201,14 +244,11 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                     <label asp-for="ConveyanceAllowancePercentage">@Html.SmartLocalize("Conveyance Allowance Rate")</label>
-                                                                    <select class="form-select" asp-for="ConveyanceAllowancePercentage" asp-items="@ViewBag.ConveyanceAllowanceDD as SelectList">
+                                                                    <select class="form-select" asp-for="ConveyanceAllowancePercentage" id="ConveyanceAllowancePercentage" asp-items="@ViewBag.ConveyanceAllowanceDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                       
                                                                     </select>
                                                                 </div>
                                                             </div>
-
-                                                           
 
                                                             <div class="col-12">
                                                                 <div class="row g-3 justify-content-end">
@@ -229,10 +269,10 @@
                                 </div>
                             </div>
                         </div>
-                   
+
+                    </div>
                 </div>
             </div>
-        </div>
 
         </form>
     </div>

@@ -4,36 +4,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.Employee.EmployeeFamily;
+using GCTL.Core.ViewModels.Employee.EmployeeContact;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GCTL.Service.Employees.EmployeeFamily
+namespace GCTL.Service.Employees.EmployeeContact
 {
-    public class EmployeeFamilyService : IEmployeeFamilyService
+    public class EmployeeContactService : IEmployeeContactService
     {
+        private readonly IGenericRepository<EmployeeEmeContacts> _employeeContactInfoRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
-        private readonly IGenericRepository<EmployeeFamilyInfo> _employeeFamilyInfoRepository;
 
-        public EmployeeFamilyService(IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeFamilyInfo> employeeFamilyInfoRepository)
+        public EmployeeContactService(IGenericRepository<EmployeeEmeContacts> employeeContactInfoRepository, IGenericRepository<Data.Models.Employees> employeeRepository)
         {
+            _employeeContactInfoRepository = employeeContactInfoRepository;
             _employeeRepository = employeeRepository;
-            _employeeFamilyInfoRepository = employeeFamilyInfoRepository;
         }
 
         public async Task<CommonReturnViewModel> DeleteAsync(int id)
         {
-            var existingInfo = await _employeeFamilyInfoRepository.AllActive()
-                .Where(e => e.EmployeeFamilyInfoID == id)
+            var existingInfo = await _employeeContactInfoRepository.AllActive()
+                .Where(e => e.EmployeeEmeContactID == id)
                 .FirstOrDefaultAsync();
             if (existingInfo != null)
             {
-                await _employeeFamilyInfoRepository.DeleteAsync(id);
+                await _employeeContactInfoRepository.DeleteAsync(id);
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee family information deleted successfully."
+                    Message = "Employee emergency contact deleted successfully."
                 };
             }
             else
@@ -41,29 +41,27 @@ namespace GCTL.Service.Employees.EmployeeFamily
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "Employee family information not found.",
+                    Message = "Employee emergency contact not found.",
                     Data = null
                 };
             }
         }
 
-        public async Task<List<EmployeeFamilyGetViewModel>> GetEmployeeFamilyByIdAsync(int id)
+        public async Task<List<EmployeeContactGetViewModel>> GetEmployeeContactByIdAsync(int id)
         {
-            var employee = await (from ef in _employeeFamilyInfoRepository.AllActive()
+            var employee = await (from ec in _employeeContactInfoRepository.AllActive()
                                   join emp in _employeeRepository.AllActive()
-                                      on ef.EmployeeID equals emp.EmployeeID into empGroup
+                                      on ec.EmployeeID equals emp.EmployeeID into empGroup
                                   from emp in empGroup.DefaultIfEmpty()
-                                  where ef.EmployeeID == id
-                                  select new EmployeeFamilyGetViewModel
+                                  where ec.EmployeeID == id
+                                  select new EmployeeContactGetViewModel
                                   {
-                                      EmployeeFamilyInfoID = ef.EmployeeFamilyInfoID,
-                                      EmployeePersonalId = (int)ef.EmployeeID,
-                                      FullName = ef.FullName,
-                                      RelationToEmployee = ef.RelationToEmployee,
-                                      Occupation = ef.Occupation,
-                                      ContactNumber = ef.ContactNumber,
-                                      Email = ef.Email,
-                                      Address = ef.Address,
+                                      EmployeeEmeContactID = ec.EmployeeEmeContactID,
+                                      EmployeePersonalId = (int)ec.EmployeeID,
+                                      ContactName = ec.ContactName,
+                                      Relationship = ec.Relationship,
+                                      ContactNumber = ec.ContactNumber,
+                                      ContactEmail = ec.ContactEmail,
                                       PersonalEmail = emp.Email ?? "N/A",
                                       PersonalPhone = emp.MobileNumber ?? "N/A",
                                       IsActive = true
@@ -77,7 +75,7 @@ namespace GCTL.Service.Employees.EmployeeFamily
             {
                 var emp = await _employeeRepository.AllActive()
                     .Where(e => e.EmployeeID == id)
-                    .Select(m => new EmployeeFamilyGetViewModel
+                    .Select(m => new EmployeeContactGetViewModel
                     {
                         EmployeePersonalId = (int)m.EmployeeID,
                         PersonalEmail = m.Email ?? "N/A",
@@ -89,36 +87,32 @@ namespace GCTL.Service.Employees.EmployeeFamily
             }
         }
 
-        public async Task<EmployeeFamilyPostViewModel> GetEmployeeFamilyData(int id)
+        public async Task<EmployeeContactViewModel> GetEmployeeContactData(int id)
         {
-            var data = await _employeeFamilyInfoRepository.AllActive()
-                .Where(e => e.EmployeeFamilyInfoID == id)
-                .Select(e => new EmployeeFamilyPostViewModel
+            var data = await _employeeContactInfoRepository.AllActive()
+                .Where(e => e.EmployeeEmeContactID == id)
+                .Select(e => new EmployeeContactViewModel
                 {
-                    EmployeeFamilyInfoID = e.EmployeeFamilyInfoID,
+                    EmployeeEmeContactID = e.EmployeeEmeContactID,
                     EmployeePersonalId = (int)e.EmployeeID,
-                    FullName = e.FullName,
-                    RelationToEmployee = e.RelationToEmployee,
-                    Occupation = e.Occupation,
+                    ContactName = e.ContactName,
+                    Relationship = e.Relationship,
                     ContactNumber = e.ContactNumber,
-                    Email = e.Email,
-                    Address = e.Address
+                    ContactEmail = e.ContactEmail
                 }).FirstOrDefaultAsync();
 
-            return data ?? new EmployeeFamilyPostViewModel
+            return data ?? new EmployeeContactViewModel
             {
-                EmployeeFamilyInfoID = 0,
+                EmployeeEmeContactID = 0,
                 EmployeePersonalId = 0,
-                FullName = string.Empty,
-                RelationToEmployee = string.Empty,
-                Occupation = string.Empty,
+                ContactName = string.Empty,
+                Relationship = string.Empty,
                 ContactNumber = string.Empty,
-                Email = string.Empty,
-                Address = string.Empty
+                ContactEmail = string.Empty
             };
         }
 
-        public async Task<CommonReturnViewModel> SaveAsync(EmployeeFamilyPostViewModel model)
+        public async Task<CommonReturnViewModel> SaveAsync(EmployeeContactViewModel model)
         {
             if (model == null)
             {
@@ -136,7 +130,9 @@ namespace GCTL.Service.Employees.EmployeeFamily
             missingFields.AddRange(new[]
             {
                 Check(model.EmployeePersonalId, "Employee"),
-                Check(model.FullName, "Full Name")
+                Check(model.ContactName, "Contact Name"),
+                Check(model.Relationship, "Relationship"),
+                Check(model.ContactNumber, "Contact Number")
             }.Where(x => x != null));
 
             if (missingFields.Any())
@@ -151,46 +147,42 @@ namespace GCTL.Service.Employees.EmployeeFamily
 
             try
             {
-                var existingInfo = await _employeeFamilyInfoRepository.AllActive()
-                    .Where(e => e.EmployeeFamilyInfoID == model.EmployeeFamilyInfoID)
+                var existingInfo = await _employeeContactInfoRepository.AllActive()
+                    .Where(e => e.EmployeeEmeContactID == model.EmployeeEmeContactID)
                     .FirstOrDefaultAsync();
 
                 if (existingInfo != null)
                 {
                     existingInfo.EmployeeID = model.EmployeePersonalId;
-                    existingInfo.FullName = model.FullName;
-                    existingInfo.RelationToEmployee = model.RelationToEmployee;
-                    existingInfo.Occupation = model.Occupation;
+                    existingInfo.ContactName = model.ContactName;
+                    existingInfo.Relationship = model.Relationship;
                     existingInfo.ContactNumber = model.ContactNumber;
-                    existingInfo.Email = model.Email;
-                    existingInfo.Address = model.Address;
+                    existingInfo.ContactEmail = model.ContactEmail;
 
-                    await _employeeFamilyInfoRepository.UpdateAsync(existingInfo, model);
+                    await _employeeContactInfoRepository.UpdateAsync(existingInfo, model);
 
                     return new CommonReturnViewModel
                     {
                         Success = true,
-                        Message = "Employee family information updated successfully.",
+                        Message = "Employee emergency contact updated successfully.",
                         Data = model.EmployeePersonalId
                     };
                 }
                 else
                 {
-                    var employeeFamilyInfo = new EmployeeFamilyInfo
+                    var employeeContactInfo = new EmployeeEmeContacts
                     {
                         EmployeeID = model.EmployeePersonalId,
-                        FullName = model.FullName,
-                        RelationToEmployee = model.RelationToEmployee,
-                        Occupation = model.Occupation,
+                        ContactName = model.ContactName,
+                        Relationship = model.Relationship,
                         ContactNumber = model.ContactNumber,
-                        Email = model.Email,
-                        Address = model.Address
+                        ContactEmail = model.ContactEmail
                     };
-                    await _employeeFamilyInfoRepository.AddAsync(employeeFamilyInfo, model);
+                    await _employeeContactInfoRepository.AddAsync(employeeContactInfo, model);
                     return new CommonReturnViewModel
                     {
                         Success = true,
-                        Message = "Employee family information added successfully.",
+                        Message = "Employee emergency contact added successfully.",
                         Data = model.EmployeePersonalId
                     };
                 }
@@ -200,17 +192,17 @@ namespace GCTL.Service.Employees.EmployeeFamily
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "An error occurred while submitting the employee family information.",
+                    Message = "An error occurred while submitting the employee emergency contact.",
                     Errors = new List<string> { ex.Message }
                 };
             }
         }
 
-        public async Task<CommonReturnViewModel> UpdateAsync(EmployeeFamilyPostViewModel model)
+        public async Task<CommonReturnViewModel> UpdateAsync(EmployeeContactViewModel model)
         {
             try
             {
-                if (model == null || model.EmployeeFamilyInfoID <= 0)
+                if (model == null || model.EmployeeEmeContactID <= 0)
                 {
                     return new CommonReturnViewModel
                     {
@@ -219,31 +211,29 @@ namespace GCTL.Service.Employees.EmployeeFamily
                     };
                 }
 
-                var existingInfo = await _employeeFamilyInfoRepository.AllActive()
-                    .Where(e => e.EmployeeFamilyInfoID == model.EmployeeFamilyInfoID)
+                var existingInfo = await _employeeContactInfoRepository.AllActive()
+                    .Where(e => e.EmployeeEmeContactID == model.EmployeeEmeContactID)
                     .FirstOrDefaultAsync();
                 if (existingInfo == null)
                 {
                     return new CommonReturnViewModel
                     {
                         Success = false,
-                        Message = "Employee family information not found.",
+                        Message = "Employee emergency contact not found.",
                         Data = null
                     };
                 }
 
-                existingInfo.FullName = model.FullName;
-                existingInfo.RelationToEmployee = model.RelationToEmployee;
-                existingInfo.Occupation = model.Occupation;
+                existingInfo.ContactName = model.ContactName;
+                existingInfo.Relationship = model.Relationship;
                 existingInfo.ContactNumber = model.ContactNumber;
-                existingInfo.Email = model.Email;
-                existingInfo.Address = model.Address;
+                existingInfo.ContactEmail = model.ContactEmail;
 
-                await _employeeFamilyInfoRepository.UpdateAsync(existingInfo, model);
+                await _employeeContactInfoRepository.UpdateAsync(existingInfo, model);
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee family information updated successfully.",
+                    Message = "Employee emergency contact updated successfully.",
                     Data = model.EmployeePersonalId
                 };
             }

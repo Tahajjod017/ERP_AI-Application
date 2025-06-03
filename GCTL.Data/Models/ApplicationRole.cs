@@ -24,5 +24,5 @@ namespace GCTL.Data.Models
 
     }
 
-   
+
 }

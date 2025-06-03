@@ -270,8 +270,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //});
 
         modelBuilder.Entity<ApplicationUser>()
+
     .HasDiscriminator<string>("Discriminator")
     .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
 
         .HasOne(u => u.Employees)
@@ -287,30 +289,27 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
 
         modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Organization)
-                .WithMany(o => o.AspNetUsers)
-                .HasForeignKey(u => u.OrganizationID)
-                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
+    .HasOne(u => u.Organization)
+    .WithMany(o => (IEnumerable<ApplicationUser>)o.AspNetUsers) // Explicit cast
+    .HasForeignKey(u => u.OrganizationID);
+
         modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.TenantInfo)
-                .WithMany(t => t.AspNetUsers)
-                .HasForeignKey(u => u.TenantInfoId)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        //modelBuilder.Entity<ApplicationRole>()
-        //        .HasDiscriminator<string>("Discriminator")
-        //        .HasValue<ApplicationRole>("ApplicationRole");
+            .HasOne(u => u.TenantInfo)
+            .WithMany(t => (IEnumerable<ApplicationUser>)t.AspNetUsers)
+            .HasForeignKey(u => u.TenantInfoId);
+
         modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.Organization)
-                .WithMany(o => o.AspNetRoles)
-                .HasForeignKey(r => r.OrganizationID)
-                .IsRequired(false)
-                .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
+            .HasOne(r => r.Organization)
+            .WithMany(o => (IEnumerable<ApplicationRole>)o.AspNetRoles)
+            .HasForeignKey(r => r.OrganizationID)
+            .IsRequired(false);
+
         modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+            .HasOne(r => r.TenantInfo)
+            .WithMany(t => (IEnumerable<ApplicationRole>)t.AspNetRoles)
+            .HasForeignKey(r => r.TenantInfoId)
+            .IsRequired(false);
+
 
         modelBuilder.Entity<BloodGroup>(entity =>
         {
