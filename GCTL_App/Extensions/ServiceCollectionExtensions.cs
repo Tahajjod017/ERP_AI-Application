@@ -50,6 +50,7 @@ using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings;
 
 
 
@@ -114,9 +115,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
             services.AddScoped<IVisitingPathService, VisitingPathService>();
-
             services.AddScoped<ILeaveRequestService , LeaveRequestService>();
-
+            services.AddScoped<ILeaveSettingsService , LeaveSettingsService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();

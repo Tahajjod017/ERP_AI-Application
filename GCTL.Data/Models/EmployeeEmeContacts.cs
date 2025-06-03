@@ -5,11 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LeaveTypes
+public partial class EmployeeEmeContacts
 {
-    public int LeaveTypeID { get; set; }
+    public int EmployeeEmeContactID { get; set; }
 
-    public string LeaveTypeName { get; set; }
+    public int? EmployeeID { get; set; }
+
+    public string ContactName { get; set; }
+
+    public string Relationship { get; set; }
+
+    public string ContactNumber { get; set; }
+
+    public string ContactEmail { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,19 +35,11 @@ public partial class LeaveTypes
 
     public int? DeletedBy { get; set; }
 
-    public int? OrganizationID { get; set; }
-
-    public bool IsApid { get; set; }
-
-    public decimal? LeaveDays { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
-
-    public virtual Organization Organization { get; set; }
+    public virtual Employees Employee { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

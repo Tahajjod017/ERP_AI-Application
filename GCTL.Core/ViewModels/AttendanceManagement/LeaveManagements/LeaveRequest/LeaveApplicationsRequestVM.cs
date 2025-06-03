@@ -39,8 +39,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
 
     public class LeaveApplicationsRequestVM : BaseViewModel
     {
-        public int LeaveApplicationID { get; set; }
-
+        
         [Required(ErrorMessage = "This Field is Required")]
         public int? EmployeeID { get; set; }
         [Required(ErrorMessage = "This Field is Required")]
@@ -58,6 +57,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
 
         [RequiredIf(nameof(IsFullDay), false, ErrorMessage = "End Time is required")]
         public TimeOnly? PartialToTime { get; set; }
+
         [RequiredIf(nameof(IsFullDay), false, ErrorMessage = "Required To Date")]
         public DateOnly? ToDateFromDateCombined { get; set; }
         public int? StatusID { get; set; }
