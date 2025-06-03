@@ -80,13 +80,13 @@ function loadAssignRolesTable() {
             const isAdmin = role.roleName === "Admin";
             const deleteBtn = isAdmin
                 ? `<button class="btn btn-danger btn-sm ms-1" disabled title="This role is protected">Delete</button>`
-                : `<button class="btn btn-danger btn-sm ms-1 open-confirm-delete-modal" data-role-name="${role.roleName}">Delete</button>`;
+                : `<button class="btn btn-danger btn-sm ms-1 open-confirm-delete-modal" data-role-name="${role.roleName}"data-role-id="${role.roleId}">Delete</button>`;
 
             return `
-                <tr data-role-name="${role.roleName}">
+                <tr data-role-name="${role.roleName}"data-role-id="${role.roleId}">
                     <td style="width: 20%; min-width: 150px;">${role.roleName}</td>
                     <td style="width: 30%; min-width: 250px;">
-                        <input class="form-control user-search" data-role="${role.roleName}" placeholder="Search Users" />
+                        <input class="form-control user-search" data-role="${role.roleName}" data-role-id="${role.roleId}" placeholder="Search Users" />
                         <div class="user-results-scroll mt-2">
                             <ul id="userSearchResults-${role.roleName}" class="list-unstyled mb-0 user-results-list"></ul>
                         </div>
@@ -96,7 +96,7 @@ function loadAssignRolesTable() {
                     </td>
                     <td style="width: 15%; min-width: 100px;" class="text-end">
                         <div class="btn-group" role="group">
-                            <button class="btn btn-success btn-sm assign-role-btnR" data-role="${role.roleName}" disabled>Assign</button>
+                            <button class="btn btn-success btn-sm assign-role-btnR" data-role="${role.roleName}" data-role-id="${role.roleId}" disabled>Assign</button>
                             ${deleteBtn}
                         </div>
                     </td>
