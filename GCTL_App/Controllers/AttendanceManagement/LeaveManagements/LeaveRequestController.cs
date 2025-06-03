@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
@@ -6,11 +7,13 @@ using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
+    //[Area("AttendanceManagement")]
     public class LeaveRequestController : BaseController
     {
         private readonly IGenericRepository<LeaveTypes> leaveType;
@@ -58,25 +61,46 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             //SetSmartPageCode(300);
             return View(model);
         }
+        #region  Save Data 
 
         [HttpPost]
         public async Task<IActionResult> SaveLeaveRequest(LeaveApplicationsRequestVM model)
         {
             if (!ModelState.IsValid)
             {
-               
+
                 var errorMessages = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 return Ok(new CommonReturnViewModel
                 {
                     Success = false,
                     Message = "Validation failed.",
-                    Errors = errorMessages 
+                    Errors = errorMessages
                 });
             }
-            var data= await leaveRequestService.SaveLeaveRequestAsync(model);
+            var data = await leaveRequestService.SaveLeaveRequestAsync(model);
             return Ok(data);
-          
+
 
         }
+        #endregion
+
+        #region Get All Data List
+
+        [Route("LeaveRequestRoute/GetAllTableListAsync")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "")
+        {
+            try
+            {
+             var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder);
+                return Json(data);
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);   
+                return BadRequest(ex.Message);
+             }
+        }
+        #endregion
     }
 }

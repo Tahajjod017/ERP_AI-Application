@@ -32,7 +32,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
-
     public virtual DbSet<BloodGroup> BloodGroup { get; set; }
 
     public virtual DbSet<CompensationDayExchanges> CompensationDayExchanges { get; set; }
@@ -154,7 +153,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2DEF8C716");
@@ -272,14 +270,16 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //});
 
         modelBuilder.Entity<ApplicationUser>()
-             .HasDiscriminator<string>("Discriminator")
-             .HasValue<ApplicationUser>("ApplicationUser");
+
+    .HasDiscriminator<string>("Discriminator")
+    .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
 
-            .HasOne(u => u.Employees)
-            .WithMany(e => e.AspNetUsers)
-            .HasForeignKey(u => u.EmployeeId)
-            .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+        .HasOne(u => u.Employees)
+        .WithMany(e => e.AspNetUsers)
+        .HasForeignKey(u => u.EmployeeId)
+        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employees)

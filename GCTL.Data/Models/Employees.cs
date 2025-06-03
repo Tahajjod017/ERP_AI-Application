@@ -79,8 +79,10 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
-    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+    // public virtual ICollection<AspNetUsers> AspNetUsers { get; set; } = new List<AspNetUsers>();
 
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new
+List<ApplicationUser>();
     public virtual BloodGroup BloodGroup { get; set; }
 
     public virtual ICollection<BloodGroup> BloodGroupCreatedByNavigation { get; set; } = new List<BloodGroup>();
