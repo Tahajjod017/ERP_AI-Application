@@ -1,4 +1,4 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeeTraining.EmployeeTrainingPostViewModel
+﻿@model GCTL.Core.ViewModels.Employee.EmployeeContact.EmployeeContactViewModel
 
 
 <!-- Delete Modal -->
@@ -12,7 +12,7 @@
                 <h4 class="mb-1">Confirm Delete</h4>
                 <p class="mb-3">You want to delete all the marked items, this cant be undone once you delete.</p>
                 <div class="d-flex justify-content-center">
-                    <a href="javascript:void(0);"  class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</a>
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</a>
                     <a id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</a>
                 </div>
             </div>
@@ -22,7 +22,7 @@
 <!-- /Delete Modal -->
 
 
-<div class="modal fade" id="edit_traning">
+<div class="modal fade" id="edit_emmergencyContact">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content px-3">
             <div class="modal-header">
@@ -38,54 +38,29 @@
 
                     <div class="col-sm-6 col-md-6">
                         <div class="form-floating">
-                            <input id="editTranningTitle" class="form-control" type="text" placeholder="@Html.SmartLocalize("Training Title")" required />
-                            <label id="editTranningTitle">@Html.SmartLocalize("Training Title")</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label id="editCountryID">@Html.SmartLocalize("Country")</label>
-                            <select class="form-select choiceDD" id="editCountryID" asp-items="@(new SelectList(ViewBag.Country.Items, "Value", "Text"))">
-                                <option value="" selected disabled>@Html.SmartLocalize("Select Country")</option>
-                            </select>
+                            <input class="form-control" id="" type="text" placeholder="Name" required />
+                            <label for="">Name</label>
                         </div>
                     </div>
 
                     <div class="col-sm-6 col-md-6">
                         <div class="form-floating">
-                            <input id="editTopicCovered" class="form-control" type="text" placeholder="@Html.SmartLocalize("Topics Covered")" required />
-                            <label id="editTopicCovered">@Html.SmartLocalize("Topics Covered")</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label id="editTrainingYearID">@Html.SmartLocalize("Training Year")</label>
-                            <select class="form-select choiceDD" id="editTrainingYearID" asp-items="@(new SelectList(ViewBag.TrainingYear.Items, "Value", "Text"))">
-                                <option value="" selected disabled>@Html.SmartLocalize("Select Training Year")</option>
-                            </select>
+                            <input class="form-control" id="" type="text" placeholder="Relationship" required />
+                            <label for="">Relationship</label>
                         </div>
                     </div>
 
                     <div class="col-sm-6 col-md-6">
                         <div class="form-floating">
-                            <input id="editInstituteName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Institute Name")" required />
-                            <label id="editInstituteName">@Html.SmartLocalize("Institute Name")</label>
+                            <input class="form-control" id="" type="text" placeholder="Contact Number" required />
+                            <label for="">Contact Number </label>
                         </div>
                     </div>
 
                     <div class="col-sm-6 col-md-6">
                         <div class="form-floating">
-                            <input id="editYearDuration" class="form-control" type="text" placeholder="@Html.SmartLocalize("Duration")" />
-                            <label id="editYearDuration">@Html.SmartLocalize("Duration (Years)")</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12 col-md-12">
-                        <div class="form-floating">
-                            <input id="editLocationName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Location")" />
-                            <label id="editLocationName">@Html.SmartLocalize("Location")</label>
+                            <input class="form-control" id="" type="text" placeholder="Email" />
+                            <label for="">Email</label>
                         </div>
                     </div>
 
@@ -113,7 +88,7 @@
         <div class="row">
             <form asp-controller="EmployeeTraining" asp-action="Index" method="post" id="trainingForm">
                 <div class="col-12">
-                    
+
 
                     <div class="row g-2 align-items-center">
                         <div class="col-md-3">
@@ -164,104 +139,120 @@
                                     <a class="nav-link" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")</a>
                                 </li>
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
-                                    <a class="nav-link active" href="/EmployeeTraining/index" role="tab" aria-selected="true" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")</a>
+                                    <a class="nav-link " href="/EmployeeTraining/index" role="tab" aria-selected="true" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")</a>
                                 </li>
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
                                     <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")</a>
                                 </li>
-
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
-                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
+                                    <a class="nav-link active" href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
                                 </li>
                             </ul>
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
-                                <div class="tab-pane show active fade p-2" role="tranningInfo" id="tranningInfo" aria-labelledby="tranningInfo">
-                                    <div class="px-25">
-                                        <div class="d-flex justify-content-center my-8">
-                                            <div class="col-12 row flex gy-3">
-                                                <div class="col-sm-6 col-md-6">
-                                                    <div class="form-floating">
-                                                        <input asp-for="TranningTitle" class="form-control" type="text" placeholder="@Html.SmartLocalize("Training Title")" required />
-                                                        <label asp-for="TranningTitle">@Html.SmartLocalize("Training Title")</label>
-                                                    </div>
-                                                </div>
+
+                                <div class="tab-pane show active fade p-2" role="emmerhencyContactInfo" id="emmerhencyContactInfo" aria-labelledby="emmerhencyContactInfo">
+
+                                    <div class=" px-25 ">
+                                        <div class="d-flex justify-content-center my-8 ">
+
+                                            <div class="col-12 row flex gy-3 ">
 
                                                 <div class="col-sm-6 col-md-6">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <label asp-for="CountryID">@Html.SmartLocalize("Country")</label>
-                                                        <select class="form-select choiceDD" asp-for="CountryID" asp-items="@(new SelectList(ViewBag.Country.Items, "Value", "Text"))">
-                                                            <option value="" selected disabled>@Html.SmartLocalize("Select Country")</option>
-                                                        </select>
+                                                    <div class="form-floating">
+                                                        <input class="form-control" id="" type="text" placeholder="Name" required />
+                                                        <label for="">Name</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6 col-md-6">
                                                     <div class="form-floating">
-                                                        <input asp-for="TopicCovered" class="form-control" type="text" placeholder="@Html.SmartLocalize("Topics Covered")" required />
-                                                        <label asp-for="TopicCovered">@Html.SmartLocalize("Topics Covered")</label>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-sm-6 col-md-6">
-                                                    <div class="form-floating form-floating-advance-select">
-                                                        <label asp-for="TrainingYearID">@Html.SmartLocalize("Training Year")</label>
-                                                        <select class="form-select choiceDD" asp-for="TrainingYearID" asp-items="@(new SelectList(ViewBag.TrainingYear.Items, "Value", "Text"))">
-                                                            <option value="" selected disabled>@Html.SmartLocalize("Select Training Year")</option>
-                                                        </select>
+                                                        <input class="form-control" id="" type="text" placeholder="Relationship" required />
+                                                        <label for="">Relationship</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6 col-md-6">
                                                     <div class="form-floating">
-                                                        <input asp-for="InstituteName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Institute Name")" required />
-                                                        <label asp-for="InstituteName">@Html.SmartLocalize("Institute Name")</label>
+                                                        <input class="form-control" id="" type="text" placeholder="Contact Number" required />
+                                                        <label for="">Contact Number </label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-6 col-md-6">
                                                     <div class="form-floating">
-                                                        <input asp-for="YearDuration" class="form-control" type="text" placeholder="@Html.SmartLocalize("Duration")" />
-                                                        <label asp-for="YearDuration">@Html.SmartLocalize("Duration (Years)")</label>
+                                                        <input class="form-control" id="" type="text" placeholder="Email" />
+                                                        <label for="">Email</label>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-sm-12 col-md-12">
-                                                    <div class="form-floating">
-                                                        <input asp-for="LocationName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Location")" />
-                                                        <label asp-for="LocationName">@Html.SmartLocalize("Location")</label>
-                                                    </div>
-                                                </div>
 
-                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" style="width: 100px;">
-                                                    @Html.SmartLocalize("Add")
-                                                </button>
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="button" style="width: 100px;">Add</button>
+
                                             </div>
                                         </div>
 
-                                        <h4 class="border-bottom">@Html.SmartLocalize("Training Summary")</h4>
+                                        <h4 class="border-bottom">Emergency Contuct Summary</h4>
 
                                         <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
-                                            <table class="table" id="employeeTrainingTable">
+                                            <table class="table">
                                                 <thead>
                                                     <tr>
-                                                        <th scope="col">@Html.SmartLocalize("Training Title")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Topic")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Institute")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Country")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Location")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Year")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Duration")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Action")</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Relationship</th>
+                                                        <th scope="col">Contact Number</th>
+                                                        <th scope="col">Email</th>
+                                                        <th scope="col">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Table content will be populated dynamically -->
+                                                    <tr>
+                                                        <th scope="row">Md. Motin Mia</th>
+                                                        <td>Brother</td>
+                                                        <td>01732 023 012</td>
+                                                        <td>motin@email.com</td>
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                                            <div class="btn-reveal-trigger position-static g-3">
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_emmergencyContact">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th scope="row">Md. Rakibul Islam</th>
+                                                        <td>Brother</td>
+                                                        <td>01732 256 456</td>
+                                                        <td>Rakibul@email.com</td>
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                                            <div class="btn-reveal-trigger position-static g-3">
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_emmergencyContact">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+
+
                                                 </tbody>
                                             </table>
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -277,6 +268,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/pages/employees/employeevalidator.js"></script>
-	<script src="~/js/pages/employees/employeetraining.js"></script>
+	<script src="~/js/pages/employees/employeevalidator.js"></script>
+    <script src="~/js/pages/employees/employeecontact.js"></script>
+
 }

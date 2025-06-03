@@ -121,6 +121,8 @@ public partial class Employees
 
     public virtual ICollection<DefaultShifts> DefaultShiftsDeletedByNavigation { get; set; } = new List<DefaultShifts>();
 
+    public virtual ICollection<DefaultShifts> DefaultShiftsEmployee { get; set; } = new List<DefaultShifts>();
+
     public virtual ICollection<DefaultShifts> DefaultShiftsUpdatedByNavigation { get; set; } = new List<DefaultShifts>();
 
     public virtual ICollection<Degree> DegreeCreatedByNavigation { get; set; } = new List<Degree>();
@@ -192,6 +194,14 @@ public partial class Employees
     public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoEmployee { get; set; } = new List<EmployeeEducationalInfo>();
 
     public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoUpdatedByNavigation { get; set; } = new List<EmployeeEducationalInfo>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsCreatedByNavigation { get; set; } = new List<EmployeeEmeContacts>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsDeletedByNavigation { get; set; } = new List<EmployeeEmeContacts>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsEmployee { get; set; } = new List<EmployeeEmeContacts>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsUpdatedByNavigation { get; set; } = new List<EmployeeEmeContacts>();
 
     public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoCreatedByNavigation { get; set; } = new List<EmployeeFamilyInfo>();
 

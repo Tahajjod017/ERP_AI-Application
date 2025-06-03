@@ -50,6 +50,7 @@ using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.Employees.EmployeeContact;
 
 
 
@@ -145,6 +146,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeTrainingService, EmployeeTrainingService>();
             services.AddScoped<IEmployeeEducationalService, EmployeeEducationalService>();
             services.AddScoped<IEmployeeFamilyService, EmployeeFamilyService>();
+            services.AddScoped<IEmployeeContactService, EmployeeContactService>();
 
             #endregion
 

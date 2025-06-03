@@ -30,7 +30,7 @@ namespace GCTL_App.Controllers.Employees
             _trainingYearsRepository = trainingYearsRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int id)
         {
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.Country = _countryRepository.GetActiveSelectListById(c => c.CountryID, c => c.CountryName);
