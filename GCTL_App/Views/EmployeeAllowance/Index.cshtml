@@ -120,29 +120,99 @@
 
                                                            
 
-                                                            <div class="col-md-6">
+
+                                                            
+
+                                                            <div class="col-md-4">
+
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="MobileInternetAllowance">@Html.SmartLocalize("Mobile/Internet Allowance")</label>
+                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsMobileInternetAllowanceEnabled" role="switch" id="mobileInternetAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
-                                                                    <input class="form-control" asp-for="MobileInternetAllowance" type="number" step="0.01" placeholder="@Html.SmartLocalize("Ex: 1000 tk Monthly")" />
+                                                                    <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
+                                                                            data-coreui-search="true">
+                                                                        <option value="0">@Html.SmartLocalize("Select Company...")</option>
+                                                                        <option value="1">CSL</option>
+                                                                        <option value="2">GCTL</option>
+                                                                    </select>
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-md-6">
+
+
+                                                            <div class="col-md-4">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="ShiftAllowance">@Html.SmartLocalize("Shift Allowance")</label>
+                                                                        <label class="form-label" for="timepicker1">@Html.SmartLocalize("Mobile Allowance")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsShiftAllowanceEnabled" role="switch" id="shiftAllowanceEnabled" />
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
                                                                         </div>
                                                                     </div>
-                                                                    <input class="form-control" asp-for="ShiftAllowance" type="number" step="0.01" placeholder="@Html.SmartLocalize("Ex: 500 tk Per Night Shift")" />
+                                                                    <input class="form-control" id="" type="text" placeholder="Ex: 1000 tk Monthly">
                                                                 </div>
                                                             </div>
+
+
+                                                        
+
+
+                                                          
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3 position-relative">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Effective From")</label>
+                                                                        <div class="form-check form-switch">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="position-relative">
+                                                                        <input class="form-control datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy"
+                                                                               data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                                                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                                                              style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" for="timepicker1">@Html.SmartLocalize("Internet Allowance")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                                                        </div>
+                                                                    </div>
+                                                                    <input class="form-control" id="" type="text" placeholder="Ex: 1000 tk Monthly">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3 position-relative">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Effective From")</label>
+                                                                        <div class="form-check form-switch">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="position-relative">
+                                                                        <input class="form-control datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy"
+                                                                               data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                                                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                                                              style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                           
+
+
+
+
 
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
