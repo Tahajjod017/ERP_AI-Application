@@ -434,5 +434,7 @@
             loadTableData();
         });
     }
+
+
 }(jQuery));
 

@@ -26,7 +26,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             _employeeSalaryRepository = employeeSalaryRepository;
         }
 
-        public async Task<EmployeeAllowancePostViewModel> GetEmployeeAllowance(int employeeId)
+        public async Task<EmployeeAdditionalPostViewModel> GetEmployeeAllowance(int employeeId)
         {
             var allowance = await(from eb in _employeeAllowancesRepository.AllActive()
                                   join emp in _employeeRepository.AllActive()
@@ -39,14 +39,14 @@ namespace GCTL.Service.Employees.EmployeeAllowance
 
                                   where eb.EmployeeID == employeeId
 
-                                  select new EmployeeAllowancePostViewModel
+                                  select new EmployeeAdditionalPostViewModel
                                  {
                                      EmployeePersonalId = emp.EmployeeID,
                                      PersonalEmail = emp.Email ?? "N/A",
                                      PersonalPhone = emp.MobileNumber ?? "N/A",
                                      EmployeeBaseAllowanceID = eb.EmployeeBaseAllowanceID,
-                                     MobileInternetAllowance = eb.MobileInternetAllowance,
-                                     IsMobileInternetAllowanceEnabled = eb.IsMobileInternetAllowanceEnabled,
+                                     //MobileInternetAllowance = eb.MobileInternetAllowance,
+                                     //IsMobileInternetAllowanceEnabled = eb.IsMobileInternetAllowanceEnabled,
                                      ShiftAllowance = eb.ShiftAllowance,
                                      IsShiftAllowanceEnabled = eb.IsShiftAllowanceEnabled,
                                      HouseRentAllowancePercentage = eb.HouseRentAllowancePercentage,
@@ -66,7 +66,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             }
             else
             {
-                var emp = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeAllowancePostViewModel
+                var emp = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeAdditionalPostViewModel
                 {
                     EmployeePersonalId = (int)m.EmployeeID,
 
@@ -78,7 +78,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             }
         }
 
-        public async Task<CommonReturnViewModel> SaveEmployeeAllowanceAsync(EmployeeAllowancePostViewModel model)
+        public async Task<CommonReturnViewModel> SaveEmployeeAllowanceAsync(EmployeeAdditionalPostViewModel model)
         {
             try
             {
@@ -92,8 +92,8 @@ namespace GCTL.Service.Employees.EmployeeAllowance
                     {
                         //EmployeeBaseAllowanceID = model.EmployeeBaseAllowanceID,
                         EmployeeID = model.EmployeePersonalId,
-                        MobileInternetAllowance = model.MobileInternetAllowance,
-                        IsMobileInternetAllowanceEnabled = model.IsMobileInternetAllowanceEnabled,
+                        //MobileInternetAllowance = model.MobileInternetAllowance,
+                        //IsMobileInternetAllowanceEnabled = model.IsMobileInternetAllowanceEnabled,
                         ShiftAllowance = model.ShiftAllowance,
                         IsShiftAllowanceEnabled = model.IsShiftAllowanceEnabled,
                         HouseRentAllowancePercentage = model.HouseRentAllowancePercentage,
@@ -131,8 +131,8 @@ namespace GCTL.Service.Employees.EmployeeAllowance
                 else
                 {
 
-                   existingAllowance.MobileInternetAllowance = model.MobileInternetAllowance;
-                    existingAllowance.IsMobileInternetAllowanceEnabled = model.IsMobileInternetAllowanceEnabled;
+                   //existingAllowance.MobileInternetAllowance = model.MobileInternetAllowance;
+                   // existingAllowance.IsMobileInternetAllowanceEnabled = model.IsMobileInternetAllowanceEnabled;
                     existingAllowance.ShiftAllowance = model.ShiftAllowance;
                     existingAllowance.IsShiftAllowanceEnabled = model.IsShiftAllowanceEnabled;
                     existingAllowance.HouseRentAllowancePercentage = model.HouseRentAllowancePercentage;

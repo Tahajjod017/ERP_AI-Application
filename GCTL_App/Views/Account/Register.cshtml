@@ -4,14 +4,14 @@
 }
 @await Html.PartialAsync("_Alerts")
 <!-- ===============================================-->
-<main class="main" id="top">
+@* <main class="main" id="top">
     <div class="container">
         <div class="row flex-center min-vh-100 py-5">
             <div class="col-sm-10 col-md-8 col-lg-5 col-xl-5 col-xxl-3">
                 <!-- Logo -->
                 <a class="d-flex flex-column align-items-center text-decoration-none mb-4" href="#">
                     <img src="../img/NBR-Transparent.png" alt="phoenix" width="90" />
-                    <span class="fw-semibold fs-7 text-muted mt-2">ITIIU</span>
+                    <span class="fw-semibold fs-7 text-muted mt-2">HRM</span>
                 </a>
                 <div class="text-center mb-7">
                     <h3 class="text-body-highlight">Sign Up</h3>
@@ -21,10 +21,10 @@
                 <form asp-action="Register" method="post">
                     
                     <!-- Name -->
-                    @* <div class="mb-3 text-start">
+                    <div class="mb-3 text-start">
                         <label class="form-label" for="name">Name</label>
                         <input class="form-control" id="name" type="text" placeholder="Name" />
-                    </div> *@
+                    </div>
                     <!-- First Name + Last Name -->
                     <div class="row g-3 mb-3">
                         <div class="col-sm-6">
@@ -68,10 +68,10 @@
 
                     </div>
                     <!-- policy -->
-                    @*  <div class="form-check mb-3">
+                     <div class="form-check mb-3">
                         <input class="form-check-input" id="termsService" type="checkbox" />
                         <label class="form-label fs-9 text-transform-none" for="termsService">I accept the <a href="#!">terms </a>and <a href="#!">privacy policy</a></label>
-                    </div> *@
+                    </div>
                     <!-- For SuperAdmin -->
                     <div class="form-check mb-3">
                         <input asp-for="ForSuperAdmin" class="form-check-input" id="forSuperAdmin" type="checkbox" />
@@ -86,26 +86,137 @@
             </div>
         </div>
     </div>
+</main> *@
+
+<main class="main" id="top">
+    <div class="container-fluid bg-body-tertiary dark__bg-gray-1200">
+        <div class="bg-holder bg-auth-card-overlay" style="background-image:url(../img/bg/37.png);">
+        </div>
+        <!--/.bg-holder-->
+
+        <div class="row flex-center position-relative min-vh-100 g-0 py-5">
+            <div class="col-11 col-sm-10 col-xl-8">
+                <div class="card border border-translucent auth-card">
+                    <div class="card-body pe-md-0">
+                         <div class="row align-items-center gx-0 gy-7">
+                            <div class="col-auto bg-body-highlight dark__bg-gray-1100 rounded-3 position-relative overflow-hidden auth-title-box">
+                                <div class="bg-holder" style="background-image:url(../img/bg/38.png);">
+                                </div>
+                                <!--/.bg-holder-->
+
+                                <div class="position-relative px-4 px-lg-7 pt-7 pb-7 pb-sm-5 text-center text-md-start pb-lg-7 card-sign-up">
+                                    <h3 class="mb-3 text-body-emphasis fs-7">GCTL Authentication</h3>
+                                    <p class="text-body-tertiary">Give yourself some hassle-free development process with the uniqueness of GCTL!</p>
+                                    <ul class="list-unstyled mb-0 w-max-content w-md-auto">
+                                        <li class="d-flex align-items-center"><span class="uil uil-check-circle text-success me-2"></span><span class="text-body-tertiary fw-semibold">Fast</span></li>
+                                        <li class="d-flex align-items-center"><span class="uil uil-check-circle text-success me-2"></span><span class="text-body-tertiary fw-semibold">Simple</span></li>
+                                        <li class="d-flex align-items-center"><span class="uil uil-check-circle text-success me-2"></span><span class="text-body-tertiary fw-semibold">Responsive</span></li>
+                                    </ul>
+                                </div>
+                                <div class="position-relative z-n1 mb-6 d-none d-md-block text-center mt-md-15"><img class="auth-title-box-img d-dark-none" src="../../../assets/img/spot-illustrations/auth.png" alt="" /><img class="auth-title-box-img d-light-none" src="../../../assets/img/spot-illustrations/auth-dark.png" alt="" /></div>
+                            </div>
+                            <div class="col mx-auto">
+                                <div class="auth-form-box">
+                                    <div class="text-center mb-7">
+                                        <a class="d-flex flex-center text-decoration-none mb-4" href="../../../index.html">
+                                            <div class="d-flex align-items-center fw-bolder fs-3 d-inline-block">
+                                                <img src="../img/icons/hrm-letter-design-vector.jpg" alt="HRM" width="58" />
+                                            </div>
+                                        </a>
+                                        <h3 class="text-body-highlight">Sign Up</h3>
+                                        <p class="text-body-tertiary">Create your account today</p>
+                                    </div>
+                                   @*  <button class="btn btn-phoenix-secondary w-100 mb-3"><span class="fab fa-google text-danger me-2 fs-9"></span>Sign up with google</button>
+                                    <button class="btn btn-phoenix-secondary w-100"><span class="fab fa-facebook text-primary me-2 fs-9"></span>Sign up with facebook</button>
+                                    <div class="position-relative mt-4">
+                                        <hr class="bg-body-secondary" />
+                                        <div class="divider-content-center bg-body-emphasis">or use email</div>
+                                    </div> *@
+                                    <form asp-action="Register" method="post">
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-sm-6">
+                                                <label asp-for="FirstName" class="form-label">First Name</label>
+                                                <input asp-for="FirstName" class="form-control" type="text" placeholder="First Name" />
+                                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label asp-for="LastName" class="form-label">Last Name</label>
+                                                <input asp-for="LastName" class="form-control" type="text" placeholder="Last Name" />
+                                                <span asp-validation-for="LastName" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        @* <div class="mb-3 text-start">
+                                            <label class="form-label" for="name">Name</label>
+                                            <input class="form-control" id="name" type="text" placeholder="Name" />
+                                        </div> *@
+                                        <div class="mb-3 text-start">
+                                            <label asp-for ="Email" class="form-label" for="email">Email address</label>
+                                            <input asp-for="Email" class="form-control" id="email" type="email" placeholder="name@example.com" />
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-sm-6">
+                                                <label asp-for="Password" class="form-label" for="password">Password</label>
+                                                <div class="position-relative" data-password="data-password">
+                                                    <input asp-for="Password" class="form-control form-icon-input pe-6" id="password" type="password" placeholder="Password" data-password-input="data-password-input" />
+                                                    <button type="button" class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
+                                                </div>
+                                                <span asp-validation-for="Password" class="text-danger"></span>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label asp-for="ConfirmPassword" class="form-label" for="confirmPassword">Confirm Password</label>
+                                                <div class="position-relative" data-password="data-password">
+                                                    <input asp-for="ConfirmPassword" class="form-control form-icon-input pe-6" id="confirmPassword" type="password" placeholder="Confirm Password" data-password-input="data-password-input" />
+                                                    <button type="button" class="btn px-3 py-0 h-100 position-absolute top-0 end-0 fs-7 text-body-tertiary" data-password-toggle="data-password-toggle"><span class="uil uil-eye show"></span><span class="uil uil-eye-slash hide"></span></button>
+                                                </div>
+                                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" id="termsService" type="checkbox" />
+                                            <label class="form-label fs-9 text-transform-none" for="termsService">I accept the <a href="#!">terms </a>and <a href="#!">privacy policy</a></label>
+                                        </div>
+                                        <!-- For SuperAdmin -->
+                                        <div class="form-check mb-3">
+                                            <input asp-for="ForSuperAdmin" class="form-check-input" id="forSuperAdmin" type="checkbox" />
+                                            <label asp-for="ForSuperAdmin" class="form-label fs-9 text-transform-none">For SuperAdmin</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 mb-3">Sign up</button>
+                                        <div class="text-center"><a class="fs-9 fw-bold" href="/Account/Login">Sign in to an existing account</a></div>
+                                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
 </main>
+<<<<<<< HEAD
+@* <script>
+=======
 <script>
-    var navbarTopStyle = window.config.config.phoenixNavbarTopStyle;
+>>>>>>> 5af72c516585e3bcce9fb8f699e5731c07d8776f
+    var navbarTopStyle = window.config?.config?.phoenixNavbarTopStyle;
     var navbarTop = document.querySelector('.navbar-top');
     if (navbarTopStyle === 'darker') {
       navbarTop.setAttribute('data-navbar-appearance', 'darker');
     }
 
-    var navbarVerticalStyle = window.config.config.phoenixNavbarVerticalStyle;
+    var navbarVerticalStyle = window.config?.config?.phoenixNavbarVerticalStyle;
     var navbarVertical = document.querySelector('.navbar-vertical');
     if (navbarVertical && navbarVerticalStyle === 'darker') {
       navbarVertical.setAttribute('data-navbar-appearance', 'darker');
     }
-</script>
+</script> *@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
 
-        function toggleInputs() {
+        function toggleInputss() {
             if ($('#forSuperAdmin').is(':checked')) {
                 $('#companyName').prop('disabled', true);
                 $('#companyIsActive').prop('disabled', true);
@@ -117,10 +228,10 @@
 
 
         $('#forSuperAdmin').on('change', function () {
-            toggleInputs();
+            toggleInputss();
         });
 
         // Initialize the state on page load
-        toggleInputs();
+        toggleInputss();
     });
 </script>

@@ -29,9 +29,17 @@ public partial class DefaultShifts
 
     public int? OrganizationID { get; set; }
 
+    public int? DepartmentID { get; set; }
+
+    public int? EmployeeID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Departments Department { get; set; }
+
+    public virtual Employees Employee { get; set; }
 
     public virtual Organization Organization { get; set; }
 

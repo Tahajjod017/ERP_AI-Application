@@ -1,11 +1,85 @@
 ﻿@model GCTL.Core.ViewModels.RoleModule.RoleManagementViewModel
 
 @{
+
     ViewBag.Title = "User Role Management";
 }
 
 <h2 class="text-center mt-4 mb-4">@ViewBag.Title</h2>
+<style>
+    /* Make the user results scrollable */
+    .user-results-scroll {
+        display: none;
+        position: absolute;
+        max-height: 240px; /* Adjust this value based on the height of 5 items */
+        overflow-y: auto; /* Add vertical scrolling */
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        transition: opacity 0.3s ease-in-out;
+        z-index: 1;
+        width: 26.5%;
+    }
 
+        /* Ensure the results list scrolls smoothly */
+        .user-results-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .user-results-scroll::-webkit-scrollbar-thumb {
+            background-color: #ced4da;
+            border-radius: 4px;
+        }
+
+        /* When results are displayed, fade them in */
+        .user-results-scroll.show {
+            display: block;
+        }
+
+    /* Style for the selected users list */
+    .user-item {
+        color: #333; /* Dark color for the user name */
+        display: inline-flex;
+        align-items: center;
+        margin-right: -6px; /* Space between each user name */
+        margin-bottom: 5px; /* Space between rows */
+    }
+
+    /* Styling for the Windows-style cross (X) icon */
+    .remove-user-btn {
+        font-size: 1.2rem; /* Larger "X" icon */
+        cursor: pointer; /* Ensure it looks clickable */
+        color: #dc3545; /* Red color for the "X" icon */
+        margin-left: 5px; /* Space between the user name and the icon */
+    }
+
+        .remove-user-btn:hover {
+            color: #c82333; /* Darker red on hover */
+        }
+
+    /* Ensuring proper spacing between user items */
+    #selectedUsers-role {
+        display: block;
+        margin-top: 10px;
+    }
+
+        /* Preventing wrapping if the line is too long */
+        #selectedUsers-role span {
+            white-space: nowrap;
+        }
+
+    .scrollable-user-list {
+        max-height: 75px; /* 3 users * ~40px each */
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 0px solid #e3e3e3;
+        border-radius: 4px;
+        padding-right: 10px;
+    }
+
+
+</style>
 @if (TempData["Message"] != null)
 {
     <div id="successAlert" class="alert alert-success text-center alert-dismissible fade show" role="alert">
@@ -26,119 +100,238 @@
     <div class="d-flex justify-content-center mt-2">
         <div class="col-12 row flex gy-3 pb-3">
             <!-- Form to Create New Role -->
-            <div class="col-12">
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body py-4 px-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <input type="hidden" id="SelectedTenantId" value="1" />
+                                <label for="SelectedCompanyId" class="form-label fw-semibold text-muted mb-2">Select Company</label>
+                                <select asp-for="SelectedCompanyId" id="SelectedCompanyId" class="form-select form-select-lg">
+                                    <option value="" selected>-- Select Company --</option>
+                                    @foreach (var company in ViewBag.CompanyList as List<SelectListItem>)
+                                    {
+                                        <option value="@company.Value">@company.Text</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           @*  <div class="col-12">
                 <div class="card shadow-sm mb-5">
-                    <div class="card-header bg-light">
-                        <h5 class="m-0">Create New Role</h5>
+                    <div class="card-header">
+                        <h5 class="m-0">@ViewBag.CreateNewRl</h5>
                     </div>
                     <div class="card-body">
                         <form asp-action="CreateRole" method="post">
                             @Html.AntiForgeryToken()
-                            <div class="form-floating">
-                                <input asp-for="NewRoleName" class="form-control" placeholder="Enter role name" />
-                                <label asp-for="NewRoleName">Role Name</label>
-                                <span asp-validation-for="NewRoleName" class="text-danger"></span>
+
+                            <div class="row">
+                                <!-- Company Name -->
+                                <div class="col-md-6">
+
+                                    <div class="form-floating mb-3">
+                                        <input type="hidden" id="SelectedTenantId" value="1" />
+
+                                        <select asp-for="SelectedCompanyId" class="form-select">
+                                            <option  selected value="">-- All Company --</option>
+                                            @foreach (var company in ViewBag.CompanyList as List<SelectListItem>)
+                                            {
+                                                <option value="@company.Value">@company.Text</option>
+                                            }
+                                        </select>
+                                        <label asp-for="SelectedCompanyId">Company Name</label>
+                                        <span asp-validation-for="SelectedCompanyId" class="text-danger small d-block mt-1"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Role Name -->
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="NewRoleName" class="form-control" placeholder="Enter role name" />
+                                        <label asp-for="NewRoleName">Role Name</label>
+                                        <span asp-validation-for="NewRoleName" class="text-danger small d-block mt-1"></span>
+                                    </div>
+                                </div>
                             </div>
-                            @* @if (ViewBag.CanCreate == true)
+
+                            @if (ViewBag.CanCreate == true)
                             {
-                                <button type="submit" class="btn btn-primary mt-3">Add Role</button>
-                            } *@
-                            <button type="submit" class="btn btn-primary mt-3">Add Role</button>
+                                <button type="submit" class="btn btn-phoenix-primary">Add Role</button>
+                            }
                         </form>
                     </div>
+
                 </div>
-            </div>
+            </div> *@
+
 
             <!-- Assign Users to Roles Section -->
-            <div class="col-12">
-                <div class="card shadow-sm mb-5">
-                    <div class="card-header bg-light">
-                        <h5 class="m-0">Assign Users to Roles</h5>
+            <div class="col-lg-12 mb-4 bg-white">
+                <!-- Top Controls -->
+                <div class="row g-3 justify-content-between align-items-end mb-4 p-4">
+                    @* <div class="col-12 col-sm-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle px-2 py-1 text-truncate" type="button" data-bs-toggle="dropdown">
+                                Showing: <span id="selectedPageSize">5</span>
+                            </button>
+                            <ul class="dropdown-menu" id="roleAssign-pageSizeDropdown">
+                                <li><a class="dropdown-item" href="" data-size="5">5</a></li>
+                                <li><a class="dropdown-item" href="" data-size="10">10</a></li>
+                                <li><a class="dropdown-item" href="" data-size="25">25</a></li>
+                                <li><a class="dropdown-item" href="" data-size="50">50</a></li>
+                                <li><a class="dropdown-item" href="" data-size="100">100</a></li>
+                            </ul>
+                        </div>
+                    </div> *@
+                    <div class="col-12 col-sm-auto">
+                        <div class="d-flex align-items-center me-3" style="width: auto;">
+                            <span class="ms-2">Showing:</span>&nbsp;
+                            <div style="width: auto;">
+                                <select id="roleAssign-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Role Name</th>
-                                    <th>Search Users</th>
-                                    <th>Selected Users</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var role in ViewBag.AvailableRoles)
-                                {
-                                    <tr>
-                                        <td class="align-middle">@role</td>
-                                        <td>
-                                            <input type="text" id="userSearch-@role" class="form-control user-search" data-role="@role" placeholder="Search Users" />
-                                            <ul id="userSearchResults-@role" class="list-unstyled mt-2"></ul>
-                                        </td>
-                                        <td>
-                                            <ul id="selectedUsers-@role" class="list-unstyled mt-2"></ul>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-success assign-role-btnR" data-role="@role">Assign</button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+
+
+                    <div class="col-12 col-sm-auto">
+                        <div class="d-flex align-items-center">
+                            <div class="search-box me-3">
+                                <form class="position-relative">
+                                    <input class="form-control search-input search" id="roleAssign-searchInput" type="search" placeholder="Search roles " />
+                                    <span class="fas fa-search search-box-icon"></span>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive scrollbar">
+                    <table class="table fs-9 mb-0 border-top border-translucent">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap align-middle">Role Name</th>
+                                <th class="white-space-nowrap align-middle">Search Users</th>
+                                <th class="white-space-nowrap align-middle">Selected Users</th>
+                                <th class="text-end align-middle">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignUserTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                    <div class="d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="assignPaginationInfo"></p>
+                    </div>
+                    <div class="d-flex">
+                        <button class="page-link" data-list-pagination="prev" id="assignUser-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination" id="assignPaginationLinks"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next" id="assignUser-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
                     </div>
                 </div>
             </div>
 
-            <!-- List of Assigned Users for Each Role -->
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-light">
-                        <h5 class="m-0">Assigned Users for Each Role</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Role Name</th>
-                                    <th>User Name</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var roleAssignment in Model.RoleUserAssignments)
-                                {
-                                    var roleName = roleAssignment.Key;
-                                    var usersInRole = roleAssignment.Value;
 
-                                    @foreach (var user in usersInRole)
-                                    {
-                                        <tr>
-                                            <td>@roleName</td>
-                                            <td>@user.UserName</td>
-                                            <td>
-                                                <form class="remove-user-form" method="post" action="/AccessPermission/RemoveUserFromRole">
-                                                    @Html.AntiForgeryToken()  <!-- Include Anti-Forgery Token -->
-                                                    <input type="hidden" name="roleName" value="@roleName" />
-                                                    <input type="hidden" name="userName" value="@user.UserName" />
-                                                    <button type="submit" class="btn btn-danger btn-sm">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
+
+            <!-- Assign role Users list -->
+            <div class="col-lg-12 bg-white">
+                <div class="row g-3 justify-content-between align-items-end mb-4 p-4">
+                   @*  <div class="col-12 col-sm-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Showing: <span id="selectedPageSize2">5</span>
+                            </button>
+                            <ul class="dropdown-menu" id="roleList-pageSizeDropdown">
+                                <li><a class="dropdown-item" href="" data-size="5">5</a></li>
+                                <li><a class="dropdown-item" href="" data-size="10">10</a></li>
+                                <li><a class="dropdown-item" href="" data-size="25">25</a></li>
+                                <li><a class="dropdown-item" href="" data-size="50">50</a></li>
+                                <li><a class="dropdown-item" href="" data-size="100">100</a></li>
+                            </ul>
+                        </div>
+                    </div> *@
+                    <div class="col-12 col-sm-auto">
+                        <div class="d-flex align-items-center me-3" style="width: auto;">
+                            <span class="ms-2">Showing:</span>&nbsp;
+                            <div style="width: auto;">
+                                <select id="roleList-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-12 col-sm-auto">
+                        <div class="d-flex align-items-center">
+                            <div class="search-box me-3" id="roleList-searchBox">
+                                <form class="position-relative" id="roleSearchForm">
+                                    <input class="form-control search-input search" id="roleList-searchInput" type="search" placeholder="Search roles or users" aria-label="Search" />
+                                    <span class="fas fa-search search-box-icon"></span>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive ms-n1 ps-1 scrollbar">
+                    <table class="table fs-9 mb-0 border-top border-translucent">
+                        <thead>
+                            <tr>
+                                <th class="sort white-space-nowrap align-middle ps-0" scope="col">Role Name</th>
+                                <th class="sort white-space-nowrap align-middle ps-0" scope="col">User Name</th>
+                                <th class="sort align-middle text-end" scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roleList-tBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                    <div class="d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="roleList-paginationInfo"></p>
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                    </div>
+
+                    <div class="d-flex">
+                        <button class="page-link" data-list-pagination="prev" id="roleList-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination" id="rolePaginationLinks"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next" id="roleList-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
-
+<partial name="~/Views/Shared/RolesAlert/_SavePermissionModal.cshtml" />
+<partial name="~/Views/Shared/RolesAlert/_ConfirmNewRoleModal.cshtml" />
+<partial name="~/Views/Shared/RolesAlert/_confirmRemoveUserModal.cshtml" />
+<partial name="~/Views/Shared/RolesAlert/_createUserModal.cshtml" />
+<partial name="~/Views/Shared/RolesAlert/_missingEmailModal.cshtml" />
+<partial name="_ConfirmDelete" />
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/jquery/dist/jquery.js"></script>
 <script src="~/js/pages/authjs/accesspermission.js"></script>
+<script src="~/js/pages/authjs/roles.js"></script>
+
 
 <!-- Add jQuery (if not already included) -->
 <script>

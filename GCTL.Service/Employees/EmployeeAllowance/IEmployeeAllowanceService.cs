@@ -10,7 +10,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
 {
     public interface IEmployeeAllowanceService
     {
-        Task<EmployeeAllowancePostViewModel> GetEmployeeAllowance(int employeeId);
-        Task<CommonReturnViewModel> SaveEmployeeAllowanceAsync(EmployeeAllowancePostViewModel model);
+        Task<EmployeeAdditionalPostViewModel> GetEmployeeAllowance(int employeeId);
+        Task<CommonReturnViewModel> SaveEmployeeAllowanceAsync(EmployeeAdditionalPostViewModel model);
     }
 }

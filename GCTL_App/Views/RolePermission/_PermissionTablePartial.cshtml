@@ -30,7 +30,7 @@
     }
 
     .select-all {
-        margin-left: 10px;
+        margin-left: 0px;
     }
 
     .select-row {
@@ -99,8 +99,8 @@
     <thead class="thead-light">
         <tr>
             <th>Modules</th>
-            <th>Create</th>
             <th>View</th>
+            <th>Create</th>
             <th>Edit</th>
             <th>Delete</th>
             <th>Export</th>
@@ -124,8 +124,8 @@
                         @primaryModule.Name
                     </a>
                 </td>
-                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="create" data-module="@primaryModule.Id" @(primaryModule.CanCreate ? "checked" : "") /></td>
                 <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="view" data-module="@primaryModule.Id" @(primaryModule.CanView ? "checked" : "") /></td>
+                <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="create" data-module="@primaryModule.Id" @(primaryModule.CanCreate ? "checked" : "") /></td>
                 <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="edit" data-module="@primaryModule.Id" @(primaryModule.CanEdit ? "checked" : "") /></td>
                 <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="delete" data-module="@primaryModule.Id" @(primaryModule.CanDelete ? "checked" : "") /></td>
                 <td><input type="checkbox" class="permission-toggle primary-checkbox" data-permission="export" data-module="@primaryModule.Id" @(primaryModule.CanExport ? "checked" : "") /></td>
@@ -148,8 +148,8 @@
                             @secondaryModule.Name
                         </a>
                     </td>
-                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="create" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanCreate ? "checked" : "") /></td>
                     <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="view" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanView ? "checked" : "") /></td>
+                    <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="create" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanCreate ? "checked" : "") /></td>
                     <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="edit" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanEdit ? "checked" : "") /></td>
                     <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="delete" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanDelete ? "checked" : "") /></td>
                     <td><input type="checkbox" class="permission-toggle secondary-checkbox" data-permission="export" data-module="@secondaryModule.Id" data-parent="@primaryModule.Id" @(secondaryModule.CanExport ? "checked" : "") /></td>
@@ -171,8 +171,8 @@
                                 @tertiaryModule.Name
                             </a>
                         </td>
-                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="create" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanCreate ? "checked" : "") /></td>
                         <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="view" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanView ? "checked" : "") /></td>
+                        <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="create" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanCreate ? "checked" : "") /></td>
                         <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="edit" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanEdit ? "checked" : "") /></td>
                         <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="delete" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanDelete ? "checked" : "") /></td>
                         <td><input type="checkbox" class="permission-toggle tertiary-checkbox" data-permission="export" data-module="@tertiaryModule.Id" data-parent="@secondaryModule.Id" @(tertiaryModule.CanExport ? "checked" : "") /></td>
@@ -194,8 +194,8 @@
                                     @quaternaryModule.Name
                                 </a>
                             </td>
-                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="create" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanCreate ? "checked" : "") /></td>
                             <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="view" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanView ? "checked" : "") /></td>
+                            <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="create" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanCreate ? "checked" : "") /></td>
                             <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="edit" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanEdit ? "checked" : "") /></td>
                             <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="delete" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanDelete ? "checked" : "") /></td>
                             <td><input type="checkbox" class="permission-toggle quaternary-checkbox" data-permission="export" data-module="@quaternaryModule.Id" data-parent="@tertiaryModule.Id" @(quaternaryModule.CanExport ? "checked" : "") /></td>
@@ -209,8 +209,8 @@
                         {
                             <tr style="background-color: #adb5bd; padding-left: 6rem !important;" class="hidden-row quinary-@quaternaryModule.Id">
                                 <td class="pl-5">@quinaryModule.Name</td>
-                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="create" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanCreate ? "checked" : "") /></td>
                                 <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="view" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanView ? "checked" : "") /></td>
+                                <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="create" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanCreate ? "checked" : "") /></td>
                                 <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="edit" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanEdit ? "checked" : "") /></td>
                                 <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="delete" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanDelete ? "checked" : "") /></td>
                                 <td><input type="checkbox" class="permission-toggle quinary-checkbox" data-permission="export" data-module="@quinaryModule.Id" data-parent="@quaternaryModule.Id" @(quinaryModule.CanExport ? "checked" : "") /></td>

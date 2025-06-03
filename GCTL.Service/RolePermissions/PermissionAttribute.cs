@@ -67,7 +67,14 @@ namespace GCTL.Service.RolePermissions
 
             if (!hasPermission)
             {
-                context.Result = new RedirectToActionResult("AccessDenied", "Home", null);
+                if (httpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    context.Result = new JsonResult(new { success = false, message = "Access denied." }) { StatusCode = 403 };
+                }
+                else
+                {
+                    context.Result = new RedirectToActionResult("AccessDenied", "Account", null);
+                }
                 return;
             }
 

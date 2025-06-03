@@ -26,7 +26,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "Request payload cannot be null."
+                    Message = "Data Can not be null"
                 };
             }
 
@@ -36,16 +36,19 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             {
                 var entity = new LeaveApplications
                 {
-                    EmployeeID = entityVM.CreatedBy,
+                    EmployeeID = entityVM.EmployeeID,
                     IsFullDay = entityVM.IsFullDay,
-                    FromDate = entityVM.FromDate,
-                    ToDate = entityVM.ToDate,
+                    FromDate = entityVM.FromDate ?? DateOnly.FromDateTime(DateTime.Today),
+                    ToDate = entityVM.ToDate ?? DateOnly.FromDateTime(DateTime.Today),
                     PartialFromTime = entityVM.PartialFromTime,
                     PartialToTime = entityVM.PartialToTime,
                     StatusID = entityVM.StatusID,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
-                    LeaveTypeID=entityVM.LeaveTypeID
+                    LeaveTypeID=entityVM.LeaveTypeID,
+                    Reason=entityVM.Reason,
+                    LIP=entityVM.LIP,
+                    LMAC=entityVM.LMAC
                 };
 
                 await leaveRequest.AddAsync(entity);
@@ -54,8 +57,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Leave request saved successfully.",
-                    Data = entity.LeaveApplicationID
+                    Message = "Saved Successfully."
+                  
                 };
             }
             catch (Exception ex)
