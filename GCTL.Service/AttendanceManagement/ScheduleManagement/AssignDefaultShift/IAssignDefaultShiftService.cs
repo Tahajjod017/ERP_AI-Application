@@ -20,15 +20,17 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         Task<bool> UpdateAsync(AssignDefaultShiftSetupVM model);
         Task<AssignDefaultShiftSetupVM> SoftDeleteAsync(DeleteRequestVM model);
         Task<AssignDefaultShiftSetupVM> GetByIdAsync(int id);
-        Task<PaginationService<Shifts, ShiftsSetupVM>.PaginationResult<ShiftsSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null);
+        Task<PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.PaginationResult<AssignDefaultShiftSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        string sortColumn = "DefaultShiftID", string sortOrder = "desc", int? organizationID = null);
         #endregion
 
 
         #region Others
-        Task<CommonSelectVM> GetCompanies();
-        Task<CommonSelectVM> GetDepartments(int companyId);
-        Task<CommonSelectVM> GetEmployees(int companyId, int departmentId);
+        Task<List<CommonSelectVM>> GetCompanies();
+        Task<List<CommonSelectVM>> GetDepartments();
+        Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees();
+        Task<List<CommonSelectVM>> GetShift();
+        Task<List<AssignDefaultShiftSetupVM>> GetFilteredEmployees(List<int> organizationIds, List<int> departmentIds);
         #endregion
     }
 }

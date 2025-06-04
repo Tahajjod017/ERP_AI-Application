@@ -51,6 +51,7 @@ using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.Employees.EmployeeContact;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 
 
 
@@ -108,6 +109,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ITrainingYearService, TrainingYearService>();
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             services.AddScoped<IAddShiftService, AddShiftService>();
+            services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
             #endregion
 
 
