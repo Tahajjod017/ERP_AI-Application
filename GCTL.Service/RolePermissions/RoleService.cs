@@ -88,7 +88,10 @@ namespace GCTL.Service.RolePermissions
                     .Where(u => userIds.Contains(u.Id))
                     .ToListAsync();
 
+                result.Add(role.Name.ToCleanRoleName(), users);
+
                 result.Add(role.Name, users);
+
             }
 
             return result;

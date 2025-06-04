@@ -1,141 +1,135 @@
-﻿@model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
-@* <style>
-    .req::after {
-        content: '*';
-        color: red;
-        margin-left: 2px;
-    }
-</style> *@
-<form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
-
+﻿
+ @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
+ 
+ <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
     <div class="modal-body pb-0">
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
-                    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger" role="alert"></div>
-
-                    <label class="form-label req">Name</label>
-
-                    <select class="form-select choiceDD" asp-for="EmployeeID" asp-items="@ViewBag.EmployeeDD as SelectList">
-                            <option>Select organizer</option>
-                        </select>
+                    <label class="form-label req" for="organizerSingle">Name</label>
+                    <select class="form-select choiceDD" asp-for="EmployeeID" required asp-items="@ViewBag.EmployeeDD as SelectList">
+                        <option value="">Select Employee</option>
+                    </select>
                     <span asp-validation-for="EmployeeID" class="text-danger small"></span>
-                    <span id="EmployeeIDError" class="text-danger small"></span>
-                </div>
-            </div>
-            <div class="col-md-6">
-
-                <div class="col-md-12">
-                   
-                        <label class="form-label req">Leave Type</label>
-                        <select class="form-select choiceDD" asp-for="LeaveTypeID" asp-items="@ViewBag.LeaveTypeDD as SelectList">
-                            <option>Select Type</option>
-                        </select>
-                      <span asp-validation-for="LeaveTypeID" class="text-danger small"></span>
-                </div>
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label class="form-label">No of Days</label>
-                        <input type="text" id="NoOfDays" class="form-control"  readonly>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label class="form-label">Remaining Days</label>
-                        <input type="text" class="form-control" value="8" disabled>
-                    </div>
-
-                </div>
-
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label class="form-label">Reason</label>
-                        <textarea asp-for="Reason" class="form-control" rows="3"></textarea>
-                       
-                    </div>
                    
                 </div>
-
             </div>
 
+
+
             <div class="col-md-6">
-                <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-                    <li class="nav-item"><a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#tab-fullDay" role="tab" aria-controls="tab-home" aria-selected="true">Full Day</a></li>
-                    <li class="nav-item"><a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#tab-partialDay" role="tab" aria-controls="tab-profile" aria-selected="false">Partial Day</a></li>
-                </ul>
-                <div class="tab-content mt-3" id="myTabContent">
-                    <div class="tab-pane fade show active" id="tab-fullDay" role="tabpanel" aria-labelledby="home-tab">
-                        <div class="row mt-3" >
-                            <div class=" col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label req">From</label>
-                                    <div class="input-icon-end position-relative">
-                                        <input type="text" asp-for="FromDate" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
-                                    </div>
+                <div class="mb-3">
+                    <label class="form-label req" for="organizerSingle">Leave Type</label>
+                    <select class="form-select choiceDD" asp-for="LeaveTypeID" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
+                        <option value="">Select Leave</option>
+                    </select>
+                    <span asp-validation-for="LeaveTypeID" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex col-md-6 mt-5">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" asp-for="IsFullDay" id="option1" value="true" checked>
+                    <label class="form-check-label" for="option1">Full Day</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" asp-for="IsFullDay" id="option2" value="false">
+                    <label class="form-check-label" for="option2">Partial Day</label>
+                </div>
+            </div>
+
+           
+
+            <!-- Divs to Show/Hide -->
+            <div id="FullDayDiv" class="">
+                <div class="">
+                    <div class="row">
+
+                        <div class=" col-md-6">
+                            <div class="mb-3 flatpickr-input-container">
+                                <label class="form-label req">From</label>
+                                
+                                <div class="input-icon-end position-relative flatpickr">
+                                    <input type="text" asp-for="FromDate" id="FromDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                     <span asp-validation-for="FromDate" class="text-danger small"></span>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label req">To</label>
-                                    <div class="input-icon-end position-relative">
-                                        
-                                        <input type="text" asp-for="ToDate" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
-                                    </div>
-                                    <span asp-validation-for="ToDate" class="text-danger small"></span>
-                                </div>
+                               
+                                <span id="FromDateError" class="text-danger small" ></span>
                             </div>
                         </div>
-                        <div class="col-md-12">
+
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Leave Days</label>
+                                <label class="form-label req">To</label>
+                                <div class="input-icon-end position-relative">
+                                    <input type="text" asp-for="ToDate" id="ToDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                    <span asp-validation-for="ToDate" class="text-danger small"></span>
+                                </div>
+                                <span id="ToDateError" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Remaining Days</label>
+                                <input type="text" class="form-control" value="8" disabled>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Leave Applied Days</label>
                                 <input type="text" class="form-control" value="2" disabled>
                             </div>
                         </div>
 
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Subsequent Holyday Days</label>
-                                <input type="text" class="form-control" value="1" disabled>
-                            </div>
-                        </div>
 
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Total Days</label>
-                                <input type="text" class="form-control" value="3" disabled>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="tab-pane fade" id="tab-partialDay" role="tabpanel" aria-labelledby="profile-tab">
-                        <div class=" col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Date </label>
-                                <div class="input-icon-end position-relative">
-                                    <input type="text" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label" for="timepicker1">Start Time</label>
-                               
-                                <input class="form-control datetimepicker flatpickr-input" asp-for="PartialFromTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
-                                       data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label" for="timepicker1">End Time</label>
-                                <input class="form-control datetimepicker flatpickr-input" asp-for="PartialToTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
-                                       data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
-                               @*  <input class="form-control datetimepicker"  type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
+       
+            <div id="PartialDayDiv" class="mt-4 d-none">
+                <div class="row">
+                    <div class=" col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label req">Date </label>
+                            <div class="input-icon-end position-relative">
+                                <input type="text" class="form-control datetimepicker" id="ToDateFromDateCombined" asp-for="ToDateFromDateCombined" required placeholder="dd/mm/yyyy">
+                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                <span asp-validation-for="ToDateFromDateCombined" class="text-danger small"></span>
+                            </div>
+                            <span id="ToDateFromDateCombinedError" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label req">Start Time</label>
+                            <input class="form-control datetimepicker" asp-for="PartialFromTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
+                            <span asp-validation-for="PartialFromTime" class="text-danger small"></span>
+                        </div>
+                      
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label req">End Time</label>
+                            <input class="form-control datetimepicker" asp-for="PartialToTime"  type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
+                            <span asp-validation-for="PartialToTime" class="text-danger small"></span>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">Reason</label>
+                    <textarea class="form-control" asp-for="Reason" rows="3"></textarea>
+                </div>
+            </div>
+
 
         </div>
     </div>
@@ -143,4 +137,37 @@
         <button type="button" class="btn btn-light me-2" id="ResetButton">Cancel</button>
         <button id="ApplyLeaveSubmitButton" class="btn btn-primary">Apply Leave</button>
     </div>
-</form>
+</form> 
+<script>
+    
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const radios = document.querySelectorAll('input[name="IsFullDay"]');
+        const div1 = document.getElementById('FullDayDiv'); // Full Day section
+        const div2 = document.getElementById('PartialDayDiv'); // Partial Day section
+
+        function toggleLeaveSections() {
+            const isFullDay = document.querySelector('input[name="IsFullDay"]:checked').value === 'true';
+            if (isFullDay) {
+                div1.classList.remove('d-none');
+                div2.classList.add('d-none');
+            } else {
+                div1.classList.add('d-none');
+                div2.classList.remove('d-none');
+            }
+        }
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', toggleLeaveSections);
+        });
+
+        // Run on page load to set the correct visibility
+        toggleLeaveSections();
+    });
+
+    
+</script>
+
+
+
+           

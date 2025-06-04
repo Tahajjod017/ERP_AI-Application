@@ -115,9 +115,7 @@ app.Use(async (context, next) =>
 
 app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 app.UseRouting();
-app.UseAuthorization();
 
-app.UseRouting();
 app.UseAuthentication(); 
 
 app.UseAuthorization();
