@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.ViewModels.Login;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.Controllers;
 using GCTL_App.ViewModels.Security;
@@ -34,6 +35,7 @@ namespace GCTL_NBR.Controllers
                                          .FirstOrDefaultAsync(u => u.Id == userId);
 
             var roles = await _userManager.GetRolesAsync(user); // Optional
+           
             if (user == null)
             {
                 return NotFound();
@@ -46,7 +48,7 @@ namespace GCTL_NBR.Controllers
                 PhoneNumber = user.Employees.MobileNumber ?? "",
                 Designation = string.Join(", ", user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Designation?.DesignationName)) ??"",
                 Department = user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Department?.DepartmentName).FirstOrDefault() ?? "",
-                Role = string.Join(", ", await _userManager.GetRolesAsync(user)),
+                Role = string.Join(", ", await _userManager.GetRolesAsync(user)).ToCleanRoleName(),
                 EmployeeCode = user.Employees?.EmployeeCode
             };
             ViewBag.FullName = (user.Employees.FirstName + " " + user.Employees.LastName) ?? user.UserName;

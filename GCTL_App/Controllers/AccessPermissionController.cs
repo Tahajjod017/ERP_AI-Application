@@ -183,10 +183,11 @@ namespace GCTL_App.Controllers
             var total = await _roleService.GetTotalRolesCountAsync(searchTerm);
 
             // Shape data for JSON: dictionary of role => list of users (userName only for now)
-            var result = data.ToDictionary(
-                entry => entry.Key,
-                entry => entry.Value.Select(u => new { u.UserName,u.Id }).ToList()
-            );
+            var result = data.Select(entry => new {
+                RoleName = entry.RoleName,
+                RoleId = entry.RoleId,
+                User = entry.Users.Select(u => new { u.UserName, u.Id })
+            });
 
 
             return Json(new { data = result, totalCount = total });
@@ -484,7 +485,7 @@ namespace GCTL_App.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveUserFromRole(string roleName, string userName)
+        public async Task<IActionResult> RemoveUserFromRole(string roleId, string userName)
         {
             try
             {
@@ -495,9 +496,14 @@ namespace GCTL_App.Controllers
                 {
                     return Json(new { success = false, message = "User not found" });
                 }
+                var role = await _roleManager.FindByIdAsync(roleId);
+                if (role == null)
+                {
+                    return Json(new { success = false, message = "Role not found" });
+                }
 
                 // Remove the user from the role
-                var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+                var result = await _userManager.RemoveFromRoleAsync(user, role.Name);
 
                 // Check if the removal was successful
                 if (result.Succeeded)

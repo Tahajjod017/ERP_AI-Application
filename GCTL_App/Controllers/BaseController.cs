@@ -51,6 +51,10 @@ namespace GCTL_App.Controllers
 
             ViewData["FullName"] = fullName;
             ViewData["ProfilePicturePath"] = profilePicturePath;
+            ViewData["IsCustomPicture"] = !string.IsNullOrEmpty(profilePicturePath)
+                             && !profilePicturePath.EndsWith("default.webp", StringComparison.OrdinalIgnoreCase)
+                             && !profilePicturePath.EndsWith("No_image_available.svg.png", StringComparison.OrdinalIgnoreCase);
+
         }
         public override void OnActionExecuting(ActionExecutingContext context)
         {

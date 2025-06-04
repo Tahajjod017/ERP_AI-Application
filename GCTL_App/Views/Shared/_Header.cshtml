@@ -22,8 +22,8 @@
                 @* href="../../index.html" *@
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                        <img src="../img/NBR-Transparent.png" alt="phoenix" width="27" />
-                        <h5 class="logo-text ms-2 d-none d-sm-block">ITIIU</h5>
+                        <img src="../img/NBR-Transparent.png" alt="HRM" width="27" />
+                        <h5 class="logo-text ms-2 d-none d-sm-block">HRM</h5>
                     </div>
                 </div>
             </a>
@@ -56,7 +56,21 @@
             <li class="nav-item dropdown">
                 <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar avatar-l ">
-                        <img class="rounded-circle " src="@Url.Content(ViewData["ProfilePicturePath"]?.ToString())" alt="" />
+                        <div class="avatar avatar-l rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                             style="width: 40px; height: 40px; font-size: 18px; color: white;">
+                            @if ((bool)ViewData["IsCustomPicture"])
+                            {
+                                <img src="@Url.Content(ViewData["ProfilePicturePath"]?.ToString())" alt="Profile Picture" class="rounded-circle" style="width: 40px; height: 40px;" />
+                            }
+                            else
+                            {
+                                var fullName = (string)ViewData["FullName"] ?? "U";
+                                var firstLetter = fullName.Trim().Substring(0, 1).ToUpper();
+                                @firstLetter
+                            }
+                        </div>
+
+
 
                     </div>
                 </a>
@@ -64,8 +78,17 @@
                     <div class="card position-relative border-0">
                         <div class="card-body p-0">
                             <div class="text-center pt-4 pb-3">
-                                <div class="avatar avatar-xl ">
-                                    <img class="rounded-circle" src="@Url.Content(ViewData["ProfilePicturePath"]?.ToString())" alt="" />
+                                <div class="avatar avatar-xl rounded-circle">
+                                    @if ((bool)ViewData["IsCustomPicture"])
+                                    {
+                                        <img class="rounded-circle" src="@Url.Content(ViewData["ProfilePicturePath"]?.ToString())" alt="Profile Picture" style="width: 72px; height: 72px;" />
+                                    }
+                                    else
+                                    {
+                                        var fullName = (string)ViewData["FullName"] ?? "U";
+                                        var firstLetter = fullName.Trim().Substring(0, 1).ToUpper();
+                                        @firstLetter
+                                    }
 
                                 </div>
                                 <h6 class="mt-2 text-body-emphasis">@ViewData["FullName"]</h6>
@@ -93,10 +116,6 @@
                                 <div class="px-3"> <button class="btn btn-phoenix-secondary d-flex flex-center w-100" type="submit" href="/Account/Logout"> <span class="me-2" data-feather="log-out"> </span>Sign out</button></div>
 
                             </form>
-
-
-
-
 
                             <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a class="text-body-quaternary me-1" href="#!">Privacy policy</a>&bull;<a class="text-body-quaternary mx-1" href="#!">Terms</a>&bull;<a class="text-body-quaternary ms-1" href="#!">Cookies</a></div>
                         </div>

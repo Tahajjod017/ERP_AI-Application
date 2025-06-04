@@ -29,13 +29,38 @@ function loadPaginatedData(config) {
         const tbody = $(tableBodySelector);
         tbody.empty();
 
-        if (Array.isArray(response.data)) {
-            response.data.forEach(item => tbody.append(buildRowHtml(item)));
-        } else {
-            for (const [role, users] of Object.entries(response.data)) {
-                users.forEach(user => tbody.append(buildRowHtml(role, user)));
+        $.get(url, {
+            pageNumber: currentPage,
+            pageSize: pageSize,
+            searchTerm: searchTerm,
+            ...extraParams
+        }, function (response) {
+            const tbody = $(tableBodySelector);
+            tbody.empty();
+
+            if (Array.isArray(response.data)) {
+                response.data.forEach(entry => {
+                    const roleName = entry.roleName;
+                    const roleId = entry.roleId;
+
+                    // 🔍 Check if this response has "user" array (Role Users Table)
+                    if (Array.isArray(entry.user)) {
+                        entry.user.forEach(user => {
+                            const rowHtml = buildRowHtml(roleName, roleId, user);
+                            tbody.append(rowHtml);
+                        });
+                    } else {
+                        // ✅ This is the Assign Roles Table case
+                        const rowHtml = buildRowHtml(entry); // buildRowHtml expects role object
+                        tbody.append(rowHtml);
+                    }
+                });
             }
-        }
+
+            updatePagination(response.totalCount, pageSize, currentPage, paginationLinksSelector, onPageChange);
+            $(paginationInfoSelector).text(`Showing page ${currentPage} of ${Math.ceil(response.totalCount / pageSize)}`);
+        });
+
 
         updatePagination(response.totalCount, pageSize, currentPage, paginationLinksSelector, onPageChange);
         $(paginationInfoSelector).text(`Showing page ${currentPage} of ${Math.ceil(response.totalCount / pageSize)}`);
@@ -130,13 +155,13 @@ function loadRoleUsersTable() {
         tableBodySelector: '#roleList-tBody',
         paginationInfoSelector: '#roleList-paginationInfo',
         paginationLinksSelector: '#rolePaginationLinks',
-        buildRowHtml: (roleName, user) => `
+        buildRowHtml: (roleName, roleId, user) => `
             <tr>
                 <td>${roleName}</td>
                 <td>${user.userName}</td>
                 <td class="text-end">
                     <form class="remove-user-form d-inline" method="post" action="/AccessPermission/RemoveUserFromRole">
-                        <input type="hidden" name="roleName" value="${roleName}" />
+                        <input type="hidden" name="roleId" value="${roleId}" />
                         <input type="hidden" name="userName" value="${user.userName}" />
                         <input type="hidden" name="__RequestVerificationToken" value="${$('input[name="__RequestVerificationToken"]').val()}" />
                         <button type="submit" class="btn btn-phoenix-danger btn-sm"><i class="fas fa-trash-alt"></i></button>
