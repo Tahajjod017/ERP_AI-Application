@@ -1,18 +1,18 @@
 ﻿@model GCTL.Core.ViewModels.RoleModule.RoleManagementViewModel
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">Tenant: IT</h2>
+<div class="container m-2">
+   @*  <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold text-primary">Tenant: IT</h5>
         <!-- You can add a logo or nav here if needed -->
-    </div>
+    </div> *@
     <!-- Breadcrumb -->
-    @* <nav class="mb-3">
+    <nav class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active">Add Company Role</li>
+            <li class="breadcrumb-item active">Tenant: IT</li>
         </ol>
-    </nav> *@
+    </nav>
 
-    <div class="row g-4">
+    <div class="row g-7">
         <!-- Form Section -->
         <div class="col-12 p-4">
             <div class="card">
@@ -58,7 +58,7 @@
 
     </div>
         <!-- Table Section -->
-        <div class="row">
+    <div class="row g-7">
         <div class="col-12 p-4">
                 <div class="card">
                     <div class="card-header border-bottom-1">
@@ -209,7 +209,6 @@
 
         </div>
 
-
 </div>
 
 <!-- 🟦 Right-side Offcanvas for Role Assign -->
@@ -228,8 +227,9 @@
                 <select class="form-select" id="companySelect" name="companyId" required>
                     <option value="" disabled selected>Select company</option>
                     @* Example: dynamically populate company options *@
-                    <option value="1">GCTL Ltd</option>
-                    <option value="2">CLS Ltd</option>
+                    <option value="1">Google</option>
+                    <option value="2">Microsoft</option>
+                    <option value="3">Meta</option>
                 </select>
                 <div class="invalid-feedback">
                     Please select a company.

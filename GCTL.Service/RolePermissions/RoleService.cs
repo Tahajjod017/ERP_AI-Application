@@ -1,4 +1,5 @@
-﻿using GCTL.Data.Models;
+﻿using GCTL.Core.ViewModels.Login;
+using GCTL.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -71,11 +72,11 @@ namespace GCTL.Service.RolePermissions
             return await GetRoles(searchTerm).CountAsync();
         }
 
-        public async Task<Dictionary<string, List<ApplicationUser>>> GetPagedRoleUserAssignmentsAsync(string searchTerm, int pageNumber, int pageSize, int? companyId = null, int? tenantId = null)
+        public async Task<List<RoleUserAssignment>> GetPagedRoleUserAssignmentsAsync(string searchTerm, int pageNumber, int pageSize, int? companyId = null, int? tenantId = null)
         {
             var roles = await GetPagedRolesAsync(searchTerm, pageNumber, pageSize,companyId,tenantId);
 
-            var result = new Dictionary<string, List<ApplicationUser>>();
+            var result = new List<RoleUserAssignment>();
 
             foreach (var role in roles)
             {
@@ -88,9 +89,14 @@ namespace GCTL.Service.RolePermissions
                     .Where(u => userIds.Contains(u.Id))
                     .ToListAsync();
 
-                result.Add(role.Name.ToCleanRoleName(), users);
+                result.Add(new RoleUserAssignment
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name.ToCleanRoleName(),
+                    Users = users
+                });
 
-                result.Add(role.Name, users);
+
 
             }
 

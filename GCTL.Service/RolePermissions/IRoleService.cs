@@ -1,4 +1,5 @@
-﻿using GCTL.Data.Models;
+﻿using GCTL.Core.ViewModels.Login;
+using GCTL.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,6 @@ namespace GCTL.Service.RolePermissions
         IQueryable<ApplicationRole> GetRoles(string searchTerm);
         Task<List<ApplicationRole>> GetPagedRolesAsync(string searchTerm, int pageNumber, int pageSize, int? companyId = null, int? tenantId = null);
         Task<int> GetTotalRolesCountAsync(string searchTerm);
-        Task<Dictionary<string, List<ApplicationUser>>> GetPagedRoleUserAssignmentsAsync(string searchTerm, int pageNumber, int pageSize, int? companyId = null, int? tenantId = null);
+        Task<List<RoleUserAssignment>> GetPagedRoleUserAssignmentsAsync(string searchTerm, int pageNumber, int pageSize, int? companyId = null, int? tenantId = null);
     }
 }
