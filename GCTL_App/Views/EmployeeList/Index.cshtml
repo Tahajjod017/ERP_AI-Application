@@ -1,0 +1,428 @@
+﻿
+<style>
+    .view-toggle.active {
+        background-color: #0d6efd !important;
+        color: white !important;
+        border-color: #0d6efd !important;
+    }
+
+    .view-content {
+        transition: opacity 0.3s ease;
+    }
+
+        .view-content.hidden {
+            display: none;
+        }
+
+        .view-content.visible {
+            opacity: 1;
+        }
+
+    /* Force Bootstrap grid to work correctly */
+    #boardView .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-right: -15px !important;
+        margin-left: -15px !important;
+    }
+
+    #boardView .col {
+        flex: 1 0 0% !important;
+        max-width: 100% !important;
+        padding-right: 15px !important;
+        padding-left: 15px !important;
+    }
+
+    /* Ensure cards take full width of their column */
+    #boardView .card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+</style>
+
+
+
+<div class="mb-9">
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+        <div class="col-auto"></div>
+    </div>
+
+    <div class="px-3 mb-5">
+        <div class="row justify-content-between">
+            <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-end-xxl-0 border-bottom-xxl-0 border-end border-bottom pb-4 pb-xxl-0">
+                <span class="uil fs-5 lh-1 uil-user text-primary"></span>
+                <h1 class="fs-5 pt-3">2,800</h1>
+                <p class="fs-9 mb-0">Total Employees</p>
+            </div>
+            <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-end-xxl-0 border-bottom-xxl-0 border-end-md border-bottom pb-4 pb-xxl-0">
+                <span class="uil fs-5 lh-1 uil-user-plus text-info"></span>
+                <h1 class="fs-5 pt-3">1,866</h1>
+                <p class="fs-9 mb-0">Active Employees</p>
+            </div>
+            <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-end-xxl-0 border-bottom-xxl-0 border-end-md border-bottom pb-4 pb-xxl-0">
+                <span class="uil fs-5 lh-1 uil-user text-primary"></span>
+                <h1 class="fs-5 pt-3">1,366</h1>
+                <p class="fs-9 mb-0">Inactive Employees</p>
+            </div>
+            <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-bottom-xxl-0 border-bottom border-end border-end-md-0 pb-4 pb-xxl-0 pt-4 pt-md-0">
+                <span class="uil fs-5 lh-1 uil-user-plus text-info"></span>
+                <h1 class="fs-5 pt-3">200</h1>
+                <p class="fs-9 mb-0">New Joining</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+            <div>
+                <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(32)</span></span>
+            </div>
+
+
+            <div>
+                <a class="btn btn-phoenix-primary px-3 me-1 view-toggle" id="listViewBtn" href="#">
+                    <span class="fa-solid far fa-list-alt fs-10"></span>
+                </a>
+                <a class="btn btn-phoenix-primary px-3 me-1 view-toggle active" id="boardViewBtn" href="#">
+                    <span class="fa-solid fab fa-wpforms fs-10"></span>
+                </a>
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+            <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasRightANE" aria-controls="offcanvasRightANE">
+                <i class="fa-solid fa-plus me-2"></i>Add new Employee
+            </button>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="search-box me-3">
+                    <form class="position-relative">
+                        <input class="form-control search-input search" type="search" placeholder="Search projects"
+                               aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+                    </form>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select" id="departmentFilter" data-choices="data-choices" size="1"
+                            required="required" name="departmentFilter"
+                            data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Search By Department</option>
+                        <option>Apps Development</option>
+                        <option>Finance</option>
+                        <option>Accounts</option>
+                        <option>Designer</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select" id="statusFilter" data-choices="data-choices" size="1" required="required"
+                            name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Search By Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                    </select>
+                </div>
+                <div class="dropdown">
+                    <select class="form-select" id="sortFilter" data-choices="data-choices" size="1" required="required"
+                            name="sortFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Sort by Last 7 days</option>
+                        <option>Sort by Last 15 days</option>
+                        <option>Sort by Last 1 Month</option>
+                        <option>Sort by Last 3 Month</option>
+                        <option>Sort by Last 6 Month</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="boardView"
+             class="view-content row row-cols-1 row-cols-sm-2 row-cols-xl-4 row-cols-xxl-4 g-3 mb-4 p-3 visible">
+            <div class="col">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-sm-auto flex-1">
+                                <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
+                                    <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
+                                        <div class="avatar avatar-xl me-3">
+                                            <img class="rounded-circle"
+                                                 src="../../../assets/img/team/72x72/58.webp" alt="" />
+                                        </div>
+                                        <div>
+                                            <h5>Ansolo Lazinatov</h5>
+                                            <span class="badge badge-phoenix badge-phoenix-success me-2">Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">Apps Development</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">21st May 2028</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Email: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">juel@mail.com</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Phone: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">01732 012 365</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-sm-auto flex-1">
+                                <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
+                                    <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
+                                        <div class="avatar avatar-xl me-3">
+                                            <img class="rounded-circle"
+                                                 src="../../../assets/img/team/72x72/58.webp" alt="" />
+                                        </div>
+                                        <div>
+                                            <h5>Ansolo Lazinatov</h5>
+                                            <span class="badge badge-phoenix badge-phoenix-success me-2">Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">Apps Development</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">21st May 2028</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Email: <span class="fw-semibold text的身体-tertiary text-opactity-85 ms-1">juel@mail.com</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Phone: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">01732 012 365</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-sm-auto flex-1">
+                                <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
+                                    <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
+                                        <div class="avatar avatar-xl me-3">
+                                            <img class="rounded-circle"
+                                                 src="../../../assets/img/team/72x72/58.webp" alt="" />
+                                        </div>
+                                        <div>
+                                            <h5>Ansolo Lazinatov</h5>
+                                            <span class="badge badge-phoenix badge-phoenix-success me-2">Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">Apps Development</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">21st May 2028</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Email: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">juel@mail.com</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Phone: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">01732 012 365</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="listView" class="view-content border-top border-translucent p-3 hidden">
+            <div id="employeeListTable"
+                 data-list='{"valueNames":["empID","empName","empEmail","empPhone","empDesignation","empJointinDate","empStatus"],"page":3,"pagination":true}'>
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox"
+                                               data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-0 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empID">
+                                    Emp ID
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                    data-sort="empName">NAME</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                    data-sort="empEmail">EMAIL</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                    data-sort="empPhone">PHONE</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                    data-sort="empDesignation">DEPARTMENT</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                    data-sort="empJointinDate">JOINING DATE</th>
+                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="empStatus">
+                                    STATUS
+                                </th>
+                                <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="purchasers-sellers-body">
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                <td class="fs-9 align-middle py-2">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox"
+                                               data-bulk-select-row='{"empID":"emp_Td01","empName":"Hasan Al Banna","empEmail":"habuser@email.com","empPhone":"880 1737 163 526","empDesignation":"Developer","empJointinDate":"01/08/2022","empStatus":"Active"}' />
+                                    </div>
+                                </td>
+                                <td class="empID align-middle white-space-nowrap fw-semibold text-body-highlight ps-0 py-0">
+                                    <a class="fw-bold text-primary" href="#!">emp_Td01</a>
+                                </td>
+                                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                    <div class="d-flex align-items-center position-relative">
+                                        <a class="text-body-highlight fw-bold stretched-link" href="#!">Hasan Al Banna</a>
+                                    </div>
+                                </td>
+                                <td class="empEmail align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                    user@email.com
+                                </td>
+                                <td class="empPhone align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                    +880 1425
+                                    326 541
+                                </td>
+                                <td class="empDesignation align-middle white-space-nowrap fw-bold ps-4 text-body py-0">
+                                    Finance
+                                </td>
+                                <td class="empJointinDate align-middle white-space-nowrap fw-bold ps-4 text-body py-0">
+                                    01/08/2022
+                                </td>
+                                <td class="empStatus align-middle white-space-nowrap fw-bold ps-0 text-body py-0">
+                                    <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                </td>
+                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                    <div class="btn-reveal-trigger position-static g-3">
+                                        <a href="#" class="nav-item me-2" data-bs-toggle="offcanvas"
+                                           data-bs-target="#offcanvasRightANE" aria-controls="offcanvasRightANE">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Add other table rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <a class="fw-semibold" href="#!" data-list-view="*">
+                            View all<span class="fas fa-angle-right ms-1"
+                                          data-fa-transform="down-1"></span>
+                        </a>
+                        <a class="fw-semibold d-none" href="#!" data-list-view="less">
+                            View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                        </a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev">
+                            <span class="fas fa-chevron-left"></span>
+                        </button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next">
+                            <span class="fas fa-chevron-right"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/js/pages/employees/employeelist.js"></script>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function () {
+          const listViewBtn = document.getElementById('listViewBtn');
+          const boardViewBtn = document.getElementById('boardViewBtn');
+          const listView = document.getElementById('listView');
+          const boardView = document.getElementById('boardView');
+
+          // Set initial state: boardView visible, listView hidden
+          boardView.classList.remove('hidden');
+          boardView.classList.add('visible');
+          listView.classList.add('hidden');
+          listView.classList.remove('visible');
+          boardViewBtn.classList.add('active');
+          listViewBtn.classList.remove('active');
+
+          // List view button click
+          listViewBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            boardView.classList.add('hidden');
+            boardView.classList.remove('visible');
+            listView.classList.remove('hidden');
+            listView.classList.add('visible');
+            boardViewBtn.classList.remove('active');
+            listViewBtn.classList.add('active');
+          });
+
+          // Board view button click
+          boardViewBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            listView.classList.add('hidden');
+            listView.classList.remove('visible');
+            boardView.classList.remove('hidden');
+            boardView.classList.add('visible');
+            listViewBtn.classList.remove('active');
+            boardViewBtn.classList.add('active');
+          });
+        });
+    </script>
+}
