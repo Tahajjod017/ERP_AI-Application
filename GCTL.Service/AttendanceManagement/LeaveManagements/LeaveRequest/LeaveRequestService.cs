@@ -61,7 +61,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     {
                         //UserType = b.ActionLogID,
                         LeaveApplicationID=b.LeaveApplicationID,
-                        StatusName = b.Status != null ? b.Status.StatusName : "",
+                       // StatusName = b.Status != null ? b.Status.StatusName : "",
+                        StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
+
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),

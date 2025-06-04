@@ -17,13 +17,9 @@ public partial class TenantInfo
 
     public string Description { get; set; }
 
-    //public virtual ICollection<AspNetRoles> AspNetRoles { get; set; } = new List<AspNetRoles>();
+    public virtual ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
 
-    //public virtual ICollection<AspNetUsers> AspNetUsers { get; set; } = new List<AspNetUsers>();
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 
     public virtual ICollection<Organization> Organization { get; set; } = new List<Organization>();
-
-    public ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
-    public ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
-
 }

@@ -33,6 +33,8 @@ public partial class LeaveTypes
 
     public decimal? LeaveDays { get; set; }
 
+    public string Code { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
