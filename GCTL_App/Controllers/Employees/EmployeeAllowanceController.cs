@@ -65,10 +65,31 @@ namespace GCTL_App.Controllers.Employees
             #endregion
         }
 
+        private DateTime? ConvertToDateTime(string dateStr)
+        {
+            if (DateTime.TryParseExact(dateStr, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out DateTime parsedDate))
+            {
+                return parsedDate;
+            }
+            return null;
+        }
+
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> Index(EmployeeAdditionalPostViewModel model)
         {
+            if(model.MobileAllowanceEffectiveFromStr != null)
+            model.MobileAllowanceEffectiveFrom = ConvertToDateTime(model.MobileAllowanceEffectiveFromStr);
+
+            if (model.InternetAllowanceEffectiveFromStr != null)
+                model.InternetAllowanceEffectiveFrom = ConvertToDateTime(model.InternetAllowanceEffectiveFromStr);
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -108,8 +129,16 @@ namespace GCTL_App.Controllers.Employees
                     employeeBaseAllowanceID =  allowanceData?.EmployeeBaseAllowanceID ?? 0,
                     personalEmail = allowanceData.PersonalEmail ?? "",
                     personalPhone = allowanceData.PersonalPhone,
-                    mobileInternetAllowance = allowanceData?.MobileInternetAllowance,
-                    isMobileInternetAllowanceEnabled =  allowanceData?.IsMobileInternetAllowanceEnabled ?? false,
+                    //mobileInternetAllowance = allowanceData?.MobileInternetAllowance,
+                    //isMobileInternetAllowanceEnabled =  allowanceData?.IsMobileInternetAllowanceEnabled ?? false,
+                    mobileAllowance = allowanceData?.MobileAllowance,
+                    internetAllowance = allowanceData?.InternetAllowance,
+                    isMobileAllowanceEnabled = allowanceData?.IsMobileAllowanceEnabled ?? false,
+                    isInternetAllowanceEnabled = allowanceData?.IsInternetAllowanceEnabled ?? false,
+                    mobileAllowanceEffectiveFrom = allowanceData?.MobileAllowanceEffectiveFrom?.ToString("yyyy-MM-dd"),
+                    internetAllowanceEffectiveFrom = allowanceData?.InternetAllowanceEffectiveFrom?.ToString("yyyy-MM-dd"),
+
+
                     shiftAllowance =allowanceData?.ShiftAllowance,
                     isShiftAllowanceEnabled =  allowanceData?.IsShiftAllowanceEnabled ?? false,
                     houseRentAllowancePercentage =  allowanceData?.HouseRentAllowancePercentage,

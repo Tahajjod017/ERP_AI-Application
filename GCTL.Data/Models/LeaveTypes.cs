@@ -27,11 +27,19 @@ public partial class LeaveTypes
 
     public int? DeletedBy { get; set; }
 
+    public int? OrganizationID { get; set; }
+
+    public bool IsApid { get; set; }
+
+    public decimal? LeaveDays { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
+
+    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

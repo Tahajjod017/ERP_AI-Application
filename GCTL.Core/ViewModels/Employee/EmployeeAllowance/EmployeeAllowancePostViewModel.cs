@@ -32,5 +32,33 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeAllowance
 
         public bool IsConveyanceAllowancePercentageEnabled { get; set; }
         public bool IsEmployeeAllowanceEnabled { get; set; }
+
+       
+
+        public int? EmployeeID { get; set; }
+
+
+    
+
+        
+
+        public decimal? MobileAllowance { get; set; }
+
+        public decimal? InternetAllowance { get; set; }
+
+        public bool IsMobileAllowanceEnabled { get; set; }
+
+        public bool IsInternetAllowanceEnabled { get; set; }
+
+        public DateTime? MobileAllowanceEffectiveFrom { get; set; }
+
+        public DateTime? InternetAllowanceEffectiveFrom { get; set; }
+
+
+        public string? MobileAllowanceEffectiveFromStr { get; set; }
+
+        public string? InternetAllowanceEffectiveFromStr { get; set; }
+
+
     }
 }

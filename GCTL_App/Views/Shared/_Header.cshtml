@@ -7,22 +7,17 @@
 }
 
 @{
-
     var LangugesInd = await TranslationService.GetLangInd();
 }
-
-
 
 <nav class="navbar navbar-top fixed-top navbar-expand" id="navbarDefault">
     <div class="collapse navbar-collapse justify-content-between">
         <div class="navbar-logo">
-
             <button class="btn navbar-toggler navbar-toggler-humburger-icon hover-bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalCollapse" aria-controls="navbarVerticalCollapse" aria-expanded="false" aria-label="Toggle Navigation"><span class="navbar-toggle-icon"><span class="toggle-line"></span></span></button>
             <a class="navbar-brand me-1 me-sm-3" asp-area="" asp-controller="Home" asp-action="Index">
-                @* href="../../index.html" *@
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                        <img src="../img/NBR-Transparent.png" alt="HRM" width="27" />
+                        <img src="~/media/logo/logo.png" alt="Logo" width="27" />
                         <h5 class="logo-text ms-2 d-none d-sm-block">HRM</h5>
                     </div>
                 </div>
@@ -39,8 +34,6 @@
                     }
                 </select>
             </li>
-
-
         </ul>
 
         <ul class="navbar-nav navbar-nav-icons flex-row">
@@ -51,7 +44,6 @@
                     <label class="mb-0 theme-control-toggle-label theme-control-toggle-dark" for="themeControlToggle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Switch theme" style="height:32px;width:32px;"><span class="icon" data-feather="sun"></span></label>
                 </div>
             </li>
-
 
             <li class="nav-item dropdown">
                 <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
@@ -69,8 +61,6 @@
                                 @firstLetter
                             }
                         </div>
-
-
 
                     </div>
                 </a>
@@ -90,7 +80,6 @@
                                         @firstLetter
                                     }
 
-                                </div>
                                 <h6 class="mt-2 text-body-emphasis">@ViewData["FullName"]</h6>
                             </div>
                             @*  <div class="mb-3 mx-3">
@@ -114,16 +103,12 @@
                             <hr />
                             <form asp-controller="Account" asp-action="Logout" method="post">
                                 <div class="px-3"> <button class="btn btn-phoenix-secondary d-flex flex-center w-100" type="submit" href="/Account/Logout"> <span class="me-2" data-feather="log-out"> </span>Sign out</button></div>
-
                             </form>
-
                             <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a class="text-body-quaternary me-1" href="#!">Privacy policy</a>&bull;<a class="text-body-quaternary mx-1" href="#!">Terms</a>&bull;<a class="text-body-quaternary ms-1" href="#!">Cookies</a></div>
                         </div>
                     </div>
                 </div>
             </li>
         </ul>
-
-
     </div>
 </nav>

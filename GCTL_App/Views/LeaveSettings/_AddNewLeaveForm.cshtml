@@ -1,0 +1,74 @@
+﻿<div id="add_new_leave" class="modal custom-modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Configure New Leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              @*   <form id="addNewLeaveForm">
+                    <div class="input-block mb-3 leave-duallist">
+                        <label class="col-form-label req">Organizer Name</label>
+                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList" multiple data-coreui-search="global">
+                            <option value="">Select Organizer</option>
+
+                        </select>
+                    </div>
+                    <div class="input-block mb-3">
+                        <label class="col-form-label req">Leave Name</label>
+                        <input type="text" id="LeaveTypeName" name="LeaveTypeName" class="form-control">
+                    </div>
+                    <div class="input-block mb-3 leave-duallist">
+                        <label class="col-form-label">Payment Type</label>
+                        <select class="form-multi-select" id="IsApid" name="IsApid" multiple data-coreui-search="global">
+                            <option value="true">Paid</option>
+                            <option value="false">Unpaid</option>
+                        </select>
+                    </div>
+                    <div class="input-block mb-3">
+                        <label class="col-form-label req">Days</label>
+                        <input type="text" id="LeaveDays" name="LeaveDays" class="form-control">
+                    </div>
+
+
+                    <div class="submit-section">
+                        <button class="btn btn-primary submit-btn" id="AddNewLeaveSubmitButton">Submit</button>
+                    </div>
+                </form> *@
+
+                <form id="addNewLeaveForm">
+                    <div class="input-block mb-3 leave-duallist">
+                        <label class="col-form-label req">Organizer Name</label>
+                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList">
+                            <option value="">Select Organizer</option>
+                        </select>
+                    </div>
+
+                    <div class="input-block mb-3">
+                        <label class="col-form-label req">Leave Name</label>
+                        <input type="text" class="form-control" id="LeaveTypeName" name="LeaveTypeName">
+                    </div>
+
+                    <div class="input-block mb-3 leave-duallist">
+                        <label class="col-form-label">Payment Type</label>
+                        <select class="form-multi-select" id="IsApid" name="IsApid">
+                            <option value="true">Paid</option>
+                            <option value="false">Unpaid</option>
+                        </select>
+                    </div>
+
+                    <div class="input-block mb-3">
+                        <label class="col-form-label req">Days </label>
+                        <input type="number" class="form-control" id="LeaveDays" name="LeaveDays">
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="btn btn-primary submit-btn" id="AddNewLeaveSubmitButton">Submit</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,15 +1,15 @@
 ﻿
  @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
+ 
  <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
     <div class="modal-body pb-0">
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeID" asp-items="@ViewBag.EmployeeDD as SelectList">
-                        <option value="">Select organizer</option>
+                    <select class="form-select choiceDD" asp-for="EmployeeID" required asp-items="@ViewBag.EmployeeDD as SelectList">
+                        <option value="">Select Employee</option>
                     </select>
-                    <span id="EmployeeIDError" class="text-danger small"></span>
                     <span asp-validation-for="EmployeeID" class="text-danger small"></span>
                    
                 </div>
@@ -20,10 +20,9 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req" for="organizerSingle">Leave Type</label>
-                    <select class="form-select choiceDD" asp-for="LeaveTypeID" asp-items="@ViewBag.LeaveTypeDD as SelectList">
+                    <select class="form-select choiceDD" asp-for="LeaveTypeID" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
                         <option value="">Select Leave</option>
                     </select>
-                    <span id="LeaveTypeIDError" class="text-danger small"></span>
                     <span asp-validation-for="LeaveTypeID" class="text-danger small"></span>
                 </div>
             </div>
@@ -40,15 +39,7 @@
                 </div>
             </div>
 
-            @* <div class="col-sm-12 col-md-4">
-                <div class="flatpickr-input-container">
-                    <div class="form-floating">
-                        <input asp-for="DrivingLicenceExpireDate" class="form-control datetimepicker" type="text" placeholder="@Html.SmartLocalize("Enter Expiry Date")" data-options='{"disableMobile":true}' />
-                        <label class="ps-6" asp-for="DrivingLicenceExpireDate">@Html.SmartLocalize("Expiry Date")</label>
-                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
-                    </div>
-                </div>
-            </div> *@
+           
 
             <!-- Divs to Show/Hide -->
             <div id="FullDayDiv" class="">
@@ -58,10 +49,13 @@
                         <div class=" col-md-6">
                             <div class="mb-3 flatpickr-input-container">
                                 <label class="form-label req">From</label>
+                                
                                 <div class="input-icon-end position-relative flatpickr">
-                                    <input type="text" asp-for="FromDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <input type="text" asp-for="FromDate" id="FromDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                    <span asp-validation-for="FromDate" class="text-danger small"></span>
                                 </div>
-                                <span asp-validation-for="FromDate" class="text-danger small"></span>
+                               
                                 <span id="FromDateError" class="text-danger small" ></span>
                             </div>
                         </div>
@@ -70,9 +64,11 @@
                             <div class="mb-3">
                                 <label class="form-label req">To</label>
                                 <div class="input-icon-end position-relative">
-                                    <input type="text" asp-for="ToDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <input type="text" asp-for="ToDate" id="ToDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                    <span asp-validation-for="ToDate" class="text-danger small"></span>
                                 </div>
-                                <span asp-validation-for="ToDate" class="text-danger small"></span>
+                                <span id="ToDateError" class="text-danger small"></span>
                             </div>
                         </div>
 
@@ -101,7 +97,8 @@
                         <div class="mb-3">
                             <label class="form-label req">Date </label>
                             <div class="input-icon-end position-relative">
-                                <input type="text" class="form-control datetimepicker" asp-for="ToDateFromDateCombined"  required placeholder="dd/mm/yyyy">
+                                <input type="text" class="form-control datetimepicker" id="ToDateFromDateCombined" asp-for="ToDateFromDateCombined" required placeholder="dd/mm/yyyy">
+                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                 <span asp-validation-for="ToDateFromDateCombined" class="text-danger small"></span>
                             </div>
                             <span id="ToDateFromDateCombinedError" class="text-danger small"></span>

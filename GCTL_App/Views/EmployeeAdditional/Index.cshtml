@@ -13,7 +13,7 @@
                     <input type="hidden" asp-for="EmployeeAdditionalInfoID" />
 
                     <div class="row g-2 align-items-center">
-                        <div class="col-md-3">
+                        <div class="col-md-3 ">
                             <div class="position-relative">
                                 <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
                                 <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
@@ -28,13 +28,13 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-2">
                             <div class="form-floating">
                                 <input asp-for="PersonalEmail" class="form-control" type="email" placeholder="@Html.SmartLocalize("Email")" />
                                 <label asp-for="PersonalEmail">@Html.SmartLocalize("Email")</label>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-2">
                             <div class="form-floating">
                                 <input asp-for="PersonalPhone" class="form-control" type="text" placeholder="@Html.SmartLocalize("Enter Phone")" />
                                 <label asp-for="PersonalPhone">@Html.SmartLocalize("Phone")</label>
@@ -79,6 +79,11 @@
                                     <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo">
                                         <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")
                                     </a>
+                                </li>
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
+                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo">
+                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")
+                                        </a>
                                 </li>
                             </ul>
                             <div class="card tab-content bg-white accordion" id="myTabContent">
@@ -196,26 +201,32 @@
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
                                                     <div class="form-floating">
                                                         <input asp-for="WorkPermitEffectiveDate" class="form-control datetimepicker" type="text" placeholder="@Html.SmartLocalize("WP Effective Date")" data-options='{"disableMobile":true}' />
-                                                        <label asp-for="WorkPermitEffectiveDate">@Html.SmartLocalize("WP Effective Date")</label>
+                                                        <label class="ps-6" asp-for="WorkPermitEffectiveDate">@Html.SmartLocalize("WP Effective Date")</label>
                                                         <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                    </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
                                                     <div class="form-floating">
                                                         <input asp-for="WorkPermitExpireDate" class="form-control datetimepicker" type="text" placeholder="@Html.SmartLocalize("WP Expire Date")" data-options='{"disableMobile":true}' />
-                                                        <label asp-for="WorkPermitExpireDate">@Html.SmartLocalize("WP Expire Date")</label>
+                                                        <label class="ps-6" asp-for="WorkPermitExpireDate">@Html.SmartLocalize("WP Expire Date")</label>
                                                         <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                    </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
+                                                    <div class="flatpickr-input-container">
                                                     <div class="form-floating">
                                                         <input asp-for="VisaExpireDate" class="form-control datetimepicker" type="text" placeholder="@Html.SmartLocalize("Visa Expire Date")" data-options='{"disableMobile":true}' />
-                                                        <label asp-for="VisaExpireDate">@Html.SmartLocalize("Visa Expire Date")</label>
+                                                        <label class="ps-6" asp-for="VisaExpireDate">@Html.SmartLocalize("Visa Expire Date")</label>
                                                         <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                    </div>
                                                     </div>
                                                 </div>
 

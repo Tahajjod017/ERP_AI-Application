@@ -188,7 +188,8 @@ namespace GCTL.Service.Employees.EmployeePersonal
             }
 
             // Return relative path or full URL depending on preference
-            return Path.Combine(folderName, fileName).Replace("\\", "/");
+            //return Path.Combine(folderName, fileName).Replace("\\", "/");
+            return fileName;
         }
 
 

@@ -14,7 +14,6 @@
     <Compile Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <Compile Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <Compile Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
-    <Compile Remove="wwwroot\media\**" />
     <Content Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <Content Remove="ViewModels\MasterSetup\Organization\**" />
     <Content Remove="ViewModels\MasterSetup\PassingYears\**" />
@@ -22,7 +21,6 @@
     <Content Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <Content Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <Content Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
-    <Content Remove="wwwroot\media\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\Organization\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\PassingYears\**" />
@@ -30,7 +28,6 @@
     <EmbeddedResource Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
-    <EmbeddedResource Remove="wwwroot\media\**" />
     <None Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <None Remove="ViewModels\MasterSetup\Organization\**" />
     <None Remove="ViewModels\MasterSetup\PassingYears\**" />
@@ -38,7 +35,6 @@
     <None Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <None Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <None Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
-    <None Remove="wwwroot\media\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,7 +54,10 @@
   <ItemGroup>
     <Folder Include="ViewModels\ProjectManagements\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
-    <Folder Include="wwwroot\media\logo\" />
+
+    <Folder Include="wwwroot\uploads\employee\images\" />
+    <Folder Include="wwwroot\uploads\employee\signatures\" />
+
   </ItemGroup>
 
   <ItemGroup>

@@ -79,8 +79,10 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
-    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+    // public virtual ICollection<AspNetUsers> AspNetUsers { get; set; } = new List<AspNetUsers>();
 
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new
+List<ApplicationUser>();
     public virtual BloodGroup BloodGroup { get; set; }
 
     public virtual ICollection<BloodGroup> BloodGroupCreatedByNavigation { get; set; } = new List<BloodGroup>();
@@ -120,6 +122,8 @@ public partial class Employees
     public virtual ICollection<DefaultShifts> DefaultShiftsCreatedByNavigation { get; set; } = new List<DefaultShifts>();
 
     public virtual ICollection<DefaultShifts> DefaultShiftsDeletedByNavigation { get; set; } = new List<DefaultShifts>();
+
+    public virtual ICollection<DefaultShifts> DefaultShiftsEmployee { get; set; } = new List<DefaultShifts>();
 
     public virtual ICollection<DefaultShifts> DefaultShiftsUpdatedByNavigation { get; set; } = new List<DefaultShifts>();
 
@@ -192,6 +196,14 @@ public partial class Employees
     public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoEmployee { get; set; } = new List<EmployeeEducationalInfo>();
 
     public virtual ICollection<EmployeeEducationalInfo> EmployeeEducationalInfoUpdatedByNavigation { get; set; } = new List<EmployeeEducationalInfo>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsCreatedByNavigation { get; set; } = new List<EmployeeEmeContacts>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsDeletedByNavigation { get; set; } = new List<EmployeeEmeContacts>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsEmployee { get; set; } = new List<EmployeeEmeContacts>();
+
+    public virtual ICollection<EmployeeEmeContacts> EmployeeEmeContactsUpdatedByNavigation { get; set; } = new List<EmployeeEmeContacts>();
 
     public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoCreatedByNavigation { get; set; } = new List<EmployeeFamilyInfo>();
 

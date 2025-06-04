@@ -29,9 +29,9 @@ public partial class Organization
 
     public int? TenantInfoId { get; set; }
 
-    public virtual ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
+    //public virtual ICollection<AspNetRoles> AspNetRoles { get; set; } = new List<AspNetRoles>();
 
-    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+    //public virtual ICollection<AspNetUsers> AspNetUsers { get; set; } = new List<AspNetUsers>();
 
     public virtual Employees CreatedByNavigation { get; set; }
 
@@ -40,6 +40,8 @@ public partial class Organization
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
@@ -52,4 +54,8 @@ public partial class Organization
     public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+    public ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
+
 }

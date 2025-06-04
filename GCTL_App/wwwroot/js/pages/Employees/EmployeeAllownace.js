@@ -91,37 +91,55 @@
     }
 
     function populateForm(data) {
+        console.log('populate form', data);
 
-        debugger
+        // Basic fields
         $('#EmployeeBaseAllowanceID').val(data.employeeBaseAllowanceID || 0);
         $('#PersonalEmail').val(data.personalEmail || '');
         $('#PersonalPhone').val(data.personalPhone || '');
 
+        // Main allowance toggle
         $('#allowanceEnabled').prop('checked', data.isEmployeeAllowanceEnabled || false);
 
+        // Mobile Allowance
+        $('#MobileAllowance').val(data.mobileAllowance || '');
+        $('#mobileAllowanceEnabled').prop('checked', data.isMobileAllowanceEnabled || false);
 
-        // Mobile/Internet Allowance
-        $('#MobileInternetAllowance').val(data.mobileInternetAllowance || '');
-        $('#mobileInternetAllowanceEnabled').prop('checked', data.isMobileInternetAllowanceEnabled || false);
+        // Internet Allowance  
+        $('#InternetAllowance').val(data.internetAllowance || '');
+        $('#internetAllowanceEnabled').prop('checked', data.isInternetAllowanceEnabled || false);
+
+        // Effective dates - handle null values properly
+        if (data.mobileAllowanceEffectiveFrom) {
+            $('#MobileAllowanceEffectiveFrom').val(moment(data.mobileAllowanceEffectiveFrom).format('YYYY-MM-DD'));
+        } else {
+            $('#MobileAllowanceEffectiveFrom').val('');
+        }
+
+        if (data.internetAllowanceEffectiveFrom) {
+            $('#InternetAllowanceEffectiveFrom').val(moment(data.internetAllowanceEffectiveFrom).format('YYYY-MM-DD'));
+        } else {
+            $('#InternetAllowanceEffectiveFrom').val('');
+        }
 
         // Shift Allowance
         $('#ShiftAllowance').val(data.shiftAllowance || '');
         $('#shiftAllowanceEnabled').prop('checked', data.isShiftAllowanceEnabled || false);
 
         // House Rent Allowance
-        if (data.houseRentAllowancePercentage) {
+        if (data.houseRentAllowancePercentage && globalChoices['HouseRentAllowancePercentage']) {
             globalChoices['HouseRentAllowancePercentage'].setChoiceByValue(data.houseRentAllowancePercentage.toString());
         }
         $('#houseRentAllowanceEnabled').prop('checked', data.isHouseRentAllowancePercentageEnabled || false);
 
         // Medical Allowance
-        if (data.medicalAllowancePercentage) {
+        if (data.medicalAllowancePercentage && globalChoices['MedicalAllowancePercentage']) {
             globalChoices['MedicalAllowancePercentage'].setChoiceByValue(data.medicalAllowancePercentage.toString());
         }
         $('#medicalAllowanceEnabled').prop('checked', data.isMedicalAllowancePercentageEnabled || false);
 
         // Conveyance Allowance
-        if (data.conveyanceAllowancePercentage) {
+        if (data.conveyanceAllowancePercentage && globalChoices['ConveyanceAllowancePercentage']) {
             globalChoices['ConveyanceAllowancePercentage'].setChoiceByValue(data.conveyanceAllowancePercentage.toString());
         }
         $('#conveyanceAllowanceEnabled').prop('checked', data.isConveyanceAllowancePercentageEnabled || false);
