@@ -1,0 +1,64 @@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift.AssignDefaultShiftSetupVM
+
+@{
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift.AssignDefaultShiftSetupVM>;
+}
+
+<form asp-action="Create" asp-controller="AssignDefaultShift" id="assignDefaultShift-addForm" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Company")</label>
+                <select class="form-multi-select" asp-for="OrganizationIDs" asp-items="@ViewBag.OrganizationDD as SelectList" multiple data-coreui-multiple="true" data-coreui-search="true">
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department")</label>
+                <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-search="true">
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
+                <select class="form-multi-select" asp-for="EmployeeIDs" multiple data-coreui-multi-select data-coreui-search="true">
+                    @foreach (var group in employees.GroupBy(e => e.DepartmentName))
+                    {
+                        <optgroup label="@group.Key">
+                            @foreach (var emp in group)
+                            {
+                                <option value="@emp.EmployeeID">@emp.EmployeeName</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div id="div" class=" p-3  rounded mb-3">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <select class="form-select choiceDD" asp-for="ShiftID" asp-items="ViewBag.ShiftDD as SelectList">
+                        <option value="">@Html.SmartLocalize("Select Shift")</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mb-4">
+        <div class="row g-3 justify-content-end">
+            <div class="col-auto">
+                <button type="reset" class="btn btn-phoenix-primary px-5" id="assignDefaultShift-resetBtn">@Html.SmartLocalize("Reset")</button>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary px-5 px-sm-15" id="assignDefaultShift-saveBtn">@Html.SmartLocalize("Save")</button>
+            </div>
+        </div>
+    </div>
+</form>
