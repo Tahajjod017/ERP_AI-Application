@@ -10,7 +10,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
     public class AddNewLeaveSave:BaseViewModel
     {
       
-        public string LeaveTypeName { get; set; }
+        public string? LeaveTypeName { get; set; }
 
         
         public int? OrganizationID { get; set; }
@@ -18,7 +18,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
         public bool IsApid { get; set; }
 
         public decimal? LeaveDays { get; set; }
+        public string? Code { get; set; }
 
-      
     }
 }

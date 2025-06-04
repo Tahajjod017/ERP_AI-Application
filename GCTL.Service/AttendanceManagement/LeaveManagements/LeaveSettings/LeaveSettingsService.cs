@@ -45,6 +45,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     IsApid = entityVM.IsApid,
                     LeaveTypeName = entityVM.LeaveTypeName,
                     LeaveDays = entityVM.LeaveDays,
+                    Code=entityVM.Code,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,

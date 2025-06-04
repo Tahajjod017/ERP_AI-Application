@@ -6,64 +6,56 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              @*   <form id="addNewLeaveForm">
-                    <div class="input-block mb-3 leave-duallist">
-                        <label class="col-form-label req">Organizer Name</label>
-                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList" multiple data-coreui-search="global">
-                            <option value="">Select Organizer</option>
-
-                        </select>
-                    </div>
-                    <div class="input-block mb-3">
-                        <label class="col-form-label req">Leave Name</label>
-                        <input type="text" id="LeaveTypeName" name="LeaveTypeName" class="form-control">
-                    </div>
-                    <div class="input-block mb-3 leave-duallist">
-                        <label class="col-form-label">Payment Type</label>
-                        <select class="form-multi-select" id="IsApid" name="IsApid" multiple data-coreui-search="global">
-                            <option value="true">Paid</option>
-                            <option value="false">Unpaid</option>
-                        </select>
-                    </div>
-                    <div class="input-block mb-3">
-                        <label class="col-form-label req">Days</label>
-                        <input type="text" id="LeaveDays" name="LeaveDays" class="form-control">
-                    </div>
-
-
-                    <div class="submit-section">
-                        <button class="btn btn-primary submit-btn" id="AddNewLeaveSubmitButton">Submit</button>
-                    </div>
-                </form> *@
-
+          
                 <form id="addNewLeaveForm">
-                    <div class="input-block mb-3 leave-duallist">
+                    <div class="input-block Testt leave-duallist">
                         <label class="col-form-label req">Organizer Name</label>
-                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList">
+                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList" multiple data-coreui-multiple="true" data-coreui-search="true">
                             <option value="">Select Organizer</option>
                         </select>
                     </div>
 
-                    <div class="input-block mb-3">
+                    <div class="input-block Testt">
                         <label class="col-form-label req">Leave Name</label>
                         <input type="text" class="form-control" id="LeaveTypeName" name="LeaveTypeName">
                     </div>
 
-                    <div class="input-block mb-3 leave-duallist">
+                    <div class="input-block Testt">
+                        <label class="col-form-label req"> Short Code</label>
+                        <input type="text" class="form-control" id="Code" name="Code">
+                    </div>
+
+                    @* <div class="input-block  leave-duallist">
                         <label class="col-form-label">Payment Type</label>
                         <select class="form-multi-select" id="IsApid" name="IsApid">
                             <option value="true">Paid</option>
                             <option value="false">Unpaid</option>
                         </select>
                     </div>
+ *@
 
-                    <div class="input-block mb-3">
+                    <div class="input-block Testt leave-duallist">
+                        <label class="col-form-label d-block">Paid Type</label>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="IsApid" id="IsApidPaid" value="true" checked>
+                            <label class="form-check-label" for="IsApidPaid">Paid</label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="IsApid" id="IsApidUnpaid" value="false">
+                            <label class="form-check-label" for="IsApidUnpaid">Unpaid</label>
+                        </div>
+                    </div>
+
+                    <div class="input-block">
                         <label class="col-form-label req">Days </label>
                         <input type="number" class="form-control" id="LeaveDays" name="LeaveDays">
                     </div>
 
-                    <div class="submit-section">
-                        <button type="submit" class="btn btn-primary submit-btn" id="AddNewLeaveSubmitButton">Submit</button>
+                    <div class="submit-section text-end mt-1">
+                        <button type="button" class="btn btn-outline-light border" id="resetBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary submit-btn" id="AddNewLeaveSubmitButton">Save</button>
                     </div>
                 </form>
 

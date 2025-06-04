@@ -25,6 +25,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             ViewBag.organizationDD = new SelectList(organization.AllActive(), "OrganizationID", "OrganizationName");
             return View();
         }
+      
         public async Task<IActionResult> AddNewLeave(AddNewLeaveSave entityVM)
         {
             if (!ModelState.IsValid)
