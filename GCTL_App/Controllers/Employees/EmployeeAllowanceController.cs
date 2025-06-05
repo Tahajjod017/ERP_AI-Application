@@ -135,8 +135,8 @@ namespace GCTL_App.Controllers.Employees
                     internetAllowance = allowanceData?.InternetAllowance,
                     isMobileAllowanceEnabled = allowanceData?.IsMobileAllowanceEnabled ?? false,
                     isInternetAllowanceEnabled = allowanceData?.IsInternetAllowanceEnabled ?? false,
-                    mobileAllowanceEffectiveFrom = allowanceData?.MobileAllowanceEffectiveFrom?.ToString("yyyy-MM-dd"),
-                    internetAllowanceEffectiveFrom = allowanceData?.InternetAllowanceEffectiveFrom?.ToString("yyyy-MM-dd"),
+                    mobileAllowanceEffectiveFrom = allowanceData?.MobileAllowanceEffectiveFrom?.ToString("dd/MM/yyyy"),
+                    internetAllowanceEffectiveFrom = allowanceData?.InternetAllowanceEffectiveFrom?.ToString("dd/MM/yyyy"),
 
 
                     shiftAllowance =allowanceData?.ShiftAllowance,
