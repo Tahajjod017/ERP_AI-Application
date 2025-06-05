@@ -404,7 +404,14 @@
     // Enhanced employee change handler with better dropdown population
     $("#EmployeePersonalId").change(function () {
         var selectedId = $(this).val();
+
+
+        TabChange(selectedId) // this function is located in EmployeeTabChange.js
+
+
         if (selectedId) {
+
+
             // Show loading indicator
             $(".form-control").prop('disabled', true);
 

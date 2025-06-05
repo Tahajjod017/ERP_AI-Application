@@ -16,9 +16,7 @@
                 const selectedEmployeeId = e.detail.value || e.target.value;
                 if (selectedEmployeeId && selectedEmployeeId !== '') {
                     loadEmployeeTrainingData(selectedEmployeeId);
-
-                    
-
+                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
 
                 } else {
                     clearForm();

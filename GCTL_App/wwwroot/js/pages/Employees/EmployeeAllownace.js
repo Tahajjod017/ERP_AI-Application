@@ -16,6 +16,8 @@
                 const selectedEmployeeId = e.detail.value || e.target.value;
                 if (selectedEmployeeId && selectedEmployeeId !== '') {
                     loadEmployeeBenifitData(selectedEmployeeId);
+                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
+
                 } else {
                     clearForm();
                 }
@@ -27,8 +29,73 @@
 
     //#endregion
 
-    
 
+    //#region Pupulate Data
+
+    // Static data for form population
+    const formData = {
+        company: ["1"], // Selecting CSL
+        isEmployeeAllowanceEnabled: true,
+        mobileAllowance: "1500 tk Monthly",
+        isMobileInternetAllowanceEnabled: true,
+        mobileAllowanceEffectiveFrom: "28/06/2025",
+        internetAllowance: "1000 tk Monthly",
+        isInternetAllowanceEnabled: true,
+        internetAllowanceEffectiveFrom: "01/12/2025",
+        isHouseRentAllowanceEnabled: true,
+        houseRentAllowancePercentage: "20",
+        isMedicalAllowanceEnabled: true,
+        medicalAllowancePercentage: "15",
+        isConveyanceAllowanceEnabled: true,
+        conveyanceAllowancePercentage: "10"
+    };
+
+    // Function to populate the form
+    function populateFormpp() {
+        // Company selection
+        $('#multiple-select-tag').val(formData.company).trigger('change');
+
+        // Employee Allowance toggle
+        $('#allowanceEnabled').prop('checked', formData.isEmployeeAllowanceEnabled);
+
+        // Mobile Allowance
+        $('#MobileAllowance').val(formData.mobileAllowance);
+        $('#mobileAllowanceEnabled').prop('checked', formData.isMobileInternetAllowanceEnabled);
+        $('#mobileAllowanceEffectiveFrom').val(formData.mobileAllowanceEffectiveFrom);
+
+        // Internet Allowance
+        $('#InternetAllowance').val(formData.internetAllowance);
+        $('#internetAllowanceEnabled').prop('checked', formData.isInternetAllowanceEnabled);
+        $('#internetAllowanceEffectiveFrom').val(formData.internetAllowanceEffectiveFrom);
+
+        // House Rent Allowance
+        $('#houseRentAllowanceEnabled').prop('checked', formData.isHouseRentAllowanceEnabled);
+        $('#HouseRentAllowancePercentage').val(formData.houseRentAllowancePercentage);
+
+        // Medical Allowance
+        $('#medicalAllowanceEnabled').prop('checked', formData.isMedicalAllowanceEnabled);
+        $('#MedicalAllowancePercentage').val(formData.medicalAllowancePercentage);
+
+        // Conveyance Allowance
+        $('#conveyanceAllowanceEnabled').prop('checked', formData.isConveyanceAllowanceEnabled);
+        $('#ConveyanceAllowancePercentage').val(formData.conveyanceAllowancePercentage);
+
+        // Reinitialize any select plugins if needed (e.g., CoreUI select)
+        if ($.fn.CoreUISelect) {
+            $('#multiple-select-tag').CoreUISelect('update');
+        }
+
+        // Trigger flatpickr update if needed
+        if ($('.datetimepicker').length) {
+            $('.datetimepicker').each(function () {
+                if (this._flatpickr) {
+                    this._flatpickr.setDate($(this).val(), true);
+                }
+            });
+        }
+    }
+
+    //#endregion
  
 
    
@@ -81,7 +148,8 @@
             data: { employeeId: selectedEmployeeId },
             success: function (data) {
                 if (data) {
-                    populateForm(data);
+                     populateForm(data);
+                   // populateFormpp();
                 }
             },
             error: function () {
@@ -92,7 +160,7 @@
 
     function populateForm(data) {
         console.log('populate form', data);
-
+        debugger
         // Basic fields
         $('#EmployeeBaseAllowanceID').val(data.employeeBaseAllowanceID || 0);
         $('#PersonalEmail').val(data.personalEmail || '');
@@ -111,15 +179,22 @@
 
         // Effective dates - handle null values properly
         if (data.mobileAllowanceEffectiveFrom) {
-            $('#MobileAllowanceEffectiveFrom').val(moment(data.mobileAllowanceEffectiveFrom).format('YYYY-MM-DD'));
+          //  $('#mobileAllowanceEffectiveFrom').val(moment(data.mobileAllowanceEffectiveFrom).format('DD/MM/YYYY'));
+            $('#mobileAllowanceEffectiveFrom').val(data.mobileAllowanceEffectiveFrom);
+           // $('#mobileAllowanceEffectiveFrom').val(formData.mobileAllowanceEffectiveFrom);
+
         } else {
-            $('#MobileAllowanceEffectiveFrom').val('');
+            $('#mobileAllowanceEffectiveFrom').val('');
         }
 
         if (data.internetAllowanceEffectiveFrom) {
-            $('#InternetAllowanceEffectiveFrom').val(moment(data.internetAllowanceEffectiveFrom).format('YYYY-MM-DD'));
+           // $('#internetAllowanceEffectiveFrom').val(moment(data.internetAllowanceEffectiveFrom).format('DD/MM/YYYY'));
+            $('#internetAllowanceEffectiveFrom').val(data.internetAllowanceEffectiveFrom);
+           // $('#internetAllowanceEffectiveFrom').val(formData.internetAllowanceEffectiveFrom);
+
+
         } else {
-            $('#InternetAllowanceEffectiveFrom').val('');
+            $('#internetAllowanceEffectiveFrom').val('');
         }
 
         // Shift Allowance
@@ -143,6 +218,14 @@
             globalChoices['ConveyanceAllowancePercentage'].setChoiceByValue(data.conveyanceAllowancePercentage.toString());
         }
         $('#conveyanceAllowanceEnabled').prop('checked', data.isConveyanceAllowancePercentageEnabled || false);
+
+        if ($('.datetimepicker').length) {
+            $('.datetimepicker').each(function () {
+                if (this._flatpickr) {
+                    this._flatpickr.setDate($(this).val(), true);
+                }
+            });
+        }
     }
 
     function clearForm() {

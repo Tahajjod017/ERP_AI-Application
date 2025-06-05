@@ -8,7 +8,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeAllowance
 {
     public class EmployeeAdditionalPostViewModel : EmployeeBaseViewModel
     {
-        public int EmployeeBaseAllowanceID { get; set; }
+        public int? EmployeeBaseAllowanceID { get; set; }
 
        // public int? EmployeeID { get; set; }
 
