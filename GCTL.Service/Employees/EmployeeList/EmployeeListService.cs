@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeListVM;
 using GCTL.Data.Models;
+using GCTL.Service.UserProfile;
 
 namespace GCTL.Service.Employees.EmployeeList
 {
@@ -17,6 +18,8 @@ namespace GCTL.Service.Employees.EmployeeList
         private readonly IGenericRepository<GCTL.Data.Models.Designations> _designationRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Statuses> _statusRepository;
 
+        
+
         public EmployeeListService(IGenericRepository<Data.Models.Employees> employeePersonalRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<Statuses> statusRepository)
         {
             _employeePersonalRepository = employeePersonalRepository;
@@ -24,6 +27,7 @@ namespace GCTL.Service.Employees.EmployeeList
             _departmentRepository = departmentRepository;
             _designationRepository = designationRepository;
             _statusRepository = statusRepository;
+            
         }
 
         public async Task<IQueryable<EmployeeListGetViewModel>> GetEmployees()
@@ -44,6 +48,7 @@ namespace GCTL.Service.Employees.EmployeeList
                 from status in empStatus.DefaultIfEmpty()
                 select new EmployeeListGetViewModel
                 {
+
                     Id = emp.EmployeeID,
                     Name = emp.FirstName + " " + emp.LastName,
                     Department = dept != null ? dept.DepartmentName : "-",
@@ -52,7 +57,7 @@ namespace GCTL.Service.Employees.EmployeeList
                     Email = emp.Email,
                     Phone = emp.MobileNumber,
                     Status = status != null ? status.StatusName : "-",
-                    Avatar = emp.EmployeeImageFileName != null ? $"/images/employees/{emp.EmployeeImageFileName}.jpg" : "/images/employees/default.jpg"
+                    Avatar = emp.EmployeeImageFileName 
                 });
 
             return employees.AsQueryable();

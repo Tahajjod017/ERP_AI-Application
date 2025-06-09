@@ -325,5 +325,55 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         #endregion
 
+
+        #region Get EmpByID
+
+        public async Task< EmployeeOfficialPostViewModel> GetEmployeeOfficalDetails(int id)
+        {
+            var empPersonal = await _employeePersonalRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == id);
+            var empOfficial =await  _employeeOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == id);
+
+            EmployeeOfficialPostViewModel model = new EmployeeOfficialPostViewModel();
+
+            if (empPersonal != null)
+            {
+                model.EmployeePersonalId = empPersonal.EmployeeID;
+                model.PersonalEmail = empPersonal.Email;
+                model.PersonalPhone = empPersonal.MobileNumber;
+            }
+
+            if (empOfficial != null)
+            {
+                model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
+                model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
+                model.OrganizationID = empOfficial.OrganizationID;
+                model.OrganizationBranchID = empOfficial.OrganizationBranchID;
+                model.DepartmentID = empOfficial.DepartmentID;
+                model.DesignationID = empOfficial.DesignationID;
+                model.EmployeeTypeID = empOfficial.EmployeeTypeID;
+                model.EmploymentNatureID = empOfficial.EmploymentNatureID;
+                model.SeniorSupervisorId = empOfficial.SeniorSupervisorId;
+                model.ImmediateSupervisorId = empOfficial.ImmediateSupervisorId;
+                model.HeadOfDepartmentId = empOfficial.HeadOfDepartmentId;
+                model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
+                model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
+                model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
+                model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
+                model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
+                model.JoiningDate = empOfficial.JoiningDate;
+                model.ProvisionPeriodStartDate = empOfficial.ProvisionPeriodStartDate;
+                model.ProvisionPeriod = empOfficial.ProvisionPeriod;
+                model.ProvisionPeriodTtimeTypeID = empOfficial.ProvisionPeriodTtimeTypeID;
+                model.ConfirmationDate = empOfficial.ConfirmationDate;
+                model.ConfirmationLetterNo = empOfficial.ConfirmationLetterNo ?? string.Empty;
+                model.ContractEndDate = empOfficial.ContractEndDate;
+            }
+
+            return model;
+        }
+
+        #endregion
+
     }
 }

@@ -1,9 +1,11 @@
 ﻿$(document).ready(function () {
     // Configuration
     const API_BASE_URL = '/EmployeeList/GetEmployees';
+    
+
     const ITEMS_PER_PAGE = 3;
 
-    // DOM Elements
+    //#region DOM Elements
     const $boardView = $('#boardView');
     const $listView = $('#listView');
     const $employeeListTbody = $('#employeeListTbody'); // Target tbody specifically
@@ -22,10 +24,14 @@
         department: '',
         status: '',
         sort: '',
-        search: ''
+        search: '',
+        sortColumn: 'joiningDate', // Default sort column
+        sortDirection: 'desc' // Default sort direction
     };
 
-    // Fetch employee data
+    //#endregion
+
+    //#region Fetch employee data
     function fetchEmployees(page = 1, filters = currentFilters) {
         return $.ajax({
             url: API_BASE_URL,
@@ -36,7 +42,9 @@
                 department: filters.department,
                 status: filters.status,
                 sort: filters.sort,
-                search: filters.search
+                search: filters.search,
+                sortColumn: filters.sortColumn,
+                sortDirection: filters.sortDirection
             },
             dataType: 'json'
         }).catch(function (error) {
@@ -45,10 +53,35 @@
         });
     }
 
-    // Render board view
+    //#endregion
+
+    //#region Generate avatar HTML (image or initial-based) And format date
+    function getAvatarHtml(employee) {
+        if (employee.avatar && employee.avatar !== '') {
+            return `<img class="rounded-circle" src="${employee.avatar}" alt="${employee.name}" />`;
+        } else {
+            const initial = employee.name.charAt(0).toUpperCase();
+            return `<div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="height: 100%;">${initial}</div>`;
+        }
+    }
+
+    function GetdateFileter(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return date.toLocaleDateString('en-US', options).replace(/\//g, '-');
+
+    }
+
+    //#endregion
+
+
+    //#region Render board view
     function renderBoardView(employees) {
         $boardView.empty();
         $.each(employees, function (index, employee) {
+            const avatarHtml = getAvatarHtml(employee);
+            const dateFileter = GetdateFileter(employee.joiningDate)
             const card = `
                 <div class="col">
                     <div class="card mb-3">
@@ -58,7 +91,7 @@
                                     <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
                                         <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
                                             <div class="avatar avatar-xl me-3">
-                                                <img class="rounded-circle" src="${employee.avatar || '../../../assets/img/team/72x72/58.webp'}" alt="" />
+                                                ${avatarHtml}
                                             </div>
                                             <div>
                                                 <h5>${employee.name}</h5>
@@ -72,7 +105,7 @@
                                         </div>
                                         <div class="d-flex align-items-center mt-2">
                                             <p class="mb-0 fw-bold fs-9">
-                                                Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.joiningDate}</span>
+                                                Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${dateFileter}</span>
                                             </p>
                                         </div>
                                         <div class="d-flex align-items-center mt-2">
@@ -94,11 +127,16 @@
             $boardView.append(card);
         });
     }
+    //#endregion
 
-    // Render table view
+    //#region Render table view
     function renderTableView(employees) {
-        $employeeListTbody.empty(); // Only clear tbody, not the entire table
+        $employeeListTbody.empty();
         $.each(employees, function (index, employee) {
+            debugger
+            const avatarHtml = getAvatarHtml(employee);
+            const dateFileter = GetdateFileter(employee.joiningDate)
+
             const row = `
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                     <td class="fs-9 align-middle py-2">
@@ -112,6 +150,7 @@
                     </td>
                     <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
                         <div class="d-flex align-items-center position-relative">
+                            
                             <a class="text-body-highlight fw-bold stretched-link" href="#!">${employee.name}</a>
                         </div>
                     </td>
@@ -125,7 +164,7 @@
                         ${employee.department}
                     </td>
                     <td class="empJointinDate align-middle white-space-nowrap fw-bold ps-4 text-body py-0">
-                        ${employee.joiningDate}
+                        ${dateFileter}
                     </td>
                     <td class="empStatus align-middle white-space-nowrap fw-bold ps-0 text-body py-0">
                         <span class="badge badge-phoenix badge-phoenix-${employee.status === 'Active' ? 'success' : 'danger'}">${employee.status}</span>
@@ -133,19 +172,22 @@
                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                         <div class="btn-reveal-trigger position-static g-3">
                             <a href="#" class="nav-item me-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightANE" aria-controls="offcanvasRightANE">
-                                <i class="fas fa-edit"></i>
+                                <i class="fas fa-edit tblEditBtn"></i>
                             </a>
                             <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                <i class="fas fa-trash"></i>
+                                <i class="fas fa-trash tblDelBtn"></i>
                             </a>
+
+                           
                         </div>
                     </td>
                 </tr>`;
             $employeeListTbody.append(row);
         });
     }
+    //#endregion
 
-    // Render pagination for table view
+    //#region Render pagination for table view
     function renderTablePagination(totalItems) {
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
         $tablePaginationContainer.empty();
@@ -159,7 +201,9 @@
         }
     }
 
-    // Render pagination for board view
+    //#endregion
+
+    //#region Render pagination for board view
     function renderBoardPagination(totalItems) {
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
         $boardPaginationContainer.empty();
@@ -173,7 +217,9 @@
         }
     }
 
-    // Load data for table view
+    //#endregion
+
+    //#region Load data for table view
     function loadTableData(page = 1) {
         currentTablePage = page;
         fetchEmployees(page, currentFilters).then(function (data) {
@@ -183,7 +229,10 @@
         });
     }
 
-    // Load data for board view
+
+    //#endregion
+
+    //#region Load data for board view
     function loadBoardData(page = 1) {
         currentBoardPage = page;
         fetchEmployees(page, currentFilters).then(function (data) {
@@ -193,7 +242,9 @@
         });
     }
 
-    // Update view visibility
+    //#endregion
+
+    //#region Update view visibility
     function updateViewVisibility() {
         if ($boardViewBtn.hasClass('active')) {
             $boardView.addClass('visible').removeClass('hidden');
@@ -205,10 +256,18 @@
             $boardView.addClass('hidden').removeClass('visible');
             $boardPaginationContainer.hide();
             $tablePaginationContainer.parent().show();
+            // Initialize sort indicators
+            $('#employeeListTable th.sort').removeClass('sort-asc sort-desc');
+            const $sortHeader = $(`#employeeListTable th[data-sort="${currentFilters.sortColumn}"]`);
+            $sortHeader.addClass(currentFilters.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
         }
+        // Ensure table header is visible
+        $('#employeeListTable').find('thead').show();
     }
 
-    // Event handlers
+    //#endregion
+
+    //#region Event handlers
     $departmentFilter.on('change', function () {
         currentFilters.department = $(this).val();
         loadTableData(1);
@@ -247,7 +306,9 @@
         loadBoardData(currentBoardPage);
     });
 
-    // Pagination for table view
+    //#endregion
+
+    //#region Pagination for table view
     $tablePaginationContainer.on('click', '.page-link', function (e) {
         e.preventDefault();
         const page = $(this).data('page');
@@ -259,6 +320,8 @@
             loadTableData(currentTablePage + 1);
         }
     });
+
+    
 
     // Pagination for board view
     $boardPaginationContainer.on('click', '.page-link', function (e) {
@@ -272,6 +335,170 @@
             loadBoardData(currentBoardPage + 1);
         }
     });
+    //#endregion
+
+    //#region Column sorting
+    $('#employeeListTable th.sort').on('click', function () {
+        const column = $(this).data('sort');
+        if (column) {
+            // Toggle sort direction if same column, else default to asc
+            if (currentFilters.sortColumn === column) {
+                currentFilters.sortDirection = currentFilters.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentFilters.sortColumn = column;
+                currentFilters.sortDirection = 'asc';
+            }
+            // Update sort indicators
+            $('#employeeListTable th.sort').removeClass('sort-asc sort-desc');
+            $(this).addClass(currentFilters.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            // Reload table data
+            loadTableData(1);
+        }
+    });
+
+    //#endregion
+
+
+    //#region Edit button click
+
+
+
+    $('#employeeListTbody').on('click', '.tblEditBtn', function (e) {
+        e.preventDefault();
+        const employeeId = $(this).closest('tr').find('.empID a').text();
+
+        fetchAllEmployeeData(employeeId);
+    });
+
+    function fetchEmployeeSection(url) {
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'json'
+        });
+    }
+
+    function fetchAllEmployeeData(employeeId) {
+        Promise.allSettled([
+            fetchEmployeeSection(`GetEmployeePersonal/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeOfficial/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeAdditional/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeContact/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeEducational/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeFamily/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeSalary/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeTraining/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeAllowance/${employeeId}`),
+            fetchEmployeeSection(`GetEmployeeBenefit/${employeeId}`)
+        ])
+            .then(function (results) {
+                const [
+                    personal, official, additional, contact,
+                    educational, family, salary, training,
+                    allowance, benefit
+                ] = results;
+
+                if (personal.status === 'fulfilled') PopulatePersonalData(personal.value);
+                if (official.status === 'fulfilled') PopulateOfficialData(official.value);
+                if (additional.status === 'fulfilled') PopulateAdditionalData(additional.value);
+                if (contact.status === 'fulfilled') PopulateContactData(contact.value);
+                if (educational.status === 'fulfilled') PopulateEducationalData(educational.value);
+                if (family.status === 'fulfilled') PopulateFamilyData(family.value);
+                if (salary.status === 'fulfilled') PopulateSalaryData(salary.value);
+                if (training.status === 'fulfilled') PopulateTrainingData(training.value);
+                if (allowance.status === 'fulfilled') PopulateAllowanceData(allowance.value);
+                if (benefit.status === 'fulfilled') PopulateBenefitData(benefit.value);
+
+                // Optional: Show warning for failed ones
+                results.forEach((r, i) => {
+                    if (r.status === 'rejected') {
+                        console.warn(`Section ${i + 1} failed`, r.reason);
+                    }
+                });
+            });
+    }
+
+   
+
+
+
+    //#endregion
+
+    //#region Populate employee data functions
+    function PopulatePersonalData(employee) {
+        console.log('Employee Personal data:', employee);
+    }
+
+    function PopulateOfficialData(employee) {
+        console.log('Employee Official data:', employee);
+    }
+
+    function PopulateAdditionalData(employee) {
+        console.log('Employee Additional data:', employee);
+    }
+
+    function PopulateContactData(employee) {
+        console.log('Employee Contact data:', employee);
+    }
+
+    function PopulateEducationalData(employee) {
+        console.log('Employee Educational data:', employee);
+    }
+
+    function PopulateFamilyData(employee) {
+        console.log('Employee Family data:', employee);
+    }
+
+    function PopulateSalaryData(employee) {
+        console.log('Employee Salary data:', employee);
+    }
+
+    function PopulateTrainingData(employee) {
+        console.log('Employee Training data:', employee);
+    }
+
+    function PopulateAllowanceData(employee) {
+        console.log('Employee Allowance data:', employee);
+    }
+
+    function PopulateBenefitData(employee) {
+        console.log('Employee Benefit data:', employee);
+    }
+
+
+        //$.ajax({
+        //    url: `${GetEmpById_URL}/${employeeId}`,
+        //    method: 'GET',
+        //    dataType: 'json',
+        //    success: function (employee) {
+
+        //        console.log('Employee data:', employee);
+
+        //        $('#offcanvasRightANE').offcanvas('show');
+        //    },
+
+        //    error: function (error) {
+        //        console.error('Error fetching employee:', error);
+        //        alert('Failed to load employee data.');
+        //    }
+        //});
+    
+
+    //#endregion
+
+    //#region Delete button click
+
+    $('#employeeListTbody').on('click', '.tblDelBtn', function (e) {
+        e.preventDefault();
+        const employeeId = $(this).closest('tr').find('.empID a').text();
+        // Set employee ID in delete modal
+        $('#delete_modal').find('input[name="employeeId"]').val(employeeId);
+        // Show delete modal
+        $('#delete_modal').modal('show');
+    });
+
+    //#endregion
+
 
     // Initial load
     loadTableData();
