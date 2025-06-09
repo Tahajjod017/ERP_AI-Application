@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeePersonal;
+using GCTL.Data.Models;
 
 namespace GCTL.Service.Employees.EmployeePersonal
 {
@@ -12,5 +13,6 @@ namespace GCTL.Service.Employees.EmployeePersonal
     {
         Task<CommonReturnViewModel> SaveEmployeePersonalInfo(EmployeePersonalPostViewModel model);
         Task<CommonReturnViewModel> CheckValidEmployeeInfo(EmployeePersonalPostViewModel model);
+        Task<EmployeePersonalGetViewModel> GetEmployeePersonalById(int id);
     }
 }

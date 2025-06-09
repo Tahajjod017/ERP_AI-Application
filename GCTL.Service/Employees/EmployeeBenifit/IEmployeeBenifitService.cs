@@ -11,7 +11,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
     public interface IEmployeeBenifitService
     {
         
-        Task<EmployeeBenifitGetViewModel> GetEmployeeBenifitByEmployeeIdAsync(int employeeId);
+       // Task<EmployeeBenifitGetViewModel> GetEmployeeBenifitByEmployeeIdAsync(int employeeId);
    
 
         Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync(EmployeeBenifitPostViewModel model);

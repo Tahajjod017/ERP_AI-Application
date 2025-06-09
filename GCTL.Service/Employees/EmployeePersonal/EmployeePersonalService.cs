@@ -320,6 +320,59 @@ namespace GCTL.Service.Employees.EmployeePersonal
             return emailRegex.IsMatch(email);
         }
 
+
+
         #endregion
+
+
+        #region Get Employee Personal Info by Id
+
+        public async Task<EmployeePersonalGetViewModel> GetEmployeePersonalById(int id)
+        {
+            var employee = await _employeePersonalRepository.AllActive()
+                .Where(e => e.EmployeeID == id)
+                .Select(e => new EmployeePersonalGetViewModel
+                {
+                    FirstName = e.FirstName,
+                    LastName = e.LastName,
+                    MobileNumber = e.MobileNumber,
+                    Email = e.Email,
+                    FatherName = e.FatherName,
+                    MotherName = e.MotherName,
+                    GenderID = e.GenderID,
+                    TIN = e.TIN,
+                    ReligionID = e.ReligionID,
+                    DateOfBirth = e.DateOfBirth,
+                    BirthCertificateNo = e.BirthCertificateNo,
+                    BloodGroupID = e.BloodGroupID,
+                    NationalityID = e.NationalityID,
+                    NID = e.NID,
+                    MaritalStatusID = e.MaritalStatusID,
+                    AboutEmployee = e.AboutEmployee,
+                    CountryID = e.CountryID,
+                    State = e.State,
+                    City = e.City,
+                    HouseNo = e.HouseNo,
+                    RoadNo = e.RoadNo,
+                    PostalCode = e.PostalCode,
+                    EmployeeID = e.EmployeeID,
+                    EmployeeImageFileName = e.EmployeeImageFileName,
+                    EmployeeSignatureFileName = e.EmployeeSignatureFileName,
+                    HasUser = e.HasUser,
+                    EmployeeCode = e.EmployeeCode,
+                })
+                .FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                throw new KeyNotFoundException($"Employee with ID {id} not found.");
+            }
+
+            return employee;
+        }
+
+        #endregion
+
+
     }
 }

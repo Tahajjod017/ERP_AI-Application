@@ -95,7 +95,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public async Task<IActionResult> GetEmployeeBenifitData(int employeeId)
         {
-            var employeeBenifitData = await _employeeBenifitService.GetEmployeeBenifitByEmployeeIdAsync(employeeId);
+            var employeeBenifitData = await _employeeBenifitService.GetEmployeeBenefitsAsync(employeeId.ToString());
             return Ok(employeeBenifitData);
 
         }
