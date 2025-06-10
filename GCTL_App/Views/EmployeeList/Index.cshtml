@@ -71,7 +71,14 @@
                                 </li>
 
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#familyInfo" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Family Info.</a>
+                                    <a class="nav-link" data-bs-toggle="tab" href="#familyInfo" role="tab" aria-selected="false" aria-controls="familyInfo">
+                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>Family Info.
+                                    </a>
+                                </li>
+                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
+                                    <a class="nav-link " data-bs-toggle="tab" href="#emmerhencyContactInfo" role="tab" aria-selected="true" aria-controls="emmerhencyContactInfo">
+                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")
+                                    </a>
                                 </li>
 
                             </ul>
@@ -104,7 +111,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="personalGender">Choose Gender</label>
-                                                        <select class="form-select" id="personalGender" asp-items="@ViewBag.GenderDD as SelectList">
+                                                        <select class="form-select choiceDD" id="personalGender" asp-items="@ViewBag.GenderDD as SelectList">
                                                             <option value="">Select Gender</option>
                                                         </select>
 
@@ -148,7 +155,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="personalReligion">Choose Religion</label>
-                                                        <select class="form-select" id="personalReligion" asp-items="@ViewBag.ReligionDD as SelectList">
+                                                        <select class="form-select choiceDD" id="personalReligion" asp-items="@ViewBag.ReligionDD as SelectList">
                                                             <option value="">Select Relogion </option>
                                                         </select>
 
@@ -172,7 +179,7 @@
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-4">
-                                                        <select class="form-select" id="personalBloodGroup" id="bloodGroup" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                        <select class="form-select choiceDD" id="personalBloodGroup" id="bloodGroup" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                                                             <option value="" selected="selected">@Html.SmartLocalize("Select Blood Group")</option>
                                                             <option value="A+">A+</option>
                                                             <option value="A-">A-</option>
@@ -220,7 +227,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="personalMaritalStatus">Choose Marrital Status</label>
-                                                        <select class="form-select" id="personalMaritalStatus" asp-items="@ViewBag.MaritalStatusDD as SelectList">
+                                                        <select class="form-select choiceDD" id="personalMaritalStatus" asp-items="@ViewBag.MaritalStatusDD as SelectList">
                                                             <option value="">Select Marital Status</option>
                                                         </select>
 
@@ -319,7 +326,7 @@
                                                             <button class="btn btn-phoenix-primary px-5">@Html.SmartLocalize("Cancel")</button>
                                                         </div>
                                                         <div class="col-auto">
-                                                            <button type="submit" id="submitButton" class="btn btn-primary px-5 px-sm-15">@Html.SmartLocalize("Save")</button>
+                                                            <button type="submit" id="personalSubmitButton" class="btn btn-primary px-5 px-sm-15">@Html.SmartLocalize("Save")</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -348,7 +355,7 @@
 
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialOrganizationID">@Html.SmartLocalize("Choose Organization")</label>
-                                                        <select class="form-select" id="officialOrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialOrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Organization")</option>
                                                         </select>
 
@@ -360,7 +367,7 @@
 
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialOrganizationBranchID">@Html.SmartLocalize("Choose Branch")</label>
-                                                        <select class="form-select" id="officialOrganizationBranchID" asp-items="@ViewBag.BranchDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialOrganizationBranchID" asp-items="@ViewBag.BranchDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Branch")</option>
                                                         </select>
 
@@ -373,7 +380,7 @@
 
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialEmployeeTypeID">@Html.SmartLocalize("Employee Type")</label>
-                                                        <select class="form-select" id="officialEmployeeTypeID" asp-items="@ViewBag.EmployeeTypeDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialEmployeeTypeID" asp-items="@ViewBag.EmployeeTypeDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Employee Type")</option>
                                                         </select>
 
@@ -387,7 +394,7 @@
 
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialDepartmentID">@Html.SmartLocalize("Choose Department")</label>
-                                                        <select class="form-select" id="officialDepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialDepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Department")</option>
                                                         </select>
 
@@ -401,7 +408,7 @@
 
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialDesignationID">@Html.SmartLocalize("Choose Designation")</label>
-                                                        <select class="form-select" id="officialDesignationID" asp-items="@ViewBag.DesignationDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialDesignationID" asp-items="@ViewBag.DesignationDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Designation")</option>
                                                         </select>
 
@@ -415,7 +422,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialEmploymentNatureID">@Html.SmartLocalize("Employment Nature")</label>
-                                                        <select class="form-select" id="officialEmploymentNatureID" asp-items="@ViewBag.EmploymentNatureDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialEmploymentNatureID" asp-items="@ViewBag.EmploymentNatureDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Employment Nature")</option>
                                                         </select>
                                                     </div>
@@ -424,7 +431,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialSeniorSupervisorId">@Html.SmartLocalize("Senior Supervisor")</label>
-                                                        <select class="form-select" id="officialSeniorSupervisorId" asp-items="@ViewBag.SeniorSupervisorDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialSeniorSupervisorId" asp-items="@ViewBag.SeniorSupervisorDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Senior Supervisor")</option>
                                                         </select>
                                                     </div>
@@ -433,7 +440,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialImmediateSupervisorId">@Html.SmartLocalize("Immediate Supervisor")</label>
-                                                        <select class="form-select" id="officialImmediateSupervisorId" asp-items="@ViewBag.ImmediateSupervisorDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialImmediateSupervisorId" asp-items="@ViewBag.ImmediateSupervisorDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Immediate Supervisor")</option>
                                                         </select>
                                                     </div>
@@ -442,7 +449,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialHeadOfDepartmentId">@Html.SmartLocalize("Head of Department")</label>
-                                                        <select class="form-select" id="officialHeadOfDepartmentId" asp-items="@ViewBag.HeadOfDepartmentDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialHeadOfDepartmentId" asp-items="@ViewBag.HeadOfDepartmentDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Head of Department")</option>
                                                         </select>
                                                     </div>
@@ -474,7 +481,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialEmploymentStatusId">@Html.SmartLocalize("Employee Status")</label>
-                                                        <select class="form-select" id="officialEmploymentStatusId" asp-items="@ViewBag.EmployeeStatusDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialEmploymentStatusId" asp-items="@ViewBag.EmployeeStatusDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Employee Status")</option>
                                                         </select>
                                                     </div>
@@ -525,7 +532,7 @@
                                                 <div class="col-sm-2 col-md-2">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label id="officialProvisionPeriodTtimeTypeID">@Html.SmartLocalize("Time Unit")</label>
-                                                        <select class="form-select" id="officialProvisionPeriodTtimeTypeID" asp-items="@ViewBag.TimeUnitDD as SelectList">
+                                                        <select class="form-select choiceDD" id="officialProvisionPeriodTtimeTypeID" asp-items="@ViewBag.TimeUnitDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Unit")</option>
                                                         </select>
                                                     </div>
@@ -542,7 +549,7 @@
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
-                                                        <input id="officialConfirmationLetterNo" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize("Confirmation Letter No")" />
+                                                        <input id="officialConfirmationLetterNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("Confirmation Letter No")" />
                                                         <label id="officialConfirmationLetterNo">@Html.SmartLocalize("Confirmation Letter No")</label>
                                                     </div>
                                                 </div>
@@ -562,7 +569,7 @@
                                                             <button type="button" class="btn btn-phoenix-primary px-5">@Html.SmartLocalize("Cancel")</button>
                                                         </div>
                                                         <div class="col-auto">
-                                                            <button type="submit" class="btn btn-primary px-5 px-sm-15">@Html.SmartLocalize("Save")</button>
+                                                            <button type="submit" id="officialSubmitBtn" class="btn btn-primary px-5 px-sm-15">@Html.SmartLocalize("Save")</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -593,291 +600,185 @@
                                                 <div class="card">
                                                     <div class="d-flex justify-content-center mt-2 ">
 
-                                                        <div class="col-12 row flex gy-3 ">
-
-                                                            <p class="border-bottom mt-6">Salary Account Information</p>
-
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Address" />
-                                                                    <label for="">Bank Name</label>
-                                                                </div>
-                                                            </div>
-                                                            <!-- <div class="col-sm-12 col-md-4">
-                                                              <div class="form-floating form-floating-advance-select">
-                                                                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                  <option selected="selected">Select Bank</option>
-                                                                  <option value="1">City Bank LTD</option>
-                                                                  <option value="1">Dhaka Bank LTD</option>
-                                                                  <option value="1">Islami Bank LTD</option>
-                                                                </select>
-                                                                <label for="floatingSelectLitigation">Bank Name</label>
-                                                              </div>
-
-                                                              <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
-                                                              <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
-                                                                <div class="card position-relative border-0">
-                                                                  <div class="card-body p-0">
-                                                                    <div class="mx-3">
-                                                                      <form action="">
-                                                                        <h5 class="mb-3">Bank Name</h5>
-                                                                        <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
-                                                                        <div class="text-end">
-                                                                          <button class="btn btn-link text-danger" type="button">Cancel</button>
-                                                                          <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
-                                                                        </div>
-                                                                      </form>
-                                                                    </div>
-                                                                  </div>
-                                                                </div>
-                                                              </div>
-                                                            </div> -->
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Address" />
-                                                                    <label for="">Branch Name</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Address" />
-                                                                    <label for="">Address</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="A/C Name" />
-                                                                    <label for="">A/C Name</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="A/C Number" />
-                                                                    <label for="">A/C Number</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="ATM Card No" />
-                                                                    <label for="">ATM Card NO</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Routing No" />
-                                                                    <label for="">Routing No</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Swift Code" />
-                                                                    <label for="">Swift Code</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="IFSC CODE" />
-                                                                    <label for="">IFSC CODE</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Bkash A/C Number" />
-                                                                    <label for="">Bkash A/C Number</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Rocket A/C Number" />
-                                                                    <label for="">Rocket A/C Number</label>
-                                                                </div>
-                                                            </div>
+                                                        <div class="col-12 row flex gy-3">
+                                                            <p class="border-bottom mt-6">@Html.SmartLocalize("Salary Account Information")</p>
 
                                                             <div class="col-sm-12 col-md-4">
                                                                 <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Nagad A/C Number" />
-                                                                    <label for="">Nagad A/C Number</label>
+                                                                    <input id="salaryBankName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Bank Name")" />
+                                                                    <label id="salaryBankName">@Html.SmartLocalize("Bank Name")</label>
                                                                 </div>
                                                             </div>
-
-                                                            <p class="border-bottom mt-6">Salary Information</p>
-
-                                                            <div class="col-sm-6 col-md-4">
+                                                            <div class="col-sm-12 col-md-4">
                                                                 <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="#empDev34" />
-                                                                    <label for="">Employee ID</label>
+                                                                    <input id="salaryBranchName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Branch Name")" />
+                                                                    <label id="salaryBranchName">@Html.SmartLocalize("Branch Name")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryAddress" class="form-control" type="text" placeholder="@Html.SmartLocalize("Address")" />
+                                                                    <label id="salaryAddress">@Html.SmartLocalize("Address")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryAccountName" class="form-control" type="text" placeholder="@Html.SmartLocalize("A/C Name")" />
+                                                                    <label id="salaryAccountName">@Html.SmartLocalize("A/C Name")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryAccountNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("A/C Number")" />
+                                                                    <label id="salaryAccountNo">@Html.SmartLocalize("A/C Number")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryATMCardNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("ATM Card No")" />
+                                                                    <label id="salaryATMCardNo">@Html.SmartLocalize("ATM Card No")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryRoutingNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("Routing No")" />
+                                                                    <label id="salaryRoutingNo">@Html.SmartLocalize("Routing No")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salarySWIFTCode" class="form-control" type="text" placeholder="@Html.SmartLocalize("Swift Code")" />
+                                                                    <label id="salarySWIFTCode">@Html.SmartLocalize("Swift Code")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryIFSCCode" class="form-control" type="text" placeholder="@Html.SmartLocalize("IFSC Code")" />
+                                                                    <label id="salaryIFSCCode">@Html.SmartLocalize("IFSC Code")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salarybKashAccountNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("Bkash A/C Number")" />
+                                                                    <label id="salarybKashAccountNo">@Html.SmartLocalize("Bkash A/C Number")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryRoketAccountNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("Rocket A/C Number")" />
+                                                                    <label id="salaryRoketAccountNo">@Html.SmartLocalize("Rocket A/C Number")</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating">
+                                                                    <input id="salaryNagodAccountNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("Nagad A/C Number")" />
+                                                                    <label id="salaryNagodAccountNo">@Html.SmartLocalize("Nagad A/C Number")</label>
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-sm-6 col-md-4">
-                                                                <div class="form-floating form-floating-advance-select">
-                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                        <option selected="selected">Basic Salary</option>
-                                                                        <option value="1">Gross Salary</option>
+                                                            <p class="border-bottom mt-6">@Html.SmartLocalize("Salary Information")</p>
+
+
+                                                           
+
+
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating form-floating-advance-select mb-2">
+                                                                    <label id="salaryGradeID">@Html.SmartLocalize("Grade No")</label>
+                                                                    <select class="form-select choiceDD" id="salaryGradeID" asp-items="@ViewBag.GradeDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select Grade No")</option>
                                                                     </select>
-                                                                    <label for="floatingSelectLitigation">Salary Type</label>
                                                                 </div>
                                                             </div>
 
-                                                            <div class="col-sm-6 col-md-4">
-                                                                <div class="form-floating form-floating-advance-select">
-                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                        <option selected="selected">Select Grade No</option>
-                                                                        <option value="1">G-3</option>
-                                                                        <option value="1">G-4</option>
-                                                                        <option value="1">G-6</option>
-                                                                        <option value="1">G-9</option>
-                                                                        <option value="1">G-10</option>
-                                                                        <option value="1">G-11</option>
-                                                                    </select>
-                                                                    <label for="floatingSelectLitigation">Grade No</label>
-                                                                </div>
 
-                                                                <!-- <button class="btn btn-link p-0 ms-3 dropdown-toggle dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false"><span class="fa-solid fa-plus me-1"></span><span>Add new</span></button>
-                                                                <div class="dropdown-menu shadow-sm" style="min-width: 20rem;">
-                                                                  <div class="card position-relative border-0">
-                                                                    <div class="card-body p-0">
-                                                                      <div class="mx-3">
-                                                                        <form action="">
-                                                                          <h5 class="mb-3">Enter Grade Id</h5>
-                                                                          <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
-                                                                          <h5 class="mb-3">Enter Grade Name</h5>
-                                                                          <input class="form-control mb-3" type="text" aria-label="Default select" id="source">
-                                                                          <div class="text-end">
-                                                                            <button class="btn btn-link text-danger" type="button">Cancel</button>
-                                                                            <button class="btn btn-sm btn-primary px-5" type="button">Save</button>
-                                                                          </div>
-                                                                        </form>
-                                                                      </div>
-                                                                    </div>
-                                                                  </div>
-                                                                </div> -->
-                                                            </div>
-
-                                                            <div class="col-sm-6 col-md-4">
+                                                            <div class="col-sm-12 col-md-4">
                                                                 <div class="form-floating">
-                                                                    <input class="form-control" id="" type="text" placeholder="Enter Salary " />
-                                                                    <label for="">Salary</label>
+                                                                    <input id="salarySalary" class="form-control" type="number" step="0.01" placeholder="@Html.SmartLocalize("Enter Salary")" />
+                                                                    <label id="salarySalary">@Html.SmartLocalize("Salary")</label>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-6 col-md-4">
-                                                                <div class="form-floating form-floating-advance-select">
-                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                        <option selected="selected">Curancy</option>
-                                                                        <option value="1">BDT</option>
-                                                                        <option value="1">USD</option>
+
+
+                                                            <div class="col-sm-12 col-md-4">
+                                                                <div class="form-floating form-floating-advance-select mb-2">
+                                                                    <label id="salaryCurrencyID">@Html.SmartLocalize("Currency")</label>
+                                                                    <select class="form-select choiceDD" id="salaryCurrencyID" asp-items="@ViewBag.CurrencyDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select Currency")</option>
                                                                     </select>
-                                                                    <label for="floatingSelectLitigation">Curancy</label>
                                                                 </div>
                                                             </div>
 
                                                             <div class="col-sm-12 col-md-4">
-                                                                <div class="form-floating form-floating-advance-select">
-                                                                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                        <option selected="selected">Monthly</option>
-                                                                        <option value="1">Daily</option>
-                                                                        <option value="1">Weekly</option>
-                                                                        <option value="1">Monthly</option>
-                                                                        <option value="1">Quaterly</option>
-                                                                        <option value="1">Half-Yearly</option>
-                                                                        <option value="1">Yearly</option>
-                                                                    </select>
-                                                                    <label for="floatingSelectLitigation">Payment Period</label>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-sm-12 col-md-4 mb-4">
-                                                                <div class="form-floating form-floating-advance-select">
-                                                                    <label for="organizerMultiple">Payment Mode</label>
-                                                                    <select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
-
-                                                                        <option value="1">Bank Account</option>
-                                                                        <option value="1" selected>Cash</option>
-                                                                        <option value="1">CHK</option>
-                                                                        <option value="1">Bkash</option>
-                                                                        <option value="1">Rocket</option>
-                                                                        <option value="1">Nagad</option>
+                                                                <div class="form-floating form-floating-advance-select mb-2">
+                                                                    <label id="salaryPaymenPeriodTypeID">@Html.SmartLocalize("Payment Period")</label>
+                                                                    <select class="form-select choiceDD" id="salaryPaymenPeriodTypeID" asp-items="@ViewBag.PaymenPeriodTypeDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select Payment Period")</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
 
 
 
-                                                            <!-- Hidden div that will be shown when multiple options are selected -->
+                                                            <div class="col-sm-12 col-md-4 mb-3">
+                                                                <div class="form-floating form-floating-advance-select mb-2">
+                                                                    <label id="salaryPaymentModeIds">@Html.SmartLocalize("Payment Mode")</label>
+
+                                                                    <select class="form-select choiceDD" id="salaryPaymentModeIds" asp-items="@ViewBag.PaymenModeDD as SelectList" id="PaymentModeId" multiple>
+                                                                        <option value="">@Html.SmartLocalize("Select Payment Mode")</option>
+                                                                    </select>
+
+                                                                </div>
+                                                            </div>
+
+
+
+
                                                             <div class="row" id="multyPayment" style="display: none;">
                                                                 <div class="d-flex">
                                                                     <div class="col-sm-6 col-md-4 me-3">
-                                                                        <div class="form-floating form-floating-advance-select">
-                                                                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                                <option selected="selected">Select Payment Mode</option>
-                                                                                <option value="1">Bank Account</option>
-                                                                                <option value="1" selected>Cash</option>
-                                                                                <option value="1">CHK</option>
-                                                                                <option value="1">Bkash</option>
-                                                                                <option value="1">Rocket</option>
-                                                                                <option value="1">Nagad</option>
-                                                                            </select>
-                                                                            <label for="floatingSelectLitigation">Primary Payment Mode</label>
-                                                                        </div>
-                                                                    </div>
 
+
+
+                                                                        <div class="form-floating form-floating-advance-select mb-2">
+                                                                            <label id="salaryPrimaryPaymentModeId">@Html.SmartLocalize("Primary Payment Mode")</label>
+                                                                            <select class="form-select choiceDD" id="salaryPrimaryPaymentModeId" id="primaryPaymentMode" asp-items="@ViewBag.PaymenModeDD as SelectList">
+                                                                                <option value="">@Html.SmartLocalize("Select Primary Payment Mode")</option>
+                                                                            </select>
+                                                                        </div>
+
+
+                                                                    </div>
                                                                     <div class="col-sm-6 col-md-4 me-3">
                                                                         <div class="form-floating">
-                                                                            <input class="form-control" id="" type="text" placeholder="% of Primary Payment Mode" />
-                                                                            <label for="">% of Primary Payment Mode</label>
+                                                                            <input class="form-control" id="salaryPrimaryPaymentPercent" id="primaryPaymentPercentage" type="text" placeholder="@Html.SmartLocalize("% of Primary Payment Mode")" />
+                                                                            <label id="salaryPrimaryPaymentPercent">@Html.SmartLocalize("% of Primary Payment Mode")</label>
                                                                         </div>
                                                                     </div>
-
                                                                     <div class="col-sm-6 col-md-4">
-                                                                        <div class="form-floating form-floating-advance-select">
-                                                                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                                <option selected="selected">Select Payment Mode</option>
-                                                                                <option value="1">Bank Account</option>
-                                                                                <option value="1">Cash</option>
-                                                                                <option value="1">CHK</option>
-                                                                                <option value="1">Bkash</option>
-                                                                                <option value="1">Rocket</option>
-                                                                                <option value="1">Nagad</option>
+
+
+                                                                        <div class="form-floating form-floating-advance-select mb-2">
+                                                                            <label id="salarySecondaryPaymentModeId">@Html.SmartLocalize("Secondary Payment Mode")</label>
+                                                                            <select class="form-select choiceDD" id="salarySecondaryPaymentModeId" id="secondaryPaymentMode" asp-items="@ViewBag.PaymenModeDD as SelectList">
+                                                                                <option value="">@Html.SmartLocalize("Select Secondary Payment Mode")</option>
                                                                             </select>
-                                                                            <label for="floatingSelectLitigation">Secondary Payment Mode</label>
                                                                         </div>
+
                                                                     </div>
                                                                 </div>
-
-
                                                             </div>
-
-                                                            <script>
-                                                                document.addEventListener('DOMContentLoaded', function() {
-                                                                    const selectElement = document.getElementById('organizerMultiple');
-                                                                    const multiPaymentDiv = document.getElementById('multyPayment');
-
-                                                                    selectElement.addEventListener('change', function() {
-                                                                        // Get all selected options (excluding the placeholder if selected)
-                                                                        const selectedOptions = Array.from(this.selectedOptions)
-                                                                            .filter(option => option.value !== '');
-
-                                                                        // Show the div if more than one option is selected, otherwise hide it
-                                                                        if (selectedOptions.length > 1) {
-                                                                            multiPaymentDiv.style.display = 'block';
-                                                                        } else {
-                                                                            multiPaymentDiv.style.display = 'none';
-                                                                        }
-                                                                    });
-                                                                });
-                                                            </script>
 
                                                             <div class="col-12 mb-3">
                                                                 <div class="row g-3 justify-content-end">
                                                                     <div class="col-auto">
-                                                                        <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                                                                        <button class="btn btn-phoenix-primary px-5" type="button">@Html.SmartLocalize("Cancel")</button>
                                                                     </div>
                                                                     <div class="col-auto">
-                                                                        <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                                        <button class="btn btn-primary px-5 px-sm-15" id="salarySubmitBtn" type="submit">@Html.SmartLocalize("Save")</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
-
                                                         </div>
 
                                                     </div>
@@ -890,206 +791,153 @@
 
                                                     <div class="d-flex justify-content-center mt-2 ">
 
-                                                        <div class="col-12 row flex gy-3 ">
-
-
-                                                            <form action="add-shift-ui.html" class="row g-3 mb-4">
-
-                                                                <div class="col-md-12">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                            <h5>Add Employee Benefits</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                        <div class="col-12 row flex gy-3">
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                        <h5>@Html.SmartLocalize("Add Employee Benefits")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsBenifitEnabled" id="empBeniftSwitch">
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-md-6">
-
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="organizerSingle">Company Name</label>
-                                                                            <div class="form-check form-switch">
-                                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
+                                                                        <div class="form-check form-switch">
                                                                         </div>
-                                                                        <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
-                                                                                data-coreui-search="true">
-                                                                            <option value="0">Select Company...</option>
-                                                                            <option value="1">CSL</option>
-                                                                            <option value="2">GCTL</option>
-                                                                        </select>
                                                                     </div>
+                                                                    <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
+                                                                            data-coreui-search="true">
+                                                                        <option value="0">@Html.SmartLocalize("Select Company...")</option>
+                                                                        <option value="1">CSL</option>
+                                                                        <option value="2">GCTL</option>
+                                                                    </select>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="timepicker1">Health Insurance</label>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label id="benifitHealthInsurance">@Html.SmartLocalize("Health Insurance")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsHealthInsuranceEnabled" id="healthInsuranceSwitch">
                                                                         </div>
-                                                                        <input class="form-control" id="timepicker1" type="text" placeholder="Ex: 500 tk Per Month">
                                                                     </div>
+                                                                    <input id="benifitHealthInsurance" class="form-control" type="text" placeholder="@Html.SmartLocalize("Ex: 500 tk Per Month")" />
                                                                 </div>
-
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="timepicker1">Performance Bonus</label>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label id="benifitPerformanceBonus">@Html.SmartLocalize("Performance Bonus")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsPerformanceBonusEnabled" id="performanceBonusSwitch">
                                                                         </div>
-                                                                        <input class="form-control" id="" type="text" placeholder="Ex: 10,000 tk Yearly">
                                                                     </div>
+                                                                    <input id="benifitPerformanceBonus" class="form-control" type="text" placeholder="@Html.SmartLocalize("Ex: 10,000 tk Yearly")" />
                                                                 </div>
-
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="timepicker1">Yearly End Bonus</label>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label id="benifitYearlyEndBonusTypeID">@Html.SmartLocalize("Yearly End Bonus")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsYearlyEndBonusTypeIDEnabled" id="yearlyEndBonusSwitch">
                                                                         </div>
-                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select one...</option>
-                                                                            <option>1 Month of Gross Salary</option>
-                                                                            <option>1 Month of Basic Salary</option>
-                                                                        </select>
                                                                     </div>
+                                                                    <select class="form-select choiceDD" id="benifitYearlyEndBonusTypeID" asp-items="@ViewBag.YearlyEndBonusTypeDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select one...")</option>
+                                                                    </select>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-md-12">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                            <h5>Fastival Bonus</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+
+
+
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                        <h5>@Html.SmartLocalize("Festival Bonus")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsFastivalBonusPercentageEnabled" id="festivalBonusSwitch">
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="benifitFastivalBonusPercentage">@Html.SmartLocalize("Festival Bonus Rate")</label>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Fastival Bonus Rate</label>
-                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select %</option>
-                                                                            <option>35 %</option>
-                                                                            <option>40 %</option>
-                                                                            <option>45 %</option>
-                                                                            <option>50 %</option>
-                                                                            <option>60 %</option>
-                                                                            <option>70 %</option>
-                                                                            <option>100 %</option>
-                                                                        </select>
-                                                                    </div>
+
+                                                                    <select class="form-select choiceDD" id="festivalBonusRateSelect" id="benifitFastivalBonusPercentage" asp-items="@ViewBag.FastivalBonusPercentageDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
+                                                                    </select>
+
+
                                                                 </div>
-
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Bonus Depends on</label>
-                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select Salary...</option>
-                                                                            <option>Gross Salary</option>
-                                                                            <option>Basic Salary</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-lg-12">
-                                                                    <div class="mb-3">
-
-                                                                        <div class="content-head d-flex justify-content-between  border-bottom">
-                                                                            <h5>Providant Fund</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
-                                                                        </div>
+                                                            </div>
 
 
-                                                                    </div>
-                                                                </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12 ">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Employee Contrebution</label>
-                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select %</option>
-                                                                            <option>5 %</option>
-                                                                            <option>6 %</option>
-                                                                            <option>7 %</option>
-                                                                            <option>8 %</option>
-                                                                            <option>9 %</option>
-                                                                            <option>10 %</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6 col-sm-12 ">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Organization Contrebution</label>
-                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select %</option>
-                                                                            <option>5 %</option>
-                                                                            <option>6 %</option>
-                                                                            <option>7 %</option>
-                                                                            <option>8 %</option>
-                                                                            <option>9 %</option>
-                                                                            <option>10 %</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6 col-sm-12 ">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Bonus Depends on</label>
-                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select Salary...</option>
-                                                                            <option>Gross Salary</option>
-                                                                            <option>Basic Salary</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Minimum Service Year</label>
-                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select Year...</option>
-                                                                            <option>05 Years</option>
-                                                                            <option>06 Years</option>
-                                                                            <option>07 Years</option>
-                                                                            <option>08 Years</option>
-                                                                            <option>09 Years</option>
-                                                                            <option>10 Years</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-
-                                                                <div class="col-12">
-                                                                    <div class="row g-3 justify-content-end">
-                                                                        <div class="col-auto">
-                                                                            <button class="btn btn-phoenix-primary px-5">Cancel</button>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                            <div class="col-lg-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between border-bottom">
+                                                                        <h5>@Html.SmartLocalize("Provident Fund")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsProvidantFundEnabled" id="providentFundSwitch1">
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </form>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="benifitProvidantFundEmployeePercentage">@Html.SmartLocalize("Employee Contribution")</label>
+                                                                    <select id="benifitProvidantFundEmployeePercentage" asp-items="ViewBag.PFEmployeeContributionDD" class="form-select mb-3" id="employeeContributionSelect">
+                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
+                                                                    </select>
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="benifitProvidantFundOrganizationPercentage">@Html.SmartLocalize("Organization Contribution")</label>
+                                                                    <select id="benifitProvidantFundOrganizationPercentage" asp-items="ViewBag.PFOrgContributionDD" class="form-select mb-3" id="organizationContributionSelect">
+                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
+                                                                    </select>
+
+                                                                </div>
+                                                            </div>
+
+
+
+
+
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="benifitServiceYearID">@Html.SmartLocalize("Minimum Service Year")</label>
+
+
+                                                                    <select class="form-select choiceDD" id="benifitServiceYearID" id="serviceYearSelect" asp-items="@ViewBag.ServiceYearDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select Year...")</option>
+                                                                    </select>
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <div class="row g-3 justify-content-end">
+                                                                    <div class="col-auto">
+                                                                        <button class="btn btn-phoenix-primary px-5" type="button">@Html.SmartLocalize("Cancel")</button>
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <button class="btn btn-primary px-5 px-sm-15" id="benifitSubmitBtn" type="submit">@Html.SmartLocalize("Save")</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -1101,189 +949,162 @@
 
                                                     <div class="d-flex justify-content-center mt-2 ">
 
-                                                        <div class="col-12 row flex gy-3 ">
-
-
-                                                            <form action="add-shift-ui.html" class="row g-3 mb-6">
-
-                                                                <div class="col-md-12">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                            <h5>Add Employee Allowance</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                        <div class="col-12 row flex gy-3">
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                        <h5>@Html.SmartLocalize("Add Employee Allowance")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" id="allowIsEmployeeAllowanceEnabled" type="checkbox" role="switch" id="allowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-md-4">
-
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="organizerSingle">Company Name</label>
-                                                                            <div class="form-check form-switch">
-                                                                            </div>
-                                                                        </div>
-                                                                        <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
-                                                                                data-coreui-search="true">
-                                                                            <option value="0">Select Company...</option>
-                                                                            <option value="1">CSL</option>
-                                                                            <option value="2">GCTL</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-4">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="timepicker1">Mobile/Internet Allowance</label>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
-                                                                        </div>
-                                                                        <input class="form-control" id="" type="text" placeholder="Ex: 1000 tk Monthly">
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-4">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center">
-                                                                            <label class="form-label" for="timepicker1">Shift Allowance</label>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
-                                                                        </div>
-                                                                        <input class="form-control" id="" type="text" placeholder="Ex: 500 tk Per Night Shift">
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-12">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                            <h5>House Rent Allowance</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
+                                                                        <div class="form-check form-switch">
                                                                         </div>
                                                                     </div>
+                                                                    <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
+                                                                            data-coreui-search="true">
+                                                                        <option value="0">@Html.SmartLocalize("Select Company...")</option>
+                                                                        <option value="1">CSL</option>
+                                                                        <option value="2">GCTL</option>
+                                                                    </select>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">House Rent Allowance Rate</label>
-                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select %</option>
-                                                                            <option>35 %</option>
-                                                                            <option>40 %</option>
-                                                                            <option>45 %</option>
-                                                                            <option>50 %</option>
-                                                                            <option>60 %</option>
-                                                                            <option>70 %</option>
-                                                                            <option>100 %</option>
-                                                                        </select>
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" id="allowMobileAllowance">@Html.SmartLocalize("Mobile Allowance")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" id="allowIsMobileInternetAllowanceEnabled" type="checkbox" role="switch" id="mobileAllowanceEnabled">
+                                                                        </div>
+                                                                    </div>
+                                                                    <input class="form-control" id="allowMobileAllowance" id="MobileAllowance" type="text" placeholder="Ex: 1000 tk Monthly">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3 position-relative">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" id="allowMobileAllowanceEffectiveFrom">@Html.SmartLocalize("Effective From")</label>
+                                                                        <div class="form-check form-switch">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="position-relative">
+                                                                        <input class="form-control datetimepicker" id="allowMobileAllowanceEffectiveFromStr" id="mobileAllowanceEffectiveFrom" type="text" placeholder="dd/mm/yyyy"
+                                                                               data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                                                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                                                              style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Allowance Depends on</label>
-                                                                        <select class="form-select" id="organizerSingle" disabled data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select Salary...</option>
-                                                                            <option>Gross Salary</option>
-                                                                            <option selected>Basic Salary</option>
-                                                                        </select>
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" id="allowInternetAllowance">@Html.SmartLocalize("Internet Allowance")</label>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" id="allowIsInternetAllowanceEnabled" type="checkbox" role="switch" id="internetAllowanceEnabled">
+                                                                        </div>
+                                                                    </div>
+                                                                    <input class="form-control" id="allowInternetAllowance" id="InternetAllowance" type="text" placeholder="Ex: 1000 tk Monthly">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-4">
+                                                                <div class="mb-3 position-relative">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center">
+                                                                        <label class="form-label" id="allowInternetAllowanceEffectiveFrom">@Html.SmartLocalize("Effective From")</label>
+                                                                        <div class="form-check form-switch">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="position-relative">
+                                                                        <input class="form-control datetimepicker" id="allowInternetAllowanceEffectiveFromStr" id="internetAllowanceEffectiveFrom" type="text" placeholder="dd/mm/yyyy"
+                                                                               data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                                                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                                                              style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-md-12">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                            <h5>Medical Allowance</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                        <h5>@Html.SmartLocalize("House Rent Allowance")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" id="allowIsHouseRentAllowancePercentageEnabled" type="checkbox" role="switch" id="houseRentAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Medical Allowance Rate</label>
-                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select %</option>
-                                                                            <option>8 %</option>
-                                                                            <option>10 %</option>
-                                                                            <option>15 %</option>
-                                                                        </select>
-                                                                    </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="allowHouseRentAllowancePercentage">@Html.SmartLocalize("House Rent Allowance Rate")</label>
+                                                                    <select class="form-select choiceDD" id="allowHouseRentAllowancePercentage" id="HouseRentAllowancePercentage" asp-items="@ViewBag.HouseRentAllowanceDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
+                                                                    </select>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Allowance Depends on</label>
-                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" disabled
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select Salary...</option>
-                                                                            <option>Gross Salary</option>
-                                                                            <option selected>Basic Salary</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-md-12">
-                                                                    <div class="mb-3">
-                                                                        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                            <h5>Conveyance Allowance</h5>
-                                                                            <div class="form-check form-switch">
-                                                                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
-                                                                            </div>
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                        <h5>@Html.SmartLocalize("Medical Allowance")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" id="allowIsMedicalAllowancePercentageEnabled" type="checkbox" role="switch" id="medicalAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Conveyance Allowance Rate</label>
-                                                                        <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices"
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select %</option>
-                                                                            <option>8 %</option>
-                                                                            <option>10 %</option>
-                                                                            <option>15 %</option>
-                                                                        </select>
-                                                                    </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="allowMedicalAllowancePercentage">@Html.SmartLocalize("Medical Allowance Rate")</label>
+                                                                    <select class="form-select choiceDD" id="allowMedicalAllowancePercentage" id="MedicalAllowancePercentage" asp-items="@ViewBag.MedicalAllowanceDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
+                                                                    </select>
                                                                 </div>
+                                                            </div>
 
-                                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label" for="timepicker1">Allowance Depends on</label>
-                                                                        <select class="form-select" id="organizerSingle" data-choices="data-choices" disabled
-                                                                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                                            <option value="">Select Salary...</option>
-                                                                            <option>Gross Salary</option>
-                                                                            <option selected>Basic Salary</option>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-
-
-
-                                                                <div class="col-12">
-                                                                    <div class="row g-3 justify-content-end">
-                                                                        <div class="col-auto">
-                                                                            <button class="btn btn-phoenix-primary px-5">Cancel</button>
-                                                                        </div>
-                                                                        <div class="col-auto">
-                                                                            <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                                                            <div class="col-md-12">
+                                                                <div class="mb-3">
+                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                                                                        <h5>@Html.SmartLocalize("Conveyance Allowance")</h5>
+                                                                        <div class="form-check form-switch">
+                                                                            <input class="form-check-input" id="allowIsConveyanceAllowancePercentageEnabled" type="checkbox" role="switch" id="conveyanceAllowanceEnabled" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </form>
+                                                            </div>
+
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                                <div class="mb-3">
+                                                                    <label id="allowConveyanceAllowancePercentage">@Html.SmartLocalize("Conveyance Allowance Rate")</label>
+                                                                    <select class="form-select choiceDD" id="allowConveyanceAllowancePercentage" id="ConveyanceAllowancePercentage" asp-items="@ViewBag.ConveyanceAllowanceDD as SelectList">
+                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-12">
+                                                                <div class="row g-3 justify-content-end">
+                                                                    <div class="col-auto">
+                                                                        <button class="btn btn-phoenix-primary px-5" type="button">@Html.SmartLocalize("Cancel")</button>
+                                                                    </div>
+                                                                    <div class="col-auto">
+                                                                        <button class="btn btn-primary px-5 px-sm-15" id="allowanceSubmitBtn" type="submit">@Html.SmartLocalize("Save")</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
+
                                                     </div>
 
                                                 </div>
@@ -1448,7 +1269,7 @@
                                                             <button class="btn btn-phoenix-primary px-5">@Html.SmartLocalize("Cancel")</button>
                                                         </div>
                                                         <div class="col-auto">
-                                                            <button class="btn btn-primary px-5 px-sm-15" id="btnSave">@Html.SmartLocalize("Save")</button>
+                                                            <button class="btn btn-primary px-5 px-sm-15" id="additionalSubmitBtn">@Html.SmartLocalize("Save")</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1541,7 +1362,7 @@
                                                         <label id="eduAchievement">@Html.SmartLocalize("Achievement")</label>
                                                     </div>
                                                 </div>
-                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" style="width: 100px;">
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" id="educationSubmitBtn" style="width: 100px;">
                                                     @Html.SmartLocalize("Add")
                                                 </button>
                                             </div>
@@ -1564,63 +1385,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!--<tr>
-                                                        <th scope="row">@Html.SmartLocalize("Bachelor of Science (BSc)")</th>
-                                                        <td>@Html.SmartLocalize("Computer Science & Engineering")</td>
-                                                        <td>@Html.SmartLocalize("Dhaka International University")</td>
-                                                        <td>@Html.SmartLocalize("CGPA:3.94 (out of 4)")</td>
-                                                        <td>2018</td>
-                                                        <td>4</td>
-                                                        <td>@Html.SmartLocalize("Height CGPA in the year of 2018 in Computer Science and Engineering department.")</td>
-                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
-                                                            <div class="btn-reveal-trigger position-static g-3">
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row">@Html.SmartLocalize("Diploma")</th>
-                                                        <td>@Html.SmartLocalize("Computer Technology")</td>
-                                                        <td>@Html.SmartLocalize("Jhenaidah Govt Polytechnic Institute")</td>
-                                                        <td>@Html.SmartLocalize("CGPA:3.79 (out of 4)")</td>
-                                                        <td>2014</td>
-                                                        <td>4</td>
-                                                        <td>@Html.SmartLocalize("Second Height CGPA in BTEB in the year of 2014 in Computer Technology.")</td>
-                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
-                                                            <div class="btn-reveal-trigger position-static g-3">
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row">@Html.SmartLocalize("SSC")</th>
-                                                        <td>@Html.SmartLocalize("Science")</td>
-                                                        <td>@Html.SmartLocalize("Jhenaidah Govt High School")</td>
-                                                        <td>@Html.SmartLocalize("CGPA:5.00 (out of 5)")</td>
-                                                        <td>2009</td>
-                                                        <td>2</td>
-                                                        <td>-</td>
-                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
-                                                            <div class="btn-reveal-trigger position-static g-3">
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr> -->
+                                                  
                                                 </tbody>
                                             </table>
                                         </div>
@@ -1690,7 +1455,7 @@
                                                     </div>
                                                 </div>
 
-                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" style="width: 100px;">
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" id="trainingSubmitBtn" style="width: 100px;">
                                                     @Html.SmartLocalize("Add")
                                                 </button>
                                             </div>
@@ -1776,7 +1541,7 @@
                                                     </div>
                                                 </div>
 
-                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" style="width: 100px;">Add</button>
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" id="familySubmitBtn" style="width: 100px;">Add</button>
 
                                             </div>
                                         </div>
@@ -1855,6 +1620,65 @@
 
 
                                 </div>
+
+
+                                <div class="tab-pane fade p-2" role="emmerhencyContactInfo" id="emmerhencyContactInfo" aria-labelledby="emmerhencyContactInfo">
+                                    <div class="px-25">
+                                        <div class="d-flex justify-content-center my-8">
+                                            <div class="col-12 row flex gy-3">
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input id="emergencyContactName" class="form-control req" id="ContactName" type="text" placeholder="@Html.SmartLocalize("Name")" required />
+                                                        <label id="emergencyContactName" class="req">@Html.SmartLocalize("Name")</label>
+                                                       
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input id="emergencyRelationship" class="form-control req" id="Relationship" type="text" placeholder="@Html.SmartLocalize("Relationship")" required />
+                                                        <label id="emergencyRelationship" class="req">@Html.SmartLocalize("Relationship")</label>
+                                                       
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input id="emergencyContactNumber" class="form-control req" id="ContactNumber" type="text" placeholder="@Html.SmartLocalize("Contact Number")" required />
+                                                        <label id="emergencyContactNumber" class="req">@Html.SmartLocalize("Contact Number")</label>
+                                                       
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 col-md-6">
+                                                    <div class="form-floating">
+                                                        <input id="emergencyContactEmail" class="form-control" id="ContactEmail" type="email" placeholder="@Html.SmartLocalize("Email")" />
+                                                        <label id="emergencyContactEmail">@Html.SmartLocalize("Email")</label>
+                                                       
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="button" id="emergencySubmitBtn" style="width: 100px;">@Html.SmartLocalize("Add")</button>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="border-bottom">@Html.SmartLocalize("Emergency Contact Summary")</h4>
+
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
+                                            <table class="table" id="employeeContactTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.SmartLocalize("Name")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Relationship")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Contact Number")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Email")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Action")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
 
                             </div>
                         </div>
@@ -2011,7 +1835,7 @@
                     </form>
                 </div>
                 <div class="dropdown me-3">
-                    <select class="form-select" id="departmentFilter" data-choices="data-choices" size="1"
+                    <select class="form-select choiceDD" id="departmentFilter" data-choices="data-choices" size="1"
                             required="required" name="departmentFilter"
                             data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Search By Department</option>
@@ -2022,7 +1846,7 @@
                     </select>
                 </div>
                 <div class="dropdown me-3">
-                    <select class="form-select" id="statusFilter" data-choices="data-choices" size="1" required="required"
+                    <select class="form-select choiceDD" id="statusFilter" data-choices="data-choices" size="1" required="required"
                             name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Search By Status</option>
                         <option>Active</option>
@@ -2030,7 +1854,7 @@
                     </select>
                 </div>
                 <div class="dropdown">
-                    <select class="form-select" id="sortFilter" data-choices="data-choices" size="1" required="required"
+                    <select class="form-select choiceDD" id="sortFilter" data-choices="data-choices" size="1" required="required"
                             name="sortFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Sort by days/Month</option>
                         <option value="Sort by Last 7 days">Sort by Last 7 days</option>
