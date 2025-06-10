@@ -107,7 +107,13 @@ namespace GCTL_App.Controllers.Employees
 
         public IActionResult Index()
         {
+            PopulateDDViewBag();
 
+            return View();
+        }
+
+        private void PopulateDDViewBag()
+        {
             #region ViewBag
 
             ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
@@ -300,11 +306,7 @@ namespace GCTL_App.Controllers.Employees
 
             #endregion
 
-            return View();
         }
-
-
-        
 
         public IActionResult GetLocalHost()
         {

@@ -75,7 +75,6 @@
 
     //#endregion
 
-
     //#region Render board view
     function renderBoardView(employees) {
         $boardView.empty();
@@ -133,7 +132,7 @@
     function renderTableView(employees) {
         $employeeListTbody.empty();
         $.each(employees, function (index, employee) {
-            debugger
+           
             const avatarHtml = getAvatarHtml(employee);
             const dateFileter = GetdateFileter(employee.joiningDate)
 
@@ -390,6 +389,7 @@
             fetchEmployeeSection(`GetEmployeeTraining/${employeeId}`),
             fetchEmployeeSection(`GetEmployeeAllowance/${employeeId}`),
             fetchEmployeeSection(`GetEmployeeBenefit/${employeeId}`)
+            
         ])
             .then(function (results) {
                 const [
@@ -426,45 +426,641 @@
 
     //#region Populate employee data functions
     function PopulatePersonalData(employee) {
-        console.log('Employee Personal data:', employee);
+        console.log('Employee Personal Data:', employee);
+
+        $('#personalFirstName').val(employee.firstName || '');
+        $('#personalLastName').val(employee.lastName || '');
+        $('#personalGender').val(employee.gender || '');
+        $('#personalPersonalMobile').val(employee.personalMobile || '');
+        $('#personalPersonalEmail').val(employee.personalEmail || '');
+        $('#personalTinNo').val(employee.tinNo || '');
+        $('#personalFatherName').val(employee.fatherName || '');
+        $('#personalMotherName').val(employee.motherName || '');
+        $('#personalReligion').val(employee.religion || '');
+        $('#personalDateOfBirth').val(employee.dateOfBirth || '');
+        $('#personalBirthCertificateNo').val(employee.birthCertificateNo || '');
+        $('#personalBloodGroup').val(employee.bloodGroup || '');
+        $('#personalNationality').val(employee.nationality || '');
+        $('#personalNationalId').val(employee.nationalId || '');
+        $('#personalMaritalStatus').val(employee.maritalStatus || '');
+        $('#personalAboutEmployee').val(employee.aboutEmployee || '');
+        $('#personalCountry').val(employee.country || '');
+        $('#personalState').val(employee.state || '');
+        $('#personalCity').val(employee.city || '');
+        $('#personalHouseNo').val(employee.houseNo || '');
+        $('#personalRoadNo').val(employee.roadNo || '');
+        $('#personalPostalCode').val(employee.postalCode || '');
+
+        // For image preview
+        if (employee.employeePicture) {
+            $('#epImagePreview').attr('src', employee.employeePicture).css('visibility', 'visible');
+            $('#epCloseBtn').show();
+        } else {
+            $('#epImagePreview').css('visibility', 'hidden');
+            $('#epCloseBtn').hide();
+        }
+
+        if (employee.signature) {
+            $('#esImagePreview').attr('src', employee.signature).css('visibility', 'visible');
+            $('#esCloseBtn').show();
+        } else {
+            $('#esImagePreview').css('visibility', 'hidden');
+            $('#esCloseBtn').hide();
+        }
     }
+
 
     function PopulateOfficialData(employee) {
         console.log('Employee Official data:', employee);
+
+        // Dropdowns
+        $('#officialOrganizationID').val(employee.organizationID);
+        $('#officialOrganizationBranchID').val(employee.organizationBranchID);
+        $('#officialEmployeeTypeID').val(employee.employeeTypeID);
+        $('#officialDepartmentID').val(employee.departmentID);
+        $('#officialDesignationID').val(employee.designationID);
+        $('#officialEmploymentNatureID').val(employee.employmentNatureID);
+        $('#officialSeniorSupervisorId').val(employee.seniorSupervisorId);
+        $('#officialImmediateSupervisorId').val(employee.immediateSupervisorId);
+        $('#officialHeadOfDepartmentId').val(employee.headOfDepartmentId);
+        $('#officialEmploymentStatusId').val(employee.employmentStatusId);
+        $('#officialProvisionPeriodTtimeTypeID').val(employee.provisionPeriodTtimeTypeID);
+
+        // Text inputs
+        $('#officialOfficePhone').val(employee.officePhone);
+        $('#officialOfficeEmail').val(employee.officeEmail);
+        $('#officialAttendanceId').val(employee.attendanceId);
+        $('#officialAppointmentLetterNo').val(employee.appointmentLetterNo);
+        $('#officialConfirmationLetterNo').val(employee.confirmationLetterNo);
+        $('#officialProvisionPeriod').val(employee.provisionPeriod);
+
+        // Date inputs (make sure flatpickr or datepicker is properly handling string dates)
+        $('#officialAppointmentLetterIssueDate').val(employee.appointmentLetterIssueDate);
+        $('#officialJoiningDate').val(employee.joiningDate);
+        $('#officialProvisionPeriodStartDate').val(employee.provisionPeriodStartDate);
+        $('#officialConfirmationDate').val(employee.confirmationDate);
+        $('#officialContractEndDate').val(employee.contractEndDate);
     }
+
 
     function PopulateAdditionalData(employee) {
         console.log('Employee Additional data:', employee);
+
+        // Passport Information
+        $("#additionalPasportName").val(employee.pasportName || '');
+        $("#additionalPasportNo").val(employee.pasportNo || '');
+        $("#additionalPasportPlaceOfIssue").val(employee.pasportPlaceOfIssue || '');
+        $("#additionalPasportIssueDate").val(employee.pasportIssueDate || '');
+        $("#additionalPasportExpireDate").val(employee.pasportExpireDate || '');
+
+        // Driving License Information
+        $("#additionalDrivingLicenceNo").val(employee.drivingLicenceNo || '');
+        $("#additionalLicenceTypeID").val(employee.licenceTypeID || '');
+        $("#additionalDrivingLicenceIssueDate").val(employee.drivingLicenceIssueDate || '');
+        $("#additionalDrivingLicenceExpireDate").val(employee.drivingLicenceExpireDate || '');
+        $("#additionalSymbolOfVehicleClass").val(employee.symbolOfVehicleClass || '');
+        $("#additionalDrivingLicencePlaceOfIssue").val(employee.drivingLicencePlaceOfIssue || '');
+
+        // Work Permit Information
+        $("#additionalWorkPermaitNumber").val(employee.workPermaitNumber || '');
+        $("#additionalWorkPermitType").val(employee.workPermitType || '');
+        $("#additionalWorkPermitEffectiveDate").val(employee.workPermitEffectiveDate || '');
+        $("#additionalWorkPermitExpireDate").val(employee.workPermitExpireDate || '');
+        $("#additionalVisaExpireDate").val(employee.visaExpireDate || '');
+
+        // Optionally set personal info if you want to show them somewhere
+        // Example:
+        // $("#personalPhone").text(employee.personalPhone || '');
+        // $("#personalEmail").text(employee.personalEmail || '');
+    }
+    function PopulateAdditionalData(employee) {
+        console.log('Employee Additional data:', employee);
+
+        // Passport Information
+        $("#additionalPasportName").val(employee.pasportName || '');
+        $("#additionalPasportNo").val(employee.pasportNo || '');
+        $("#additionalPasportPlaceOfIssue").val(employee.pasportPlaceOfIssue || '');
+        $("#additionalPasportIssueDate").val(employee.pasportIssueDate || '');
+        $("#additionalPasportExpireDate").val(employee.pasportExpireDate || '');
+
+        // Driving License Information
+        $("#additionalDrivingLicenceNo").val(employee.drivingLicenceNo || '');
+        $("#additionalLicenceTypeID").val(employee.licenceTypeID || '');
+        $("#additionalDrivingLicenceIssueDate").val(employee.drivingLicenceIssueDate || '');
+        $("#additionalDrivingLicenceExpireDate").val(employee.drivingLicenceExpireDate || '');
+        $("#additionalSymbolOfVehicleClass").val(employee.symbolOfVehicleClass || '');
+        $("#additionalDrivingLicencePlaceOfIssue").val(employee.drivingLicencePlaceOfIssue || '');
+
+        // Work Permit Information
+        $("#additionalWorkPermaitNumber").val(employee.workPermaitNumber || '');
+        $("#additionalWorkPermitType").val(employee.workPermitType || '');
+        $("#additionalWorkPermitEffectiveDate").val(employee.workPermitEffectiveDate || '');
+        $("#additionalWorkPermitExpireDate").val(employee.workPermitExpireDate || '');
+        $("#additionalVisaExpireDate").val(employee.visaExpireDate || '');
+
+        
     }
 
+
     function PopulateContactData(employee) {
-        console.log('Employee Contact data:', employee);
+        const tbody = $('#employeeContactTable tbody');
+        tbody.empty();
+
+        if (Array.isArray(employee)) {
+            employee.forEach(contact => {
+                const row = `
+                <tr data-id="${contact.employeeEmeContactID}">
+                    <td>${contact.contactName}</td>
+                    <td>${contact.relationship}</td>
+                    <td>${contact.contactNumber}</td>
+                    <td>${contact.contactEmail || ''}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary editContactBtn" data-id="${contact.employeeEmeContactID}">Edit</button>
+                        <button class="btn btn-sm btn-danger deleteContactBtn" data-id="${contact.employeeEmeContactID}">Delete</button>
+                    </td>
+                </tr>`;
+                tbody.append(row);
+            });
+        }
     }
+
+
+
+    let emergencyContactList = []; // This should be filled when data is loaded
+
+    // Call this after data is fetched:
+    function initializeContactEditDeleteListeners() {
+        $(document).on('click', '.editContactBtn', function () {
+            const id = $(this).data('id');
+            const contact = emergencyContactList.find(c => c.employeeEmeContactID === id);
+
+            if (contact) {
+                $('#emergencyContactName').val(contact.contactName);
+                $('#emergencyRelationship').val(contact.relationship);
+                $('#emergencyContactNumber').val(contact.contactNumber);
+                $('#emergencyContactEmail').val(contact.contactEmail || '');
+                $('#emergencySubmitBtn').text('Update').data('update-id', id);
+            }
+        });
+
+        $(document).on('click', '.deleteContactBtn', function () {
+            const id = $(this).data('id');
+            if (confirm('Are you sure you want to delete this contact?')) {
+                $(`#employeeContactTable tr[data-id="${id}"]`).remove();
+                emergencyContactList = emergencyContactList.filter(c => c.employeeEmeContactID !== id);
+                // TODO: Also send delete to server if needed
+            }
+        });
+    }
+
+    // Call this inside your data load
+    function LoadAndBindContactData(employee) {
+        emergencyContactList = employee;
+        PopulateContactData(employee);
+        initializeContactEditDeleteListeners();
+    }
+
 
     function PopulateEducationalData(employee) {
         console.log('Employee Educational data:', employee);
+
+        // Clear the existing table rows first
+        $('#educationalTable tbody').empty();
+
+        if (employee && employee.length > 0) {
+            employee.forEach(function (edu, index) {
+                var row = `
+                <tr>
+                    <td>${edu.degreeID ?? ''}</td>
+                    <td>${edu.majorSubject ?? ''}</td>
+                    <td>${edu.institutionName ?? ''}</td>
+                    <td>${(edu.resultTypeID ?? '').replace(/\r\n/g, '').trim()}</td>
+                    <td>${edu.passingYearID ?? ''}</td>
+                    <td>${edu.yearDuration ?? ''}</td>
+                    <td>${edu.achievement ?? ''}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary editEducationBtn" data-id="${edu.employeeEducationalInfoID}">Edit</button>
+                        <button class="btn btn-sm btn-danger deleteEducationBtn" data-id="${edu.employeeEducationalInfoID}">Delete</button>
+                    </td>
+                </tr>
+            `;
+                $('#educationalTable tbody').append(row);
+            });
+        } else {
+            var emptyRow = `
+            <tr>
+                <td colspan="8" class="text-center">No educational records found.</td>
+            </tr>
+        `;
+            $('#educationalTable tbody').append(emptyRow);
+        }
     }
 
+    $(document).on('click', '.editEducationBtn', function () {
+        var id = $(this).data('id');
+        // You can fetch the record and populate the form fields here
+        alert('Edit functionality triggered for ID: ' + id);
+
+        // TODO: Load data into form fields by searching through the employee data
+        // You may also show a modal or scroll to the form section and set values
+    });
+
+    $(document).on('click', '.deleteEducationBtn', function () {
+        var id = $(this).data('id');
+
+        // Optionally confirm deletion
+        if (confirm('Are you sure you want to delete this education record?')) {
+            // TODO: Send DELETE request to server or remove from client list
+            $(this).closest('tr').remove(); // This removes the row from the UI
+
+            // Also update the backend via AJAX (if needed)
+            console.log('Deleted education ID:', id);
+        }
+    });
+
+
+
+    // Populate Training Data Table
+    function PopulateTrainingData(employeeTrainingList) {
+        console.log('Employee Training data:', employeeTrainingList);
+
+        const tbody = $("#employeeTrainingTable tbody");
+        tbody.empty(); // Clear table before adding rows
+
+        employeeTrainingList.forEach(item => {
+            const row = `
+            <tr>
+                <td>${item.tranningTitle || ''}</td>
+                <td>${item.topicCovered || ''}</td>
+                <td>${item.instituteName || ''}</td>
+                <td>${item.countryID || ''}</td>
+                <td>${item.locationName || ''}</td>
+                <td>${item.trainingYearID || ''}</td>
+                <td>${item.yearDuration || ''}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-2" onclick='editTraining(${JSON.stringify(item)})'>Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick='deleteTraining(${item.employeeTranningInfoID})'>Delete</button>
+                </td>
+            </tr>
+        `;
+            tbody.append(row);
+        });
+    }
+
+    // Edit Training Record
+    function editTraining(item) {
+        $("#trnTranningTitle").val(item.tranningTitle);
+        $("#trnCountryID").val(item.countryID);
+        $("#trnTopicCovered").val(item.topicCovered);
+        $("#trnTrainingYearID").val(item.trainingYearID);
+        $("#trnInstituteName").val(item.instituteName);
+        $("#trnYearDuration").val(item.yearDuration);
+        $("#trnLocationName").val(item.locationName);
+
+        // Store ID for update in the Add/Update button
+        $("#trainingSubmitBtn").data("id", item.employeeTranningInfoID).text("Update");
+    }
+
+    // Add/Update Training via AJAX
+    $("#trainingSubmitBtn").click(function () {
+        const id = $(this).data("id") || 0; // If no ID, then it's add mode
+
+        const trainingInfo = {
+            employeeTranningInfoID: id,
+            tranningTitle: $("#trnTranningTitle").val(),
+            countryID: $("#trnCountryID").val(),
+            topicCovered: $("#trnTopicCovered").val(),
+            trainingYearID: $("#trnTrainingYearID").val(),
+            instituteName: $("#trnInstituteName").val(),
+            yearDuration: $("#trnYearDuration").val(),
+            locationName: $("#trnLocationName").val(),
+            employeePersonalId: 8 // you can set this dynamically as needed
+        };
+
+        if (id === 0) {
+            // Insert
+            $.ajax({
+                url: '/api/employeeTrainingInfo', // Change to your POST endpoint
+                type: 'POST',
+                data: JSON.stringify(trainingInfo),
+                contentType: 'application/json',
+                success: function (response) {
+                    alert("Training added successfully!");
+                    LoadTrainingData();
+                    $("#trainingSubmitBtn").data("id", 0).text("Add"); // Reset to Add
+                }
+            });
+        } else {
+            // Update
+            $.ajax({
+                url: '/api/employeeTrainingInfo/' + id, // Change to your PUT endpoint
+                type: 'PUT',
+                data: JSON.stringify(trainingInfo),
+                contentType: 'application/json',
+                success: function (response) {
+                    alert("Training updated successfully!");
+                    LoadTrainingData();
+                    $("#trainingSubmitBtn").data("id", 0).text("Add"); // Reset to Add
+                }
+            });
+        }
+    });
+
+    // Delete Training Record
+    function deleteTraining(id) {
+        if (confirm("Are you sure you want to delete this record?")) {
+            $.ajax({
+                url: '/api/employeeTrainingInfo/' + id, // Change to your DELETE endpoint
+                type: 'DELETE',
+                success: function (result) {
+                    alert("Training record deleted successfully!");
+                    LoadTrainingData();
+                }
+            });
+        }
+    }
+
+    // Load Training Data (e.g., on page load or after CRUD)
+    function LoadTrainingData() {
+        $.ajax({
+            url: '/api/employeeTrainingInfo/employeeId', // Change to match employee ID
+            type: 'GET',
+            success: function (data) {
+                PopulateTrainingData(data);
+            }
+        });
+    }
+
+    // Function to populate family data into the table
     function PopulateFamilyData(employee) {
         console.log('Employee Family data:', employee);
+
+        const tbody = $("#employeeFamilyTable tbody");
+        tbody.empty(); // Clear existing rows
+
+        employee.forEach(item => {
+            const row = `
+            <tr>
+                <td>${item.fullName || ''}</td>
+                <td>${item.relationToEmployee || ''}</td>
+                <td>${item.occupation || ''}</td>
+                <td>${item.contactNumber || ''}</td>
+                <td>${item.email || ''}</td>
+                <td>${item.address || ''}</td>
+                <td class="align-middle text-end">
+                    <button class="btn btn-sm btn-primary me-2" onclick='editFamily(${JSON.stringify(item)})'>Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick='deleteFamily(${item.employeeFamilyInfoID})'>Delete</button>
+                </td>
+            </tr>
+        `;
+            tbody.append(row);
+        });
     }
 
+    // Edit function to populate the form for editing
+    function editFamily(item) {
+        $("#familyFullName").val(item.fullName);
+        $("#familyRelationToEmployee").val(item.relationToEmployee);
+        $("#familyOccupation").val(item.occupation);
+        $("#familyContactNumber").val(item.contactNumber);
+        $("#familyEmail").val(item.email);
+        $("#familyAddress").val(item.address);
+
+        // Store the ID for update
+        $("#familySubmitBtn").data("id", item.employeeFamilyInfoID).text("Update");
+    }
+
+    // Submit (Add/Update) Family Info via AJAX
+    $("#familySubmitBtn").click(function () {
+        const id = $(this).data("id") || 0; // If no id, it's Add mode (ID = 0)
+
+        const familyInfo = {
+            employeeFamilyInfoID: id,
+            fullName: $("#familyFullName").val(),
+            relationToEmployee: $("#familyRelationToEmployee").val(),
+            occupation: $("#familyOccupation").val(),
+            contactNumber: $("#familyContactNumber").val(),
+            email: $("#familyEmail").val(),
+            address: $("#familyAddress").val()
+        };
+
+        if (id === 0) {
+            // Insert
+            $.ajax({
+                url: '/api/employeeFamilyInfo', // Replace with your API endpoint
+                type: 'POST',
+                data: JSON.stringify(familyInfo),
+                contentType: 'application/json',
+                success: function (response) {
+                    alert("Added Successfully!");
+                    // Refresh table data
+                    LoadFamilyData();
+                }
+            });
+        } else {
+            // Update
+            $.ajax({
+                url: '/api/employeeFamilyInfo/' + id, // Replace with your API endpoint
+                type: 'PUT',
+                data: JSON.stringify(familyInfo),
+                contentType: 'application/json',
+                success: function (response) {
+                    alert("Updated Successfully!");
+                    $("#familySubmitBtn").data("id", 0).text("Add"); // Reset to Add mode
+                    LoadFamilyData();
+                }
+            });
+        }
+    });
+
+    // Delete Function
+    function deleteFamily(id) {
+        if (confirm("Are you sure you want to delete this record?")) {
+            $.ajax({
+                url: '/api/employeeFamilyInfo/' + id, // Replace with your API endpoint
+                type: 'DELETE',
+                success: function (result) {
+                    alert("Deleted Successfully!");
+                    LoadFamilyData();
+                }
+            });
+        }
+    }
+
+    // Load family data from server (example)
+    function LoadFamilyData() {
+        $.ajax({
+            url: '/api/employeeFamilyInfo/employeeId', // Replace with actual Employee ID or URL
+            type: 'GET',
+            success: function (data) {
+                PopulateFamilyData(data);
+            }
+        });
+    }
+
+
+    
+    
     function PopulateSalaryData(employee) {
         console.log('Employee Salary data:', employee);
+
+        if (!employee) return;
+
+        
+        $('#salaryBankName').val(employee.bankName || '');
+        $('#salaryBranchName').val(employee.branchName || '');
+        $('#salaryAddress').val(employee.address || '');
+        $('#salaryAccountName').val(employee.accountName || '');
+        $('#salaryAccountNo').val(employee.accountNo || '');
+        $('#salaryATMCardNo').val(employee.atmCardNo || '');
+        $('#salaryRoutingNo').val(employee.routingNo || '');
+        $('#salarySWIFTCode').val(employee.swiftCode || '');
+        $('#salaryIFSCCode').val(employee.ifscCode || '');
+        $('#salarybKashAccountNo').val(employee.bKashAccountNo || '');
+        $('#salaryRoketAccountNo').val(employee.roketAccountNo || '');
+        $('#salaryNagodAccountNo').val(employee.nagodAccountNo || '');
+
+       
+        $('#salaryGradeID').val(employee.gradeID || '').trigger('change');
+        $('#salarySalary').val(employee.salary || '');
+        $('#salaryCurrencyID').val(employee.currencyID || '').trigger('change');
+        $('#salaryPaymenPeriodTypeID').val(employee.paymenPeriodTypeID || '').trigger('change');
+
+       
+        if (employee.paymentModeIds) {
+            const paymentModes = Array.isArray(employee.paymentModeIds)
+                ? employee.paymentModeIds
+                : employee.paymentModeIds.split(',');
+            $('#salaryPaymentModeIds').val(paymentModes).trigger('change');
+
+            
+            if (paymentModes.length > 1) {
+                $('#multyPayment').show();
+                $('#salaryPrimaryPaymentModeId').val(employee.primaryPaymentModeId || '').trigger('change');
+                $('#salaryPrimaryPaymentPercent').val(employee.primaryPaymentPercent || '');
+                $('#salarySecondaryPaymentModeId').val(employee.secondaryPaymentModeId || '').trigger('change');
+            } else {
+                $('#multyPayment').hide();
+            }
+        }
+
+       
+        $('.choiceDD').trigger('change');
     }
 
-    function PopulateTrainingData(employee) {
-        console.log('Employee Training data:', employee);
+    
+    function PopulateBenefitData(employee) {
+        console.log('Employee Benefit data:', employee);
+
+        if (!employee) return;
+
+       
+        $('#benifitIsBenifitEnabled').prop('checked', employee.isBenifitEnabled || false).trigger('change');
+
+        $('#benifitIsHealthInsuranceEnabled').prop('checked', employee.isHealthInsuranceEnabled || false);
+        $('#benifitHealthInsurance').val(employee.healthInsurance || '');
+
+        $('#benifitIsPerformanceBonusEnabled').prop('checked', employee.isPerformanceBonusEnabled || false);
+        $('#benifitPerformanceBonus').val(employee.performanceBonus || '');
+
+        $('#benifitIsYearlyEndBonusTypeIDEnabled').prop('checked', employee.isYearlyEndBonusTypeIDEnabled || false);
+        $('#benifitYearlyEndBonusTypeID').val(employee.yearlyEndBonusTypeID || '').trigger('change');
+
+        $('#benifitIsFastivalBonusPercentageEnabled').prop('checked', employee.isFastivalBonusPercentageEnabled || false);
+        $('#benifitFastivalBonusPercentage').val(employee.fastivalBonusPercentage || '').trigger('change');
+
+        $('#benifitIsProvidantFundEnabled').prop('checked', employee.isProvidantFundEnabled || false);
+        $('#benifitProvidantFundEmployeePercentage').val(employee.providantFundEmployeePercentage || '').trigger('change');
+        $('#benifitProvidantFundOrganizationPercentage').val(employee.providantFundOrganizationPercentage || '').trigger('change');
+
+        $('#benifitServiceYearID').val(employee.serviceYearID || '').trigger('change');
+
+        toggleBenefitFields();
     }
 
     function PopulateAllowanceData(employee) {
         console.log('Employee Allowance data:', employee);
+
+        if (!employee) return;
+
+        $('#allowIsEmployeeAllowanceEnabled').prop('checked', employee.isEmployeeAllowanceEnabled || false).trigger('change');
+
+        $('#allowIsMobileInternetAllowanceEnabled').prop('checked', employee.isMobileAllowanceEnabled || false);
+        $('#allowMobileAllowance').val(employee.mobileAllowance || '');
+
+        if (employee.mobileAllowanceEffectiveFromStr) {
+            $('#allowMobileAllowanceEffectiveFromStr').val(employee.mobileAllowanceEffectiveFromStr);
+        }
+
+        $('#allowIsInternetAllowanceEnabled').prop('checked', employee.isInternetAllowanceEnabled || false);
+        $('#allowInternetAllowance').val(employee.internetAllowance || '');
+
+        if (employee.internetAllowanceEffectiveFromStr) {
+            $('#allowInternetAllowanceEffectiveFromStr').val(employee.internetAllowanceEffectiveFromStr);
+        }
+
+        $('#allowIsHouseRentAllowancePercentageEnabled').prop('checked', employee.isHouseRentAllowancePercentageEnabled || false);
+        $('#allowHouseRentAllowancePercentage').val(employee.houseRentAllowancePercentage || '').trigger('change');
+
+        $('#allowIsMedicalAllowancePercentageEnabled').prop('checked', employee.isMedicalAllowancePercentageEnabled || false);
+        $('#allowMedicalAllowancePercentage').val(employee.medicalAllowancePercentage || '').trigger('change');
+
+        $('#allowIsConveyanceAllowancePercentageEnabled').prop('checked', employee.isConveyanceAllowancePercentageEnabled || false);
+        $('#allowConveyanceAllowancePercentage').val(employee.conveyanceAllowancePercentage || '').trigger('change');
+
+        toggleAllowanceFields();
     }
 
-    function PopulateBenefitData(employee) {
-        console.log('Employee Benefit data:', employee);
+    function toggleBenefitFields() {
+        const healthEnabled = $('#benifitIsHealthInsuranceEnabled').is(':checked');
+        $('#benifitHealthInsurance').prop('disabled', !healthEnabled);
+
+        const performanceEnabled = $('#benifitIsPerformanceBonusEnabled').is(':checked');
+        $('#benifitPerformanceBonus').prop('disabled', !performanceEnabled);
+
+        const yearlyBonusEnabled = $('#benifitIsYearlyEndBonusTypeIDEnabled').is(':checked');
+        $('#benifitYearlyEndBonusTypeID').prop('disabled', !yearlyBonusEnabled);
+
+        const festivalEnabled = $('#benifitIsFastivalBonusPercentageEnabled').is(':checked');
+        $('#benifitFastivalBonusPercentage').prop('disabled', !festivalEnabled);
+
+        const pfEnabled = $('#benifitIsProvidantFundEnabled').is(':checked');
+        $('#benifitProvidantFundEmployeePercentage').prop('disabled', !pfEnabled);
+        $('#benifitProvidantFundOrganizationPercentage').prop('disabled', !pfEnabled);
+        $('#benifitServiceYearID').prop('disabled', !pfEnabled);
     }
 
+    function toggleAllowanceFields() {
+        const mobileEnabled = $('#allowIsMobileInternetAllowanceEnabled').is(':checked');
+        $('#allowMobileAllowance').prop('disabled', !mobileEnabled);
+        $('#allowMobileAllowanceEffectiveFromStr').prop('disabled', !mobileEnabled);
+
+        const internetEnabled = $('#allowIsInternetAllowanceEnabled').is(':checked');
+        $('#allowInternetAllowance').prop('disabled', !internetEnabled);
+        $('#allowInternetAllowanceEffectiveFromStr').prop('disabled', !internetEnabled);
+
+        const houseRentEnabled = $('#allowIsHouseRentAllowancePercentageEnabled').is(':checked');
+        $('#allowHouseRentAllowancePercentage').prop('disabled', !houseRentEnabled);
+
+        const medicalEnabled = $('#allowIsMedicalAllowancePercentageEnabled').is(':checked');
+        $('#allowMedicalAllowancePercentage').prop('disabled', !medicalEnabled);
+
+        const conveyanceEnabled = $('#allowIsConveyanceAllowancePercentageEnabled').is(':checked');
+        $('#allowConveyanceAllowancePercentage').prop('disabled', !conveyanceEnabled);
+    }
+
+    $('#benifitIsHealthInsuranceEnabled').on('change', toggleBenefitFields);
+    $('#benifitIsPerformanceBonusEnabled').on('change', toggleBenefitFields);
+    $('#benifitIsYearlyEndBonusTypeIDEnabled').on('change', toggleBenefitFields);
+    $('#benifitIsFastivalBonusPercentageEnabled').on('change', toggleBenefitFields);
+    $('#benifitIsProvidantFundEnabled').on('change', toggleBenefitFields);
+
+    // Allowance toggles
+    $('#allowIsMobileInternetAllowanceEnabled').on('change', toggleAllowanceFields);
+    $('#allowIsInternetAllowanceEnabled').on('change', toggleAllowanceFields);
+    $('#allowIsHouseRentAllowancePercentageEnabled').on('change', toggleAllowanceFields);
+    $('#allowIsMedicalAllowancePercentageEnabled').on('change', toggleAllowanceFields);
+    $('#allowIsConveyanceAllowancePercentageEnabled').on('change', toggleAllowanceFields);
 
         //$.ajax({
         //    url: `${GetEmpById_URL}/${employeeId}`,
