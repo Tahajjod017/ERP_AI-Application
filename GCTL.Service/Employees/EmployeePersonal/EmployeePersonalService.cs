@@ -21,10 +21,13 @@ namespace GCTL.Service.Employees.EmployeePersonal
     public class EmployeePersonalService : IEmployeePersonalService
     {
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeePersonalRepository;
+        private readonly IGenericRepository<Country> _countryRepository;
 
-        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository)
+
+        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository)
         {
             _employeePersonalRepository = employeePersonalRepository;
+            _countryRepository = countryRepository;
         }
 
         #region Save Method
@@ -44,7 +47,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     return result;
                 }
 
-                
+                int nationalityId = 0;
+
+                if (model.Nationality != null)
+                {
+                     nationalityId = _countryRepository.All().Where(e => e.CountryName == model.Nationality).Select(e => e.CountryID).FirstOrDefault();
+                }
 
 
                 GCTL.Data.Models.Employees employee;
@@ -91,9 +99,9 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         MaritalStatusID = Convert.ToInt32(model.MaritalStatus),
                         GenderID = Convert.ToInt32(model.Gender),
                         BloodGroupID = Convert.ToInt32(model.BloodGroup),
-                        NationalityID = Convert.ToInt32(model.NationalId),
+                        NationalityID = nationalityId,
                         ReligionID = Convert.ToInt32(model.Religion),
-                        CountryID = Convert.ToInt32(model.Country),
+                        CountryID = model.Country,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy
                     };

@@ -20,22 +20,24 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Religions> _religionRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<Country> _countryRepository;
-        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository) : base(translateService, userProfileService)
+        private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
+        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository) : base(translateService, userProfileService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;
             _religionRepository = religionRepository;
             _genderRepository = genderRepository;
             _countryRepository = countryRepository;
+            _bloodGroupRepository = bloodGroupRepository;
         }
 
         public IActionResult Index()
         {
             SetSmartPageCode(111000);
 
-            ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusID", "MaritalStatusName");
-            ViewBag.ReligionDD = new SelectList(_religionRepository.All(), "ReligionID", "ReligionName");
-            ViewBag.GenderDD = new SelectList(_genderRepository.All(), "GenderID", "GenderName");
+            PopulateViewBag();
+
+           
             //ViewBag.MaritalStatusDD = _maritalRepository.All().ToList();
 
 
@@ -53,11 +55,21 @@ namespace GCTL_App.Controllers.Employees
             
         }
 
+        private void PopulateViewBag()
+        {
+            ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusID", "MaritalStatusName");
+            ViewBag.ReligionDD = new SelectList(_religionRepository.All(), "ReligionID", "ReligionName");
+            ViewBag.GenderDD = new SelectList(_genderRepository.All(), "GenderID", "GenderName");
+            ViewBag.BloodGroupDD = new SelectList(_bloodGroupRepository.All(), "BloodGroupID", "BloodGroupName");
+            ViewBag.CountryDD = new SelectList(_countryRepository.All(), "CountryID", "CountryName");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(EmployeePersonalPostViewModel model)
         {
+            PopulateViewBag();
+
             if (ModelState.IsValid)
             {
                 var chkDuplicate = await _employeePersonalService.CheckValidEmployeeInfo(model);
