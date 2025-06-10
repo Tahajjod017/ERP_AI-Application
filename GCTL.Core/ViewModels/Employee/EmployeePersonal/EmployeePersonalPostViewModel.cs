@@ -44,7 +44,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeePersonal
 
         public string? AboutEmployee { get; set; }
 
-        public string? Country { get; set; }
+        public int? Country { get; set; }
 
         public string? State { get; set; }
 

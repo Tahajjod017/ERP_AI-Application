@@ -23,10 +23,12 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Designations> _designationRepository;
         private readonly IGenericRepository<EmploymentNature> _employmentNatureRepository;
         private readonly IGenericRepository<Statuses> _employeeStatusRepository;
+        private readonly IGenericRepository<ProvisionPeriodTtimeTypes> _provisionPeriodTtimeTypesRepository;
+   
         private readonly IEmployeeOfficialService _employeeOfficialService;
 
 
-        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository) : base(translateService, userProfileService)
+        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _branchRepository = branchRepository;
@@ -38,6 +40,7 @@ namespace GCTL_App.Controllers.Employees
             _employeeStatusRepository = employeeStatusRepository;
             _employeeOfficialService = employeeOfficialService;
             _employeeOfficialRepository = employeeOfficialRepository;
+            _provisionPeriodTtimeTypesRepository = provisionPeriodTtimeTypesRepository;
         }
 
         #endregion
@@ -115,14 +118,17 @@ namespace GCTL_App.Controllers.Employees
             );
 
 
-            // ViewBag.TimeUnitDD = new SelectList(_timeUnitRepository.All().Select(tu => new { tu.TimeUnitID, tu.TimeUnitName }), "TimeUnitID", "TimeUnitName");
+             ViewBag.TimeUnitDD = new SelectList(_provisionPeriodTtimeTypesRepository.All().Select(tu => new { tu.ProvisionPeriodTtimeTypeID, tu.ProvisionPeriodTtimeTypeName }), "ProvisionPeriodTtimeTypeID", "ProvisionPeriodTtimeTypeName");
 
 
-            ViewBag.TimeUnitDD = new SelectList(new List<object>{
-                new { TimeUnitID = 1, TimeUnitName = "Days" },
-                new { TimeUnitID = 2, TimeUnitName = "Months" },
-                new { TimeUnitID = 3, TimeUnitName = "Years" }
-            }, "TimeUnitID", "TimeUnitName");
+            //ViewBag.TimeUnitDD = new SelectList(new List<object>{
+            //    new { TimeUnitID = 1, TimeUnitName = "Days" },
+            //    new { TimeUnitID = 2, TimeUnitName = "Months" },
+            //    new { TimeUnitID = 3, TimeUnitName = "Years" }
+            //}, "TimeUnitID", "TimeUnitName");
+
+
+
             #endregion
 
             EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);

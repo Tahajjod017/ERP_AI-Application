@@ -200,20 +200,16 @@
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select mb-4">
-                                                        <select class="form-select" asp-for="BloodGroup" id="bloodGroup" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option value="" selected="selected">@Html.SmartLocalize("Select Blood Group")</option>
-                                                            <option value="A+">A+</option>
-                                                            <option value="A-">A-</option>
-                                                            <option value="B+">B+</option>
-                                                            <option value="B-">B-</option>
-                                                            <option value="O+">O+</option>
-                                                            <option value="O-">O-</option>
-                                                            <option value="AB+">AB+</option>
-                                                            <option value="AB-">AB-</option>
+
+                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                        <label asp-for="BloodGroup">@Html.SmartLocalize("Blood Group")</label>
+                                                        <select class="form-select choiceDD" asp-for="BloodGroup" asp-items="@ViewBag.BloodGroupDD as SelectList">
+                                                            <option value="">@Html.SmartLocalize("Select Blood Group")</option>
                                                         </select>
-                                                        <label asp-for="BloodGroup" for="floatingSelectLitigation">@Html.SmartLocalize("Blood Group")</label>
+
                                                     </div>
+
+                                                    
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
 
@@ -248,9 +244,9 @@
                                                 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
-                                                        <label asp-for="MaritalStatus">Choose Marrital Status</label>
+                                                        <label asp-for="MaritalStatus">@Html.SmartLocalize("Choose Marrital Status")</label>
                                                         <select class="form-select" asp-for="MaritalStatus" asp-items="@ViewBag.MaritalStatusDD as SelectList">
-                                                            <option value="">Select Marital Status</option>
+                                                            <option value="">@Html.SmartLocalize("Select Marital Status")</option>
                                                         </select>
 
                                                     </div>
@@ -273,10 +269,17 @@
                                                 <div class="col-sm-12 col-md-12 row flex ">
                                                     <p class="border-bottom">@Html.SmartLocalize("Address Information")</p>
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
-                                                            <input class="form-control" asp-for="Country" id="country" type="text" placeholder="@Html.SmartLocalize("Enter Country")" />
-                                                            <label asp-for="Country" for="country">@Html.SmartLocalize("Country")</label>
+                                                        
+
+                                                        <div class="form-floating form-floating-advance-select mb-2">
+                                                            <label asp-for="Country">@Html.SmartLocalize("Country")</label>
+                                                            <select class="form-select choiceDD" id="country" asp-for="Country" asp-items="@ViewBag.CountryDD as SelectList">
+                                                                <option value="">@Html.SmartLocalize("Select Country")</option>
+                                                            </select>
+
                                                         </div>
+
+
                                                     </div>
 
                                                     <div class="col-sm-12 col-md-4">
