@@ -89,15 +89,15 @@ namespace GCTL.Service.Employees.EmployeeNavigation
         }
 
         // You can load this from database or configuration
-        public async Task< EmployeeNavigationViewModel> GetEmployeeNavigation(string activeTab = "", string activeSubTab = "")
+        public async Task< EmployeeNavigationViewModel> GetEmployeeNavigationAsync(string activeTab = "", string activeSubTab = "")
         {
 
            
 
-            var userId = "52add4b8-af22-49c1-b8ea-e838b9f6ef7e";
+            //var userId = "52add4b8-af22-49c1-b8ea-e838b9f6ef7e";
 
-            var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
-            var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+            //var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+            //var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
 
             //var roleIds = _roleManagerRepository2.Roles
             //             .Where(role => roleNames.Contains(role.Name))
@@ -250,6 +250,126 @@ namespace GCTL.Service.Employees.EmployeeNavigation
             //     .ToList();
 
             // navigation.MainNavigation = navItems.Select(n => new NavigationItem { ... }).ToList();
+
+            return navigation;
+        }
+
+        public EmployeeNavigationViewModel GetEmployeeNavigation(string activeTab = "", string activeSubTab = "")
+        {
+            var navigation = new EmployeeNavigationViewModel
+            {
+                ActiveTab = activeTab,
+                ActiveSubTab = activeSubTab
+            };
+
+            // Main navigation items
+            navigation.MainNavigation = new List<NavigationItem>
+            {
+                new NavigationItem
+                {
+                    Id = "headingPInfo",
+                    Text = "Personal Info.",
+                    Url = "/EmployeePersonal/index",
+                    Icon = "fa-solid fa-user",
+                    IsActive = activeTab == "PersonalInfo",
+                    AriaControls = "empPersonalInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingEmpOfficialInfo",
+                    Text = "Official Info.",
+                    Url = "/EmployeeOfficial/index",
+                    Icon = "fa-solid fa-file-alt",
+                    IsActive = activeTab == "OfficialInfo",
+                    AriaControls = "empOfficialInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingempPayroleInfo",
+                    Text = "Payroll Info.",
+                    Url = "/EmployeeSalary/index",
+                    Icon = "fa-solid fa-file-alt",
+                    IsActive = activeTab == "PayrollInfo",
+                    AriaControls = "empPayroleInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingAdditionalInfo",
+                    Text = "Additional Info.",
+                    Url = "/EmployeeAdditional/index",
+                    Icon = "fa-solid fa-square-check",
+                    IsActive = activeTab == "AdditionalInfo",
+                    AriaControls = "additionalInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingeducationInfo",
+                    Text = "Education Info.",
+                    Url = "/EmployeeEducation/index",
+                    Icon = "fa-solid fa-square-check",
+                    IsActive = activeTab == "EducationInfo",
+                    AriaControls = "educationInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingTranningInfo",
+                    Text = "Training Info.",
+                    Url = "/EmployeeTraining/index",
+                    Icon = "fa-solid fa-square-check",
+                    IsActive = activeTab == "TrainingInfo",
+                    AriaControls = "tranningInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingFamilyInfo",
+                    Text = "Family Info.",
+                    Url = "/EmployeeFamily/index",
+                    Icon = "fa-solid fa-square-check",
+                    IsActive = activeTab == "FamilyInfo",
+                    AriaControls = "familyInfo"
+                },
+                new NavigationItem
+                {
+                    Id = "headingemmerhencyContactInfo",
+                    Text = "Emergency Contact",
+                    Url = "/EmployeeContact/index",
+                    Icon = "fa-solid fa-square-check",
+                    IsActive = activeTab == "EmergencyContact",
+                    AriaControls = "emmerhencyContactInfo"
+                }
+            };
+
+            // Sub navigation for Payroll (only when PayrollInfo is active)
+            if (activeTab == "PayrollInfo")
+            {
+                navigation.SubNavigation = new List<NavigationItem>
+            {
+                new NavigationItem
+                {
+                    Id = "empSalary-tab",
+                    Text = "Employee Salary Settings",
+                    Url = "/EmployeeSalary/index",
+                    IsActive = activeSubTab == "EmployeeSalary",
+                    AriaControls = "tab-empSalary"
+                },
+                new NavigationItem
+                {
+                    Id = "empBenefits-tab",
+                    Text = "Employee Benefits",
+                    Url = "/EmployeeBenefits/index",
+                    IsActive = activeSubTab == "EmployeeBenefits",
+                    AriaControls = "tab-empBenefits"
+                },
+                new NavigationItem
+                {
+                    Id = "empAllowance-tab",
+                    Text = "Employee Allowance",
+                    Url = "/EmployeeAllowance/index",
+                    IsActive = activeSubTab == "EmployeeAllowance",
+                    AriaControls = "tab-empAllowance"
+                }
+            };
+            }
 
             return navigation;
         }
