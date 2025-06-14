@@ -29,11 +29,23 @@ public partial class LeaveTypes
 
     public int? OrganizationID { get; set; }
 
-    public bool IsApid { get; set; }
+    public bool IsPaid { get; set; }
 
     public decimal? LeaveDays { get; set; }
 
     public string Code { get; set; }
+
+    public int? EffectiveFrom { get; set; }
+
+    public string EffectiveFromMonthYear { get; set; }
+
+    public string EffectiveAfter { get; set; }
+
+    public int? MinimumDaysRequiredEncashement { get; set; }
+
+    public int? MaximumDaysAllowedEncashement { get; set; }
+
+    public bool IsActive { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

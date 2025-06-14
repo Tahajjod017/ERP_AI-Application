@@ -12,5 +12,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
     public interface ILeaveSettingsService
     {
         Task<CommonReturnViewModel> SaveAddNewLeaveAsync(AddNewLeaveSave entityVM);
+        Task<GetLeaveTypesByIdVM> GetLeaveTypesByIdAsync(int leaveTypeID);
+        Task<List<GetLeaveTypesListVM>> GetAllLeaveTypesAsync();
     }
 }

@@ -95,6 +95,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LeaveApplications> LeaveApplications { get; set; }
 
+    public virtual DbSet<LeavePolicyConfiguration> LeavePolicyConfiguration { get; set; }
+
     public virtual DbSet<LeaveTypes> LeaveTypes { get; set; }
 
     public virtual DbSet<LicenceTypes> LicenceTypes { get; set; }
@@ -185,47 +187,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
- .HasDiscriminator<string>("Discriminator")
- .HasValue<ApplicationUser>("ApplicationUser");
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
-
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Employees)
-                .WithMany(e => e.AspNetUsers)
-                .HasForeignKey(u => u.EmployeeId)
-                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Organization)
-                .WithMany(o => o.AspNetUsers)
-                .HasForeignKey(u => u.OrganizationID)
-                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.TenantInfo)
-                .WithMany(t => t.AspNetUsers)
-                .HasForeignKey(u => u.TenantInfoId)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        //modelBuilder.Entity<ApplicationRole>()
-        //        .HasDiscriminator<string>("Discriminator")
-        //        .HasValue<ApplicationRole>("ApplicationRole");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.Organization)
-                .WithMany(o => o.AspNetRoles)
-                .HasForeignKey(r => r.OrganizationID)
-                .IsRequired(false)
-                .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
 
         modelBuilder.Entity<BloodGroup>(entity =>
         {
@@ -1325,6 +1293,33 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__LeaveAppl__Updat__48BAC3E5");
         });
 
+        modelBuilder.Entity<LeavePolicyConfiguration>(entity =>
+        {
+            entity.HasKey(e => e.LeavePolicyConfigurationID).HasName("PK__LeavePol__ACBDCEC988238CFA");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsExceedLeaveBalance).HasDefaultValue(true);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.RoundOffHour).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeavePolicyConfigurationCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeavePoli__Creat__3572E547");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeavePolicyConfigurationDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeavePoli__Delet__384F51F2");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeavePolicyConfigurationUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeavePoli__Updat__36670980");
+        });
+
         modelBuilder.Entity<LeaveTypes>(entity =>
         {
             entity.HasKey(e => e.LeaveTypeID).HasName("PK__LeaveTyp__43BE8FF4ACEF9ED6");
@@ -1334,6 +1329,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EffectiveAfter).HasMaxLength(100);
+            entity.Property(e => e.EffectiveFromMonthYear).HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.LeaveDays).HasColumnType("decimal(18, 2)");

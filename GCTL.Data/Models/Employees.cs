@@ -79,7 +79,8 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
-    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
+    public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new
+  List<ApplicationUser>();
 
     public virtual BloodGroup BloodGroup { get; set; }
 
@@ -284,6 +285,12 @@ public partial class Employees
     public virtual ICollection<LeaveApplications> LeaveApplicationsEmployee { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveApplications> LeaveApplicationsUpdatedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeavePolicyConfiguration> LeavePolicyConfigurationCreatedByNavigation { get; set; } = new List<LeavePolicyConfiguration>();
+
+    public virtual ICollection<LeavePolicyConfiguration> LeavePolicyConfigurationDeletedByNavigation { get; set; } = new List<LeavePolicyConfiguration>();
+
+    public virtual ICollection<LeavePolicyConfiguration> LeavePolicyConfigurationUpdatedByNavigation { get; set; } = new List<LeavePolicyConfiguration>();
 
     public virtual ICollection<LeaveTypes> LeaveTypesCreatedByNavigation { get; set; } = new List<LeaveTypes>();
 
