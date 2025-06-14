@@ -1,4 +1,5 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeePersonal.EmployeePersonalPostViewModel
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
+@model GCTL.Core.ViewModels.Employee.EmployeePersonal.EmployeePersonalPostViewModel
 
 
 <style>
@@ -70,7 +71,10 @@
                     <form id="employeeForm" asp-controller="EmployeePersonal" asp-action="Index" method="post" enctype="multipart/form-data">
                         <div class="col-12 col-xl-12 col-xxl-12">
 
-                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+                            @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
+
+                          <!--  
+                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
 
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
                                     <a class="nav-link active" href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
@@ -105,6 +109,9 @@
                                 </li>
 
                             </ul>
+
+							  -->
+
                             <div class="card tab-content bg-white accordion" id="myTabContent">
 
                                 <div class="tab-pane fade show active p-2" role="empPersonalInfo" id="empPersonalInfo" aria-labelledby="empPersonalInfo">

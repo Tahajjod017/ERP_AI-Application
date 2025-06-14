@@ -1,4 +1,5 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeeAllowance.EmployeeAdditionalPostViewModel
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
+@model GCTL.Core.ViewModels.Employee.EmployeeAllowance.EmployeeAdditionalPostViewModel
 
 <div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 mb-4">
@@ -47,6 +48,11 @@
                     <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis pb-4">
 
                         <div class="col-12 col-xl-12 col-xxl-12">
+
+                            @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
+
+                            <!--
+
                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
                                     <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo">
@@ -87,6 +93,8 @@
                                     <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
                                 </li>
                             </ul>
+
+                            -->
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="tabpanel" id="empPayroleInfo" aria-labelledby="empPayroleInfo">

@@ -3,6 +3,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeEducational;
 using GCTL.Core.ViewModels.Employee.EmployeeTraining;
 using GCTL.Data.Models;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Language;
 
@@ -22,16 +23,24 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeTrainingService _employeeTrainingService;
 
-        public EmployeeTrainingController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<TrainingYears> trainingYearsRepository) : base(translateService, userProfileService)
+        private readonly IEmployeeNavigationService _employeeNavigationService;
+
+
+        public EmployeeTrainingController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeTrainingService = employeeTrainingService;
             _employeeRepository = employeeRepository;
             _countryRepository = countryRepository;
             _trainingYearsRepository = trainingYearsRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("TrainingInfo");
+            ViewBag.Navigation = navigationModel;
+
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.Country = _countryRepository.GetActiveSelectListById(c => c.CountryID, c => c.CountryName);
             ViewBag.TrainingYear = _trainingYearsRepository.GetActiveSelectListById(t => t.TrainingYearID, t => t.TrainingYearName);

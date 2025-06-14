@@ -1,0 +1,38 @@
+﻿@model GCTL.Core.ViewModels.Employee.EmployeeNavigtion.EmployeeNavigationViewModel
+
+    <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+        @foreach (var item in Model.MainNavigation)
+        {
+            <li class="nav-item text-nowrap me-2" role="presentation" id="@item.Id">
+                <a class="nav-link @(item.IsActive ? "active" : "")"
+                   href="@item.Url"
+                   role="tab"
+                   aria-selected="@(item.IsActive ? "true" : "false")"
+                   aria-controls="@item.AriaControls">
+                    <span class="@item.Icon me-2 tab-icon-color"></span>@Html.SmartLocalize(item.Text)
+                </a>
+            </li>
+        }
+    </ul>
+
+    @* Sub-navigation (only show when there are sub items) *@
+    @if (Model.ShowSubNavigation)
+    {
+        <div class="px-25">
+            <ul class="nav nav-underline fs-9" id="payrollSubTab" role="tablist">
+                @foreach (var subItem in Model.SubNavigation)
+                {
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link @(subItem.IsActive ? "active" : "")"
+                           id="@subItem.Id"
+                           href="@subItem.Url"
+                           role="tab"
+                           aria-controls="@subItem.AriaControls"
+                           aria-selected="@(subItem.IsActive ? "true" : "false")">
+                            @Html.SmartLocalize(subItem.Text)
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }

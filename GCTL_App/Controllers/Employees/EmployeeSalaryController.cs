@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeSalary;
 using GCTL.Data.Models;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -19,7 +20,11 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<PaymentModes> _paymentModeRepository;
         private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
         private readonly IEmployeeSalaryService _employeeSalaryService;
-        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService) : base(translateService, userProfileService)
+        private readonly IEmployeeNavigationService _employeeNavigationService;
+
+
+
+        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _gradeRepository = gradeRepository;
@@ -28,10 +33,15 @@ namespace GCTL_App.Controllers.Employees
             _paymentModeRepository = paymentModeRepository;
             _employeeSalaryRepository = employeeSalaryRepository;
             _employeeSalaryService = employeeSalaryService;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeSalary");
+            ViewBag.Navigation = navigationModel;
+
             ViewBag.EmployeeDD = new SelectList( _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.GradeDD = new SelectList( _gradeRepository.All().Select(o => new { o.GradeID, o.GradeName }), "GradeID", "GradeName" );     
             ViewBag.CurrencyDD = new SelectList( _currencyRepository.All().Select(o => new { o.CurrencyID, o.CurrencyName }), "CurrencyID", "CurrencyName");     

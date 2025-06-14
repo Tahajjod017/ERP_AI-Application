@@ -3,6 +3,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeEducational;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 
 
@@ -25,8 +26,11 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.ResultTypes> _resultTypeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.PassingYears> _passingYearRepository;
 
+        private readonly IEmployeeNavigationService _employeeNavigationService;
 
-        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.EducationLevels> educationLevelsRepository, IGenericRepository<GCTL.Data.Models.Degree> degreeRepository, IGenericRepository<GCTL.Data.Models.EducationBoard> educationBoardRepository, IGenericRepository<GCTL.Data.Models.ResultTypes> resultTypeRepository, IGenericRepository<GCTL.Data.Models.PassingYears> passingYearRepository) : base(translateService, userProfileService)
+
+
+        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.EducationLevels> educationLevelsRepository, IGenericRepository<GCTL.Data.Models.Degree> degreeRepository, IGenericRepository<GCTL.Data.Models.EducationBoard> educationBoardRepository, IGenericRepository<GCTL.Data.Models.ResultTypes> resultTypeRepository, IGenericRepository<GCTL.Data.Models.PassingYears> passingYearRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeEducationalService = employeeEducationalService;
             _employeeRepository = employeeRepository;
@@ -35,10 +39,15 @@ namespace GCTL_App.Controllers.Employees
             _educationBoardRepository = educationBoardRepository;
             _resultTypeRepository = resultTypeRepository;
             _passingYearRepository = passingYearRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeEducation");
+            ViewBag.Navigation = navigationModel;
+
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
             ViewBag.EducationLevel = _educationLevelsRepository.GetActiveSelectListById(e => e.EducationLevelID, e => e.EducationLevelName);
@@ -56,7 +65,8 @@ namespace GCTL_App.Controllers.Employees
         public async Task<IActionResult> Index(EmployeeEducationalPostViewModel model)
         {
 
-
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("PersonalInfo");
+            ViewBag.Navigation = navigationModel;
 
             var res = await _employeeEducationalService.SaveAsync(model);
             return Ok(res);

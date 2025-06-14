@@ -1,4 +1,5 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeeOfficial.EmployeeOfficialPostViewModel
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
+@model GCTL.Core.ViewModels.Employee.EmployeeOfficial.EmployeeOfficialPostViewModel
 
 
 <div class="mb-9">
@@ -58,41 +59,11 @@
 
                         <div class="col-12 col-xl-12 col-xxl-12">
 
-                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+                            @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
 
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
-                                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
-                                </li>
 
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
-                                    <a class="nav-link active" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")</a>
-                                </li>
 
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
-                                    <a class="nav-link" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
-                                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
-                                    <a class="nav-link" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
-                                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
-                                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
-                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
-                                </li>
-
-                            </ul>
+                            
 
                            
 

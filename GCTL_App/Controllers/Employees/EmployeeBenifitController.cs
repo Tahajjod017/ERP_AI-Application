@@ -3,6 +3,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeBenifit;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -17,25 +18,43 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<YearlyEndBonusTypes> _yearlyEndBonusTypesRepository;
         private readonly IGenericRepository<ServiceYears> _serviceYearsRepository;
         private readonly IEmployeeBenifitService _employeeBenifitService;
-        public EmployeeBenifitController(ITranslateService translateService,IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository) : base(translateService,userProfileService)
+        private readonly IEmployeeNavigationService _employeeNavigationService;
+
+
+        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeBenifitService = employeeBenifitService;
             _employeeRepository = employeeRepository;
             _yearlyEndBonusTypesRepository = yearlyEndBonusTypesRepository;
             _serviceYearsRepository = serviceYearsRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public async Task< IActionResult> Index(int id)
         {
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeBenefits");
+            ViewBag.Navigation = navigationModel;
+
             var model = await _employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
 
+            PopulateViewBag();
+
+
+
+            SetSmartPageCode(118000);
+            return View(model);
+        }
+
+        private void PopulateViewBag()
+        {
             #region Voriwe Bag
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
             ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.All().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
-            
+
             ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.All().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
 
             ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
@@ -87,9 +106,6 @@ namespace GCTL_App.Controllers.Employees
 
             #endregion
 
-
-            SetSmartPageCode(118000);
-            return View(model);
         }
 
         [HttpGet]
