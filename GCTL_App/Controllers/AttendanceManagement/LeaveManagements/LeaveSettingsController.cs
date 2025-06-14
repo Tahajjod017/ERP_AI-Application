@@ -4,17 +4,20 @@ using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
-    public class LeaveSettingsController : Controller
+    public class LeaveSettingsController : BaseController
     {
         private readonly IGenericRepository<Organization> organization;
         private readonly ILeaveSettingsService leaveSettingsService;
-        public LeaveSettingsController(IGenericRepository<Organization> organization, ILeaveSettingsService leaveSettingsService)
+
+        public LeaveSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, ILeaveSettingsService leaveSettingsService) : base(translateService, userProfileService)
         {
             this.organization = organization;
             this.leaveSettingsService = leaveSettingsService;
@@ -42,5 +45,25 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             var data = await leaveSettingsService.SaveAddNewLeaveAsync(entityVM);
             return Json(data);
         }
+
+        [Route("LeaveSettingsRoute/GetLeaveTypesDataByID")]
+        public async Task<IActionResult> GetLeaveTypesDataByID(int leaveTypeID)
+        {
+            if(leaveTypeID==0)
+            {
+                return Json(new { message = "Data is Invalid" });
+            }
+          var data=await leaveSettingsService.GetLeaveTypesByIdAsync(leaveTypeID);
+            return Json(data);
+        }
+
+        [Route("LeaveSettingsRoute/GetAllLeaveTypesAsync")]
+        public async Task<IActionResult> GetAllLeaveTypesAsync()
+        {
+           
+            var data = await leaveSettingsService.GetAllLeaveTypesAsync();
+            return Json(data);
+        }
+
     }
 }

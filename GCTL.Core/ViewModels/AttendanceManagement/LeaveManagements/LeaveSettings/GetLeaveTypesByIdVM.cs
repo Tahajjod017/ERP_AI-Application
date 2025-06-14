@@ -1,5 +1,4 @@
-﻿using GCTL.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings
 {
-    public class AddNewLeaveSave:BaseViewModel
+    public class GetLeaveTypesByIdVM
     {
-      
+        public int LeaveTypeID { get; set; }
         public string? LeaveTypeName { get; set; }
         public int? OrganizationID { get; set; }
 

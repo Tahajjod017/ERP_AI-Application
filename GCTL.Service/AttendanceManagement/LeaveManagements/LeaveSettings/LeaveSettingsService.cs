@@ -22,10 +22,59 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             this.leaveType = leaveType;
             this.userInfoService = userInfoService;
         }
+        #region GetBy Data By ID 
+        public async Task<GetLeaveTypesByIdVM> GetLeaveTypesByIdAsync(int leaveTypeID)
+        {
+            try
+            {
+                var data=await leaveType.GetByIdAsync(leaveTypeID);
+                if (data == null) { return null; }
+                GetLeaveTypesByIdVM dataVM = new GetLeaveTypesByIdVM
+                {
+                    LeaveTypeID = data.LeaveTypeID,
 
+                    LeaveTypeName = string.IsNullOrWhiteSpace(data.LeaveTypeName) ? "" : data.LeaveTypeName,
+                    OrganizationID = data.OrganizationID.HasValue ? data.OrganizationID : 0,
+                    IsApid = data.IsPaid,
+                    LeaveDays = data.LeaveDays.HasValue ? data.LeaveDays : 0,
+                    Code = string.IsNullOrWhiteSpace(data.Code) ? "" : data.Code,
+                    EffectiveFrom = data.EffectiveFrom.HasValue ? data.EffectiveFrom : 0,
+                    EffectiveFromMonthYear = string.IsNullOrWhiteSpace(data.EffectiveFromMonthYear) ? "" : data.EffectiveFromMonthYear,
+                    EffectiveAfter = string.IsNullOrWhiteSpace(data.EffectiveAfter) ? "" : data.EffectiveAfter,
+                    MinimumDaysRequiredEncashement = data.MinimumDaysRequiredEncashement.HasValue ? data.MinimumDaysRequiredEncashement : 0,
+                    MaximumDaysAllowedEncashement = data.MaximumDaysAllowedEncashement.HasValue ? data.MaximumDaysAllowedEncashement : 0
+                };
+
+                return dataVM;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<List<GetLeaveTypesListVM>> GetAllLeaveTypesAsync()
+        {
+            var dataList = await leaveType.GetAllAsync(); // Assuming you have a repository method for all
+            if (dataList == null || !dataList.Any())
+                return new List<GetLeaveTypesListVM>();
+
+            return dataList.Select(data => new GetLeaveTypesListVM
+            {
+                LeaveTypeID = data.LeaveTypeID,
+                LeaveTypeName = string.IsNullOrWhiteSpace(data.LeaveTypeName) ? "" : data.LeaveTypeName,
+                IsActive=data.IsActive
+            }).ToList();
+        }
+
+        #endregion
+
+
+        #region Save Data
         public async Task<CommonReturnViewModel> SaveAddNewLeaveAsync(AddNewLeaveSave entityVM)
         {
-       
+
             if (entityVM == null)
             {
                 return new CommonReturnViewModel
@@ -42,14 +91,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 var entity = new LeaveTypes
                 {
                     OrganizationID = entityVM.OrganizationID,
-                    IsApid = entityVM.IsApid,
+                    IsPaid = entityVM.IsApid,
                     LeaveTypeName = entityVM.LeaveTypeName,
                     LeaveDays = entityVM.LeaveDays,
-                    Code=entityVM.Code,
+                    Code = entityVM.Code,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
-                    LMAC = entityVM.LMAC
+                    LMAC = entityVM.LMAC,
+                    EffectiveFromMonthYear = entityVM.EffectiveFromMonthYear,
+                    EffectiveFrom = entityVM.EffectiveFrom,
+                    EffectiveAfter = entityVM.EffectiveAfter
                 };
 
                 await leaveType.AddAsync(entity);
@@ -74,7 +126,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     Message = "An error occurred while saving the leave request."
                 };
             }
-        
-    }
+
+        }
+        #endregion
+
     }
 }

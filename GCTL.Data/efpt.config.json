@@ -175,6 +175,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LeavePolicyConfiguration]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LeaveTypes]",
          "ObjectType": 0
       },
