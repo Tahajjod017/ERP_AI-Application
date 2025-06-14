@@ -57,6 +57,7 @@ using GCTL.Service.Employees.EmployeeContact;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.Employees.EmployeeList;
 using GCTL.Service.Employees.EmployeeDetails;
+using GCTL.Service.Employees.EmployeeNavigation;
 
 
 
@@ -156,6 +157,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeContactService, EmployeeContactService>();
             services.AddScoped<IEmployeeListService, EmployeeListService>();
             services.AddScoped<IEmployeeDetailsService, EmployeeDetailsService>();
+
+            services.AddScoped<IEmployeeNavigationService, EmployeeNavigationService>();
 
             #endregion
 

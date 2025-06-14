@@ -12,11 +12,12 @@
     const $departmentFilter = $('#departmentFilter');
     const $statusFilter = $('#statusFilter');
     const $sortFilter = $('#sortFilter');
+    const $pageSizeData = $('#pageSize');
     const $searchInput = $('.search-input');
     const $listViewBtn = $('#listViewBtn');
     const $boardViewBtn = $('#boardViewBtn');
     const $tablePaginationContainer = $('.pagination'); // Table view pagination
-    const $boardPaginationContainer = $('<ul class="mb-0 pagination board-pagination"></ul>'); // New board view pagination
+    const $boardPaginationContainer = $('<ul class="mb-0 pagination board-pagination d-flex justify-content-end"></ul>'); // New board view pagination
 
     let currentTablePage = 1;
     let currentBoardPage = 1;
@@ -33,12 +34,17 @@
 
     //#region Fetch employee data
     function fetchEmployees(page = 1, filters = currentFilters) {
+
+        test = $('#pageSize').val();
+
+        console.log('test', test)
+
         return $.ajax({
             url: API_BASE_URL,
             method: 'GET',
             data: {
                 page: page,
-                limit: ITEMS_PER_PAGE,
+                limit:  ITEMS_PER_PAGE,
                 department: filters.department,
                 status: filters.status,
                 sort: filters.sort,
@@ -186,35 +192,55 @@
     }
     //#endregion
 
-    //#region Render pagination for table view
+    //#region  pagination
+
     function renderTablePagination(totalItems) {
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
         $tablePaginationContainer.empty();
 
-        for (let i = 1; i <= totalPages; i++) {
-            const pageItem = `
-                <li class="page-item ${i === currentTablePage ? 'active' : ''}">
-                    <button class="page-link" data-page="${i}">${i}</button>
-                </li>`;
-            $tablePaginationContainer.append(pageItem);
+        let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
+
+        const startPage = Math.max(1, currentTablePage - 2);
+        const endPage = Math.min(totalPages, startPage + 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHtml += `
+            <li class="page-item ${i === currentTablePage ? 'active' : ''}">
+                <button class="page-link" data-page="${i}">${i}</button>
+            </li>`;
         }
+
+        paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
+
+        $tablePaginationContainer.append(paginationHtml);
     }
 
     //#endregion
 
     //#region Render pagination for board view
+
     function renderBoardPagination(totalItems) {
         const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
         $boardPaginationContainer.empty();
 
-        for (let i = 1; i <= totalPages; i++) {
-            const pageItem = `
-                <li class="page-item ${i === currentBoardPage ? 'active' : ''}">
-                    <button class="page-link" data-page="${i}">${i}</button>
-                </li>`;
-            $boardPaginationContainer.append(pageItem);
+        let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
+
+        const startPage = Math.max(1, currentBoardPage - 2);
+        const endPage = Math.min(totalPages, startPage + 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHtml += `
+            <li class="page-item ${i === currentBoardPage ? 'active' : ''}">
+                <button class="page-link" data-page="${i}">${i}</button>
+            </li>`;
         }
+
+        paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
+
+        $boardPaginationContainer.append(paginationHtml);
     }
+
+   
 
     //#endregion
 
@@ -272,6 +298,12 @@
         loadTableData(1);
         loadBoardData(1);
     });
+
+    //$pageSizeData.on('change', function () {
+    //    currentFilters.department = $(this).val();
+    //    loadTableData(1);
+    //    loadBoardData(1);
+    //});
 
     $statusFilter.on('change', function () {
         currentFilters.status = $(this).val();

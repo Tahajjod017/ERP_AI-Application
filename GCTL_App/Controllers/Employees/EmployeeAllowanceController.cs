@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeAllowance;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,21 @@ namespace GCTL_App.Controllers.Employees
         
         private readonly IEmployeeAllowanceService _employeeAllowanceService;
 
-        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService) : base(translateService, userProfileService)
+        private readonly IEmployeeNavigationService _employeeNavigationService;
+
+
+        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeAllowanceService = employeeAllowanceService;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeAllowance");
+            ViewBag.Navigation = navigationModel;
+
             PopulateViewBag();
 
             var model = _employeeAllowanceService.GetEmployeeAllowance(id).Result;

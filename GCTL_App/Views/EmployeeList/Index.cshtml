@@ -1776,31 +1776,31 @@
         <div class="row justify-content-between">
             <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-end-xxl-0 border-bottom-xxl-0 border-end border-bottom pb-4 pb-xxl-0">
                 <span class="uil fs-5 lh-1 uil-user text-primary"></span>
-                <h1 class="fs-5 pt-3">2,800</h1>
+                <h1 class="fs-5 pt-3">@ViewBag.TotalEmployee</h1>
                 <p class="fs-9 mb-0">Total Employees</p>
             </div>
             <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-end-xxl-0 border-bottom-xxl-0 border-end-md border-bottom pb-4 pb-xxl-0">
                 <span class="uil fs-5 lh-1 uil-user-plus text-info"></span>
-                <h1 class="fs-5 pt-3">1,866</h1>
+                <h1 class="fs-5 pt-3">@ViewBag.ActiveEmployee</h1>
                 <p class="fs-9 mb-0">Active Employees</p>
             </div>
             <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-end-xxl-0 border-bottom-xxl-0 border-end-md border-bottom pb-4 pb-xxl-0">
                 <span class="uil fs-5 lh-1 uil-user text-primary"></span>
-                <h1 class="fs-5 pt-3">1,366</h1>
+                <h1 class="fs-5 pt-3">@ViewBag.InactiveEmployee</h1>
                 <p class="fs-9 mb-0">Inactive Employees</p>
             </div>
             <div class="col-6 col-md-3 col-xxl-2 text-center border-translucent border-start-xxl border-bottom-xxl-0 border-bottom border-end border-end-md-0 pb-4 pb-xxl-0 pt-4 pt-md-0">
                 <span class="uil fs-5 lh-1 uil-user-plus text-info"></span>
-                <h1 class="fs-5 pt-3">200</h1>
+                <h1 class="fs-5 pt-3">@ViewBag.NewJoinings</h1>
                 <p class="fs-9 mb-0">New Joining</p>
             </div>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="min-height: 550px;">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
             <div>
-                <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(32)</span></span>
+                <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(@ViewBag.ActiveEmployee)</span></span>
             </div>
 
 
@@ -1822,10 +1822,12 @@
         </div>
 
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-            <button class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasRightANE" aria-controls="offcanvasRightANE">
+
+            <a class="btn btn-primary mb-1" href="@Url.Action("Index", "EmployeePersonal")">
                 <i class="fa-solid fa-plus me-2"></i>Add new Employee
-            </button>
+            </a>
+
+            
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div class="search-box me-3">
                     <form class="position-relative">
@@ -1834,17 +1836,27 @@
                         <span class="fas fa-search search-box-icon"></span>
                     </form>
                 </div>
+
+               <!-- <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="5">Show</option>
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                 </div> -->
+
                 <div class="dropdown me-3">
-                    <select class="form-select choiceDD" id="departmentFilter" data-choices="data-choices" size="1"
-                            required="required" name="departmentFilter"
-                            data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Search By Department</option>
-                        <option>Apps Development</option>
-                        <option>Finance</option>
-                        <option>Accounts</option>
-                        <option>Designer</option>
+                    
+
+                   
+                    <select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.DepartmentDD as SelectList">
+                        <option value="">@Html.SmartLocalize("Select Department")</option>
                     </select>
                 </div>
+
+                
+
                 <div class="dropdown me-3">
                     <select class="form-select choiceDD" id="statusFilter" data-choices="data-choices" size="1" required="required"
                             name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
@@ -1867,12 +1879,7 @@
             </div>
         </div>
 
-        <div id="boardView"
-             class="view-content row row-cols-1 row-cols-sm-2 row-cols-xl-4 row-cols-xxl-4 g-3 mb-4 p-3 visible">
-
-           
-
-        </div>
+        <div id="boardView"  class="view-content row row-cols-1 row-cols-sm-2 row-cols-xl-4 row-cols-xxl-4 g-3 mb-4 p-3 visible"></div>
 
         <div id="listView" class="view-content border-top border-translucent p-3 hidden">
             <div id="employeeListTable" >

@@ -24,6 +24,9 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeListController : BaseController
     {
+
+        #region CTOR
+
         private readonly IEmployeeListService _employeeListService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -40,6 +43,7 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IGenericRepository<LicenceTypes> _licenceTypesRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.EmployeeOfficeInfo> _employeeOfficeRepository;
         private readonly IGenericRepository<YearlyEndBonusTypes> _yearlyEndBonusTypesRepository;
         private readonly IGenericRepository<ServiceYears> _serviceYearsRepository;
         private readonly IGenericRepository<EducationLevels> _educationLevelsRepository;
@@ -64,7 +68,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<TrainingYears> _trainingYearsRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
 
-        public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository) : base(translateService, userProfileService)
+        public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository) : base(translateService, userProfileService)
         {
             _employeeListService = employeeListService;
             _httpContextAccessor = httpContextAccessor;
@@ -103,7 +107,10 @@ namespace GCTL_App.Controllers.Employees
             _religionRepository = religionRepository;
             _trainingYearsRepository = trainingYearsRepository;
             _genderRepository = genderRepository;
+            _employeeOfficeRepository = employeeOfficeRepository;
         }
+
+        #endregion
 
         public IActionResult Index()
         {
@@ -116,8 +123,16 @@ namespace GCTL_App.Controllers.Employees
         {
             #region ViewBag
 
-            ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
+            ViewBag.TotalEmployee = _employeeRepository.All().Count();
+            ViewBag.ActiveEmployee = _employeeRepository.AllActive().Count();
+            ViewBag.InactiveEmployee = ViewBag.TotalEmployee - ViewBag.ActiveEmployee;
 
+            DateOnly threeMonthsAgo = DateOnly.FromDateTime(DateTime.Now.AddMonths(-3));
+            var newJoinings = _employeeOfficeRepository.All().Where(emp => emp.JoiningDate.HasValue && emp.JoiningDate.Value >= threeMonthsAgo).ToList();
+            ViewBag.NewJoinings = newJoinings.Count();
+
+            ViewBag.DepartmentDD = new SelectList(_departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }), "DepartmentID", "DepartmentName");
+            ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
 
@@ -316,47 +331,50 @@ namespace GCTL_App.Controllers.Employees
             return Ok(new { LocalHostUrl = url });
         }
 
+        #region JUnk
 
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeeById(int id)
-        {
-            try
-            {
-                var personal = await _employeePersonalService.GetEmployeePersonalById(id);
-                var offical = await _employeeOfficialService.GetEmployeeOfficalDetails(id);
-                var additional = await _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id);
-                var contact = await _employeeContactService.GetEmployeeContactByIdAsync(id);
-                var educational = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id);
-                var family = await _employeeFamilyService.GetEmployeeFamilyByIdAsync(id);
-                var salary = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdAsync(id);
-                var training = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
-                var allowance = await _employeeAllowanceService.GetEmployeeAllowance(id);
-                var benifit = await employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
-               
-
-
-                return Ok(new
-                {
-                    personal = personal,
-                    offical = offical,
-                    additional = additional,
-                    salary = salary,
-                    allowance = allowance,
-                    benifit = benifit,
-
-                    contact = contact,
-                    educational = educational,
-                    family = family,
-                    training = training,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Server error", error = ex.Message });
-            }
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployeeById(int id)
+        //{
+        //    try
+        //    {
+        //        var personal = await _employeePersonalService.GetEmployeePersonalById(id);
+        //        var offical = await _employeeOfficialService.GetEmployeeOfficalDetails(id);
+        //        var additional = await _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id);
+        //        var contact = await _employeeContactService.GetEmployeeContactByIdAsync(id);
+        //        var educational = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id);
+        //        var family = await _employeeFamilyService.GetEmployeeFamilyByIdAsync(id);
+        //        var salary = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdAsync(id);
+        //        var training = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
+        //        var allowance = await _employeeAllowanceService.GetEmployeeAllowance(id);
+        //        var benifit = await employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
 
 
+
+        //        return Ok(new
+        //        {
+        //            personal = personal,
+        //            offical = offical,
+        //            additional = additional,
+        //            salary = salary,
+        //            allowance = allowance,
+        //            benifit = benifit,
+
+        //            contact = contact,
+        //            educational = educational,
+        //            family = family,
+        //            training = training,
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Server error", error = ex.Message });
+        //    }
+        //}
+
+        #endregion
+
+        #region Populate Edit Form
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeePersonal(int id) => Ok(await _employeePersonalService.GetEmployeePersonalById(id));
@@ -388,7 +406,9 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public async Task<IActionResult> GetEmployeeBenefit(int id) => Ok(await employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString()));
 
+        #endregion
 
+        #region GetEmployee For Table and Board
 
         [HttpGet]
         public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, 
@@ -406,7 +426,8 @@ namespace GCTL_App.Controllers.Employees
                 // Filter by department
                 if (!string.IsNullOrEmpty(department))
                 {
-                    query = query.Where(e => e.Department == department);
+                    var dept = _departmentRepository.All().Where(e => e.DepartmentID == Convert.ToInt64(department)).Select(e=>e.DepartmentName).FirstOrDefault();
+                    query = query.Where(e => e.Department == dept);
                 }
 
                 // Filter by status
@@ -418,9 +439,13 @@ namespace GCTL_App.Controllers.Employees
                 // Search by name or email
                 if (!string.IsNullOrEmpty(search))
                 {
+                    //query = query.Where(e =>
+                    //    e.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    //    e.Email.Contains(search, StringComparison.OrdinalIgnoreCase));
+
                     query = query.Where(e =>
-                        e.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                        e.Email.Contains(search, StringComparison.OrdinalIgnoreCase));
+                        e.Name.ToLower().Contains(search.ToLower()) ||
+                        e.Email.ToLower().Contains(search.ToLower()));
                 }
 
 
@@ -495,5 +520,7 @@ namespace GCTL_App.Controllers.Employees
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
         }
+
+        #endregion
     }
 }

@@ -2,6 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeFamily;
 using GCTL.Service.Employees.EmployeeFamily;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -14,17 +15,23 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeFamilyService _employeeFamilyService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
+        private readonly IEmployeeNavigationService _employeeNavigationService;
 
 
-        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeFamilyService employeeFamilyService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository) : base(translateService, userProfileService)
+        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeFamilyService employeeFamilyService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
 
         {
             _employeeFamilyService = employeeFamilyService;
             _employeeRepository = employeeRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("FamilyInfo");
+            ViewBag.Navigation = navigationModel;
+
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
 

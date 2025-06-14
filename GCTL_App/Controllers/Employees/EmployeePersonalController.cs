@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee;
 using GCTL.Core.ViewModels.Employee.EmployeePersonal;
 using GCTL.Data.Models;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -16,12 +17,13 @@ namespace GCTL_App.Controllers.Employees
     public class EmployeePersonalController : BaseController
     {
         private readonly IEmployeePersonalService _employeePersonalService;
+        private readonly IEmployeeNavigationService _employeeNavigationService;
         private readonly IGenericRepository<MaritalStatus> _maritalRepository;
         private readonly IGenericRepository<Religions> _religionRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
-        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository) : base(translateService, userProfileService)
+        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;
@@ -29,6 +31,7 @@ namespace GCTL_App.Controllers.Employees
             _genderRepository = genderRepository;
             _countryRepository = countryRepository;
             _bloodGroupRepository = bloodGroupRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index()
@@ -37,18 +40,17 @@ namespace GCTL_App.Controllers.Employees
 
             PopulateViewBag();
 
-           
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("PersonalInfo");
+            ViewBag.Navigation = navigationModel;
+
+
             //ViewBag.MaritalStatusDD = _maritalRepository.All().ToList();
-
-
-
             //EmployeePersonalPostViewModel model = null;
-
             //if (TempData["EmployeeModel"] != null)
             //{
             //    model = JsonConvert.DeserializeObject<EmployeePersonalPostViewModel>(TempData["EmployeeModel"].ToString());
             //}
-
             //return View(model);
 
             return View();
