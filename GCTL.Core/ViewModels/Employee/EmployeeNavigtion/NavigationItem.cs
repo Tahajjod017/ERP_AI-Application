@@ -16,5 +16,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeNavigtion
         public string AriaControls { get; set; }
         public List<NavigationItem> SubItems { get; set; } = new List<NavigationItem>();
         public bool HasSubItems => SubItems != null && SubItems.Count > 0;
+
+       // public string UrlHelper { get; set; }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeAllowance;
+using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -17,18 +19,47 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeNavigationService _employeeNavigationService;
 
+        private readonly UserManager<ApplicationUser> _userManagerRepository2;
+        private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
+        private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
+        private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
+        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, UserManager<ApplicationUser> userManagerRepository2) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeAllowanceService = employeeAllowanceService;
             _employeeNavigationService = employeeNavigationService;
+            _menuTabRepository = menuTabRepository;
+            _rolePermissionRepository = rolePermissionRepository;
+            _roleManagerRepository2 = roleManagerRepository2;
+            _userManagerRepository2 = userManagerRepository2;
         }
 
-        public IActionResult Index(int id)
+        public async Task< IActionResult> Index(int id)
         {
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeAllowance");
-            ViewBag.Navigation = navigationModel;
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo", "EmployeeAllowance" );
+                ViewBag.Navigation = navigationModel;
+            }
+
+            
 
             PopulateViewBag();
 
@@ -47,27 +78,27 @@ namespace GCTL_App.Controllers.Employees
 
             ViewBag.HouseRentAllowanceDD = new SelectList(new List<SelectListItem>
             {
-                new SelectListItem { Value = "35", Text = "35 %" },
-                new SelectListItem { Value = "40", Text = "40 %" },
-                new SelectListItem { Value = "45", Text = "45 %" },
-                new SelectListItem { Value = "50", Text = "50 %" },
-                new SelectListItem { Value = "60", Text = "60 %" },
-                new SelectListItem { Value = "70", Text = "70 %" },
-                new SelectListItem { Value = "100", Text = "100 %" }
+                new SelectListItem { Value = "35.00", Text = "35 %" },
+                new SelectListItem { Value = "40.00", Text = "40 %" },
+                new SelectListItem { Value = "45.00", Text = "45 %" },
+                new SelectListItem { Value = "50.00", Text = "50 %" },
+                new SelectListItem { Value = "60.00", Text = "60 %" },
+                new SelectListItem { Value = "70.00", Text = "70 %" },
+                new SelectListItem { Value = "100.00", Text = "100 %" }
             }, "Value", "Text");
 
             ViewBag.MedicalAllowanceDD = new SelectList(new List<SelectListItem>
             {
-                new SelectListItem { Value = "8", Text = "8 %" },
-                new SelectListItem { Value = "10", Text = "10 %" },
-                new SelectListItem { Value = "15", Text = "15 %" }
+                new SelectListItem { Value = "8.00", Text = "8 %" },
+                new SelectListItem { Value = "10.00", Text = "10 %" },
+                new SelectListItem { Value = "15.00", Text = "15 %" }
             }, "Value", "Text");
 
             ViewBag.ConveyanceAllowanceDD = new SelectList(new List<SelectListItem>
             {
-                new SelectListItem { Value = "8", Text = "8 %" },
-                new SelectListItem { Value = "10", Text = "10 %" },
-                new SelectListItem { Value = "15", Text = "15 %" }
+                new SelectListItem { Value = "8.00", Text = "8 %" },
+                new SelectListItem { Value = "10.00", Text = "10 %" },
+                new SelectListItem { Value = "15.00", Text = "15 %" }
             }, "Value", "Text");
 
             #endregion

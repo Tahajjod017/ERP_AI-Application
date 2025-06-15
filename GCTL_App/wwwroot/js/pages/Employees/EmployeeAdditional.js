@@ -22,12 +22,31 @@
                 }
             });
         }
+
+        //const lastInt = getLastIntFromUrl();
+        //if (lastInt) {
+        //    loadEmployeeAdditionalData(lastInt);
+        //    TabChange(lastInt);
+        //}
+
     }
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);
     initEmployeeChoices();
 
     //#endregion
 
+    function getLastIntFromUrl() {
+        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
+        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
+    }
+
+    //const lastInt = getLastIntFromUrl();
+    //console.log('Last int:', lastInt);
+
+    //if (lastInt) {
+    //    loadEmployeeContactData(lastInt);
+    //    TabChange(lastInt);
+    //}
 
 
 
@@ -41,7 +60,7 @@
             data: { id: selectedEmployeeId },
             success: function (data) {
 
-                debugger
+               
 
                 choiceManager.setChoiceValue('EmployeePersonalId', data.employeePersonalId);
                 $('#PersonalEmail').val(data.personalEmail);
@@ -162,7 +181,22 @@
         });
     });
 
-    //#endregion 
+    //#endregion
+
+
+    //#region Clear Form
+
+  
+
+    $('#btnClear').on('click', function (e) {
+        e.preventDefault();
+       // alert('55')
+       choiceManager.clearChoice('LicenceTypeID');
+       
+
+    });
+
+    //#endregion
 
 
 

@@ -22,12 +22,38 @@
                     clearForm();
                 }
             });
+
+           
         }
+
+
+        //const lastInt = getLastIntFromUrl();
+        //if (lastInt) {
+        //    loadEmployeeBenifitData(lastInt);
+        //    TabChange(lastInt);
+        //}
+
     }
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);
     initEmployeeChoices();
 
     //#endregion
+
+
+    function getLastIntFromUrl() {
+        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
+        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
+    }
+
+    //const lastInt = getLastIntFromUrl();
+    //console.log('Last int:', lastInt);
+
+    //if (lastInt) {
+    //    loadEmployeeContactData(lastInt);
+    //    TabChange(lastInt);
+    //}
+
+
 
 
     //#region Pupulate Data

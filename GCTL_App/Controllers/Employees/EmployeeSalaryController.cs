@@ -5,6 +5,7 @@ using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,9 +23,12 @@ namespace GCTL_App.Controllers.Employees
         private readonly IEmployeeSalaryService _employeeSalaryService;
         private readonly IEmployeeNavigationService _employeeNavigationService;
 
+        private readonly UserManager<ApplicationUser> _userManagerRepository2;
+        private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
+        private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
+        private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-
-        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
+        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _gradeRepository = gradeRepository;
@@ -34,13 +38,38 @@ namespace GCTL_App.Controllers.Employees
             _employeeSalaryRepository = employeeSalaryRepository;
             _employeeSalaryService = employeeSalaryService;
             _employeeNavigationService = employeeNavigationService;
+            _userManagerRepository2 = userManagerRepository2;
+            _menuTabRepository = menuTabRepository;
+            _rolePermissionRepository = rolePermissionRepository;
+            _roleManagerRepository2 = roleManagerRepository2;
         }
 
-        public IActionResult Index(int id)
+        public async Task< IActionResult> Index(int id)
         {
 
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeSalary");
-            ViewBag.Navigation = navigationModel;
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo",  "EmployeeSalary");
+                ViewBag.Navigation = navigationModel;
+            }
+
+           
 
             ViewBag.EmployeeDD = new SelectList( _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.GradeDD = new SelectList( _gradeRepository.All().Select(o => new { o.GradeID, o.GradeName }), "GradeID", "GradeName" );     
@@ -49,7 +78,10 @@ namespace GCTL_App.Controllers.Employees
             ViewBag.PaymenModeDD = new SelectList( _paymentModeRepository.All().Select(o => new { o.PaymentModeID, o.PaymentModeName }), "PaymentModeID", "PaymentModeName");     
             
             SetSmartPageCode(117000);
-            return View();
+
+            var employeeSalaryData = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdPostAsync(id);
+
+            return View(employeeSalaryData);
         }
 
         #region GetEmployeeSalaryData
@@ -120,6 +152,27 @@ namespace GCTL_App.Controllers.Employees
         {
             try
             {
+                var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+                if (loggedUser != null)
+                {
+
+                    var userId = loggedUser.Id;
+
+                    var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                    var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                    var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                    var menuTabs = (from rp in _rolePermissionRepository.All()
+                                    join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                    where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                    select mt.ControllerName).Distinct().ToList();
+
+
+                    var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "EmployeeSalary");
+                    ViewBag.Navigation = navigationModel;
+                }
 
                 if (model.EmployeeSalarySettingsID == 0 || model.EmployeeSalarySettingsID == null)
                 {

@@ -9,7 +9,8 @@ namespace GCTL.Service.Employees.EmployeeNavigation
 {
     public interface IEmployeeNavigationService
     {
-        EmployeeNavigationViewModel GetEmployeeNavigation(string activeTab = "", string activeSubTab = "");
+        EmployeeNavigationViewModel GetEmployeeNavigation(List<string> menuTabs,  string activeTab = "",  string activeSubTab = "");
+        
         Task<EmployeeNavigationViewModel> GetEmployeeNavigationAsync(string activeTab = "", string activeSubTab = "");
         EmployeeNavigationViewModel GetEmployeeNavigationFromDatabase(string userId, string activeTab = "", string activeSubTab = "");
     }

@@ -101,6 +101,77 @@ namespace GCTL.Service.Employees.EmployeeSalary
             return empPersonal;
         }
 
+        public async Task<EmployeeSalaryPostViewModel> GetEmployeeSalaryByEmployeeIdPostAsync(int employeeId)
+        {
+            var employeeSalaryInfo = await(
+                from sal in _employeeSalaryRepository.AllActive()
+                join emp in _employeeRepository.AllActive()
+                    on sal.EmployeeID equals emp.EmployeeID into empGroup
+                from emp in empGroup.DefaultIfEmpty()
+                where sal.EmployeeID == employeeId
+                select new
+                {
+                    sal,
+                    emp
+                }
+            ).FirstOrDefaultAsync();
+
+            if (employeeSalaryInfo != null)
+            {
+                var basePayments = await _employeeBasePaymentRepository.AllActive()
+                    .Where(p => p.EmployeeID == employeeId)
+                    .ToListAsync();
+
+                var viewModel = new EmployeeSalaryPostViewModel
+                {
+                    EmployeePersonalId = employeeSalaryInfo.emp?.EmployeeID ?? 0,
+                    PersonalPhone = employeeSalaryInfo.emp?.MobileNumber,
+                    PersonalEmail = employeeSalaryInfo.emp?.Email,
+                    EmployeeSalarySettingsID = employeeSalaryInfo.sal?.EmployeeSalarySettingsID,
+                    BankName = employeeSalaryInfo.sal?.BankName,
+                    BranchName = employeeSalaryInfo.sal?.BranchName,
+                    AccountName = employeeSalaryInfo.sal?.AccountName,
+                    AccountNo = employeeSalaryInfo.sal?.AccountNo,
+                    Address = employeeSalaryInfo.sal?.Address,
+                    ATMCardNo = employeeSalaryInfo.sal?.ATMCardNo,
+                    RoutingNo = employeeSalaryInfo.sal?.RoutingNo,
+                    SWIFTCode = employeeSalaryInfo.sal?.SWIFTCode,
+                    IFSCCode = employeeSalaryInfo.sal?.IFSCCode,
+                    bKashAccountNo = employeeSalaryInfo.sal?.bKashAccountNo,
+                    RoketAccountNo = employeeSalaryInfo.sal?.RoketAccountNo,
+                    NagodAccountNo = employeeSalaryInfo.sal?.NagodAccountNo,
+                    EmployeeGID = employeeSalaryInfo.sal?.EmployeeGID,
+                    GradeID = employeeSalaryInfo.sal?.GradeID,
+                    Salary = employeeSalaryInfo.sal.Salary,
+                    CurrencyID = employeeSalaryInfo.sal.CurrencyID,
+                    PaymenPeriodTypeID = employeeSalaryInfo.sal.PaymenPeriodTypeID,
+                    IsBenefitsEnabled = employeeSalaryInfo.sal?.IsBenefitsEnabled ?? false,
+                    IsAllowanceEnabled = employeeSalaryInfo.sal?.IsAllowanceEnabled ?? false,
+                    PaymentModeIds = basePayments
+                        .Where(p => p.PaymentModeID.HasValue)
+                        .Select(p => p.PaymentModeID.Value)
+                        .ToList(),
+                    PrimaryPaymentModeId = basePayments
+                        .FirstOrDefault(p => p.IsPrimary)?.PaymentModeID,
+                    PrimaryPaymentPercent = basePayments
+                        .FirstOrDefault(p => p.IsPrimary)?.Percentage,
+                    SecondaryPaymentModeId = basePayments
+                        .FirstOrDefault(p => !p.IsPrimary)?.PaymentModeID
+                };
+
+                return viewModel;
+            }
+
+            var empPersonal = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeSalaryPostViewModel
+            {
+                EmployeePersonalId = m.EmployeeID,
+                PersonalPhone = m.MobileNumber,
+                PersonalEmail = m.Email
+            }).FirstOrDefaultAsync();
+
+            return empPersonal;
+        }
+
         #endregion
 
         #region SaveEmployeeSalary
