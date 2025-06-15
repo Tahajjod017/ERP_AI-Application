@@ -3,8 +3,11 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
+using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
+using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +19,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
     public class LeaveSettingsService : AppService<LeaveTypes>, ILeaveSettingsService
     {
         private readonly IGenericRepository<LeaveTypes> leaveType;
+        private readonly IGenericRepository<LeavePolicyConfiguration> leavepolicy;
         private readonly IUserInfoService userInfoService;
-        public LeaveSettingsService(IGenericRepository<LeaveTypes> leaveType, IUserInfoService userInfoService) : base(leaveType)
+        public LeaveSettingsService(IGenericRepository<LeaveTypes> leaveType, IUserInfoService userInfoService, IGenericRepository<LeavePolicyConfiguration> leavepolicy ) : base(leaveType)
         {
             this.leaveType = leaveType;
             this.userInfoService = userInfoService;
+            this.leavepolicy = leavepolicy;
         }
         #region GetBy Data By ID 
         public async Task<GetLeaveTypesByIdVM> GetLeaveTypesByIdAsync(int leaveTypeID)
@@ -35,7 +40,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
 
                     LeaveTypeName = string.IsNullOrWhiteSpace(data.LeaveTypeName) ? "" : data.LeaveTypeName,
                     OrganizationID = data.OrganizationID.HasValue ? data.OrganizationID : 0,
-                    IsApid = data.IsPaid,
+                    IsPaid = data.IsPaid,
                     LeaveDays = data.LeaveDays.HasValue ? data.LeaveDays : 0,
                     Code = string.IsNullOrWhiteSpace(data.Code) ? "" : data.Code,
                     EffectiveFrom = data.EffectiveFrom.HasValue ? data.EffectiveFrom : 0,
@@ -60,7 +65,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             if (dataList == null || !dataList.Any())
                 return new List<GetLeaveTypesListVM>();
 
-            return dataList.Select(data => new GetLeaveTypesListVM
+            return dataList.Where(x=>x.DeletedAt==null).Select(data => new GetLeaveTypesListVM
             {
                 LeaveTypeID = data.LeaveTypeID,
                 LeaveTypeName = string.IsNullOrWhiteSpace(data.LeaveTypeName) ? "" : data.LeaveTypeName,
@@ -91,7 +96,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 var entity = new LeaveTypes
                 {
                     OrganizationID = entityVM.OrganizationID,
-                    IsPaid = entityVM.IsApid,
+                    IsPaid = entityVM.IsPaid,
+                    IsActive=entityVM.IsActive,
                     LeaveTypeName = entityVM.LeaveTypeName,
                     LeaveDays = entityVM.LeaveDays,
                     Code = entityVM.Code,
@@ -128,7 +134,166 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             }
 
         }
+
+
         #endregion
 
+        #region Update Leave 
+        public async Task<CommonReturnViewModel> UpdateLeaveAsynce(UpdateLeaveVM entityVM)
+        {
+            try
+            {
+                // Fetch existing leave type from DB
+                var existingLeave = await leaveType.GetByIdAsync(entityVM.LeaveTypeID);
+
+                if (existingLeave == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Leave type not found."
+                    };
+                }
+
+                await leaveType.BeginTransactionAsync();
+                // Map values from view model to entity
+                existingLeave.LeaveTypeName = entityVM.LeaveTypeName;
+                existingLeave.OrganizationID = entityVM.OrganizationID;
+                existingLeave.IsPaid = entityVM.IsPaid;
+                existingLeave.IsActive = entityVM.IsActive;
+                existingLeave.LeaveDays = entityVM.LeaveDays;
+                existingLeave.Code = entityVM.Code;
+                existingLeave.EffectiveFrom = entityVM.EffectiveFrom;
+                existingLeave.EffectiveFromMonthYear = entityVM.EffectiveFromMonthYear;
+                existingLeave.EffectiveAfter = entityVM.EffectiveAfter;
+                existingLeave.MinimumDaysRequiredEncashement = entityVM.MinimumDaysRequiredEncashement;
+                existingLeave.MaximumDaysAllowedEncashement = entityVM.MaximumDaysAllowedEncashement;
+                existingLeave.LIP = entityVM.LIP;
+                existingLeave.LMAC = entityVM.LMAC;
+                existingLeave.UpdatedAt = DateTime.Now;
+                existingLeave.UpdatedBy = entityVM.UpdatedBy;
+                // Save changes
+                await leaveType.UpdateAsync(existingLeave);
+                await leaveType.CommitTransactionAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Updated Successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while updating leave type."
+                };
+            }
+        }
+
+
+        #endregion
+        #region SoftDeleteAsync
+        public async Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)
+        {
+            await leaveType.BeginTransactionAsync();
+            try
+            {
+                var data = await leaveType.FindAsync(x => requestVM.Ids.Contains(x.LeaveTypeID));
+                if (data == null || data.Count == 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Message = "No data found to delete."
+                    };
+                }
+                //var beforeEntity = JsonConvert.DeserializeObject<List<AddNewLeaveSave>>(JsonConvert.SerializeObject(data));
+                var targetIds = data.Select(x => (int?)x.LeaveTypeID).ToList();
+                foreach (var item in data)
+                {
+                    item.DeletedAt = DateTime.Now;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy ?? null;
+                }
+
+                await leaveType.UpdateRangeAsync(data);
+               // await userInfoService.ActionLogDeleteAsync("Leave Settigs", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await leaveType.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Message = $"Deleted Successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await leaveType.RollbackTransactionAsync();
+                throw new Exception("Error occurred during the deletion of data.", ex);
+            }
+        }
+
+
+        #endregion
+
+        #region Leave Policy Configuration 
+        public async Task<CommonReturnViewModel> AddLeavepolicyAsync(AddLeavePolicyConfigarationVM entityVM)
+        {
+            
+            if(entityVM == null)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Data Can not be null"
+                };
+            }
+           
+            await leavepolicy.BeginTransactionAsync();
+            try
+            {
+                var entity = new LeavePolicyConfiguration
+                {
+                    IsWeekendCountedAsLeave = entityVM.IsWeekendCountedAsLeave,
+                    IsHolidayCountedAsLeave = entityVM.IsHolidayCountedAsLeave,
+                    IsExceedLeaveBalance = entityVM.IsExceedLeaveBalance,
+                    RoundOffHour = entityVM.RoundOffHour,
+                    IsAllowRequestForPastDates = entityVM.IsAllowRequestForPastDates,
+                    AllowRequestForFutureDays = entityVM.AllowRequestForFutureDays,
+                    MaximumleaveDaysPerAplication = entityVM.MaximumleaveDaysPerAplication,
+                    MaximumGapDaysBetweenAplications = entityVM.MaximumGapDaysBetweenAplications,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+                    CreatedBy = entityVM.CreatedBy,
+                    CreatedAt = DateTime.Now
+                };
+                   await leavepolicy.AddAsync(entity);
+                   await userInfoService.ActionLogAsync("Add Leave Policy", ActionName.DataAdd, null, entity, entity.LeavePolicyConfigurationID, entityVM);
+                  await leaveType.CommitTransactionAsync();
+                return new CommonReturnViewModel
+               {
+                   Success = true,
+                    Message = "Saved Successfully."
+
+                };
+            }
+            catch (Exception ex)
+            {
+               
+                await leavepolicy.RollbackTransactionAsync();
+                Console.WriteLine(ex.Message);
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while saving the leave policy."
+                };
+            }
+
+
+           
+        }
+
+        #endregion
     }
 }

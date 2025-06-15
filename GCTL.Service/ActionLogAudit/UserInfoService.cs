@@ -90,9 +90,13 @@ namespace GCTL.Service.ActionLogAudit
                 });
             }
 
+
             await _context.ActionLogs.AddRangeAsync(logs);
             await _context.SaveChangesAsync();
         }
+
+
+
         #endregion
 
 
