@@ -134,7 +134,7 @@ $(document).ready(function () {
         $('#EmployeeIDError').hide().text('');
         $('#PartialFromTime, #PartialToTime').removeClass('is-invalid input-validation-error');
         $('#PartialFromTime, #PartialToTime').siblings('.text-danger').text('');
-
+        loadTableData();
         // Reset flatpickr instances
         ['#FromDate', '#ToDate', '#ToDateFromDateCombined', '#PartialFromTime', '#PartialToTime'].forEach(function (id) {
             if ($(id)[0] && $(id)[0]._flatpickr) {
@@ -221,23 +221,22 @@ function updateSortingIndicator() {
     });
 }
 
+
+
 function getBadgeClass(status) {
-    if (!status) return 'badge-phoenix-secondary';
-   
-    switch (status.trim()) {
-        case 'New':
-            return 'text-bg-success';      // Green
+    if (!status || status.trim() === '') return 'text-bg-success';
+
+    switch (status.trim().toUpperCase()) {
         case 'DECLINEED':
-            return 'badge-phoenix badge-phoenix-danger';         // Blue
+            return 'badge-phoenix badge-phoenix-danger';
         case 'APPROVED':
-            return 'badge-phoenix badge-phoenix-success';       // Red
+            return 'badge-phoenix badge-phoenix-success';
         case 'PENDING':
-            return 'badge-phoenix-warning';      // Yellow/Orange
+            return 'badge-phoenix-warning';
         default:
-            return 'badge-phoenix-secondary';    // Gray (fallback)
+            return 'text-bg-success';
     }
 }
-
 
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
@@ -254,7 +253,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
         },
         success: function (response) {
           
-            console.log("Data", response);
+            console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
             var totalItems = response.paginationInfo.totalItems;
@@ -306,7 +305,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Day</td>
                         
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName}</span>
+                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
                         </td>
                         
                         <td class="align-middle white-space-nowrap text-end pe-0 ps-4">

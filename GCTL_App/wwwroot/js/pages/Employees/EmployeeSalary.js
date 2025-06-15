@@ -16,6 +16,7 @@
                 const selectedEmployeeId = e.detail.value || e.target.value;
                 if (selectedEmployeeId && selectedEmployeeId !== '') {
                     loadEmployeeSalaryData(selectedEmployeeId);
+                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
                 } else {
                     clearForm();
                 }

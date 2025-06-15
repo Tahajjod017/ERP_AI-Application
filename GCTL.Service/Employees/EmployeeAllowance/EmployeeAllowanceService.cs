@@ -169,6 +169,8 @@ namespace GCTL.Service.Employees.EmployeeAllowance
                     existingAllowance.IsMedicalAllowancePercentageEnabled = model.IsMedicalAllowancePercentageEnabled;
                     existingAllowance.ConveyanceAllowancePercentage = model.ConveyanceAllowancePercentage;
                     existingAllowance.IsConveyanceAllowancePercentageEnabled = model.IsConveyanceAllowancePercentageEnabled;
+                    existingAllowance.InternetAllowanceEffectiveFrom = model.InternetAllowanceEffectiveFrom;
+                    existingAllowance.MobileAllowanceEffectiveFrom = model.MobileAllowanceEffectiveFrom;
 
 
 

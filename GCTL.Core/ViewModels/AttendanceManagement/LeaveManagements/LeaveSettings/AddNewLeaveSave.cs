@@ -10,15 +10,21 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
     public class AddNewLeaveSave:BaseViewModel
     {
       
-        public string LeaveTypeName { get; set; }
-
-        
+        public string? LeaveTypeName { get; set; }
         public int? OrganizationID { get; set; }
 
         public bool IsApid { get; set; }
 
         public decimal? LeaveDays { get; set; }
+        public string? Code { get; set; }
+        public int? EffectiveFrom { get; set; }
 
-      
+        public string? EffectiveFromMonthYear { get; set; }
+
+        public string? EffectiveAfter { get; set; }
+
+        public int? MinimumDaysRequiredEncashement { get; set; }
+
+        public int? MaximumDaysAllowedEncashement { get; set; }
     }
 }

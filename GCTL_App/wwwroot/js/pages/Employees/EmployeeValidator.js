@@ -77,7 +77,6 @@ function attachInputValidationHandler(selectors) {
 
 
 
-
 $(function () {
     // Function to get the label text for an input
     function getLabelText($input) {

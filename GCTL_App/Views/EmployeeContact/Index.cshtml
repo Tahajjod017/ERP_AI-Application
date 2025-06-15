@@ -1,4 +1,5 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeeContact.EmployeeContactViewModel
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
+@model GCTL.Core.ViewModels.Employee.EmployeeContact.EmployeeContactViewModel
 
 <style>
     .custom-autocomplete-dropdown {
@@ -69,6 +70,10 @@
 
                     <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis pb-4">
                         <div class="col-12 col-xl-12 col-xxl-12">
+
+                            @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
+
+                            <!--
                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
                                     <a class="nav-link" href="/EmployeePersonal/index" role="tab" aria-selected="false" aria-controls="empPersonalInfo">
@@ -111,6 +116,8 @@
                                     </a>
                                 </li>
                             </ul>
+
+                            -->
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="tabpanel" id="emmerhencyContactInfo" aria-labelledby="emmerhencyContactInfo">
@@ -252,5 +259,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/js/pages/employees/employeevalidator.js"></script>
     <script src="~/js/pages/employees/employeecontact.js"></script>
+    
+    <script src="~/js/pages/employees/employeetabchange.js"></script>
 
 }

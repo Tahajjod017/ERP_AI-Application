@@ -1,19 +1,4 @@
-﻿@* 
-<script>
-    var phoenixIsRTL = window.config.config.phoenixIsRTL;
-    if (phoenixIsRTL) {
-      var linkDefault = document.getElementById('style-default');
-      var userLinkDefault = document.getElementById('user-style-default');
-      linkDefault.setAttribute('disabled', true);
-      userLinkDefault.setAttribute('disabled', true);
-      document.querySelector('html').setAttribute('dir', 'rtl');
-    } else {
-      var linkRTL = document.getElementById('style-rtl');
-      var userLinkRTL = document.getElementById('user-style-rtl');
-      linkRTL.setAttribute('disabled', true);
-      userLinkRTL.setAttribute('disabled', true);
-    }
-</script> *@
+﻿
 
 <style>
     .disabledDiv {
@@ -40,107 +25,13 @@
     }
 </style>
 
-<div class="modal fade" id="add_leaves">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Add Leave Type</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="settings-ui.html">
-                <div class="modal-body pb-0">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label" for="organizerSingleCompany">Company</label>
-                                <select class="form-multi-select" multiple data-coreui-search="true">
-                                    <option value="1">CSL</option>
-                                    <option value="2">GCTL</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Leave Type <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Number of days <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Leave</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- /Add Leaves -->
-<!-- Edit Leaves -->
-<div class="modal fade" id="edit_leaves">
-    <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Edit Leave Type</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="settings-ui.html">
-                <div class="modal-body pb-0">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Leave Type <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" value="Casual Leave">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Number of days <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" value="12">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- /Edit Leaves -->
-<!-- Delete Modal -->
-<div class="modal fade" id="delete_modal">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body text-center">
-                <span class="avatar avatar-xl bg-transparent-danger text-danger mb-3">
-                    <i class="ti ti-trash-x fs-36"></i>
-                </span>
-                <h4 class="mb-1">Confirm Delete</h4>
-                <p class="mb-3">You want to delete all the marked items, this cant be undone once you delete.</p>
-                <div class="d-flex justify-content-center">
-                    <a href="javascript:void(0);" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</a>
-                    <a href="leave-type.html" class="btn btn-danger">Yes, Delete</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- /Delete Modal -->
 <!-- Annual Leave settings-->
 <div class="modal fade" id="annual_leave_settings">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Annual Leave Settings</h4>
+                <h4 class="modal-title" id="LeaveNameTitle"></h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="leaves.html">
@@ -245,26 +136,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Earned leave</label>
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check me-2">
-                                                <input class="form-check-input" type="radio" name="flexRadioOne" id="flexRadioTwo" checked="">
-                                                <label class="form-label" for="flexRadioTwo">
-                                                    Yes
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="flexRadioOne" id="flexRadioThree">
-                                                <label class="form-label" for="flexRadioThree">
-                                                    No
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
+                              
 
                                 <script>
                                     const checkbox = document.getElementById('toggleEncashementCheckbox');
@@ -854,7 +726,7 @@
 <div class="col-12 col-md-12 col-lg-12 ">
 
     <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-        <li class="nav-item"><a class="nav-link active" id="LeaveSettings-tab" data-bs-toggle="tab" href="#tab-LeaveSettings" role="tab" aria-controls="tab-LeaveSettings" aria-selected="true">Leave Settings</a></li>
+        <li class="nav-item"><a class="nav-link active" id="LeaveSettings-tab" data-bs-toggle="tab" href="#tab-LeaveSettings" role="tab" aria-controls="tab-LeaveSettings" aria-selected="true">Leave Type Settings</a></li>
         <li class="nav-item"><a class="nav-link" id="AttendanceSettings-tab" data-bs-toggle="tab" href="#tab-AttendanceSettings" role="tab" aria-controls="tab-AttendanceSettings" aria-selected="false">Leave policy configuration</a></li>
     </ul>
     <div class="tab-content mt-3" id="myTabContent0">
@@ -868,115 +740,9 @@
             <div class="px-25">
                 <div class="d-flex justify-content-center mt-2 ">
                     <div class="col-12 col-md-12 col-lg-12 ">
-                        <div class="row">
+                        <div class="row" id="leaveTypesContainer">
 
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md form-switch me-1">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" role="switch" checked>
-                                                </label>
-                                            </div>
-                                            <h6 class="d-flex align-items-center">Annual Leave</h6>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#annual_leave_settings"><span class="text-primary" data-feather="settings" style="height: 15px; width: 15px;"></span> </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md form-switch me-1">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" role="switch">
-                                                </label>
-                                            </div>
-                                            <h6 class="d-flex align-items-center">Casual Leave</h6>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#casual_leave_settings"> <span class="text-primary" data-feather="settings" style="height: 15px; width: 15px;"></span> </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md form-switch me-1">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" role="switch">
-                                                </label>
-                                            </div>
-                                            <h6 class="d-flex align-items-center">Sick Leave</h6>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#sick_leave_settings"><span class="text-primary" data-feather="settings" style="height: 15px; width: 15px;"></span> </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md form-switch me-1">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" role="switch">
-                                                </label>
-                                            </div>
-                                            <h6 class="d-flex align-items-center">Maternity Leave</h6>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#maternity_leave_settings"><span class="text-primary" data-feather="settings" style="height: 15px; width: 15px;"></span> </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md form-switch me-1">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" role="switch">
-                                                </label>
-                                            </div>
-                                            <h6 class="d-flex align-items-center">Paternity Leave</h6>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#paternity_leave_settings"><span class="text-primary" data-feather="settings" style="height: 15px; width: 15px;"></span> </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xl-4 col-md-6">
-                                <div class="card mb-3">
-                                    <div class="card-body d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="form-check form-check-md form-switch me-1">
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input" type="checkbox" role="switch">
-                                                </label>
-                                            </div>
-                                            <h6 class="d-flex align-items-center">LOP Leave</h6>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <a class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#lop_leave_settings"><span class="text-primary" data-feather="settings" style="height: 15px; width: 15px;"></span> </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                         
 
                         </div>
                     </div>

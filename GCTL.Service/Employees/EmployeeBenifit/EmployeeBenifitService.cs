@@ -27,10 +27,10 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             _employeeSalaryRepository = employeeSalaryRepository;
         }
 
-        public Task<EmployeeBenifitGetViewModel> GetEmployeeBenifitByEmployeeIdAsync(int employeeId)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<EmployeeBenifitGetViewModel> GetEmployeeBenifitByEmployeeIdAsync(int employeeId)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<EmployeeBenifitPostViewModel> GetEmployeeBenefitsAsync(string employeeId)
         {

@@ -3,6 +3,7 @@
 using GCTL.Core.ViewModels.Employee.EmployeeAdditional;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeAdditional;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 
 using GCTL.Service.UserProfile;
@@ -20,15 +21,23 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.LicenceTypes> _licenceTypesRepository;
 
-        public EmployeeAdditionalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAdditionalService employeeAdditionalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<LicenceTypes> licenceTypesRepository) : base(translateService, userProfileService)
+        private readonly IEmployeeNavigationService _employeeNavigationService;
+
+
+        public EmployeeAdditionalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAdditionalService employeeAdditionalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<LicenceTypes> licenceTypesRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeRepository = employeeRepository;
             _licenceTypesRepository = licenceTypesRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
+
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("AdditionalInfo");
+            ViewBag.Navigation = navigationModel;
+
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
            
            

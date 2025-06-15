@@ -54,6 +54,10 @@ using GCTL.Service.RolePermissions;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings;
 
 using GCTL.Service.Employees.EmployeeContact;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
+using GCTL.Service.Employees.EmployeeList;
+using GCTL.Service.Employees.EmployeeDetails;
+using GCTL.Service.Employees.EmployeeNavigation;
 
 
 
@@ -112,6 +116,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ITrainingYearService, TrainingYearService>();
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             services.AddScoped<IAddShiftService, AddShiftService>();
+            services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
             #endregion
 
 
@@ -150,6 +155,10 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeEducationalService, EmployeeEducationalService>();
             services.AddScoped<IEmployeeFamilyService, EmployeeFamilyService>();
             services.AddScoped<IEmployeeContactService, EmployeeContactService>();
+            services.AddScoped<IEmployeeListService, EmployeeListService>();
+            services.AddScoped<IEmployeeDetailsService, EmployeeDetailsService>();
+
+            services.AddScoped<IEmployeeNavigationService, EmployeeNavigationService>();
 
             #endregion
 

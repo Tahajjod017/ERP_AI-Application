@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeContact;
 using GCTL.Service.Employees.EmployeeContact;
+using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +16,24 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeContactService _employeeContactService;
 
-        public EmployeeContactController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeContactService employeeContactService, IGenericRepository<GCTL.Data.Models.EmployeeFamilyInfo> employeeFamilyInfoRepository) : base(translateService, userProfileService)
+        private readonly IEmployeeNavigationService _employeeNavigationService;
+
+
+
+        public EmployeeContactController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeContactService employeeContactService, IGenericRepository<GCTL.Data.Models.EmployeeFamilyInfo> employeeFamilyInfoRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeContactService = employeeContactService;
             _employeeFamilyInfoRepository = employeeFamilyInfoRepository;
+            _employeeNavigationService = employeeNavigationService;
         }
 
         public IActionResult Index(int id)
         {
-            ViewBag.EmployeeDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
-                "EmployeeID",
-                "FullName"
-            );
+            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmergencyContact");
+            ViewBag.Navigation = navigationModel;
+
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName" );
             SetSmartPageCode(117000);
             return View();
         }

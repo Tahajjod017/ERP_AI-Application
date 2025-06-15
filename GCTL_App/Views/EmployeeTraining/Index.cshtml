@@ -1,4 +1,5 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeeTraining.EmployeeTrainingPostViewModel
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
+@model GCTL.Core.ViewModels.Employee.EmployeeTraining.EmployeeTrainingPostViewModel
 
 
 <!-- Delete Modal -->
@@ -147,6 +148,11 @@
 
                     <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis pb-4">
                         <div class="col-12 col-xl-12 col-xxl-12">
+
+                            @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
+
+                            <!--
+
                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
                                     <a class="nav-link" href="/EmployeePersonal/index" role="tab" aria-selected="false" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
@@ -175,9 +181,12 @@
                                 </li>
                             </ul>
 
+                            -->
+
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="tranningInfo" id="tranningInfo" aria-labelledby="tranningInfo">
                                     <div class="px-25">
+
                                         <div class="d-flex justify-content-center my-8">
                                             <div class="col-12 row flex gy-3">
                                                 <div class="col-sm-6 col-md-6">
@@ -260,6 +269,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

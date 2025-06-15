@@ -1,4 +1,5 @@
-﻿@model GCTL.Core.ViewModels.Employee.EmployeeAllowance.EmployeeAdditionalPostViewModel
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
+@model GCTL.Core.ViewModels.Employee.EmployeeAllowance.EmployeeAdditionalPostViewModel
 
 <div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 mb-4">
@@ -47,6 +48,11 @@
                     <div class="mx-n4 mx-lg-n6 px-lg-6 bg-body-emphasis pb-4">
 
                         <div class="col-12 col-xl-12 col-xxl-12">
+
+                            @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
+
+                            <!--
+
                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
                                 <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
                                     <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo">
@@ -88,6 +94,8 @@
                                 </li>
                             </ul>
 
+                            -->
+
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="tabpanel" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
                                     <div class="px-25">
@@ -106,6 +114,7 @@
                                             <div class="tab-pane fade show active" id="tab-empAllowance" role="tabpanel" aria-labelledby="empAllowance-tab">
                                                 <div class="card">
                                                     <div class="d-flex justify-content-center mt-2">
+
                                                         <div class="col-12 row flex gy-3">
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
@@ -261,6 +270,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -284,5 +294,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/pages/employees/employeevalidator.js"></script>
     <script src="~/js/pages/employees/EmployeeAllownace.js"></script>
+    <script src="~/js/pages/employees/employeetabchange.js"></script>
 }
