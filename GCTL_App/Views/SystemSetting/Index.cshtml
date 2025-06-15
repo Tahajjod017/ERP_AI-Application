@@ -1,0 +1,666 @@
+﻿<div class="col-12 col-md-12 col-lg-12 ">
+
+    <ul class="nav nav-underline fs-9" id="myTab4" role="tablist">
+        <li class="nav-item"><a class="nav-link active" id="emailSettings-tab" data-bs-toggle="tab" href="#tab-emailSettings" role="tab" aria-controls="tab-emailSettings" aria-selected="true">EMAIL Settings</a></li>
+        <li class="nav-item"><a class="nav-link" id="smsSettings-tab" data-bs-toggle="tab" href="#tab-smsSettings" role="tab" aria-controls="tab-smsSettings" aria-selected="false">SMS Settings</a></li>
+        <li class="nav-item"><a class="nav-link" id="otpSettings-tab" data-bs-toggle="tab" href="#tab-otpSettings" role="tab" aria-controls="tab-otpSettings" aria-selected="false">OTP Settings</a></li>
+    </ul>
+    <div class="tab-content mt-3" id="myTabContent4">
+
+        <div class="tab-pane fade show active" id="tab-emailSettings" role="tabpanel" aria-labelledby="emailSettings-tab">
+
+            <div class="col-xl-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="border-bottom mb-3 pb-3">
+                            <h4>Email Settings</h4>
+                        </div>
+                        <form action="settings-ui.html">
+                            <div class=" mb-3">
+
+                                <div class="row">
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Company Name</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>GCTL</option>
+                                                    <option>CSL</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Server Name</label>
+                                                <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Server Name" />
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">SMTP Authentication Required</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>YES</option>
+                                                    <option>NO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">User Name</label>
+                                                <input class="form-control" id="exampleFormControlInput" type="text" placeholder="User Name" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Password</label>
+                                                <input class="form-control" id="exampleFormControlInput" type="password" placeholder="Password" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">SSL Required</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>YES</option>
+                                                    <option>NO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Port</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>587</option>
+                                                    <option>465</option>
+                                                    <option>25</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Priority</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>First Priority</option>
+                                                    <option>Second Priority</option>
+                                                    <option>Third Priority</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Status</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>Active</option>
+                                                    <option>Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-end">
+                                <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="card mb-0">
+                                <div class="card-header d-flex align-items-center justify-content-between">
+                                    <h6>Email List</h6>
+                                </div>
+
+                                <div class="border-top border-translucent p-3">
+                                    <div id="employeeEmailListTable" data-list='{"valueNames":["holidayCompanyName","hdTitle","hdDescription","hdStartDate","hdEndDate","hdTotalDay","hdStatus"],"page":10,"pagination":true}'>
+
+                                        <div class="table-responsive scrollbar mx-n1 px-1">
+                                            <table class="table table-sm fs-9 leads-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"employeeEmailListTable-body"}' />
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="meailCompanyName">Company </br>Name</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailServerName">Server </br>Name</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailSSLReq">SSL </br>Required</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailPort">Port</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailSMTPAR">SMTP Authentication </br> Required</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailUserName">User </br>Name</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailPassword">Password</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailPriority">Priority</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailStatus">STATUS</th>
+                                                        <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="employeeEmailListTable-body">
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                                        <td class="fs-9 align-middle py-0">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="meailCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                                        <td class="emailServerName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                            <div class="d-flex align-items-center position-relative">
+                                                                <a class="text-body-highlight fw-bold stretched-link" href="#!">EmailServer1</a>
+                                                            </div>
+                                                        </td>
+                                                        <td class="emailSSLReq align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailPort align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25</td>
+                                                        <td class="emailSMTPAR align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailUserName align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">jhtitow</td>
+                                                        <td class="emailPassword align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">******</td>
+                                                        <td class="emailPriority align-middle white-space-nowrap ps-0 fw-semibold text-body py-0"> First Priority </td>
+
+                                                        <td class="emailStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                            <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                                        </td>
+
+                                                        <td class="align-middle white-space-nowrap text-end  ps-4">
+                                                            <div class="btn-reveal-trigger position-static">
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                                    <i class="fas fa-edit text-success"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash text-danger"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                                        <td class="fs-9 align-middle py-0">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="meailCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                                        <td class="emailServerName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                            <div class="d-flex align-items-center position-relative">
+                                                                <a class="text-body-highlight fw-bold stretched-link" href="#!">EmailServer1</a>
+                                                            </div>
+                                                        </td>
+                                                        <td class="emailSSLReq align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailPort align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25</td>
+                                                        <td class="emailSMTPAR align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailUserName align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">jhtitow</td>
+                                                        <td class="emailPassword align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">******</td>
+
+                                                        <td class="emailPriority align-middle white-space-nowrap ps-0 fw-semibold text-body py-0"> First Priority </td>
+                                                        <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                            <span class="badge badge-phoenix badge-phoenix-danger">Inactive</span>
+                                                        </td>
+
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                            <div class="btn-reveal-trigger position-static">
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                                    <i class="fas fa-edit text-success"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash text-danger"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                                        <td class="fs-9 align-middle py-0">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="meailCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                                        <td class="emailServerName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                            <div class="d-flex align-items-center position-relative">
+                                                                <a class="text-body-highlight fw-bold stretched-link" href="#!">EmailServer1</a>
+                                                            </div>
+                                                        </td>
+                                                        <td class="emailSSLReq align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailPort align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25</td>
+                                                        <td class="emailSMTPAR align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailUserName align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">juel</td>
+                                                        <td class="emailPassword align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">******</td>
+
+                                                        <td class="emailPriority align-middle white-space-nowrap ps-0 fw-semibold text-body py-0"> Second Priority </td>
+                                                        <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                            <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                                        </td>
+
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                            <div class="btn-reveal-trigger position-static">
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                                    <i class="fas fa-edit text-success"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash text-danger"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="row align-items-center justify-content-between pe-0 fs-9">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-smsSettings" role="tabpanel" aria-labelledby="smsSettings-tab">
+
+            <div class="col-xl-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="border-bottom mb-3 pb-3">
+                            <h4>SMS Settings</h4>
+                        </div>
+                        <form action="settings-ui.html">
+                            <div class=" mb-3">
+
+                                <div class="row">
+
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Company Name</label>
+                                            <select class="form-select" aria-label="Default select example">
+                                                <option>GCTL</option>
+                                                <option>CSL</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Server Name</label>
+                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Server Name" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">User Name</label>
+                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="User Name" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Password</label>
+                                            <input class="form-control" id="exampleFormControlInput" type="password" placeholder="Password" />
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Gateway</label>
+                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Gateway" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">API</label>
+                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="API" />
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Mobile</label>
+                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Mobile" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Priority</label>
+                                            <select class="form-select" aria-label="Default select example">
+                                                <option>First Priority</option>
+                                                <option>Second Priority</option>
+                                                <option>Third Priority</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="exampleFormControlInput">Status</label>
+                                            <select class="form-select" aria-label="Default select example">
+                                                <option>Active</option>
+                                                <option>Inactive</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <div class="d-flex align-items-center justify-content-end">
+                                <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="card mb-0">
+                                <div class="card-header d-flex align-items-center justify-content-between">
+                                    <h6>Email List</h6>
+                                </div>
+
+                                <div class="border-top border-translucent p-3">
+                                    <div id="employeeEmailListTable" data-list='{"valueNames":["holidayCompanyName","hdTitle","hdDescription","hdStartDate","hdEndDate","hdTotalDay","hdStatus"],"page":10,"pagination":true}'>
+
+                                        <div class="table-responsive scrollbar mx-n1 px-1">
+                                            <table class="table table-sm fs-9 leads-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"employeeEmailListTable-body"}' />
+                                                            </div>
+                                                        </th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="meailCompanyName">Company </br>Name</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailServerName">Server </br>Name</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailSSLReq">SSL </br>Required</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailPort">Port</th>
+                                                        <th class="sort align-middle ps-4 text-uppercase text-nowrap" scope="col" data-sort="emailSMTPAR">SMTP Authentication </br> Required</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailUserName">User </br>Name</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailPassword">Password</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailPriority">Priority</th>
+                                                        <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="emailStatus">STATUS</th>
+                                                        <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="list" id="employeeEmailListTable-body">
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                                        <td class="fs-9 align-middle py-0">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="meailCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                                        <td class="emailServerName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                            <div class="d-flex align-items-center position-relative">
+                                                                <a class="text-body-highlight fw-bold stretched-link" href="#!">EmailServer1</a>
+                                                            </div>
+                                                        </td>
+                                                        <td class="emailSSLReq align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailPort align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25</td>
+                                                        <td class="emailSMTPAR align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailUserName align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">jhtitow</td>
+                                                        <td class="emailPassword align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">******</td>
+                                                        <td class="emailPriority align-middle white-space-nowrap ps-0 fw-semibold text-body py-0"> First Priority </td>
+
+                                                        <td class="emailStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                            <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                                        </td>
+
+                                                        <td class="align-middle white-space-nowrap text-end  ps-4">
+                                                            <div class="btn-reveal-trigger position-static">
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                                    <i class="fas fa-edit text-success"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash text-danger"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                                        <td class="fs-9 align-middle py-0">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="meailCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                                        <td class="emailServerName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                            <div class="d-flex align-items-center position-relative">
+                                                                <a class="text-body-highlight fw-bold stretched-link" href="#!">EmailServer1</a>
+                                                            </div>
+                                                        </td>
+                                                        <td class="emailSSLReq align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailPort align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25</td>
+                                                        <td class="emailSMTPAR align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailUserName align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">jhtitow</td>
+                                                        <td class="emailPassword align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">******</td>
+
+                                                        <td class="emailPriority align-middle white-space-nowrap ps-0 fw-semibold text-body py-0"> First Priority </td>
+                                                        <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                            <span class="badge badge-phoenix badge-phoenix-danger">Inactive</span>
+                                                        </td>
+
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                            <div class="btn-reveal-trigger position-static">
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                                    <i class="fas fa-edit text-success"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash text-danger"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+
+                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                                        <td class="fs-9 align-middle py-0">
+                                                            <div class="form-check mb-0 fs-8">
+                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="meailCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                                        <td class="emailServerName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                            <div class="d-flex align-items-center position-relative">
+                                                                <a class="text-body-highlight fw-bold stretched-link" href="#!">EmailServer1</a>
+                                                            </div>
+                                                        </td>
+                                                        <td class="emailSSLReq align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailPort align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25</td>
+                                                        <td class="emailSMTPAR align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Yes</td>
+                                                        <td class="emailUserName align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">juel</td>
+                                                        <td class="emailPassword align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">******</td>
+
+                                                        <td class="emailPriority align-middle white-space-nowrap ps-0 fw-semibold text-body py-0"> Second Priority </td>
+                                                        <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                            <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                                        </td>
+
+                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                            <div class="btn-reveal-trigger position-static">
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                                    <i class="fas fa-edit text-success"></i>
+                                                                </a>
+
+                                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                                    <i class="fas fa-trash text-danger"></i>
+                                                                </a>
+
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="row align-items-center justify-content-between pe-0 fs-9">
+                                            <div class="col-auto d-flex">
+                                                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                                <ul class="mb-0 pagination"></ul>
+                                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-otpSettings" role="tabpanel" aria-labelledby="otpSettings-tab">
+            <div class="col-xl-9">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="border-bottom d-flex align-items-center justify-content-between pb-3 mb-3">
+                            <h4>OTP Settings</h4>
+                            <div class="col-md-4">
+                                <select class="form-multi-select" multiple data-coreui-search="true">
+                                    <option value="1">CSL</option>
+                                    <option value="2">GCTL</option>
+                                </select>
+                            </div>
+                        </div>
+                        <form action="settings-ui.html">
+                            <div class="border-bottom mb-3">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <h6 class="mb-2 fw-medium">OTP Type </h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="mb-3">
+                                                    <select class="form-select">
+                                                        <option>Select</option>
+                                                        <option>SMS</option>
+                                                        <option>Email</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <h6 class="mb-2 fw-medium">OTP Digit Limit</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="mb-3">
+                                                    <select class="form-select">
+                                                        <option>Select</option>
+                                                        <option>4</option>
+                                                        <option>6</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6">
+                                                <div class="mb-3">
+                                                    <h6 class="mb-2 fw-medium">OTP Expire Time</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="mb-3">
+                                                    <select class="form-select">
+                                                        <option>Select</option>
+                                                        <option>5 Mins</option>
+                                                        <option>10 Mins</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-end">
+                                <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
