@@ -18,11 +18,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         #region CRUD
         Task<bool> AddAsync(AssignDefaultShiftSetupVM model);
         Task<bool> UpdateAsync(AssignDefaultShiftSetupVM model);
+        Task<bool> UpdateEmpShiftAsync(AssignDefaultShiftSetupVM model);
         Task<AssignDefaultShiftSetupVM> SoftDeleteAsync(DeleteRequestVM model);
         Task<AssignDefaultShiftSetupVM> GetByIdAsync(int id);
         Task<PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.PaginationResult<AssignDefaultShiftSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "DefaultShiftID", string sortOrder = "desc", int? organizationID = null);
         #endregion
+
+
+        Task<List<ConflictViewModel>> CheckConflictsAsync(AssignDefaultShiftSetupVM model);
 
 
         #region Others
