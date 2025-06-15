@@ -48,14 +48,17 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    if(model.EmployeeIDs == null || !model.EmployeeIDs.Any())
+                    if (model.OrganizationIDs == null || !model.OrganizationIDs.Any())
                     {
-                        return Json(new { isSuccess = false, message = "Please choose an employee!" });
+                        return Json(new { isSuccess = false, message = "Please choose a Company!" });
                     }
+                    
                     if(model.ShiftID == null)
                     {
                         return Json(new { isSuccess = false, message = "Please choose a shift!" });
                     }
+
+                    //var hasData = 
 
                     //// userInfoService.SetUserInfo(model, User, HttpContext);
                     //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
@@ -70,6 +73,81 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region CheckConflicts
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckConflicts(AssignDefaultShiftSetupVM model)
+        {
+            var conflictList = await _assignDefaultShiftService.CheckConflictsAsync(model);
+
+            if (conflictList.Any())
+            {
+                return Json(new { hasConflicts = true, conflicts = conflictList });
+            }
+
+            return Json(new { hasConflicts = false });
+        }
+        #endregion
+
+
+        #region Update
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(AssignDefaultShiftSetupVM model)
+        {
+            try
+            {
+                await _assignDefaultShiftService.UpdateAsync(model);
+                return Json(new { isSuccess = true, message = "Updated Successfully." });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region UpdateEmpShift
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> UpdateEmpShift(AssignDefaultShiftSetupVM model)
+        {
+            try
+            {
+                await _assignDefaultShiftService.UpdateEmpShiftAsync(model);
+                return Json(new { isSuccess = true, message = "Updated Successfully." });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region GetById
+        [HttpGet]
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                var result = await _assignDefaultShiftService.GetByIdAsync(id);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No data found!" });
+                }
+
+                return Json(new { isSuccess = true, data = result });
             }
             catch (Exception ex)
             {

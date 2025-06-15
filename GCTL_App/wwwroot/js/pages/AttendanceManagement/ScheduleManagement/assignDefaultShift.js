@@ -6,29 +6,85 @@
             addform: '#assignDefaultShift-addForm',
             updateform: '#assignDefaultShift-addForm',
             saveBtn: '#assignDefaultShift-saveBtn',
+            editBtn: '#assignDefaultShift-editBtn',
             resetBtn: '#assignDefaultShift-resetBtn',
+            conModal: '#assignDefaultShift-confirm-modal',
+            conMdlClsBtn: '#assignDefaultShift-closeBtn-confirm-modal',
+            conMdlCnlBtn: '#assignDefaultShift-cancel-confirm-modal'
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
         var createUrl = settings.baseUrl + "/Create";
+        var getByIdUrl = settings.baseUrl + '/GetById';
         var updateUrl = settings.baseUrl + "/Update";
+        var updateEmpShift = settings.baseUrl + "/UpdateEmpShift";
+        var checkConflictsUrl = settings.baseUrl + '/CheckConflicts';
         $(() => {
 
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
-                var token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
+                const token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
 
-                var formData = {
+                const formData = {
                     __RequestVerificationToken: token,
+                    DefaultShiftID: $('#DefaultShiftID').val(),
                     OrganizationIDs: $('#OrganizationIDs').val(),
                     DepartmentIDs: $('#DepartmentIDs').val(),
                     EmployeeIDs: $('#EmployeeIDs').val(),
                     ShiftID: $('#ShiftID').val()
-                }
+                };
+
+                const id = $('#DefaultShiftID').val();
+                const isEdit = id > 0;
+                const url = isEdit ? updateEmpShift : createUrl;
 
                 $.ajax({
-                    url: createUrl,
+                    url: checkConflictsUrl,
+                    type: 'POST',
+                    data: formData,
+                    success: function (data) {
+                        if (data.hasConflicts) {
+                            populateConflictModal(data.conflicts);
+                            $('#assignDefaultShift-confirm-modal').modal('show');
+                        } else {
+                            postDefaultShift(url, formData);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Conflict check failed:', err);
+                    }
+                });
+            });
+
+            $('#assignDefaultShift-confirm-modal .btn-primary').on('click', function () {
+                const excludedIds = [];
+
+                $('.conflict-checkbox:not(:checked)').each(function () {
+                    const id = $(this).data('id');
+                    const parsedId = Number(id);
+                    if (!isNaN(parsedId)) {
+                        excludedIds.push(parsedId);
+                    }
+                });
+
+                const formData = {
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                    OrganizationIDs: $('#OrganizationIDs').val(),
+                    ShiftID: $('#ShiftID').val(),
+                    LIP: $('#LIP').val(),
+                    LMAC: $('#LMAC').val(),
+                    CreatedBy: $('#CreatedBy').val(),
+                    ExcludedEmployeeIDs: excludedIds
+                };
+
+                postDefaultShift(createUrl, formData);
+                $('#assignDefaultShift-confirm-modal').modal('hide');
+            });
+
+            function postDefaultShift(url, formData) {
+                $.ajax({
+                    url: url,
                     type: 'POST',
                     data: formData,
                     success: function (data) {
@@ -40,10 +96,110 @@
                         }
                     },
                     error: function (err) {
-                        console.log(err);
+                        console.error('Save failed:', err);
                     }
-                })
+                });
+            }
+
+            function populateConflictModal(conflicts) {
+                const tbody = $('#assignDefaultShift-confirm-modal tbody');
+                tbody.empty();
+
+                if (conflicts.length === 0) {
+                    tbody.append(`<tr><td colspan="4" class="text-muted text-center">No conflicts to show.</td></tr>`);
+                    return;
+                }
+
+                conflicts.forEach(item => {
+                    tbody.append(`
+                        <tr>
+                            <td class="text-center text-middle align-middle">${item.defaultShiftID ?? '-'}</td>
+                            <td class="text-start text-middle align-middle">${item.employeeID ?? '-'}</td>
+                            <td class="text-start text-middle align-middle">${item.departmentID ?? '-'}</td>
+                            <td class="text-start text-middle align-middle">${item.shiftID}</td>
+                            <td class="text-center text-middle align-middle"><input type="checkbox" class="form-check-input conflict-checkbox" data-id="${item.employeeID}" /></td>
+                        </tr>
+                    `);
+                });
+            }
+
+
+
+            $(settings.conMdlClsBtn).on('click', function () {
+                $(settings.conModal).modal('hide');
             });
+            $(settings.conMdlCnlBtn).on('click', function () {
+                $(settings.conModal).modal('hide');
+            });
+
+
+
+            $(document).on('click', settings.editBtn, function (e) {
+                e.preventDefault();
+
+                var id = $(this).data('id');
+
+                $.ajax({
+                    url: getByIdUrl,
+                    method: 'GET',
+                    data: { id: id },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            var data = response.data;
+                            $(settings.addform).find('#DefaultShiftID').val(data.defaultShiftID);
+                            setMultiSelectValues('OrganizationIDs', data.organizationID);
+                            setMultiSelectValues('DepartmentIDs', data.departmentID);
+                            //setTimeout(function () {
+                            //    setMultiSelectValues('EmployeeIDs', data.employeeID);
+                            //}, 1000);
+
+                            $('#DepartmentIDs').trigger('change');
+                            // Store EmployeeIDs and trigger employee filter
+                            var employeeIDs = Array.isArray(data.employeeID) ? data.employeeID : String(data.employeeID).split(',');
+                            loadFilteredEmployees(employeeIDs);
+
+                            if (choiceShift) {
+                                choiceShift.removeActiveItems(); // Clear current selections
+
+                                // If ID is a comma-separated string, convert it to array
+                                let selectedIDs = Array.isArray(data.shiftID)
+                                    ? data.shiftID
+                                    : String(data.shiftID).split(',');
+
+                                // Re-add selected items
+                                selectedIDs.forEach(function (id) {
+                                    choiceShift.setChoiceByValue(id.toString());
+                                });
+                            }
+
+                            $(settings.addform).find(settings.saveBtn).text('Update');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            toastr.warning(response.message);
+                        }
+                    }
+                });
+            });
+
+
+            function setMultiSelectValues(selectId, values) {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+
+                // Normalize to array of strings
+                const valueArray = Array.isArray(values) ? values.map(v => v.toString()) : [values.toString()];
+
+                // Select the correct options
+                for (const option of select.options) {
+                    option.selected = valueArray.includes(option.value);
+                }
+
+                // Update CoreUI MultiSelect UI
+                const multiSelect = coreui.MultiSelect.getInstance(select);
+                if (multiSelect) {
+                    multiSelect.update();
+                }
+            }
 
 
 
@@ -54,6 +210,7 @@
             function clear() {
                 $(settings.addform)[0].reset();
                 $('#DefaultShiftID').val('0');
+
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -64,6 +221,16 @@
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#assignDefaultShift-check-all").prop('checked', false);
                 $('.assignDefaultShift-selectItem').prop('checked', false);
+
+                // Reset Choices value (must happen BEFORE destroying)
+                if (choiceShift) {
+                    choiceShift.setChoiceByValue(''); // Clears value
+                    choiceShift.destroy(); // Destroys instance
+                    choiceShift = null;
+                }
+                // Reinitialize Choices
+                initChoices();
+
                 loadTableData();
                 toggleBulkActions();
             }
@@ -101,7 +268,7 @@
                 });
             }
 
-            function updateEmployeeDropdown(data) {
+            function updateEmployeeDropdown(data, employeeIDs = []) {
                 var $empSelect = $('#EmployeeIDs');
                 $empSelect.empty();
 
@@ -123,14 +290,50 @@
                 Object.entries(grouped).forEach(([dept, employees]) => {
                     const $optgroup = $('<optgroup>').attr('label', dept);
                     employees.forEach(emp => {
-                        $('<option>')
+                        const $option = $('<option>')
                             .val(emp.employeeID)
-                            .text(emp.employeeName)
-                            .appendTo($optgroup);
+                            .text(emp.employeeName);
+
+                        // Pre-select if employeeID is in employeeIDs
+                        if (employeeIDs.includes(emp.employeeID.toString())) {
+                            $option.prop('selected', true);
+                        }
+
+                        $option.appendTo($optgroup);
                     });
                     $empSelect.append($optgroup);
                 });
+
+                // Refresh CoreUI multi-select
                 refreshCoreUIMultiSelect();
+
+                // Ensure CoreUI reflects the pre-selected values
+                if (employeeIDs.length > 0) {
+                    setMultiSelectValues('EmployeeIDs', employeeIDs);
+                }
+            }
+
+            function loadFilteredEmployees(employeeIDs = []) {
+                var orgIds = $('#OrganizationIDs').val() || [];
+                var deptIds = $('#DepartmentIDs').val() || [];
+
+                if (!Array.isArray(orgIds)) orgIds = [orgIds];
+                if (!Array.isArray(deptIds)) deptIds = [deptIds];
+
+                $.ajax({
+                    url: '/AssignDefaultShift/GetEmployeesByFilters',
+                    type: 'GET',
+                    data: {
+                        organizationIds: orgIds.join(','),
+                        departmentIds: deptIds.join(',')
+                    },
+                    success: function (data) {
+                        updateEmployeeDropdown(data, employeeIDs);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
+                    }
+                });
             }
 
 
@@ -192,6 +395,19 @@
                     $('#assignDefaultShift-tBody .assignDefaultShift-bulkEdit').removeClass('disabled');
                 }
             }
+
+
+
+            let choiceShift;
+            function initChoices() {
+                choiceShift = new Choices('#ShiftID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Shift'
+                });
+            }
+            initChoices();
+
 
 
 
@@ -300,10 +516,9 @@
                                     </td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.employeeName ?? '-'}</td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.shiftName ?? '-'}</td>
-                                    <td class="white-space-nowrap align-middle ps-0">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#!" class="nav-item mx-2 assignDefaultShift-bulkEdit" id="assignDefaultShift-editBtn" data-id="${item.defaultShiftID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="nav-item mx-2 assignDefaultShift-bulkDelete" id="assignDefaultShift-singleDelBtn" data-id="${item.defaultShiftID}"><i class="far fa-trash-alt text-black"></i></a>
+                                    <td class="align-middle text-end white-space-nowrap pe-3">
+                                        <div class="row g-3">
+                                            <a href="#!" class="btn btn-outline-light btn-icon assignDefaultShift-bulkEdit" id="assignDefaultShift-editBtn" data-id="${item.defaultShiftID}"><i class="fas fa-edit text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>
@@ -312,6 +527,12 @@
                     } else {
                         tableBody.append('<tr><td colspan="6" class="text-center">No data available</td></tr>');
                     }
+                    //<td class="white-space-nowrap align-middle ps-0">
+                    //    <div class="btn-reveal-trigger position-static">
+                    //        <a href="#!" class="nav-item mx-2 assignDefaultShift-bulkEdit" id="assignDefaultShift-editBtn" data-id="${item.defaultShiftID}"><i class="fas fa-edit text-black"></i></a>
+                    //        <a href="#!" class="nav-item mx-2 assignDefaultShift-bulkDelete" id="assignDefaultShift-singleDelBtn" data-id="${item.defaultShiftID}"><i class="far fa-trash-alt text-black"></i></a>
+                    //    </div>
+                    //</td>
 
                     var paginationInfo = response.paginationInfo;
 
