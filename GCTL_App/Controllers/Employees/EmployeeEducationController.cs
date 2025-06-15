@@ -2,13 +2,14 @@
 
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeEducational;
+using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 
 
 using GCTL.Service.UserProfile;
-
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NuGet.Protocol.Core.Types;
@@ -28,9 +29,12 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeNavigationService _employeeNavigationService;
 
+        private readonly UserManager<ApplicationUser> _userManagerRepository2;
+        private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
+        private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
+        private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-
-        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.EducationLevels> educationLevelsRepository, IGenericRepository<GCTL.Data.Models.Degree> degreeRepository, IGenericRepository<GCTL.Data.Models.EducationBoard> educationBoardRepository, IGenericRepository<GCTL.Data.Models.ResultTypes> resultTypeRepository, IGenericRepository<GCTL.Data.Models.PassingYears> passingYearRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
+        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.EducationLevels> educationLevelsRepository, IGenericRepository<GCTL.Data.Models.Degree> degreeRepository, IGenericRepository<GCTL.Data.Models.EducationBoard> educationBoardRepository, IGenericRepository<GCTL.Data.Models.ResultTypes> resultTypeRepository, IGenericRepository<GCTL.Data.Models.PassingYears> passingYearRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
         {
             _employeeEducationalService = employeeEducationalService;
             _employeeRepository = employeeRepository;
@@ -40,13 +44,42 @@ namespace GCTL_App.Controllers.Employees
             _resultTypeRepository = resultTypeRepository;
             _passingYearRepository = passingYearRepository;
             _employeeNavigationService = employeeNavigationService;
+            _userManagerRepository2 = userManagerRepository2;
+            _menuTabRepository = menuTabRepository;
+            _rolePermissionRepository = rolePermissionRepository;
+            _roleManagerRepository2 = roleManagerRepository2;
         }
 
-        public IActionResult Index(int id)
+        public async Task< IActionResult> Index(int id)
         {
 
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmployeeEducation");
-            ViewBag.Navigation = navigationModel;
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "EducationInfo");
+                ViewBag.Navigation = navigationModel;
+            }
+
+
+          
+            var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id).Result;
+
+            ViewBag.EduList = eduList;
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
@@ -65,8 +98,7 @@ namespace GCTL_App.Controllers.Employees
         public async Task<IActionResult> Index(EmployeeEducationalPostViewModel model)
         {
 
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("PersonalInfo");
-            ViewBag.Navigation = navigationModel;
+            
 
             var res = await _employeeEducationalService.SaveAsync(model);
             return Ok(res);

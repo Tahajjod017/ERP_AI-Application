@@ -4,7 +4,9 @@
 
 
 //choiceManager.clearChoice('LicenceTypeID');
+//choiceManager.clearChoice('LicenceTypeID', 'LicenceTypeID');
 //choiceManager.setChoiceValue('LicenceTypeID', '5');
+//choiceManager.setChoiceValue('LicenceTypeID', '');
 //choiceManager.getChoiceValue('EmployeePersonalId')
 
 //#region Unversal Choice Version 2

@@ -9,9 +9,12 @@
             shouldSort: false,
             placeholderValue: 'Select Employee'
         });
+
+        
     }
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);
     initEmployeeChoices();
+
 
 
     let organizationChoices;
@@ -407,7 +410,10 @@
 
 
         TabChange(selectedId) // this function is located in EmployeeTabChange.js
+        LoadEmployeeOfficData(selectedId)
 
+    });
+    function LoadEmployeeOfficData(selectedId) {
 
         if (selectedId) {
 
@@ -451,7 +457,7 @@
         } else {
             clearAllFormFields();
         }
-    });
+    };
 
     // Function to populate Choices.js dropdowns
     function populateChoicesDropdowns(response) {

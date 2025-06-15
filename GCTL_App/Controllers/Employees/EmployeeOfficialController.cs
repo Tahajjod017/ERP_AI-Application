@@ -5,6 +5,7 @@ using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeOfficial;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -27,11 +28,17 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<ProvisionPeriodTtimeTypes> _provisionPeriodTtimeTypesRepository;
         private readonly IEmployeeNavigationService _employeeNavigationService;
 
+        private readonly IGenericRepository<UserManager<ApplicationUser>> _userManagerRepository;
+        private readonly UserManager<ApplicationUser> _userManagerRepository2;
+        private readonly IGenericRepository<RoleManager<ApplicationRole>> _roleManagerRepository;
+        private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
+        private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
 
         private readonly IEmployeeOfficialService _employeeOfficialService;
 
 
-        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
+        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IEmployeeNavigationService employeeNavigationService, IGenericRepository<UserManager<ApplicationUser>> userManagerRepository, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<RoleManager<ApplicationRole>> roleManagerRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<RoleModulePermissions> rolePermissionRepository, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _branchRepository = branchRepository;
@@ -45,18 +52,42 @@ namespace GCTL_App.Controllers.Employees
             _employeeOfficialRepository = employeeOfficialRepository;
             _provisionPeriodTtimeTypesRepository = provisionPeriodTtimeTypesRepository;
             _employeeNavigationService = employeeNavigationService;
+            _userManagerRepository = userManagerRepository;
+            _userManagerRepository2 = userManagerRepository2;
+            _roleManagerRepository = roleManagerRepository;
+            _roleManagerRepository2 = roleManagerRepository2;
+            _rolePermissionRepository = rolePermissionRepository;
+            _menuTabRepository = menuTabRepository;
         }
 
         #endregion
 
 
         #region Index 
-        public IActionResult Index(int id)
+        public async Task< IActionResult> Index(int id)
         {
 
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("OfficialInfo");
-            ViewBag.Navigation = navigationModel;
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
+            if (loggedUser != null)
+            {
+
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs ,"OfficialInfo");
+                ViewBag.Navigation = navigationModel;
+            }
             ViewBagData();
 
             EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);

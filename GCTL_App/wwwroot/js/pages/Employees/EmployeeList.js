@@ -177,10 +177,10 @@
                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                         <div class="btn-reveal-trigger position-static g-3">
                             <a href="#" class="nav-item me-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightANE" aria-controls="offcanvasRightANE">
-                                <i class="fas fa-edit tblEditBtn"></i>
+                                <i class="fas fa-edit text-black tblEditBtn"></i>
                             </a>
                             <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                <i class="fas fa-trash tblDelBtn"></i>
+                                <i class="far fa-trash-alt text-black tblDelBtn"></i>
                             </a>
 
                            
@@ -270,6 +270,12 @@
     //#endregion
 
     //#region Update view visibility
+
+    
+
+
+
+
     function updateViewVisibility() {
         if ($boardViewBtn.hasClass('active')) {
             $boardView.addClass('visible').removeClass('hidden');
