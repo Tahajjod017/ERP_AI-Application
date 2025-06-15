@@ -593,8 +593,32 @@
 
 
 
+            
+
+
+
+
         });
 
+
+        function convertUtcTimeOnlyToLocal(timeString) {
+            if (!timeString) return "-";
+
+            const [hours, minutes, seconds] = timeString.split(":").map(Number);
+
+            // Treat this time as if it were in UTC on today's date
+            const utcDate = new Date(Date.UTC(
+                new Date().getFullYear(),
+                new Date().getMonth(),
+                new Date().getDate(),
+                hours,
+                minutes,
+                seconds || 0
+            ));
+
+            // Convert to local time string
+            return utcDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
 
         var currentPage = 1;
         var pageSize = 5;
@@ -698,8 +722,8 @@
                                     <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
                                         <span>${item.organizationName}</span>
                                     </td>
-                                    <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startTime ?? '-'}</td>
-                                    <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime ?? '-'}</td>
+                                    <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${convertUtcTimeOnlyToLocal(item.startTime ?? '-')}</td>
+                                    <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${convertUtcTimeOnlyToLocal(item.endTime ?? '-')}</td>
                                     <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTime ?? '-'}</td>
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime ?? '-'}</td>
                                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">

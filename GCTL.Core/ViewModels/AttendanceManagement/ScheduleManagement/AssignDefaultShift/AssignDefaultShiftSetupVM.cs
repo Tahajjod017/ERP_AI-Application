@@ -31,5 +31,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDef
         public List<int>? EmployeeIDs { get; set; }
 
         public string? EmployeeName { get; set; }
+
+        public List<int>? ExcludedEmployeeIDs { get; set; }
     }
 }
