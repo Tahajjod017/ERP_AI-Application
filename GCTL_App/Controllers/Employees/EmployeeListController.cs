@@ -67,8 +67,9 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Religions> _religionRepository;
         private readonly IGenericRepository<TrainingYears> _trainingYearsRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
+        private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
 
-        public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository) : base(translateService, userProfileService)
+        public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository, IGenericRepository<BloodGroup> bloodGroupRepository) : base(translateService, userProfileService)
         {
             _employeeListService = employeeListService;
             _httpContextAccessor = httpContextAccessor;
@@ -108,6 +109,7 @@ namespace GCTL_App.Controllers.Employees
             _trainingYearsRepository = trainingYearsRepository;
             _genderRepository = genderRepository;
             _employeeOfficeRepository = employeeOfficeRepository;
+            _bloodGroupRepository = bloodGroupRepository;
         }
 
         #endregion
@@ -295,6 +297,7 @@ namespace GCTL_App.Controllers.Employees
                 "StatusName"
             );
 
+            ViewBag.BloodGroupDD = new SelectList(_bloodGroupRepository.All(), "BloodGroupID", "BloodGroupName");
 
             // ViewBag.TimeUnitDD = new SelectList(_timeUnitRepository.All().Select(tu => new { tu.TimeUnitID, tu.TimeUnitName }), "TimeUnitID", "TimeUnitName");
 
@@ -331,48 +334,6 @@ namespace GCTL_App.Controllers.Employees
             return Ok(new { LocalHostUrl = url });
         }
 
-        #region JUnk
-
-        //[HttpGet]
-        //public async Task<IActionResult> GetEmployeeById(int id)
-        //{
-        //    try
-        //    {
-        //        var personal = await _employeePersonalService.GetEmployeePersonalById(id);
-        //        var offical = await _employeeOfficialService.GetEmployeeOfficalDetails(id);
-        //        var additional = await _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id);
-        //        var contact = await _employeeContactService.GetEmployeeContactByIdAsync(id);
-        //        var educational = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id);
-        //        var family = await _employeeFamilyService.GetEmployeeFamilyByIdAsync(id);
-        //        var salary = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdAsync(id);
-        //        var training = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
-        //        var allowance = await _employeeAllowanceService.GetEmployeeAllowance(id);
-        //        var benifit = await employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
-
-
-
-        //        return Ok(new
-        //        {
-        //            personal = personal,
-        //            offical = offical,
-        //            additional = additional,
-        //            salary = salary,
-        //            allowance = allowance,
-        //            benifit = benifit,
-
-        //            contact = contact,
-        //            educational = educational,
-        //            family = family,
-        //            training = training,
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new { message = "Server error", error = ex.Message });
-        //    }
-        //}
-
-        #endregion
 
         #region Populate Edit Form
 
@@ -502,7 +463,8 @@ namespace GCTL_App.Controllers.Employees
                          department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
                          joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null, // Keeping null for date field
                          status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
-                         avatar = string.IsNullOrEmpty(e.Avatar) ? null : url + "/uploads/employee/images/" + e.Avatar
+                         avatar = string.IsNullOrEmpty(e.Avatar) ? null : url + "/uploads/employee/images/" + e.Avatar,
+                         url = url + "/uploads/employee/"
                      })
                      .ToListAsync();
 
