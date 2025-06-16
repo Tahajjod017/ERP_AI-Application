@@ -31,6 +31,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             return View();
         }
         #region  Add and Update Data Leave 
+        [Route("LeaveSettingsAddLeaveRoute/AddNewLeave")]
         public async Task<IActionResult> AddNewLeave(AddNewLeaveSave entityVM)
         {
             if (!ModelState.IsValid)
@@ -116,7 +117,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         #endregion]
 
         #region LeavePolicyConfig
-        public async Task<IActionResult> LeavePolicyConfig(AddLeavePolicyConfigarationVM entityVM)
+        public async Task<IActionResult> LeavePolicyConfig([FromBody]AddLeavePolicyConfigarationVM entityVM)
         {
             if (!ModelState.IsValid)
             {

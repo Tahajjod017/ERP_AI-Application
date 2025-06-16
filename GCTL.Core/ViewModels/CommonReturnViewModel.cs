@@ -15,7 +15,7 @@ namespace GCTL.Core.ViewModels
 
         public CommonReturnViewModel()
         {
-            Errors = new List<string>(); // Initialize the Errors list to avoid null reference
+            Errors = new List<string>(); // Initialize the Errors list to avoid null reference 
         }
     }
 }

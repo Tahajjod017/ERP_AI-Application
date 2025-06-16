@@ -39,15 +39,21 @@ public partial class Organization
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
+
+    public virtual ICollection<OTPSettings> OTPSettings { get; set; } = new List<OTPSettings>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
+
+    public virtual ICollection<SMSSettings> SMSSettings { get; set; } = new List<SMSSettings>();
 
     public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
 
