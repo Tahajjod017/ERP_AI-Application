@@ -58,6 +58,9 @@ namespace GCTL.Service.Employees.EmployeeAllowance
                                       InternetAllowanceEffectiveFrom = eb.InternetAllowanceEffectiveFrom ,
                                       MobileAllowanceEffectiveFrom = eb.MobileAllowanceEffectiveFrom ,
 
+                                      InternetAllowanceEffectiveFromStr = eb.InternetAllowanceEffectiveFrom.HasValue  ? eb.InternetAllowanceEffectiveFrom.Value.ToString("dd/MM/yyyy") : "N/A",
+                                      MobileAllowanceEffectiveFromStr = eb.MobileAllowanceEffectiveFrom.HasValue  ? eb.MobileAllowanceEffectiveFrom.Value.ToString("dd/MM/yyyy") : "N/A",
+
                                       ShiftAllowance = eb.ShiftAllowance,
 
                                      IsShiftAllowanceEnabled = eb.IsShiftAllowanceEnabled,

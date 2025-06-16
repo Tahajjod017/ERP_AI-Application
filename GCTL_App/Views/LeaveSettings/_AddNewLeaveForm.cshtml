@@ -11,7 +11,7 @@
                 <form id="addNewLeaveForm">
                     <div class="input-block  leave-duallist">
                         <label class="col-form-label req">Organization Name</label>
-                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList" multiple data-coreui-multiple="true" data-coreui-search="true">
+                        <select class="form-multi-select" id="OrganizationID" name="OrganizationID" asp-items="@ViewBag.organizationDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
                             <option value="">Select Organizer</option>
                         </select>
                     </div>
@@ -25,24 +25,52 @@
                         <label class="col-form-label req">Short Code</label>
                         <input type="text" class="form-control" id="Code" name="Code">
                     </div>
-                    <div class="input-block  leave-duallist">
-                        <label class="col-form-label d-block">Paid Type</label>
 
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="IsPaid" id="IsApidPaid" value="true" checked>
-                            <label class="col-form-check-label" for="IsApidPaid">Paid</label>
+                 
+
+                    <div class="row">
+                        <!-- Paid Type -->
+                        <div class="col-md-6">
+                            <div class="input-block leave-duallist">
+                                <label class="col-form-label d-block">Paid Type</label>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="IsPaid" id="IsPaidYes" value="true" checked>
+                                    <label class="form-check-label" for="IsPaidYes">Paid</label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="IsPaid" id="IsPaidNo" value="false">
+                                    <label class="form-check-label" for="IsPaidNo">Unpaid</label>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="IsPaid" id="IsApidUnpaid" value="false">
-                            <label class="form-check-label" for="IsApidUnpaid">Unpaid</label>
+                        <!-- Is Active -->
+                        <div class="col-md-6">
+                            <div class="input-block leave-duallist">
+                                <label class="col-form-label d-block">Is Active</label>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="IsActive" id="IsActiveYes" value="true" checked>
+                                    <label class="form-check-label" for="IsActiveYes">Yes</label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="IsActive" id="IsActiveNo" value="false">
+                                    <label class="form-check-label" for="IsActiveNo">No</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
 
                     <div class="input-block">
                         <label class="col-form-label req">Maximum Days</label>
                         <input type="number" class="form-control" id="LeaveDays" name="LeaveDays">
                     </div>
+
+                  
 
                     <div class="row">
 
@@ -60,12 +88,15 @@
                             </select>
                         </div>
 
-                        <div class="col-md-5">
-                            <label class="col-form-label" for="exampleFormControlInput">After</label>
-                            <select class="form-select" id="EffectiveAfter" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <div class="col-md-5 mt-3">
+                            @* <label class="col-form-label" for="exampleFormControlInput">After</label> *@
+
+                            <label class="col-form-label" for="exampleFormControlInput"></label>
+                            <input type="text" id="EffectiveAfter" class="form-control" value="After Joining Date" placeholder="After Joining Date">
+                            @* <select class="form-select" id="EffectiveAfter" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                                 <option value="Joining Date">Joining Date</option>
                                 <option value="Conformation Date">Conformation Date</option>
-                            </select>
+                            </select> *@
                         </div>
 
                     </div>
@@ -81,4 +112,3 @@
         </div>
     </div>
 </div>
-

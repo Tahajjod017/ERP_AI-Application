@@ -21,6 +21,9 @@
                     clearForm();
                 }
             });
+
+          
+
         }
     }
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);

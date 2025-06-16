@@ -1,5 +1,16 @@
 ﻿$(document).ready(function () {
 
+    const lastInt = getLastIntFromUrl();
+    if (lastInt) {
+       
+        loadEmployeeContactData(lastInt);
+    }
+
+    function getLastIntFromUrl() {
+        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
+        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
+    }
+
     //#region employeeChoices with onchange
 
     let employeeChoices;
@@ -22,11 +33,16 @@
                 }
             });
         }
+
+        
+
     }
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);
     initEmployeeChoices();
 
     //#endregion
+
+ 
 
     //#region Load Data
 
@@ -75,19 +91,19 @@
                     <td>${item.relationship || ''}</td>
                     <td>${item.contactNumber || ''}</td>
                     <td>${item.contactEmail || ''}</td>
-                    <td class="align-middle white-space-nowrap">
-                        <div class="btn-reveal-trigger position-static g-3">
-                            <button class="nav-item me-2 btn-edit" data-id="${item.employeeEmeContactID}" data-bs-toggle="modal" data-bs-target="#edit_emmergencyContact">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="nav-item me-2 btn-delete" data-id="${item.employeeEmeContactID}" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                    <td class="white-space-nowrap align-middle ps-0">
+                        <div class="btn-reveal-trigger position-static ">
+                           
+                             <a href="#!" class="nav-item mx-2 btn-edit" data-id="${item.employeeEmeContactID}" data-bs-toggle="modal" data-bs-target="#edit_emmergencyContact"><i class="fas fa-edit text-black"></i></a>
+                             <a href="#!" class="nav-item mx-2 btn-delete" data-id="${item.employeeEmeContactID}" data-bs-toggle="modal" data-bs-target="#delete_modal"><i class="far fa-trash-alt text-black"></i></a>
+               
                         </div>
                     </td>
                 </tr>`;
                 tableBody.append(row);
             });
+
+            
 
             $('.btn-edit').click(function (e) {
                 e.preventDefault();

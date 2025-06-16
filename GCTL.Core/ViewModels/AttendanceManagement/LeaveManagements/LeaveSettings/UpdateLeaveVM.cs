@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings
 {
-    public class GetLeaveTypesByIdVM
+    public class UpdateLeaveVM:BaseViewModel
     {
         public int LeaveTypeID { get; set; }
         public string? LeaveTypeName { get; set; }
         public int? OrganizationID { get; set; }
 
         public bool IsPaid { get; set; }
-
+        public bool IsActive { get; set; }
         public decimal? LeaveDays { get; set; }
         public string? Code { get; set; }
         public int? EffectiveFrom { get; set; }

@@ -14,7 +14,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeAllowance
 
         public decimal? MobileInternetAllowance { get; set; }
 
-        public bool IsMobileInternetAllowanceEnabled { get; set; }
+        //public bool IsMobileInternetAllowanceEnabled { get; set; }
 
         public decimal? ShiftAllowance { get; set; }
 

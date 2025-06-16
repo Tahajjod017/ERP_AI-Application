@@ -21,12 +21,16 @@
                     clearForm();
                 }
             });
+
         }
+      
     }
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);
     initEmployeeChoices();
 
     //#endregion
+
+
 
     //#region Choice dropdowns
 

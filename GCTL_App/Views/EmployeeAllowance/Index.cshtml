@@ -99,6 +99,7 @@
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="tabpanel" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
                                     <div class="px-25">
+                                        <!--
                                         <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
                                             <li class="nav-item" role="presentation">
                                                 <a class="nav-link" id="empSalary-tab" href="/EmployeeSalary/index" role="tab" aria-controls="tab-empSalary" aria-selected="false">@Html.SmartLocalize("Employee Salary Settings")</a>
@@ -110,6 +111,7 @@
                                                 <a class="nav-link active" id="empAllowance-tab" href="#" role="tab" aria-controls="tab-empAllowance" aria-selected="true">@Html.SmartLocalize("Employee Allowance")</a>
                                             </li>
                                         </ul>
+                                        -->
                                         <div class="tab-content mt-3" id="myTabContent">
                                             <div class="tab-pane fade show active" id="tab-empAllowance" role="tabpanel" aria-labelledby="empAllowance-tab">
                                                 <div class="card">
@@ -148,7 +150,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
                                                                         <label class="form-label" asp-for="MobileAllowance">@Html.SmartLocalize("Mobile Allowance")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" asp-for="IsMobileInternetAllowanceEnabled" type="checkbox" role="switch" id="mobileAllowanceEnabled">
+                                                                            <input class="form-check-input" asp-for="IsMobileAllowanceEnabled" type="checkbox" role="switch" id="mobileAllowanceEnabled">
                                                                         </div>
                                                                     </div>
                                                                     <input class="form-control" asp-for="MobileAllowance" id="MobileAllowance" type="text" placeholder="Ex: 1000 tk Monthly">

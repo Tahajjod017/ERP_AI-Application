@@ -7,6 +7,7 @@ using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,12 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
-        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
+
+        private readonly UserManager<ApplicationUser> _userManagerRepository2;
+        private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
+        private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
+        private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
+        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;
@@ -32,18 +38,41 @@ namespace GCTL_App.Controllers.Employees
             _countryRepository = countryRepository;
             _bloodGroupRepository = bloodGroupRepository;
             _employeeNavigationService = employeeNavigationService;
+            _userManagerRepository2 = userManagerRepository2;
+            _menuTabRepository = menuTabRepository;
+            _rolePermissionRepository = rolePermissionRepository;
+            _roleManagerRepository2 = roleManagerRepository2;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             SetSmartPageCode(111000);
 
             PopulateViewBag();
 
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("PersonalInfo");
-            ViewBag.Navigation = navigationModel;
+            if (loggedUser != null)
+            {
 
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PersonalInfo");
+                ViewBag.Navigation = navigationModel;
+            }
+
+            
 
             //ViewBag.MaritalStatusDD = _maritalRepository.All().ToList();
             //EmployeePersonalPostViewModel model = null;
@@ -71,6 +100,30 @@ namespace GCTL_App.Controllers.Employees
         public async Task<IActionResult> Index(EmployeePersonalPostViewModel model)
         {
             PopulateViewBag();
+
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PersonalInfo");
+                ViewBag.Navigation = navigationModel;
+            }
+
+
 
             if (ModelState.IsValid)
             {

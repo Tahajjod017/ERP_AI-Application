@@ -9,6 +9,7 @@ using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace GCTL.Service.Employees.EmployeeNavigation
 {
@@ -254,7 +255,108 @@ namespace GCTL.Service.Employees.EmployeeNavigation
             return navigation;
         }
 
-        public EmployeeNavigationViewModel GetEmployeeNavigation(string activeTab = "", string activeSubTab = "")
+        //public EmployeeNavigationViewModel GetEmployeeNavigation(List<string> menuTabs, string activeTab = "", string activeSubTab = "")
+        //{
+        //    var navigation = new EmployeeNavigationViewModel
+        //    {
+        //        ActiveTab = activeTab,
+        //        ActiveSubTab = activeSubTab
+        //    };
+
+        //    // Define all main navigation items
+        //    var allMainTabs = new List<NavigationItem>
+        //    {
+        //        new NavigationItem { Id = "headingPInfo", Text = "Personal Info.", Url = "/EmployeePersonal/index", Icon = "fa-solid fa-user", IsActive = activeTab == "PersonalInfo", AriaControls = "empPersonalInfo" },
+        //        new NavigationItem { Id = "headingEmpOfficialInfo", Text = "Official Info.", Url = "/EmployeeOfficial/index", Icon = "fa-solid fa-file-alt", IsActive = activeTab == "OfficialInfo", AriaControls = "empOfficialInfo" },
+        //        new NavigationItem { Id = "headingempPayroleInfo", Text = "Payroll Info.", Url = "/EmployeeSalary/index", Icon = "fa-solid fa-file-alt", IsActive = activeTab == "PayrollInfo", AriaControls = "empPayroleInfo" },
+        //        new NavigationItem { Id = "headingAdditionalInfo", Text = "Additional Info.", Url = "/EmployeeAdditional/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "AdditionalInfo", AriaControls = "additionalInfo" },
+        //        new NavigationItem { Id = "headingeducationInfo", Text = "Education Info.", Url = "/EmployeeEducation/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "EducationInfo", AriaControls = "educationInfo" },
+        //        new NavigationItem { Id = "headingTranningInfo", Text = "Training Info.", Url = "/EmployeeTraining/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "TrainingInfo", AriaControls = "tranningInfo" },
+        //        new NavigationItem { Id = "headingFamilyInfo", Text = "Family Info.", Url = "/EmployeeFamily/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "FamilyInfo", AriaControls = "familyInfo" },
+        //        new NavigationItem { Id = "headingemmerhencyContactInfo", Text = "Emergency Contact", Url = "/EmployeeContact/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "EmergencyContact", AriaControls = "emmerhencyContactInfo" }
+        //    };
+
+
+        //    navigation.MainNavigation = allMainTabs
+        //        .Where(item => menuTabs.Any(tab => item.Url.StartsWith($"/{tab}/", StringComparison.OrdinalIgnoreCase)))
+        //        .ToList();
+
+
+        //    //if (activeTab == "PayrollInfo" && menuTabs.Contains("EmployeeSalary", StringComparer.OrdinalIgnoreCase))
+        //    if ( menuTabs.Contains("EmployeeSalary", StringComparer.OrdinalIgnoreCase) || menuTabs.Contains("EmployeeBenefits", StringComparer.OrdinalIgnoreCase) || menuTabs.Contains("EmployeeAllowance", StringComparer.OrdinalIgnoreCase))
+        //    {
+        //        var allSubTabs = new List<NavigationItem>
+        //        {
+        //            new NavigationItem { Id = "empSalary-tab", Text = "Employee Salary Settings", Url = "/EmployeeSalary/index", IsActive = activeSubTab == "EmployeeSalary", AriaControls = "tab-empSalary" },
+        //            new NavigationItem { Id = "empBenefits-tab", Text = "Employee Benefits", Url = "/EmployeeBenefits/index", IsActive = activeSubTab == "EmployeeBenefits", AriaControls = "tab-empBenefits" },
+        //            new NavigationItem { Id = "empAllowance-tab", Text = "Employee Allowance", Url = "/EmployeeAllowance/index", IsActive = activeSubTab == "EmployeeAllowance", AriaControls = "tab-empAllowance" }
+        //        };
+
+        //        navigation.SubNavigation = allSubTabs
+        //            .Where(item => menuTabs.Any(tab => !item.Url.StartsWith($"/{tab}/", StringComparison.OrdinalIgnoreCase)))
+        //            .ToList();
+        //    }
+
+        //    return navigation;
+        //}
+
+        #region backup
+        //public EmployeeNavigationViewModel GetEmployeeNavigation(List<string> menuTabs, string activeTab = "", string activeSubTab = "")
+        //{
+        //    var navigation = new EmployeeNavigationViewModel
+        //    {
+        //        ActiveTab = activeTab,
+        //        ActiveSubTab = activeSubTab
+        //    };
+
+        //    // Define all main navigation items
+        //    var allMainTabs = new List<NavigationItem>
+        //    {
+        //        new NavigationItem { Id = "headingPInfo", Text = "Personal Info.", UrlHelper = "EmployeePersonal", Url = "/EmployeePersonal/index", Icon = "fa-solid fa-user", IsActive = activeTab == "PersonalInfo", AriaControls = "empPersonalInfo" },
+        //        new NavigationItem { Id = "headingEmpOfficialInfo", Text = "Official Info.", UrlHelper = "EmployeeOfficial" , Url = "/EmployeeOfficial/index", Icon = "fa-solid fa-file-alt", IsActive = activeTab == "OfficialInfo", AriaControls = "empOfficialInfo" },
+        //        new NavigationItem { Id = "headingempPayroleInfo", Text = "Payroll Info.", UrlHelper = "EmployeeSalary" , Url = "/EmployeeSalary/index", Icon = "fa-solid fa-file-alt", IsActive = activeTab == "PayrollInfo", AriaControls = "empPayroleInfo" },
+        //        new NavigationItem { Id = "headingAdditionalInfo", Text = "Additional Info.", UrlHelper = "EmployeeAdditional" , Url = "/EmployeeAdditional/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "AdditionalInfo", AriaControls = "additionalInfo" },
+        //        new NavigationItem { Id = "headingeducationInfo", Text = "Education Info.", UrlHelper = "EmployeeEducation" , Url = "/EmployeeEducation/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "EducationInfo", AriaControls = "educationInfo" },
+        //        new NavigationItem { Id = "headingTranningInfo", Text = "Training Info.", UrlHelper = "EmployeeTraining" , Url = "/EmployeeTraining/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "TrainingInfo", AriaControls = "tranningInfo" },
+        //        new NavigationItem { Id = "headingFamilyInfo", Text = "Family Info.", UrlHelper = "EmployeeFamily" , Url = "/EmployeeFamily/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "FamilyInfo", AriaControls = "familyInfo" },
+        //        new NavigationItem { Id = "headingemmerhencyContactInfo", Text = "Emergency Contact", UrlHelper = "EmployeeContact" ,  Url = "/EmployeeContact/index", Icon = "fa-solid fa-square-check", IsActive = activeTab == "EmergencyContact", AriaControls = "emmerhencyContactInfo" }
+        //    };
+
+        //    var filterMenuTabs = new List<NavigationItem>();
+
+        //    // Filter main navigation items based on menuTabs
+        //    foreach (var menu in menuTabs)
+        //    {
+        //        foreach (var menuTab in allMainTabs)
+        //        {
+        //            if (menuTab.UrlHelper == menu)
+        //            {
+        //                filterMenuTabs.Add(menuTab);
+        //            }
+        //        }
+        //    }
+
+
+        //    // Sub Navigation only if PayrollInfo is active and EmployeeSalary is in menuTabs
+        //    if (activeTab == "PayrollInfo" && menuTabs.Contains("EmployeeSalary", StringComparer.OrdinalIgnoreCase))
+        //    {
+        //        var allSubTabs = new List<NavigationItem>
+        //        {
+        //            new NavigationItem { Id = "empSalary-tab", Text = "Employee Salary Settings", UrlHelper = "EmployeeSalary" , Url = "/EmployeeSalary/index", IsActive = activeSubTab == "EmployeeSalary", AriaControls = "tab-empSalary" },
+        //            new NavigationItem { Id = "empBenefits-tab", Text = "Employee Benefits", UrlHelper = "EmployeeBenefits" ,  Url = "/EmployeeBenefits/index", IsActive = activeSubTab == "EmployeeBenefits", AriaControls = "tab-empBenefits" },
+        //            new NavigationItem { Id = "empAllowance-tab", Text = "Employee Allowance", UrlHelper = "EmployeeAllowance" , Url = "/EmployeeAllowance/index", IsActive = activeSubTab == "EmployeeAllowance", AriaControls = "tab-empAllowance" }
+        //        };
+
+        //        navigation.SubNavigation = allSubTabs
+        //            .Where(item => menuTabs.Any(tab => item.Url.StartsWith($"/{tab}/", StringComparison.OrdinalIgnoreCase)))
+        //            .ToList();
+        //    }
+
+        //    return navigation;
+        //}
+        #endregion
+
+        public EmployeeNavigationViewModel GetEmployeeNavigation(List<string> menuTabs, string activeTab = "", string activeSubTab = "")
         {
             var navigation = new EmployeeNavigationViewModel
             {
@@ -263,7 +365,7 @@ namespace GCTL.Service.Employees.EmployeeNavigation
             };
 
             // Main navigation items
-            navigation.MainNavigation = new List<NavigationItem>
+            var mainNavigation = new List<NavigationItem>
             {
                 new NavigationItem
                 {
@@ -339,39 +441,67 @@ namespace GCTL.Service.Employees.EmployeeNavigation
                 }
             };
 
-            // Sub navigation for Payroll (only when PayrollInfo is active)
-            if (activeTab == "PayrollInfo")
+            // Filter MainNavigation based on menuTabs
+            if (menuTabs != null && menuTabs.Any())
             {
-                navigation.SubNavigation = new List<NavigationItem>
+                navigation.MainNavigation = mainNavigation
+                    .Where(item => menuTabs.Any(tab => item.Url.ToLower().Contains(tab.ToLower())))
+                    .ToList();
+            }
+            else
             {
-                new NavigationItem
+                navigation.MainNavigation = mainNavigation;
+            }
+
+            // Sub navigation for Payroll (only when PayrollInfo is active and included in filtered MainNavigation)
+            if (activeTab == "PayrollInfo" && navigation.MainNavigation.Any(item => item.Url.ToLower().Contains("EmployeeSalary".ToLower())))
+            {
+                var subNavigation = new List<NavigationItem>
                 {
-                    Id = "empSalary-tab",
-                    Text = "Employee Salary Settings",
-                    Url = "/EmployeeSalary/index",
-                    IsActive = activeSubTab == "EmployeeSalary",
-                    AriaControls = "tab-empSalary"
-                },
-                new NavigationItem
+                    new NavigationItem
+                    {
+                        Id = "empSalary-tab",
+                        Text = "Employee Salary Settings",
+                        Url = "/EmployeeSalary/index",
+                        IsActive = activeSubTab == "EmployeeSalary",
+                        AriaControls = "tab-empSalary"
+                    },
+                    new NavigationItem
+                    {
+                        Id = "empBenefits-tab",
+                        Text = "Employee Benefits",
+                        Url = "/EmployeeBenifit/index",
+                        IsActive = activeSubTab == "EmployeeBenefits",
+                        AriaControls = "tab-empBenefits"
+                    },
+                    new NavigationItem
+                    {
+                        Id = "empAllowance-tab",
+                        Text = "Employee Allowance",
+                        Url = "/EmployeeAllowance/index",
+                        IsActive = activeSubTab == "EmployeeAllowance",
+                        AriaControls = "tab-empAllowance"
+                    }
+                };
+
+                // Filter SubNavigation based on menuTabs
+                if (menuTabs != null && menuTabs.Any())
                 {
-                    Id = "empBenefits-tab",
-                    Text = "Employee Benefits",
-                    Url = "/EmployeeBenefits/index",
-                    IsActive = activeSubTab == "EmployeeBenefits",
-                    AriaControls = "tab-empBenefits"
-                },
-                new NavigationItem
-                {
-                    Id = "empAllowance-tab",
-                    Text = "Employee Allowance",
-                    Url = "/EmployeeAllowance/index",
-                    IsActive = activeSubTab == "EmployeeAllowance",
-                    AriaControls = "tab-empAllowance"
+                    navigation.SubNavigation = subNavigation
+                        .Where(item => menuTabs.Any(tab => item.Url.ToLower().Contains(tab.ToLower())))
+                        .ToList();
                 }
-            };
+                else
+                {
+                    navigation.SubNavigation = subNavigation;
+                }
             }
 
             return navigation;
         }
+
+
+
+
     }
 }

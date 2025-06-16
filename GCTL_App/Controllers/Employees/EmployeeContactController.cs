@@ -1,9 +1,11 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeContact;
+using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeContact;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -18,20 +20,49 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeNavigationService _employeeNavigationService;
 
+        private readonly UserManager<ApplicationUser> _userManagerRepository2;
+        private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
+        private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
+        private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-
-        public EmployeeContactController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeContactService employeeContactService, IGenericRepository<GCTL.Data.Models.EmployeeFamilyInfo> employeeFamilyInfoRepository, IEmployeeNavigationService employeeNavigationService) : base(translateService, userProfileService)
+        public EmployeeContactController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeContactService employeeContactService, IGenericRepository<GCTL.Data.Models.EmployeeFamilyInfo> employeeFamilyInfoRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeContactService = employeeContactService;
             _employeeFamilyInfoRepository = employeeFamilyInfoRepository;
             _employeeNavigationService = employeeNavigationService;
+            _userManagerRepository2 = userManagerRepository2;
+            _menuTabRepository = menuTabRepository;
+            _rolePermissionRepository = rolePermissionRepository;
+            _roleManagerRepository2 = roleManagerRepository2;
         }
 
-        public IActionResult Index(int id)
+        public async Task<IActionResult> Index(int id)
         {
-            var navigationModel = _employeeNavigationService.GetEmployeeNavigation("EmergencyContact");
-            ViewBag.Navigation = navigationModel;
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+
+                var userId = loggedUser.Id;
+
+                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                var menuTabs = (from rp in _rolePermissionRepository.All()
+                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                                where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
+                                select mt.ControllerName).Distinct().ToList();
+
+
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "EmergencyContact");
+                ViewBag.Navigation = navigationModel;
+            }
+
+
+          
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName" );
             SetSmartPageCode(117000);
