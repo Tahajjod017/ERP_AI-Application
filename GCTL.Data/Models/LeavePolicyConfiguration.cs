@@ -18,7 +18,7 @@ public partial class LeavePolicyConfiguration
     public string RoundOffHour { get; set; }
 
     public bool IsAllowRequestForPastDates { get; set; }
-
+    public bool IsRoundOffHour {  get; set; }
     public int? AllowRequestForFutureDays { get; set; }
 
     public int? MaximumleaveDaysPerAplication { get; set; }
@@ -40,6 +40,12 @@ public partial class LeavePolicyConfiguration
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
+
+    public bool? IsAllowRequestForFutureDays { get; set; }
+
+    public bool? IsMaximumleaveDaysPerAplication { get; set; }
+
+    public bool? IsMaximumGapDaysBetweenAplications { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

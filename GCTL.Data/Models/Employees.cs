@@ -80,7 +80,7 @@ public partial class Employees
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new
-  List<ApplicationUser>();
+ List<ApplicationUser>();
 
     public virtual BloodGroup BloodGroup { get; set; }
 
@@ -155,6 +155,12 @@ public partial class Employees
     public virtual ICollection<EducationLevels> EducationLevelsDeletedByNavigation { get; set; } = new List<EducationLevels>();
 
     public virtual ICollection<EducationLevels> EducationLevelsUpdatedByNavigation { get; set; } = new List<EducationLevels>();
+
+    public virtual ICollection<EmailSettings> EmailSettingsCreatedByNavigation { get; set; } = new List<EmailSettings>();
+
+    public virtual ICollection<EmailSettings> EmailSettingsDeletedByNavigation { get; set; } = new List<EmailSettings>();
+
+    public virtual ICollection<EmailSettings> EmailSettingsUpdatedByNavigation { get; set; } = new List<EmailSettings>();
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoCreatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
 
@@ -312,6 +318,12 @@ public partial class Employees
 
     public virtual Country Nationality { get; set; }
 
+    public virtual ICollection<OTPSettings> OTPSettingsCreatedByNavigation { get; set; } = new List<OTPSettings>();
+
+    public virtual ICollection<OTPSettings> OTPSettingsDeletedByNavigation { get; set; } = new List<OTPSettings>();
+
+    public virtual ICollection<OTPSettings> OTPSettingsUpdatedByNavigation { get; set; } = new List<OTPSettings>();
+
     public virtual ICollection<OrganizationBranches> OrganizationBranchesCreatedByNavigation { get; set; } = new List<OrganizationBranches>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranchesDeletedByNavigation { get; set; } = new List<OrganizationBranches>();
@@ -377,6 +389,12 @@ public partial class Employees
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysEmployee { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysUpdatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
+
+    public virtual ICollection<SMSSettings> SMSSettingsCreatedByNavigation { get; set; } = new List<SMSSettings>();
+
+    public virtual ICollection<SMSSettings> SMSSettingsDeletedByNavigation { get; set; } = new List<SMSSettings>();
+
+    public virtual ICollection<SMSSettings> SMSSettingsUpdatedByNavigation { get; set; } = new List<SMSSettings>();
 
     public virtual ICollection<ServiceYears> ServiceYearsCreatedByNavigation { get; set; } = new List<ServiceYears>();
 

@@ -111,7 +111,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 };
 
                 await leaveType.AddAsync(entity);
-                await userInfoService.ActionLogAsync("Add New Leave", ActionName.DataAdd, null, entity, entity.LeaveTypeID, entityVM);
+                await userInfoService.ActionLogAsync("Leave Settings", ActionName.DataAdd, null, entity, entity.LeaveTypeID, entityVM);
                 await leaveType.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
@@ -141,6 +141,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
         #region Update Leave 
         public async Task<CommonReturnViewModel> UpdateLeaveAsynce(UpdateLeaveVM entityVM)
         {
+            await leaveType.BeginTransactionAsync();
             try
             {
                 // Fetch existing leave type from DB
@@ -154,13 +155,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                         Message = "Leave type not found."
                     };
                 }
+                var beforeEntity = JsonConvert.DeserializeObject<UpdateLeaveVM>(JsonConvert.SerializeObject(existingLeave, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
 
-                await leaveType.BeginTransactionAsync();
                 // Map values from view model to entity
                 existingLeave.LeaveTypeName = entityVM.LeaveTypeName;
                 existingLeave.OrganizationID = entityVM.OrganizationID;
                 existingLeave.IsPaid = entityVM.IsPaid;
-                existingLeave.IsActive = entityVM.IsActive;
+               // existingLeave.IsActive = entityVM.IsActive;
                 existingLeave.LeaveDays = entityVM.LeaveDays;
                 existingLeave.Code = entityVM.Code;
                 existingLeave.EffectiveFrom = entityVM.EffectiveFrom;
@@ -174,6 +175,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingLeave.UpdatedBy = entityVM.UpdatedBy;
                 // Save changes
                 await leaveType.UpdateAsync(existingLeave);
+                var afterEntity = JsonConvert.DeserializeObject<UpdateLeaveVM>(JsonConvert.SerializeObject(existingLeave, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                await userInfoService.ActionLogAsync("Leave Settings", ActionName.DataUpdated, beforeEntity, afterEntity, existingLeave.LeaveTypeID, entityVM);
                 await leaveType.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {
@@ -208,7 +211,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                         Message = "No data found to delete."
                     };
                 }
-                //var beforeEntity = JsonConvert.DeserializeObject<List<AddNewLeaveSave>>(JsonConvert.SerializeObject(data));
+               
+                var beforeEntity = JsonConvert.DeserializeObject<List<AddNewLeaveSave>>(
+             JsonConvert.SerializeObject(data, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
                 var targetIds = data.Select(x => (int?)x.LeaveTypeID).ToList();
                 foreach (var item in data)
                 {
@@ -219,7 +224,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 }
 
                 await leaveType.UpdateRangeAsync(data);
-               // await userInfoService.ActionLogDeleteAsync("Leave Settigs", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await userInfoService.ActionLogDeleteAsync("Leave Settigs", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
                 await leaveType.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
@@ -234,7 +239,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             }
         }
 
-
+        
         #endregion
 
         #region Leave Policy Configuration 
@@ -262,8 +267,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     IsAllowRequestForPastDates = entityVM.IsAllowRequestForPastDates,
                     AllowRequestForFutureDays = entityVM.AllowRequestForFutureDays,
                     MaximumleaveDaysPerAplication = entityVM.MaximumleaveDaysPerAplication,
-                    MaximumGapDaysBetweenAplications = entityVM.MaximumGapDaysBetweenAplications,
-                    LIP = entityVM.LIP,
+                     MaximumGapDaysBetweenAplications = entityVM.MaximumGapDaysBetweenAplications,       
+                     IsMaximumGapDaysBetweenAplications=entityVM.IsMaximumGapDaysBetweenAplications,
+                     IsMaximumleaveDaysPerAplication=entityVM.IsMaximumleaveDaysPerAplication,
+                     IsAllowRequestForFutureDays=entityVM.IsAllowRequestForFutureDays,
+                     IsRoundOffHour=entityVM.IsRoundOffHour,
+                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
                     CreatedAt = DateTime.Now
