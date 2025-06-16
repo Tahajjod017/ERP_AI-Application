@@ -16,7 +16,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDef
 
         public int? OrganizationID { get; set; }
 
-        public List<int>? OrganizationIDs { get; set; }
+        //public List<int>? OrganizationIDs { get; set; }
 
         public string? OrganizationName { get; set; }
 

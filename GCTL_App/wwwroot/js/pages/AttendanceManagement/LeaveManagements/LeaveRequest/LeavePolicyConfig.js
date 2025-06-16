@@ -2,20 +2,22 @@
 
 
     function resetForm() {
-        $('#LeaveTypeName, #LeaveDays, #Code, #EffectiveFrom').val('');
-        $('#IsPaidYes').prop('checked', true);
-        $('#IsActiveYes').prop('checked', true);
+        // Reset radio buttons to default (usually the first option)
+        $('input[type=radio][name=IsWeekendCountedAsLeave][value=true]').prop('checked', true);
+        $('input[type=radio][name=IsHolidayCountedAsLeave][value=true]').prop('checked', true);
+        $('input[type=radio][name=IsExceedLeaveBalance][value=true]').prop('checked', true);
 
-        // Reset dropdowns
-        $('#OrganizationID').val([]).trigger('change');
-        $('#EffectiveFromMonthYear').val('Months').trigger('change');
-        $('#EffectiveAfter').val('After Joining Date');
+        // Uncheck all checkboxes
+        $('#IsAllowRequestForPastDates,#IsRoundOffHour').prop('checked', false);
+        $('#IsAllowRequestForFutureDays').prop('checked', false);
+        $('#IsMaximumleaveDaysPerAplication').prop('checked', false);
+        $('#IsMaximumGapDaysBetweenAplications').prop('checked', false);
 
-        // Clear validation styles and messages
-        $('.is-invalid').removeClass('is-invalid');
-        $('.text-danger').remove();
-
+        // Clear textboxes
+        $('#AllowRequestForFutureDays, #MaxLeavePerApplication, #MaxGapBetweenApplications').val('');
+        choiceManager.clearChoice('RoundOffHour');
     }
+
 
     $('#resetBtn').on('click', function () {
         resetForm();
@@ -103,15 +105,41 @@
 
     $('#AddLeavePolicyBtn').on('click', function (e) {
         e.preventDefault();
-        if (!validateLeaveForm()) return;
+        // if (!validateLeaveForm()) return;
+      
         const leaveData = {
-            LeaveTypeID: $('#LeaveTypeID').val(),
-            LeaveTypeName: $('#LeaveTypeName').val(),
-            //OrganizationID: $('#OrganizationID').val(),
-            IsPaid: $('input[name="IsPaid"]:checked').val() === 'true',
-            IsActive: $('input[name="IsActive"]:checked').val() === 'true',
-           
+            
+
+          
+
+            IsWeekendCountedAsLeave: $('input[name="IsWeekendCountedAsLeave"]:checked').val() === 'true',
+            IsHolidayCountedAsLeave: $('input[name="IsHolidayCountedAsLeave"]:checked').val() === 'true',
+            IsExceedLeaveBalance: $('input[name="IsExceedLeaveBalance"]:checked').val() === 'true',
+
+            IsAllowRequestForPastDates: $('#IsAllowRequestForPastDates').is(':checked'),
+
+            IsAllowRequestForFutureDays: $('#IsAllowRequestForFutureDays').is(':checked'),
+            AllowRequestForFutureDays: $('#IsAllowRequestForFutureDays').is(':checked')
+                ? parseInt($('#AllowRequestForFutureDays').val()) || null
+                : null,
+
+            IsMaximumleaveDaysPerAplication: $('#IsMaximumleaveDaysPerAplication').is(':checked'),
+            MaximumleaveDaysPerAplication: $('#IsMaximumleaveDaysPerAplication').is(':checked')
+                ? parseInt($('#MaxLeavePerApplication').val()) || null
+                : null,
+
+            IsMaximumGapDaysBetweenAplications: $('#IsMaximumGapDaysBetweenAplications').is(':checked'),
+            MaximumGapDaysBetweenAplications: $('#IsMaximumGapDaysBetweenAplications').is(':checked')
+                ? parseInt($('#MaxGapBetweenApplications').val()) || null
+                : null,
+
+                IsRoundOffHour: $('#IsRoundOffHour').is(':checked'),
+            RoundOffHour: $('#IsRoundOffHour').is(':checked')
+                ? $('#RoundOffHour').val()
+                : null,
+
         };
+
 
         $.ajax({
             url: '/LeaveSettings/LeavePolicyConfig', // Replace with your controller name
@@ -121,7 +149,7 @@
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    resetLeaveForm();
+                    resetForm();
                     // Optionally reload data or close modal
                 } else {
                     toastr.error(response.message);

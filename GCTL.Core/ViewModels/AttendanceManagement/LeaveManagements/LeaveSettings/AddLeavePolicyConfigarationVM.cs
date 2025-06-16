@@ -9,7 +9,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 {
     public class AddLeavePolicyConfigarationVM:BaseViewModel
     {
-        public int LeavePolicyConfigurationID { get; set; }
+     
 
         public bool IsWeekendCountedAsLeave { get; set; }
 
@@ -19,6 +19,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 
         public string? RoundOffHour { get; set; }
 
+        public bool IsRoundOffHour { get; set; }
         public bool IsAllowRequestForPastDates { get; set; }
 
         public int? AllowRequestForFutureDays { get; set; }
@@ -26,6 +27,12 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
         public int? MaximumleaveDaysPerAplication { get; set; }
 
         public int? MaximumGapDaysBetweenAplications { get; set; }
+
+        public bool? IsAllowRequestForFutureDays { get; set; }
+
+        public bool? IsMaximumleaveDaysPerAplication { get; set; }
+
+        public bool? IsMaximumGapDaysBetweenAplications { get; set; }
 
     }
 }

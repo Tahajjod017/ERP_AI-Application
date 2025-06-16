@@ -69,9 +69,18 @@ namespace GCTL.Service.ActionLogAudit
             await _context.SaveChangesAsync();
         }
 
+        
+
         public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM)
         {
             var logs = new List<ActionLogs>();
+
+            // Move serializerSettings outside the loop to create it only once
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                MaxDepth = 32 // Optional: Add depth limit for better performance
+            };
 
             for (int i = 0; i < targetIds.Count; i++)
             {
@@ -79,8 +88,8 @@ namespace GCTL.Service.ActionLogAudit
                 {
                     CreatedBy = entityVM.CreatedBy,
                     ActionName = actionName,
-                    ActionBefore = beforeList != null ? JsonConvert.SerializeObject(beforeList[i]) : null,
-                    ActionAfter = afterList != null ? JsonConvert.SerializeObject(afterList[i]) : null,
+                    ActionBefore = beforeList != null ? JsonConvert.SerializeObject(beforeList[i], serializerSettings) : null,
+                    ActionAfter = afterList != null ? JsonConvert.SerializeObject(afterList[i], serializerSettings) : null,
                     UserEmail = entityVM.UserEmail,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
@@ -90,12 +99,9 @@ namespace GCTL.Service.ActionLogAudit
                 });
             }
 
-
             await _context.ActionLogs.AddRangeAsync(logs);
             await _context.SaveChangesAsync();
         }
-
-
 
         #endregion
 
