@@ -34,6 +34,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         Task<List<CommonSelectVM>> GetDepartments();
         Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees();
         Task<List<CommonSelectVM>> GetShift();
+        Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id);
+        Task<List<AssignDefaultShiftSetupVM>> GetShiftByCompany(int id);
         Task<List<AssignDefaultShiftSetupVM>> GetFilteredEmployees(List<int> organizationIds, List<int> departmentIds);
         #endregion
     }
