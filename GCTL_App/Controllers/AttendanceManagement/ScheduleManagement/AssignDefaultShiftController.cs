@@ -48,7 +48,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    if (model.OrganizationIDs == null || !model.OrganizationIDs.Any())
+                    if (model.OrganizationID == null)
                     {
                         return Json(new { isSuccess = false, message = "Please choose a Company!" });
                     }
@@ -180,6 +180,25 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 : new List<int>();
 
             var data = await _assignDefaultShiftService.GetFilteredEmployees(orgIds, deptIds);
+            return Json(data);
+        }
+        #endregion
+
+
+        #region GetDepartmentByCompany
+        [HttpGet]
+        public async Task<JsonResult> GetDepartmentByCompany(int id)
+        {
+            var data = await _assignDefaultShiftService.GetDepartmentByCompany(id);
+            return Json(data);
+        }
+        #endregion
+
+
+        #region GetShiftByCompany
+        public async Task<JsonResult> GetShiftByCompany(int id)
+        {
+            var data = await _assignDefaultShiftService.GetShiftByCompany(id);
             return Json(data);
         }
         #endregion
