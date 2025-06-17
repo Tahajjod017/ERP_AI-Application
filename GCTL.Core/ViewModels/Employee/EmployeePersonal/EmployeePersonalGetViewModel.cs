@@ -61,6 +61,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeePersonal
         public int? BloodGroupID { get; set; }
 
         public int? NationalityID { get; set; }
+        public string? Nationality { get; set; }
 
         public int? ReligionID { get; set; }
 
