@@ -1,0 +1,60 @@
+﻿<!-- Modal -->
+<div class="modal fade" id="shiftModal" tabindex="-1" aria-labelledby="shiftModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shiftModalLabel">Add new shift</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="shiftModalDetails" class="mb-3 text-muted"></p>
+                <div class="mb-3">
+                    <label class="form-label">New shift name</label>
+                    <input type="text" class="form-control" id="shiftName">
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">From</label>
+                        <select class="form-select" id="shiftFrom">
+                            <option>09:00</option>
+                            <option>10:00</option>
+                            <option>11:00</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">To</label>
+                        <select class="form-select" id="shiftTo">
+                            <option>17:00</option>
+                            <option>18:00</option>
+                            <option>19:00</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Unpaid break</label>
+                        <select class="form-select" id="shiftBreak">
+                            <option>00:00</option>
+                            <option>00:30</option>
+                            <option>01:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Area</label>
+                    <select class="form-select" id="shiftArea">
+                        <option>LS Admin</option>
+                        <option>LS Support</option>
+                        <option>LS Operations</option>
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="shiftTemplate">
+                    <label class="form-check-label" for="shiftTemplate">Save as shift template</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveShift">Save shift</button>
+            </div>
+        </div>
+    </div>
+</div>

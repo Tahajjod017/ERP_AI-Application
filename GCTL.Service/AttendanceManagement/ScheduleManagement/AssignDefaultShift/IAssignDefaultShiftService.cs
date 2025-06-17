@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
@@ -26,17 +25,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         #endregion
 
 
-        Task<List<ConflictViewModel>> CheckConflictsAsync(AssignDefaultShiftSetupVM model);
-
-
         #region Others
+        Task<List<ConflictViewModel>> CheckConflictsAsync(AssignDefaultShiftSetupVM model);
         Task<List<CommonSelectVM>> GetCompanies();
         Task<List<CommonSelectVM>> GetDepartments();
         Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees();
         Task<List<CommonSelectVM>> GetShift();
         Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id);
+        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByCompany(int id);
         Task<List<AssignDefaultShiftSetupVM>> GetShiftByCompany(int id);
-        Task<List<AssignDefaultShiftSetupVM>> GetFilteredEmployees(List<int> organizationIds, List<int> departmentIds);
+        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByDepartment(List<int> departmentIds);
         #endregion
     }
 }
