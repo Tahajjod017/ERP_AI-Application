@@ -71,7 +71,7 @@
             <div class="tab-content mt-3" id="myTabContent">
                 <div class="tab-pane fade show active">
                     <div class="border-translucent py-3">
-                        <partial name="_Form" />
+                        <partial name="_Form" model="Model.Setup" />
                     </div>
                 </div>
             </div>
@@ -98,3 +98,16 @@
       ]
     });
 </script> *@
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="~/js/pages/attendancemanagement/schedulemanagement/officedayroster.js"></script>
+    <script>
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "OfficeDayRoster")'
+            };
+            options.load = () => { };
+            $.officedayroster(options);
+        });
+    </script>
+}

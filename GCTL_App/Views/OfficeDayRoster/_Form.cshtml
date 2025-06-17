@@ -1,55 +1,52 @@
-﻿<form>
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDaysSetupVM
+
+@{
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDaysSetupVM>;
+}
+
+<form asp-controller="OfficeDayRoster" asp-action="Create" id="rosterInOfficeDays-form" enctype="multipart/form-data">
     <div class="d-flex gap-3 flex-wrap">
-        <div class="mb-3">
+        <div class="mb-3 one">
             <label class="form-label" for="organizerSingle">Company Name</label>
-            <select class="form-multi-select" id="multiple-department-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                <option value="">Select Company...</option>
-                <option>CSL</option>
-                <option>GCTL</option>
+            <select class="form-multi-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" multiple data-coreui-multiple="false" data-coreui-selection-type="counter" data-coreui-search="true">
             </select>
         </div>
-        <div class="mb-3">
+
+        <div class="mb-3 two">
             <label class="form-label" for="organizerSingle">Select Department</label>
-            <select class="form-multi-select" id="multiple-department-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                <option value="0">Software Developer</option>
-                <option value="1">Software Designer</option>
-                <option value="2">Finance</option>
-                <option value="3">IT Manager</option>
+            <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
             </select>
         </div>
 
         <div class="mb-3">
             <label class="form-label" for="organizerSingle">Employee</label>
-            <select class="form-multi-select" id="multiple-employee-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                <optgroup label="Developer">
-                    <option>Hasan Ali (101)</option>
-                    <option>Rana Hamid (102)</option>
-                </optgroup>
-                <optgroup label="Designer">
-                    <option>Hasan Mahmud (201)</option>
-                    <option>Jueal Rana (202)</option>
-                </optgroup>
+            <select class="form-multi-select" asp-for="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+                @foreach (var group in employees.GroupBy(e => e.DepartmentName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.EmployeeID">@emp.EmployeeName</option>
+                        }
+                    </optgroup>
+                }
             </select>
         </div>
 
         <div class="mb-3">
             <label class="form-label" for="organizerSingle">Select Shift</label>
-            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                 <option value="">Select Roster...</option>
-                <option>Shift 1</option>
-                <option>Shift 2</option>
-                <option>Shift 3</option>
-                <option>Shift 4</option>
             </select>
         </div>
 
         <div class="mb-3">
             <label class="form-label" for="timepicker2">Select Date Range</label>
-            <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
+            <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="DD/MM/YYYY to DD/MM/YYYY" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
         </div>
 
     </div>
-    <div class="modal-body pb-0">
+    @* <div class="modal-body pb-0">
         <div class="row">
             <div class="col-md-2">
             </div>
@@ -68,5 +65,5 @@
             </div>
 
         </div>
-    </div>
+    </div> *@
 </form>

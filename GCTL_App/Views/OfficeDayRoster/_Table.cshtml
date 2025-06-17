@@ -17,8 +17,7 @@
     </div>
 
     <div class="d-flex gap-2 flex-wrap">
-
-        <button class="btn btn-primary">Publish</button>
+        <button class="btn btn-primary" id="rosterInOfficeDays-saveBtn">Publish</button>
     </div>
 </div>
 
@@ -59,7 +58,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody class="list" id="rosterTable" id="purchasers-sellers-body">
+            <tbody>
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                     <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
                         <div class="d-flex align-items-center file-name-icon">
@@ -240,25 +239,4 @@
             </tbody>
         </table>
     </div>
-
-    <script>
-        // JavaScript to handle table visibility
-        document.getElementById('timeFrame').addEventListener('change', function() {
-          // Hide all tables
-          document.querySelectorAll('.table-container').forEach(function(table) {
-            table.style.display = 'none';
-          });
-
-          // Show the selected table
-          const selectedTable = document.getElementById(this.value);
-          if (selectedTable) {
-            selectedTable.style.display = 'block';
-          }
-        });
-
-        // Show the default table on page load
-        document.addEventListener('DOMContentLoaded', function() {
-          document.getElementById('day7').style.display = 'block'; // Show Week table by default
-        });
-    </script>
 </div>
