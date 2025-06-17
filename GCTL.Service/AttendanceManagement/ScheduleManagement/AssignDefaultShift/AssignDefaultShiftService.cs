@@ -390,7 +390,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
 
 
         #region GetFilteredEmployees
-        public async Task<List<AssignDefaultShiftSetupVM>> GetFilteredEmployees(List<int> organizationIds, List<int> departmentIds)
+        public async Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByDepartment(List<int> departmentIds)
         {
             var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
                         join emp in _employeesRepository.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
@@ -407,10 +407,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             empOi.OrganizationID,
                             empOi.DepartmentID
                         };
-
-            if (organizationIds?.Any() == true)
-                query = query.Where(x => organizationIds.Contains(x.OrganizationID ?? 0));
-
+                        
             if (departmentIds?.Any() == true)
                 query = query.Where(x => departmentIds.Contains(x.DepartmentID ?? 0));
 
@@ -447,6 +444,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         #endregion
 
 
+        #region GetDepartmentByCompany
         public async Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id)
         {
             var data = await (from eoi in _employeeOfficeInfo.All()
@@ -469,8 +467,34 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                               }).Distinct().ToListAsync();
             return data;
         }
+        #endregion
 
 
+        #region GetEmployeeByCompany
+        public async Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByCompany(int id)
+        {
+            var data = await (from eoi in _employeeOfficeInfo.All()
+
+                              where eoi.OrganizationID == id
+
+                              join emp in _employeesRepository.All() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.All() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new AssignDefaultShiftSetupVM
+                              {
+                                  EmployeeID = eoi.EmployeeID,
+                                  EmployeeName = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  DepartmentName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetShiftByCompany
         public async Task<List<AssignDefaultShiftSetupVM>> GetShiftByCompany(int id)
         {
             var data = await (from sft in _shiftsRepository.All()
@@ -483,9 +507,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                               select new AssignDefaultShiftSetupVM
                               {
                                   ShiftID = sft.ShiftID,
-                                  ShiftName = sft.ShiftName
+                                  ShiftName = $"{sft.ShiftName} ({sft.StartTime} - {sft.EndTime})"
                               }).ToListAsync();
             return data;
         }
+        #endregion
     }
 }

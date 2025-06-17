@@ -167,19 +167,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeesByFilters
+        #region GetEmployeeByDepartment
         [HttpGet]
-        public async Task<JsonResult> GetEmployeesByFilters(string organizationIds, string departmentIds)
+        public async Task<JsonResult> GetEmployeeByDepartment(string departmentIds)
         {
-            var orgIds = !string.IsNullOrEmpty(organizationIds)
-                ? organizationIds.Split(',').Select(int.Parse).ToList()
-                : new List<int>();
-
             var deptIds = !string.IsNullOrEmpty(departmentIds)
                 ? departmentIds.Split(',').Select(int.Parse).ToList()
                 : new List<int>();
 
-            var data = await _assignDefaultShiftService.GetFilteredEmployees(orgIds, deptIds);
+            var data = await _assignDefaultShiftService.GetEmployeeByDepartment(deptIds);
             return Json(data);
         }
         #endregion
@@ -195,7 +191,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetEmployeeByCompany
+        [HttpGet]
+        public async Task<JsonResult> GetEmployeeByCompany(int id)
+        {
+            var data = await _assignDefaultShiftService.GetEmployeeByCompany(id);
+            return Json(data);
+        }
+        #endregion
+
+
         #region GetShiftByCompany
+        [HttpGet]
         public async Task<JsonResult> GetShiftByCompany(int id)
         {
             var data = await _assignDefaultShiftService.GetShiftByCompany(id);

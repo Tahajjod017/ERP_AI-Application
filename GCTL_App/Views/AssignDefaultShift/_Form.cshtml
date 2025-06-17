@@ -8,24 +8,24 @@
     @Html.AntiForgeryToken()
     <div class="row">
         <div class="col-md-4">
-            <div class="mb-3">
+            <div class="mb-3 one">
                 <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Company")</label>
-                <select class="form-multi-select one" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" data-coreui-multiple="false" data-coreui-search="true">
+                <select class="form-multi-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" data-coreui-multiple="false" data-coreui-search="true">
                     <option value="">@Html.SmartLocalize("Select Company")</option>
                 </select>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="mb-3">
+            <div class="mb-3 two">
                 <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department")</label>
                 <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
                 </select>
             </div>
         </div>
-
+        
         <div class="col-md-4">
-            <div class="mb-3">
+            <div class="mb-3 three">
                 <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
                 <select class="form-multi-select" asp-for="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
                     @foreach (var group in employees.GroupBy(e => e.DepartmentName))
@@ -41,18 +41,16 @@
             </div>
         </div>
 
-        <div id="div" class=" p-3  rounded mb-3">
+        <div id="div" class=" p-3 rounded mb-3">
             <div class="col-md-12">
-                <div class="mb-3">
-                    <select class="form-select" asp-for="ShiftID" asp-items="ViewBag.ShiftDD as SelectList">
-                        <option value="">@Html.SmartLocalize("Select Shift")</option>
-                    </select>
-                </div>
+                <select class="form-select" asp-for="ShiftID" asp-items="ViewBag.ShiftDD as SelectList">
+                    <option value="">@Html.SmartLocalize("Select Shift")</option>
+                </select>
             </div>
         </div>
     </div>
 
-    <div class="col-12 mb-4">
+    <div class="col-12">
         <div class="row g-3 justify-content-end">
             <div class="col-auto">
                 <button type="reset" class="btn btn-phoenix-primary px-5" id="assignDefaultShift-resetBtn">@Html.SmartLocalize("Reset")</button>
