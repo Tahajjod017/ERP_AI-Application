@@ -1,0 +1,33 @@
+﻿
+@model string
+
+<ul class="nav nav-underline fs-9" id="myTab4" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link @(Model == "EmailSetting" ? "active" : "")"
+           id="emailSettings-tab"
+           href="@Url.Action("Index", "EmailSetting")"
+           role="tab"
+           aria-selected="@(Model == "EmailSetting" ? "true" : "false")">
+            EMAIL Settings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "SMSSetting" ? "active" : "")"
+           id="smsSettings-tab"
+           href="@Url.Action("Index", "SMSSetting")"
+           role="tab"
+           aria-selected="@(Model == "SMSSetting" ? "true" : "false")">
+            SMS Settings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "OTPSetting" ? "active" : "")"
+           id="otpSettings-tab"
+           href="@Url.Action("Index", "OTPSetting")"
+           role="tab"
+           aria-selected="@(Model == "OTPSetting" ? "true" : "false")">
+            OTP Settings
+        </a>
+    </li>
+</ul>
+

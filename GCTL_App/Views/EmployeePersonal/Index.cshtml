@@ -5,7 +5,7 @@
 <style>
     .search-results {
         position: absolute;
-        width: 100%;
+        width: 31%;
         z-index: 1050;
     }
 
@@ -124,11 +124,20 @@
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating mb-4">
-                                                        <input class="form-control"  asp-for="FirstName" id="firstName" type="text" placeholder="@Html.SmartLocalize("Enter First Name")" required />
-                                                        <label asp-for="FirstName" for="firstName">@Html.SmartLocalize("First Name")</label>
-                                                        
+                                                        <input class="form-control" asp-for="EmployeeCode" id="employeeCode" type="text" placeholder="@Html.SmartLocalize("Enter Employee Code")" required />
+                                                        <label asp-for="EmployeeCode" for="employeeCode">@Html.SmartLocalize("Employee Code")</label>
                                                     </div>
                                                 </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating mb-4">
+                                                        <input class="form-control" asp-for="FirstName" id="firstName" type="text" placeholder="@Html.SmartLocalize("Enter First Name")" required />
+                                                        <label asp-for="FirstName" for="firstName">@Html.SmartLocalize("First Name")</label>
+
+                                                    </div>
+                                                </div>
+
+
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating mb-4">
                                                         <input class="form-control" asp-for="LastName" id="lastName" type="text" placeholder="@Html.SmartLocalize("Enter Last Name")" />
@@ -220,13 +229,14 @@
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
 
-                                                    <div class="input-group form-floating form-floating-advance-select mb-4">
-                                                        <label asp-for="Nationality" for="floatingSelectLitigation">@Html.SmartLocalize("Nationality")</label>
+                                                    <div class="form-floating mb-4">
                                                         <input type="text" asp-for="Nationality" id="nationalitySearch" class="form-control" placeholder="@Html.SmartLocalize("Search Nationality...")">
-                                                        
+                                                        <label asp-for="Nationality" for="floatingSelectLitigation">@Html.SmartLocalize("Nationality")</label>
+                                                        <!--
                                                         <button class="btn btn-outline-danger" type="button" id="removeNationalityBtn" style="display: none;">
                                                             <i class="fas fa-times"></i>
                                                         </button>
+                                                        -->
                                                     </div>
 
                                                     <div class="search-results card" id="searchResults">

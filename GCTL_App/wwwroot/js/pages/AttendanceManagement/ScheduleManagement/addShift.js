@@ -726,10 +726,10 @@
                                     <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${convertUtcTimeOnlyToLocal(item.endTime ?? '-')}</td>
                                     <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTime ?? '-'}</td>
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime ?? '-'}</td>
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#!" class="nav-item mx-2 addShift-bulkEdit" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="nav-item mx-2 addShift-bulkDelete" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
+                                    <td class="text-end align-middle white-space-nowrap pe-3">
+                                        <div class="row g-3">
+                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>
@@ -738,6 +738,12 @@
                     } else {
                         tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
                     }
+                    //<td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                    //    <div class="btn-reveal-trigger position-static">
+                    //        <a href="#!" class="nav-item mx-2 addShift-bulkEdit" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
+                    //        <a href="#!" class="nav-item mx-2 addShift-bulkDelete" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
+                    //    </div>
+                    //</td>
 
                     var paginationInfo = response.paginationInfo;
 

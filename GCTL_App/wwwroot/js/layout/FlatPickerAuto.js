@@ -13,7 +13,13 @@ const flatpickrHelper = {
     setDate: function (elementId, dateValue) {
         if (!dateValue) return;
 
-        const element = document.getElementById(elementId);
+      
+
+        // Normalize the selector
+        const normalizedId = elementId.startsWith('#') ? elementId.substring(1) : elementId;
+        const element = document.getElementById(normalizedId);
+
+       //const element = document.getElementById(elementId);
         if (element && element._flatpickr) {
             element._flatpickr.setDate(dateValue, true); // true = trigger change event
         } else if (element) {
@@ -22,7 +28,14 @@ const flatpickrHelper = {
     },
 
     getDate: function (elementId) {
-        const element = document.getElementById(elementId);
+
+       
+
+        // Normalize the selector
+        const normalizedId = elementId.startsWith('#') ? elementId.substring(1) : elementId;
+        const element = document.getElementById(normalizedId);
+
+       // const element = document.getElementById(elementId);
         if (element && element._flatpickr) {
             return element._flatpickr.input.value; // returns formatted date
         } else if (element) {
@@ -48,7 +61,19 @@ window.flatpickrHelper = flatpickrHelper;
 //#endregion
 
 
+//setDate: function (elementId, dateValue) {
+//    if (!dateValue) return;
 
+//    // Normalize the selector
+//    const normalizedId = elementId.startsWith('#') ? elementId.substring(1) : elementId;
+//    const element = document.getElementById(normalizedId);
+
+//    if (element && element._flatpickr) {
+//        element._flatpickr.setDate(dateValue, true); // true = trigger change event
+//    } else if (element) {
+//        element.value = dateValue;
+//    }
+//}
 
 
 

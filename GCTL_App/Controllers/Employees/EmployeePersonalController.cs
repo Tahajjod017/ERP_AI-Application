@@ -17,6 +17,7 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeePersonalController : BaseController
     {
+        #region CTOR
         private readonly IEmployeePersonalService _employeePersonalService;
         private readonly IEmployeeNavigationService _employeeNavigationService;
         private readonly IGenericRepository<MaritalStatus> _maritalRepository;
@@ -43,6 +44,8 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
         }
+
+        #endregion
 
         public async Task<IActionResult> Index()
         {
@@ -163,6 +166,27 @@ namespace GCTL_App.Controllers.Employees
             //return RedirectToAction(nameof(Index));
           
             return View(model);
+        }
+
+
+        [HttpPost]
+
+        public async Task<IActionResult> SubmitFromEdit(EmployeePersonalPostViewModel model)
+        {
+
+            var chkDuplicate = await _employeePersonalService.CheckValidEmployeeInfo(model);
+
+            if (!chkDuplicate.Success)
+            {
+                return Ok(chkDuplicate);
+            }
+
+            // Save and get the new employee ID
+            CommonReturnViewModel result = await _employeePersonalService.SaveEmployeePersonalInfo(model);
+
+            return Ok(result);
+
+
         }
 
         #region Nationality

@@ -102,6 +102,9 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         NationalityID = nationalityId,
                         ReligionID = Convert.ToInt32(model.Religion),
                         CountryID = model.Country,
+
+                        EmployeeCode = model.EmployeeCode,
+
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy
                     };
@@ -147,16 +150,36 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     employee.HouseNo = model.HouseNo;
                     employee.RoadNo = model.RoadNo;
                     employee.PostalCode = model.PostalCode;
-                    employee.EmployeeImageFileName = EmployeeImageFileName;
-                    employee.EmployeeSignatureFileName = EmployeeSignatureFileName;
+                    
+
                     employee.MaritalStatusID = Convert.ToInt32(model.MaritalStatus);
                     employee.GenderID = Convert.ToInt32(model.Gender);
                     employee.BloodGroupID = Convert.ToInt32(model.BloodGroup);
-                    employee.NationalityID = Convert.ToInt32(model.NationalId);
+                    employee.NationalityID = Convert.ToInt32(nationalityId);
                     employee.ReligionID = Convert.ToInt32(model.Religion);
                     employee.CountryID = Convert.ToInt32(model.Country);
                     employee.UpdatedAt = DateTime.UtcNow;
                     employee.UpdatedBy = model.UpdatedBy;
+
+
+                    if (employee.BloodGroupID == 0) employee.BloodGroupID = null;
+                    if (employee.GenderID == 0) employee.GenderID = null;
+                    if (employee.MaritalStatusID == 0) employee.MaritalStatusID = null;
+                    if (employee.NationalityID == 0) employee.NationalityID = null;
+                    if (employee.ReligionID == 0) employee.ReligionID = null;
+                    if (employee.CountryID == 0) employee.CountryID = null;
+
+                    if (model.EmployeePicture != null)
+                    {
+                        employee.EmployeeImageFileName = EmployeeImageFileName;
+                    }
+
+                    if (model.Signature != null)
+                    {
+                        employee.EmployeeSignatureFileName = EmployeeSignatureFileName;
+                    }
+
+                   
 
                     await _employeePersonalRepository.UpdateAsync(employee);
                 }
@@ -276,6 +299,11 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
             var allEmployees = _employeePersonalRepository.AllActive();
 
+            if (model.EmployeeId > 0)
+            {
+                allEmployees = allEmployees.Where(e => e.EmployeeID != model.EmployeeId);
+            }
+
             if (model.EmployeeId != null || model.EmployeeId != 0)
             {
                 allEmployees = allEmployees.Where(e => e.EmployeeID != model.EmployeeId);
@@ -337,7 +365,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
         public async Task<EmployeePersonalGetViewModel> GetEmployeePersonalById(int id)
         {
-            var employee = await _employeePersonalRepository.AllActive()
+            var employee = await _employeePersonalRepository.AllActive().Include(e=>e.Country)
                 .Where(e => e.EmployeeID == id)
                 .Select(e => new EmployeePersonalGetViewModel
                 {
@@ -354,6 +382,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     BirthCertificateNo = e.BirthCertificateNo,
                     BloodGroupID = e.BloodGroupID,
                     NationalityID = e.NationalityID,
+                    Nationality = e.Country.CountryName,
                     NID = e.NID,
                     MaritalStatusID = e.MaritalStatusID,
                     AboutEmployee = e.AboutEmployee,

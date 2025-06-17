@@ -125,72 +125,71 @@
 
 
 
-            $(document).on('click', settings.editBtn, function (e) {
+            
+            $(document).on('click', settings.editBtn, async function (e) {
                 e.preventDefault();
+                const id = $(this).data('id');
 
-                var id = $(this).data('id');
+                try {
+                    const response = await $.get(getByIdUrl, { id });
 
-                $.ajax({
-                    url: getByIdUrl,
-                    method: 'GET',
-                    data: { id: id },
-                    success: function (response) {
-                        if (response.isSuccess) {
-                            var data = response.data;
-                            $(settings.addform).find('#DefaultShiftID').val(data.defaultShiftID);
-                            setMultiSelectValues('OrganizationID', data.organizationID);
-                            setMultiSelectValues('DepartmentIDs', data.departmentID);
-                            //setTimeout(function () {
-                            //    setMultiSelectValues('EmployeeIDs', data.employeeID);
-                            //}, 1000);
+                    if (response.isSuccess) {
+                        const data = response.data;
 
-                            $('#DepartmentIDs').trigger('change');
-                            // Store EmployeeIDs and trigger employee filter
-                            var employeeIDs = Array.isArray(data.employeeID) ? data.employeeID : String(data.employeeID).split(',');
-                            loadFilteredEmployees(employeeIDs);
+                        setMultiSelectValues('OrganizationID', data.organizationID);
 
-                            if (choiceShift) {
-                                choiceShift.removeActiveItems(); // Clear current selections
+                        // ✅ Wait for department select to be updated
+                        await loadDepartmentsByCompany(data.organizationID);
 
-                                // If ID is a comma-separated string, convert it to array
-                                let selectedIDs = Array.isArray(data.shiftID)
-                                    ? data.shiftID
-                                    : String(data.shiftID).split(',');
+                        // ✅ Now set Department values
+                        await setMultiSelectValues('DepartmentIDs', data.departmentID);
 
-                                // Re-add selected items
-                                selectedIDs.forEach(function (id) {
-                                    choiceShift.setChoiceByValue(id.toString());
-                                });
-                            }
+                        // ✅ Load employee and shift
+                        const employeeIDs = Array.isArray(data.employeeID) ? data.employeeID : String(data.employeeID).split(',');
+                        loadFilteredEmployees(employeeIDs);
 
-                            $(settings.addform).find(settings.saveBtn).text('Update');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
-                            toastr.warning(response.message);
+                        await loadShiftsByCompany(data.organizationID, data.shiftID);
+                        if (choiceShift) {
+                            choiceShift.removeActiveItems();
+                            let selectedIDs = Array.isArray(data.shiftID) ? data.shiftID : String(data.shiftID).split(',');
+                            selectedIDs.forEach(id => choiceShift.setChoiceByValue(id.toString()));
                         }
+
+                        $(settings.addform).find(settings.saveBtn).text('Update');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    } else {
+                        toastr.warning(response.message);
                     }
-                });
+
+                } catch (error) {
+                    console.error("Edit load failed:", error);
+                }
             });
 
 
+
             function setMultiSelectValues(selectId, values) {
-                const select = document.getElementById(selectId);
-                if (!select) return;
+                return new Promise(resolve => {
+                    const select = document.getElementById(selectId);
+                    if (!select) return resolve();
 
-                // Normalize to array of strings
-                const valueArray = Array.isArray(values) ? values.map(v => v.toString()) : [values.toString()];
+                    const valueArray = Array.isArray(values) ? values.map(v => v.toString()) : [values.toString()];
 
-                // Select the correct options
-                for (const option of select.options) {
-                    option.selected = valueArray.includes(option.value);
-                }
+                    for (const option of select.options) {
+                        option.selected = valueArray.includes(option.value);
+                    }
 
-                // Update CoreUI MultiSelect UI
-                const multiSelect = coreui.MultiSelect.getInstance(select);
-                if (multiSelect) {
-                    multiSelect.update();
-                }
+                    const multiSelect = coreui.MultiSelect.getInstance(select);
+                    if (multiSelect) {
+                        multiSelect.update();
+                    }
+
+                    // Small timeout to ensure UI is fully refreshed
+                    setTimeout(() => resolve(), 50);
+                });
             }
+
 
 
 
@@ -228,107 +227,104 @@
 
 
 
-            //document.addEventListener('changed.coreui.multi-select', function (event) {
-            //    const target = event.target;
+            document.querySelector('.two').addEventListener('changed.coreui.multi-select', function (event) {
+                const target = event.target;
 
-            //    if (target.id === 'OrganizationID' || target.id === 'DepartmentIDs') {
-            //        loadFilteredEmployees();
-            //    }
-            //});
-
-            
-
-
-            //function loadFilteredEmployees(employeeIDs = []) {
-            //    var orgIds = $('#OrganizationID').val() || [];
-            //    var deptIds = $('#DepartmentIDs').val() || [];
-
-            //    if (!Array.isArray(orgIds)) orgIds = [orgIds];
-            //    if (!Array.isArray(deptIds)) deptIds = [deptIds];
-
-            //    $.ajax({
-            //        url: '/AssignDefaultShift/GetEmployeesByFilters',
-            //        type: 'GET',
-            //        data: {
-            //            organizationIds: orgIds.join(','),
-            //            departmentIds: deptIds.join(',')
-            //        },
-            //        success: function (data) {
-            //            updateEmployeeDropdown(data, employeeIDs);
-            //        },
-            //        error: function (xhr, status, error) {
-            //            console.error('Error loading employees:', error);
-            //        }
-            //    });
-            //}
-
-
-            //function updateEmployeeDropdown(data, employeeIDs = []) {
-            //    var $empSelect = $('#EmployeeIDs');
-            //    $empSelect.empty();
-
-            //    if (!Array.isArray(data) || data.length === 0) {
-            //        $empSelect.append('<option disabled>No employees found</option>');
-            //        refreshCoreUIMultiSelect();
-            //        return;
-            //    }
-
-            //    // Group employees by department name
-            //    const grouped = {};
-            //    data.forEach(emp => {
-            //        const dept = emp.departmentName || 'No Department';
-            //        if (!grouped[dept]) grouped[dept] = [];
-            //        grouped[dept].push(emp);
-            //    });
-
-            //    // Append optgroups and options
-            //    Object.entries(grouped).forEach(([dept, employees]) => {
-            //        const $optgroup = $('<optgroup>').attr('label', dept);
-            //        employees.forEach(emp => {
-            //            const $option = $('<option>')
-            //                .val(emp.employeeID)
-            //                .text(emp.employeeName);
-
-            //            // Pre-select if employeeID is in employeeIDs
-            //            if (employeeIDs.includes(emp.employeeID.toString())) {
-            //                $option.prop('selected', true);
-            //            }
-
-            //            $option.appendTo($optgroup);
-            //        });
-            //        $empSelect.append($optgroup);
-            //    });
-
-            //    // Refresh CoreUI multi-select
-            //    refreshCoreUIMultiSelect();
-
-            //    // Ensure CoreUI reflects the pre-selected values
-            //    if (employeeIDs.length > 0) {
-            //        setMultiSelectValues('EmployeeIDs', employeeIDs);
-            //    }
-            //}
+                if (target.id === 'DepartmentIDs') {
+                    loadFilteredEmployees();
+                }
+            });
 
             
 
 
-            //function refreshCoreUIMultiSelect() {
-            //    const empSelect = document.getElementById('EmployeeIDs');
+            function loadFilteredEmployees(employeeIDs = []) {
+                var deptIds = $('#DepartmentIDs').val() || [];
 
-            //    // Dispose existing CoreUI MultiSelect instance
-            //    const existingInstance = coreui.MultiSelect.getInstance(empSelect);
-            //    if (existingInstance) {
-            //        existingInstance.dispose();
-            //    }
+                if (!Array.isArray(deptIds)) deptIds = [deptIds];
 
-            //    // Remove previously generated UI dropdown manually
-            //    const generatedDropdown = empSelect.nextElementSibling;
-            //    if (generatedDropdown && generatedDropdown.classList.contains('form-multi-select')) {
-            //        generatedDropdown.remove();
-            //    }
+                $.ajax({
+                    url: '/AssignDefaultShift/GetEmployeeByDepartment',
+                    type: 'GET',
+                    data: {
+                        departmentIds: deptIds.join(',')
+                    },
+                    success: function (data) {
+                        updateEmployeeDropdown(data, employeeIDs);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
+                    }
+                });
+            }
 
-            //    // Reinitialize CoreUI MultiSelect
-            //    coreui.MultiSelect.getOrCreateInstance(empSelect);
-            //}
+            function updateEmployeeDropdown(data, employeeIDs = []) {
+                var $empSelect = $('#EmployeeIDs');
+                $empSelect.empty();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    $empSelect.append('<option disabled>No employees found</option>');
+                    refreshCoreUIMultiSelect();
+                    return;
+                }
+
+                // Group employees by department name
+                const grouped = {};
+                data.forEach(emp => {
+                    const dept = emp.departmentName || 'No Department';
+                    if (!grouped[dept]) grouped[dept] = [];
+                    grouped[dept].push(emp);
+                });
+
+                // Append optgroups and options
+                Object.entries(grouped).forEach(([dept, employees]) => {
+                    const $optgroup = $('<optgroup>').attr('label', dept);
+                    employees.forEach(emp => {
+                        const $option = $('<option>')
+                            .val(emp.employeeID)
+                            .text(emp.employeeName);
+
+                        // Pre-select if employeeID is in employeeIDs
+                        if (employeeIDs.includes(emp.employeeID.toString())) {
+                            $option.prop('selected', true);
+                        }
+
+                        $option.appendTo($optgroup);
+                    });
+                    $empSelect.append($optgroup);
+                });
+
+                // Refresh CoreUI multi-select
+                refreshCoreUIMultiSelect();
+
+                // Ensure CoreUI reflects the pre-selected values
+                if (employeeIDs.length > 0) {
+                    setMultiSelectValues('EmployeeIDs', employeeIDs);
+                }
+            }
+
+            
+
+
+            function refreshCoreUIMultiSelect() {
+                const empSelect = document.getElementById('EmployeeIDs');
+
+                // Dispose existing CoreUI MultiSelect instance
+                const existingInstance = coreui.MultiSelect.getInstance(empSelect);
+                if (existingInstance) {
+                    existingInstance.dispose();
+                }
+
+                // Remove previously generated UI dropdown manually
+                const generatedDropdown = empSelect.nextElementSibling;
+                if (generatedDropdown && generatedDropdown.classList.contains('form-multi-select')) {
+                    generatedDropdown.remove();
+                }
+
+                // Reinitialize CoreUI MultiSelect
+                coreui.MultiSelect.getOrCreateInstance(empSelect);
+            }
+
 
 
 
@@ -344,6 +340,7 @@
                     toggleBulkActions();
                 });
             });
+
 
 
 
@@ -372,123 +369,211 @@
 
 
 
-            let choiceShift;
-            function initChoices() {
-                choiceShift = new Choices('#ShiftID', {
-                    removeItemButton: true,
-                    shouldSort: false,
-                    placeholderValue: 'Select Shift'
-                });
-            }
-            initChoices();
-
-
-
-
-            document.addEventListener('changed.coreui.multi-select', function (event) {
+            
+            $('.one').on('changed.coreui.multi-select', function (event) {
                 const target = event.target;
 
-                if (target.id === 'OrganizationID') {
-                    const selectedOrgId = target.value;
-
+                if (target && target.id === 'OrganizationID') {
+                    const selectedOrgId = $(target).val();
                     if (selectedOrgId) {
-                        //loadDepartmentsByCompany(selectedOrgId);
+                        loadDepartmentsByCompany(selectedOrgId);
+                        loadEmplooyeesByCompany(selectedOrgId);
                         loadShiftsByCompany(selectedOrgId);
                     } else {
-                        //clearDepartmentDropdown();
-                        console.error('Something went wrong!');
+                        clearDepartmentDropdown();
                     }
                 }
             });
 
-            //function loadDepartmentsByCompany(organizationId) {
-            //    $.ajax({
-            //        url: '/AssignDefaultShift/GetDepartmentByCompany',
-            //        type: 'GET',
-            //        data: { id: organizationId },
-            //        success: function (departments) {
-            //            updateDepartmentDropdown(departments);
-            //        },
-            //        error: function (xhr, status, error) {
-            //            console.error('Error loading departments:', error);
-            //        }
-            //    });
-            //}
-            //function updateDepartmentDropdown(departments) {
-            //    const $deptSelect = $('#DepartmentIDs');
-            //    $deptSelect.empty();
-
-            //    if (!departments || departments.length === 0) {
-            //        $deptSelect.append('<option disabled>No departments found</option>');
-            //    } else {
-            //        departments.forEach(dep => {
-            //            $deptSelect.append(
-            //                $('<option></option>')
-            //                    .val(dep.departmentID)
-            //                    .text(dep.departmentName)
-            //            );
-            //        });
-            //    }
-            //    refreshCoreUIMultiSelect();
-            //}
-
-            //function clearDepartmentDropdown() {
-            //    const $deptSelect = $('#DepartmentIDs');
-            //    $deptSelect.empty();
-            //    $deptSelect.append('<option disabled>Select an organization first</option>');
-            //    refreshCoreUIMultiSelect();
-            //}
 
 
 
-            function loadShiftsByCompany(organizationId) {
-                $.ajax({
-                    url: '/AssignDefaultShift/GetShiftByCompany',
-                    type: 'GET',
-                    data: { id: organizationId },
-                    success: function (shifts) {
-                        updateShiftsDropdown(shifts);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading shifts:', error);
-                    }
+            function loadDepartmentsByCompany(organizationId) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: '/AssignDefaultShift/GetDepartmentByCompany',
+                        type: 'GET',
+                        data: { id: organizationId },
+                        success: function (departments) {
+                            recreateDepartmentDropdown(departments);
+                            //resolve(); 
+                            setTimeout(() => resolve(), 100);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error loading departments:', error);
+                            reject(error);
+                        }
+                    });
                 });
             }
-            
-            function updateShiftsDropdown(shifts) {
-                if (!choiceShift) return;
 
-                choiceShift.clearStore();
-                choiceShift.clearChoices();
+            function recreateDepartmentDropdown(departments) {
+                const container = document.querySelector('.two'); // The div with class "two"
+                const originalSelect = document.getElementById('DepartmentIDs');
 
-                const choices = [{
-                    value: '',
-                    label: 'Select Shift',
-                    selected: true,
-                    disabled: false
-                }];
+                // ✅ Step 1: Dispose existing MultiSelect instance
+                const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
+                if (existingInstance) {
+                    existingInstance.dispose();
+                }
 
-                if (Array.isArray(shifts) && shifts.length > 0) {
-                    const shiftChoices = shifts.map(shift => ({
-                        value: shift.shiftID,
-                        label: shift.shiftName,
-                        selected: false
-                    }));
-                    choices.push(...shiftChoices);
+                // ✅ Step 2: Store original attributes
+                const originalAttributes = {
+                    id: originalSelect.id,
+                    name: originalSelect.name,
+                    className: originalSelect.className,
+                    multiple: originalSelect.multiple
+                };
+
+                // ✅ Step 3: Remove the entire content and recreate
+                container.innerHTML = `
+                    <label class="form-label" for="DepartmentIDs">${container.querySelector('label').textContent}</label>
+                    <select class="form-multi-select" 
+                            id="${originalAttributes.id}" 
+                            name="${originalAttributes.name}" 
+                            multiple 
+                            data-coreui-multiple="true" 
+                            data-coreui-selection-type="counter" 
+                            data-coreui-search="true">
+                    </select>
+                `;
+
+                // ✅ Step 4: Get the new select element and populate it
+                const newSelect = container.querySelector('select');
+
+                if (!departments || departments.length === 0) {
+                    const option = new Option('No departments found', '', false, false);
+                    option.disabled = true;
+                    newSelect.appendChild(option);
                 } else {
-                    choices.push({
-                        value: '',
-                        label: 'No shifts found',
-                        disabled: true
+                    departments.forEach(dep => {
+                        const option = new Option(dep.departmentName, dep.departmentID, false, false);
+                        newSelect.appendChild(option);
                     });
                 }
 
-                choiceShift.setChoices(choices, 'value', 'label', false);
+                // ✅ Step 5: Initialize MultiSelect
+                new coreui.MultiSelect(newSelect, {
+                    multiple: true,
+                    search: true,
+                    selectionType: 'counter'
+                });
+            }
+            function clearDepartmentDropdown() {
+                recreateDepartmentDropdown([]);
             }
 
 
 
 
+            function loadEmplooyeesByCompany(organizationId) {
+                $.ajax({
+                    url: '/AssignDefaultShift/GetEmployeeByCompany',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (data) {
+                        updateEmployeeDropdown(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
+                    }
+                });
+            }
+
+
+
+
+            //function loadShiftsByCompany(organizationId, selectedShiftId = null) {
+            //    return new Promise((resolve, reject) => {
+            //        $.ajax({
+            //            url: '/AssignDefaultShift/GetShiftByCompany',
+            //            type: 'GET',
+            //            data: { id: organizationId },
+            //            success: function (shifts) {
+            //                if (!choiceShift) return resolve();
+
+            //                choiceShift.clearChoices();
+
+            //                const shiftChoices = shifts.map(shift => ({
+            //                    value: shift.shiftID,
+            //                    label: shift.shiftName,
+            //                    selected: selectedShiftId && shift.shiftID == selectedShiftId
+            //                }));
+
+            //                choiceShift.setChoices(shiftChoices, 'value', 'label', true);
+
+            //                resolve(); // done
+            //            },
+            //            error: function (xhr, status, error) {
+            //                console.error('Error loading shifts:', error);
+            //                reject(error);
+            //            }
+            //        });
+            //    });
+            //}
+
+            function loadShiftsByCompany(organizationId, selectedShiftId = null) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: '/AssignDefaultShift/GetShiftByCompany',
+                        type: 'GET',
+                        data: { id: organizationId },
+                        success: function (shifts) {
+                            if (!choiceShift) return resolve();
+
+                            const shiftChoices = shifts.map(shift => ({
+                                value: shift.shiftID.toString(),
+                                label: shift.shiftName,
+                                selected: shift.shiftID.toString() === selectedShiftId?.toString()
+                            }));
+
+                            choiceShift.setChoices(shiftChoices, 'value', 'label', true);
+                            resolve();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error loading shifts:', error);
+                            reject(error);
+                        }
+                    });
+                });
+            }
+
+
+
+
+
+            //let choiceShift;
+            //function initChoices() {
+            //    choiceShift = new Choices('#ShiftID', {
+            //        removeItemButton: true,
+            //        shouldSort: false,
+            //        placeholderValue: 'Select Shift'
+            //    });
+            //}
+            //initChoices();
+            let choiceShift;
+
+            function initChoices() {
+                const el = document.getElementById('ShiftID');
+
+                // Prevent multiple initializations
+                if (el && !choiceShift) {
+                    choiceShift = new Choices(el, {
+                        removeItemButton: true,
+                        shouldSort: false,
+                        placeholder: true,
+                        placeholderValue: 'Select Shift'
+                    });
+                }
+            }
+
+            initChoices();
+
+            
+
+
+
+            
         });
 
 
@@ -594,7 +679,7 @@
                                     </td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.employeeName ?? '-'}</td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.shiftName ?? '-'}</td>
-                                    <td class="align-middle text-end white-space-nowrap pe-3">
+                                    <td class="text-end align-middle white-space-nowrap pe-3">
                                         <div class="row g-3">
                                             <a href="#!" class="btn btn-outline-light btn-icon assignDefaultShift-bulkEdit" id="assignDefaultShift-editBtn" data-id="${item.defaultShiftID}"><i class="fas fa-edit text-black"></i></a>
                                         </div>

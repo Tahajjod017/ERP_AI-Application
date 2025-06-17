@@ -1,0 +1,324 @@
+﻿@{
+    var mainTab = "CompanySetting";
+    var subTab = "Company";
+}
+
+<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
+<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
+<div class="tab-content mt-3" id="myTabContent1">
+    <div class="tab-pane fade show active" id="tab-companySettingCompany" role="tabpanel" aria-labelledby="companySettingCompany-tab">
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="border-bottom mb-3 pb-3">
+                        <h4>Company Settings</h4>
+                    </div>
+                    <form action="settings-ui.html">
+                        <div class="border-bottom mb-3">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div>
+                                        <h6 class="mb-3">Basic Information</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Company Name</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="Company Name" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Email Address</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="company@email.com" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Phone</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="xxxx xxx xx" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Fax</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="xxxx xxx xxx" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Web</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="www.company.com" />
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="border-bottom mb-3">
+                            <h6 class="mb-3">Company Images</h6>
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between bg-light p-3 mb-4">
+
+                                        <div class="me-2">
+                                            <img src="assets/img/logo-small.svg" style="width: 100px; height: 100px;">
+                                        </div>
+
+                                        <div class="">
+                                            <div class="mb-2">
+                                                <h6 class="mb-1">Logo</h6>
+                                                <p class="fs-12">Recommended image size is 160px x 50px</p>
+                                                <input type="file" class="form-control image-sign" multiple="">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between bg-light p-3 mb-4">
+
+                                        <div class="me-2">
+                                            <img src="assets/img/logo-small.svg" style="width: 100px; height: 100px;">
+                                        </div>
+
+                                        <div class="">
+                                            <div class="mb-2">
+                                                <h6 class="mb-1">Favicon</h6>
+                                                <p class="fs-12">Recommended image size is 128px x 128px</p>
+                                                <input type="file" class="form-control image-sign" multiple="">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                        <div class="border-bottom mb-3">
+                            <h6 class="mb-3">Address Information</h6>
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Address</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="www.company.com" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Country</label>
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option>Select</option>
+                                            <option>USA</option>
+                                            <option>Canada</option>
+                                            <option>Germany</option>
+                                            <option>France</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">State</label>
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option>Select</option>
+                                            <option>California</option>
+                                            <option>New York</option>
+                                            <option>Texas</option>
+                                            <option>Florida</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">City</label>
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option>Select</option>
+                                            <option>Los Angeles</option>
+                                            <option>San Diego</option>
+                                            <option>Fresno</option>
+                                            <option>San Francisco</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="exampleFormControlInput">Postal Code</label>
+                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="www.company.com" />
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-end">
+                            <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+           @*  <div class="card mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6>Company List</h6>
+                </div>
+
+                <div class="border-top border-translucent p-3">
+                    <div id="companyListTable" data-list='{"valueNames":["companyName","comAddress","comCountry","comEmail","comPhone"],"page":5,"pagination":true}'>
+
+                        <div class="table-responsive scrollbar mx-n1 px-1">
+                            <table class="table table-sm fs-9 leads-table">
+                                <thead>
+                                    <tr>
+
+                                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="companyName">Company Name</th>
+                                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="comAddress">Address</th>
+                                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="comCountry">Country</th>
+                                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="comEmail">Email</th>
+                                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="comPhone">Phone</th>
+                                        <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="list" id="company-info-body">
+                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                        <td class="companyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                        <td class="comAddress align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Dhaka</td>
+                                        <td class="comCountry align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Bangladesh</td>
+                                        <td class="comEmail align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">gctm@email.com</td>
+                                        <td class="comPhone align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">023 125 032</td>
+
+                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                            <div class="btn-reveal-trigger position-static">
+                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                    <i class="fas fa-edit text-success"></i>
+                                                </a>
+
+                                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                    <i class="fas fa-trash text-danger"></i>
+                                                </a>
+
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row align-items-center justify-content-between pe-0 fs-9">
+                            <div class="col-auto d-flex">
+                                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                            </div>
+                            <div class="col-auto d-flex">
+                                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                <ul class="mb-0 pagination"></ul>
+                                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div> *@
+            <div class="card mt-4 mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+                    <h4 class="mb-1">@Html.SmartLocalize("Company List")</h4>
+                    @* <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                                <div class="dropdown me-3">
+                                    <select class="form-select" id="addEmailConfig-dd-search" asp-items="ViewBag.OrganizationDD as SelectList" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                        <option value="">@Html.SmartLocalize("Company Name")</option>
+                                    </select>
+                                </div>
+                            </div> *@
+                </div>
+
+                <div class="border-translucent p-3">
+                    <div class="row g-3 justify-content-between align-items-end mb-4">
+                        <div class="col-12 col-sm-auto">
+                            <div class="d-flex align-items-center me-3" style="width: auto;">
+                                <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                                <div style="width: 100%;">
+                                    <select id="addEmailConfig-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                        <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                        <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                        <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                        <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                        <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-auto">
+                            <div class="d-flex align-items-center">
+                                <div class="d-none me-3" id="addEmailConfig-bulkSelectActions">
+                                    <div class="position-relative">
+                                        <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="addEmailConfig-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                                    </div>
+                                </div>
+
+                                <div class="search-box me-3" id="addShift-searchBox">
+                                    <form class="position-relative" id="addShift-searchForm">
+                                        <input class="form-control search-input search" id="addEmailConfig-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                        <span class="fas fa-search search-box-icon"></span>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <table class="table table-sm fs-9 leads-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                        <input type="checkbox" class="form-check-input" id="addShift-check-all" />
+                                    </th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("Company Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Address")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("Country")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPort">@Html.SmartLocalize("Email")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("Phone")</th>
+                                    <th class="text-end align-middle pe-0 ps-5 text-uppercase" scope="col">@Html.SmartLocalize("Action")</th>
+                                </tr>
+                            </thead>
+                            <tbody id="addEmailConfig-tBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                        <div class="d-flex">
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="addEmailConfig-paginationInfo"></p>
+
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        </div>
+                        <div class="d-flex">
+                            <button class="page-link" data-list-pagination="prev" id="addShift-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                            <ul class="mb-0 pagination" id="addEmailConfig-paginationLinks"></ul>
+                            <button class="page-link pe-0" data-list-pagination="next" id="addEmailConfig-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
