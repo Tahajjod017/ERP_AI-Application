@@ -95,6 +95,13 @@
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating mb-4">
+                                                        <input class="form-control" id="personalEmployeeCode"  type="text" placeholder="@Html.SmartLocalize("Enter Employee Code")" required />
+                                                        <label  for="personalEmployeeCode">@Html.SmartLocalize("Employee Code")</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-12 col-md-4">
+                                                    <div class="form-floating mb-4">
                                                         <input class="form-control" id="personalFirstName"  type="text" placeholder="@Html.SmartLocalize("Enter First Name")" required />
                                                        <label for="personalFirstName" >@Html.SmartLocalize("First Name")</label>
 
@@ -185,15 +192,30 @@
                                                         </select>
                                                     </div>
                                                 </div>
+
+                                                <style>
+                                                    .search-results {
+                                                        position: absolute;
+                                                        width: 31%;
+                                                        z-index: 1050;
+                                                    }
+
+                                                    .list-group-item {
+                                                        cursor: pointer;
+                                                    }
+                                                </style>
+
                                                 <div class="col-sm-12 col-md-4">
 
-                                                    <div class="input-group form-floating form-floating-advance-select mb-4">
+                                                    <div class="form-floating mb-4">
+                                                        <input type="text" id="personalNationality"  class="form-control" placeholder="@Html.SmartLocalize("Search Nationality...")">
                                                        <label for="personalNationality" >@Html.SmartLocalize("Nationality")</label>
-                                                        <input type="text" id="personalNationality" id="nationalitySearch" class="form-control" placeholder="@Html.SmartLocalize("Search Nationality...")">
 
-                                                        <button class="btn btn-outline-danger" type="button" id="removeNationalityBtn" style="display: none;">
+                                                     <!--  
+                                                         <button class="btn btn-outline-danger" type="button" id="removeNationalityBtn" style="display: none;">
                                                             <i class="fas fa-times"></i>
                                                         </button>
+                                                           -->
                                                     </div>
 
                                                     <div class="search-results card" id="searchResults">
@@ -242,10 +264,15 @@
 
                                                 <div class="col-sm-12 col-md-12 row flex ">
                                                     <p class="border-bottom">@Html.SmartLocalize("Address Information")</p>
+
+                                                   
+
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
-                                                            <input class="form-control" id="personalCountry"  type="text" placeholder="@Html.SmartLocalize("Enter Country")" />
-                                                           <label for="personalCountry" >@Html.SmartLocalize("Country")</label>
+                                                        <div class="form-floating form-floating-advance-select mb-2">
+                                                            <label for="personalCountry">@Html.SmartLocalize("Country")</label>
+                                                            <select class="form-select choiceDD" id="personalCountry" asp-items="@ViewBag.CountryDD as SelectList">
+                                                                <option value="">@Html.SmartLocalize("Select Country")</option>
+                                                            </select>
                                                         </div>
                                                     </div>
 
@@ -1684,6 +1711,26 @@
 </div>
 <!-- Add Employee -->
 
+<div class="modal fade" id="addNationalityModal" tabindex="-1" aria-labelledby="addNationalityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addNationalityModalLabel">Add New Nationality</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newNationalityName" class="form-label">Nationality Name</label>
+                    <input type="text" class="form-control" id="newNationalityName" placeholder="যেমন: বাংলাদেশী টাকা">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAddNationalityBtn">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

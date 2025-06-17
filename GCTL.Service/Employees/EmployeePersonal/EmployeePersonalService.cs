@@ -102,6 +102,9 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         NationalityID = nationalityId,
                         ReligionID = Convert.ToInt32(model.Religion),
                         CountryID = model.Country,
+
+                        EmployeeCode = model.EmployeeCode,
+
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy
                     };
@@ -337,7 +340,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
         public async Task<EmployeePersonalGetViewModel> GetEmployeePersonalById(int id)
         {
-            var employee = await _employeePersonalRepository.AllActive()
+            var employee = await _employeePersonalRepository.AllActive().Include(e=>e.Country)
                 .Where(e => e.EmployeeID == id)
                 .Select(e => new EmployeePersonalGetViewModel
                 {
@@ -354,6 +357,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     BirthCertificateNo = e.BirthCertificateNo,
                     BloodGroupID = e.BloodGroupID,
                     NationalityID = e.NationalityID,
+                    Nationality = e.Country.CountryName,
                     NID = e.NID,
                     MaritalStatusID = e.MaritalStatusID,
                     AboutEmployee = e.AboutEmployee,
