@@ -1,0 +1,296 @@
+﻿@{
+    var activeTab = "EmailSetting";
+}
+
+<div class="col-12 col-md-12 col-lg-12 ">
+    <partial name="~/Views/Shared/AdminsettingsNavs/_NavSystemSettingsPartial.cshtml" model="activeTab" />
+
+    <div class="tab-content mt-3" id="myTabContent4">
+
+        <div class="tab-pane fade show active" id="tab-emailSettings" role="tabpanel" aria-labelledby="emailSettings-tab">
+
+            <div class="col-xl-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="border-bottom mb-3 pb-3">
+                            <h4>Email Settings</h4>
+                        </div>
+                       @*  <form action="settings-ui.html">
+                            <div class=" mb-3">
+
+                                <div class="row">
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Company Name</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>GCTL</option>
+                                                    <option>CSL</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Server Name</label>
+                                                <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Server Name" />
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">SMTP Authentication Required</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>YES</option>
+                                                    <option>NO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">User Name</label>
+                                                <input class="form-control" id="exampleFormControlInput" type="text" placeholder="User Name" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Password</label>
+                                                <input class="form-control" id="exampleFormControlInput" type="password" placeholder="Password" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-sm-6 col-md-6">
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">SSL Required</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>YES</option>
+                                                    <option>NO</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Port</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>587</option>
+                                                    <option>465</option>
+                                                    <option>25</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Priority</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>First Priority</option>
+                                                    <option>Second Priority</option>
+                                                    <option>Third Priority</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12 col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="exampleFormControlInput">Status</label>
+                                                <select class="form-select" aria-label="Default select example">
+                                                    <option>Active</option>
+                                                    <option>Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-end">
+                                <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form> *@
+                        <form id="smtpForm" asp-controller="Smtp" asp-action="Save" method="post">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Organization</label>
+                                        <select class="form-select" name="OrganizationID">
+                                            <option value="1">GCTL</option>
+                                            <option value="2">CSL</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Server Name</label>
+                                        <input class="form-control" type="text" name="ServerName" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">SMTP Authentication Required</label>
+                                        <select class="form-select" name="IsSMTPAuthenticationRequired">
+                                            <option value="true">YES</option>
+                                            <option value="false">NO</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">User Name</label>
+                                        <input class="form-control" type="text" name="UserName" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Password</label>
+                                        <input class="form-control" type="password" name="Password" />
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">SSL Required</label>
+                                        <select class="form-select" name="IsSSLRequired">
+                                            <option value="true">YES</option>
+                                            <option value="false">NO</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Port</label>
+                                        <select class="form-select" name="PortNumber">
+                                            <option value="587">587</option>
+                                            <option value="465">465</option>
+                                            <option value="25">25</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Priority</label>
+                                        <select class="form-select" name="PriorityIndex">
+                                            <option value="1">First</option>
+                                            <option value="2">Second</option>
+                                            <option value="3">Third</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="IsActive">
+                                            <option value="true">Active</option>
+                                            <option value="false">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-outline-secondary me-2">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-xl-12">
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+                            <h4 class="mb-1">@Html.SmartLocalize("Email List")</h4>
+                            @* <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                                <div class="dropdown me-3">
+                                    <select class="form-select" id="addEmailConfig-dd-search" asp-items="ViewBag.OrganizationDD as SelectList" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                        <option value="">@Html.SmartLocalize("Company Name")</option>
+                                    </select>
+                                </div>
+                            </div> *@
+                        </div>
+
+                        <div class="border-translucent p-3">
+                            <div class="row g-3 justify-content-between align-items-end mb-4">
+                                <div class="col-12 col-sm-auto">
+                                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                                        <div style="width: 100%;">
+                                            <select id="addEmailConfig-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-auto">
+                                    <div class="d-flex align-items-center">
+                                        <div class="d-none me-3" id="addEmailConfig-bulkSelectActions">
+                                            <div class="position-relative">
+                                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="addEmailConfig-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="search-box me-3" id="addShift-searchBox">
+                                            <form class="position-relative" id="addShift-searchForm">
+                                                <input class="form-control search-input search" id="addEmailConfig-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                                <span class="fas fa-search search-box-icon"></span>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive scrollbar mx-n1 px-1">
+                                <table class="table table-sm fs-9 leads-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                                <input type="checkbox" class="form-check-input" id="addShift-check-all" />
+                                            </th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("Company Name")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Server Name")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("SSL Required")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPort">@Html.SmartLocalize("Port")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("SMTP Authentication")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailUserName">@Html.SmartLocalize("User Name")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPassword">@Html.SmartLocalize("Password")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPriority">@Html.SmartLocalize("Priority")</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailStatus">@Html.SmartLocalize("STATUS")</th>
+                                            <th class="text-end align-middle pe-0 ps-5 text-uppercase" scope="col">@Html.SmartLocalize("Action")</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="addEmailConfig-tBody">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                                <div class="d-flex">
+                                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="addEmailConfig-paginationInfo"></p>
+
+                                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                                </div>
+                                <div class="d-flex">
+                                    <button class="page-link" data-list-pagination="prev" id="addShift-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                                    <ul class="mb-0 pagination" id="addEmailConfig-paginationLinks"></ul>
+                                    <button class="page-link pe-0" data-list-pagination="next" id="addEmailConfig-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>

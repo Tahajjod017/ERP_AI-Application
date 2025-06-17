@@ -1,0 +1,20 @@
+﻿@model string
+
+<ul class="nav nav-underline fs-9 mt-3" id="generalSettingTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link @(Model == "LocalizationSettings" ? "active" : "")"
+           href="@Url.Action("Index", "LocalizationSettings")"
+           role="tab"
+           aria-selected="@(Model == "LocalizationSettings" ? "true" : "false")">
+            Localization
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "LanguageSettings" ? "active" : "")"
+           href="@Url.Action("Index", "LanguageSettings")"
+           role="tab"
+           aria-selected="@(Model == "LanguageSettings" ? "true" : "false")">
+            Language
+        </a>
+    </li>
+</ul>

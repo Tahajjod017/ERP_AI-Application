@@ -1,0 +1,419 @@
+﻿@{
+    var mainTab = "CompanySetting";
+    var subTab = "HolidaySettings";
+}
+
+<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
+<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
+
+<div class="col-xl-12 mt-3">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="border-bottom mb-3 pb-3">
+                <h4>Holiday Settings</h4>
+            </div>
+            <form action="settings-ui.html">
+                <div class=" mb-3">
+
+                    <div class="row">
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Company Name</label>
+                                <select class="form-select" aria-label="Default select example">
+                                    <option>GCTL</option>
+                                    <option>CSL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Holiday Title</label>
+                                <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Branch Name" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="datepicker">Start Date</label>
+                                <input class="form-control datetimepicker flatpickr-input" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}" readonly="readonly">
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="datepicker">End Date</label>
+                                <input class="form-control datetimepicker flatpickr-input" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}" readonly="readonly">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Total Day</label>
+                                <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Branch Name" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Status</label>
+                                <select class="form-select" aria-label="Default select example">
+                                    <option selected="selected">Select Holiday Status</option>
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-12 col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Holiday Description</label>
+                                <textarea class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+@*     <div class="col-xl-12 mt-3">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="card mb-0">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h6>Holydays List</h6>
+                    </div>
+
+                    <div class="border-top border-translucent p-3">
+                        <div id="employeeListTable" data-list='{"valueNames":["holidayCompanyName","hdTitle","hdDescription","hdStartDate","hdEndDate","hdTotalDay","hdStatus"],"page":10,"pagination":true}'>
+
+                            <div class="table-responsive scrollbar mx-n1 px-1">
+                                <table class="table table-sm fs-9 leads-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                                <div class="form-check mb-0 fs-8">
+                                                    <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                                </div>
+                                            </th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="hdTitle">Title</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="hdDescription">Description</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="hdStartDate">Start Date</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="hdEndDate">End Date</th>
+                                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="hdTotalDay">Total Day</th>
+                                            <th class="sort align-middle pe-4 text-uppercase text-nowrap" scope="col" data-sort="hdStatus">STATUS</th>
+                                            <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="list" id="purchasers-sellers-body">
+                                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                            <td class="fs-9 align-middle py-0">
+                                                <div class="form-check mb-0 fs-8">
+                                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                </div>
+                                            </td>
+
+                                            <td class="holidayCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                            <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                <div class="d-flex align-items-center position-relative">
+                                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">New Year</a>
+                                                </div>
+                                            </td>
+                                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">First day of the new year</td>
+                                            <td class="hdStartDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                                            <td class="hdEndDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                                            <td class="hdTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">13</td>
+
+                                            <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                            </td>
+
+                                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                <div class="btn-reveal-trigger position-static">
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                        <i class="fas fa-edit text-success"></i>
+                                                    </a>
+
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                        <i class="fas fa-trash text-danger"></i>
+                                                    </a>
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+
+                                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                            <td class="fs-9 align-middle py-0">
+                                                <div class="form-check mb-0 fs-8">
+                                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                </div>
+                                            </td>
+
+                                            <td class="holidayCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                            <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                <div class="d-flex align-items-center position-relative">
+                                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">Martin Luther King Jr. Day</a>
+                                                </div>
+                                            </td>
+                                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Celebrating the civil rights leader</td>
+                                            <td class="hdStartDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Jan 2024</td>
+                                            <td class="hdEndDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Jan 2024</td>
+                                            <td class="hdTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1</td>
+
+                                            <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                            </td>
+
+                                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                <div class="btn-reveal-trigger position-static">
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                        <i class="fas fa-edit text-success"></i>
+                                                    </a>
+
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                        <i class="fas fa-trash text-danger"></i>
+                                                    </a>
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+
+                                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                            <td class="fs-9 align-middle py-0">
+                                                <div class="form-check mb-0 fs-8">
+                                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                </div>
+                                            </td>
+
+                                            <td class="holidayCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                            <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                <div class="d-flex align-items-center position-relative">
+                                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">President's Day</a>
+                                                </div>
+                                            </td>
+                                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Honoring past US Presidents</td>
+                                            <td class="hdStartDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">19 Feb 2024</td>
+                                            <td class="hdEndDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">19 Feb 2024</td>
+                                            <td class="hdTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1</td>
+
+                                            <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                <span class="badge badge-phoenix badge-phoenix-danger">Inactive</span>
+                                            </td>
+
+                                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                <div class="btn-reveal-trigger position-static">
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                        <i class="fas fa-edit text-success"></i>
+                                                    </a>
+
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                        <i class="fas fa-trash text-danger"></i>
+                                                    </a>
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+
+                                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                            <td class="fs-9 align-middle py-0">
+                                                <div class="form-check mb-0 fs-8">
+                                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                </div>
+                                            </td>
+
+                                            <td class="holidayCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                            <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                <div class="d-flex align-items-center position-relative">
+                                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">Labour Day</a>
+                                                </div>
+                                            </td>
+                                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Honors working people</td>
+                                            <td class="hdStartDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Sep 2024</td>
+                                            <td class="hdEndDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">02 Sep 2024</td>
+                                            <td class="hdTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">2</td>
+
+                                            <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                            </td>
+
+                                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                <div class="btn-reveal-trigger position-static">
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                        <i class="fas fa-edit text-success"></i>
+                                                    </a>
+
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                        <i class="fas fa-trash text-danger"></i>
+                                                    </a>
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+
+                                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                            <td class="fs-9 align-middle py-0">
+                                                <div class="form-check mb-0 fs-8">
+                                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"hdTitle":"New Year","hdDescription":"First day of the new year","hdStartDate":"01 Jan 2024","hdEndDate":"01 Jan 2024","hdTotalDay":"1","hdStatus":"Active"}' />
+                                                </div>
+                                            </td>
+
+                                            <td class="holidayCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                            <td class="hdTitle align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0">
+                                                <div class="d-flex align-items-center position-relative">
+                                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">Christmas Day</a>
+                                                </div>
+                                            </td>
+                                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Celebration of Christmas</td>
+                                            <td class="hdStartDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25 Dec 2024</td>
+                                            <td class="hdEndDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25 Dec 2024</td>
+                                            <td class="hdTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1</td>
+
+                                            <td class="dptStatus align-middle white-space-nowrap ps-0 fw-semibold text-body py-0">
+                                                <span class="badge badge-phoenix badge-phoenix-success">Active</span>
+                                            </td>
+
+                                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                                <div class="btn-reveal-trigger position-static">
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_holiday">
+                                                        <i class="fas fa-edit text-success"></i>
+                                                    </a>
+
+                                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                        <i class="fas fa-trash text-danger"></i>
+                                                    </a>
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row align-items-center justify-content-between pe-0 fs-9">
+                                <div class="col-auto d-flex">
+                                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                                </div>
+                                <div class="col-auto d-flex">
+                                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                                    <ul class="mb-0 pagination"></ul>
+                                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+ *@
+    <div class="card mt-4 mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+            <h4 class="mb-1">@Html.SmartLocalize("Holydays List")</h4>
+            @* <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                                <div class="dropdown me-3">
+                                    <select class="form-select" id="addEmailConfig-dd-search" asp-items="ViewBag.OrganizationDD as SelectList" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                        <option value="">@Html.SmartLocalize("Company Name")</option>
+                                    </select>
+                                </div>
+                            </div> *@
+        </div>
+
+        <div class="border-translucent p-3">
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="addEmailConfig-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="addEmailConfig-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="addEmailConfig-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="addShift-searchBox">
+                            <form class="position-relative" id="addShift-searchForm">
+                                <input class="form-control search-input search" id="addEmailConfig-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive scrollbar mx-n1 px-1">
+                <table class="table table-sm fs-9 leads-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="addShift-check-all" />
+                            </th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("Title")</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Description")</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("Start Date")</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPort">@Html.SmartLocalize("End Date")</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("Total Day")</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("STATUS")</th>
+                            <th class="text-end align-middle pe-0 ps-5 text-uppercase" scope="col">@Html.SmartLocalize("Action")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="addEmailConfig-tBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="addEmailConfig-paginationInfo"></p>
+
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="addShift-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="addEmailConfig-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="addEmailConfig-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
