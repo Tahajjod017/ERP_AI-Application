@@ -69,6 +69,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
 
+
         public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository, IGenericRepository<BloodGroup> bloodGroupRepository) : base(translateService, userProfileService)
         {
             _employeeListService = employeeListService;
@@ -136,6 +137,7 @@ namespace GCTL_App.Controllers.Employees
             ViewBag.DepartmentDD = new SelectList(_departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }), "DepartmentID", "DepartmentName");
             ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.CountryDD = new SelectList(_countryRepository.All(), "CountryID", "CountryName");
 
 
             ViewBag.HouseRentAllowanceDD = new SelectList(new List<SelectListItem>
@@ -326,13 +328,13 @@ namespace GCTL_App.Controllers.Employees
 
         }
 
-        public IActionResult GetLocalHost()
-        {
-            var request = _httpContextAccessor.HttpContext.Request;
-            string url = $"{request.Scheme}://{request.Host}";
+        //public IActionResult GetLocalHost()
+        //{
+        //    var request = _httpContextAccessor.HttpContext.Request;
+        //    string url = $"{request.Scheme}://{request.Host}";
 
-            return Ok(new { LocalHostUrl = url });
-        }
+        //    return Ok(new { LocalHostUrl = url });
+        //}
 
 
         #region Populate Edit Form
