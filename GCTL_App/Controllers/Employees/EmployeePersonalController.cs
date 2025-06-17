@@ -17,6 +17,7 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeePersonalController : BaseController
     {
+        #region CTOR
         private readonly IEmployeePersonalService _employeePersonalService;
         private readonly IEmployeeNavigationService _employeeNavigationService;
         private readonly IGenericRepository<MaritalStatus> _maritalRepository;
@@ -43,6 +44,8 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
         }
+
+        #endregion
 
         public async Task<IActionResult> Index()
         {

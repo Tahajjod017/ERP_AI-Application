@@ -39,7 +39,7 @@
 
         test = $('#pageSize').val();
 
-        console.log('test', test)
+        //console.log('test', test)
 
         return $.ajax({
             url: API_BASE_URL,
@@ -538,6 +538,121 @@
         }
     }
 
+    //#region Submit
+
+    $('#personalSubmitButton').click(function (e) {
+        e.preventDefault(); // prevent form default submission
+
+        clearErrors(); // clear previous errors
+        let valid = true;
+
+        const enteredNationality = $('#nationalitySearch').val().trim();
+        if (enteredNationality && !nationalities.includes(enteredNationality)) {
+            $('#newNationalityName').val(enteredNationality);
+            $('#addNationalityModal').modal('show');
+        }
+
+        const firstName = $("#personalFirstName").val().trim();
+        const lastName = $("#personalLastName").val().trim();
+        const email = $("#personalPersonalEmail").val().trim();
+        const mobile = $("#personalPersonalMobile").val().trim();
+
+        if (!firstName) {
+            showError("personalFirstName", "First Name is required.");
+            valid = false;
+        }
+
+        if (!lastName) {
+            showError("personalLastName", "Last Name is required.");
+            valid = false;
+        }
+
+        if (!email) {
+            showError("personalPersonalEmail", "Email is required.");
+            valid = false;
+        } else if (!isValidEmail(email)) {
+            showError("personalPersonalEmail", "Invalid email format.");
+            valid = false;
+        }
+
+        if (!mobile) {
+            showError("personalPersonalMobile", "Mobile number is required.");
+            valid = false;
+        }
+
+        if (!valid) return; // stop if validation fails
+
+        var formData = new FormData();
+
+        formData.append('EmployeeId', $('#personalEmployeeId').val() || '');
+        formData.append('EmployeeCode', $('#personalEmployeeCode').val() || '');
+        formData.append('FirstName', firstName);
+        formData.append('LastName', lastName);
+        formData.append('PersonalMobile', mobile);
+        formData.append('PersonalEmail', email);
+        formData.append('Gender', $('#personalGender').val() || '');
+        formData.append('TinNo', $('#personalTinNo').val() || '');
+        formData.append('FatherName', $('#personalFatherName').val() || '');
+        formData.append('MotherName', $('#personalMotherName').val() || '');
+        formData.append('Religion', $('#personalReligion').val() || '');
+        formData.append('DateOfBirth', $('#personalDateOfBirth').val() || '');
+        formData.append('BirthCertificateNo', $('#personalBirthCertificateNo').val() || '');
+        formData.append('BloodGroup', $('#personalBloodGroup').val() || '');
+        formData.append('Nationality', $('#personalNationality').val() || '');
+        formData.append('NationalId', $('#personalNationalId').val() || '');
+        formData.append('MaritalStatus', $('#personalMaritalStatus').val() || '');
+        formData.append('AboutEmployee', $('#personalAboutEmployee').val() || '');
+        formData.append('Country', $('#personalCountry').val() || '');
+        formData.append('State', $('#personalState').val() || '');
+        formData.append('City', $('#personalCity').val() || '');
+        formData.append('HouseNo', $('#personalHouseNo').val() || '');
+        formData.append('RoadNo', $('#personalRoadNo').val() || '');
+        formData.append('PostalCode', $('#personalPostalCode').val() || '');
+
+        var employeePic = $('#personalEmployeePicture')[0].files[0];
+        if (employeePic) {
+            formData.append('EmployeePicture', employeePic);
+        }
+
+        var signaturePic = $('#personalSignature')[0].files[0];
+        if (signaturePic) {
+            formData.append('Signature', signaturePic);
+        }
+
+        $.ajax({
+            url: '/EmployeePersonal/Index', // your API endpoint
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                toastr.success('Personal data saved successfully!');
+                console.log('Save success:', response);
+            },
+            error: function (xhr) {
+                toastr.error('Failed to save personal data.');
+                console.log('Save error:', xhr.responseText);
+            }
+        });
+    });
+
+    // Supporting functions
+    function clearErrors() {
+        $('.error-text').remove(); // Assuming you append errors with this class
+    }
+
+    function showError(elementId, message) {
+        const element = $('#' + elementId);
+        element.after('<span class="error-text text-danger">' + message + '</span>');
+    }
+
+    function isValidEmail(email) {
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+
+    //#endregion
 
     //#region Image Perview
 
@@ -722,6 +837,7 @@
     });
 
     //#endregion
+
     //#region Save Nationality
 
     $('#confirmAddNationalityBtn').on('click', function () {
@@ -753,8 +869,7 @@
     });
 
 
-    //#endregion 
-
+    //#endregion
 
 
     //#endregion
