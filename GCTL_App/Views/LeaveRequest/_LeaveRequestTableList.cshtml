@@ -80,27 +80,12 @@
 
             <div class="table-responsive ms-n1 ps-1 scrollbar">
                 <table class="table fs-9 mb-0 border-top border-translucent">
-                    @* <thead>
-                        <tr>
-                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input" id="leaveRequest-check-all" />
-                            </th>
-                          
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Approved by")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Leave Type")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("From Date")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("To Date")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Period")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Unit Type")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Status")</th>
-                            <th class=" white-space-nowrap align-middle ps-0"   style="width: 10%;">@Html.SmartLocalize("Action")</th>
-                        </tr>
-                    </thead> *@
+                
                     <thead>
                         <tr>
                             <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
                                 <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                    <input class="form-check-input" type="checkbox" />
                                 </div>
                             </th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approveByEmployee">Approved by</th>
@@ -110,7 +95,8 @@
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Period</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveUnitType">Unit Type</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
-                            <th class="text-end align-middle pe-0 ps-5" scope="col"></th>
+                          @*   <th class="text-end align-middle pe-0 ps-5" scope="col"></th> *@
+                            <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
                         </tr>
                     </thead>
                     <tbody id="leaveRequest-tBody">

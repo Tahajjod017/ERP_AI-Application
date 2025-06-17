@@ -82,21 +82,20 @@
                         </div>
                         <div class="col-md-4">
                             <label class="col-form-label mt-3" for="exampleFormControlInput"></label>
-                            <select class="form-select" id="EffectiveFromMonthYear" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select choiceDD" id="EffectiveFromMonthYear" >
+                                <option value="">Select</option>
+                                <option value="Months">Months</option>
                                 <option value="Years">Years</option>
-                                <option value="Months" selected>Months</option>
+                                
                             </select>
                         </div>
 
                         <div class="col-md-5 mt-3">
-                            @* <label class="col-form-label" for="exampleFormControlInput">After</label> *@
+                           
 
                             <label class="col-form-label" for="exampleFormControlInput"></label>
                             <input type="text" id="EffectiveAfter" class="form-control" value="After Joining Date" placeholder="After Joining Date">
-                            @* <select class="form-select" id="EffectiveAfter" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                <option value="Joining Date">Joining Date</option>
-                                <option value="Conformation Date">Conformation Date</option>
-                            </select> *@
+                            
                         </div>
 
                     </div>

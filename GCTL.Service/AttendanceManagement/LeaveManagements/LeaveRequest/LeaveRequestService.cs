@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.ActionLogVM;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,11 +20,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<LeaveApplications> leaveRequest;
         private readonly IGenericRepository<LeaveTypes> leaveTypes; 
         private readonly IGenericRepository<Statuses> leaveStatuses;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses) : base(leaveRequest)
+        private readonly IUserInfoService userInfoService;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService ) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
             this.leaveStatuses = leaveStatuses;
+            this.userInfoService = userInfoService;
         }
 
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "")
@@ -63,7 +66,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         LeaveApplicationID=b.LeaveApplicationID,
                        // StatusName = b.Status != null ? b.Status.StatusName : "",
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
-
+                        IsFullDay=b.IsFullDay,
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
@@ -119,6 +122,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
 
                 await leaveRequest.AddAsync(entity);
+                await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 await leaveRequest.CommitTransactionAsync();
 
                 return new CommonReturnViewModel

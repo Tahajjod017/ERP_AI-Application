@@ -303,6 +303,105 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
            
         }
 
+        public async Task<CommonReturnViewModel> UpdateLeavepolicyAsync(AddLeavePolicyConfigarationVM entityVM)
+        {
+            var response = new CommonReturnViewModel();
+
+            try
+            {
+                await leavepolicy.BeginTransactionAsync();
+
+                var existingPolicy = await leavepolicy.GetByIdAsync(entityVM.LeavePolicyConfigurationID);
+
+                if (existingPolicy == null)
+                {
+                    response.Success = false;
+                    response.Message = "Leave policy not found.";
+                    await leavepolicy.RollbackTransactionAsync();
+                    return response;
+                }
+                var beforeEntity = JsonConvert.DeserializeObject<AddLeavePolicyConfigarationVM>(JsonConvert.SerializeObject(existingPolicy, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                // Update fields
+                existingPolicy.IsWeekendCountedAsLeave = entityVM.IsWeekendCountedAsLeave;
+                existingPolicy.IsHolidayCountedAsLeave = entityVM.IsHolidayCountedAsLeave;
+                existingPolicy.IsExceedLeaveBalance = entityVM.IsExceedLeaveBalance;
+                existingPolicy.RoundOffHour = string.IsNullOrWhiteSpace(entityVM.RoundOffHour) ? "" : entityVM.RoundOffHour;
+                existingPolicy.IsRoundOffHour = entityVM.IsRoundOffHour;
+                existingPolicy.IsAllowRequestForPastDates = entityVM.IsAllowRequestForPastDates;
+                existingPolicy.AllowRequestForFutureDays = entityVM.AllowRequestForFutureDays;
+                existingPolicy.MaximumleaveDaysPerAplication = entityVM.MaximumleaveDaysPerAplication;
+                existingPolicy.MaximumGapDaysBetweenAplications = entityVM.MaximumGapDaysBetweenAplications;
+                existingPolicy.IsAllowRequestForFutureDays = entityVM.IsAllowRequestForFutureDays;
+                existingPolicy.IsMaximumleaveDaysPerAplication = entityVM.IsMaximumleaveDaysPerAplication;
+                existingPolicy.IsMaximumGapDaysBetweenAplications = entityVM.IsMaximumGapDaysBetweenAplications;
+
+                existingPolicy.UpdatedAt = DateTime.Now;
+                existingPolicy.UpdatedBy = entityVM.UpdatedBy;
+
+                await leavepolicy.UpdateAsync(existingPolicy);
+                var afterEntity = JsonConvert.DeserializeObject<AddLeavePolicyConfigarationVM>(JsonConvert.SerializeObject(existingPolicy, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                await userInfoService.ActionLogAsync("Add Leave Policy", ActionName.DataUpdated, beforeEntity, afterEntity, existingPolicy.LeavePolicyConfigurationID, entityVM);
+                await leavepolicy.CommitTransactionAsync();
+
+                response.Success = true;
+                response.Message = "Updated Successfully.";
+            }
+            catch (Exception ex)
+            {
+                await leavepolicy.RollbackTransactionAsync();
+                response.Success = false;
+                response.Message = $"Error: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        #endregion
+        #region  Get Data 
+        public async Task<List<GetDataLeavePolicyConfiguration>> GetDataLeavePolicy()
+        {
+            await leavepolicy.BeginTransactionAsync();
+
+            try
+            {
+                var data = await leavepolicy.GetAllAsync();
+
+                if (data == null || !data.Any())
+                {
+                    return new List<GetDataLeavePolicyConfiguration>();
+                }
+
+                var result = data.Select(x => new GetDataLeavePolicyConfiguration
+                {
+                    LeavePolicyConfigurationID = x.LeavePolicyConfigurationID,
+                    IsWeekendCountedAsLeave = x.IsWeekendCountedAsLeave,
+                    IsHolidayCountedAsLeave = x.IsHolidayCountedAsLeave,
+                    IsExceedLeaveBalance = x.IsExceedLeaveBalance,
+                    RoundOffHour = string.IsNullOrWhiteSpace(x.RoundOffHour) ? "" : x.RoundOffHour,
+                    IsAllowRequestForPastDates = x.IsAllowRequestForPastDates,
+                    IsRoundOffHour = x.IsRoundOffHour,
+                    AllowRequestForFutureDays = x.AllowRequestForFutureDays,
+                    MaximumleaveDaysPerAplication = x.MaximumleaveDaysPerAplication,
+                    MaximumGapDaysBetweenAplications = x.MaximumGapDaysBetweenAplications,
+                    IsAllowRequestForFutureDays = x.IsAllowRequestForFutureDays,
+                    IsMaximumleaveDaysPerAplication = x.IsMaximumleaveDaysPerAplication,
+                    IsMaximumGapDaysBetweenAplications = x.IsMaximumGapDaysBetweenAplications
+                }).ToList();
+
+                await leavepolicy.CommitTransactionAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await leavepolicy.RollbackTransactionAsync();
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+       
+
+
         #endregion
     }
 }

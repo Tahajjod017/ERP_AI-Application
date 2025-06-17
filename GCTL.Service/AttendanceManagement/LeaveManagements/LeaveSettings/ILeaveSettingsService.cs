@@ -21,5 +21,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
 
         // Leave Policy Configaration
         Task<CommonReturnViewModel> AddLeavepolicyAsync(AddLeavePolicyConfigarationVM entityVM);
+        Task<CommonReturnViewModel> UpdateLeavepolicyAsync(AddLeavePolicyConfigarationVM entityVM);
+        Task<List<GetDataLeavePolicyConfiguration>> GetDataLeavePolicy();
     }
 }
