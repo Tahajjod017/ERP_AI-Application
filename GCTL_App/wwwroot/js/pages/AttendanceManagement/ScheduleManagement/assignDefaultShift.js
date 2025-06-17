@@ -483,35 +483,6 @@
 
 
 
-            //function loadShiftsByCompany(organizationId, selectedShiftId = null) {
-            //    return new Promise((resolve, reject) => {
-            //        $.ajax({
-            //            url: '/AssignDefaultShift/GetShiftByCompany',
-            //            type: 'GET',
-            //            data: { id: organizationId },
-            //            success: function (shifts) {
-            //                if (!choiceShift) return resolve();
-
-            //                choiceShift.clearChoices();
-
-            //                const shiftChoices = shifts.map(shift => ({
-            //                    value: shift.shiftID,
-            //                    label: shift.shiftName,
-            //                    selected: selectedShiftId && shift.shiftID == selectedShiftId
-            //                }));
-
-            //                choiceShift.setChoices(shiftChoices, 'value', 'label', true);
-
-            //                resolve(); // done
-            //            },
-            //            error: function (xhr, status, error) {
-            //                console.error('Error loading shifts:', error);
-            //                reject(error);
-            //            }
-            //        });
-            //    });
-            //}
-
             function loadShiftsByCompany(organizationId, selectedShiftId = null) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -541,39 +512,17 @@
 
 
 
-
-            //let choiceShift;
-            //function initChoices() {
-            //    choiceShift = new Choices('#ShiftID', {
-            //        removeItemButton: true,
-            //        shouldSort: false,
-            //        placeholderValue: 'Select Shift'
-            //    });
-            //}
-            //initChoices();
             let choiceShift;
-
             function initChoices() {
-                const el = document.getElementById('ShiftID');
-
-                // Prevent multiple initializations
-                if (el && !choiceShift) {
-                    choiceShift = new Choices(el, {
-                        removeItemButton: true,
-                        shouldSort: false,
-                        placeholder: true,
-                        placeholderValue: 'Select Shift'
-                    });
-                }
+                choiceShift = new Choices('#ShiftID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Shift'
+                });
             }
-
             initChoices();
 
-            
-
-
-
-            
+                        
         });
 
 
