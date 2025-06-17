@@ -477,6 +477,8 @@
 
     //#region Personal info
 
+    //#region Populare Persomal
+
     function PopulatePersonalData(employee) {
         console.log('Employee Personal Data:', employee);
 
@@ -502,9 +504,9 @@
         $('#personalPostalCode').val(employee.postalCode || '');
 
         $('#personalNationality').val(employee.nationality || '');
+
+        $('#personalEmployeeID').val(employee.employeeID || '');
         
-
-
         $('#personalDateOfBirth').val(employee.dateOfBirth || '');
         flatpickrHelper.setDate('personalDateOfBirth', (employee.dateOfBirth || ''))
 
@@ -538,6 +540,8 @@
         }
     }
 
+    //#endregion
+
     //#region Submit
 
     $('#personalSubmitButton').click(function (e) {
@@ -546,7 +550,7 @@
         clearErrors(); // clear previous errors
         let valid = true;
 
-        const enteredNationality = $('#nationalitySearch').val().trim();
+        const enteredNationality = $('#personalNationality').val().trim();
         if (enteredNationality && !nationalities.includes(enteredNationality)) {
             $('#newNationalityName').val(enteredNationality);
             $('#addNationalityModal').modal('show');
@@ -584,7 +588,7 @@
 
         var formData = new FormData();
 
-        formData.append('EmployeeId', $('#personalEmployeeId').val() || '');
+        formData.append('EmployeeId', $('#personalEmployeeID').val() || '');
         formData.append('EmployeeCode', $('#personalEmployeeCode').val() || '');
         formData.append('FirstName', firstName);
         formData.append('LastName', lastName);
@@ -620,13 +624,13 @@
         }
 
         $.ajax({
-            url: '/EmployeePersonal/Index', // your API endpoint
+            url: '/EmployeePersonal/SubmitFromEdit', // your API endpoint
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function (response) {
-                toastr.success('Personal data saved successfully!');
+                toastr.success(response.message || 'Personal data saved successfully!');
                 console.log('Save success:', response);
             },
             error: function (xhr) {
@@ -875,11 +879,11 @@
     //#endregion
 
     //#region official info
+
+    //#region populate oficial
     function PopulateOfficialData(employee) {
         console.log('Employee Official data:', employee);
-
         
-
         // Dropdowns
         choiceManager.setChoiceValue('officialOrganizationID', employee.organizationID || '');
         choiceManager.setChoiceValue('officialOrganizationBranchID', employee.organizationBranchID || '');
@@ -893,8 +897,6 @@
         choiceManager.setChoiceValue('officialEmploymentStatusId', employee.employmentStatusId || '');
         choiceManager.setChoiceValue('officialProvisionPeriodTtimeTypeID', employee.provisionPeriodTtimeTypeID || '');
 
-
-
         // Text inputs
         $('#officialOfficePhone').val(employee.officePhone || '');
         $('#officialOfficeEmail').val(employee.officeEmail || '');
@@ -903,6 +905,8 @@
         $('#officialConfirmationLetterNo').val(employee.confirmationLetterNo || '');
         $('#officialProvisionPeriod').val(employee.provisionPeriod || '');
 
+        $('#officialEmployeeOfficeID').val(employee.employeeOfficeInfoID || '');
+
         // Date inputs (if using datepicker/flatpickr, format might be required)
         flatpickrHelper.setDate('#officialAppointmentLetterIssueDate' , (employee.appointmentLetterIssueDate || ''));
         flatpickrHelper.setDate('#officialJoiningDate' ,(employee.joiningDate || ''));
@@ -910,6 +914,183 @@
         flatpickrHelper.setDate('#officialConfirmationDate' , (employee.confirmationDate || ''));
         flatpickrHelper.setDate('#officialContractEndDate' , (employee.contractEndDate || ''));
     }
+
+    //#endregion
+
+    //#region Submit
+    $('#officialSubmitBtn').on('click', function (e) {
+        e.preventDefault();
+
+        if (!validateOfficialForm()) {
+            const firstError = $('.validation-error').first();
+            if (firstError.length) {
+                $('html, body').animate({
+                    scrollTop: firstError.offset().top - 100
+                }, 500);
+            }
+            return;
+        }
+
+        var formData = new FormData();
+
+        formData.append('EmployeePersonalId', $('#EmployeePersonalId').val());
+        formData.append('EmployeeOfficeInfoID', $('#officialEmployeeOfficeID').val());
+
+        formData.append('OrganizationID', choiceManager.getChoiceValue('officialOrganizationID') || '');
+        formData.append('OrganizationBranchID', choiceManager.getChoiceValue('officialOrganizationBranchID') || '');
+        formData.append('EmployeeTypeID', choiceManager.getChoiceValue('officialEmployeeTypeID') || '');
+        formData.append('DepartmentID', choiceManager.getChoiceValue('officialDepartmentID') || '');
+        formData.append('DesignationID', choiceManager.getChoiceValue('officialDesignationID') || '');
+        formData.append('EmploymentNatureID', choiceManager.getChoiceValue('officialEmploymentNatureID') || '');
+        formData.append('SeniorSupervisorId', choiceManager.getChoiceValue('officialSeniorSupervisorId') || '');
+        formData.append('ImmediateSupervisorId', choiceManager.getChoiceValue('officialImmediateSupervisorId') || '');
+        formData.append('HeadOfDepartmentId', choiceManager.getChoiceValue('officialHeadOfDepartmentId') || '');
+        formData.append('EmploymentStatusId', choiceManager.getChoiceValue('officialEmploymentStatusId') || '');
+        formData.append('ProvisionPeriodTtimeTypeID', choiceManager.getChoiceValue('officialProvisionPeriodTtimeTypeID') || '');
+
+        formData.append('OfficePhone', $('#officialOfficePhone').val());
+        formData.append('OfficeEmail', $('#officialOfficeEmail').val());
+        formData.append('AttendanceId', $('#officialAttendanceId').val());
+        formData.append('AppointmentLetterNo', $('#officialAppointmentLetterNo').val());
+        formData.append('ConfirmationLetterNo', $('#officialConfirmationLetterNo').val());
+        formData.append('ProvisionPeriod', $('#officialProvisionPeriod').val());
+
+        formData.append('AppointmentLetterIssueDate', flatpickrHelper.getDate('#officialAppointmentLetterIssueDate') || '');
+        formData.append('JoiningDate', flatpickrHelper.getDate('#officialJoiningDate') || '');
+        formData.append('ProvisionPeriodStartDate', flatpickrHelper.getDate('#officialProvisionPeriodStartDate') || '');
+        formData.append('ConfirmationDate', flatpickrHelper.getDate('#officialConfirmationDate') || '');
+        formData.append('ContractEndDate', flatpickrHelper.getDate('#officialContractEndDate') || '');
+
+        console.log('Official data saved before:', formData);
+
+        const $submitBtn = $('#officialSubmitBtn');
+        const originalText = $submitBtn.text();
+        $submitBtn.prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: '/EmployeeOfficial/SubmitFromEdit',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                    console.log('Official data saved successfully:', response);
+                if (response.success) {
+                    toastr.success(response.message);
+                } else {
+                    toastr.warning(response.message);
+                }
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr);
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    Object.keys(xhr.responseJSON.errors).forEach(key => {
+                        const errors = xhr.responseJSON.errors[key];
+                        if (errors.length > 0) {
+                            showError(key, errors[0]);
+                        }
+                    });
+                } else {
+                    alert('Something went wrong! Please try again.');
+                }
+            },
+            complete: function () {
+                $submitBtn.prop('disabled', false).text(originalText);
+            }
+        });
+    });
+    //#endregion
+
+    //#region Validation
+    function isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    function showError(fieldName, message) {
+        let $input = $("input[name='" + fieldName + "']");
+        if ($input.length === 0) {
+            $input = $("select[name='" + fieldName + "']");
+        }
+        if ($input.length === 0) {
+            $input = $("#" + fieldName);
+        }
+
+        if ($input.length === 0) {
+            console.error("Could not find input for field: " + fieldName);
+            return;
+        }
+
+        removeError(fieldName);
+
+        $input.addClass('border-danger').css('border-color', '#dc3545');
+
+        const $error = $('<span class="text-danger d-block mt-1 validation-error" data-field="' + fieldName + '" style="padding:2px 4px; font-size:12px;">' + message + '</span>');
+
+        const $container = $input.closest('.form-floating, .flatpickr-input-container, .col-sm-12, .col-md-4');
+        if ($container.length > 0) {
+            $container.after($error);
+        } else {
+            $input.after($error);
+        }
+    }
+
+    function removeError(fieldName) {
+        const $input = $("input[name='" + fieldName + "'], select[name='" + fieldName + "'], #" + fieldName);
+        $input.removeClass('border-danger').css('border-color', '');
+        $(".validation-error[data-field='" + fieldName + "']").remove();
+    }
+
+    function clearErrors() {
+        $(".validation-error").remove();
+    }
+
+    function validateOfficialForm() {
+        clearErrors();
+        let isValid = true;
+
+        const requiredInputs = [
+            { name: "OfficePhone", label: "Office Phone" },
+            { name: "OfficeEmail", label: "Office Email", type: "email" },
+            { name: "AttendanceId", label: "Attendance ID" },
+            { name: "JoiningDate", label: "Joining Date" },
+            { name: "AppointmentLetterNo", label: "Appointment Letter No" },
+            { name: "ConfirmationLetterNo", label: "Confirmation Letter No" }
+        ];
+
+        requiredInputs.forEach(field => {
+            const $input = $("input[name='" + field.name + "']");
+            if ($input.length === 0) return;
+
+            const value = $input.val().trim();
+            if (!value) {
+                showError(field.name, field.label + " is required.");
+                isValid = false;
+            } else if (field.type === "email" && !isValidEmail(value)) {
+                showError(field.name, "Invalid email format.");
+                isValid = false;
+            }
+        });
+
+        const probationPeriod = $('#officialProvisionPeriod').val().trim();
+        const probationStartDate = $('#officialProvisionPeriodStartDate').val().trim();
+        const timeUnit = $('#officialProvisionPeriodTtimeTypeID').val();
+
+        if (probationPeriod && (!probationStartDate || !timeUnit)) {
+            if (!probationStartDate) {
+                showError("ProvisionPeriodStartDate", "Probation start date is required when probation period is specified.");
+                isValid = false;
+            }
+            if (!timeUnit) {
+                showError("ProvisionPeriodTtimeTypeID", "Time unit is required when probation period is specified.");
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+    //#endregion
+
 
     //#endregion
 
