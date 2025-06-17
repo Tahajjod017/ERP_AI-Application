@@ -1,15 +1,20 @@
-﻿<div class="card mb-2">
+﻿<div class="card mb-5">
     <div class="card-header border-bottom-1">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
-                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Information's of Default Shift")</h3>
+                <h4 class="text-body-emphasis">@Html.SmartLocalize("Information's of Default Shift")</h4>
             </div>
         </div>
     </div>
 
-    <div class="card-body py-0 scrollbar to-do-list-body">
+    @* <div class="card-body py-0 scrollbar to-do-list-body">
         <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
-            <div class="row g-3 justify-content-between align-items-end mb-4">
+            
+        </div>
+    </div> *@
+    <div class="card">
+        <div class="px-5 py-2">
+            <div class="row g-3 justify-content-between align-items-end mb-2">
                 <div class="col-12 col-sm-auto">
                     <div class="d-flex align-items-center me-3" style="width: auto;">
                         <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
@@ -43,18 +48,18 @@
                 </div>
             </div>
 
-            <div class="table-responsive ms-n1 ps-1 scrollbar">
-                <table class="table fs-9 mb-0 border-top border-translucent">
+            <div class="table-responsive scrollbar mx-n1 px-1">
+                <table class="table table-sm fs-9 leads-table border-top border-translucent">
                     <thead>
                         <tr>
                             <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input" id="assignDefaultShift-check-all" />
                             </th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" style="width: 30%" data-sort="OrganizationName">@Html.SmartLocalize("Company Name")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" style="width: 20%" data-sort="DepartmentName">@Html.SmartLocalize("Department Name")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" style="width: 25%" data-sort="EmployeeName">@Html.SmartLocalize("Employee Name")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" style="width: 15%" data-sort="ShiftName">@Html.SmartLocalize("Shift")</th>
-                            <th class="white-space-nowrap align-middle ps-0" scope="col" data-sort="Action" style="width: 5%;">@Html.SmartLocalize("Action")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0 text-uppercase" scope="col" style="width: 30%" data-sort="OrganizationName">@Html.SmartLocalize("Company Name")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0 text-uppercase" scope="col" style="width: 20%" data-sort="DepartmentName">@Html.SmartLocalize("Department Name")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0 text-uppercase" scope="col" style="width: 25%" data-sort="EmployeeName">@Html.SmartLocalize("Employee Name")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0 text-uppercase" scope="col" style="width: 15%" data-sort="ShiftName">@Html.SmartLocalize("Shift")</th>
+                            <th class="white-space-nowrap align-middle ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
                         </tr>
                     </thead>
                     <tbody id="assignDefaultShift-tBody">
@@ -62,7 +67,7 @@
                 </table>
             </div>
 
-            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex flex-wrap align-items-center justify-content-between pe-0 fs-9">
                 <div class="d-flex">
                     <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="assignDefaultShift-paginationInfo"></p>
 

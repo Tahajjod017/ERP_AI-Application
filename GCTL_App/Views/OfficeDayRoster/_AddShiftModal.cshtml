@@ -1,0 +1,45 @@
+﻿<!-- Modal  for add shift  used-->
+<div class="modal fade" id="addShiftModal" tabindex="-1" aria-labelledby="addShiftModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shiftModalLabel">Add shift into Roster</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label" for="organizerSingle">Select Shift</label>
+                        <select class="form-select">
+                            <option value="">Select Shift</option>
+                            <option>Shift 1 (09:00 - 17:00)</option>
+                            <option>Shift 2 (08:00 - 16:00)</option>
+                            <option>Shift 3 (10:00 - 18:00)</option>
+                            <option>Day off</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" for="datepicker">Start Date</label>
+                            <input class="form-control datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" for="datepicker">End Date</label>
+                            <input class="form-control datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveShift">Save shift</button>
+            </div>
+        </div>
+    </div>
+</div>
