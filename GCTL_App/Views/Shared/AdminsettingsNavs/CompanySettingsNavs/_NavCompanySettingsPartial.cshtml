@@ -1,0 +1,53 @@
+﻿@model string
+
+<ul class="nav nav-underline fs-9 mt-3" id="companySettingTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link @(Model == "Company" ? "active" : "")"
+           href="@Url.Action("Index", "CompanySettings")"
+           role="tab"
+           aria-selected="@(Model == "Company" ? "true" : "false")">
+            Company
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "DepartmentSettings" ? "active" : "")"
+           href="@Url.Action("Index", "DepartmentSettings")"
+           role="tab"
+           aria-selected="@(Model == "DepartmentSettings" ? "true" : "false")">
+            Department Settings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "BranchSettings" ? "active" : "")"
+           href="@Url.Action("Index", "BranchSettings")"
+           role="tab"
+           aria-selected="@(Model == "BranchSettings" ? "true" : "false")">
+            Branch Settings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "HolidaySettings" ? "active" : "")"
+           href="@Url.Action("Index", "HolidaySettings")"
+           role="tab"
+           aria-selected="@(Model == "HolidaySettings" ? "true" : "false")">
+            Holiday Settings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "WeekendSettings" ? "active" : "")"
+           href="@Url.Action("Index", "WeekendSettings")"
+           role="tab"
+           aria-selected="@(Model == "WeekendSettings" ? "true" : "false")">
+            Weekend Settings
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model == "ApprovalSettings" ? "active" : "")"
+           href="@Url.Action("Index", "ApprovalSettings")"
+           role="tab"
+           aria-selected="@(Model == "ApprovalSettings" ? "true" : "false")">
+            Approval Settings
+        </a>
+    </li>
+</ul>
+

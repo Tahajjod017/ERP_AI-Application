@@ -18,18 +18,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ActionTaken> ActionTaken { get; set; }
 
-    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
-
-    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
-
-    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
-
-    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
-
-    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
-
-    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -54,6 +42,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<EducationBoard> EducationBoard { get; set; }
 
     public virtual DbSet<EducationLevels> EducationLevels { get; set; }
+
+    public virtual DbSet<EmailSettings> EmailSettings { get; set; }
 
     public virtual DbSet<EmployeeAdditionalInfo> EmployeeAdditionalInfo { get; set; }
 
@@ -105,6 +95,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<MenuTab> MenuTab { get; set; }
 
+    public virtual DbSet<OTPSettings> OTPSettings { get; set; }
+
     public virtual DbSet<Organization> Organization { get; set; }
 
     public virtual DbSet<OrganizationBranches> OrganizationBranches { get; set; }
@@ -128,6 +120,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<RosterInHolyDays> RosterInHolyDays { get; set; }
 
     public virtual DbSet<RosterInOfficeDays> RosterInOfficeDays { get; set; }
+
+    public virtual DbSet<SMSSettings> SMSSettings { get; set; }
 
     public virtual DbSet<ServiceYears> ServiceYears { get; set; }
 
@@ -187,8 +181,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
@@ -552,6 +546,40 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EducationLevelsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeIDUpdatedByEducationLevels");
+        });
+
+        modelBuilder.Entity<EmailSettings>(entity =>
+        {
+            entity.HasKey(e => e.EmailSettingID).HasName("PK__EmailSet__10C16F504383920C");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Password).HasMaxLength(100);
+            entity.Property(e => e.PortNumber).HasMaxLength(10);
+            entity.Property(e => e.ServerName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserName).HasMaxLength(100);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmailSettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmailSett__Creat__6EAB62A3");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmailSettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmailSett__Delet__7187CF4E");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.EmailSettings)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__EmailSett__Organ__6ADAD1BF");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmailSettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmailSett__Updat__6F9F86DC");
         });
 
         modelBuilder.Entity<EmployeeAdditionalInfo>(entity =>
@@ -1301,7 +1329,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsAllowRequestForFutureDays).HasDefaultValue(false);
             entity.Property(e => e.IsExceedLeaveBalance).HasDefaultValue(true);
+            entity.Property(e => e.IsMaximumGapDaysBetweenAplications).HasDefaultValue(false);
+            entity.Property(e => e.IsMaximumleaveDaysPerAplication).HasDefaultValue(false);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.RoundOffHour).HasMaxLength(100);
@@ -1420,6 +1451,37 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasComputedColumnSql("([ControllerName])", true);
 
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent).HasForeignKey(d => d.ParentId);
+        });
+
+        modelBuilder.Entity<OTPSettings>(entity =>
+        {
+            entity.HasKey(e => e.OTPSettingID).HasName("PK__OTPSetti__50DBE84A7448C00A");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OTPExpireInMin).HasMaxLength(100);
+            entity.Property(e => e.OTPType).HasMaxLength(10);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OTPSettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__OTPSettin__Creat__7CF981FA");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OTPSettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__OTPSettin__Delet__7FD5EEA5");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.OTPSettings)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__OTPSettin__Organ__7C055DC1");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OTPSettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__OTPSettin__Updat__7DEDA633");
         });
 
         modelBuilder.Entity<Organization>(entity =>
@@ -1733,6 +1795,42 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInOfficeDaysUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__RosterInO__Updat__6E2152BE");
+        });
+
+        modelBuilder.Entity<SMSSettings>(entity =>
+        {
+            entity.HasKey(e => e.SMSSettingID).HasName("PK__SMSSetti__59DFF61C52F1ED55");
+
+            entity.Property(e => e.API).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Gateway).HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MobileNumber).HasMaxLength(100);
+            entity.Property(e => e.Password).HasMaxLength(100);
+            entity.Property(e => e.ServerName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UserName).HasMaxLength(100);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SMSSettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SMSSettin__Creat__764C846B");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SMSSettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SMSSettin__Delet__7928F116");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.SMSSettings)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__SMSSettin__Organ__74643BF9");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SMSSettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SMSSettin__Updat__7740A8A4");
         });
 
         modelBuilder.Entity<ServiceYears>(entity =>

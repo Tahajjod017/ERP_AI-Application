@@ -1,7 +1,8 @@
 ﻿$(document).ready(function () {
     // Configuration
     const API_BASE_URL = '/EmployeeList/GetEmployees';
-    
+
+    let urle = '';
 
     const ITEMS_PER_PAGE = 3;
 
@@ -16,8 +17,9 @@
     const $searchInput = $('.search-input');
     const $listViewBtn = $('#listViewBtn');
     const $boardViewBtn = $('#boardViewBtn');
-    const $tablePaginationContainer = $('.pagination'); // Table view pagination
-    const $boardPaginationContainer = $('<ul class="mb-0 pagination board-pagination d-flex justify-content-end"></ul>'); // New board view pagination
+    const $tablePaginationContainer = $('.tblPagination'); // Table view pagination
+   // const $boardPaginationContainer = $('<ul class="mb-0 pagination board-pagination d-flex justify-content-end"></ul>'); // New board view pagination
+    const $boardPaginationContainer = $('.paginationBoard'); // New board view pagination
 
     let currentTablePage = 1;
     let currentBoardPage = 1;
@@ -37,7 +39,7 @@
 
         test = $('#pageSize').val();
 
-        console.log('test', test)
+        //console.log('test', test)
 
         return $.ajax({
             url: API_BASE_URL,
@@ -64,6 +66,7 @@
     //#region Generate avatar HTML (image or initial-based) And format date
     function getAvatarHtml(employee) {
         if (employee.avatar && employee.avatar !== '') {
+            urle = employee.url;
             return `<img class="rounded-circle" src="${employee.avatar}" alt="${employee.name}" />`;
         } else {
             const initial = employee.name.charAt(0).toUpperCase();
@@ -271,7 +274,7 @@
 
     //#region Update view visibility
 
-    
+   
 
 
 
@@ -282,10 +285,14 @@
             $listView.addClass('hidden').removeClass('visible');
             $tablePaginationContainer.parent().hide();
             $boardPaginationContainer.insertAfter($boardView).show();
+           
         } else {
             $listView.addClass('visible').removeClass('hidden');
             $boardView.addClass('hidden').removeClass('visible');
             $boardPaginationContainer.hide();
+
+           
+
             $tablePaginationContainer.parent().show();
             // Initialize sort indicators
             $('#employeeListTable th.sort').removeClass('sort-asc sort-desc');
@@ -416,6 +423,7 @@
     }
 
     function fetchAllEmployeeData(employeeId) {
+        
         Promise.allSettled([
             fetchEmployeeSection(`GetEmployeePersonal/${employeeId}`),
             fetchEmployeeSection(`GetEmployeeOfficial/${employeeId}`),
@@ -454,6 +462,8 @@
                     }
                 });
             });
+
+        toastr.info('Form is Ready To Modify')
     }
 
    
@@ -462,44 +472,65 @@
 
     //#endregion
 
-    //#region Populate employee data functions
+    //#region Populate employee data functions ANd edit and delete
+
+
+    //#region Personal info
+
     function PopulatePersonalData(employee) {
         console.log('Employee Personal Data:', employee);
 
+        var a = employee.firstName + ' ' + employee.lastName;
+
+        $('#empNameEdit').text(a);
+
+        $('#personalEmployeeCode').val(employee.employeeCode || '');
         $('#personalFirstName').val(employee.firstName || '');
         $('#personalLastName').val(employee.lastName || '');
-        $('#personalGender').val(employee.gender || '');
-        $('#personalPersonalMobile').val(employee.personalMobile || '');
-        $('#personalPersonalEmail').val(employee.personalEmail || '');
-        $('#personalTinNo').val(employee.tinNo || '');
+        $('#personalPersonalMobile').val(employee.mobileNumber || '');
+        $('#personalPersonalEmail').val(employee.email || '');
+        $('#personalTinNo').val(employee.tin || '');
         $('#personalFatherName').val(employee.fatherName || '');
         $('#personalMotherName').val(employee.motherName || '');
-        $('#personalReligion').val(employee.religion || '');
-        $('#personalDateOfBirth').val(employee.dateOfBirth || '');
         $('#personalBirthCertificateNo').val(employee.birthCertificateNo || '');
-        $('#personalBloodGroup').val(employee.bloodGroup || '');
-        $('#personalNationality').val(employee.nationality || '');
-        $('#personalNationalId').val(employee.nationalId || '');
-        $('#personalMaritalStatus').val(employee.maritalStatus || '');
+        $('#personalNationalId').val(employee.nid || '');
         $('#personalAboutEmployee').val(employee.aboutEmployee || '');
-        $('#personalCountry').val(employee.country || '');
         $('#personalState').val(employee.state || '');
         $('#personalCity').val(employee.city || '');
         $('#personalHouseNo').val(employee.houseNo || '');
         $('#personalRoadNo').val(employee.roadNo || '');
         $('#personalPostalCode').val(employee.postalCode || '');
 
+        $('#personalNationality').val(employee.nationality || '');
+        
+
+
+        $('#personalDateOfBirth').val(employee.dateOfBirth || '');
+        flatpickrHelper.setDate('personalDateOfBirth', (employee.dateOfBirth || ''))
+
+       
+
+        choiceManager.setChoiceValue('personalReligion', employee.religionID || '');
+        choiceManager.setChoiceValue('personalBloodGroup', employee.bloodGroupID || '');
+        choiceManager.setChoiceValue('personalMaritalStatus', employee.maritalStatusID || '');
+        choiceManager.setChoiceValue('personalCountry', employee.countryID || '');
+        choiceManager.setChoiceValue('personalGender', employee.genderID || '');
+
+
+
         // For image preview
-        if (employee.employeePicture) {
-            $('#epImagePreview').attr('src', employee.employeePicture).css('visibility', 'visible');
+        if (employee.employeeImageFileName) {
+            var imgFile = urle + 'images/' + employee.employeeImageFileName
+            $('#epImagePreview').attr('src', imgFile).css('visibility', 'visible');
             $('#epCloseBtn').show();
         } else {
             $('#epImagePreview').css('visibility', 'hidden');
             $('#epCloseBtn').hide();
         }
 
-        if (employee.signature) {
-            $('#esImagePreview').attr('src', employee.signature).css('visibility', 'visible');
+        if (employee.employeeSignatureFileName) {
+            var sigFile = urle + 'signatures/' + employee.employeeSignatureFileName
+            $('#esImagePreview').attr('src', sigFile).css('visibility', 'visible');
             $('#esCloseBtn').show();
         } else {
             $('#esImagePreview').css('visibility', 'hidden');
@@ -507,39 +538,382 @@
         }
     }
 
+    //#region Submit
 
+    $('#personalSubmitButton').click(function (e) {
+        e.preventDefault(); // prevent form default submission
+
+        clearErrors(); // clear previous errors
+        let valid = true;
+
+        const enteredNationality = $('#nationalitySearch').val().trim();
+        if (enteredNationality && !nationalities.includes(enteredNationality)) {
+            $('#newNationalityName').val(enteredNationality);
+            $('#addNationalityModal').modal('show');
+        }
+
+        const firstName = $("#personalFirstName").val().trim();
+        const lastName = $("#personalLastName").val().trim();
+        const email = $("#personalPersonalEmail").val().trim();
+        const mobile = $("#personalPersonalMobile").val().trim();
+
+        if (!firstName) {
+            showError("personalFirstName", "First Name is required.");
+            valid = false;
+        }
+
+        if (!lastName) {
+            showError("personalLastName", "Last Name is required.");
+            valid = false;
+        }
+
+        if (!email) {
+            showError("personalPersonalEmail", "Email is required.");
+            valid = false;
+        } else if (!isValidEmail(email)) {
+            showError("personalPersonalEmail", "Invalid email format.");
+            valid = false;
+        }
+
+        if (!mobile) {
+            showError("personalPersonalMobile", "Mobile number is required.");
+            valid = false;
+        }
+
+        if (!valid) return; // stop if validation fails
+
+        var formData = new FormData();
+
+        formData.append('EmployeeId', $('#personalEmployeeId').val() || '');
+        formData.append('EmployeeCode', $('#personalEmployeeCode').val() || '');
+        formData.append('FirstName', firstName);
+        formData.append('LastName', lastName);
+        formData.append('PersonalMobile', mobile);
+        formData.append('PersonalEmail', email);
+        formData.append('Gender', $('#personalGender').val() || '');
+        formData.append('TinNo', $('#personalTinNo').val() || '');
+        formData.append('FatherName', $('#personalFatherName').val() || '');
+        formData.append('MotherName', $('#personalMotherName').val() || '');
+        formData.append('Religion', $('#personalReligion').val() || '');
+        formData.append('DateOfBirth', $('#personalDateOfBirth').val() || '');
+        formData.append('BirthCertificateNo', $('#personalBirthCertificateNo').val() || '');
+        formData.append('BloodGroup', $('#personalBloodGroup').val() || '');
+        formData.append('Nationality', $('#personalNationality').val() || '');
+        formData.append('NationalId', $('#personalNationalId').val() || '');
+        formData.append('MaritalStatus', $('#personalMaritalStatus').val() || '');
+        formData.append('AboutEmployee', $('#personalAboutEmployee').val() || '');
+        formData.append('Country', $('#personalCountry').val() || '');
+        formData.append('State', $('#personalState').val() || '');
+        formData.append('City', $('#personalCity').val() || '');
+        formData.append('HouseNo', $('#personalHouseNo').val() || '');
+        formData.append('RoadNo', $('#personalRoadNo').val() || '');
+        formData.append('PostalCode', $('#personalPostalCode').val() || '');
+
+        var employeePic = $('#personalEmployeePicture')[0].files[0];
+        if (employeePic) {
+            formData.append('EmployeePicture', employeePic);
+        }
+
+        var signaturePic = $('#personalSignature')[0].files[0];
+        if (signaturePic) {
+            formData.append('Signature', signaturePic);
+        }
+
+        $.ajax({
+            url: '/EmployeePersonal/Index', // your API endpoint
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                toastr.success('Personal data saved successfully!');
+                console.log('Save success:', response);
+            },
+            error: function (xhr) {
+                toastr.error('Failed to save personal data.');
+                console.log('Save error:', xhr.responseText);
+            }
+        });
+    });
+
+    // Supporting functions
+    function clearErrors() {
+        $('.error-text').remove(); // Assuming you append errors with this class
+    }
+
+    function showError(elementId, message) {
+        const element = $('#' + elementId);
+        element.after('<span class="error-text text-danger">' + message + '</span>');
+    }
+
+    function isValidEmail(email) {
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+
+    //#endregion
+
+    //#region Image Perview
+
+    $(function () {
+        function setupImagePreview($fileInput, $previewImg, $closeBtn) {
+            $fileInput.on('change', function () {
+                const file = this.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $previewImg
+                            .attr('src', e.target.result)
+                            .css('visibility', 'visible');
+                        $closeBtn.show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // optional: warn if not an image
+                    alert('Please select a valid image file.');
+                    this.value = '';
+                }
+            });
+
+            $closeBtn.on('click', function () {
+                $fileInput.val('');
+                $previewImg
+                    .attr('src', '')
+                    .css('visibility', 'hidden');
+                $closeBtn.hide();
+            });
+        }
+
+        // wire up both fields
+        setupImagePreview(
+            $('#personalEmployeePicture'),
+            $('#epImagePreview'),
+            $('#epCloseBtn')
+        );
+        setupImagePreview(
+            $('#personalSignature'),
+            $('#esImagePreview'),
+            $('#esCloseBtn')
+        );
+    });
+
+    //#endregion
+
+    //#region Auto suggest
+
+    let nationalities = [];
+
+    $.ajax({
+        url: '/EmployeePersonal/GetNationalities',
+        method: 'GET',
+        success: function (data) {
+            nationalities = data;
+        },
+        error: function () {
+            alert('Failed to load nationalities');
+        }
+    });
+
+    function showSuggestions(query) {
+        const $list = $('#nationalityList');
+        const $noResults = $('#noResults');
+        const $clickHereBtn = $('#clickHereBtn');
+        $list.empty();
+        $noResults.hide();
+        $clickHereBtn.hide();
+
+        if (!query) {
+            $('#searchResults').hide();
+            return;
+        }
+
+        // Show partial matches while typing (normal behavior)
+        const filtered = nationalities.filter(item =>
+            item.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (filtered.length > 0) {
+            filtered.forEach(item => {
+                $list.append(`<button type="button" class="list-group-item list-group-item-action nationality-item">${item}</button>`);
+            });
+            $noResults.hide();
+            $clickHereBtn.hide();
+        } else {
+            // No match found at all
+            $noResults.show();
+            $clickHereBtn.show();
+        }
+    }
+
+    $('#personalNationality').on('input keyup', function () {
+        const query = $(this).val().trim();
+
+        if (query) {
+            $('#searchResults').show();
+            $('#removeNationalityBtn').show();
+            showSuggestions(query);
+        } else {
+            $('#searchResults').hide();
+            $('#removeNationalityBtn').hide();
+            $('#noResults').hide();
+            $('#clickHereBtn').hide();
+        }
+    });
+
+    // Check for exact match when user clicks outside (blur)
+    $('#personalNationality').on('blur', function () {
+        const query = $(this).val().trim();
+
+        if (!query) {
+            $('#searchResults').hide();
+            $('#noResults').hide();
+            $('#clickHereBtn').hide();
+            return;
+        }
+
+        // Check if the input exactly matches any nationality
+        const exactMatch = nationalities.find(item =>
+            item.toLowerCase() === query.toLowerCase()
+        );
+
+        if (!exactMatch) {
+            // No exact match found - show "No results" and keep search results visible
+            $('#searchResults').show(); // Keep the dropdown visible
+            $('#noResults').show();
+            $('#clickHereBtn').show();
+            $('#nationalityList').empty(); // Clear suggestions but keep dropdown
+        } else {
+            // Exact match found - hide "No results"
+            $('#noResults').hide();
+            $('#clickHereBtn').hide();
+            $('#searchResults').hide(); // Hide dropdown for exact match
+        }
+    });
+
+    // Removed the problematic change event handler - not needed anymore
+
+    // On selecting a suggestion - Alternative approach
+    $(document).on('mousedown', '.nationality-item', function (e) {
+        e.preventDefault(); // Prevent blur event from firing first
+        const selected = $(this).text();
+        $('#personalNationality').val(selected);
+        $('#searchResults').hide();
+        $('#removeNationalityBtn').show();
+        $('#noResults').hide();
+        $('#clickHereBtn').hide();
+        $('#nationalityList').empty();
+
+        // Focus back to input to prevent any issues
+        $('#personalNationality').focus();
+    });
+
+    // Clear selected value
+    $('#removeNationalityBtn').on('click', function () {
+        $('#personalNationality').val('');
+        $('#nationalityList').empty();
+        $('#noResults').hide();
+        $('#clickHereBtn').hide();
+        $('#searchResults').hide();
+        $(this).hide();
+    });
+
+    // Show modal when clicking "Click Here"
+    $('#addNewNationalityBtn').on('click', function () {
+        const newValue = $('#personalNationality').val();
+        $('#newNationalityName').val(newValue);
+        $('#addNationalityModal').modal('show');
+    });
+
+    // Optional: hide suggestion list when clicking outside (but keep "No results" visible)
+    $(document).on('click', function (e) {
+        // Don't hide if clicking on nationality item, input field, search results, or click here button
+        if (!$(e.target).closest('#personalNationality, #searchResults, #clickHereBtn, .nationality-item').length) {
+            // Only hide if there's no "No results" showing
+            if (!$('#noResults').is(':visible')) {
+                $('#searchResults').hide();
+            }
+        }
+    });
+
+    //#endregion
+
+    //#region Save Nationality
+
+    $('#confirmAddNationalityBtn').on('click', function () {
+        const newNationality = $('#newNationalityName').val().trim();
+
+        if (!newNationality) {
+            alert('Please enter a nationality name.');
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeePersonal/SaveNationality', // <-- Update with your actual route
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(newNationality),
+            success: function (response) {
+                if (response.success) {
+                    nationalities.push(newNationality);
+                    $('#nationalitySearch').val(newNationality);
+                    $('#searchResults').hide();
+                    $('#removeNationalityBtn').show();
+                    $('#addNationalityModal').modal('hide');
+                }
+            },
+            error: function (xhr) {
+                alert('Error saving nationality: ' + xhr.responseText);
+            }
+        });
+    });
+
+
+    //#endregion
+
+
+    //#endregion
+
+    //#region official info
     function PopulateOfficialData(employee) {
         console.log('Employee Official data:', employee);
 
+        
+
         // Dropdowns
-        $('#officialOrganizationID').val(employee.organizationID);
-        $('#officialOrganizationBranchID').val(employee.organizationBranchID);
-        $('#officialEmployeeTypeID').val(employee.employeeTypeID);
-        $('#officialDepartmentID').val(employee.departmentID);
-        $('#officialDesignationID').val(employee.designationID);
-        $('#officialEmploymentNatureID').val(employee.employmentNatureID);
-        $('#officialSeniorSupervisorId').val(employee.seniorSupervisorId);
-        $('#officialImmediateSupervisorId').val(employee.immediateSupervisorId);
-        $('#officialHeadOfDepartmentId').val(employee.headOfDepartmentId);
-        $('#officialEmploymentStatusId').val(employee.employmentStatusId);
-        $('#officialProvisionPeriodTtimeTypeID').val(employee.provisionPeriodTtimeTypeID);
+        choiceManager.setChoiceValue('officialOrganizationID', employee.organizationID || '');
+        choiceManager.setChoiceValue('officialOrganizationBranchID', employee.organizationBranchID || '');
+        choiceManager.setChoiceValue('officialEmployeeTypeID', employee.employeeTypeID || '');
+        choiceManager.setChoiceValue('officialDepartmentID', employee.departmentID || '');
+        choiceManager.setChoiceValue('officialDesignationID', employee.designationID || '');
+        choiceManager.setChoiceValue('officialEmploymentNatureID', employee.employmentNatureID || '');
+        choiceManager.setChoiceValue('officialSeniorSupervisorId', employee.seniorSupervisorId || '');
+        choiceManager.setChoiceValue('officialImmediateSupervisorId', employee.immediateSupervisorId || '');
+        choiceManager.setChoiceValue('officialHeadOfDepartmentId', employee.headOfDepartmentId || '');
+        choiceManager.setChoiceValue('officialEmploymentStatusId', employee.employmentStatusId || '');
+        choiceManager.setChoiceValue('officialProvisionPeriodTtimeTypeID', employee.provisionPeriodTtimeTypeID || '');
+
+
 
         // Text inputs
-        $('#officialOfficePhone').val(employee.officePhone);
-        $('#officialOfficeEmail').val(employee.officeEmail);
-        $('#officialAttendanceId').val(employee.attendanceId);
-        $('#officialAppointmentLetterNo').val(employee.appointmentLetterNo);
-        $('#officialConfirmationLetterNo').val(employee.confirmationLetterNo);
-        $('#officialProvisionPeriod').val(employee.provisionPeriod);
+        $('#officialOfficePhone').val(employee.officePhone || '');
+        $('#officialOfficeEmail').val(employee.officeEmail || '');
+        $('#officialAttendanceId').val(employee.attendanceId || '');
+        $('#officialAppointmentLetterNo').val(employee.appointmentLetterNo || '');
+        $('#officialConfirmationLetterNo').val(employee.confirmationLetterNo || '');
+        $('#officialProvisionPeriod').val(employee.provisionPeriod || '');
 
-        // Date inputs (make sure flatpickr or datepicker is properly handling string dates)
-        $('#officialAppointmentLetterIssueDate').val(employee.appointmentLetterIssueDate);
-        $('#officialJoiningDate').val(employee.joiningDate);
-        $('#officialProvisionPeriodStartDate').val(employee.provisionPeriodStartDate);
-        $('#officialConfirmationDate').val(employee.confirmationDate);
-        $('#officialContractEndDate').val(employee.contractEndDate);
+        // Date inputs (if using datepicker/flatpickr, format might be required)
+        flatpickrHelper.setDate('#officialAppointmentLetterIssueDate' , (employee.appointmentLetterIssueDate || ''));
+        flatpickrHelper.setDate('#officialJoiningDate' ,(employee.joiningDate || ''));
+        flatpickrHelper.setDate('#officialProvisionPeriodStartDate' , (employee.provisionPeriodStartDate || ''));
+        flatpickrHelper.setDate('#officialConfirmationDate' , (employee.confirmationDate || ''));
+        flatpickrHelper.setDate('#officialContractEndDate' , (employee.contractEndDate || ''));
     }
 
+    //#endregion
+
+    //#region Additional info
 
     function PopulateAdditionalData(employee) {
         console.log('Employee Additional data:', employee);
@@ -548,57 +922,112 @@
         $("#additionalPasportName").val(employee.pasportName || '');
         $("#additionalPasportNo").val(employee.pasportNo || '');
         $("#additionalPasportPlaceOfIssue").val(employee.pasportPlaceOfIssue || '');
-        $("#additionalPasportIssueDate").val(employee.pasportIssueDate || '');
-        $("#additionalPasportExpireDate").val(employee.pasportExpireDate || '');
+
+       
 
         // Driving License Information
         $("#additionalDrivingLicenceNo").val(employee.drivingLicenceNo || '');
-        $("#additionalLicenceTypeID").val(employee.licenceTypeID || '');
-        $("#additionalDrivingLicenceIssueDate").val(employee.drivingLicenceIssueDate || '');
-        $("#additionalDrivingLicenceExpireDate").val(employee.drivingLicenceExpireDate || '');
-        $("#additionalSymbolOfVehicleClass").val(employee.symbolOfVehicleClass || '');
-        $("#additionalDrivingLicencePlaceOfIssue").val(employee.drivingLicencePlaceOfIssue || '');
-
-        // Work Permit Information
-        $("#additionalWorkPermaitNumber").val(employee.workPermaitNumber || '');
-        $("#additionalWorkPermitType").val(employee.workPermitType || '');
-        $("#additionalWorkPermitEffectiveDate").val(employee.workPermitEffectiveDate || '');
-        $("#additionalWorkPermitExpireDate").val(employee.workPermitExpireDate || '');
-        $("#additionalVisaExpireDate").val(employee.visaExpireDate || '');
-
-        // Optionally set personal info if you want to show them somewhere
-        // Example:
-        // $("#personalPhone").text(employee.personalPhone || '');
-        // $("#personalEmail").text(employee.personalEmail || '');
-    }
-    function PopulateAdditionalData(employee) {
-        console.log('Employee Additional data:', employee);
-
-        // Passport Information
-        $("#additionalPasportName").val(employee.pasportName || '');
-        $("#additionalPasportNo").val(employee.pasportNo || '');
-        $("#additionalPasportPlaceOfIssue").val(employee.pasportPlaceOfIssue || '');
-        $("#additionalPasportIssueDate").val(employee.pasportIssueDate || '');
-        $("#additionalPasportExpireDate").val(employee.pasportExpireDate || '');
-
-        // Driving License Information
-        $("#additionalDrivingLicenceNo").val(employee.drivingLicenceNo || '');
-        $("#additionalLicenceTypeID").val(employee.licenceTypeID || '');
-        $("#additionalDrivingLicenceIssueDate").val(employee.drivingLicenceIssueDate || '');
-        $("#additionalDrivingLicenceExpireDate").val(employee.drivingLicenceExpireDate || '');
-        $("#additionalSymbolOfVehicleClass").val(employee.symbolOfVehicleClass || '');
-        $("#additionalDrivingLicencePlaceOfIssue").val(employee.drivingLicencePlaceOfIssue || '');
-
-        // Work Permit Information
-        $("#additionalWorkPermaitNumber").val(employee.workPermaitNumber || '');
-        $("#additionalWorkPermitType").val(employee.workPermitType || '');
-        $("#additionalWorkPermitEffectiveDate").val(employee.workPermitEffectiveDate || '');
-        $("#additionalWorkPermitExpireDate").val(employee.workPermitExpireDate || '');
-        $("#additionalVisaExpireDate").val(employee.visaExpireDate || '');
 
         
+
+        $("#additionalSymbolOfVehicleClass").val(employee.symbolOfVehicleClass || '');
+        $("#additionalDrivingLicencePlaceOfIssue").val(employee.drivingLicencePlaceOfIssue || '');
+
+        // Work Permit Information
+        $("#additionalWorkPermaitNumber").val(employee.workPermaitNumber || '');
+        $("#additionalWorkPermitType").val(employee.workPermitType || '');
+
+
+        
+
+        // Apply formatting to your date fields
+        flatpickrHelper.setDate('additionalPasportIssueDate', employee.pasportIssueDate);
+        flatpickrHelper.setDate('additionalPasportExpireDate', employee.pasportExpireDate);
+        flatpickrHelper.setDate('additionalDrivingLicenceIssueDate', employee.drivingLicenceIssueDate);
+        flatpickrHelper.setDate('additionalDrivingLicenceExpireDate', employee.drivingLicenceExpireDate);
+        flatpickrHelper.setDate('additionalWorkPermitEffectiveDate', employee.workPermitEffectiveDate);
+        flatpickrHelper.setDate('additionalWorkPermitExpireDate', employee.workPermitExpireDate);
+        flatpickrHelper.setDate('additionalVisaExpireDate', employee.visaExpireDate);
+
+   
+        
+        choiceManager.setChoiceValue('additionalLicenceTypeID', employee.licenceTypeID || '')
+
     }
 
+    //#endregion
+
+    //#region Educational info
+
+    function PopulateEducationalData(employee) {
+        console.log('Employee Educational data:', employee);
+
+        // Clear the existing table rows first
+        $('#educationalTable tbody').empty();
+
+        if (employee && employee.length > 0) {
+            employee.forEach(function (edu, index) {
+                var row = `
+                <tr>
+                    <td>${edu.degreeID ?? ''}</td>
+                    <td>${edu.majorSubject ?? ''}</td>
+                    <td>${edu.institutionName ?? ''}</td>
+                    <td>${(edu.resultTypeID ?? '').replace(/\r\n/g, '').trim()}</td>
+                    <td>${edu.passingYearID ?? ''}</td>
+                    <td>${edu.yearDuration ?? ''}</td>
+                    <td>${edu.achievement ?? ''}</td>
+                    <td>
+                        <a class="nav-item me-2 editEducationBtn" data-id="${edu.employeeEducationalInfoID}"><i class="fas fa-edit text-black"></i></a>
+                        <a class="nav-item me-2 deleteEducationBtn" data-id="${edu.employeeEducationalInfoID}"><i class="far fa-trash-alt text-black"></i></a>
+                    </td>
+                </tr>
+            `;
+                $('#educationalTable tbody').append(row);
+            });
+        } else {
+            var emptyRow = `
+            <tr>
+                <td colspan="8" class="text-center">No educational records found.</td>
+            </tr>
+        `;
+            $('#educationalTable tbody').append(emptyRow);
+        }
+    }
+
+
+    //#endregion
+
+    //#region Training info
+    function PopulateTrainingData(employeeTrainingList) {
+        console.log('Employee Training data:', employeeTrainingList);
+
+        const tbody = $("#employeeTrainingTable tbody");
+        tbody.empty(); // Clear table before adding rows
+
+        employeeTrainingList.forEach(item => {
+            const row = `
+            <tr>
+                <td>${item.tranningTitle || ''}</td>
+                <td>${item.topicCovered || ''}</td>
+                <td>${item.instituteName || ''}</td>
+                <td>${item.countryID || ''}</td>
+                <td>${item.locationName || ''}</td>
+                <td>${item.trainingYearID || ''}</td>
+                <td>${item.yearDuration || ''}</td>
+                <td>
+                    <a class="nav-item me-2 " onclick='editTraining(${JSON.stringify(item)})'><i class="fas fa-edit text-black"></i></a>
+                    <a class="nav-item me-2 " onclick='deleteTraining(${item.employeeTranningInfoID})'><i class="far fa-trash-alt text-black"></i></a>
+                </td>
+            </tr>
+        `;
+            tbody.append(row);
+        });
+    }
+
+
+    //#endregion
+
+    //#region Contact info
 
     function PopulateContactData(employee) {
         const tbody = $('#employeeContactTable tbody');
@@ -613,8 +1042,10 @@
                     <td>${contact.contactNumber}</td>
                     <td>${contact.contactEmail || ''}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary editContactBtn" data-id="${contact.employeeEmeContactID}">Edit</button>
-                        <button class="btn btn-sm btn-danger deleteContactBtn" data-id="${contact.employeeEmeContactID}">Delete</button>
+                        <a class="nav-item me-2 editContactBtn" data-id="${contact.employeeEmeContactID}"><i class="fas fa-edit text-black"></i></a>
+                        <a class="nav-item me-2 deleteContactBtn" data-id="${contact.employeeEmeContactID}"><i class="far fa-trash-alt text-black"></i></a>
+
+                         
                     </td>
                 </tr>`;
                 tbody.append(row);
@@ -623,9 +1054,212 @@
     }
 
 
+    //#endregion
 
-    let emergencyContactList = []; // This should be filled when data is loaded
+    //#region Family info
+    function PopulateFamilyData(employee) {
+        console.log('Employee Family data:', employee);
 
+        const tbody = $("#employeeFamilyTable tbody");
+        tbody.empty(); // Clear existing rows
+
+        employee.forEach(item => {
+            const row = `
+            <tr>
+                <td>${item.fullName || ''}</td>
+                <td>${item.relationToEmployee || ''}</td>
+                <td>${item.occupation || ''}</td>
+                <td>${item.contactNumber || ''}</td>
+                <td>${item.email || ''}</td>
+                <td>${item.address || ''}</td>
+                <td class="align-middle">
+                  
+                     <a class="nav-item me-2 " onclick='editFamily(${JSON.stringify(item)})'><i class="fas fa-edit text-black"></i></a>
+                    <a class="nav-item me-2 " onclick='deleteFamily(${item.employeeFamilyInfoID})'><i class="far fa-trash-alt text-black"></i></a>
+
+                </td>
+            </tr>
+        `;
+            tbody.append(row);
+        });
+    }
+
+
+
+    //#endregion
+
+    let emergencyContactList = []; 
+
+    //#region Salary info
+
+
+
+
+    function PopulateSalaryData(employee) {
+        console.log('Employee Salary data:', employee);
+
+        if (!employee) return;
+
+
+        $('#salaryBankName').val(employee.bankName || '');
+        $('#salaryBranchName').val(employee.branchName || '');
+        $('#salaryAddress').val(employee.address || '');
+        $('#salaryAccountName').val(employee.accountName || '');
+        $('#salaryAccountNo').val(employee.accountNo || '');
+        $('#salaryATMCardNo').val(employee.atmCardNo || '');
+        $('#salaryRoutingNo').val(employee.routingNo || '');
+        $('#salarySWIFTCode').val(employee.swiftCode || '');
+        $('#salaryIFSCCode').val(employee.ifscCode || '');
+        $('#salarybKashAccountNo').val(employee.bKashAccountNo || '');
+        $('#salaryRoketAccountNo').val(employee.roketAccountNo || '');
+        $('#salaryNagodAccountNo').val(employee.nagodAccountNo || '');
+        $('#salarySalary').val(employee.salary || '');
+
+
+        choiceManager.setChoiceValue('salaryGradeID', employee.gradeID || '');
+        choiceManager.setChoiceValue('salaryCurrencyID', employee.currencyID || '');
+        choiceManager.setChoiceValue('salaryPaymenPeriodTypeID', employee.paymenPeriodTypeID || '');
+
+
+
+        if (employee.paymentModeIds) {
+            const paymentModes = Array.isArray(employee.paymentModeIds)
+                ? employee.paymentModeIds
+                : employee.paymentModeIds.split(',');
+            $('#salaryPaymentModeIds').val(paymentModes).trigger('change');
+
+
+            if (paymentModes.length > 1) {
+                $('#multyPayment').show();
+                $('#salaryPrimaryPaymentModeId').val(employee.primaryPaymentModeId || '').trigger('change');
+                $('#salaryPrimaryPaymentPercent').val(employee.primaryPaymentPercent || '');
+                $('#salarySecondaryPaymentModeId').val(employee.secondaryPaymentModeId || '').trigger('change');
+            } else {
+                $('#multyPayment').hide();
+            }
+        }
+
+
+        $('.choiceDD').trigger('change');
+    }
+
+
+    //#endregion
+
+    //#region Benifit info
+    function PopulateBenefitData(employee) {
+        console.log('Employee Benefit data:', employee);
+
+        if (!employee) return;
+
+
+        $('#benifitHealthInsurance').val(employee.healthInsurance || '');
+        $('#benifitPerformanceBonus').val(employee.performanceBonus || '');
+
+
+        $('#benifitIsHealthInsuranceEnabled').prop('checked', employee.isHealthInsuranceEnabled || false);
+        $('#benifitIsPerformanceBonusEnabled').prop('checked', employee.isPerformanceBonusEnabled || false);
+        $('#benifitIsYearlyEndBonusTypeIDEnabled').prop('checked', employee.isYearlyEndBonusTypeIDEnabled || false);
+        $('#benifitIsFastivalBonusPercentageEnabled').prop('checked', employee.isFastivalBonusPercentageEnabled || false);
+        $('#benifitIsProvidantFundEnabled').prop('checked', employee.isProvidantFundEnabled || false);
+        $('#benifitIsBenifitEnabled').prop('checked', employee.isBenifitEnabled || false).trigger('change');
+
+        choiceManager.setChoiceValue('benifitProvidantFundEmployeePercentage', employee.providantFundEmployeePercentage || '');
+        choiceManager.setChoiceValue('benifitProvidantFundOrganizationPercentage', employee.providantFundOrganizationPercentage || '');
+        choiceManager.setChoiceValue('benifitServiceYearID', employee.serviceYearID || '');
+        choiceManager.setChoiceValue('benifitFastivalBonusPercentage', employee.fastivalBonusPercentage || '');
+        choiceManager.setChoiceValue('benifitYearlyEndBonusTypeID', employee.yearlyEndBonusTypeID || '');
+
+
+
+        toggleBenefitFields();
+    }
+
+    function toggleBenefitFields() {
+        const healthEnabled = $('#benifitIsHealthInsuranceEnabled').is(':checked');
+        $('#benifitHealthInsurance').prop('disabled', !healthEnabled);
+
+        const performanceEnabled = $('#benifitIsPerformanceBonusEnabled').is(':checked');
+        $('#benifitPerformanceBonus').prop('disabled', !performanceEnabled);
+
+        const yearlyBonusEnabled = $('#benifitIsYearlyEndBonusTypeIDEnabled').is(':checked');
+        $('#benifitYearlyEndBonusTypeID').prop('disabled', !yearlyBonusEnabled);
+
+        const festivalEnabled = $('#benifitIsFastivalBonusPercentageEnabled').is(':checked');
+        $('#benifitFastivalBonusPercentage').prop('disabled', !festivalEnabled);
+
+        const pfEnabled = $('#benifitIsProvidantFundEnabled').is(':checked');
+        $('#benifitProvidantFundEmployeePercentage').prop('disabled', !pfEnabled);
+        $('#benifitProvidantFundOrganizationPercentage').prop('disabled', !pfEnabled);
+        $('#benifitServiceYearID').prop('disabled', !pfEnabled);
+    }
+
+
+
+    //#endregion
+
+    //#region Allow info
+    function PopulateAllowanceData(employee) {
+        console.log('Employee Allowance data:', employee);
+
+        if (!employee) return;
+
+        $('#allowMobileAllowance').val(employee.mobileAllowance || '');
+        $('#allowInternetAllowance').val(employee.internetAllowance || '');
+
+        if (employee.mobileAllowanceEffectiveFromStr) {
+            $('#allowMobileAllowanceEffectiveFromStr').val(employee.mobileAllowanceEffectiveFromStr);
+        }
+
+        if (employee.internetAllowanceEffectiveFromStr) {
+            $('#allowInternetAllowanceEffectiveFromStr').val(employee.internetAllowanceEffectiveFromStr);
+        }
+
+
+        $('#allowIsMobileInternetAllowanceEnabled').prop('checked', employee.isMobileAllowanceEnabled || false);
+        $('#allowIsInternetAllowanceEnabled').prop('checked', employee.isInternetAllowanceEnabled || false);
+        $('#allowIsHouseRentAllowancePercentageEnabled').prop('checked', employee.isHouseRentAllowancePercentageEnabled || false);
+        $('#allowIsMedicalAllowancePercentageEnabled').prop('checked', employee.isMedicalAllowancePercentageEnabled || false);
+        $('#allowIsConveyanceAllowancePercentageEnabled').prop('checked', employee.isConveyanceAllowancePercentageEnabled || false);
+
+        $('#allowIsEmployeeAllowanceEnabled').prop('checked', employee.isEmployeeAllowanceEnabled || false).trigger('change');
+
+
+        choiceManager.setChoiceValue('allowHouseRentAllowancePercentage', employee.houseRentAllowancePercentage || '');
+        choiceManager.setChoiceValue('allowMedicalAllowancePercentage', employee.medicalAllowancePercentage || '');
+        choiceManager.setChoiceValue('allowConveyanceAllowancePercentage', employee.conveyanceAllowancePercentage || '');
+
+
+
+        toggleAllowanceFields();
+    }
+
+
+    function toggleAllowanceFields() {
+        const mobileEnabled = $('#allowIsMobileInternetAllowanceEnabled').is(':checked');
+        $('#allowMobileAllowance').prop('disabled', !mobileEnabled);
+        $('#allowMobileAllowanceEffectiveFromStr').prop('disabled', !mobileEnabled);
+
+        const internetEnabled = $('#allowIsInternetAllowanceEnabled').is(':checked');
+        $('#allowInternetAllowance').prop('disabled', !internetEnabled);
+        $('#allowInternetAllowanceEffectiveFromStr').prop('disabled', !internetEnabled);
+
+        const houseRentEnabled = $('#allowIsHouseRentAllowancePercentageEnabled').is(':checked');
+        $('#allowHouseRentAllowancePercentage').prop('disabled', !houseRentEnabled);
+
+        const medicalEnabled = $('#allowIsMedicalAllowancePercentageEnabled').is(':checked');
+        $('#allowMedicalAllowancePercentage').prop('disabled', !medicalEnabled);
+
+        const conveyanceEnabled = $('#allowIsConveyanceAllowancePercentageEnabled').is(':checked');
+        $('#allowConveyanceAllowancePercentage').prop('disabled', !conveyanceEnabled);
+    }
+
+
+    //#endregion
+
+    
+   
+    
     // Call this after data is fetched:
     function initializeContactEditDeleteListeners() {
         $(document).on('click', '.editContactBtn', function () {
@@ -659,40 +1293,8 @@
     }
 
 
-    function PopulateEducationalData(employee) {
-        console.log('Employee Educational data:', employee);
 
-        // Clear the existing table rows first
-        $('#educationalTable tbody').empty();
-
-        if (employee && employee.length > 0) {
-            employee.forEach(function (edu, index) {
-                var row = `
-                <tr>
-                    <td>${edu.degreeID ?? ''}</td>
-                    <td>${edu.majorSubject ?? ''}</td>
-                    <td>${edu.institutionName ?? ''}</td>
-                    <td>${(edu.resultTypeID ?? '').replace(/\r\n/g, '').trim()}</td>
-                    <td>${edu.passingYearID ?? ''}</td>
-                    <td>${edu.yearDuration ?? ''}</td>
-                    <td>${edu.achievement ?? ''}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary editEducationBtn" data-id="${edu.employeeEducationalInfoID}">Edit</button>
-                        <button class="btn btn-sm btn-danger deleteEducationBtn" data-id="${edu.employeeEducationalInfoID}">Delete</button>
-                    </td>
-                </tr>
-            `;
-                $('#educationalTable tbody').append(row);
-            });
-        } else {
-            var emptyRow = `
-            <tr>
-                <td colspan="8" class="text-center">No educational records found.</td>
-            </tr>
-        `;
-            $('#educationalTable tbody').append(emptyRow);
-        }
-    }
+     
 
     $(document).on('click', '.editEducationBtn', function () {
         var id = $(this).data('id');
@@ -718,33 +1320,7 @@
 
 
 
-    // Populate Training Data Table
-    function PopulateTrainingData(employeeTrainingList) {
-        console.log('Employee Training data:', employeeTrainingList);
-
-        const tbody = $("#employeeTrainingTable tbody");
-        tbody.empty(); // Clear table before adding rows
-
-        employeeTrainingList.forEach(item => {
-            const row = `
-            <tr>
-                <td>${item.tranningTitle || ''}</td>
-                <td>${item.topicCovered || ''}</td>
-                <td>${item.instituteName || ''}</td>
-                <td>${item.countryID || ''}</td>
-                <td>${item.locationName || ''}</td>
-                <td>${item.trainingYearID || ''}</td>
-                <td>${item.yearDuration || ''}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary me-2" onclick='editTraining(${JSON.stringify(item)})'>Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick='deleteTraining(${item.employeeTranningInfoID})'>Delete</button>
-                </td>
-            </tr>
-        `;
-            tbody.append(row);
-        });
-    }
-
+  
     // Edit Training Record
     function editTraining(item) {
         $("#trnTranningTitle").val(item.tranningTitle);
@@ -829,32 +1405,7 @@
         });
     }
 
-    // Function to populate family data into the table
-    function PopulateFamilyData(employee) {
-        console.log('Employee Family data:', employee);
-
-        const tbody = $("#employeeFamilyTable tbody");
-        tbody.empty(); // Clear existing rows
-
-        employee.forEach(item => {
-            const row = `
-            <tr>
-                <td>${item.fullName || ''}</td>
-                <td>${item.relationToEmployee || ''}</td>
-                <td>${item.occupation || ''}</td>
-                <td>${item.contactNumber || ''}</td>
-                <td>${item.email || ''}</td>
-                <td>${item.address || ''}</td>
-                <td class="align-middle text-end">
-                    <button class="btn btn-sm btn-primary me-2" onclick='editFamily(${JSON.stringify(item)})'>Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick='deleteFamily(${item.employeeFamilyInfoID})'>Delete</button>
-                </td>
-            </tr>
-        `;
-            tbody.append(row);
-        });
-    }
-
+  
     // Edit function to populate the form for editing
     function editFamily(item) {
         $("#familyFullName").val(item.fullName);
@@ -938,154 +1489,7 @@
 
 
     
-    
-    function PopulateSalaryData(employee) {
-        console.log('Employee Salary data:', employee);
-
-        if (!employee) return;
-
-        
-        $('#salaryBankName').val(employee.bankName || '');
-        $('#salaryBranchName').val(employee.branchName || '');
-        $('#salaryAddress').val(employee.address || '');
-        $('#salaryAccountName').val(employee.accountName || '');
-        $('#salaryAccountNo').val(employee.accountNo || '');
-        $('#salaryATMCardNo').val(employee.atmCardNo || '');
-        $('#salaryRoutingNo').val(employee.routingNo || '');
-        $('#salarySWIFTCode').val(employee.swiftCode || '');
-        $('#salaryIFSCCode').val(employee.ifscCode || '');
-        $('#salarybKashAccountNo').val(employee.bKashAccountNo || '');
-        $('#salaryRoketAccountNo').val(employee.roketAccountNo || '');
-        $('#salaryNagodAccountNo').val(employee.nagodAccountNo || '');
-
-       
-        $('#salaryGradeID').val(employee.gradeID || '').trigger('change');
-        $('#salarySalary').val(employee.salary || '');
-        $('#salaryCurrencyID').val(employee.currencyID || '').trigger('change');
-        $('#salaryPaymenPeriodTypeID').val(employee.paymenPeriodTypeID || '').trigger('change');
-
-       
-        if (employee.paymentModeIds) {
-            const paymentModes = Array.isArray(employee.paymentModeIds)
-                ? employee.paymentModeIds
-                : employee.paymentModeIds.split(',');
-            $('#salaryPaymentModeIds').val(paymentModes).trigger('change');
-
-            
-            if (paymentModes.length > 1) {
-                $('#multyPayment').show();
-                $('#salaryPrimaryPaymentModeId').val(employee.primaryPaymentModeId || '').trigger('change');
-                $('#salaryPrimaryPaymentPercent').val(employee.primaryPaymentPercent || '');
-                $('#salarySecondaryPaymentModeId').val(employee.secondaryPaymentModeId || '').trigger('change');
-            } else {
-                $('#multyPayment').hide();
-            }
-        }
-
-       
-        $('.choiceDD').trigger('change');
-    }
-
-    
-    function PopulateBenefitData(employee) {
-        console.log('Employee Benefit data:', employee);
-
-        if (!employee) return;
-
-       
-        $('#benifitIsBenifitEnabled').prop('checked', employee.isBenifitEnabled || false).trigger('change');
-
-        $('#benifitIsHealthInsuranceEnabled').prop('checked', employee.isHealthInsuranceEnabled || false);
-        $('#benifitHealthInsurance').val(employee.healthInsurance || '');
-
-        $('#benifitIsPerformanceBonusEnabled').prop('checked', employee.isPerformanceBonusEnabled || false);
-        $('#benifitPerformanceBonus').val(employee.performanceBonus || '');
-
-        $('#benifitIsYearlyEndBonusTypeIDEnabled').prop('checked', employee.isYearlyEndBonusTypeIDEnabled || false);
-        $('#benifitYearlyEndBonusTypeID').val(employee.yearlyEndBonusTypeID || '').trigger('change');
-
-        $('#benifitIsFastivalBonusPercentageEnabled').prop('checked', employee.isFastivalBonusPercentageEnabled || false);
-        $('#benifitFastivalBonusPercentage').val(employee.fastivalBonusPercentage || '').trigger('change');
-
-        $('#benifitIsProvidantFundEnabled').prop('checked', employee.isProvidantFundEnabled || false);
-        $('#benifitProvidantFundEmployeePercentage').val(employee.providantFundEmployeePercentage || '').trigger('change');
-        $('#benifitProvidantFundOrganizationPercentage').val(employee.providantFundOrganizationPercentage || '').trigger('change');
-
-        $('#benifitServiceYearID').val(employee.serviceYearID || '').trigger('change');
-
-        toggleBenefitFields();
-    }
-
-    function PopulateAllowanceData(employee) {
-        console.log('Employee Allowance data:', employee);
-
-        if (!employee) return;
-
-        $('#allowIsEmployeeAllowanceEnabled').prop('checked', employee.isEmployeeAllowanceEnabled || false).trigger('change');
-
-        $('#allowIsMobileInternetAllowanceEnabled').prop('checked', employee.isMobileAllowanceEnabled || false);
-        $('#allowMobileAllowance').val(employee.mobileAllowance || '');
-
-        if (employee.mobileAllowanceEffectiveFromStr) {
-            $('#allowMobileAllowanceEffectiveFromStr').val(employee.mobileAllowanceEffectiveFromStr);
-        }
-
-        $('#allowIsInternetAllowanceEnabled').prop('checked', employee.isInternetAllowanceEnabled || false);
-        $('#allowInternetAllowance').val(employee.internetAllowance || '');
-
-        if (employee.internetAllowanceEffectiveFromStr) {
-            $('#allowInternetAllowanceEffectiveFromStr').val(employee.internetAllowanceEffectiveFromStr);
-        }
-
-        $('#allowIsHouseRentAllowancePercentageEnabled').prop('checked', employee.isHouseRentAllowancePercentageEnabled || false);
-        $('#allowHouseRentAllowancePercentage').val(employee.houseRentAllowancePercentage || '').trigger('change');
-
-        $('#allowIsMedicalAllowancePercentageEnabled').prop('checked', employee.isMedicalAllowancePercentageEnabled || false);
-        $('#allowMedicalAllowancePercentage').val(employee.medicalAllowancePercentage || '').trigger('change');
-
-        $('#allowIsConveyanceAllowancePercentageEnabled').prop('checked', employee.isConveyanceAllowancePercentageEnabled || false);
-        $('#allowConveyanceAllowancePercentage').val(employee.conveyanceAllowancePercentage || '').trigger('change');
-
-        toggleAllowanceFields();
-    }
-
-    function toggleBenefitFields() {
-        const healthEnabled = $('#benifitIsHealthInsuranceEnabled').is(':checked');
-        $('#benifitHealthInsurance').prop('disabled', !healthEnabled);
-
-        const performanceEnabled = $('#benifitIsPerformanceBonusEnabled').is(':checked');
-        $('#benifitPerformanceBonus').prop('disabled', !performanceEnabled);
-
-        const yearlyBonusEnabled = $('#benifitIsYearlyEndBonusTypeIDEnabled').is(':checked');
-        $('#benifitYearlyEndBonusTypeID').prop('disabled', !yearlyBonusEnabled);
-
-        const festivalEnabled = $('#benifitIsFastivalBonusPercentageEnabled').is(':checked');
-        $('#benifitFastivalBonusPercentage').prop('disabled', !festivalEnabled);
-
-        const pfEnabled = $('#benifitIsProvidantFundEnabled').is(':checked');
-        $('#benifitProvidantFundEmployeePercentage').prop('disabled', !pfEnabled);
-        $('#benifitProvidantFundOrganizationPercentage').prop('disabled', !pfEnabled);
-        $('#benifitServiceYearID').prop('disabled', !pfEnabled);
-    }
-
-    function toggleAllowanceFields() {
-        const mobileEnabled = $('#allowIsMobileInternetAllowanceEnabled').is(':checked');
-        $('#allowMobileAllowance').prop('disabled', !mobileEnabled);
-        $('#allowMobileAllowanceEffectiveFromStr').prop('disabled', !mobileEnabled);
-
-        const internetEnabled = $('#allowIsInternetAllowanceEnabled').is(':checked');
-        $('#allowInternetAllowance').prop('disabled', !internetEnabled);
-        $('#allowInternetAllowanceEffectiveFromStr').prop('disabled', !internetEnabled);
-
-        const houseRentEnabled = $('#allowIsHouseRentAllowancePercentageEnabled').is(':checked');
-        $('#allowHouseRentAllowancePercentage').prop('disabled', !houseRentEnabled);
-
-        const medicalEnabled = $('#allowIsMedicalAllowancePercentageEnabled').is(':checked');
-        $('#allowMedicalAllowancePercentage').prop('disabled', !medicalEnabled);
-
-        const conveyanceEnabled = $('#allowIsConveyanceAllowancePercentageEnabled').is(':checked');
-        $('#allowConveyanceAllowancePercentage').prop('disabled', !conveyanceEnabled);
-    }
+  
 
     $('#benifitIsHealthInsuranceEnabled').on('change', toggleBenefitFields);
     $('#benifitIsPerformanceBonusEnabled').on('change', toggleBenefitFields);

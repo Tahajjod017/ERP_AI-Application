@@ -95,6 +95,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmailSettings]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[EmployeeAdditionalInfo]",
          "ObjectType": 0
       },
@@ -203,6 +207,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[OTPSettings]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[PassingYears]",
          "ObjectType": 0
       },
@@ -248,6 +256,10 @@
       },
       {
          "Name": "[dbo].[Shifts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SMSSettings]",
          "ObjectType": 0
       },
       {
