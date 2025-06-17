@@ -116,7 +116,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         #endregion]
 
-        #region LeavePolicyConfig
+        #region Save LeavePolicyConfig
         public async Task<IActionResult> LeavePolicyConfig([FromBody]AddLeavePolicyConfigarationVM entityVM)
         {
             if (!ModelState.IsValid)
@@ -130,7 +130,28 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                     Errors = errorMessages
                 });
             }
-            var data = await leaveSettingsService.AddLeavepolicyAsync(entityVM);
+            if (entityVM.LeavePolicyConfigurationID == 0)
+            {
+                var data = await leaveSettingsService.AddLeavepolicyAsync(entityVM);
+                return Json(data);
+            }
+            else
+            {
+                var data = await leaveSettingsService.UpdateLeavepolicyAsync(entityVM);
+                return Json(data);
+            }
+
+        }
+        #endregion
+        #region Get Data Leave Policy
+        [Route("LeaveSettingsRoute/GetDataLeavePolicy")]
+        public async Task<IActionResult> GetDataLeavePolicy()
+        {
+            var data =await leaveSettingsService.GetDataLeavePolicy();
+            if (data == null)
+            {
+                return BadRequest();
+            }
             return Json(data);
         }
         #endregion

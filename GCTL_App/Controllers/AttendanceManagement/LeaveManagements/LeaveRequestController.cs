@@ -36,9 +36,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             };
 
 
-            ViewBag.LeaveTypeDD = new SelectList(leaveType.All(), "LeaveTypeID", "LeaveTypeName");
-            ViewBag.StatusDD = new SelectList(status.All(), "StatusID", "StatusName");
-            var employeeList = employee.All().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
+            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
+            ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
+            var employeeList = employee.AllActive().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
 
             if (employeeList.Any())
             {
