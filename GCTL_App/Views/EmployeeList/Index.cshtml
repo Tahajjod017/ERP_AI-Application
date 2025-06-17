@@ -93,6 +93,9 @@
 
                                                 <p class="border-bottom">@Html.SmartLocalize("Basic Information")</p>
 
+                                                <input type="hidden" id="personalEmployeeID" />
+
+
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating mb-4">
                                                         <input class="form-control" id="personalEmployeeCode"  type="text" placeholder="@Html.SmartLocalize("Enter Employee Code")" required />
@@ -369,6 +372,9 @@
                                             <div class="col-12 row flex gy-3 pb-3">
 
                                                 <p class="border-bottom">@Html.SmartLocalize("Office Information")</p>
+
+												<input type="hidden" id="officialEmployeeOfficeID" />
+
                                                 <div class="col-sm-12 col-md-4">
 
 
@@ -517,8 +523,8 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input id="officialAppointmentLetterIssueDate" class="form-control datetimepicker" id="floatingInputAppointmentDate" type="text" placeholder="@Html.SmartLocalize("Appointment Letter Date")" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" id="officialAppointmentLetterIssueDate">@Html.SmartLocalize("Appointment Letter Issue Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input id="officialAppointmentLetterIssueDate" class="form-control datetimepicker"  type="text" placeholder="@Html.SmartLocalize("Appointment Letter Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="officialAppointmentLetterIssueDate">@Html.SmartLocalize("Appointment Letter Issue Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -526,8 +532,8 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input id="officialJoiningDate" class="form-control datetimepicker" id="floatingInputJoiningDate" type="text" placeholder="@Html.SmartLocalize("Joining Date")" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" id="officialJoiningDate">@Html.SmartLocalize("Joining Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input id="officialJoiningDate" class="form-control datetimepicker"  type="text" placeholder="@Html.SmartLocalize("Joining Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="officialJoiningDate">@Html.SmartLocalize("Joining Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -535,8 +541,8 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input id="officialProvisionPeriodStartDate" class="form-control datetimepicker" id="floatingInputProbationStartDate" type="text" placeholder="@Html.SmartLocalize("Probation Period Start Date")" data-options='{"disableMobile":true}' />
-                                                            <label class="ps-6" id="officialProvisionPeriodStartDate">@Html.SmartLocalize("Probation Period Start Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                            <input id="officialProvisionPeriodStartDate" class="form-control datetimepicker"  type="text" placeholder="@Html.SmartLocalize("Probation Period Start Date")" data-options='{"disableMobile":true}' />
+                                                            <label class="ps-6" for="officialProvisionPeriodStartDate">@Html.SmartLocalize("Probation Period Start Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -560,7 +566,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input id="officialConfirmationDate" class="form-control datetimepicker" id="floatingInputConfirmationDate" type="text" placeholder="@Html.SmartLocalize("Confirmation Date")" data-options='{"disableMobile":true}' />
+                                                            <input id="officialConfirmationDate" class="form-control datetimepicker"  type="text" placeholder="@Html.SmartLocalize("Confirmation Date")" data-options='{"disableMobile":true}' />
                                                             <label class="ps-6" id="officialConfirmationDate">@Html.SmartLocalize("Confirmation Date")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
                                                     </div>
@@ -1716,7 +1722,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addNationalityModalLabel">Add New Nationality</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-coreui-toggle="modal" replace of this data-bs-toggle="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -1725,7 +1731,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-coreui-toggle="modal" replace of this data-bs-toggle="modal" >Cancel</button>
                 <button type="button" class="btn btn-primary" id="confirmAddNationalityBtn">Add</button>
             </div>
         </div>

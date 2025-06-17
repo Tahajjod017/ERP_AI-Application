@@ -228,6 +228,36 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+
+        #region Form Edit page
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeOfficialPostViewModel model)
+        {
+            return Ok(model);
+
+            //var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
+
+            //if (!chkDuplicate.Success)
+            //{
+            //    return Ok(chkDuplicate);
+            //}
+
+            //var result = await _employeeOfficialService.UpdateEmployeeOfficialInfo(model);
+
+            //if (!result.Success)
+            //{
+            //    return Ok(result);
+            //}
+
+            //return Ok(result);
+
+        }
+
+        #endregion
+
+
+
         #region GetEmployeeDetails
 
         [HttpGet]

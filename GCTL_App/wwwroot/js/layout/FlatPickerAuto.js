@@ -28,7 +28,14 @@ const flatpickrHelper = {
     },
 
     getDate: function (elementId) {
-        const element = document.getElementById(elementId);
+
+       
+
+        // Normalize the selector
+        const normalizedId = elementId.startsWith('#') ? elementId.substring(1) : elementId;
+        const element = document.getElementById(normalizedId);
+
+       // const element = document.getElementById(elementId);
         if (element && element._flatpickr) {
             return element._flatpickr.input.value; // returns formatted date
         } else if (element) {
