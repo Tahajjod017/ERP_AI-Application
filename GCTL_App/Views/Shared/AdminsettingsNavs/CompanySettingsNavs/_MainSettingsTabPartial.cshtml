@@ -1,0 +1,21 @@
+﻿@model string
+<div class="col-12 col-md-12 col-lg-12 ">
+    <ul class="nav nav-underline fs-9" id="mainTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link @(Model == "CompanySetting" ? "active" : "")"
+               href="@Url.Action("Index", "CompanySettings")"
+               role="tab"
+               aria-selected="@(Model == "CompanySetting" ? "true" : "false")">
+                Company Setting
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model == "GeneralSetting" ? "active" : "")"
+               href="@Url.Action("Index", "LocalizationSettings")"
+               role="tab"
+               aria-selected="@(Model == "GeneralSetting" ? "true" : "false")">
+                General Setting
+            </a>
+        </li>
+    </ul>
+</div>
