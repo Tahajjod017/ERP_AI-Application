@@ -15,12 +15,14 @@ namespace GCTL_App.Controllers
 
         protected readonly IUserProfileService _userProfileService;
         protected readonly ITranslateService _translateService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private int _smartPageCode = 0;
 
         protected BaseController(ITranslateService translateService, IUserProfileService userProfileService)
         {
             _translateService = translateService;
             _userProfileService = userProfileService;
+            _httpContextAccessor = new HttpContextAccessor(); // Instantiated internally
         }
 
         protected void SetSmartPageCode(int code)
@@ -49,8 +51,12 @@ namespace GCTL_App.Controllers
                 }
             }
 
+            var url = _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/";
+            
+
+
             ViewData["FullName"] = fullName;
-            ViewData["ProfilePicturePath"] = profilePicturePath;
+            ViewData["ProfilePicturePath"] = url  + profilePicturePath;
             ViewData["IsCustomPicture"] = !string.IsNullOrEmpty(profilePicturePath)
                              && !profilePicturePath.EndsWith("default.webp", StringComparison.OrdinalIgnoreCase)
                              && !profilePicturePath.EndsWith("No_image_available.svg.png", StringComparison.OrdinalIgnoreCase);
@@ -60,6 +66,14 @@ namespace GCTL_App.Controllers
         {
             SetUserProfile();
             base.OnActionExecuting(context);
+        }
+
+        public IActionResult GetLocalHost()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            string url = $"{request.Scheme}://{request.Host}";
+
+            return Ok(new { LocalHostUrl = url });
         }
 
     }
