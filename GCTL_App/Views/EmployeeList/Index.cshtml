@@ -628,6 +628,9 @@
                                                         <div class="col-12 row flex gy-3">
                                                             <p class="border-bottom mt-6">@Html.SmartLocalize("Salary Account Information")</p>
 
+                                                            <input id="salaryEmployeeSalarySettingsID" type="hidden" />
+                                                            <input id="salaryEmployeePersonalId" type="hidden" />
+
                                                             <div class="col-sm-12 col-md-4">
                                                                 <div class="form-floating">
                                                                     <input id="salaryBankName" class="form-control" type="text" placeholder="@Html.SmartLocalize("Bank Name")" />
@@ -817,12 +820,16 @@
                                                     <div class="d-flex justify-content-center mt-2 ">
 
                                                         <div class="col-12 row flex gy-3">
+
+                                                            <input id="benifitEmployeeBaseBenefitID" type="hidden" />
+                                                            <input id="benifitEmployeePersonalId" type="hidden" />
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Add Employee Benefits")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsBenifitEnabled" id="empBeniftSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsBenifitEnabled" >
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -850,7 +857,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
                                                                        <label for="benifitHealthInsurance">@Html.SmartLocalize("Health Insurance")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsHealthInsuranceEnabled" id="healthInsuranceSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsHealthInsuranceEnabled" >
                                                                         </div>
                                                                     </div>
                                                                     <input id="benifitHealthInsurance" class="form-control" type="text" placeholder="@Html.SmartLocalize("Ex: 500 tk Per Month")" />
@@ -861,7 +868,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
                                                                        <label for="benifitPerformanceBonus">@Html.SmartLocalize("Performance Bonus")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsPerformanceBonusEnabled" id="performanceBonusSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsPerformanceBonusEnabled" >
                                                                         </div>
                                                                     </div>
                                                                     <input id="benifitPerformanceBonus" class="form-control" type="text" placeholder="@Html.SmartLocalize("Ex: 10,000 tk Yearly")" />
@@ -872,7 +879,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
                                                                        <label for="benifitYearlyEndBonusTypeID">@Html.SmartLocalize("Yearly End Bonus")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsYearlyEndBonusTypeIDEnabled" id="yearlyEndBonusSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsYearlyEndBonusTypeIDEnabled" >
                                                                         </div>
                                                                     </div>
                                                                     <select class="form-select choiceDD" id="benifitYearlyEndBonusTypeID" asp-items="@ViewBag.YearlyEndBonusTypeDD as SelectList">
@@ -889,7 +896,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Festival Bonus")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsFastivalBonusPercentageEnabled" id="festivalBonusSwitch">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsFastivalBonusPercentageEnabled" >
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -914,7 +921,7 @@
                                                                     <div class="content-head d-flex justify-content-between border-bottom">
                                                                         <h5>@Html.SmartLocalize("Provident Fund")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsProvidantFundEnabled" id="providentFundSwitch1">
+                                                                            <input class="form-check-input" type="checkbox" role="switch" id="benifitIsProvidantFundEnabled" >
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -975,12 +982,17 @@
                                                     <div class="d-flex justify-content-center mt-2 ">
 
                                                         <div class="col-12 row flex gy-3">
+
+                                                            <input id="allowEmployeeBaseAllowanceID" type="hidden" />
+                                                            <input id="allowEmployeePersonalId" type="hidden" />
+
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Add Employee Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" id="allowIsEmployeeAllowanceEnabled" type="checkbox" role="switch" id="allowanceEnabled" />
+                                                                            <input class="form-check-input" id="allowIsEmployeeAllowanceEnabled" type="checkbox" role="switch"  />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1007,7 +1019,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center">
                                                                         <label class="form-label" for="allowMobileAllowance">@Html.SmartLocalize("Mobile Allowance")</label>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" id="allowIsMobileInternetAllowanceEnabled" type="checkbox" role="switch" id="mobileAllowanceEnabled">
+                                                                            <input class="form-check-input" id="allowIsMobileInternetAllowanceEnabled" type="checkbox" role="switch" >
                                                                         </div>
                                                                     </div>
                                                                     <input class="form-control" id="allowMobileAllowance"  type="text" placeholder="Ex: 1000 tk Monthly">
@@ -1022,7 +1034,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="position-relative">
-                                                                        <input class="form-control datetimepicker" id="allowMobileAllowanceEffectiveFromStr" id="mobileAllowanceEffectiveFrom" type="text" placeholder="dd/mm/yyyy"
+                                                                        <input class="form-control datetimepicker" id="allowMobileAllowanceEffectiveFromStr"  type="text" placeholder="dd/mm/yyyy"
                                                                                data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
                                                                         <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
                                                                               style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
@@ -1050,7 +1062,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="position-relative">
-                                                                        <input class="form-control datetimepicker" id="allowInternetAllowanceEffectiveFromStr" id="internetAllowanceEffectiveFrom" type="text" placeholder="dd/mm/yyyy"
+                                                                        <input class="form-control datetimepicker" id="allowInternetAllowanceEffectiveFromStr"  type="text" placeholder="dd/mm/yyyy"
                                                                                data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
                                                                         <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
                                                                               style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
@@ -1063,7 +1075,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("House Rent Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" id="allowIsHouseRentAllowancePercentageEnabled" type="checkbox" role="switch" id="houseRentAllowanceEnabled" />
+                                                                            <input class="form-check-input" id="allowIsHouseRentAllowancePercentageEnabled" type="checkbox" role="switch"  />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1072,7 +1084,7 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                    <label for="allowHouseRentAllowancePercentage">@Html.SmartLocalize("House Rent Allowance Rate")</label>
-                                                                    <select class="form-select choiceDD" id="allowHouseRentAllowancePercentage" id="HouseRentAllowancePercentage" asp-items="@ViewBag.HouseRentAllowanceDD as SelectList">
+                                                                    <select class="form-select choiceDD" id="allowHouseRentAllowancePercentage"  asp-items="@ViewBag.HouseRentAllowanceDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
                                                                     </select>
                                                                 </div>
@@ -1083,7 +1095,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Medical Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" id="allowIsMedicalAllowancePercentageEnabled" type="checkbox" role="switch" id="medicalAllowanceEnabled" />
+                                                                            <input class="form-check-input" id="allowIsMedicalAllowancePercentageEnabled" type="checkbox" role="switch"  />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1103,7 +1115,7 @@
                                                                     <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                                                         <h5>@Html.SmartLocalize("Conveyance Allowance")</h5>
                                                                         <div class="form-check form-switch">
-                                                                            <input class="form-check-input" id="allowIsConveyanceAllowancePercentageEnabled" type="checkbox" role="switch" id="conveyanceAllowanceEnabled" />
+                                                                            <input class="form-check-input" id="allowIsConveyanceAllowancePercentageEnabled" type="checkbox" role="switch" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1112,7 +1124,7 @@
                                                             <div class="col-lg-6 col-md-6 col-sm-12">
                                                                 <div class="mb-3">
                                                                    <label for="allowConveyanceAllowancePercentage">@Html.SmartLocalize("Conveyance Allowance Rate")</label>
-                                                                    <select class="form-select choiceDD" id="allowConveyanceAllowancePercentage" id="ConveyanceAllowancePercentage" asp-items="@ViewBag.ConveyanceAllowanceDD as SelectList">
+                                                                    <select class="form-select choiceDD" id="allowConveyanceAllowancePercentage"  asp-items="@ViewBag.ConveyanceAllowanceDD as SelectList">
                                                                         <option value="">@Html.SmartLocalize("Select %")</option>
                                                                     </select>
                                                                 </div>
