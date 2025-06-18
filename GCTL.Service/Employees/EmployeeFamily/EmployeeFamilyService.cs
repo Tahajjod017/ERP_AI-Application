@@ -33,7 +33,8 @@ namespace GCTL.Service.Employees.EmployeeFamily
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee family information deleted successfully."
+                    Message = "Employee family information deleted successfully.",
+                    Data = existingInfo.EmployeeID
                 };
             }
             else

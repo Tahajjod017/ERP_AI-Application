@@ -234,23 +234,23 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task<IActionResult> SubmitFromEdit(EmployeeOfficialPostViewModel model)
         {
-            return Ok(model);
+            //return Ok(model);
 
-            //var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
+            var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
 
-            //if (!chkDuplicate.Success)
-            //{
-            //    return Ok(chkDuplicate);
-            //}
+            if (!chkDuplicate.Success)
+            {
+                return Ok(chkDuplicate);
+            }
 
-            //var result = await _employeeOfficialService.UpdateEmployeeOfficialInfo(model);
+            var result = await _employeeOfficialService.UpdateEmployeeOfficialInfo(model);
 
-            //if (!result.Success)
-            //{
-            //    return Ok(result);
-            //}
+            if (!result.Success)
+            {
+                return Ok(result);
+            }
 
-            //return Ok(result);
+            return Ok(result);
 
         }
 

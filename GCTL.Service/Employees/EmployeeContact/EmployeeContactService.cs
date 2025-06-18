@@ -33,7 +33,9 @@ namespace GCTL.Service.Employees.EmployeeContact
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee emergency contact deleted successfully."
+                    Message = "Employee emergency contact deleted successfully.",
+                    Data = existingInfo.EmployeeID
+
                 };
             }
             else

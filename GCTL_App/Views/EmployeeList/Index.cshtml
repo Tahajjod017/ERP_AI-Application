@@ -1151,6 +1151,10 @@
                                             <div class="col-12 row flex gy-3">
                                                 <p class="border-bottom">@Html.SmartLocalize("Passport Information")</p>
 
+                                                <input id="additionalEmployeeAdditionalInfoID" type="hidden"  />
+                                                <input id="additionalEmployeePersonalID" type="hidden"  />
+
+
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
                                                         <input id="additionalPasportName" class="form-control " type="text" placeholder="@Html.SmartLocalize("Enter Passport Name")" />
@@ -1175,7 +1179,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input id="additionalPasportIssueDate" class="form-control datetimepicker dateAuto" type="text" placeholder="@Html.SmartLocalize("Enter Date Issued")" data-options='{"disableMobile":true, "dateFormat":"d-m-Y"}' />
+                                                            <input id="additionalPasportIssueDate" class="form-control datetimepicker dateAuto" type="text" placeholder="@Html.SmartLocalize("Enter Date Issued")" data-options='{"disableMobile":true } ' />
                                                             <label class="ps-6" id="additionalPasportIssueDate">@Html.SmartLocalize("Date Issued")</label>
                                                             <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
@@ -1185,7 +1189,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="flatpickr-input-container">
                                                         <div class="form-floating">
-                                                            <input id="additionalPasportExpireDate" class="form-control datetimepicker dateAuto" type="text" placeholder="@Html.SmartLocalize("Enter Passport Expiry Date")" data-options='{"disableMobile":true, "dateFormat":"d-m-Y"}' />
+                                                            <input id="additionalPasportExpireDate" class="form-control datetimepicker dateAuto" type="text" placeholder="@Html.SmartLocalize("Enter Passport Expiry Date")" data-options='{"disableMobile":true}' />
                                                             <label class="ps-6" id="additionalPasportExpireDate">@Html.SmartLocalize("Passport Expiry Date")</label>
                                                             <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                                         </div>
@@ -1294,7 +1298,7 @@
                                                             <button class="btn btn-phoenix-primary px-5">@Html.SmartLocalize("Cancel")</button>
                                                         </div>
                                                         <div class="col-auto">
-                                                            <button class="btn btn-primary px-5 px-sm-15" id="additionalSubmitBtn">@Html.SmartLocalize("Save")</button>
+                                                            <button type="button" class="btn btn-primary px-5 px-sm-15" id="additionalSubmitBtn">@Html.SmartLocalize("Save")</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1315,6 +1319,10 @@
 
                                         <div class="d-flex justify-content-center my-8 ">
                                             <div class="col-12 row flex gy-3 ">
+
+                                                <input id="eduEmployeeEducationalInfoID" type="hidden" />
+                                                <input id="eduEmployeePersonalId" type="hidden" />
+
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select">
                                                        <label for="eduEducationLevelID">@Html.SmartLocalize("Level of Education")</label>
@@ -1427,6 +1435,10 @@
 
                                         <div class="d-flex justify-content-center my-8">
                                             <div class="col-12 row flex gy-3">
+
+                                                <input id="trnEmployeeTranningInfoID" type="hidden" />
+                                                <input id="trnEmployeePersonalId" type="hidden" />
+
                                                 <div class="col-sm-6 col-md-6">
                                                     <div class="form-floating">
                                                         <input id="trnTranningTitle" class="form-control" type="text" placeholder="@Html.SmartLocalize("Training Title")" required />
@@ -1521,6 +1533,9 @@
                                         <div class="d-flex justify-content-center my-8 ">
 
                                             <div class="col-12 row flex gy-3 ">
+
+                                                <input id="familyEmployeeFamilyInfoID" type="hidden" />
+                                                <input id="familyEmployeePersonalId" type="hidden" />
 
                                                 <div class="col-sm-6 col-md-6">
                                                     <div class="form-floating">
@@ -1652,6 +1667,9 @@
                                         <div class="d-flex justify-content-center my-8">
                                             <div class="col-12 row flex gy-3">
 
+                                                <input id="emergencyEmployeeEmeContactID" type="hidden" />
+                                                <input id="emergencyEmployeePersonalId" type="hidden" />
+
                                                 <div class="col-sm-6 col-md-6">
                                                     <div class="form-floating">
                                                         <input id="emergencyContactName" class="form-control req" id="ContactName" type="text" placeholder="@Html.SmartLocalize("Name")" required />
@@ -1738,6 +1756,143 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to delete?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 
+<div class="modal fade" id="confirmEducationDeleteModal" tabindex="-1" aria-labelledby="confirmEducationDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmEducationDeleteModalLabel">@Html.SmartLocalize("Confirm Deletion")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.SmartLocalize("Are you sure you want to delete this education record?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Cancel")</button>
+                <button type="button" class="btn btn-danger" id="confirmEducationDeleteBtn">@Html.SmartLocalize("Delete")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="confirmTrainingDeleteModal" tabindex="-1" aria-labelledby="confirmTrainingDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmTrainingDeleteModalLabel">@Html.SmartLocalize("Confirm Deletion")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.SmartLocalize("Are you sure you want to delete this training record?")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Cancel")</button>
+                <button type="button" class="btn btn-danger" id="confirmTrainingDeleteBtn">@Html.SmartLocalize("Delete")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+-->
+
+<div class="modal fade" id="confirmDeleteModalEdu" tabindex="-1" aria-labelledby="confirmDeleteModalLabelEdu" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to delete?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtnEdu">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModalTrn" tabindex="-1" aria-labelledby="confirmDeleteModalLabelTrn" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to delete?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtnTrn">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="confirmDeleteModalFam" tabindex="-1" aria-labelledby="confirmDeleteModalLabelFam" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to delete?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtnFam">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="confirmDeleteModalCon" tabindex="-1" aria-labelledby="confirmDeleteModalLabelCon" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to delete?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtnCon">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -2038,6 +2193,7 @@
     }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/js/pages/employees/employeelist.js"></script>
+	<script src="~/js/pages/employees/employeevalidator.js"></script>
 
     <script>
           document.addEventListener('DOMContentLoaded', function () {
