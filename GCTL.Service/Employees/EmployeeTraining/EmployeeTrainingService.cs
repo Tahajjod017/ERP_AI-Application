@@ -36,8 +36,8 @@ namespace GCTL.Service.Employees.EmployeeTraining
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee additional information deleted successfully.",
-                    // Data = existingInfo.EmployeeID
+                    Message = "Employee Training information deleted successfully.",
+                    Data = existingInfo.EmployeeID
                 };
             }
             else

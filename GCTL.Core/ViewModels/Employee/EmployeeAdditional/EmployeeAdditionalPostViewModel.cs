@@ -19,16 +19,17 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeAdditional
         public string PasportPlaceOfIssue { get; set; }
 
         public DateTime? PasportIssueDate { get; set; }
-
         public DateTime? PasportExpireDate { get; set; }
+        public DateTime? DrivingLicenceIssueDate { get; set; }
+        public DateTime? DrivingLicenceExpireDate { get; set; }
+        public DateTime? WorkPermitEffectiveDate { get; set; }
+        public DateTime? WorkPermitExpireDate { get; set; }
+        public DateTime? VisaExpireDate { get; set; }
 
         public string DrivingLicenceNo { get; set; }
 
         public int? LicenceTypeID { get; set; }
 
-        public DateTime? DrivingLicenceIssueDate { get; set; }
-
-        public DateTime? DrivingLicenceExpireDate { get; set; }
 
         public string SymbolOfVehicleClass { get; set; }
 
@@ -38,10 +39,5 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeAdditional
 
         public string WorkPermitType { get; set; }
 
-        public DateTime? WorkPermitEffectiveDate { get; set; }
-
-        public DateTime? WorkPermitExpireDate { get; set; }
-
-        public DateTime? VisaExpireDate { get; set; }
     }
 }

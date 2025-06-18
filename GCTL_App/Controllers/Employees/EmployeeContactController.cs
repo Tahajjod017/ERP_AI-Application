@@ -76,8 +76,30 @@ namespace GCTL_App.Controllers.Employees
             return Ok(res);
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeContactViewModel model)
+        {
+            var res = await _employeeContactService.SaveAsync(model);
+            var employee = await _employeeContactService.GetEmployeeContactByIdAsync(model.EmployeePersonalId);
+            res.Data = employee;
+            return Ok(res);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
+        {
+            var res = await _employeeContactService.DeleteAsync(id);
+            if (res.Success)
+            {
+                var employee = await _employeeContactService.GetEmployeeContactByIdAsync(Convert.ToInt32(res.Data));
+                res.Data = employee;
+            }
+            return Ok(res);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFromEdit(int id)
         {
             var res = await _employeeContactService.DeleteAsync(id);
             return Ok(res);

@@ -88,6 +88,15 @@ namespace GCTL_App.Controllers.Employees
             return Ok(res);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeTrainingPostViewModel model)
+        {
+            var res = await _employeeTrainingService.SaveAsync(model);
+            var employee = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(model.EmployeePersonalId);
+            res.Data = employee;
+            return Ok(res);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
@@ -95,8 +104,20 @@ namespace GCTL_App.Controllers.Employees
             var res = await _employeeTrainingService.DeleteAsync(id);
             return Ok(res);
         }
+        
+        [HttpPost]
+        public async Task<IActionResult> DeleteFromEdit(int id)
+        {
+            var res = await _employeeTrainingService.DeleteAsync(id);
+            if (res.Success)
+            {
+                var employee = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(Convert.ToInt32(res.Data));
+                res.Data = employee;
+            }
+            return Ok(res);
+        }
 
-
+        //List
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeeData(int id)

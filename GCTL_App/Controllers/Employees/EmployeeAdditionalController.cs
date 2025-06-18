@@ -16,7 +16,7 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeAdditionalController : BaseController
     {
-
+        #region CTOR
         private readonly IEmployeeAdditionalService _employeeAdditionalService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.LicenceTypes> _licenceTypesRepository;
@@ -42,6 +42,8 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
         }
+        #endregion
+
 
         public async Task<IActionResult> Index(int id)
         {
@@ -87,14 +89,19 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task<IActionResult> Index(EmployeeAdditionalPostViewModel model)
         {
-           
+            var res = await _employeeAdditionalService.SubmitAsync(model);
+            return Ok(res);
 
-          
-                var res = await _employeeAdditionalService.SubmitAsync(model);
-                return Ok(res);
-            
-          
-            
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeAdditionalPostViewModel model)
+        {
+            //return Ok(model);
+
+            var res = await _employeeAdditionalService.SubmitAsync(model);
+            return Ok(res);
+
         }
 
         public async Task<IActionResult> GetEmployeeData(int id)

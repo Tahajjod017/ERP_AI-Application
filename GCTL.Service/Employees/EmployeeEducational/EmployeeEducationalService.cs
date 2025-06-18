@@ -47,7 +47,7 @@ namespace GCTL.Service.Employees.EmployeeEducational
                 {
                     Success = true,
                     Message = "Employee Educational information deleted successfully.",
-                   // Data = existingInfo.EmployeeID
+                    Data = existingInfo.EmployeeID
                 };
             }
             else

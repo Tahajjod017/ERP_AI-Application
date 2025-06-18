@@ -40,15 +40,51 @@ function validateFields(fields) {
     clearErrors();
     let valid = true;
 
-    fields.forEach(fieldId => {
-        const value = $("#" + fieldId).val().trim();
+    //fields.forEach(fieldId => {
+    //    const value = $("#" + fieldId).val().trim();
+    //    const labelText = getLabelText(fieldId);
+
+    //    if (!value) {
+    //        showError(fieldId, labelText + " is required.");
+    //        valid = false;
+    //    }
+    //    // No custom validation functions here
+    //});
+
+    const foundFields = [];
+    const missingFields = [];
+
+
+    fields.forEach(fieldId1 => {
+        const $field = $("#" + fieldId1);
+        if ($field.length === 0) {
+            console.warn(`Element with ID '${fieldId1}' not found.`);
+            missingFields.push(fieldId1);
+
+        } else {
+
+            foundFields.push(fieldId1);
+
+        }
+    });
+
+    
+    foundFields.forEach(fieldId => {
+       
+        const $field = $("#" + fieldId);
+        if ($field.length === 0) {
+            console.warn(`Element with ID '${fieldId}' not found.`);
+            valid = false;
+            return;
+        }
+        
+        const value = $field.val().trim();
         const labelText = getLabelText(fieldId);
 
         if (!value) {
             showError(fieldId, labelText + " is required.");
             valid = false;
         }
-        // No custom validation functions here
     });
 
     return valid;

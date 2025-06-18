@@ -18,7 +18,7 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeEducationController : BaseController
     {
-
+        #region CTOR
         private readonly IEmployeeEducationalService _employeeEducationalService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.EducationLevels> _educationLevelsRepository;
@@ -49,6 +49,7 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
         }
+        #endregion
 
         public async Task< IActionResult> Index(int id)
         {
@@ -75,8 +76,9 @@ namespace GCTL_App.Controllers.Employees
                 ViewBag.Navigation = navigationModel;
             }
 
+            
 
-          
+
             var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id).Result;
 
             ViewBag.EduList = eduList;
@@ -97,13 +99,21 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task<IActionResult> Index(EmployeeEducationalPostViewModel model)
         {
-
-            
-
             var res = await _employeeEducationalService.SaveAsync(model);
             return Ok(res);
 
+        }
 
+
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeEducationalPostViewModel model)
+        {
+            var a = GetPictureURL();
+            var res = await _employeeEducationalService.SaveAsync(model);
+            var data = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(model.EmployeePersonalId);
+            res.Data = data;
+            return Ok(res);
 
         }
 
@@ -112,16 +122,27 @@ namespace GCTL_App.Controllers.Employees
         public async Task<IActionResult> Delete(int id)
         {
 
-
-
             var res = await _employeeEducationalService.DeleteAsync(id);
             return Ok(res);
 
+        } 
+        
+        [HttpPost]
+        public async Task<IActionResult> DeleteFromEdit(int id)
+        {
 
+            var res = await _employeeEducationalService.DeleteAsync(id);
+            if (res.Success)
+            {
+                var data = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(Convert.ToInt32(res.Data));
+                res.Data = data;
+
+            }
+            return Ok(res);
 
         }
 
-
+        //Return List
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeeData(int id)
@@ -132,7 +153,8 @@ namespace GCTL_App.Controllers.Employees
             return Ok(employee);
         }
 
-     
+        //Return Single
+
         [HttpGet]
         public async Task< IActionResult> GetEmployeeEduData(int id)
         {
