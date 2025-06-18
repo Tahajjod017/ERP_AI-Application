@@ -93,13 +93,34 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         {
             try
             {
-             var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder);
+             string url = "https://localhost:7086/uploads/employee/images/";
+             var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url);
                 return Json(data);
             } catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);   
                 return BadRequest(ex.Message);
              }
+        }
+        #endregion
+
+        #region Delete Leave Request
+        [Route("LeaveRequestRoute/SofteDeleteLeaveRequest")]
+        [HttpPost]
+        public async Task<IActionResult> SofteDeleteLeaveRequest(DeleteRequestVM deleteRequestVM)
+        {
+            try
+            {
+                var data = await leaveRequestService.SoftDeleteLeaveRequest(deleteRequestVM);
+                return Json(data);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new { message = ex.Message });
+               
+            }
         }
         #endregion
     }

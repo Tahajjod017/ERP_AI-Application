@@ -144,7 +144,38 @@ $(document).ready(function () {
 
     }
 
+    // Delete Soft Leave Request
 
+    //
+    $(document).on('click', '#leaveRequestDelete-singleDelBtn', function () {
+        var id = $(this).data('id');
+        
+        if (id) {
+            showDeleteModal(function () {
+                $.ajax({
+                    url: '/LeaveRequestRoute/SofteDeleteLeaveRequest',
+                    method: 'POST',
+                    data: { ids: [id] },
+                    success: function (response) {
+                    
+                        if (response.success) {
+                            toastr.success(response.message);
+                            loadTableData();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Error occurred while deleting.");
+                    }
+                });
+            });
+        } else {
+            toastr.error("Invalid action.");
+        }
+    });
+    //
+    //
 
 
 });
@@ -238,6 +269,16 @@ function getBadgeClass(status) {
     }
 }
 
+function getAvatarHtml(employee) {
+    if (employee.employeeImage && employee.employeeImage !== '')
+    {
+        return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
+    } else {
+        const initial = employee.employeeName.charAt(0).toUpperCase();
+        return `<div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="height: 100%;">${initial}</div>`;
+    }
+}
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
 
@@ -276,6 +317,11 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         ? (item.period > 1 ? 'Days' : 'Day')
                         : (item.period > 1 ? 'Hours' : 'Hour');
                     //
+                    //
+
+                    const avatar = getAvatarHtml(item);
+
+                    //
                     tableBody.append(`
                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                         
@@ -288,12 +334,12 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         
                         <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
                           <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-4">
-                              <img class="rounded-circle " src="" alt="" />
+                            <div class="avatar avatar-m avatar-bordered me-2">
+                             ${avatar}
                             </div>
                             <div class="ms-1">
-                              <h6 class="fw-bold">Faruk Hasan</h6>
-                              <span class="fs-12 fw-normal ">Admin</span>
+                              <h6 class="fw-bold">${item.employeeName}</h6>
+                              <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
                             </div>
                           </div>
                         </td>
@@ -323,16 +369,13 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                               href="#" title="Edit" data-id="${item.leaveApplicationID}"
                               class="btn btn-outline-light btn-icon me-1" 
                               data-bs-toggle="modal" 
-                              data-bs-target="#edit_leaves"
-                            >
+                              data-bs-target="#edit_leaves">
                               <i class="fas fa-edit text-black"></i>
                             </a>
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"
                               class="btn btn-outline-light btn-icon"  
-                              data-bs-toggle="modal" 
-                              data-bs-target="#delete_modal"
-                            >
+                              id="leaveRequestDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
                           </div>

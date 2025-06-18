@@ -322,34 +322,7 @@
     //
 
     function resetLeaveForm() {
-        // Clear basic inputs
-        //$('#LeaveTypeID').val('');
-        //$('#LeaveTypeName').val('');
-        //$('#Code').val('');
-        //$('#LeaveDays').val('');
-        //$('#EffectiveFrom').val('');
-        //// $('#EffectiveFromMonthYear').val('');
-        //choiceManager.clearChoice('EffectiveFromMonthYear');
-        //$('#EffectiveAfter').val('After Joining Date'); // Default readonly value
-
-        //// Reset radio buttons
-        //$('input[name="IsPaid"]').prop('checked', true);
-        //$('input[name="IsActive"]').prop('checked', true); // if you have this group
-
-        //// Hide encashment section
-        //$('#encashmentSection').hide();
-
-        //// Reset encashment fields
-        //// Keep checkbox visible, just uncheck and hide the fields
-        //$('#toggleEncashementCheckbox').prop('checked', false);
-        //$('#hiddenEncashmentDiv').hide(); // only hide encashme
-        //$('#minEncash').val('');
-        //$('#maxEncash').val('');
-
-        //// Remove validation errors if any
-        //$('.is-invalid').removeClass('is-invalid');
-        //$('.text-danger').remove();
-
+        
         $('#LeaveTypeIDEdit').val('');
         $('#LeaveTypeNameEdit').val('');
         $('#CodeEdit').val('');

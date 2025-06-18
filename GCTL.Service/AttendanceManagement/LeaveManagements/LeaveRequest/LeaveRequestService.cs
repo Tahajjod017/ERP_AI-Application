@@ -1,12 +1,15 @@
-﻿using GCTL.Core.Helpers;
+﻿using Azure.Core;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.ActionLogVM;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,20 +32,19 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.userInfoService = userInfoService;
         }
 
-        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "")
+        #region  Get Data All  Leave  Requyest
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "" , string url = "")
         {
             try
             {
 
-                var query = leaveRequest.All().OrderByDescending(x=>x.LeaveApplicationID).Include(x => x.Status).Include(x=>x.LeaveType);
+                var query = leaveRequest.AllActive().OrderByDescending(x => x.LeaveApplicationID).Include(x=>x.Employee).Include(x => x.Status).Include(x => x.LeaveType);
+               
 
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
-
-
-               
 
 
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
@@ -63,23 +65,29 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     b => new LeaveApplicationsList
                     {
                         //UserType = b.ActionLogID,
-                        LeaveApplicationID=b.LeaveApplicationID,
-                       // StatusName = b.Status != null ? b.Status.StatusName : "",
+                        LeaveApplicationID = b.LeaveApplicationID,
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
-                        IsFullDay=b.IsFullDay,
+                        IsFullDay = b.IsFullDay,
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
-                        //Period = $"{b.FromDate} - {b.ToDate}",
-                        Period = (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
+                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
+       
+                        EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
+                    
+                        EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName: "",
 
-                        // EmployeeUserName = b.CreatedByNavigation != null ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}" : ""
+                        EmployeeDepartment = b.Employee.EmployeeOfficeInfoCreatedByNavigation.Where(x => x.Department != null) .OrderByDescending(x => x.EmployeeOfficeInfoID).Select(x => x.Department.DepartmentName).FirstOrDefault()
+
+
+
+                        //EmployeeUserName = b.CreatedByNavigation != null ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}" : ""
                     });
                 return result;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetPaginateActionLog: {ex.Message}");
+                Console.WriteLine($"Error : {ex.Message}");
 
                 return new PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>
                 {
@@ -88,7 +96,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+        #endregion
 
+        #region  Save Leave Reqest
         public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
         {
             if (entityVM == null)
@@ -115,10 +125,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     StatusID = entityVM.StatusID,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
-                    LeaveTypeID=entityVM.LeaveTypeID,
-                    Reason=entityVM.Reason,
-                    LIP=entityVM.LIP,
-                    LMAC=entityVM.LMAC
+                    LeaveTypeID = entityVM.LeaveTypeID,
+                    Reason = entityVM.Reason,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC
                 };
 
                 await leaveRequest.AddAsync(entity);
@@ -129,12 +139,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 {
                     Success = true,
                     Message = "Saved Successfully."
-                  
+
                 };
             }
             catch (Exception ex)
             {
-               
+
                 await leaveRequest.RollbackTransactionAsync();
                 Console.WriteLine(ex.Message);
                 return new CommonReturnViewModel
@@ -144,6 +154,53 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+        #endregion
+
+        #region Delete Leave Request
+        public async Task<CommonReturnViewModel> SoftDeleteLeaveRequest(DeleteRequestVM deleteRequestVM)
+        {
+            await leaveRequest.BeginTransactionAsync();
+            try
+            {
+                var data = await leaveRequest.FindAsync(x => deleteRequestVM.Ids.Contains(x.LeaveApplicationID));
+                if (data == null || data.Count == 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success=false,
+                        Message = "No data found to delete."
+                    };
+                }
+
+                var beforeEntity = JsonConvert.DeserializeObject<List<AddNewLeaveSave>>(
+             JsonConvert.SerializeObject(data, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                var targetIds = data.Select(x => (int?)x.LeaveApplicationID).ToList();
+                foreach (var item in data)
+                {
+                    item.DeletedAt = DateTime.Now;
+                    item.LIP = deleteRequestVM.LIP;
+                    item.LMAC = deleteRequestVM.LMAC;
+                    item.DeletedBy = deleteRequestVM.DeletedBy ?? null;
+                }
+
+                await leaveRequest.UpdateRangeAsync(data);
+                await userInfoService.ActionLogDeleteAsync("Leave Settigs", ActionName.DataDeleted, null, beforeEntity, targetIds, deleteRequestVM);
+                await leaveRequest.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success=true,
+                    Message = $"Deleted Successfully."
+                    
+                };
+            }
+            catch (Exception ex)
+            {
+                await leaveRequest.RollbackTransactionAsync();
+                throw new Exception("Error occurred during the deletion of data.", ex);
+            }
+        }
+        #endregion
 
     }
 }
