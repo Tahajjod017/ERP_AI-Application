@@ -1,0 +1,100 @@
+﻿<style>
+    #hiddenDiv {
+        display: none; /* Initially hidden */
+    }
+
+    #div2 {
+        display: none;
+    }
+
+    .disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .shift-cell {
+        position: relative;
+    }
+
+    .add-shift-btn {
+        display: none;
+        align-items: center;
+    }
+
+    .shift-cell:hover .add-shift-btn {
+        display: inline;
+        background-color: white;
+        color: black;
+        /* margin: 5px auto; */
+    }
+
+    .add-shift-btn2 {
+        display: none;
+        align-items: center;
+    }
+
+    .startTime:hover .add-shift-btn2 {
+        display: block;
+        background-color: white;
+        color: black;
+        margin: 5px;
+    }
+
+    .table-container {
+        display: none; /* Hide all tables by default */
+    }
+
+    #dateSelect {
+        display: none;
+    }
+
+    .shift-block {
+        background: repeating-linear-gradient( 135deg, #e5e5e5, #e5e5e5 10px, #f7f7f7 10px, #f7f7f7 20px );
+        border-left: 5px solid #a1f1a1;
+        border-radius: .4rem;
+        padding: 5px 0 5px 0;
+    }
+</style>
+
+<div class="mb-9 mt-4">
+    <div class="card">
+        <div class="card-body">
+            <ul class="nav nav-underline fs-9" id="myTab">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/OfficeDayRoster/Index">Assign roster in office day</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/OffDayRoster/Index">Assign roster in Offday</a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3" id="myTabContent">
+                <div class="tab-pane fade show active">
+                    <div class="border-translucent py-3">
+                        <partial name="_Form" />
+                    </div>
+                </div>
+            </div>
+            <partial name="_Table" />
+        </div>
+    </div>
+</div>
+
+<partial name="_AddShiftModal" />
+@* <partial name="_DayExchangeModal" /> *@
+<partial name="_DeleteModal" />
+<partial name="_EditShiftModal" />
+@* <partial name="_EmployeeBulkShift" /> *@
+@* <partial name="_ShiftModal" /> *@
+@* <script>
+    flatpickr("#datepickerf", {
+      mode: "multiple", // allow multiple selections
+      dateFormat: "Y-m-d",
+      enable: [
+        function(date) {
+          // Enable only Fridays (Friday = 5)
+          return date.getDay() === 5;
+        }
+      ]
+    });
+</script> *@
