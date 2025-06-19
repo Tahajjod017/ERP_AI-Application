@@ -29,6 +29,8 @@
     document.addEventListener('DOMContentLoaded', initEmployeeChoices);
     initEmployeeChoices();
 
+   
+
     //#endregion
 
     //#region Choice Min
@@ -242,42 +244,26 @@
 
     //#endregion
 
-    //#region Form Submission
+    //#region Page Load
 
-    //$('form').on('submit', function (e) {
-    //    // Allow default form submission to asp-action="Index" asp-controller="EmployeeSalary"
-    //    showLoadingIndicator();
-    //    $(this).attr('action', '/EmployeeSalary/Index');
-    //    $(this).attr('method', 'post');
-        
-    //});
+    // Add page load check for pre-selected employee
+    function initializePage() {
+        const employeeSelect = document.getElementById('EmployeePersonalId');
+        const selectedEmployeeId = employeeSelect ? employeeSelect.value : '';
 
+        if (selectedEmployeeId && selectedEmployeeId !== '') {
+            // Trigger loadEmployeeSalaryData if an employee is pre-selected
+            loadEmployeeSalaryData(selectedEmployeeId);
+            TabChange(selectedEmployeeId); // If needed, ensure tab change is triggered
+        } else {
+            // Ensure Choices.js is initialized even if no employee is selected
+            safeInitialize();
+            clearForm();
+        }
+    }
 
-    $('form').on('submit', function (e) {
-        e.preventDefault(); // Prevent default form submission
-
-        showLoadingIndicator(); // Show loading indicator if needed
-
-        $.ajax({
-            url: '/EmployeeSalary/Index',
-            type: 'POST',
-            data: $(this).serialize(), // Serialize form data
-            success: function (response) {
-                hideLoadingIndicator()
-                console.log('Form submitted successfully', response);
-                if (response.success) {
-                    toastr.success(response.message)
-                    window.location.href = '/EmployeeBenifit/Index/' + response.data;
-                } else {
-                    toastr.warning(response.message)
-                }
-            },
-            error: function (xhr, status, error) {
-                // Handle error (e.g., show error message)
-                console.error('Error submitting form', error);
-            }
-        });
-    });
+    // Call initializePage on document ready
+    initializePage();
 
     //#endregion
 
@@ -338,20 +324,18 @@
             }
 
             if (data.paymentModeIds && data.paymentModeIds.length > 0 && paymentModeChoices) {
-                paymentModeChoices.removeActiveItems();
+                paymentModeChoices.removeActiveItems(); // Clear existing selections
                 data.paymentModeIds.forEach(id => {
-                    paymentModeChoices.setChoiceByValue(id.toString());
+                    paymentModeChoices.setChoiceByValue(id.toString()); // Set new selections
                 });
-            }
-
-            if (data.primaryPaymentModeId) {
-                $('#primaryPaymentMode').val(data.primaryPaymentModeId);
-            }
-            if (data.primaryPaymentPercent) {
-                $('#primaryPaymentPercentage').val(data.primaryPaymentPercent);
-            }
-            if (data.secondaryPaymentModeId) {
-                $('#secondaryPaymentMode').val(data.secondaryPaymentModeId);
+                // Manually trigger the change handler to update the UI
+                setTimeout(handlePaymentModeChange, 100); // Ensure Choices.js has processed the selections
+            } else {
+                // If no payment modes, clear selections and ensure UI is updated
+                if (paymentModeChoices) {
+                    paymentModeChoices.removeActiveItems();
+                    setTimeout(handlePaymentModeChange, 100);
+                }
             }
 
             $('input[name="EmployeeSalarySettingsID"]').val(data.employeeSalarySettingsID || '');
@@ -363,6 +347,61 @@
         }
     }
 
+    //function populateForm(data) {
+    //    try {
+    //        $('#PersonalPhone').val(data.personalPhone || '');
+    //        $('#PersonalEmail').val(data.personalEmail || '');
+    //        $('#BankName').val(data.bankName || '');
+    //        $('#BranchName').val(data.branchName || '');
+    //        $('#Address').val(data.address || '');
+    //        $('#AccountName').val(data.accountName || '');
+    //        $('#AccountNo').val(data.accountNo || '');
+    //        $('#ATMCardNo').val(data.atmCardNo || '');
+    //        $('#RoutingNo').val(data.routingNo || '');
+    //        $('#SWIFTCode').val(data.swiftCode || '');
+    //        $('#IFSCCode').val(data.ifscCode || '');
+    //        $('#bKashAccountNo').val(data.bKashAccountNo || '');
+    //        $('#RoketAccountNo').val(data.roketAccountNo || '');
+    //        $('#NagodAccountNo').val(data.nagodAccountNo || '');
+    //        $('#EmployeeGID').val(data.employeeGID || '');
+    //        $('#Salary').val(data.salary || '');
+
+    //        if (data.gradeID && gradeChoices) {
+    //            gradeChoices.setChoiceByValue(data.gradeID.toString());
+    //        }
+    //        if (data.currencyID && currencyChoices) {
+    //            currencyChoices.setChoiceByValue(data.currencyID.toString());
+    //        }
+    //        if (data.paymenPeriodTypeID && paymentPeriodChoices) {
+    //            paymentPeriodChoices.setChoiceByValue(data.paymenPeriodTypeID.toString());
+    //        }
+
+    //        if (data.paymentModeIds && data.paymentModeIds.length > 0 && paymentModeChoices) {
+    //            paymentModeChoices.removeActiveItems();
+    //            data.paymentModeIds.forEach(id => {
+    //                paymentModeChoices.setChoiceByValue(id.toString());
+    //            });
+    //        }
+
+    //        if (data.primaryPaymentModeId) {
+    //            $('#primaryPaymentMode').val(data.primaryPaymentModeId);
+    //        }
+    //        if (data.primaryPaymentPercent) {
+    //            $('#primaryPaymentPercentage').val(data.primaryPaymentPercent);
+    //        }
+    //        if (data.secondaryPaymentModeId) {
+    //            $('#secondaryPaymentMode').val(data.secondaryPaymentModeId);
+    //        }
+
+    //        $('input[name="EmployeeSalarySettingsID"]').val(data.employeeSalarySettingsID || '');
+
+    //        showNotification('Employee data loaded successfully', 'success');
+    //    } catch (error) {
+    //        console.error('Error populating form:', error);
+    //        showNotification('Error populating form data', 'error');
+    //    }
+    //}
+
     function clearForm() {
         $('input[type="text"], input[type="email"], input[type="number"]').not('#EmployeePersonalId').val('');
         if (gradeChoices) gradeChoices.setChoiceByValue('');
@@ -373,6 +412,45 @@
         const multyPaymentDiv = document.getElementById('multyPayment');
         if (multyPaymentDiv) multyPaymentDiv.style.display = 'none';
     }
+
+    //#endregion
+
+    //#region Form Submission
+
+    //$('form').on('submit', function (e) {
+    //    // Allow default form submission to asp-action="Index" asp-controller="EmployeeSalary"
+    //    showLoadingIndicator();
+    //    $(this).attr('action', '/EmployeeSalary/Index');
+    //    $(this).attr('method', 'post');
+        
+    //});
+
+
+    $('form').on('submit', function (e) {
+        e.preventDefault(); // Prevent default form submission
+
+        showLoadingIndicator(); // Show loading indicator if needed
+
+        $.ajax({
+            url: '/EmployeeSalary/Index',
+            type: 'POST',
+            data: $(this).serialize(), // Serialize form data
+            success: function (response) {
+                hideLoadingIndicator()
+                console.log('Form submitted successfully', response);
+                if (response.success) {
+                    toastr.success(response.message)
+                    window.location.href = '/EmployeeBenifit/Index/' + response.data;
+                } else {
+                    toastr.warning(response.message)
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle error (e.g., show error message)
+                console.error('Error submitting form', error);
+            }
+        });
+    });
 
     //#endregion
 

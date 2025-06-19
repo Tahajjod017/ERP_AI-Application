@@ -88,16 +88,43 @@ class UniversalChoices {
         });
     }
 
-    setChoiceValue(id, value) {
-        value = String(value);
+    //setChoiceValue(id, value) {
+    //    value = String(value);
+    //    const instance = this.instances[id];
+
+    //    if (instance) {
+    //        instance.setChoiceByValue(value);
+    //        $(`#${id}`).val(value).trigger('change');
+    //        console.debug(`Set value ${value} for ID: ${id}`);
+    //    } else {
+    //        $(`#${id}`).val(value).trigger('change');
+    //        console.warn(`No Choices instance found for ID: ${id} during setChoiceValue`);
+    //    }
+    //}
+
+
+    setChoiceValue(id, values) {
+        // Ensure values is an array, even for single value
+        const valueArray = Array.isArray(values) ? values : [values];
         const instance = this.instances[id];
 
         if (instance) {
-            instance.setChoiceByValue(value);
-            $(`#${id}`).val(value).trigger('change');
-            console.debug(`Set value ${value} for ID: ${id}`);
+            // Clear existing selections
+            instance.removeActiveItems();
+
+            // Set multiple values for multi-select
+            valueArray.forEach(value => {
+                const strValue = String(value);
+                instance.setChoiceByValue(strValue);
+                console.debug(`Set value ${strValue} for ID: ${id}`);
+            });
+
+            // Update the underlying <select> and trigger change
+            $(`#${id}`).val(valueArray).trigger('change');
+            console.debug(`Set values ${valueArray.join(', ')} for ID: ${id}`);
         } else {
-            $(`#${id}`).val(value).trigger('change');
+            // Fallback to jQuery if no Choices instance
+            $(`#${id}`).val(valueArray).trigger('change');
             console.warn(`No Choices instance found for ID: ${id} during setChoiceValue`);
         }
     }

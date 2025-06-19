@@ -18,6 +18,30 @@
 </div>
 <!-- /Delete Modal -->
 
+<style>
+    #educationalTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    #employeeTrainingTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    #employeeFamilyTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    #employeeContactTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    #employeeListTable tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+</style>
+
+
 
 
 <!-- Add Employee -->
@@ -1415,6 +1439,8 @@
 
                                         <h4 class="border-bottom">@Html.SmartLocalize("Academic Qualification Summary")</h4>
 
+
+
                                         <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
                                             <table class="table" id="educationalTable">
                                                 <thead>
@@ -2111,14 +2137,14 @@
         <div id="listView" class="view-content border-top border-translucent p-3 hidden">
             <div id="employeeListTable" >
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table" id="employeeListTable">
+                    <table class="table" id="employeeListTable">
                        
 
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
                                     <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                        <!-- <input class="form-check-input" type="checkbox"  /> -->
                                     </div>
                                 </th>
                                 <th class="sort align-middle ps-0 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empID">Emp ID</th>
@@ -2181,14 +2207,12 @@
                 </div>
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
-                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                        <a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span> </a>
-                        <a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                       
                     </div>
                     <div class="col-auto d-flex">
-                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        
                         <ul class="mb-0 pagination tblPagination"></ul>
-                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                       
                     </div>
                 </div>
             </div>

@@ -14,6 +14,7 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeSalaryController : BaseController
     {
+        #region CTOR
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<Grade> _gradeRepository;
         private readonly IGenericRepository<Currencies> _currencyRepository;
@@ -43,6 +44,7 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
         }
+        #endregion
 
         public async Task< IActionResult> Index(int id)
         {

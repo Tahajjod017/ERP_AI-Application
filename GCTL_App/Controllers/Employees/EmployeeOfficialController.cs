@@ -262,7 +262,6 @@ namespace GCTL_App.Controllers.Employees
         public IActionResult GetBranches(int id)
         {
             var branches = _branchRepository.AllActive().Where(e => e.OrganizationID == id).Select(r => new { r.OrganizationBranchID, r.OrganizationBranchName }).ToList();
-
             return Ok(branches);
         }
 

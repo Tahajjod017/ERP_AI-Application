@@ -341,6 +341,8 @@
         $('#employeeOfficialForm').on('submit', function (e) {
             e.preventDefault(); 
 
+          
+
             if (!validateOfficialForm()) {
                 // Scroll to first error
                 const firstError = $('.validation-error').first();
@@ -352,8 +354,7 @@
                 return;
             }
 
-            var form = $(this);
-            var formData = form.serialize(); // Serialize form data
+           
 
             // Show loading state
             const $submitBtn = form.find('button[type="submit"]');
@@ -777,7 +778,8 @@
             success: function (response) {
                 console.log('Branches fetched:', response);
 
-                choiceManager.populateDropdown('OrganizationBranchID', response, { placeholder: 'Custom Select a Branch' })
+                choiceManager.populateDropdown('OrganizationBranchID', response)
+              //  choiceManager.populateDropdown('OrganizationBranchID', response, { placeholder: 'Custom Select a Branch' })
             },
             error: function (xhr, status, error) {
                 console.error('Error fetching branches:', error);
