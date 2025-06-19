@@ -8,6 +8,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -256,7 +257,16 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+        #region Get Branches
 
+        public IActionResult GetBranches(int id)
+        {
+            var branches = _branchRepository.AllActive().Where(e => e.OrganizationID == id).Select(r => new { r.OrganizationBranchID, r.OrganizationBranchName }).ToList();
+
+            return Ok(branches);
+        }
+
+        #endregion
 
         #region GetEmployeeDetails
 
