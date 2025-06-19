@@ -109,7 +109,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task<IActionResult> SubmitFromEdit(EmployeeEducationalPostViewModel model)
         {
-            var a = GetPictureURL();
+            var a = GetEmployeePictureURL();
             var res = await _employeeEducationalService.SaveAsync(model);
             var data = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(model.EmployeePersonalId);
             res.Data = data;
