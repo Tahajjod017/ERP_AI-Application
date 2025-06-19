@@ -1,6 +1,59 @@
 ﻿
+
 $(document).ready(function () {
 
+
+    //Get Employee according to LoginID
+    GetAllEmpoyee();
+    function GetAllEmpoyee() {
+        $.ajax({
+            url: '/LeaveRequest/GetEmployee', // Replace 'YourControllerName' with the actual controller name
+            type: 'GET',
+            success: function (data) {
+               
+                var $dropdown = $('#EmployeeID');
+                $dropdown.empty(); // Clear existing options
+
+                $dropdown.append($('<option>').val('').text('Select Employee')); // Default option
+
+                $.each(data, function (i, item) {
+                    $dropdown.append($('<option>').val(item.id).text(item.name));
+                });
+            },
+            error: function () {
+                toastr.error('Failed to retrieve employee data.');
+            }
+        });
+    }
+       
+   
+
+    //
+    $('#LeaveTypeID').on('change', function () {
+        var selectedId = $(this).val();
+        if (selectedId) {
+            $.ajax({
+                url: '/LeaveRequest/GetLeaveDays',
+                type: 'GET',
+                data: { leaveTypeId: selectedId },
+                success: function (data) {
+                    if (data && data.leaveDays !== null) {
+                        $('#LeaveDays').val(data.leaveDays);
+                    } else {
+                        $('#LeaveDays').val('0');
+                    }
+                },
+                error: function () {
+                    toastr.error('Failed to fetch leave days.');
+                    $('#LeaveDays').val('Error');
+                }
+            });
+        } else {
+            $('#LeaveDays').val('');
+        }
+    });
+
+    //
    
     toggleTimeDateValidation();
 

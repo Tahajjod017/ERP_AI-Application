@@ -19,5 +19,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<CommonReturnViewModel> SoftDeleteLeaveRequest(DeleteRequestVM deleteRequestVM);
         Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string currentSortColumn = "", string currentSortOrder = "" , string url = "");
+
+        Task<object> GetLeaveTypeTotaldays(int leaveTypeID);
+        Task<List<CommonSelectVM>> GetAllEmployee();
     }
 }
