@@ -68,9 +68,11 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<TrainingYears> _trainingYearsRepository;
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
+        private readonly IGenericRepository<ProvisionPeriodTtimeTypes> _provisionPeriodTtimeTypesRepository;
 
 
-        public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository, IGenericRepository<BloodGroup> bloodGroupRepository) : base(translateService, userProfileService)
+
+        public EmployeeListController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeListService employeeListService, IHttpContextAccessor httpContextAccessor, IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository) : base(translateService, userProfileService)
         {
             _employeeListService = employeeListService;
             _httpContextAccessor = httpContextAccessor;
@@ -111,6 +113,7 @@ namespace GCTL_App.Controllers.Employees
             _genderRepository = genderRepository;
             _employeeOfficeRepository = employeeOfficeRepository;
             _bloodGroupRepository = bloodGroupRepository;
+            _provisionPeriodTtimeTypesRepository = provisionPeriodTtimeTypesRepository;
         }
 
         #endregion
@@ -301,14 +304,14 @@ namespace GCTL_App.Controllers.Employees
 
             ViewBag.BloodGroupDD = new SelectList(_bloodGroupRepository.All(), "BloodGroupID", "BloodGroupName");
 
-            // ViewBag.TimeUnitDD = new SelectList(_timeUnitRepository.All().Select(tu => new { tu.TimeUnitID, tu.TimeUnitName }), "TimeUnitID", "TimeUnitName");
+            ViewBag.TimeUnitDD = new SelectList(_provisionPeriodTtimeTypesRepository.All().Select(tu => new { tu.ProvisionPeriodTtimeTypeID, tu.ProvisionPeriodTtimeTypeName }), "ProvisionPeriodTtimeTypeID", "ProvisionPeriodTtimeTypeName");
 
 
-            ViewBag.TimeUnitDD = new SelectList(new List<object>{
-                new { TimeUnitID = 1, TimeUnitName = "Days" },
-                new { TimeUnitID = 2, TimeUnitName = "Months" },
-                new { TimeUnitID = 3, TimeUnitName = "Years" }
-            }, "TimeUnitID", "TimeUnitName");
+            //ViewBag.TimeUnitDD = new SelectList(new List<object>{
+            //    new { TimeUnitID = 1, TimeUnitName = "Days" },
+            //    new { TimeUnitID = 2, TimeUnitName = "Months" },
+            //    new { TimeUnitID = 3, TimeUnitName = "Years" }
+            //}, "TimeUnitID", "TimeUnitName");
 
 
             ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusID", "MaritalStatusName");

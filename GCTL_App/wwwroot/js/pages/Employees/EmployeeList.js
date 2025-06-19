@@ -151,8 +151,7 @@
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                     <td class="fs-9 align-middle py-2">
                         <div class="form-check mb-0 fs-8">
-                            <input class="form-check-input" type="checkbox"
-                                   data-bulk-select-row='{"empID":"${employee.id}","empName":"${employee.name}","empEmail":"${employee.email}","empPhone":"${employee.phone}","empDesignation":"${employee.department}","empJointinDate":"${employee.joiningDate}","empStatus":"${employee.status}"}' />
+                           
                         </div>
                     </td>
                     <td class="empID align-middle white-space-nowrap fw-semibold text-body-highlight ps-0 py-0">
@@ -193,6 +192,7 @@
                     </td>
                 </tr>`;
             $employeeListTbody.append(row);
+            // <input class="form-check-input" type="checkbox" data-bulk-select-row='{"empID":"${employee.id}","empName":"${employee.name}","empEmail":"${employee.email}","empPhone":"${employee.phone}","empDesignation":"${employee.department}","empJointinDate":"${employee.joiningDate}","empStatus":"${employee.status}"}' />
         });
     }
     //#endregion
@@ -428,7 +428,9 @@
     }
 
     function fetchAllEmployeeData(employeeId) {
-        
+
+        showLoadingBaseIndicator('Loading employee data...');
+
         Promise.allSettled([
             fetchEmployeeSection(`GetEmployeePersonal/${employeeId}`),
             fetchEmployeeSection(`GetEmployeeOfficial/${employeeId}`),
@@ -459,7 +461,7 @@
                 if (training.status === 'fulfilled') PopulateTrainingData(training.value);
                 if (allowance.status === 'fulfilled') PopulateAllowanceData(allowance.value);
                 if (benefit.status === 'fulfilled') PopulateBenefitData(benefit.value);
-
+                hideLoadingBaseIndicator();
                 // Optional: Show warning for failed ones
                 results.forEach((r, i) => {
                     if (r.status === 'rejected') {
@@ -468,7 +470,7 @@
                 });
             });
 
-        toastr.info('Form is Ready To Modify')
+        
     }
 
    
@@ -896,7 +898,11 @@
         
         // Dropdowns
         choiceManager.setChoiceValue('officialOrganizationID', employee.organizationID || '');
+
+        GetBranches(employee.organizationID);
+
         choiceManager.setChoiceValue('officialOrganizationBranchID', employee.organizationBranchID || '');
+
         choiceManager.setChoiceValue('officialEmployeeTypeID', employee.employeeTypeID || '');
         choiceManager.setChoiceValue('officialDepartmentID', employee.departmentID || '');
         choiceManager.setChoiceValue('officialDesignationID', employee.designationID || '');
@@ -926,6 +932,35 @@
     }
 
     //#endregion
+
+
+    //#region On change New
+
+    $("#officialOrganizationID").change(function () {
+        var selectedId = $(this).val();
+        GetBranches(selectedId);
+    });
+
+    function GetBranches(selectedId) {
+        $.ajax({
+            url: '/EmployeeOfficial/GetBranches',
+            type: 'GET',
+            data: { id: selectedId },
+            success: function (response) {
+               
+                choiceManager.populateDropdown('officialOrganizationBranchID', response)
+                
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching branches:', error);
+            }
+        });
+    }
+
+
+    //#endregion
+
+
 
     //#region Submit
     $('#officialSubmitBtn').on('click', function (e) {
