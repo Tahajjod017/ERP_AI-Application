@@ -33,6 +33,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
     //    public int? LeaveTypeID { get; set; }
 
     //    public string? Reason { get; set; }
+     // public decimal? LeaveDays { get; set; }
     //}
 
 
@@ -62,6 +63,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public DateOnly? ToDateFromDateCombined { get; set; }
         public int? StatusID { get; set; }
         public string? Reason { get; set; }
+        public decimal? LeaveDays { get; set; }
 
         public class RequiredIfAttribute : ValidationAttribute
         {

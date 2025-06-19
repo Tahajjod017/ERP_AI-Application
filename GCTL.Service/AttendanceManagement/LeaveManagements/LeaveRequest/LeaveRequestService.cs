@@ -9,10 +9,12 @@ using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,12 +26,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<LeaveTypes> leaveTypes; 
         private readonly IGenericRepository<Statuses> leaveStatuses;
         private readonly IUserInfoService userInfoService;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService ) : base(leaveRequest)
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
+        private readonly AppDbContext appDb;
+ 
+
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb):base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
             this.leaveStatuses = leaveStatuses;
             this.userInfoService = userInfoService;
+            this.employee = employee;
+            this.appDb = appDb;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -96,6 +104,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+
+        
         #endregion
 
         #region  Save Leave Reqest
@@ -200,6 +210,39 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+        #endregion
+
+        #region Get LeaveType Total Days
+        public async Task<object> GetLeaveTypeTotaldays(int leaveTypeID)
+        {
+            var data = await leaveTypes.AllActive()
+         .Where(l => l.LeaveTypeID == leaveTypeID)
+         .Select(l => new 
+         {
+             leaveDays = l.LeaveDays
+         }).FirstOrDefaultAsync();
+
+            return data;
+        }
+
+
+        #endregion
+        #region Get All Employee or Single
+        public async Task<List<CommonSelectVM>> GetAllEmployee()
+        {
+            var data = await employee.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName}{x.LastName}",
+
+                }).ToListAsync();
+            return data;
+        }
+
+
+
+
         #endregion
 
     }

@@ -10,6 +10,7 @@ using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
@@ -38,28 +39,49 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
-            var employeeList = employee.AllActive().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
+            //var employeeList = employee.AllActive().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
 
-            if (employeeList.Any())
-            {
-                ViewBag.EmployeeDD = new SelectList(
-                    employeeList.Select(x => new
-                    {
-                        x.EmployeeID,
-                        FullName = x.FirstName + " " + x.LastName
-                    }),
-                    "EmployeeID",
-                    "FullName"
-                );
-            }
-            else
-            {
-                ViewBag.EmployeeDD = new SelectList(Enumerable.Empty<object>(), "EmployeeID", "FullName");
-            }
+            //if (employeeList.Any())
+            //{
+            //    ViewBag.EmployeeDD = new SelectList(
+            //        employeeList.Select(x => new
+            //        {
+            //            x.EmployeeID,
+            //            FullName = x.FirstName + " " + x.LastName
+            //        }),
+            //        "EmployeeID",
+            //        "FullName"
+            //    );
+            //}
+            //else
+            //{
+            //    ViewBag.EmployeeDD = new SelectList(Enumerable.Empty<object>(), "EmployeeID", "FullName");
+            //}
 
 
             //SetSmartPageCode(300);
             return View(model);
+        }
+        #region Get All Or Single Employee according to loginID
+        [Route("LeaveRequest/GetEmployee")]
+        [HttpGet]
+        public async Task<IActionResult>GetEmployee()
+        {
+            var data = await leaveRequestService.GetAllEmployee();
+            return Json(data);
+        }
+        #endregion
+        [HttpGet]
+        [Route("LeaveRequest/GetLeaveDays")]
+        public async Task<IActionResult> GetLeaveDays(int leaveTypeId)
+        {
+            var data = await leaveRequestService.GetLeaveTypeTotaldays(leaveTypeId);
+                
+                if(data==null)
+            {
+                return NotFound();
+            }
+            return Json(data);
         }
         #region  Save Data 
 
