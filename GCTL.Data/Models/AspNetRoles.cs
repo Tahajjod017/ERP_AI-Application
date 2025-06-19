@@ -25,6 +25,8 @@ public partial class AspNetRoles
 
     public virtual Organization Organization { get; set; }
 
+    public virtual ICollection<RoleElementPermissions> RoleElementPermissions { get; set; } = new List<RoleElementPermissions>();
+
     public virtual ICollection<RoleModulePermissions> RoleModulePermissions { get; set; } = new List<RoleModulePermissions>();
 
     public virtual TenantInfo TenantInfo { get; set; }

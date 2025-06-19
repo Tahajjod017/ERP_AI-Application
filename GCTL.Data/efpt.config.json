@@ -95,6 +95,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Elements]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[EmailSettings]",
          "ObjectType": 0
       },
@@ -211,6 +215,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Pages]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[PassingYears]",
          "ObjectType": 0
       },
@@ -236,6 +244,10 @@
       },
       {
          "Name": "[dbo].[ResultTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RoleElementPermissions]",
          "ObjectType": 0
       },
       {
@@ -308,6 +320,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -315,6 +328,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -326,5 +340,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }

@@ -1,5 +1,7 @@
 ﻿using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
+using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
+using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +12,22 @@ namespace GCTL_App.Controllers.AdminSettings
     public class EmailSettingController : BaseController
     {
         private readonly AppDbContext context;
-        public EmailSettingController(ITranslateService translateService, IUserProfileService userProfileService, AppDbContext context) : base(translateService, userProfileService)
+        private readonly IEmailSettingService _emailSettingService;
+        public EmailSettingController(ITranslateService translateService, IUserProfileService userProfileService, AppDbContext context, IEmailSettingService emailSettingService) : base(translateService, userProfileService)
         {
             this.context = context;
+            _emailSettingService = emailSettingService;
         }
 
         public IActionResult Index()
         {
+            ViewBag.Organizations = context.Organization
+                                .Select(x => new
+                                {
+                                    Id = x.OrganizationID,
+                                    Name = x.OrganizationName
+                                }).ToList();
+
             return View();
         }
         [HttpPost]
@@ -36,9 +47,10 @@ namespace GCTL_App.Controllers.AdminSettings
                     Password = model.Password,
                     IsActive = model.IsActive,
                     CreatedAt = DateTime.Now,
-                    CreatedBy = 1, 
+                    CreatedBy = 14, 
                     LIP = HttpContext.Connection.RemoteIpAddress?.ToString(),
                     LMAC = "", 
+                    
                 };
 
                 context.EmailSettings.Add(entity);
@@ -49,5 +61,14 @@ namespace GCTL_App.Controllers.AdminSettings
 
             return Json(new { success = false, message = "Invalid input. Please try again." });
         }
+
+        #region GetAll
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmailSettingID", string sortOrder = "desc")
+        {
+            var result = await _emailSettingService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+
+            return Json(result);
+        }
+        #endregion
     }
 }
