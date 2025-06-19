@@ -14,6 +14,7 @@ namespace GCTL_App.Controllers.Employees
 {
     public class EmployeeBenifitController : BaseController
     {
+        #region CTOR
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<EmployeeBaseBenefits> _employeeBenifitRepository;
         private readonly IGenericRepository<YearlyEndBonusTypes> _yearlyEndBonusTypesRepository;
@@ -40,6 +41,8 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
         }
+
+        #endregion
 
         public async Task< IActionResult> Index(int id)
         {
@@ -223,6 +226,26 @@ namespace GCTL_App.Controllers.Employees
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeBenifitPostViewModel model)
+        {
+            
+            try
+            {
+                var result = await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
 
     }
 }
