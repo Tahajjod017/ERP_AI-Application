@@ -1888,19 +1888,289 @@
 
     //#endregion
 
-     
+
 
     //#region Salary info
 
+    //// ChoiceManager definition (assumed to be a custom wrapper for Choices.js)
+    //const choiceManager = {
+    //    choicesInstances: {},
+    //    initializeChoices(id, options) {
+    //        const element = document.getElementById(id);
+    //        if (!element) {
+    //            console.error(`Element with ID ${id} not found`);
+    //            return;
+    //        }
+    //        if (this.choicesInstances[id]) {
+    //            this.choicesInstances[id].destroy();
+    //        }
+    //        try {
+    //            this.choicesInstances[id] = new Choices(element, options);
+    //        } catch (error) {
+    //            console.error(`Error initializing Choices.js for ${id}:`, error);
+    //            element.addEventListener('change', () => {
+    //                if (id === 'salaryPaymentModeIds') {
+    //                    handlePaymentModeChange();
+    //                }
+    //            });
+    //        }
+    //    },
+    //    setChoiceValue(id, value) {
+    //        const instance = this.choicesInstances[id];
+    //        if (!instance) {
+    //            console.warn(`Choices instance for ${id} not found`);
+    //            return;
+    //        }
+    //        try {
+    //            instance.removeActiveItems();
+    //            if (Array.isArray(value)) {
+    //                value.forEach(val => instance.setChoiceByValue(val.toString()));
+    //            } else if (value) {
+    //                instance.setChoiceByValue(value.toString());
+    //            }
+    //            if (id === 'salaryPaymentModeIds') {
+    //                handlePaymentModeChange();
+    //            }
+    //        } catch (error) {
+    //            console.error(`Error setting value for ${id}:`, error);
+    //        }
+    //    },
+    //    getChoiceValue(id) {
+    //        const instance = this.choicesInstances[id];
+    //        if (!instance) {
+    //            console.warn(`Choices instance for ${id} not found`);
+    //            return [];
+    //        }
+    //        return instance.getValue(true) || [];
+    //    },
+    //    getChoices(id) {
+    //        return this.choicesInstances[id];
+    //    }
+    //};
+
+    // Initialize page load behavior
+    //function initializeSalaryTab() {
+    //    const employeeIdInput = $('#salaryEmployeePersonalId');
+    //    const selectedEmployeeId = employeeIdInput.val() || '';
+    //    if (selectedEmployeeId && selectedEmployeeId !== '') {
+    //        loadEmployeeSalaryData(selectedEmployeeId);
+    //    } else {
+    //        clearSalaryForm();
+    //        initializeChoices();
+    //    }
+    //}
+
+    //initializeSalaryTab();
 
 
+    //function loadEmployeeSalaryData(employeeId) {
+    //    showLoadingIndicator();
+    //    $.ajax({
+    //        url: '/EmployeeSalary/GetEmployeeSalaryData',
+    //        type: 'GET',
+    //        data: { employeeId: employeeId },
+    //        success: function (response) {
+    //            if (response.success) {
+    //                PopulateSalaryData(response.data);
+    //                showNotification('Salary data loaded successfully', 'success');
+    //            } else {
+    //                console.error('Error loading salary data:', response.message);
+    //                showNotification('Error loading salary data: ' + (response.message || 'Unknown error'), 'error');
+    //            }
+    //        },
+    //        error: function (xhr, status, error) {
+    //            console.error('AJAX Error:', error);
+    //            showNotification('Failed to load salary data. Please try again.', 'error');
+    //        },
+    //        complete: function () {
+    //            hideLoadingIndicator();
+    //        }
+    //    });
+    //}
 
+
+    //#region Payment Mode Choice
+
+    let paymentModeChoices;
+
+    function initPaymentModeChoices() {
+        const element = document.getElementById('salaryPaymentModeIds');
+
+        if (!element) {
+            console.error('PaymentModeId element not found');
+            return;
+        }
+
+        if (paymentModeChoices) {
+            paymentModeChoices.destroy();
+        }
+
+        try {
+            paymentModeChoices = new Choices(element, {
+                removeItemButton: true,
+                maxItemCount: 2,
+                shouldSort: false,
+                placeholderValue: 'Select Payment Mode',
+                searchEnabled: true,
+                itemSelectText: '',
+                duplicateItemsAllowed: false,
+                paste: false
+            });
+
+            // Add event listeners for Choices.js events
+            element.addEventListener('addItem', function (event) {
+                console.log('Item added:', event.detail);
+                setTimeout(handlePaymentModeChange, 100);
+            });
+
+            element.addEventListener('removeItem', function (event) {
+                console.log('Item removed:', event.detail);
+                setTimeout(handlePaymentModeChange, 100);
+            });
+
+            element.addEventListener('change', function (event) {
+                console.log('Change event fired');
+                setTimeout(handlePaymentModeChange, 100);
+            });
+        } catch (error) {
+            console.error('Error initializing Choices.js:', error);
+            element.addEventListener('change', handlePaymentModeChangeNative);
+        }
+    }
+
+    function handlePaymentModeChange() {
+        if (!paymentModeChoices) {
+            handlePaymentModeChangeNative();
+            return;
+        }
+
+        try {
+            const selectedItems = paymentModeChoices.getValue(true);
+            console.log('Selected items:', selectedItems);
+
+            const validSelectedItems = selectedItems.filter(item => item && item !== '');
+            const selectedCount = validSelectedItems.length;
+
+            console.log('Valid selected count:', selectedCount);
+
+            const multyPaymentDiv = document.getElementById('multyPayment');
+            const primarySelect = document.getElementById('primaryPaymentMode');
+            const secondarySelect = document.getElementById('secondaryPaymentMode');
+            const percentageInput = document.getElementById('salaryPrimaryPaymentPercent');
+
+            if (selectedCount === 2) {
+                if (multyPaymentDiv) multyPaymentDiv.style.display = 'block';
+
+                const [primary, secondary] = validSelectedItems;
+
+                if (primarySelect) primarySelect.value = primary;
+                if (secondarySelect) secondarySelect.value = secondary;
+
+                if (percentageInput && !percentageInput.value) {
+                    percentageInput.value = '50';
+                }
+
+                console.log('Multi-payment enabled with:', primary, secondary);
+            } else {
+                if (multyPaymentDiv) multyPaymentDiv.style.display = 'none';
+                if (primarySelect) primarySelect.value = '';
+                if (secondarySelect) secondarySelect.value = '';
+                if (percentageInput) percentageInput.value = '';
+
+                console.log('Multi-payment disabled');
+            }
+        } catch (error) {
+            console.error('Error in handlePaymentModeChange:', error);
+            handlePaymentModeChangeNative();
+        }
+    }
+
+    function handlePaymentModeChangeNative() {
+        const element = document.getElementById('PaymentModeId');
+        if (!element) return;
+
+        const selectedOptions = Array.from(element.selectedOptions).filter(opt => opt.value !== '');
+        const selectedCount = selectedOptions.length;
+
+        console.log('Native handling - selected count:', selectedCount);
+
+        const multyPaymentDiv = document.getElementById('multyPayment');
+        const primarySelect = document.getElementById('primaryPaymentMode');
+        const secondarySelect = document.getElementById('secondaryPaymentMode');
+        const percentageInput = document.getElementById('salaryPrimaryPaymentPercent');
+
+        if (selectedCount === 2) {
+            if (multyPaymentDiv) multyPaymentDiv.style.display = 'block';
+
+            const [primary, secondary] = selectedOptions.map(opt => opt.value);
+
+            if (primarySelect) primarySelect.value = primary;
+            if (secondarySelect) secondarySelect.value = secondary;
+
+            if (percentageInput && !percentageInput.value) {
+                percentageInput.value = '50';
+            }
+        } else {
+            if (multyPaymentDiv) multyPaymentDiv.style.display = 'none';
+            if (primarySelect) primarySelect.value = '';
+            if (secondarySelect) secondarySelect.value = '';
+            if (percentageInput) percentageInput.value = '';
+        }
+    }
+
+    function safeInitialize() {
+        try {
+            initPaymentModeChoices();
+        } catch (error) {
+            console.error('Failed to initialize Choices.js, using native select:', error);
+            const element = document.getElementById('PaymentModeId');
+            if (element) {
+                element.addEventListener('change', handlePaymentModeChangeNative);
+            }
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', safeInitialize);
+    } else {
+        safeInitialize();
+    }
+
+    setTimeout(safeInitialize, 100);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const percentageInput = document.getElementById('primaryPaymentPercentage');
+        if (percentageInput) {
+            percentageInput.addEventListener('input', function (e) {
+                let value = parseInt(e.target.value);
+                if (isNaN(value) || value < 1) {
+                    e.target.value = '1';
+                } else if (value > 99) {
+                    e.target.value = '99';
+                }
+            });
+        }
+    });
+
+    window.debugPaymentMode = function () {
+        console.log('PaymentModeChoices:', paymentModeChoices);
+        console.log('Element:', document.getElementById('PaymentModeId'));
+        console.log('MultiPayment div:', document.getElementById('multyPayment'));
+        if (paymentModeChoices) {
+            console.log('Selected values:', paymentModeChoices.getValue(true));
+        }
+    };
+
+    //#endregion
+
+
+    // Populate salary form
     function PopulateSalaryData(employee) {
         console.log('Employee Salary data:', employee);
-
         if (!employee) return;
 
-
+        $('#salaryEmployeeSalarySettingsID').val(employee.employeeSalarySettingsID || '');
+        $('#salaryEmployeePersonalId').val(employee.employeePersonalId || '');
         $('#salaryBankName').val(employee.bankName || '');
         $('#salaryBranchName').val(employee.branchName || '');
         $('#salaryAddress').val(employee.address || '');
@@ -1915,33 +2185,132 @@
         $('#salaryNagodAccountNo').val(employee.nagodAccountNo || '');
         $('#salarySalary').val(employee.salary || '');
 
-
         choiceManager.setChoiceValue('salaryGradeID', employee.gradeID || '');
         choiceManager.setChoiceValue('salaryCurrencyID', employee.currencyID || '');
         choiceManager.setChoiceValue('salaryPaymenPeriodTypeID', employee.paymenPeriodTypeID || '');
 
-
-
         if (employee.paymentModeIds) {
-            const paymentModes = Array.isArray(employee.paymentModeIds)
-                ? employee.paymentModeIds
-                : employee.paymentModeIds.split(',');
-            $('#salaryPaymentModeIds').val(paymentModes).trigger('change');
-
+            const paymentModes = Array.isArray(employee.paymentModeIds) ? employee.paymentModeIds : employee.paymentModeIds.split(',').map(id => id.trim());
+            choiceManager.setChoiceValue('salaryPaymentModeIds', paymentModes);
 
             if (paymentModes.length > 1) {
-                $('#multyPayment').show();
-                $('#salaryPrimaryPaymentModeId').val(employee.primaryPaymentModeId || '').trigger('change');
-                $('#salaryPrimaryPaymentPercent').val(employee.primaryPaymentPercent || '');
-                $('#salarySecondaryPaymentModeId').val(employee.secondaryPaymentModeId || '').trigger('change');
+                debugger
+
+                $('#multyPaymentDiv').show();
+                choiceManager.setChoiceValue('primaryPaymentMode', employee.primaryPaymentModeId || paymentModes[0]);
+                $('#salaryPrimaryPaymentPercent').val(employee.primaryPaymentPercent || '50');
+                choiceManager.setChoiceValue('secondaryPaymentMode', employee.secondaryPaymentModeId || paymentModes[1]);
             } else {
-                $('#multyPayment').hide();
+                $('#multyPaymentDiv').hide();
+                choiceManager.setChoiceValue('primaryPaymentMode', '');
+                $('#salaryPrimaryPaymentPercent').val('');
+                choiceManager.setChoiceValue('secondaryPaymentMode', '');
             }
+        } else {
+            choiceManager.setChoiceValue('salaryPaymentModeIds', []);
+            $('#multyPaymentDiv').hide();
         }
 
-
-        $('.choiceDD').trigger('change');
+        setTimeout(() => $('.choiceDD').trigger('change'), 100);
     }
+
+    // Clear salary form
+    function clearSalaryForm() {
+        $('#salaryBankName, #salaryBranchName, #salaryAddress, #salaryAccountName, #salaryAccountNo, #salaryATMCardNo, #salaryRoutingNo, #salarySWIFTCode, #salaryIFSCCode, #salarybKashAccountNo, #salaryRoketAccountNo, #salaryNagodAccountNo, #salarySalary, #salaryPrimaryPaymentPercent').val('');
+        choiceManager.setChoiceValue('salaryGradeID', '');
+        choiceManager.setChoiceValue('salaryCurrencyID', '');
+        choiceManager.setChoiceValue('salaryPaymenPeriodTypeID', '');
+        choiceManager.setChoiceValue('salaryPaymentModeIds', []);
+        choiceManager.setChoiceValue('salaryPrimaryPaymentModeId', '');
+        choiceManager.setChoiceValue('salarySecondaryPaymentModeId', '');
+        $('#multyPayment').hide();
+    }
+
+    
+
+   
+    function showLoadingIndicator() {
+        const submitBtn = $('#salarySubmitBtn');
+        submitBtn.prop('disabled', true);
+        submitBtn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...');
+    }
+
+    function hideLoadingIndicator() {
+        const submitBtn = $('#salarySubmitBtn');
+        submitBtn.prop('disabled', false);
+        submitBtn.html('Save');
+    }
+
+    function showNotification(message, type = 'info') {
+        const alertClass = type === 'success' ? 'alert-success' :
+            type === 'error' ? 'alert-danger' :
+                type === 'warning' ? 'alert-warning' : 'alert-info';
+
+        const notification = $(`
+            <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+                 style="top: 20px; right: 20px; z-index: 9999; max-width: 400px;" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `);
+
+        $('body').append(notification);
+        setTimeout(() => {
+            notification.alert('close');
+        }, 5000);
+    }
+
+   
+
+
+    // Save button handler
+    $('#salarySubmitBtn').on('click', function () {
+        showLoadingIndicator();
+
+        const data = {
+            employeeSalarySettingsID: $('#salaryEmployeeSalarySettingsID').val(),
+            employeePersonalId: $('#salaryEmployeePersonalId').val(),
+            bankName: $('#salaryBankName').val(),
+            branchName: $('#salaryBranchName').val(),
+            address: $('#salaryAddress').val(),
+            accountName: $('#salaryAccountName').val(),
+            accountNo: $('#salaryAccountNo').val(),
+            atmCardNo: $('#salaryATMCardNo').val(),
+            routingNo: $('#salaryRoutingNo').val(),
+            swiftCode: $('#salarySWIFTCode').val(),
+            ifscCode: $('#salaryIFSCCode').val(),
+            bKashAccountNo: $('#salarybKashAccountNo').val(),
+            roketAccountNo: $('#salaryRoketAccountNo').val(),
+            nagodAccountNo: $('#salaryNagodAccountNo').val(),
+            salary: $('#salarySalary').val(),
+            gradeID: choiceManager.getChoiceValue('salaryGradeID'),
+            currencyID: choiceManager.getChoiceValue('salaryCurrencyID'),
+            paymenPeriodTypeID: choiceManager.getChoiceValue('salaryPaymenPeriodTypeID'),
+            paymentModeIds: choiceManager.getChoiceValue('salaryPaymentModeIds'),
+            primaryPaymentModeId: choiceManager.getChoiceValue('salaryPrimaryPaymentModeId'),
+            primaryPaymentPercent: $('#salaryPrimaryPaymentPercent').val(),
+            secondaryPaymentModeId: choiceManager.getChoiceValue('salarySecondaryPaymentModeId')
+        };
+
+        $.ajax({
+            url: '/EmployeeSalary/SaveSalaryData', // Replace with actual endpoint
+            type: 'POST',
+            data: data,
+            success: function (response) {
+                hideLoadingIndicator();
+                if (response.success) {
+                    showNotification(response.message, 'success');
+                } else {
+                    showNotification(response.message, 'warning');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error saving salary data:', error);
+                hideLoadingIndicator();
+                showNotification('Error saving salary data', 'error');
+            }
+        });
+    });
 
 
     //#endregion
