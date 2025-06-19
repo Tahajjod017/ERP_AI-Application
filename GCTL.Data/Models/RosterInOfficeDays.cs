@@ -35,9 +35,13 @@ public partial class RosterInOfficeDays
 
     public int? DeletedBy { get; set; }
 
+    public int? DepartmentID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Departments Department { get; set; }
 
     public virtual Employees Employee { get; set; }
 

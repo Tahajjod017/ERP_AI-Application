@@ -2,6 +2,11 @@
 @{
     ViewData["Title"] = "Role Permissions";
 }
+
+
+<link href="~/choices/choices.min.css" rel="stylesheet" />
+
+
 <style>
     .table-primary {
         background-color: #f8f9fa !important; /* Light Gray */
@@ -149,18 +154,114 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Save Button -->
+            <div class="text-end m-2">
+                <button id="savePermissions" class="btn btn-primary btn-lg">Save Permissions</button>
+            </div>
+        </div>
+        
+    </div>
+
+    
+    <div class="card mt-3 mb-3">
+        <div class="card-body">
+            <div class="border-bottom mb-3 pb-3">
+                <h4>Setup Permissions for Page Elements</h4>
+            </div>
+            <form method="post" enctype="multipart/form-data" id="permissions-form">
+                @Html.AntiForgeryToken()
+
+                <div class="row">
+
+                    <!-- Company Selection -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="companySelection">Company</label>
+                        <select class="form-select choiceDD" id="companySelection" name="OrganizationID" multiple>
+                            <option value="">Select a Company</option>
+                            @foreach (var company in ViewBag.CompanyElement)
+                            {
+                                <option value="@company.OrganizationID">@company.OrganizationName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Role Selection (populated by AJAX) -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="roleSelection">Role</label>
+                        <select class="form-select" id="roleSelection" name="RoleId">
+                            <option value="">Select a Role</option>
+                        </select>
+                    </div>
+
+                    <!-- Page Selection -->
+                    <div class="col-md-6 mb-3">
+                         <label class="form-label">Page</label>
+                            <select class="form-select" id="pageSelection" name="PageId">
+                                <option value="">Select a Page</option>
+                                @foreach (var pagee in ViewBag.Pages)
+                                {
+                                    <option value="@pagee.Id">@pagee.Name</option>
+                                }
+                            </select>
+                    </div>
+                   @*  <div class="form-floating form-floating-advance-select col-md-6 mb-3">
+                        <select class="form-select" id="elementSelection" name="ElementKeys" multiple
+                                
+                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <!-- Options will be loaded dynamically -->
+                        </select>
+                        <label for="elementSelection">Elements</label>
+                    </div> *@
+                    <!-- Element Multi-Select (populated by AJAX) -->
+                  @*   <div class="col-md-6 mb-3">
+                        <label class="form-label" for="elementSelection">Elements</label>
+                        <select class="form-select" id="elementSelection" name="ElementKeys" multiple>
+                            <!-- dynamically populated -->
+                        </select>
+                    </div> *@
+                    <!-- Match Bootstrap floating label style -->
+                   @*  <div class="form-floating form-floating-advance-select col-md-6 mb-3">
+                        <select class="form-select" id="elementSelection" name="ElementKeys" multiple
+                                data-choices="data-choices"
+                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                        <label for="elementSelection">Elements</label>
+                    </div> *@
+
+
+                    <!-- Element Single Select (populated by AJAX) -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label choiceDD" for="elementSelection">Element</label>
+                        <select class="form-select" id="elementSelection" name="ElementKey" multiple>
+                            <option value="">Select an Element</option>
+                            <!-- Dynamically loaded options go here -->
+                        </select>
+                    </div>
+
+
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
         </div>
     </div>
 
-    <!-- Save Button -->
-    <div class="text-end mt-4">
-        <button id="savePermissions" class="btn btn-primary btn-lg">Save Permissions</button>
-    </div>
 </main>
+
 <partial name="~/Views/Shared/RolesAlert/_ConfirmPermissionChangeModal.cshtml" />
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/jquery/dist/jquery.js"></script>
+
+
+<script src="~/choices/choices.min.js"></script>
+
+
 <script>
     $(document).ready(function () {
         $('#companySelect').change(function () {
@@ -189,3 +290,4 @@
     });
 </script>
 <script src="~/js/pages/authjs/rolepermission.js"></script>
+<script src="~/js/pages/authjs/elementpermission.js"></script>

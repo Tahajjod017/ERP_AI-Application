@@ -37,6 +37,8 @@ public partial class RosterInHolyDays
 
     public int? DeletedBy { get; set; }
 
+    public int? DepartmentID { get; set; }
+
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchanges { get; set; } = new List<CompensationDayExchanges>();
 
     public virtual CompensationTypes CompensationType { get; set; }
@@ -44,6 +46,8 @@ public partial class RosterInHolyDays
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Departments Department { get; set; }
 
     public virtual Employees Employee { get; set; }
 

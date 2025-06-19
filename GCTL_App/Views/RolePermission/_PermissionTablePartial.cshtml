@@ -11,7 +11,7 @@
     }
 
     .table-tertiary {
-        background-color: #dee2e6 !important; /* Even Darker Gray */
+        background-color: #f4f4f4 !important; /* Even Darker Gray */
         padding-left: 2rem !important; /* Same indentation as primary rows */
         text-align: left; /* Align text to the left */
         color: #007bff; /* Blue text color */
@@ -95,7 +95,7 @@
 </style>
 
 
-<table class="table table-bordered">
+<table class="table table-bordered-0">
     <thead class="thead-light">
         <tr>
             <th>Modules</th>
@@ -113,7 +113,7 @@
     <tbody id="module-tree">
         @foreach (var primaryModule in Model.PrimaryModules)
         {
-            <tr style="background-color: #f8f9fa; padding-left: 2rem !important;">
+            <tr style="background-color: #f8f9fa00; padding-left: 2rem !important;">
                 <!-- Light Gray Primary Row -->
                 <td class="font-weight-bold">
                     <a href="javascript:void(0);" class="link-module" data-target="secondary-@primaryModule.Id">
@@ -137,7 +137,7 @@
 
             @foreach (var secondaryModule in primaryModule.SecondaryModules)
             {
-                <tr style="background-color: #e9ecef;padding-left: 3rem !important;" class="hidden-row secondary-@primaryModule.Id">
+                <tr style="background-color: #f7fafd;padding-left: 3rem !important;" class="hidden-row secondary-@primaryModule.Id">
                     <!-- Slightly Darker Gray for Secondary -->
                     <td class="pl-4">
                         <a href="javascript:void(0);" class="link-module" data-target="tertiary-@secondaryModule.Id">
@@ -161,7 +161,7 @@
 
                 @foreach (var tertiaryModule in secondaryModule.TertiaryModules)
                 {
-                    <tr style="background-color: #dee2e6; padding-left: 4rem !important;" class="table-tertiary hidden-row tertiary-@secondaryModule.Id">
+                    <tr style="background-color: #f4f4f4 ; padding-left: 4rem !important;" class="table-tertiary hidden-row tertiary-@secondaryModule.Id">
                         <td class="pl-5">
                             <a href="javascript:void(0);" class="link-module" data-target="quaternary-@tertiaryModule.Id">
                                 @if (tertiaryModule.QuaternaryModules?.Count > 0)

@@ -58,7 +58,11 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.Employees.EmployeeList;
 using GCTL.Service.Employees.EmployeeDetails;
 using GCTL.Service.Employees.EmployeeNavigation;
+using GCTL.Service.ElementPermission;
+using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
+using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+
 
 
 
@@ -132,6 +136,8 @@ namespace GCTL_App.Extensions
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IElementPermissionService, ElementPermissionService>();
+            services.AddScoped<IEmailSettingService, EmailSettingsService>();
             #endregion
 
 

@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.RoleModule;
+﻿using GCTL.Core.ViewModels.Login;
+using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -64,10 +65,68 @@ namespace GCTL_App.Controllers
                     .ToList();
             }
 
+            ViewBag.Companiyselect = _Db.Organization
+                    .Select(x => new { x.OrganizationID, x.OrganizationName })
+                    .ToList()
+                    .Select(x => new { Id = x.OrganizationID, Name = x.OrganizationName });
+
+
             ViewBag.Roles = new List<ApplicationRole>();
+         
+
+            // Fix for CS0746 and CS8604 in the following code block:  
+            ViewBag.RolesElement = await _roleManager.Roles
+               .Select(r => new { Id = r.Id, Name = r.Name != null ? r.Name.ToCleanRoleName() : string.Empty }) // Ensure null check for r.Name  
+               .ToListAsync();
+
+            ViewBag.CompanyElement = _Db.Organization.Select(c => new { c.OrganizationID, c.OrganizationName }).ToList();
+            ViewBag.Pages = _Db.Pages.Select(p => new { p.Id, p.Name }).ToList();
+            ViewBag.RolesElement = new List<ApplicationRole>();
             return View(); 
         }
+        [HttpGet]
+        public IActionResult GetElementRolesByCompany(int companyId)
+        {
+            var roles = _Db.ApplicationRoles
+                .Where(r => r.OrganizationID == companyId)
+                .Select(r => new  { Id = r.Id, Name = r.Name != null ? r.Name.ToCleanRoleName() : string.Empty })
+                .ToList();
 
+            return Json(roles);
+        }
+
+        [HttpGet]
+        public IActionResult GetElementsByPage(int pageId)
+        {
+            var elements = _Db.Elements
+                .Where(e => e.PageId == pageId)
+                .Select(e => new { Key = e.Key, Name = e.Name })
+                .ToList();
+
+            return Json(elements);
+        }
+        [HttpPost]
+        public async Task<IActionResult> SaveElementPermissions([FromBody] RoleElementPermissionViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.RoleId) || model.PageId <= 0 || model.ElementKeys == null)
+                return Json(new { success = false, message = "Invalid data." });
+
+            var existing = _Db.RoleElementPermissions.Where(x => x.RoleId == model.RoleId && x.PageId == model.PageId);
+            _Db.RoleElementPermissions.RemoveRange(existing);
+            await _Db.SaveChangesAsync();
+
+            var newPermissions = model.ElementKeys.Select(key => new RoleElementPermissions
+            {
+                RoleId = model.RoleId,
+                PageId = model.PageId,
+                ElementKey = key
+            }).ToList();
+
+            _Db.RoleElementPermissions.AddRange(newPermissions);
+            await _Db.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Permissions updated." });
+        }
         [HttpGet]
         public JsonResult GetRolesByCompany(int? companyId)
         {
