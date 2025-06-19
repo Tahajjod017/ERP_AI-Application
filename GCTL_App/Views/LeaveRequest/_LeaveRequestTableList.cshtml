@@ -104,14 +104,14 @@
                     </div>
 
                     <div class="dropdown me-3">
-                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <select class="form-select" data-choices="data-choices" size="1" id="LeaveTypeIDFilterDD" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
                             <option value="">Leave Type</option>
 
                         </select>
                     </div>
 
                     <div class="dropdown me-3">
-                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <select class="form-select" data-choices="data-choices" size="1" id="StatusIDFilterDD" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
                             <option value="">Select Status</option>
 
                         </select>
