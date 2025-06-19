@@ -341,6 +341,8 @@
         $('#employeeOfficialForm').on('submit', function (e) {
             e.preventDefault(); 
 
+          
+
             if (!validateOfficialForm()) {
                 // Scroll to first error
                 const firstError = $('.validation-error').first();
@@ -352,8 +354,7 @@
                 return;
             }
 
-            var form = $(this);
-            var formData = form.serialize(); // Serialize form data
+           
 
             // Show loading state
             const $submitBtn = form.find('button[type="submit"]');
@@ -763,6 +764,28 @@
 
 
     //#region On change New
+
+    $("#OrganizationID").change(function () {
+        var selectedId = $(this).val();
+        GetBranches(selectedId); 
+    });
+
+    function GetBranches(selectedId) {
+        $.ajax({
+            url: '/EmployeeOfficial/GetBranches', 
+            type: 'GET',
+            data: { id: selectedId }, 
+            success: function (response) {
+                console.log('Branches fetched:', response);
+
+                choiceManager.populateDropdown('OrganizationBranchID', response)
+              //  choiceManager.populateDropdown('OrganizationBranchID', response, { placeholder: 'Custom Select a Branch' })
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching branches:', error);
+            }
+        });
+    }
 
 
     //#endregion

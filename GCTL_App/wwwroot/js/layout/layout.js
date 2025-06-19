@@ -63,6 +63,25 @@ function hideLoadingIndicator() {
 }
 
 
+function showLoadingBaseIndicator(message) {
+
+    if (message) {
+        document.getElementById('loadingModalMessage').textContent = message;
+    }
+    var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'), {
+        backdrop: 'static',
+        keyboard: false
+    });
+    loadingModal.show();
+}
+// Function to hide the loading indicator
+function hideLoadingBaseIndicator() {
+    var loadingModal = bootstrap.Modal.getInstance(document.getElementById('loadingModal'));
+    if (loadingModal) {
+        loadingModal.hide();
+    }
+}
+
 
 
 document.addEventListener("DOMContentLoaded", function () {

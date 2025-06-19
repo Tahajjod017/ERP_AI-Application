@@ -87,9 +87,14 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 allEmployees = allEmployees.Where(e => e.EmployeeOfficeInfoID != emp.EmployeeOfficeInfoID);
             }
 
+            if (model.EmployeeOfficeInfoID > 0)
+            {
+                allEmployees = allEmployees.Where(e => e.EmployeeOfficeInfoID != model.EmployeeOfficeInfoID);
+            }
+
             if (model.EmployeeOfficeInfoID != null || model.EmployeeOfficeInfoID != 0)
             {
-                allEmployees = allEmployees.Where(e => e.EmployeeID != model.EmployeeOfficeInfoID);
+                allEmployees = allEmployees.Where(e => e.EmployeeOfficeInfoID != model.EmployeeOfficeInfoID);
             }
 
             if (!string.IsNullOrWhiteSpace(model.OfficeEmail) &&

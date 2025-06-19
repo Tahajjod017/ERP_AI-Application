@@ -9,6 +9,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -234,6 +235,44 @@ namespace GCTL_App.Controllers.Employees
            
         }
 
+
+        #endregion
+
+
+        #region Form Edit page
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeOfficialPostViewModel model)
+        {
+            //return Ok(model);
+
+            var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
+
+            if (!chkDuplicate.Success)
+            {
+                return Ok(chkDuplicate);
+            }
+
+            var result = await _employeeOfficialService.UpdateEmployeeOfficialInfo(model);
+
+            if (!result.Success)
+            {
+                return Ok(result);
+            }
+
+            return Ok(result);
+
+        }
+
+        #endregion
+
+        #region Get Branches
+
+        public IActionResult GetBranches(int id)
+        {
+            var branches = _branchRepository.AllActive().Where(e => e.OrganizationID == id).Select(r => new { r.OrganizationBranchID, r.OrganizationBranchName }).ToList();
+            return Ok(branches);
+        }
 
         #endregion
 

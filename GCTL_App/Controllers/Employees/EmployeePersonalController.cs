@@ -168,6 +168,27 @@ namespace GCTL_App.Controllers.Employees
             return View(model);
         }
 
+
+        [HttpPost]
+
+        public async Task<IActionResult> SubmitFromEdit(EmployeePersonalPostViewModel model)
+        {
+
+            var chkDuplicate = await _employeePersonalService.CheckValidEmployeeInfo(model);
+
+            if (!chkDuplicate.Success)
+            {
+                return Ok(chkDuplicate);
+            }
+
+            // Save and get the new employee ID
+            CommonReturnViewModel result = await _employeePersonalService.SaveEmployeePersonalInfo(model);
+
+            return Ok(result);
+
+
+        }
+
         #region Nationality
 
         [HttpGet]

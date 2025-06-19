@@ -50,4 +50,5 @@ public partial class RosterInOfficeDays
     public virtual Shifts Shift { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+    public int? DepartmentID { get; set; }
 }

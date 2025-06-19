@@ -61,6 +61,8 @@ using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.ElementPermission;
 using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+
 
 
 
@@ -120,6 +122,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             services.AddScoped<IAddShiftService, AddShiftService>();
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
+            services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
             #endregion
 
 

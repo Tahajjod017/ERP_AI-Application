@@ -1,5 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Data.Models;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
 using GCTL_App.ViewModels.VisitingVM;
 using Microsoft.AspNetCore.Mvc;
@@ -12,9 +14,9 @@ namespace GCTL_App.Controllers
 
        
         private readonly IVisitingPathService visitingPathService;
+
         public VisitingPathController(IVisitingPathService visitingPathService)
         {
-         
             this.visitingPathService = visitingPathService;
         }
 

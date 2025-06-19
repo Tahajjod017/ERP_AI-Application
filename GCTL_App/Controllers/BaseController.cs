@@ -76,6 +76,11 @@ namespace GCTL_App.Controllers
             return Ok(new { LocalHostUrl = url });
         }
 
+        public string GetEmployeePictureURL()
+        {
+            return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/";
+        }
+
     }
 
 

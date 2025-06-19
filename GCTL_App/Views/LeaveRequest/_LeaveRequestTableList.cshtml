@@ -1,137 +1,175 @@
-﻿
-<div class="card mb-2">
-    
-    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
-        <h4 class="mb-1">Leave List</h4>
-        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-            <div class="me-3">
-                <div class="input-icon-end position-relative">
+﻿<style>
+    #leaveRequest-searchForm {
+        position: relative;
+    }
 
-                    <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+    #leaveRequest-searchInput {
+        padding-right: 2.25rem; /* Leave space for the icon inside */
+        height: calc(1.5em + 0.75rem + 2px); /* Same as .form-select */
+    }
+
+    .search-box-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+    }
+
+</style>
+
+
+
+
+<div class="card-body py-0 scrollbar to-do-list-body">
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+       
+        <div class="row mb-2" >
+          
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-end">
+
+                    <h4 class="mb-1">Leave List</h4>
+                    
 
                 </div>
             </div>
 
-            <div class="dropdown me-3">
-                <select class="form-select"  data-choices="data-choices" size="1" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">Leave Type</option>
-                   
-                </select>
-            </div>
+            @* <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-end">
 
-            <div class="dropdown me-3">
-                <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">Select Status</option>
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Company</option>
+
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Department</option>
+
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Employee</option>
+
+                        </select>
+                    </div>
                     
-                </select>
-            </div>
 
-            <div class="dropdown">
-                <select class="form-select"  data-choices="data-choices" size="1" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">Sort by: Last 7 days</option>
-                    <option>Recently Added</option>
-                    <option>Ascending</option>
-                    <option>Desending</option>
-                    <option>Last Month</option>
-                    <option>Last 7 days</option>
-                </select>
-            </div>
+                </div>
+            </div> *@
+
 
         </div>
 
-    </div>
+      
+        
 
-    <div class="card-body py-0 scrollbar to-do-list-body">
-        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
 
-            <div class="row g-3 justify-content-between align-items-end mb-4">
-                <div class="col-12 col-sm-auto">
-                    <div class="d-flex align-items-center me-3" style="width: auto;">
-                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
-                        <div style="width: 100%;">
-                            <select id="leaveRequest-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
-                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
-                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
-                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
-                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
-                            </select>
-                        </div>
+        <div class="row g-3 justify-content-between align-items-end mb-4">
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center me-3" style="width: auto;">
+                    <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                    <div style="width: 100%;">
+                        <select id="leaveRequest-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                            <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                            <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                            <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                            <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                        </select>
                     </div>
                 </div>
-               
-                <div class="col-12 col-sm-auto">
-                    <div class="d-flex align-items-center">
-                        <div class="d-none me-3" id="leaveRequest-bulkSelectActions">
-                            <div class="position-relative">
-                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="leaveRequest-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="d-none me-3" id="leaveRequest-bulkSelectActions">
+                        <div class="position-relative">
+                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="leaveRequest-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <div class="input-icon-end position-relative">
+
+                            <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+
+                        </div>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Leave Type</option>
+
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Status</option>
+
+                        </select>
+                    </div>
+              
+                    <div class="dropdown me-3" id="leaveRequest-searchBox">
+                        <form class="position-relative" id="leaveRequest-searchForm">
+                            <input class="form-control search-input" id="leaveRequest-searchInput" type="search"
+                                   placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon"></span>
+                        </form>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent">
+
+                <thead>
+                    <tr>
+                        <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                            <div class="form-check mb-0 fs-8">
+                                <input class="form-check-input" type="checkbox" />
                             </div>
-                        </div>
+                        </th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approveByEmployee">Employee Name</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveType">Leave Type</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">From Date</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">To Date</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Period</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveUnitType">Unit Type</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
+                        <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
+                    </tr>
+                </thead>
+                <tbody id="leaveRequest-tBody">
+                </tbody>
+            </table>
+        </div>
 
-                        <div class="search-box me-3" id="leaveRequest-searchBox">
-                            <form class="position-relative" id="leaveRequest-searchForm">
-                                <input class="form-control search-input search" id="leaveRequest-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
-                                <span class="fas fa-search search-box-icon"></span>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="leaveRequest-paginationInfo"></p>
+
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
             </div>
-
-            <div class="table-responsive ms-n1 ps-1 scrollbar">
-                <table class="table fs-9 mb-0 border-top border-translucent">
-                    @* <thead>
-                        <tr>
-                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input" id="leaveRequest-check-all" />
-                            </th>
-                          
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Approved by")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Leave Type")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("From Date")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("To Date")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Period")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Unit Type")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="leaveRequestName">@Html.SmartLocalize("Status")</th>
-                            <th class=" white-space-nowrap align-middle ps-0"   style="width: 10%;">@Html.SmartLocalize("Action")</th>
-                        </tr>
-                    </thead> *@
-                    <thead>
-                        <tr>
-                            <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
-                                </div>
-                            </th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approveByEmployee">Approved by</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveType">Leave Type</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">From Date</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">To Date</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Period</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveUnitType">Unit Type</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
-                            <th class="text-end align-middle pe-0 ps-5" scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaveRequest-tBody">
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
-                <div class="d-flex">
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="leaveRequest-paginationInfo"></p>
-
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                </div>
-                <div class="d-flex">
-                    <button class="page-link" data-list-pagination="prev" id="leaveRequest-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
-                    <ul class="mb-0 pagination" id="leaveRequest-paginationLinks"></ul>
-                    <button class="page-link pe-0" data-list-pagination="next" id="leaveRequest-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
-                </div>
+            <div class="d-flex">
+                <button class="page-link" data-list-pagination="prev" id="leaveRequest-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="leaveRequest-paginationLinks"></ul>
+                <button class="page-link pe-0" data-list-pagination="next" id="leaveRequest-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
             </div>
         </div>
     </div>
 </div>
+
 
 

@@ -157,7 +157,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select">
                                                         <label asp-for="LicenceTypeID">@Html.SmartLocalize("License Type")</label>
-                                                        <select class="form-select choiceDD" asp-for="LicenceTypeID" asp-items="@(new SelectList(ViewBag.LicenseTypeDD.Items, "Value", "Text"))">
+                                                        <select class="form-select choiceDD" asp-for="LicenceTypeID" asp-items="@(new SelectList(ViewBag.LicenseTypeDD.Items, "Value", "Text"))" >
                                                             <option value="" selected disabled>@Html.SmartLocalize("Select License Type")</option>
                                                         </select>
                                                     </div>

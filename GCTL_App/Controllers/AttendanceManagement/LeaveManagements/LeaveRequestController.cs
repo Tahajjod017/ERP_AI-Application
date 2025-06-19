@@ -10,6 +10,7 @@ using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
@@ -36,30 +37,51 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             };
 
 
-            ViewBag.LeaveTypeDD = new SelectList(leaveType.All(), "LeaveTypeID", "LeaveTypeName");
-            ViewBag.StatusDD = new SelectList(status.All(), "StatusID", "StatusName");
-            var employeeList = employee.All().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
+            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
+            ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
+            //var employeeList = employee.AllActive().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
 
-            if (employeeList.Any())
-            {
-                ViewBag.EmployeeDD = new SelectList(
-                    employeeList.Select(x => new
-                    {
-                        x.EmployeeID,
-                        FullName = x.FirstName + " " + x.LastName
-                    }),
-                    "EmployeeID",
-                    "FullName"
-                );
-            }
-            else
-            {
-                ViewBag.EmployeeDD = new SelectList(Enumerable.Empty<object>(), "EmployeeID", "FullName");
-            }
+            //if (employeeList.Any())
+            //{
+            //    ViewBag.EmployeeDD = new SelectList(
+            //        employeeList.Select(x => new
+            //        {
+            //            x.EmployeeID,
+            //            FullName = x.FirstName + " " + x.LastName
+            //        }),
+            //        "EmployeeID",
+            //        "FullName"
+            //    );
+            //}
+            //else
+            //{
+            //    ViewBag.EmployeeDD = new SelectList(Enumerable.Empty<object>(), "EmployeeID", "FullName");
+            //}
 
 
             //SetSmartPageCode(300);
             return View(model);
+        }
+        #region Get All Or Single Employee according to loginID
+        [Route("LeaveRequest/GetEmployee")]
+        [HttpGet]
+        public async Task<IActionResult>GetEmployee()
+        {
+            var data = await leaveRequestService.GetAllEmployee();
+            return Json(data);
+        }
+        #endregion
+        [HttpGet]
+        [Route("LeaveRequest/GetLeaveDays")]
+        public async Task<IActionResult> GetLeaveDays(int leaveTypeId)
+        {
+            var data = await leaveRequestService.GetLeaveTypeTotaldays(leaveTypeId);
+                
+                if(data==null)
+            {
+                return NotFound();
+            }
+            return Json(data);
         }
         #region  Save Data 
 
@@ -93,13 +115,34 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         {
             try
             {
-             var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder);
+             string url = GetEmployeePictureURL();
+             var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url);
                 return Json(data);
             } catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);   
                 return BadRequest(ex.Message);
              }
+        }
+        #endregion
+
+        #region Delete Leave Request
+        [Route("LeaveRequestRoute/SofteDeleteLeaveRequest")]
+        [HttpPost]
+        public async Task<IActionResult> SofteDeleteLeaveRequest(DeleteRequestVM deleteRequestVM)
+        {
+            try
+            {
+                var data = await leaveRequestService.SoftDeleteLeaveRequest(deleteRequestVM);
+                return Json(data);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new { message = ex.Message });
+               
+            }
         }
         #endregion
     }

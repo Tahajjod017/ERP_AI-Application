@@ -1,6 +1,59 @@
 ﻿
+
 $(document).ready(function () {
 
+
+    //Get Employee according to LoginID
+    GetAllEmpoyee();
+    function GetAllEmpoyee() {
+        $.ajax({
+            url: '/LeaveRequest/GetEmployee', // Replace 'YourControllerName' with the actual controller name
+            type: 'GET',
+            success: function (data) {
+               
+                var $dropdown = $('#EmployeeID');
+                $dropdown.empty(); // Clear existing options
+
+                $dropdown.append($('<option>').val('').text('Select Employee')); // Default option
+
+                $.each(data, function (i, item) {
+                    $dropdown.append($('<option>').val(item.id).text(item.name));
+                });
+            },
+            error: function () {
+                toastr.error('Failed to retrieve employee data.');
+            }
+        });
+    }
+       
+   
+
+    //
+    $('#LeaveTypeID').on('change', function () {
+        var selectedId = $(this).val();
+        if (selectedId) {
+            $.ajax({
+                url: '/LeaveRequest/GetLeaveDays',
+                type: 'GET',
+                data: { leaveTypeId: selectedId },
+                success: function (data) {
+                    if (data && data.leaveDays !== null) {
+                        $('#LeaveDays').val(data.leaveDays);
+                    } else {
+                        $('#LeaveDays').val('0');
+                    }
+                },
+                error: function () {
+                    toastr.error('Failed to fetch leave days.');
+                    $('#LeaveDays').val('Error');
+                }
+            });
+        } else {
+            $('#LeaveDays').val('');
+        }
+    });
+
+    //
    
     toggleTimeDateValidation();
 
@@ -144,7 +197,38 @@ $(document).ready(function () {
 
     }
 
+    // Delete Soft Leave Request
 
+    //
+    $(document).on('click', '#leaveRequestDelete-singleDelBtn', function () {
+        var id = $(this).data('id');
+        
+        if (id) {
+            showDeleteModal(function () {
+                $.ajax({
+                    url: '/LeaveRequestRoute/SofteDeleteLeaveRequest',
+                    method: 'POST',
+                    data: { ids: [id] },
+                    success: function (response) {
+                    
+                        if (response.success) {
+                            toastr.success(response.message);
+                            loadTableData();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Error occurred while deleting.");
+                    }
+                });
+            });
+        } else {
+            toastr.error("Invalid action.");
+        }
+    });
+    //
+    //
 
 
 });
@@ -238,6 +322,16 @@ function getBadgeClass(status) {
     }
 }
 
+function getAvatarHtml(employee) {
+    if (employee.employeeImage && employee.employeeImage !== '')
+    {
+        return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
+    } else {
+        const initial = employee.employeeName.charAt(0).toUpperCase();
+        return `<div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="height: 100%;">${initial}</div>`;
+    }
+}
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
 
@@ -252,7 +346,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             currentSortOrder: currentSortOrder
         },
         success: function (response) {
-          
+           
+           
             console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
@@ -266,7 +361,20 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     } else {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
+                    //
+                    const isFullDay = item.isFullDay;
+                   
 
+                    // pick the right label and pluralize
+                    const unitLabel = isFullDay
+                        ? (item.period > 1 ? 'Days' : 'Day')
+                        : (item.period > 1 ? 'Hours' : 'Hour');
+                    //
+                    //
+
+                    const avatar = getAvatarHtml(item);
+
+                    //
                     tableBody.append(`
                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                         
@@ -279,12 +387,12 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         
                         <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
                           <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-4">
-                              <img class="rounded-circle " src="user-01.jpg" alt="" />
+                            <div class="avatar avatar-m avatar-bordered me-2">
+                             ${avatar}
                             </div>
                             <div class="ms-1">
-                              <h6 class="fw-bold">Faruk Hasan</h6>
-                              <span class="fs-12 fw-normal ">Admin</span>
+                              <h6 class="fw-bold">${item.employeeName}</h6>
+                              <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
                             </div>
                           </div>
                         </td>
@@ -302,24 +410,30 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromDate}</td>
                         <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period}</td>
-                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Day</td>
+                       <td class="leaveTotal align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">  ${unitLabel}</td>
                         
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
                           <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
                         </td>
                         
-                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                          <div class="btn-reveal-trigger position-static">
-                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_leaves">
-                              <i class="fas fa-edit text-success"></i>
+                     <td class="align-middle white-space-nowrap text-end pe-0">
+                          <div class="d-flex justify-content-end align-items-center">
+                            <a 
+                              href="#" title="Edit" data-id="${item.leaveApplicationID}"
+                              class="btn btn-outline-light btn-icon me-1" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#edit_leaves">
+                              <i class="fas fa-edit text-black"></i>
                             </a>
-  
-                            <a href="#" class="nav-item mx-2"  data-bs-toggle="modal" data-bs-target="#delete_modal">
-                              <i class="fas fa-trash text-danger"></i>
+                            <a 
+                              href="#" title="Delete"  data-id="${item.leaveApplicationID}"
+                              class="btn btn-outline-light btn-icon"  
+                              id="leaveRequestDelete-singleDelBtn" >
+                              <i class="far fa-trash-alt text-black"></i>
                             </a>
-  
                           </div>
-                        </td>
+                    </td>
+
   
                       </tr>
                    `);
