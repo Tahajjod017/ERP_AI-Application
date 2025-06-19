@@ -492,6 +492,9 @@
 
         $('#eduEmployeePersonalId').val(employee.employeeID || '');
         $('#trnEmployeePersonalId').val(employee.employeeID || '');
+        $('#salaryEmployeePersonalId').val(employee.employeeID || '');
+        $('#benifitEmployeePersonalId').val(employee.employeeID || '');
+        $('#allowEmployeePersonalId').val(employee.employeeID || '');
 
 
         $('#personalEmployeeCode').val(employee.employeeCode || '');
@@ -1917,6 +1920,7 @@
 
         $('#benifitHealthInsurance').val(employee.healthInsurance || '');
         $('#benifitPerformanceBonus').val(employee.performanceBonus || '');
+        $('#benifitEmployeeBaseBenefitID').val(employee.employeeBaseBenefitID || '');
 
 
         $('#benifitIsHealthInsuranceEnabled').prop('checked', employee.isHealthInsuranceEnabled || false);
@@ -2017,10 +2021,12 @@
             contentType: false,
             success: function (response) {
                 console.log('Benefit data submitted successfully:', response);
-                alert('Employee benefits saved successfully!');
-                // Optionally reset form or redirect
-                // $('#benefitForm')[0].reset();
-                // toggleBenefitFields();
+                if (response.success) {
+                    toastr.success('Benefit data update successfully:', response.message)
+                } else {
+                    toastr.warning('Benefit data update failed:', response.message)
+
+                }
             },
             error: function (xhr, status, error) {
                 console.error('Error submitting benefit data:', error);
@@ -2069,6 +2075,8 @@
     //#endregion
 
     //#region Allow info
+
+    //#region Populate Allowance
     function PopulateAllowanceData(employee) {
         console.log('Employee Allowance data:', employee);
 
@@ -2123,6 +2131,103 @@
         const conveyanceEnabled = $('#allowIsConveyanceAllowancePercentageEnabled').is(':checked');
         $('#allowConveyanceAllowancePercentage').prop('disabled', !conveyanceEnabled);
     }
+
+
+    //#endregion
+
+    //#region Allowance Submit
+
+    $('#allowanceSubmitBtn').on('click', function () {
+        submitAllowanceData();
+    });
+
+    function submitAllowanceData() {
+        const formData = new FormData();
+
+        // Append form fields matching EmployeeAdditionalPostViewModel
+        formData.append('EmployeeBaseAllowanceID', $('#allowEmployeeBaseAllowanceID').val() || '');
+        formData.append('EmployeePersonalId', $('#allowEmployeePersonalId').val() || ''); // Mapping EmployeePersonalId to EmployeeID
+        formData.append('IsEmployeeAllowanceEnabled', $('#allowIsEmployeeAllowanceEnabled').is(':checked'));
+        formData.append('MobileAllowance', $('#allowMobileAllowance').val() || '');
+        formData.append('IsMobileAllowanceEnabled', $('#allowIsMobileInternetAllowanceEnabled').is(':checked')); // Note: Update HTML to allowIsMobileAllowanceEnabled
+        formData.append('MobileAllowanceEffectiveFromStr', $('#allowMobileAllowanceEffectiveFromStr').val() || '');
+        formData.append('InternetAllowance', $('#allowInternetAllowance').val() || '');
+        formData.append('IsInternetAllowanceEnabled', $('#allowIsInternetAllowanceEnabled').is(':checked'));
+        formData.append('InternetAllowanceEffectiveFromStr', $('#allowInternetAllowanceEffectiveFromStr').val() || '');
+        formData.append('HouseRentAllowancePercentage', $('#allowHouseRentAllowancePercentage').val() || '');
+        formData.append('IsHouseRentAllowancePercentageEnabled', $('#allowIsHouseRentAllowancePercentageEnabled').is(':checked'));
+        formData.append('MedicalAllowancePercentage', $('#allowMedicalAllowancePercentage').val() || '');
+        formData.append('IsMedicalAllowancePercentageEnabled', $('#allowIsMedicalAllowancePercentageEnabled').is(':checked'));
+        formData.append('ConveyanceAllowancePercentage', $('#allowConveyanceAllowancePercentage').val() || '');
+        formData.append('IsConveyanceAllowancePercentageEnabled', $('#allowIsConveyanceAllowancePercentageEnabled').is(':checked'));
+
+        // Append company multi-select values
+        const companySelect = $('#multiple-select-tag').val();
+        if (companySelect && companySelect.length > 0) {
+            companySelect.forEach(value => formData.append('CompanyIds[]', value));
+        }
+
+        // Validate required fields if allowances are enabled
+        const isEmployeeAllowanceEnabled = $('#allowIsEmployeeAllowanceEnabled').is(':checked');
+        if (isEmployeeAllowanceEnabled) {
+            if ($('#allowIsMobileInternetAllowanceEnabled').is(':checked')) {
+                if (!$('#allowMobileAllowance').val()) {
+                    alert('Please enter a valid Mobile Allowance amount.');
+                    return;
+                }
+                if (!$('#allowMobileAllowanceEffectiveFromStr').val()) {
+                    alert('Please select a Mobile Allowance Effective From date.');
+                    return;
+                }
+            }
+            if ($('#allowIsInternetAllowanceEnabled').is(':checked')) {
+                if (!$('#allowInternetAllowance').val()) {
+                    alert('Please enter a valid Internet Allowance amount.');
+                    return;
+                }
+                if (!$('#allowInternetAllowanceEffectiveFromStr').val()) {
+                    alert('Please select an Internet Allowance Effective From date.');
+                    return;
+                }
+            }
+            if ($('#allowIsHouseRentAllowancePercentageEnabled').is(':checked') && !$('#allowHouseRentAllowancePercentage').val()) {
+                alert('Please select a House Rent Allowance Percentage.');
+                return;
+            }
+            if ($('#allowIsMedicalAllowancePercentageEnabled').is(':checked') && !$('#allowMedicalAllowancePercentage').val()) {
+                alert('Please select a Medical Allowance Percentage.');
+                return;
+            }
+            if ($('#allowIsConveyanceAllowancePercentageEnabled').is(':checked') && !$('#allowConveyanceAllowancePercentage').val()) {
+                alert('Please select a Conveyance Allowance Percentage.');
+                return;
+            }
+        }
+
+        // AJAX request to submit data
+        $.ajax({
+            url: '/EmployeeAllowance/SubmitFromEdit', // Replace with your actual API endpoint
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log('Allowance data submitted successfully:', response);
+                if (response.success) {
+                    toastr.success('Allowance data updated successfully:', response.message);
+                } else {
+                    toastr.warning('Allowance data update failed:', response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error submitting allowance data:', error);
+                alert('Failed to save employee allowances. Please try again.');
+            }
+        });
+    }
+
+
+    //#endregion
 
 
     //#endregion

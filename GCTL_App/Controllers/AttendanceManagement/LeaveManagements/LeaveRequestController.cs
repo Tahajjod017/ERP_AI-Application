@@ -93,7 +93,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         {
             try
             {
-             string url = GetPictureURL();
+             string url = GetEmployeePictureURL();
              var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url);
                 return Json(data);
             } catch (Exception ex)

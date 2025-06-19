@@ -153,6 +153,29 @@ namespace GCTL_App.Controllers.Employees
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SubmitFromEdit(EmployeeAdditionalPostViewModel model)
+        {
+            if (model.MobileAllowanceEffectiveFromStr != null)
+                model.MobileAllowanceEffectiveFrom = ConvertToDateTime(model.MobileAllowanceEffectiveFromStr);
+
+            if (model.InternetAllowanceEffectiveFromStr != null)
+                model.InternetAllowanceEffectiveFrom = ConvertToDateTime(model.InternetAllowanceEffectiveFromStr);
+
+           
+
+            try
+            {
+                var res = await _employeeAllowanceService.SaveEmployeeAllowanceAsync(model);
+
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetEmployeeAllowance(int employeeId)
         {

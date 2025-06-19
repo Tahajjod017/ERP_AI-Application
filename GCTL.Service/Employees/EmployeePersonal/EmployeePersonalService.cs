@@ -258,6 +258,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                 result.Success = false;
                 result.Message = "Please enter a valid email address.";
             }
+
             //else if(model.EmployeePicture.Length > 1048576) // 1MB
             //{
             //    result.Success = false;
@@ -278,6 +279,8 @@ namespace GCTL.Service.Employees.EmployeePersonal
             //    result.Success = false;
             //    result.Message = "Signature should be in JPEG or PNG format.";
             //}
+
+
             else if (CheckDuplicateFields(model, out string duplicateMessage))
             {
                 result.Success = false;
