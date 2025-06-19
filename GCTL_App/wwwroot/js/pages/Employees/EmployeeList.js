@@ -1937,6 +1937,114 @@
         toggleBenefitFields();
     }
 
+
+
+    //#region Submit button
+
+   
+    $('#benifitSubmitBtn').on('click', function () {
+        
+        submitBenefitData();
+    });
+
+    function submitBenefitData() {
+        const formData = new FormData();
+
+        // Append form fields
+        formData.append('EmployeeBaseBenefitID', $('#benifitEmployeeBaseBenefitID').val() || '');
+        formData.append('EmployeePersonalId', $('#benifitEmployeePersonalId').val() || '');
+        formData.append('IsBenifitEnabled', $('#benifitIsBenifitEnabled').is(':checked'));
+        formData.append('HealthInsurance', $('#benifitHealthInsurance').val() || '');
+        formData.append('IsHealthInsuranceEnabled', $('#benifitIsHealthInsuranceEnabled').is(':checked'));
+        formData.append('PerformanceBonus', $('#benifitPerformanceBonus').val() || '');
+        formData.append('IsPerformanceBonusEnabled', $('#benifitIsPerformanceBonusEnabled').is(':checked'));
+        formData.append('YearlyEndBonusTypeID', $('#benifitYearlyEndBonusTypeID').val() || '');
+        formData.append('IsYearlyEndBonusTypeIDEnabled', $('#benifitIsYearlyEndBonusTypeIDEnabled').is(':checked'));
+        formData.append('FastivalBonusPercentage', $('#benifitFastivalBonusPercentage').val() || '');
+        formData.append('IsFastivalBonusPercentageEnabled', $('#benifitIsFastivalBonusPercentageEnabled').is(':checked'));
+        formData.append('ProvidantFundEmployeePercentage', $('#benifitProvidantFundEmployeePercentage').val() || '');
+        formData.append('ProvidantFundOrganizationPercentage', $('#benifitProvidantFundOrganizationPercentage').val() || '');
+        formData.append('IsProvidantFundEnabled', $('#benifitIsProvidantFundEnabled').is(':checked'));
+        formData.append('ServiceYearID', $('#benifitServiceYearID').val() || '');
+
+        // Append company multi-select values
+        const companySelect = $('#multiple-select-tag').val();
+        if (companySelect && companySelect.length > 0) {
+            companySelect.forEach(value => formData.append('CompanyIds[]', value));
+        }
+
+        // Validate required fields if benefits are enabled
+        const isBenifitEnabled = $('#benifitIsBenifitEnabled').is(':checked');
+        if (isBenifitEnabled) {
+            if ($('#benifitIsHealthInsuranceEnabled').is(':checked') && !$('#benifitHealthInsurance').val()) {
+                alert('Please enter a valid Health Insurance amount.');
+                return;
+            }
+            if ($('#benifitIsPerformanceBonusEnabled').is(':checked') && !$('#benifitPerformanceBonus').val()) {
+                alert('Please enter a valid Performance Bonus amount.');
+                return;
+            }
+            if ($('#benifitIsYearlyEndBonusTypeIDEnabled').is(':checked') && !$('#benifitYearlyEndBonusTypeID').val()) {
+                alert('Please select a Yearly End Bonus Type.');
+                return;
+            }
+            if ($('#benifitIsFastivalBonusPercentageEnabled').is(':checked') && !$('#benifitFastivalBonusPercentage').val()) {
+                alert('Please select a Festival Bonus Percentage.');
+                return;
+            }
+            if ($('#benifitIsProvidantFundEnabled').is(':checked')) {
+                if (!$('#benifitProvidantFundEmployeePercentage').val()) {
+                    alert('Please select an Employee Provident Fund Percentage.');
+                    return;
+                }
+                if (!$('#benifitProvidantFundOrganizationPercentage').val()) {
+                    alert('Please select an Organization Provident Fund Percentage.');
+                    return;
+                }
+                if (!$('#benifitServiceYearID').val()) {
+                    alert('Please select a Minimum Service Year.');
+                    return;
+                }
+            }
+        }
+
+        // AJAX request to submit data
+        $.ajax({
+            url: '/EmployeeBenifit/SubmitFromEdit', // Replace with your actual API endpoint
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log('Benefit data submitted successfully:', response);
+                alert('Employee benefits saved successfully!');
+                // Optionally reset form or redirect
+                // $('#benefitForm')[0].reset();
+                // toggleBenefitFields();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error submitting benefit data:', error);
+                alert('Failed to save employee benefits. Please try again.');
+            }
+        });
+
+    }
+
+    //// Initialize the submit handler and toggle events when the document is ready
+    //$(document).ready(function () {
+    //    submitBenefitData();
+    //    $('#benifitIsBenifitEnabled').on('change', toggleBenefitFields);
+    //    $('#benifitIsHealthInsuranceEnabled').on('change', toggleBenefitFields);
+    //    $('#benifitIsPerformanceBonusEnabled').on('change', toggleBenefitFields);
+    //    $('#benifitIsYearlyEndBonusTypeIDEnabled').on('change', toggleBenefitFields);
+    //    $('#benifitIsFastivalBonusPercentageEnabled').on('change', toggleBenefitFields);
+    //    $('#benifitIsProvidantFundEnabled').on('change', toggleBenefitFields);
+    //});
+
+    //#endregion
+
+
+
     function toggleBenefitFields() {
         const healthEnabled = $('#benifitIsHealthInsuranceEnabled').is(':checked');
         $('#benifitHealthInsurance').prop('disabled', !healthEnabled);
