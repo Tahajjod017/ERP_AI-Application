@@ -1,8 +1,6 @@
 ﻿
  @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
- 
- 
-@* <button type="button" class="btn btn-light me-2" id="ResetButton">Cancel</button> *@
+
 <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
           <div class="modal-body pb-0">
             <div class="row">
@@ -27,18 +25,20 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">No of Days</label>
+                    <label class="form-label">Available No of Days</label>
                   <input type="text" class="form-control" asp-for="LeaveDays"  disabled>
                 </div>
               </div>
-              <div class="col-md-6">
+
+            @*   < div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Remaining Days</label>
                   <input type="text" class="form-control"  disabled>
                 </div>
                 
-              </div>
-              <div class="d-flex col-md-6 mt-5">
+              </div>  *@
+
+              <div class="d-flex col-md-6">
                 <div class="form-check me-3">
                     <input class="form-check-input" type="radio" asp-for="IsFullDay" id="option1" value="true" checked>
                   <label class="form-check-label" for="option1">Full Day</label>
@@ -85,26 +85,27 @@
                             </div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        <label class="form-label">Leave Days</label>
-                        <input type="text" class="form-control"  disabled>
+                                <label class="form-label">Subsequent Holyday Days</label>
+                                <input type="text" id="SubsequentHolydayDays" class="form-control" disabled>
                       </div>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        <label class="form-label">Subsequent Holyday Days</label>
-                        <input type="text" class="form-control"  disabled>
+                        
+                                <label class="form-label">Total Applied Days</label>
+                                <input type="text" id="TotalAppliedDays" class="form-control" disabled>
                       </div>
                     </div>
 
-                    <div class="col-md-4">
+                   @*  <div class="col-md-4">
                       <div class="mb-3">
                         <label class="form-label">Total Days</label>
                         <input type="text" class="form-control"  disabled>
                       </div>
-                    </div>
+                    </div> *@
 
                   </div>
                 </div>
@@ -179,9 +180,15 @@
         toggleLeaveSections();
     });
 
+
+    //
+    
+
+    //
+      
+    
     
 </script>
 
 
 
-           

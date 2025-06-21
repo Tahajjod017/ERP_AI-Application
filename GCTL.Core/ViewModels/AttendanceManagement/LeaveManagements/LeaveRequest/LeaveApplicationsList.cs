@@ -20,9 +20,11 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public string? ToDate { get; set; }
         public string? FromDate { get; set; }
         public bool IsFullDay { get; set; }
+        
+        public int? EmployeeID { get; set; } 
         //public TimeOnly? PartialFromTime { get; set; }
         //public TimeOnly? PartialToTime { get; set; }
-       
+
     }
 }
 
