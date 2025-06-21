@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Designations
+public partial class ApprovalTypes
 {
-    public int DesignationID { get; set; }
+    public int ApprovalTypeID { get; set; }
 
-    public string DesignationName { get; set; }
+    public int? OrganizationID { get; set; }
+
+    public int? OrganizationBranchID { get; set; }
+
+    public string ApprovalTypeName { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,19 +31,15 @@ public partial class Designations
 
     public int? DeletedBy { get; set; }
 
-    public int? DisplayOrder { get; set; }
-
-    public int? OrganizationID { get; set; }
-
-    public int? Ranking { get; set; }
+    public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
-
     public virtual Organization Organization { get; set; }
+
+    public virtual OrganizationBranches OrganizationBranch { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

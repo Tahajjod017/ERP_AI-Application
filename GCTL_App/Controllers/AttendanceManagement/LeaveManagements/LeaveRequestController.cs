@@ -134,5 +134,45 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             }
         }
         #endregion
+
+
+        #region Get Leave policy as count or not
+        [Route("LeaveRequest/GetLeavePolicyIsCountAsync")]
+        [HttpGet]
+
+        public async Task<IActionResult> GetLeavePolicyIsCountAsync()
+        {
+            try
+            {
+                var data = await leaveRequestService.GetLeavePolicyIsCountAsync();
+                if (data == null)
+                {
+                    return null;
+                }
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+            
+        }
+        [HttpGet]
+        [Route("LeaveRequest/SubsequentLeaveCount")]
+        public async Task<IActionResult> SubsequentLeaveCount(DateTime fromDate,DateTime toDate)
+        {
+            try
+            {
+                var data = await leaveRequestService.SubsequentAsynce(fromDate, toDate);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
     }
 }

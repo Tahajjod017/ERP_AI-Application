@@ -26,7 +26,26 @@ $(document).ready(function () {
             }
         });
     }
-       
+
+    GetLeavePolicyIsCountAsync();
+    function GetLeavePolicyIsCountAsync() {
+        $.ajax({
+            url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
+            type: 'GET',
+            success: function (data) {
+               
+                if (data.length > 0 && (data[0].isWeekendCountedAsLeave  || data[0].isHolidayCountedAsLeave )) {
+                    $('#SubsequentHolydayDays').val('');
+                } else {
+                    $('#SubsequentHolydayDays').val('Not Applicable');
+                }
+                
+            },
+            error: function () {
+                toastr.error('Failed to retrieve data.');
+            }
+        })
+    }
    
 
     // Get LeaveDays according to LeaveType
@@ -112,6 +131,87 @@ $(document).ready(function () {
         flatpickr("#ToDate", { dateFormat: "Y-m-d" });
     //
 
+    //Calculate Days
+    function calculateDays() {
+        let fromDate = flatpickrHelper.getDate('FromDate');
+        let toDate = flatpickrHelper.getDate('ToDate');
+
+        console.log("FromDate:", fromDate);
+        console.log("ToDate:", toDate);
+
+        // Convert string to Date if needed
+        if (typeof fromDate === 'string') fromDate = new Date(fromDate);
+        if (typeof toDate === 'string') toDate = new Date(toDate);
+
+        // Validate both are valid Date objects
+        if (!(fromDate instanceof Date) || isNaN(fromDate) ||
+            !(toDate instanceof Date) || isNaN(toDate)) {
+            document.getElementById('TotalAppliedDays').value = '';
+            return;
+        }
+
+        // Ensure ToDate >= FromDate
+        if (toDate < fromDate) {
+            toastr.warning("To Date must be greater than or equal to From Date");
+            document.getElementById('TotalAppliedDays').value = '';
+            flatpickrHelper.clearDate('ToDate')
+            document.getElementById('ToDate').value = '';
+            return;
+        }
+
+        // Normalize time to midnight
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+
+        const timeDiff = toDate.getTime() - fromDate.getTime();
+        const dayDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Inclusive
+
+        document.getElementById('TotalAppliedDays').value = dayDiff;
+    }
+
+    // Bind change events
+    document.getElementById('FromDate').addEventListener('change', calculateDays);
+    document.getElementById('ToDate').addEventListener('change', calculateDays);
+
+
+    //
+
+    $(document).on('change', '#FromDate, #ToDate', function (e) {
+        e.preventDefault();
+
+        let fromDate = flatpickrHelper.getDate('FromDate');
+        let toDate = flatpickrHelper.getDate('ToDate');
+        console.log("SubFromDate", fromDate);
+        console.log("SubToDate", toDate);
+       
+        if (!fromDate || !toDate) return;
+
+        $.ajax({
+            url: '/LeaveRequest/SubsequentLeaveCount',
+            type: 'GET',
+            data: {
+                fromDate: fromDate,
+                toDate: toDate
+            },
+            success: function (data) {
+                if (data && data.totalSubsequentDays > 0) {
+                    $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
+                    $('#SubsequentHolydayDays').val("Not Applicable  Testt");
+                } else {
+                    $('#SubsequentHolydayDays').val("0");
+                }
+            }
+,
+            error: function () {
+                toastr.error('Failed to fetch subsequent.');
+            }
+        });
+    });
+
+
+
+    //
    
 
     //

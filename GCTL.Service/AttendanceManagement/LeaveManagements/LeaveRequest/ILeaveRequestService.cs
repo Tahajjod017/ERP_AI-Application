@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -22,5 +23,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         Task<object> GetLeaveTypeTotaldays(int leaveTypeID);
         Task<List<CommonSelectVM>> GetAllEmployee(string userId);
+
+        #region Get Leavepolicy as count or else
+        Task<List<GetLeavePolicyConfigurationVM>> GetLeavePolicyIsCountAsync();
+        Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate);
+        #endregion
     }
 }

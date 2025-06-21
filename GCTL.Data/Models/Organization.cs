@@ -29,6 +29,32 @@ public partial class Organization
 
     public int? TenantInfoId { get; set; }
 
+    public string EmailAddress { get; set; }
+
+    public string Phone { get; set; }
+
+    public string Fax { get; set; }
+
+    public string WebAddress { get; set; }
+
+    public string LogoLink { get; set; }
+
+    public string FaviconLink { get; set; }
+
+    public string Address { get; set; }
+
+    public int? CountryID { get; set; }
+
+    public string Street { get; set; }
+
+    public string City { get; set; }
+
+    public string PostCode { get; set; }
+
+    public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
+
+    public virtual ICollection<ApprovalTypes> ApprovalTypes { get; set; } = new List<ApprovalTypes>();
+
     public virtual ICollection<ApplicationRole> AspNetRoles { get; set; } = new List<ApplicationRole>();
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
@@ -38,6 +64,10 @@ public partial class Organization
     public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual ICollection<Departments> Departments { get; set; } = new List<Departments>();
+
+    public virtual ICollection<Designations> Designations { get; set; } = new List<Designations>();
 
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
@@ -60,4 +90,6 @@ public partial class Organization
     public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<WeekendSettings> WeekendSettings { get; set; } = new List<WeekendSettings>();
 }
