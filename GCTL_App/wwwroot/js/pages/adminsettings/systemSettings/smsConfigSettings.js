@@ -1,46 +1,7 @@
-﻿$(document).ready(function () {
-    $('#bloodGroup-check-all').on('change', function () {
-        var isChecked = $(this).prop('checked');
-        $('.bloodGroup-selectItem').prop('checked', isChecked);
-
-        toggleBulkActions();
-    });
-
-    $(document).on('change', '.bloodGroup-selectItem', function () {
-        toggleBulkActions();
-    });
-});
-
-function toggleBulkActions() {
-    const allItems = $('.bloodGroup-selectItem');
-    const checkedItems = $('.bloodGroup-selectItem:checked');
-
-    const allChecked = allItems.length === checkedItems.length;
-    const someChecked = checkedItems.length > 0 && !allChecked;
-
-    $('#bloodGroup-check-all').prop('checked', allChecked);
-    $('#bloodGroup-check-all').prop('indeterminate', someChecked);
-
-    if (checkedItems.length > 1) {
-        $('#bloodGroup-bulkSelectActions').removeClass('d-none');
-        $('#bloodGroup-searchBox').addClass('d-none');
-        $('.bloodGroup-bulkDelete').addClass('disabled');
-        $('.bloodGroup-bulkEdit').addClass('disabled');
-    } else {
-        $('#bloodGroup-bulkSelectActions').addClass('d-none');
-        $('#bloodGroup-searchBox').removeClass('d-none');
-        $('.bloodGroup-bulkDelete').removeClass('disabled');
-        $('.bloodGroup-bulkEdit').removeClass('disabled');
-    }
-}
-
-
-
-
-var currentPage = 1;
+﻿var currentPage = 1;
 var pageSize = 5;
 
-$('#bloodGroup-pageSizeSelect').on('change', function () {
+$('#addSmsConfig-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -54,19 +15,19 @@ $('#bloodGroup-pageSizeSelect').on('change', function () {
 $(document).ready(function () {
     loadTableData();
 
-    $("#addEmailConfig-searchInput").on("input", function () {
+    $("#addSmsConfig-searchInput").on("input", function () {
         currentPage = 1;
         loadTableData();
     });
 
-    $("#addEmailConfig-prevPageBtn").on('click', function () {
+    $("#addSmsConfig-prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
             loadTableData();
         }
     });
 
-    $("#addEmailConfig-nextPageBtn").on('click', function () {
+    $("#addSmsConfig-nextPageBtn").on('click', function () {
         currentPage++;
         loadTableData();
     });
@@ -107,7 +68,7 @@ function updateSortingIndicator() {
 }
 
 function loadTableData(sortColumn, sortOrder) {
-    var searchTerm = $("#addEmailConfig-searchInput").val();
+    var searchTerm = $("#addSmsConfig-searchInput").val();
 
     $.ajax({
         url: '/EmailSetting/GetAll',
@@ -120,7 +81,7 @@ function loadTableData(sortColumn, sortOrder) {
             sortOrder: sortOrder
         },
         success: function (response) {
-            var tableBody = $("#addEmailConfig-tBody");
+            var tableBody = $("#addSmsConfig-tBody");
             tableBody.empty();
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
@@ -154,8 +115,8 @@ function loadTableData(sortColumn, sortOrder) {
 
             var paginationInfo = response.paginationInfo;
 
-            $("#addEmailConfig-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-            $("#bloodGroup-totalCount").text(`(${paginationInfo.totalItems})`);
+            $("#addSmsConfig-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+            $("#addSmsConfig-totalCount").text(`(${paginationInfo.totalItems})`);
 
             updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
         },
@@ -166,7 +127,7 @@ function loadTableData(sortColumn, sortOrder) {
 }
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
-    const paginationLinks = $("#addEmailConfig-paginationLinks");
+    const paginationLinks = $("#addSmsConfig-paginationLinks");
     paginationLinks.empty();
     // Window size (number of pages before/after the current page)
     const windowSize = 1;
@@ -192,8 +153,8 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
         paginationLinks.append(addEllipsis(), createPageButton(totalPages));
     }
     // Disable or enable previous/next buttons
-    $("#addEmailConfig-prevPageBtn").prop('disabled', currentPage === 1);
-    $("#addEmailConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
+    $("#addSmsConfig-prevPageBtn").prop('disabled', currentPage === 1);
+    $("#addSmsConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
 $(document).on('click', '.page-btn', function () {

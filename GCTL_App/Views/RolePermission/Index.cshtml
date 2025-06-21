@@ -176,7 +176,7 @@
                     <!-- Company Selection -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label" for="companySelection">Company</label>
-                        <select class="form-select choiceDD" id="companySelection" name="OrganizationID" multiple>
+                        <select class="form-select choiceDD" id="companySelection" name="OrganizationID">
                             <option value="">Select a Company</option>
                             @foreach (var company in ViewBag.CompanyElement)
                             {
@@ -232,8 +232,8 @@
 
                     <!-- Element Single Select (populated by AJAX) -->
                     <div class="col-md-6 mb-3">
-                        <label class="form-label choiceDD" for="elementSelection">Element</label>
-                        <select class="form-select" id="elementSelection" name="ElementKey" multiple>
+                        <label class="form-label " for="elementSelection">Element</label>
+                        <select class="form-select choiceDD" id="elementSelection" name="ElementKey" multiple>
                             <option value="">Select an Element</option>
                             <!-- Dynamically loaded options go here -->
                         </select>
