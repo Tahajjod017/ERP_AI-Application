@@ -6,7 +6,16 @@
            href="@Url.Action("Index", "CompanySettings")"
            role="tab"
            aria-selected="@(Model == "Company" ? "true" : "false")">
-            Company
+            Organization
+        </a>
+    </li>
+    
+    <li class="nav-item">
+        <a class="nav-link @(Model == "BranchSettings" ? "active" : "")"
+           href="@Url.Action("Index", "BranchSettings")"
+           role="tab"
+           aria-selected="@(Model == "BranchSettings" ? "true" : "false")">
+            Branch Settings
         </a>
     </li>
     <li class="nav-item">
@@ -15,14 +24,6 @@
            role="tab"
            aria-selected="@(Model == "DepartmentSettings" ? "true" : "false")">
             Department Settings
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link @(Model == "BranchSettings" ? "active" : "")"
-           href="@Url.Action("Index", "BranchSettings")"
-           role="tab"
-           aria-selected="@(Model == "BranchSettings" ? "true" : "false")">
-            Branch Settings
         </a>
     </li>
     <li class="nav-item">

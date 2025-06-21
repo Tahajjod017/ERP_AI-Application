@@ -1,0 +1,353 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<nav class="mb-3" aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="#!">Page 1</a></li>
+        <li class="breadcrumb-item"><a href="#!">Page 2</a></li>
+        <li class="breadcrumb-item active">Default</li>
+    </ol>
+</nav>
+
+<div class="mb-9">
+    <div class="row">
+        <div class="col-xl-4 theiaStickySidebar">
+            <div class="card card-bg-1">
+                <div class="card-body p-0">
+                    <div class="text-center px-3 pb-3 border-bottom">
+                        <div class="mt-3">
+                            <a href="#">
+                                <div class="avatar avatar-xl me-2">
+                                    <img class="rounded-circle" src="" alt="" id="profileImage" />
+                                </div>
+                            </a>
+                            <div class="flex-1 my-2">
+                                <h5 class="d-flex align-items-center justify-content-center mb-1">
+                                    <a class="fw-bold mb-0 text-body-emphasis" id="employeeName"></a>
+                                </h5>
+                                <span class="badge badge-phoenix badge-phoenix-primary" id="employeeRole"></span>
+                                <span class="badge badge-phoenix badge-phoenix-success" id="employeeExperience"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa fa-id-card me-2"></i>
+                                    @Html.SmartLocalize("Employee ID")
+                                </span>
+                                <p class="text-dark" id="employeeId"></p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa fa-star me-2"></i>
+                                    @Html.SmartLocalize("Department")
+                                </span>
+                                <p class="text-dark" id="department"></p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa fa-calendar me-2"></i>
+                                    @Html.SmartLocalize("Date Of Join")
+                                </span>
+                                <p class="text-dark" id="joinDate"></p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa fa-calendar-days me-2"></i>
+                                    @Html.SmartLocalize("Report Office")
+                                </span>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle" id="supervisorImage" src="" alt="" />
+                                    </div>
+                                    <p class="text-gray-9 mb-0" id="supervisorName"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6>@Html.SmartLocalize("Basic Information")</h6>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-phone me-2"></i>
+                                @Html.SmartLocalize("Phone")
+                            </span>
+                            <p class="text-dark" id="phoneNumber"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-message me-2"></i>
+                                @Html.SmartLocalize("Email")
+                            </span>
+                            <a href="" class="text-info d-inline-flex align-items-center" id="emailAddress"></a>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-male me-2"></i>
+                                @Html.SmartLocalize("Gender")
+                            </span>
+                            <p class="text-dark text-end" id="gender"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-chess me-2"></i>
+                                @Html.SmartLocalize("Birthday")
+                            </span>
+                            <p class="text-dark text-end" id="dateOfBirth"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-map-marker-alt me-2"></i>
+                                @Html.SmartLocalize("Address")
+                            </span>
+                            <p class="text-dark text-end" id="address"></p>
+                        </div>
+                    </div>
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6>@Html.SmartLocalize("Passport Information")</h6>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-id-card me-2"></i>
+                                @Html.SmartLocalize("Passport No")
+                            </span>
+                            <p class="text-dark" id="passportNumber"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-calendar-days me-2"></i>
+                                @Html.SmartLocalize("Passport Exp Date")
+                            </span>
+                            <p class="text-dark text-end" id="passportExpiryDate"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-male me-2"></i>
+                                @Html.SmartLocalize("Nationality")
+                            </span>
+                            <p class="text-dark text-end" id="nationality"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-bookmark me-2"></i>
+                                @Html.SmartLocalize("Religion")
+                            </span>
+                            <p class="text-dark text-end" id="religion"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-hotel me-2"></i>
+                                @Html.SmartLocalize("Marital Status")
+                            </span>
+                            <p class="text-dark text-end" id="maritalStatus"></p>
+                        </div>
+
+                        <!--
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-briefcase me-2"></i>
+                                @Html.SmartLocalize("Employment of Spouse")
+                            </span>
+                            <p class="text-dark text-end" id="spouseEmployment"></p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="d-inline-flex align-items-center">
+                                <i class="fa fa-user-group me-2"></i>
+                                @Html.SmartLocalize("No. of Children")
+                            </span>
+                            <p class="text-dark text-end" id="numberOfChildren"></p>
+                        </div>
+                        -->
+
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="d-flex align-items-center justify-content-between mx-3 mt-3">
+                    <h6>@Html.SmartLocalize("Emergency Contact Number")</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="d-inline-flex align-items-center">@Html.SmartLocalize("Primary")</span>
+                                <h6 class="d-flex align-items-center fw-medium mt-1">
+                                    <span id="primaryContactName"></span>
+                                    <span class="d-inline-flex mx-1"><i class="ti ti-point-filled text-danger mx-1"></i></span>
+                                    <span id="primaryContactRelation"></span>
+                                </h6>
+                            </div>
+                            <p class="text-dark" id="primaryContactNumber"></p>
+                        </div>
+                    </div>
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="d-inline-flex align-items-center">@Html.SmartLocalize("Secondary")</span>
+                                <h6 class="d-flex align-items-center fw-medium mt-1">
+                                    <span id="secondaryContactName"></span>
+                                    <span class="d-inline-flex mx-1"><i class="ti ti-point-filled text-danger mx-1"></i></span>
+                                    <span id="secondaryContactRelation"></span>
+                                </h6>
+                            </div>
+                            <p class="text-dark" id="secondaryContactNumber"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8">
+            <div>
+                <div class="tab-content custom-accordion-items">
+                    <div class="tab-pane active show" id="bottom-justified-tab1" role="tabpanel">
+                        <div class="card">
+                            <div class="mb-3 border-bottom">
+                                <div class="accordion-body mt-2 p-2">
+                                    <div class="d-flex align-items-center flex-fill">
+                                        <h5>@Html.SmartLocalize("About Employee")</h5>
+                                    </div>
+                                    <p id="employeeBio"></p>
+                                </div>
+                            </div>
+                            <div class="my-3">
+                                <div class="accordion-body mt-2 border-bottom">
+                                    <div class="d-flex align-items-center flex-fill">
+                                        <h5 class="ms-2">@Html.SmartLocalize("Bank Information")</h5>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-2">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">@Html.SmartLocalize("Bank Name")</th>
+                                                    <th scope="col">@Html.SmartLocalize("Branch")</th>
+                                                    <th scope="col">@Html.SmartLocalize("Account No")</th>
+                                                    <th scope="col">@Html.SmartLocalize("Swift Code")</th>
+                                                    <th scope="col">@Html.SmartLocalize("IFSC Code")</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="bankTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="my-3">
+                                <div class="accordion-body mt-2 border-bottom">
+                                    <div class="d-flex align-items-center flex-fill">
+                                        <h5 class="ms-2">@Html.SmartLocalize("Family Information")</h5>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-2">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">@Html.SmartLocalize("Name")</th>
+                                                    <th scope="col">@Html.SmartLocalize("Contact No")</th>
+                                                    <th scope="col">@Html.SmartLocalize("Email")</th>
+                                                    <th scope="col">@Html.SmartLocalize("Relationship")</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="familyTableBody">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="my-3">
+                                <div class="accordion-body mt-2 border-bottom">
+                                    <div class="d-flex align-items-center flex-fill">
+                                        <h5 class="ms-2">@Html.SmartLocalize("Educational Information")</h5>
+                                    </div>
+                                    <div class="accordion-body">
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.SmartLocalize("Exam Title")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Concentration/Major")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Institute")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Result")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Pas.Year")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Duration")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="educationTableBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="my-3">
+                                <div class="accordion-body mt-2 border-bottom">
+                                    <div class="d-flex align-items-center flex-fill">
+                                        <h5 class="ms-2">@Html.SmartLocalize("Training Information")</h5>
+                                    </div>
+                                    <div class="accordion-body mt-2">
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.SmartLocalize("Training Title")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Topic")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Institute")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Year")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Duration")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="trainingTableBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="my-3">
+                                <div class="accordion-body mt-2">
+                                    <div class="d-flex align-items-center flex-fill">
+                                        <h5 class="ms-2">@Html.SmartLocalize("Experience Information")</h5>
+                                        
+                                    </div>
+                                    <div class="accordion-body mt-2">
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.SmartLocalize("Organization")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Job Title")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Time Duration")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="experienceTableBody">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/pages/employees/employeedetails.js"></script>
+
+
+
+}
+

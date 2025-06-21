@@ -40,6 +40,11 @@ namespace GCTL_App.Controllers.Employees
         private readonly IEmployeePersonalService _employeePersonalService;
         private readonly IEmployeeSalaryService _employeeSalaryService;
         private readonly IEmployeeTrainingService _employeeTrainingService;
+        private readonly IGenericRepository<EmployeeType> _employeeTypeRepository;
+        private readonly IGenericRepository<Departments> _departmentRepository;
+        private readonly IGenericRepository<Designations> _designationRepository;
+        private readonly IGenericRepository<EmploymentNature> _employmentNatureRepository;
+        private readonly IGenericRepository<Statuses> _employeeStatusRepository;
 
         private readonly IGenericRepository<LicenceTypes> _licenceTypesRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
@@ -53,11 +58,6 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<PassingYears> _passingYearRepository;
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IGenericRepository<OrganizationBranches> _branchRepository;
-        private readonly IGenericRepository<EmployeeType> _employeeTypeRepository;
-        private readonly IGenericRepository<Departments> _departmentRepository;
-        private readonly IGenericRepository<Designations> _designationRepository;
-        private readonly IGenericRepository<EmploymentNature> _employmentNatureRepository;
-        private readonly IGenericRepository<Statuses> _employeeStatusRepository;
         private readonly IGenericRepository<Grade> _gradeRepository;
         private readonly IGenericRepository<Currencies> _currencyRepository;
         private readonly IGenericRepository<PaymentPeriodTypes> _paymentPeriodTypeRepository;
@@ -121,7 +121,7 @@ namespace GCTL_App.Controllers.Employees
         public IActionResult Index()
         {
             PopulateDDViewBag();
-
+            SetSmartPageCode(118000);
             return View();
         }
 
