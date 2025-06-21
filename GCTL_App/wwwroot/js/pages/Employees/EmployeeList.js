@@ -180,6 +180,9 @@
                     </td>
                     <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                         <div class="btn-reveal-trigger position-static g-3">
+                            <a href="/EmployeeDetails/Index/${employee.id}" class="nav-item me-2" >
+                                <i class="far fa-user-circle text-black tblInfoBtn"></i>
+                            </a>
                             <a href="#" class="nav-item me-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightANE" aria-controls="offcanvasRightANE">
                                 <i class="fas fa-edit text-black tblEditBtn"></i>
                             </a>
