@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeOfficial;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeOfficial;
 using GCTL.Service.Language;
@@ -37,9 +38,10 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
 
         private readonly IEmployeeOfficialService _employeeOfficialService;
+        private readonly IElementPermissionService _elementPermissionService;
 
 
-        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IEmployeeNavigationService employeeNavigationService, IGenericRepository<UserManager<ApplicationUser>> userManagerRepository, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<RoleManager<ApplicationRole>> roleManagerRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<RoleModulePermissions> rolePermissionRepository, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository) : base(translateService, userProfileService)
+        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IEmployeeNavigationService employeeNavigationService, IGenericRepository<UserManager<ApplicationUser>> userManagerRepository, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<RoleManager<ApplicationRole>> roleManagerRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<RoleModulePermissions> rolePermissionRepository, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _branchRepository = branchRepository;
@@ -59,6 +61,7 @@ namespace GCTL_App.Controllers.Employees
             _roleManagerRepository2 = roleManagerRepository2;
             _rolePermissionRepository = rolePermissionRepository;
             _menuTabRepository = menuTabRepository;
+            _elementPermissionService = elementPermissionService;
         }
 
         #endregion
@@ -84,6 +87,12 @@ namespace GCTL_App.Controllers.Employees
                                 join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
+
+                // Check if the user has permission to choose an employee (for a specific page and element)
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                // Pass the permission status to the view
+                ViewBag.HasEmployeePermission = hasEmployeePermission;
 
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs ,"OfficialInfo");

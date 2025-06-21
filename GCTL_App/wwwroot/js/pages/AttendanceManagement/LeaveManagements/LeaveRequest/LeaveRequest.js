@@ -1,6 +1,60 @@
 ﻿
+
 $(document).ready(function () {
 
+
+    //Get Employee according to LoginID
+    GetAllEmpoyee();
+    function GetAllEmpoyee() {
+        $.ajax({
+            url: '/LeaveRequest/GetEmployee', 
+            type: 'GET',
+            success: function (data) {
+                
+                choiceManager.populateDropdown('EmployeeID', data);
+               
+                if (data.length === 1)
+                {
+                    var firstData = data[0];
+                    choiceManager.setChoiceValue('EmployeeID', firstData.id); 
+                }
+                
+            },
+            error: function ()
+            {
+                toastr.error('Failed to retrieve employee data.');
+            }
+        });
+    }
+       
+   
+
+    // Get LeaveDays according to LeaveType
+    $('#LeaveTypeID').on('change', function () {
+        var selectedId = $(this).val();
+        if (selectedId) {
+            $.ajax({
+                url: '/LeaveRequest/GetLeaveDays',
+                type: 'GET',
+                data: { leaveTypeId: selectedId },
+                success: function (data) {
+                    if (data && data.leaveDays !== null) {
+                        $('#LeaveDays').val(data.leaveDays);
+                    } else {
+                        $('#LeaveDays').val('0');
+                    }
+                },
+                error: function () {
+                    toastr.error('Failed to fetch leave days.');
+                    $('#LeaveDays').val('0');
+                }
+            });
+        } else {
+            $('#LeaveDays').val('');
+        }
+    });
+
+    //
    
     toggleTimeDateValidation();
 
@@ -279,9 +333,18 @@ function getAvatarHtml(employee) {
     }
 }
 
+$(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
+
+    currentPage = 1;
+    loadTableData();
+});
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
-
+    var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
+    var statusID = $('#StatusIDFilterDD').val();
+   
+  
     $.ajax({
         url: '/LeaveRequestRoute/GetAllTableListAsync',
         method: 'GET',
@@ -290,7 +353,9 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             pageSize: pageSize,
             searchTerm: searchTerm,
             currentSortColumn: currentSortColumn,
-            currentSortOrder: currentSortOrder
+            currentSortOrder: currentSortOrder,
+            leaveTypeID: leaveTypeID,
+            statusID: statusID
         },
         success: function (response) {
            

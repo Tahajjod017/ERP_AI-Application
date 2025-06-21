@@ -10,22 +10,24 @@ using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
-    //[Area("AttendanceManagement")]
+   
     public class LeaveRequestController : BaseController
     {
         private readonly IGenericRepository<LeaveTypes> leaveType;
         private readonly IGenericRepository<Statuses> status;
         private ILeaveRequestService  leaveRequestService;
-        private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
-        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, IGenericRepository<GCTL.Data.Models.Employees> employee ) : base(translateService, userProfileService)
+     
+        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService ) : base(translateService, userProfileService)
         {
             this.leaveType = leaveType;
             this.status = status;
             this.leaveRequestService = leaveRequestService;
-            this.employee = employee;
+           
         }
 
         public IActionResult Index()
@@ -38,28 +40,36 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
-            var employeeList = employee.AllActive().Where(x => !string.IsNullOrEmpty(x.FirstName) && !string.IsNullOrEmpty(x.LastName)).ToList();
-
-            if (employeeList.Any())
-            {
-                ViewBag.EmployeeDD = new SelectList(
-                    employeeList.Select(x => new
-                    {
-                        x.EmployeeID,
-                        FullName = x.FirstName + " " + x.LastName
-                    }),
-                    "EmployeeID",
-                    "FullName"
-                );
-            }
-            else
-            {
-                ViewBag.EmployeeDD = new SelectList(Enumerable.Empty<object>(), "EmployeeID", "FullName");
-            }
-
-
-            //SetSmartPageCode(300);
             return View(model);
+        }
+        #region Get All Or Single Employee according to loginID
+       
+        [Route("LeaveRequest/GetEmployee")]
+        [HttpGet]
+        public async Task<IActionResult>GetEmployee()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) 
+            {
+                return BadRequest();
+                    
+             }
+            var data = await leaveRequestService.GetAllEmployee(userId);
+            return Json(data);
+        }
+        #endregion
+
+        [HttpGet]
+        [Route("LeaveRequest/GetLeaveDays")]
+        public async Task<IActionResult> GetLeaveDays(int leaveTypeId)
+        {
+            var data = await leaveRequestService.GetLeaveTypeTotaldays(leaveTypeId);
+                
+                if(data==null)
+            {
+                return NotFound();
+            }
+            return Json(data);
         }
         #region  Save Data 
 
@@ -89,12 +99,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         [Route("LeaveRequestRoute/GetAllTableListAsync")]
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "")
+        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null)
         {
             try
             {
-             string url = GetEmployeePictureURL();
-             var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url);
+                 string url = GetEmployeePictureURL();
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url,userId,leaveTypeID,statusID);
                 return Json(data);
             } catch (Exception ex)
             {

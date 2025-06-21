@@ -8,8 +8,9 @@
             <div class="row">
               <div class="col-md-12">
                 <div class="mb-3">
-                  <label class="form-label" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeID" required asp-items="@ViewBag.EmployeeDD as SelectList">
+                  <label class="form-label req" for="organizerSingle">Name</label>
+                    <select class="form-select choiceDD" asp-for="EmployeeID" required>
+                      @*   asp-items="@ViewBag.EmployeeDD as SelectList" *@
                         <option value="">Select Employee</option>
                     </select>
                     <span asp-validation-for="EmployeeID" class="text-danger small"></span>
@@ -17,7 +18,7 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Leave Type</label>
+                    <label class="form-label req">Leave Type</label>
                     <select class="form-select choiceDD" asp-for="LeaveTypeID" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
                         <option value="">Select Leave</option>
                     </select>
@@ -27,13 +28,13 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">No of Days</label>
-                  <input type="text" class="form-control" value="Auto Calculation" disabled>
+                  <input type="text" class="form-control" asp-for="LeaveDays"  disabled>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Remaining Days</label>
-                  <input type="text" class="form-control" value="8" disabled>
+                  <input type="text" class="form-control"  disabled>
                 </div>
                 
               </div>
@@ -49,8 +50,6 @@
                 </div>
               </div>
 
-              
-              
 
                <!-- Divs to Show/Hide -->
             <div id="FullDayDiv" class="">
@@ -89,21 +88,21 @@
                     <div class="col-md-4">
                       <div class="mb-3">
                         <label class="form-label">Leave Days</label>
-                        <input type="text" class="form-control" value="2" disabled>
+                        <input type="text" class="form-control"  disabled>
                       </div>
                     </div>
 
                     <div class="col-md-4">
                       <div class="mb-3">
                         <label class="form-label">Subsequent Holyday Days</label>
-                        <input type="text" class="form-control" value="1" disabled>
+                        <input type="text" class="form-control"  disabled>
                       </div>
                     </div>
 
                     <div class="col-md-4">
                       <div class="mb-3">
                         <label class="form-label">Total Days</label>
-                        <input type="text" class="form-control" value="3" disabled>
+                        <input type="text" class="form-control"  disabled>
                       </div>
                     </div>
 

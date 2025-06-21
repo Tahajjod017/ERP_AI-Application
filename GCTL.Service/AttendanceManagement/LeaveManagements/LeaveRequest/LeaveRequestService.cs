@@ -9,12 +9,15 @@ using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 {
@@ -24,29 +27,68 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<LeaveTypes> leaveTypes; 
         private readonly IGenericRepository<Statuses> leaveStatuses;
         private readonly IUserInfoService userInfoService;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService ) : base(leaveRequest)
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
+        private readonly AppDbContext appDb;
+ 
+
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb):base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
             this.leaveStatuses = leaveStatuses;
             this.userInfoService = userInfoService;
+            this.employee = employee;
+            this.appDb = appDb;
         }
 
         #region  Get Data All  Leave  Requyest
-        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "" , string url = "")
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="", int? leaveTypeID = null, int? statusID = null)
         {
             try
             {
 
-                var query = leaveRequest.AllActive().OrderByDescending(x => x.LeaveApplicationID).Include(x=>x.Employee).Include(x => x.Status).Include(x => x.LeaveType);
-               
+                // var query = leaveRequest.AllActive().OrderByDescending(x => x.LeaveApplicationID).Include(x=>x.Employee).Include(x => x.Status).Include(x => x.LeaveType);
 
+                //
+                var employeeId = await appDb.Users .Where(u => u.Id == userId) .Select(e => e.EmployeeId).FirstOrDefaultAsync();
+
+                // 🔹 Step 2: Get role name
+                var roleName = await (from user in appDb.Users
+                                      join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                      join role in appDb.Roles on userRole.RoleId equals role.Id
+                                      where user.Id == userId
+                                      select role.Name)
+                                     .FirstOrDefaultAsync();
+
+                // 🔹 Step 3: Base query with includes
+                var query = leaveRequest.AllActive()
+                    .Include(x => x.Employee)
+                    .Include(x => x.Status)
+                    .Include(x => x.LeaveType)
+                    .OrderByDescending(x => x.LeaveApplicationID)
+                    .AsQueryable();
+                if (statusID != null)
+                {
+                    query = query.Where(x => x.StatusID == statusID);
+                }
+
+                if (leaveTypeID != null)
+                {
+                    query = query.Where(x => x.LeaveTypeID == leaveTypeID);
+                }
+
+              
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
-
-
+                // 🔹 Step 4: Filter if not SuperAdmin
+                if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => x.EmployeeID == employeeId);
+                }
+                //
+               
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
 
 
@@ -96,6 +138,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+
+        
         #endregion
 
         #region  Save Leave Reqest
@@ -200,6 +244,68 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+        #endregion
+
+        #region Get LeaveType Total Days
+        public async Task<object> GetLeaveTypeTotaldays(int leaveTypeID)
+        {
+            var data = await leaveTypes.AllActive()
+         .Where(l => l.LeaveTypeID == leaveTypeID)
+         .Select(l => new 
+         {
+             leaveDays = l.LeaveDays
+         }).FirstOrDefaultAsync();
+
+            return data;
+        }
+
+
+        #endregion
+        #region Get All Employee or Single
+       
+        public async Task<List<CommonSelectVM>> GetAllEmployee(string userId)
+        {
+            // Step 1: Get employeeId from the user
+            var employeeId = await appDb.Users
+                .Where(u => u.Id == userId)
+                .Select(e => e.EmployeeId)
+                .FirstOrDefaultAsync();
+
+            // Step 2: Get the role name
+            var roleName = await (from user in appDb.Users
+                                  join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                  join role in appDb.Roles on userRole.RoleId equals role.Id
+                                  where user.Id == userId
+                                  select role.Name)
+                                 .FirstOrDefaultAsync();
+
+            // Step 3: If not Admin, return only that employee
+            if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+            {
+                var data = await employee.AllActive()
+                    .Where(x => x.EmployeeID == employeeId)
+                    .Select(x => new CommonSelectVM
+                    {
+                        Id = x.EmployeeID,
+                        Name = $"{x.FirstName} {x.LastName}"
+                    }).ToListAsync();
+
+                return data;
+            }
+
+            // Step 4: If Admin, return all employees
+            var allData = await employee.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName}"
+                }).ToListAsync();
+
+            return allData;
+        }
+
+
+
         #endregion
 
     }
