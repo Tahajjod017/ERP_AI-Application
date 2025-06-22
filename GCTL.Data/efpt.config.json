@@ -23,6 +23,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[ApprovalSettings]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ApprovalTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[AspNetRoleClaims]",
          "ObjectType": 0
       },
@@ -308,6 +316,10 @@
       },
       {
          "Name": "[dbo].[UserVisitLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[WeekendSettings]",
          "ObjectType": 0
       },
       {

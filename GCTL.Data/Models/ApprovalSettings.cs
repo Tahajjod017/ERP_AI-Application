@@ -5,21 +5,23 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Holidays
+public partial class ApprovalSettings
 {
-    public int HolidayID { get; set; }
+    public int WeekendSettingID { get; set; }
 
-    public string HolidayTitle { get; set; }
+    public int? OrganizationID { get; set; }
 
-    public string HolidayDescription { get; set; }
+    public int? OrganizationBranchID { get; set; }
+
+    public int? ApprovalTypeID { get; set; }
 
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
 
-    public int? TotalDays { get; set; }
+    public string LIP { get; set; }
 
-    public int? StatusID { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -33,9 +35,23 @@ public partial class Holidays
 
     public int? DeletedBy { get; set; }
 
-    public int? OrganizationID { get; set; }
+    public int? FirstApprovalID { get; set; }
 
-    public int? OrganizationBranchID { get; set; }
+    public bool IsDesignationOrEmpFirstApprovalID { get; set; }
+
+    public bool IsEnableSecondApproval { get; set; }
+
+    public int? SecondApprovalID { get; set; }
+
+    public bool IsDesignationOrEmpSecondApprovalID { get; set; }
+
+    public bool IsEnableThirdApproval { get; set; }
+
+    public int? ThirdApprovalID { get; set; }
+
+    public bool IsDesignationOrEmpThirdApprovalID { get; set; }
+
+    public virtual ApprovalTypes ApprovalType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
@@ -44,8 +60,6 @@ public partial class Holidays
     public virtual Organization Organization { get; set; }
 
     public virtual OrganizationBranches OrganizationBranch { get; set; }
-
-    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

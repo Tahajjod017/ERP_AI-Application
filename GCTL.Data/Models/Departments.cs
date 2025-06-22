@@ -27,6 +27,10 @@ public partial class Departments
 
     public int? DeletedBy { get; set; }
 
+    public int? OrganizationID { get; set; }
+
+    public bool? IsDepartmentHead { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
@@ -34,6 +38,8 @@ public partial class Departments
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual Organization Organization { get; set; }
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
 

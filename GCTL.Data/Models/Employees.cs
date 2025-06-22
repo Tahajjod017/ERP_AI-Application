@@ -79,6 +79,18 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
+    public virtual ICollection<ApprovalSettings> ApprovalSettingsCreatedByNavigation { get; set; } = new List<ApprovalSettings>();
+
+    public virtual ICollection<ApprovalSettings> ApprovalSettingsDeletedByNavigation { get; set; } = new List<ApprovalSettings>();
+
+    public virtual ICollection<ApprovalSettings> ApprovalSettingsUpdatedByNavigation { get; set; } = new List<ApprovalSettings>();
+
+    public virtual ICollection<ApprovalTypes> ApprovalTypesCreatedByNavigation { get; set; } = new List<ApprovalTypes>();
+
+    public virtual ICollection<ApprovalTypes> ApprovalTypesDeletedByNavigation { get; set; } = new List<ApprovalTypes>();
+
+    public virtual ICollection<ApprovalTypes> ApprovalTypesUpdatedByNavigation { get; set; } = new List<ApprovalTypes>();
+
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 
     public virtual BloodGroup BloodGroup { get; set; }
@@ -451,11 +463,15 @@ public partial class Employees
 
     public virtual Employees UpdatedByNavigation { get; set; }
 
+    public virtual ICollection<WeekendSettings> WeekendSettingsCreatedByNavigation { get; set; } = new List<WeekendSettings>();
+
+    public virtual ICollection<WeekendSettings> WeekendSettingsDeletedByNavigation { get; set; } = new List<WeekendSettings>();
+
+    public virtual ICollection<WeekendSettings> WeekendSettingsUpdatedByNavigation { get; set; } = new List<WeekendSettings>();
+
     public virtual ICollection<YearlyEndBonusTypes> YearlyEndBonusTypesCreatedByNavigation { get; set; } = new List<YearlyEndBonusTypes>();
 
     public virtual ICollection<YearlyEndBonusTypes> YearlyEndBonusTypesDeletedByNavigation { get; set; } = new List<YearlyEndBonusTypes>();
 
     public virtual ICollection<YearlyEndBonusTypes> YearlyEndBonusTypesUpdatedByNavigation { get; set; } = new List<YearlyEndBonusTypes>();
 }
-
-

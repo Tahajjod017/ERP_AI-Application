@@ -29,13 +29,41 @@ public partial class OrganizationBranches
 
     public int? DeletedBy { get; set; }
 
+    public string EmailAddress { get; set; }
+
+    public string Phone { get; set; }
+
+    public string Fax { get; set; }
+
+    public string WebAddress { get; set; }
+
+    public string Address { get; set; }
+
+    public int? CountryID { get; set; }
+
+    public string Street { get; set; }
+
+    public string City { get; set; }
+
+    public string PostCode { get; set; }
+
+    public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
+
+    public virtual ICollection<ApprovalTypes> ApprovalTypes { get; set; } = new List<ApprovalTypes>();
+
+    public virtual Country Country { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
+
     public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<WeekendSettings> WeekendSettings { get; set; } = new List<WeekendSettings>();
 }

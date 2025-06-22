@@ -29,11 +29,17 @@ public partial class Designations
 
     public int? DisplayOrder { get; set; }
 
+    public int? OrganizationID { get; set; }
+
+    public int? Ranking { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
