@@ -8,6 +8,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
@@ -17,6 +18,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 {
@@ -28,9 +31,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
         private readonly AppDbContext appDb;
- 
-
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb):base(leaveRequest)
+        private readonly IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration;
+        private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
+        private readonly IGenericRepository<Holidays> holidays;
+        private readonly IGenericRepository<WeekendSettings> weenkendsettings;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -38,22 +43,54 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.userInfoService = userInfoService;
             this.employee = employee;
             this.appDb = appDb;
+            this.leavePolicyConfiguration = leavePolicyConfiguration;
+            this.empoffi = empoffi;
+            this.holidays = holidays;
+            this.weenkendsettings = weenkendsettings;
         }
 
         #region  Get Data All  Leave  Requyest
-        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "" , string url = "")
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="", int? leaveTypeID = null, int? statusID = null)
         {
             try
             {
 
-                var query = leaveRequest.AllActive().OrderByDescending(x => x.LeaveApplicationID).Include(x=>x.Employee).Include(x => x.Status).Include(x => x.LeaveType);
-               
+                var employeeId = await appDb.Users .Where(u => u.Id == userId) .Select(e => e.EmployeeId).FirstOrDefaultAsync();
+                var roleName = await (from user in appDb.Users
+                                      join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                      join role in appDb.Roles on userRole.RoleId equals role.Id
+                                      where user.Id == userId
+                                      select role.Name)
+                                     .FirstOrDefaultAsync();
 
+                // 🔹 Step 3: Base query with includes
+                var query = leaveRequest.AllActive()
+                    .Include(x => x.Employee)
+                    .Include(x => x.Status)
+                    .Include(x => x.LeaveType)
+                    .OrderByDescending(x => x.LeaveApplicationID)
+                    .AsQueryable();
+                if (statusID != null)
+                {
+                    query = query.Where(x => x.StatusID == statusID);
+                }
+
+                if (leaveTypeID != null)
+                {
+                    query = query.Where(x => x.LeaveTypeID == leaveTypeID);
+                }
+
+              
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
-
+                // 🔹 Step 4: Filter if not SuperAdmin
+                if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => x.EmployeeID == employeeId);
+                }
+                //
 
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
 
@@ -80,18 +117,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
-       
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
-                    
-                        EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName: "",
+                        EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault()
 
-                        EmployeeDepartment = b.Employee.EmployeeOfficeInfoCreatedByNavigation.Where(x => x.Department != null) .OrderByDescending(x => x.EmployeeOfficeInfoID).Select(x => x.Department.DepartmentName).FirstOrDefault()
-
-
-
-                        //EmployeeUserName = b.CreatedByNavigation != null ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}" : ""
                     });
+
+
                 return result;
+             
+           
             }
             catch (Exception ex)
             {
@@ -228,16 +263,72 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #endregion
         #region Get All Employee or Single
-        public async Task<List<CommonSelectVM>> GetAllEmployee()
+       
+        public async Task<List<CommonSelectVM>> GetAllEmployee(string userId)
         {
-            var data = await employee.AllActive()
+            // Step 1: Get employeeId from the user
+            var employeeId = await appDb.Users
+                .Where(u => u.Id == userId)
+                .Select(e => e.EmployeeId)
+                .FirstOrDefaultAsync();
+
+            // Step 2: Get the role name
+            var roleName = await (from user in appDb.Users
+                                  join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                  join role in appDb.Roles on userRole.RoleId equals role.Id
+                                  where user.Id == userId
+                                  select role.Name)
+                                 .FirstOrDefaultAsync();
+
+            // Step 3: If not Admin, return only that employee
+            if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+            {
+                var data = await employee.AllActive()
+                    .Where(x => x.EmployeeID == employeeId)
+                    .Select(x => new CommonSelectVM
+                    {
+                        Id = x.EmployeeID,
+                        Name = $"{x.FirstName} {x.LastName}"
+                    }).ToListAsync();
+
+                return data;
+            }
+
+            // Step 4: If Admin, return all employees
+            var allData = await employee.AllActive()
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.EmployeeID,
-                    Name = $"{x.FirstName}{x.LastName}",
-
+                    Name = $"{x.FirstName} {x.LastName}"
                 }).ToListAsync();
-            return data;
+
+            return allData;
+        }
+
+        #endregion
+
+        #region Get Leave oolicy IsCount or not 
+        public async Task<List<GetLeavePolicyConfigurationVM>> GetLeavePolicyIsCountAsync()
+        {
+            await leavePolicyConfiguration.BeginTransactionAsync();
+
+            try
+            {
+                var data = await leavePolicyConfiguration.AllActive().Select(x => new GetLeavePolicyConfigurationVM
+                {
+                    IsWeekendCountedAsLeave = x.IsWeekendCountedAsLeave,
+                    IsHolidayCountedAsLeave = x.IsHolidayCountedAsLeave,
+                }).ToListAsync();
+
+                await leavePolicyConfiguration.CommitTransactionAsync();
+
+                return data;
+            }
+            catch (Exception)
+            {
+                await leavePolicyConfiguration.RollbackTransactionAsync();
+                throw;
+            }
         }
 
 
@@ -245,5 +336,73 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #endregion
 
+        #region
+        public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
+        {
+            var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
+                .Select(x => new
+                {
+                    x.IsHolidayCountedAsLeave,
+                    x.IsWeekendCountedAsLeave
+                }).FirstOrDefaultAsync();
+
+            if (isWeenedHoliday == null)
+                return null;
+
+            int totalHolidayDays = 0;
+
+            if (isWeenedHoliday.IsHolidayCountedAsLeave)
+            {
+                var holidaysInRange = await holidays.AllActive()
+                    .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+                    .ToListAsync();
+
+                foreach (var h in holidaysInRange)
+                {
+                    var holidayStart = h.StartDate.GetValueOrDefault();
+                    var holidayEnd = h.EndDate.GetValueOrDefault();
+
+                    // Clip holidays to within the selected date range
+                    var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
+                    var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
+
+                    int days = (actualEnd - actualStart).Days + 1;
+                    totalHolidayDays += days;
+                }
+            }
+
+            int totalWeekend = 0;
+            if (isWeenedHoliday.IsWeekendCountedAsLeave)
+            {
+                var holidaysInRange = await weenkendsettings.AllActive()
+                    .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+                    .ToListAsync();
+
+                foreach (var h in holidaysInRange)
+                {
+                    var holidayStart = h.StartDate.GetValueOrDefault();
+                    var holidayEnd = h.EndDate.GetValueOrDefault();
+
+                    // Clip holidays to within the selected date range
+                    var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
+                    var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
+
+                    int days = (actualEnd - actualStart).Days + 1;
+                    totalWeekend += days;
+                }
+            }
+
+            return new SubsequentVM
+            {
+                    TotalSubsequentDays = totalHolidayDays+ totalWeekend,
+                  IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
+                  IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
+            };
+            
+           
+        }
+
+
+        #endregion
     }
 }

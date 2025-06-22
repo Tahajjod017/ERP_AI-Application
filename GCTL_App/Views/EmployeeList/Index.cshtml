@@ -646,7 +646,7 @@
                                         <div class="tab-content mt-3" id="myTabContent">
                                             <div class="tab-pane fade show active" id="tab-empSalary" role="tabpanel" aria-labelledby="empSalary-tab">
 
-                                                <div class="card">
+                                                <div class="">
                                                     <div class="d-flex justify-content-center mt-2 ">
 
                                                         <div class="col-12 row flex gy-3">
@@ -786,7 +786,7 @@
 
 
 
-                                                            <div class="row" id="multyPayment" style="display: none;">
+                                                            <div class="row" id="multyPaymentDiv" style="display: none;">
                                                                 <div class="d-flex">
                                                                     <div class="col-sm-6 col-md-4 me-3">
 
@@ -794,7 +794,7 @@
 
                                                                         <div class="form-floating form-floating-advance-select mb-2">
                                                                            <label for="salaryPrimaryPaymentModeId">@Html.SmartLocalize("Primary Payment Mode")</label>
-                                                                            <select class="form-select choiceDD" id="salaryPrimaryPaymentModeId" id="primaryPaymentMode" asp-items="@ViewBag.PaymenModeDD as SelectList">
+                                                                            <select class="form-select choiceDD"  id="primaryPaymentMode" asp-items="@ViewBag.PaymenModeDD as SelectList">
                                                                                 <option value="">@Html.SmartLocalize("Select Primary Payment Mode")</option>
                                                                             </select>
                                                                         </div>
@@ -803,7 +803,7 @@
                                                                     </div>
                                                                     <div class="col-sm-6 col-md-4 me-3">
                                                                         <div class="form-floating">
-                                                                            <input class="form-control" id="salaryPrimaryPaymentPercent" id="primaryPaymentPercentage" type="text" placeholder="@Html.SmartLocalize("% of Primary Payment Mode")" />
+                                                                            <input class="form-control" id="salaryPrimaryPaymentPercent" type="text" placeholder="@Html.SmartLocalize("% of Primary Payment Mode")" />
                                                                            <label for="salaryPrimaryPaymentPercent">@Html.SmartLocalize("% of Primary Payment Mode")</label>
                                                                         </div>
                                                                     </div>
@@ -812,7 +812,7 @@
 
                                                                         <div class="form-floating form-floating-advance-select mb-2">
                                                                            <label for="salarySecondaryPaymentModeId">@Html.SmartLocalize("Secondary Payment Mode")</label>
-                                                                            <select class="form-select choiceDD" id="salarySecondaryPaymentModeId" id="secondaryPaymentMode" asp-items="@ViewBag.PaymenModeDD as SelectList">
+                                                                            <select class="form-select choiceDD"  id="secondaryPaymentMode" asp-items="@ViewBag.PaymenModeDD as SelectList">
                                                                                 <option value="">@Html.SmartLocalize("Select Secondary Payment Mode")</option>
                                                                             </select>
                                                                         </div>
@@ -839,7 +839,7 @@
                                             </div>
 
                                             <div class="tab-pane fade" id="tab-empBenefits" role="tabpanel" aria-labelledby="empBenefits-tab">
-                                                <div class="card">
+                                                <div class="">
 
                                                     <div class="d-flex justify-content-center mt-2 ">
 
@@ -1001,7 +1001,7 @@
                                             </div>
 
                                             <div class="tab-pane fade" id="tab-empAllowance" role="tabpanel" aria-labelledby="empAllowance-tab">
-                                                <div class="card">
+                                                <div class="">
 
                                                     <div class="d-flex justify-content-center mt-2 ">
 
