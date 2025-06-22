@@ -62,6 +62,7 @@ using GCTL.Service.ElementPermission;
 using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
 
 
 
@@ -138,6 +139,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IElementPermissionService, ElementPermissionService>();
             services.AddScoped<IEmailSettingService, EmailSettingsService>();
+            services.AddScoped<IHolidaySettingService, HolidaySettingService>();
             #endregion
 
 

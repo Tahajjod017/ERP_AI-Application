@@ -22,6 +22,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
+
     //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
 
     //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
@@ -37,6 +38,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
 
     public virtual DbSet<BloodGroup> BloodGroup { get; set; }
 
@@ -1671,6 +1673,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Street).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.WebAddress).HasMaxLength(255);
+
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrganizationBranchesCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)

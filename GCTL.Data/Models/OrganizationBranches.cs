@@ -51,11 +51,15 @@ public partial class OrganizationBranches
 
     public virtual ICollection<ApprovalTypes> ApprovalTypes { get; set; } = new List<ApprovalTypes>();
 
+    public virtual Country Country { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
     public virtual Organization Organization { get; set; }
 

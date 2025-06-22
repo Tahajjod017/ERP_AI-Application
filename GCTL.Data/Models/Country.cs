@@ -39,5 +39,9 @@ public partial class Country
 
     public virtual ICollection<Employees> EmployeesNationality { get; set; } = new List<Employees>();
 
+    public virtual ICollection<Organization> Organization { get; set; } = new List<Organization>();
+
+    public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

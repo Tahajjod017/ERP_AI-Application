@@ -1,46 +1,38 @@
-﻿$(document).ready(function () {
-    $('#bloodGroup-check-all').on('change', function () {
-        var isChecked = $(this).prop('checked');
-        $('.bloodGroup-selectItem').prop('checked', isChecked);
+﻿
+$(document).ready(function () {
+    
+    $('#holidayForm').on('submit', function (e) {
+        e.preventDefault();
 
-        toggleBulkActions();
-    });
+        var form = $(this);
+        var formData = form.serialize();
 
-    $(document).on('change', '.bloodGroup-selectItem', function () {
-        toggleBulkActions();
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: formData,
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message, '');
+                    form.trigger("reset");
+                } else {
+                    toastr.error(response.message, 'Error');
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        });
     });
 });
 
-function toggleBulkActions() {
-    const allItems = $('.bloodGroup-selectItem');
-    const checkedItems = $('.bloodGroup-selectItem:checked');
-
-    const allChecked = allItems.length === checkedItems.length;
-    const someChecked = checkedItems.length > 0 && !allChecked;
-
-    $('#bloodGroup-check-all').prop('checked', allChecked);
-    $('#bloodGroup-check-all').prop('indeterminate', someChecked);
-
-    if (checkedItems.length > 1) {
-        $('#bloodGroup-bulkSelectActions').removeClass('d-none');
-        $('#bloodGroup-searchBox').addClass('d-none');
-        $('.bloodGroup-bulkDelete').addClass('disabled');
-        $('.bloodGroup-bulkEdit').addClass('disabled');
-    } else {
-        $('#bloodGroup-bulkSelectActions').addClass('d-none');
-        $('#bloodGroup-searchBox').removeClass('d-none');
-        $('.bloodGroup-bulkDelete').removeClass('disabled');
-        $('.bloodGroup-bulkEdit').removeClass('disabled');
-    }
-}
 
 
-
-
+//////////////////////////////Data Table Initialization//////////////////////////////
 var currentPage = 1;
 var pageSize = 5;
 
-$('#bloodGroup-pageSizeSelect').on('change', function () {
+$('#addHolidayConfig-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -54,26 +46,25 @@ $('#bloodGroup-pageSizeSelect').on('change', function () {
 $(document).ready(function () {
     loadTableData();
 
-    $("#addEmailConfig-searchInput").on("input", function () {
+    $("#addHolidayConfig-searchInput").on("input", function () {
         currentPage = 1;
         loadTableData();
     });
 
-    $("#addEmailConfig-prevPageBtn").on('click', function () {
+    $("#addHolidayConfig-prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
             loadTableData();
         }
     });
 
-    $("#addEmailConfig-nextPageBtn").on('click', function () {
+    $("#addHolidayConfig-nextPageBtn").on('click', function () {
         currentPage++;
         loadTableData();
     });
 });
 
-
-let currentSortColumn = 'BloodGroupName';
+let currentSortColumn = 'HolidayTitle';
 let currentSortOrder = 'asc';
 
 $('th.sort').on('click', function () {
@@ -107,10 +98,9 @@ function updateSortingIndicator() {
 }
 
 function loadTableData(sortColumn, sortOrder) {
-    var searchTerm = $("#addEmailConfig-searchInput").val();
-
+    var searchTerm = $("#addHolidayConfig-searchInput").val();
     $.ajax({
-        url: '/EmailSetting/GetAll',
+        url: '/HolidaySettings/GetAlls',
         method: 'GET',
         data: {
             pageNumber: currentPage,
@@ -120,7 +110,7 @@ function loadTableData(sortColumn, sortOrder) {
             sortOrder: sortOrder
         },
         success: function (response) {
-            var tableBody = $("#addEmailConfig-tBody");
+            var tableBody = $("#addHolidayConfig-tBody");
             tableBody.empty();
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
@@ -128,21 +118,20 @@ function loadTableData(sortColumn, sortOrder) {
                     tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input bloodGroup-selectItem" data-id="${item.emailSettingID}" />
+                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
                             </td>
+                            <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
                             
-                             <td class="align-middle white-space-nowrap ">${item.organizationName}</td>
-                            <td class="align-middle white-space-nowrap ">${item.serverName}</td>
-                            <td class="align-middle white-space-nowrap ">${item.portNumber}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.isSSLRequired ? "Yes" : "No"}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.isSMTPAuthenticationRequired ? "Yes" : "No"}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.friorityIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.userName}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.password}</td>
-                            <td class="align-middle text-end white-space-nowrap pe-2">
+                             <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
+                             <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
+                            <td class="align-middle white-space-nowrap ">${item.startDate}</td>
+                            <td class="align-middle white-space-nowrap ">${item.endDate}</td>
+                            <td class="text-center align-middle white-space-nowrap ps-0">${item.totalDays}</td>
+                            <td class=" text-center align-middle white-space-nowrap ps-0">${item.statusID}</td>
+                            <td class=" align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 bloodGroup-bulkDelete" href="#!" id="bloodGroup-edit" data-id="${item.emailSettingID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 bloodGroup-bulkEdit" href="#!" id="bloodGroup-single-delete" data-id="${item.emailSettingID}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 bloodGroup-bulkDelete" href="#!" id="bloodGroup-edit" data-id="${item.holidayID}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 bloodGroup-bulkEdit" href="#!" id="bloodGroup-single-delete" data-id="${item.holidayID}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -154,8 +143,8 @@ function loadTableData(sortColumn, sortOrder) {
 
             var paginationInfo = response.paginationInfo;
 
-            $("#addEmailConfig-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-            $("#bloodGroup-totalCount").text(`(${paginationInfo.totalItems})`);
+            $("#addHolidayConfig-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+            $("#addHolidayConfig-totalCount").text(`(${paginationInfo.totalItems})`);
 
             updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
         },
@@ -166,7 +155,7 @@ function loadTableData(sortColumn, sortOrder) {
 }
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
-    const paginationLinks = $("#addEmailConfig-paginationLinks");
+    const paginationLinks = $("#addHolidayConfig-paginationLinks");
     paginationLinks.empty();
     // Window size (number of pages before/after the current page)
     const windowSize = 1;
@@ -192,8 +181,8 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
         paginationLinks.append(addEllipsis(), createPageButton(totalPages));
     }
     // Disable or enable previous/next buttons
-    $("#addEmailConfig-prevPageBtn").prop('disabled', currentPage === 1);
-    $("#addEmailConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
+    $("#addHolidayConfig-prevPageBtn").prop('disabled', currentPage === 1);
+    $("#addHolidayConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
 $(document).on('click', '.page-btn', function () {
