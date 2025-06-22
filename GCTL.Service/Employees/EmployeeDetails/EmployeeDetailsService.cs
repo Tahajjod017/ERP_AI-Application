@@ -47,6 +47,13 @@ namespace GCTL.Service.Employees.EmployeeDetails
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.EmployeeAdditionalInfo> _employeeAdditionalRepository;
         private readonly IGenericRepository<GCTL.Data.Models.EmployeeOfficeInfo> _employeeOfficeRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.EmployeeEmeContacts> _employeeEmergencyContactRepository;
+
+        private readonly IGenericRepository<EmployeeTranningInfo> _employeeTrainingRepository;
+        private readonly IGenericRepository<EmployeeEducationalInfo> _employeeEducationRepository;
+        private readonly IGenericRepository<EmployeeFamilyInfo> _employeeFamilyRepository;
+        private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
+
         private readonly IGenericRepository<YearlyEndBonusTypes> _yearlyEndBonusTypesRepository;
         private readonly IGenericRepository<ServiceYears> _serviceYearsRepository;
         private readonly IGenericRepository<EducationLevels> _educationLevelsRepository;
@@ -68,7 +75,7 @@ namespace GCTL.Service.Employees.EmployeeDetails
         private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
         private readonly IGenericRepository<ProvisionPeriodTtimeTypes> _provisionPeriodTtimeTypesRepository;
 
-        public EmployeeDetailsService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IGenericRepository<EmployeeAdditionalInfo> employeeAdditionalRepository)
+        public EmployeeDetailsService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IGenericRepository<LicenceTypes> licenceTypesRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IGenericRepository<EducationLevels> educationLevelsRepository, IGenericRepository<Degree> degreeRepository, IGenericRepository<EducationBoard> educationBoardRepository, IGenericRepository<ResultTypes> resultTypeRepository, IGenericRepository<PassingYears> passingYearRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IGenericRepository<EmployeeAdditionalInfo> employeeAdditionalRepository, IGenericRepository<EmployeeTranningInfo> employeeTrainingRepository, IGenericRepository<EmployeeEducationalInfo> employeeEducationRepository, IGenericRepository<EmployeeFamilyInfo> employeeFamilyRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeEmeContacts> employeeEmergencyContactRepository)
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeAllowanceService = employeeAllowanceService;
@@ -109,6 +116,11 @@ namespace GCTL.Service.Employees.EmployeeDetails
             _bloodGroupRepository = bloodGroupRepository;
             _provisionPeriodTtimeTypesRepository = provisionPeriodTtimeTypesRepository;
             _employeeAdditionalRepository = employeeAdditionalRepository;
+            _employeeTrainingRepository = employeeTrainingRepository;
+            _employeeEducationRepository = employeeEducationRepository;
+            _employeeFamilyRepository = employeeFamilyRepository;
+            _employeeSalaryRepository = employeeSalaryRepository;
+            _employeeEmergencyContactRepository = employeeEmergencyContactRepository;
         }
 
         #endregion
@@ -160,14 +172,84 @@ namespace GCTL.Service.Employees.EmployeeDetails
                                    })
                    .FirstOrDefaultAsync();
 
-                // Post-process the experience calculation (since EF can't translate DateOnly arithmetic)
-                if (query != null && query.JoinDate.HasValue && query.Experience == "calculated")
+                if (query != null)
                 {
-                    var joinDate = query.JoinDate.Value;
-                    var currentDate = DateOnly.FromDateTime(DateTime.Now);
-                    var totalDays = currentDate.DayNumber - joinDate.DayNumber;
-                    var years = Math.Round(totalDays / 365.25, 1);
-                    query.Experience = years + " years";
+                    // Calculate experience
+                    if (query.JoinDate.HasValue && query.Experience == "calculated")
+                    {
+                        var joinDate = query.JoinDate.Value;
+                        var currentDate = DateOnly.FromDateTime(DateTime.Now);
+                        var totalDays = currentDate.DayNumber - joinDate.DayNumber;
+                        var years = Math.Round(totalDays / 365.25, 1);
+                        query.Experience = years + " years";
+                    }
+
+                    // Fetch table data
+                    query.bankInfoData = await _employeeSalaryRepository.AllActive()
+                        .Where(b => b.EmployeeID == empID)
+                        .Select(b => new BankInfoDetailsViewModel
+                        {
+                            bankName = b.BankName ?? "-",
+                            branch = b.BranchName ?? "-",
+                            accountNo = b.AccountNo ?? "-",
+                            swiftCode = b.SWIFTCode ?? "-",
+                            ifscCode = b.IFSCCode ?? "-"
+                        }).ToListAsync();
+
+                    query.familyInfoData = await _employeeFamilyRepository.AllActive()
+                        .Where(f => f.EmployeeID == empID)
+                        .Select(f => new FamilyInfoDetailsViewModel
+                        {
+                            name = f.FullName ?? "-",
+                            contactNo = f.ContactNumber ?? "-",
+                            email = f.Email ?? "-",
+                            relationship = f.RelationToEmployee ?? "-"
+                        }).ToListAsync();
+
+                    query.educationInfoData = await _employeeEducationRepository.AllActive()
+                        .Where(e => e.EmployeeID == empID).Include(d=>d.Degree).Include(d=> d.ResultType).Include(p => p.PassingYear)
+                        .Select(e => new EducationInfoDetailsViewModel
+                        {
+                            examTitle = e.Degree.DegreeName ?? "-",
+                            major = e.MajorSubject ?? "-",
+                            institute = e.InstitutionName ?? "-",
+                            result = e.ResultType.ResultTypeName ?? "-",
+                            passYear = e.PassingYear.PassingYearName.ToString() ?? "-",
+                            duration = e.YearDuration ?? "-"
+                        }).ToListAsync();
+
+                    query.trainingInfoData = await _employeeTrainingRepository.AllActive()
+                        .Where(t => t.EmployeeID == empID)
+                        .Select(t => new TrainingInfoDetailsViewModel
+                        {
+                            trainingTitle = t.TranningTitle ?? "-",
+                            topic = t.TopicCovered ?? "-",
+                            institute = t.InstituteName ?? "-",
+                            year = t.TrainingYear.ToString() ?? "-",
+                            duration = t.YearDuration ?? "-"
+                        }).ToListAsync();
+
+
+                    query.emergencyContactInfoData = await _employeeEmergencyContactRepository.AllActive()
+                       .Where(ec => ec.EmployeeID == empID)
+                       .Select(ec => new EmergencyContactDetailsViewModel
+                       {
+                           name = ec.ContactName ?? "-",
+                           contactNo = ec.ContactNumber ?? "-",
+                           email = ec.ContactEmail ?? "-",
+                           relationship = ec.Relationship ?? "-"
+                       }).Take(2).ToListAsync();
+
+
+
+                    //query.experienceInfoData = await _employeeExperienceRepository.AllActive()
+                    //    .Where(e => e.EmployeeID == empID)
+                    //    .Select(e => new ExperienceInfoDetailsViewModel
+                    //    {
+                    //        organization = e.Organization ?? "-",
+                    //        jobTitle = e.JobTitle ?? "-",
+                    //        timeDuration = e.TimeDuration ?? "-"
+                    //    }).ToListAsync();
                 }
 
                 return  new CommonReturnViewModel

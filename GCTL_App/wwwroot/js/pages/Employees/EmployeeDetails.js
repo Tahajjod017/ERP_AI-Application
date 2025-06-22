@@ -23,9 +23,15 @@
             data: { empID: empID },
             dataType: 'json',
             success: function (response) {
-               
+
+                console.log(response.data);
+
                 populateBaseInfo(response.data)
-                
+                populateBankInfoTable(response.data.bankInfoData);
+                populateFamilyInfoTable(response.data.familyInfoData);
+                populateEducationInfoTable(response.data.educationInfoData);
+                populateTrainingInfoTable(response.data.trainingInfoData);
+                populateEmergencyContactInfo(response.data.emergencyContactInfoData);
             },
             error: function (xhr, status, error) {
                 console.error("Error fetching employee data:", error);
@@ -36,23 +42,14 @@
 
     //#endregion
 
-    
+
+   
+   // populateExperienceInfoTable(experienceInfoData);
+
 });
 
-//#region Populate all
-function populateEmployeeData(employeeData) {
-    populateProfile(employeeData.profile);
-    populateSupervisor(employeeData.supervisor);
-    populatePassport(employeeData.passport);
-    populateEmergencyContacts(employeeData.emergencyContacts);
-    populateBio(employeeData.bio);
-    populateBankInfo(employeeData.bankInfo);
-    populateFamilyInfo(employeeData.familyInfo);
-    populateEducationInfo(employeeData.educationInfo);
-    populateTrainingInfo(employeeData.trainingInfo);
-    populateExperienceInfo(employeeData.experienceInfo);
-}
 
+//#region Populate real
 
 
 function populateBaseInfo(profile) {
@@ -85,226 +82,135 @@ function populateBaseInfo(profile) {
 
 
 
-function populateEmergencyContacts(contacts) {
-    if (contacts.length > 0) {
-        $("#primaryContactName").text(contacts[0].name);
-        $("#primaryContactRelation").text(contacts[0].relation);
-        $("#primaryContactNumber").text(contacts[0].number);
+// Populate Functions
+function populateBankInfoTable(data) {
+    let tbody = '';
+    data.forEach(item => {
+        tbody += `<tr>
+                            <td>${item.bankName}</td>
+                            <td>${item.branch}</td>
+                            <td>${item.accountNo}</td>
+                            <td>${item.swiftCode}</td>
+                            <td>${item.ifscCode}</td>
+                          </tr>`;
+    });
+    $('#bankTableBody').html(tbody);
+}
+
+function populateFamilyInfoTable(data) {
+    let tbody = '';
+    data.forEach(item => {
+        tbody += `<tr>
+                            <td>${item.name}</td>
+                            <td>${item.contactNo}</td>
+                            <td>${item.email}</td>
+                            <td>${item.relationship}</td>
+                          </tr>`;
+    });
+    $('#familyTableBody').html(tbody);
+}
+
+function populateEducationInfoTable(data) {
+    let tbody = '';
+    data.forEach(item => {
+        tbody += `<tr>
+                            <td>${item.examTitle}</td>
+                            <td>${item.major}</td>
+                            <td>${item.institute}</td>
+                            <td>${item.result}</td>
+                            <td>${item.passYear}</td>
+                            <td>${item.duration}</td>
+                          </tr>`;
+    });
+    $('#educationTableBody').html(tbody);
+}
+
+function populateTrainingInfoTable(data) {
+    let tbody = '';
+    data.forEach(item => {
+        tbody += `<tr>
+                            <td>${item.trainingTitle}</td>
+                            <td>${item.topic}</td>
+                            <td>${item.institute}</td>
+                            <td>${item.year}</td>
+                            <td>${item.duration}</td>
+                          </tr>`;
+    });
+    $('#trainingTableBody').html(tbody);
+}
+
+function populateExperienceInfoTable(data) {
+    let tbody = '';
+    data.forEach(item => {
+        tbody += `<tr>
+                            <td>${item.organization}</td>
+                            <td>${item.jobTitle}</td>
+                            <td>${item.timeDuration}</td>
+                          </tr>`;
+    });
+    $('#experienceTableBody').html(tbody);
+}
+
+// Populate Emergency Contact Info Card
+function populateEmergencyContactInfo(data) {
+    // Primary Contact (first contact)
+    if (data && data.length > 0) {
+        $('#primaryContactName').text(data[0].name || '-');
+        $('#primaryContactRelation').text(data[0].relationship || '-');
+        $('#primaryContactNumber').text(data[0].contactNo || '-');
+    } else {
+        $('#primaryContactName').text('-');
+        $('#primaryContactRelation').text('-');
+        $('#primaryContactNumber').text('-');
     }
-    if (contacts.length > 1) {
-        $("#secondaryContactName").text(contacts[1].name);
-        $("#secondaryContactRelation").text(contacts[1].relation);
-        $("#secondaryContactNumber").text(contacts[1].number);
+
+    // Secondary Contact (second contact)
+    if (data && data.length > 1) {
+        $('#secondaryContactName').text(data[1].name || '-');
+        $('#secondaryContactRelation').text(data[1].relationship || '-');
+        $('#secondaryContactNumber').text(data[1].contactNo || '-');
+    } else {
+        $('#secondaryContactName').text('-');
+        $('#secondaryContactRelation').text('-');
+        $('#secondaryContactNumber').text('-');
     }
 }
-
-function populateBio(bio) {
-}
-
-function populateBankInfo(bank) {
-    $("#bankName").text(bank.name);
-    $("#bankBranch").text(bank.branch);
-    $("#bankAccountNo").text(bank.accountNo);
-    $("#bankSwiftCode").text(bank.swiftCode);
-    $("#bankIfscCode").text(bank.ifscCode);
-}
-
-function populateFamilyInfo(familyInfo) {
-    const familyTableBody = $("#familyTableBody");
-    familyTableBody.empty();
-    familyInfo.forEach((family, index) => {
-        familyTableBody.append(`
-            <tr>
-                <th id="familyName${index + 1}">${family.name}</th>
-                <td id="familyContact${index + 1}">${family.contact}</td>
-                <td id="familyEmail${index + 1}">${family.email}</td>
-                <td id="familyRelation${index + 1}">${family.relation}</td>
-            </tr>
-        `);
-    });
-}
-
-function populateEducationInfo(educationInfo) {
-    const educationTableBody = $("#educationTableBody");
-    educationTableBody.empty();
-    educationInfo.forEach((edu, index) => {
-        educationTableBody.append(`
-            <tr>
-                <th id="eduTitle${index + 1}">${edu.title}</th>
-                <td id="eduMajor${index + 1}">${edu.major}</td>
-                <td id="eduInstitute${index + 1}">${edu.institute}</td>
-                <td id="eduResult${index + 1}">${edu.result}</td>
-                <td id="eduYear${index + 1}">${edu.year}</td>
-                <td id="eduDuration${index + 1}">${edu.duration}</td>
-            </tr>
-        `);
-    });
-}
-
-function populateTrainingInfo(trainingInfo) {
-    const trainingTableBody = $("#trainingTableBody");
-    trainingTableBody.empty();
-    trainingInfo.forEach((train, index) => {
-        trainingTableBody.append(`
-            <tr>
-                <th id="trainTitle${index + 1}">${train.title}</th>
-                <td id="trainTopic${index + 1}">${train.topic}</td>
-                <td id="trainInstitute${index + 1}">${train.institute}</td>
-                <td id="trainYear${index + 1}">${train.year}</td>
-                <td id="trainDuration${index + 1}">${train.duration}</td>
-            </tr>
-        `);
-    });
-}
-
-function populateExperienceInfo(experienceInfo) {
-    const experienceTableBody = $("#experienceTableBody");
-    experienceTableBody.empty();
-    experienceInfo.forEach((exp, index) => {
-        experienceTableBody.append(`
-            <tr>
-                <th id="expOrg${index + 1}">${exp.organization}</th>
-                <td id="expTitle${index + 1}">${exp.jobTitle}</td>
-                <td id="expDuration${index + 1}">${exp.duration}</td>
-            </tr>
-        `);
-    });
-}
-
 
 //#endregion
 
 
+
+
 //#region Conststants for Employee Data
 
-const profileInfo = {
-    image: "../../../assets/img/users/user-13.jpg",
-    name: "Nazib Uddin",
-    role: "Designer",
-    experience: "5+ years Experience",
-    employeeId: "CLT-0024",
-    department: "UI/UX Design",
-    joinDate: "1st Jan 2023",
-    phone: "+880 01723 259 315",
-    email: "perralt12@example.com",
-    gender: "Male",
-    dateOfBirth: "24th July 2000",
-    address: "1861 Bayonne Ave, Manchester, NJ, 08759"
-};
-
-const supervisorInfo = {
-    image: "../../../assets/img/users/user-13.jpg",
-    name: "Jueal Rana"
-};
-
-const passportInfo = {
-    number: "QRET4566FGRT",
-    expiryDate: "15 May 2029",
-    nationality: "Bangladeshi",
-    religion: "Islam",
-    maritalStatus: "Yes",
-    spouseEmployment: "No",
-    numberOfChildren: "2"
-};
-
-const emergencyContacts = [
-    {
-        name: "A. K. Azad",
-        relation: "Father",
-        number: "01989 2685 598"
-    },
-    {
-        name: "Rabia Khatun",
-        relation: "Spouse",
-        number: "01989 7774 787"
-    }
+const bankInfoData = [
+    { bankName: 'Bank Asia', branch: 'Gulshan', accountNo: '123456789', swiftCode: 'BASIBDDH', ifscCode: 'BASI0001234' },
+    { bankName: 'City Bank', branch: 'Dhanmondi', accountNo: '987654321', swiftCode: 'CIBLBDDH', ifscCode: 'CIBL0005678' },
+    { bankName: 'City Bank', branch: 'Dhanmondi', accountNo: '987654321', swiftCode: 'CIBLBDDH', ifscCode: 'CIBL0005678' }
 ];
 
-const bioInfo = "As an award-winning designer, I deliver exceptional quality work and bring value to your brand!...";
-
-const bankInfo = {
-    name: "Islami Bank",
-    branch: "Mirput 2",
-    accountNo: "20059800034",
-    swiftCode: "WS345",
-    ifscCode: "Ms45"
-};
-
-const familyInfo = [
-    {
-        name: "A. K. Azad",
-        contact: "0176 023 102",
-        email: "aka@mail.com",
-        relation: "Father"
-    },
-    {
-        name: "Rabia Khatun",
-        contact: "0176 023 102",
-        email: "rabia@mail.com",
-        relation: "Spouse"
-    }
+const familyInfoData = [
+    { name: 'John Doe', contactNo: '01711111111', email: 'john@example.com', relationship: 'Father' },
+    { name: 'John Doe', contactNo: '01711111111', email: 'john@example.com', relationship: 'Father' },
+    { name: 'Jane Doe', contactNo: '01822222222', email: 'jane@example.com', relationship: 'Mother' }
 ];
 
-const educationInfo = [
-    {
-        title: "Bachelor of Science (BSc)",
-        major: "Computer Science & Engineering",
-        institute: "Dhaka International University",
-        result: "CGPA:3.94 (out of 4)", year: "2018",
-        duration: "4"
-    },
-    {
-        title: "Diploma",
-        major: "Computer Technology",
-        institute: "Jhenaidah Govt Polytechnic Institute",
-        result: "CGPA:3.79 (out of 4)",
-        year: "2014",
-        duration: "4"
-    }
+const educationInfoData = [
+    { examTitle: 'BSc in CSE', major: 'Computer Science', institute: 'BUET', result: '3.90', passYear: '2020', duration: '4 Years' },
+    { examTitle: 'BSc in CSE', major: 'Computer Science', institute: 'BUET', result: '3.90', passYear: '2020', duration: '4 Years' },
+    { examTitle: 'HSC', major: 'Science', institute: 'Dhaka College', result: '5.00', passYear: '2016', duration: '2 Years' }
 ];
 
-const trainingInfo = [
-    {
-        title: "Data Science Masters Pro",
-        topic: "Python,NLP, LLM, CV, ML, DL",
-        institute: "Inuron",
-        year: "2023",
-        duration: "1 year"
-    },
-    {
-        title: "Professional Diploma In Games Development",
-        topic: "2D Physics,3D,AR,VR.",
-        institute: "Bangladesh Computer Council",
-        year: "2018",
-        duration: "1 year"
-    }
+const trainingInfoData = [
+    { trainingTitle: 'Web Development', topic: 'React, Node.js', institute: 'Programming Hero', year: '2021', duration: '6 Months' },
+    { trainingTitle: 'Web Development', topic: 'React, Node.js', institute: 'Programming Hero', year: '2021', duration: '6 Months' },
+    { trainingTitle: 'AI Basics', topic: 'Machine Learning', institute: 'Coursera', year: '2022', duration: '3 Months' }
 ];
 
-const experienceInfo = [
-    {
-        organization: "Google",
-        jobTitle: "UI/UX Designer",
-        duration: "Jan 2013 - Present"
-    },
-    {
-        organization: "Facebook",
-        jobTitle: "Graphics Designer",
-        duration: "Dec 2012 - Jan 2015"
-    }
+const experienceInfoData = [
+    { organization: 'Tech Solutions Ltd.', jobTitle: 'Software Engineer', timeDuration: '2 Years' },
+    { organization: 'Tech Solutions Ltd.', jobTitle: 'Software Engineer', timeDuration: '2 Years' },
+    { organization: 'Innovative IT', jobTitle: 'Junior Developer', timeDuration: '1 Year' }
 ];
-
-// Main Employee Data (combining all above)
-const employeeData = {
-    profile: profileInfo,
-    supervisor: supervisorInfo,
-    passport: passportInfo,
-    emergencyContacts: emergencyContacts,
-    bio: bioInfo,
-    bankInfo: bankInfo,
-    familyInfo: familyInfo,
-    educationInfo: educationInfo,
-    trainingInfo: trainingInfo,
-    experienceInfo: experienceInfo
-};
 
 //#endregion
