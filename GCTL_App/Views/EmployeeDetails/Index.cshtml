@@ -3,6 +3,52 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
+<style>
+    /* Remove bottom border from the last row */
+    .table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+
+
+    .cusMinHeight {
+        min-height: 158px; /* Set a minimum height for the table container */
+    }
+
+
+
+
+    .table-responsive {
+        max-height: 160px;
+        overflow-y: auto;
+        position: relative; /* Important for pseudo-element positioning */
+    }
+
+    /* Sticky header with pseudo-element line */
+    .table thead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #fefeff;
+    }
+
+        .table thead::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #dee2e6; /* Light gray line (Bootstrap border color) */
+            bottom: 0;
+        }
+
+
+
+</style>
+
+
+
 <nav class="mb-3" aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item"><a href="#!">Page 1</a></li>
@@ -147,22 +193,7 @@
                             <p class="text-dark text-end" id="maritalStatus"></p>
                         </div>
 
-                        <!--
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="d-inline-flex align-items-center">
-                                <i class="fa fa-briefcase me-2"></i>
-                                @Html.SmartLocalize("Employment of Spouse")
-                            </span>
-                            <p class="text-dark text-end" id="spouseEmployment"></p>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="d-inline-flex align-items-center">
-                                <i class="fa fa-user-group me-2"></i>
-                                @Html.SmartLocalize("No. of Children")
-                            </span>
-                            <p class="text-dark text-end" id="numberOfChildren"></p>
-                        </div>
-                        -->
+
 
                     </div>
                 </div>
@@ -189,11 +220,11 @@
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <span class="d-inline-flex align-items-center">@Html.SmartLocalize("Secondary")</span>
-                                <h6 class="d-flex align-items-center fw-medium mt-1">
-                                    <span id="secondaryContactName"></span>
+                                <div class="d-flex align-items-center fw-medium mt-1">
+                                    <h5> <span id="secondaryContactName"></span> </h5>
                                     <span class="d-inline-flex mx-1"><i class="ti ti-point-filled text-danger mx-1"></i></span>
-                                    <span id="secondaryContactRelation"></span>
-                                </h6>
+                                    <h6> <span id="secondaryContactRelation"></span> </h6>
+                                </div>
                             </div>
                             <p class="text-dark" id="secondaryContactNumber"></p>
                         </div>
@@ -219,20 +250,26 @@
                                     <div class="d-flex align-items-center flex-fill">
                                         <h5 class="ms-2">@Html.SmartLocalize("Bank Information")</h5>
                                     </div>
-                                    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-2">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">@Html.SmartLocalize("Bank Name")</th>
-                                                    <th scope="col">@Html.SmartLocalize("Branch")</th>
-                                                    <th scope="col">@Html.SmartLocalize("Account No")</th>
-                                                    <th scope="col">@Html.SmartLocalize("Swift Code")</th>
-                                                    <th scope="col">@Html.SmartLocalize("IFSC Code")</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="bankTableBody">
-                                            </tbody>
-                                        </table>
+                                    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-2 cusMinHeight">
+                                        <div class="table-responsive">
+
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.SmartLocalize("Bank Name")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Branch")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Account No")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Swift Code")</th>
+                                                        <th scope="col">@Html.SmartLocalize("IFSC Code")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="bankTableBody">
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+
+
                                     </div>
                                 </div>
                             </div>
@@ -241,19 +278,22 @@
                                     <div class="d-flex align-items-center flex-fill">
                                         <h5 class="ms-2">@Html.SmartLocalize("Family Information")</h5>
                                     </div>
-                                    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-2">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">@Html.SmartLocalize("Name")</th>
-                                                    <th scope="col">@Html.SmartLocalize("Contact No")</th>
-                                                    <th scope="col">@Html.SmartLocalize("Email")</th>
-                                                    <th scope="col">@Html.SmartLocalize("Relationship")</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="familyTableBody">
-                                            </tbody>
-                                        </table>
+                                    <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-2 cusMinHeight ">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">@Html.SmartLocalize("Name")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Contact No")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Email")</th>
+                                                        <th scope="col">@Html.SmartLocalize("Relationship")</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="familyTableBody">
+                                                </tbody>
+                                            </table>
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -263,21 +303,23 @@
                                         <h5 class="ms-2">@Html.SmartLocalize("Educational Information")</h5>
                                     </div>
                                     <div class="accordion-body">
-                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">@Html.SmartLocalize("Exam Title")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Concentration/Major")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Institute")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Result")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Pas.Year")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Duration")</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="educationTableBody">
-                                                </tbody>
-                                            </table>
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4 cusMinHeight">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">@Html.SmartLocalize("Exam Title")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Concentration/Major")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Institute")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Result")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Pas.Year")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Duration")</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="educationTableBody">
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -288,47 +330,55 @@
                                         <h5 class="ms-2">@Html.SmartLocalize("Training Information")</h5>
                                     </div>
                                     <div class="accordion-body mt-2">
-                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">@Html.SmartLocalize("Training Title")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Topic")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Institute")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Year")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Duration")</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="trainingTableBody">
-                                                </tbody>
-                                            </table>
+                                        <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4 cusMinHeight">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">@Html.SmartLocalize("Training Title")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Topic")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Institute")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Year")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Duration")</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="trainingTableBody">
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            <!--
+
                             <div class="my-3">
                                 <div class="accordion-body mt-2">
                                     <div class="d-flex align-items-center flex-fill">
                                         <h5 class="ms-2">@Html.SmartLocalize("Experience Information")</h5>
-                                        
+
                                     </div>
                                     <div class="accordion-body mt-2">
                                         <div class="col-sm-12 col-md-12 col-xl-12 px-4 mt-4">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">@Html.SmartLocalize("Organization")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Job Title")</th>
-                                                        <th scope="col">@Html.SmartLocalize("Time Duration")</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="experienceTableBody">
-                                                </tbody>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">@Html.SmartLocalize("Organization")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Job Title")</th>
+                                                            <th scope="col">@Html.SmartLocalize("Time Duration")</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="experienceTableBody">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            </div>
                                         </div>
-                                    </div>
                                 </div>
                             </div>
+                             -->
                         </div>
                     </div>
                 </div>
