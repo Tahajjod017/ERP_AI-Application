@@ -1,4 +1,5 @@
-﻿
+﻿//
+
 
 $(document).ready(function () {
 
@@ -7,22 +8,20 @@ $(document).ready(function () {
     GetAllEmpoyee();
     function GetAllEmpoyee() {
         $.ajax({
-            url: '/LeaveRequest/GetEmployee', 
+            url: '/LeaveRequest/GetEmployee',
             type: 'GET',
             success: function (data) {
-                
+
                 choiceManager.populateDropdown('EmployeeID', data);
                 choiceManager.populateDropdown('EmployeeIDEdit', data);
-               
-                if (data.length === 1)
-                {
+
+                if (data.length === 1) {
                     var firstData = data[0];
-                    choiceManager.setChoiceValue('EmployeeID', firstData.id); 
+                    choiceManager.setChoiceValue('EmployeeID', firstData.id);
                 }
-                
+
             },
-            error: function ()
-            {
+            error: function () {
                 toastr.error('Failed to retrieve employee data.');
             }
         });
@@ -34,20 +33,20 @@ $(document).ready(function () {
             url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
             type: 'GET',
             success: function (data) {
-               
-                if (data.length > 0 && (data[0].isWeekendCountedAsLeave  || data[0].isHolidayCountedAsLeave )) {
+
+                if (data.length > 0 && (data[0].isWeekendCountedAsLeave || data[0].isHolidayCountedAsLeave)) {
                     $('#SubsequentHolydayDays').val('');
                 } else {
                     $('#SubsequentHolydayDays').val('Not Applicable');
                 }
-                
+
             },
             error: function () {
                 toastr.error('Failed to retrieve data.');
             }
         })
     }
-   
+
 
     // Get LeaveDays according to LeaveType
     $('#LeaveTypeID').on('change', function () {
@@ -75,7 +74,7 @@ $(document).ready(function () {
     });
 
     //
-   
+
     toggleTimeDateValidation();
 
     $('#PartialFromTime, #PartialToTime').on('input change', function () {
@@ -88,7 +87,7 @@ $(document).ready(function () {
         }
     });
 
-   
+
 
     function toggleTimeDateValidation() {
         if ($('#IsFullDay').is(':checked')) {
@@ -111,25 +110,25 @@ $(document).ready(function () {
         }
     }
 
-  
+
     $('#IsFullDay').on('change', function () {
-     
+
         toggleTimeDateValidation();
     });
     //
 
-        flatpickr("#ToDateFromDateCombined", {
-            dateFormat: "Y-m-d", // yyyy-mm-dd
-            onChange: function (selectedDates, dateStr) {
-                // Set the same date to both FromDate and ToDate
-                $('#FromDate').val(dateStr);
-                $('#ToDate').val(dateStr);
-            }
-        });
+    flatpickr("#ToDateFromDateCombined", {
+        dateFormat: "Y-m-d", // yyyy-mm-dd
+        onChange: function (selectedDates, dateStr) {
+            // Set the same date to both FromDate and ToDate
+            $('#FromDate').val(dateStr);
+            $('#ToDate').val(dateStr);
+        }
+    });
 
-        // Also initialize flatpickr for other date fields
-        flatpickr("#FromDate", { dateFormat: "Y-m-d" });
-        flatpickr("#ToDate", { dateFormat: "Y-m-d" });
+    // Also initialize flatpickr for other date fields
+    flatpickr("#FromDate", { dateFormat: "Y-m-d" });
+    flatpickr("#ToDate", { dateFormat: "Y-m-d" });
     //
 
     //Calculate Days
@@ -184,7 +183,7 @@ $(document).ready(function () {
         let toDate = flatpickrHelper.getDate('ToDate');
         console.log("SubFromDate", fromDate);
         console.log("SubToDate", toDate);
-       
+
         if (!fromDate || !toDate) return;
 
         $.ajax({
@@ -203,7 +202,7 @@ $(document).ready(function () {
                     $('#SubsequentHolydayDays').val("0");
                 }
             }
-,
+            ,
             error: function () {
                 toastr.error('Failed to fetch subsequent.');
             }
@@ -213,11 +212,11 @@ $(document).ready(function () {
 
 
     //
-   
+
 
     //
     // Handle form submit
-    $('body').on('submit', '#LeaveRequestForm', function (e) {
+    $('body').on('submit', '#LeaveRequestUpdatedForm', function (e) {
         e.preventDefault();
 
         var $form = $(this);
@@ -259,7 +258,7 @@ $(document).ready(function () {
         });
     });
 
-   
+
 
     // Reset button click
     $('#ResetButton').on('click', function () {
@@ -304,7 +303,7 @@ $(document).ready(function () {
     //
     $(document).on('click', '#leaveRequestDelete-singleDelBtn', function () {
         var id = $(this).data('id');
-        
+
         if (id) {
             showDeleteModal(function () {
                 $.ajax({
@@ -312,7 +311,7 @@ $(document).ready(function () {
                     method: 'POST',
                     data: { ids: [id] },
                     success: function (response) {
-                    
+
                         if (response.success) {
                             toastr.success(response.message);
                             loadTableData();
@@ -334,13 +333,13 @@ $(document).ready(function () {
     // Get By data leaveRequest
     $(document).on('click', '#LeaveRequestEditButton', function () {
         var leaveApplicationID = $(this).data('id');
-     
+
         $.ajax({
             url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-                debugger
+          
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
 
@@ -398,7 +397,7 @@ $(document).ready(function () {
 
 });
 
-
+//
 
 
 var currentPage = 1;
@@ -472,24 +471,27 @@ function updateSortingIndicator() {
 
 
 
-function getBadgeClass(status) {
-    if (!status || status.trim() === '') return 'text-bg-success';
+//function getBadgeClass(status) {
+//    if (!status || status.trim() === '') return 'text-bg-success';
 
-    switch (status.trim().toUpperCase()) {
-        case 'DECLINEED':
-            return 'badge-phoenix badge-phoenix-danger';
-        case 'APPROVED':
-            return 'badge-phoenix badge-phoenix-success';
-        case 'PENDING':
-            return 'badge-phoenix-warning';
-        default:
-            return 'text-bg-success';
-    }
-}
+//    switch (status.trim().toUpperCase()) {
+//        case 'DECLINEED':
+//            return 'badge-phoenix badge-phoenix-danger';
+//        case 'APPROVED':
+//            return 'badge-phoenix badge-phoenix-success';
+//        case 'PENDING':
+//            return 'badge-phoenix-warning';
+//        default:
+//            return 'text-bg-success';
+//    }
+//}
+
+//<td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+//    <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
+//</td>
 
 function getAvatarHtml(employee) {
-    if (employee.employeeImage && employee.employeeImage !== '')
-    {
+    if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
     } else {
         const initial = employee.employeeName.charAt(0).toUpperCase();
@@ -507,10 +509,10 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
     var statusID = $('#StatusIDFilterDD').val();
-   
-  
+
+
     $.ajax({
-        url: '/LeaveRequestRoute/GetAllTableListAsync',
+        url: '/LeaveApprovalDeclineRoute/GetAllTableListAsync',
         method: 'GET',
         data: {
             pageNumber: currentPage,
@@ -522,23 +524,23 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             statusID: statusID
         },
         success: function (response) {
-           
-           
+
+
             console.log("Datassssss", response);
-            var tableBody = $("#leaveRequest-tBody");
+            var tableBody = $("#LeaveapprovalDeclineListTable_Tbody");
             tableBody.empty();
             var totalItems = response.paginationInfo.totalItems;
 
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
-                   
+
                     if (currentSortOrder === 'asc') {
                         rowIndex = (currentPage - 1) * pageSize + index + 1;
                     } else {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
                     //
-           
+
                     //
                     let status = item.statusName; // Assuming this is your status value
                     let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINEED');
@@ -588,13 +590,21 @@ function loadTableData(currentSortColumn, currentSortOrder) {
 
                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromDate}</td>
                         <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
-                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period}</td>
-                       <td class="leaveTotal align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">  ${unitLabel}</td>
-                        
-                        <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
-                        </td>
-                        
+                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
+                      
+                          <td class="leaveTotal align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">3(Remaining)</td>
+                    
+
+                        <td class="dptStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Approved">
+                                    <i class="fas fa-check-square text-success"></i>
+                                </a>
+
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Declined">
+                                    <i class="far fa-window-close text-danger"></i>
+                                </a>
+                            </td>
+
                      <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a

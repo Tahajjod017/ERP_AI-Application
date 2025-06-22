@@ -28,13 +28,14 @@
 <!-- /Add Leaves -->
 <!-- Edit Leaves -->
 <div class="modal fade" id="edit_leaves">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Edit Leave</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-           <partial name="_EditLeaveForm"/>
+            @await Html.PartialAsync("_EditLeaveForm", Model.SetupFormEdit)
+          
         </div>
     </div>
 </div>

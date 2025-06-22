@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.Login;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.Login;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -19,11 +20,12 @@ namespace GCTL_NBR.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-
-        public UserProfileController(ITranslateService translateService, IUserProfileService userProfileService, UserManager<ApplicationUser> userManager = null, SignInManager<ApplicationUser> signInManager = null) : base(translateService, userProfileService)
+        private readonly IGenericRepository<EmployeeOfficeInfo> _officialInfoRepository;
+        public UserProfileController(ITranslateService translateService, IUserProfileService userProfileService, UserManager<ApplicationUser> userManager , SignInManager<ApplicationUser> signInManager, IGenericRepository<EmployeeOfficeInfo> officialInfoRepository = null) : base(translateService, userProfileService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _officialInfoRepository = officialInfoRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -43,11 +45,15 @@ namespace GCTL_NBR.Controllers
 
             var model = new UserProfileViewModel
             {
-                FullName = (user.Employees.FirstName + " "+user.Employees.LastName) ?? user.UserName,
+                FullName = (user.Employees.FirstName + " " + user.Employees.LastName) ?? user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.Employees.MobileNumber ?? "",
-                Designation = string.Join(", ", user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Designation?.DesignationName)) ??"",
-                Department = user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Department?.DepartmentName).FirstOrDefault() ?? "",
+                //Designation = string.Join(", ", user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Designation?.DesignationName)) ??"",
+                //Department = user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Department?.DepartmentName).FirstOrDefault() ?? "",
+
+                Designation = _officialInfoRepository.AllActive().Where(AsadVaiValoAsen => AsadVaiValoAsen.EmployeeID == user.EmployeeId).Include(amrVulHoyese => amrVulHoyese.Designation).Select(seeUnotForMind => seeUnotForMind.Designation.DesignationName).FirstOrDefault() ?? "",
+
+                Department = _officialInfoRepository.AllActive().Where(AsadVaiValoAsen => AsadVaiValoAsen.EmployeeID == user.EmployeeId).Include(amrVulHoyese => amrVulHoyese.Department).Select(seeUnotForMind => seeUnotForMind.Department.DepartmentName).FirstOrDefault() ?? "",
                 Role = string.Join(", ", await _userManager.GetRolesAsync(user)).ToCleanRoleName(),
                 EmployeeCode = user.Employees?.EmployeeCode
             };
