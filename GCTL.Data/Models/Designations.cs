@@ -27,7 +27,7 @@ public partial class Designations
 
     public int? DeletedBy { get; set; }
 
-    public int? DisplayOrder { get; set; }
+    //public int? DisplayOrder { get; set; }
 
     public int? OrganizationID { get; set; }
 

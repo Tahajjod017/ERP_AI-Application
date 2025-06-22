@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL.Data.Models;
 
@@ -29,7 +30,7 @@ public partial class Departments
 
     public int? OrganizationID { get; set; }
 
-    public bool? IsDepartmentHead { get; set; }
+    public int? DepartmentHeadEmpID { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
@@ -46,4 +47,8 @@ public partial class Departments
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+
+    [ForeignKey("DepartmentHeadEmpID")]
+    public virtual Employees DepartmentHeadEmpIDNavigation { get; set; }
 }
