@@ -16,7 +16,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
     public interface ILeaveRequestService
     {
         Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM);
-
+        Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationEditVM entityVM);
+        Task<LeaveApplicationEditVM> GetLeaveRequestByIdAsync(int leaveApplicationID);
         Task<CommonReturnViewModel> SoftDeleteLeaveRequest(DeleteRequestVM deleteRequestVM);
         Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="",int? leaveTypeID=null,int ? statusID=null );

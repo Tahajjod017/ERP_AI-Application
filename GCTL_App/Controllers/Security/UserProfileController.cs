@@ -22,7 +22,9 @@ namespace GCTL_NBR.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IGenericRepository<EmployeeOfficeInfo> _officialInfoRepository;
 
+
         public UserProfileController(ITranslateService translateService, IUserProfileService userProfileService, UserManager<ApplicationUser> userManager = null, SignInManager<ApplicationUser> signInManager = null, IGenericRepository<EmployeeOfficeInfo> officialInfoRepository = null) : base(translateService, userProfileService)
+
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -46,7 +48,7 @@ namespace GCTL_NBR.Controllers
 
             var model = new UserProfileViewModel
             {
-                FullName = (user.Employees.FirstName + " "+user.Employees.LastName) ?? user.UserName,
+                FullName = (user.Employees.FirstName + " " + user.Employees.LastName) ?? user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.Employees.MobileNumber ?? "",
                 //Designation = string.Join(", ", user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Designation?.DesignationName)) ??"",
@@ -54,7 +56,9 @@ namespace GCTL_NBR.Controllers
 
                 Designation = _officialInfoRepository.AllActive().Where(AsadVaiValoAsen => AsadVaiValoAsen.EmployeeID == user.EmployeeId).Include(amrVulHoyese => amrVulHoyese.Designation).Select(seeUnotForMind => seeUnotForMind.Designation.DesignationName).FirstOrDefault() ?? "",
 
-                Department = _officialInfoRepository.AllActive().Where(AsadVaiValoAsen => AsadVaiValoAsen.EmployeeID == user.EmployeeId).Include(amrVulHoyese=>amrVulHoyese.Department).Select(seeUnotForMind => seeUnotForMind.Department.DepartmentName).FirstOrDefault() ?? "",
+
+                Department = _officialInfoRepository.AllActive().Where(AsadVaiValoAsen => AsadVaiValoAsen.EmployeeID == user.EmployeeId).Include(amrVulHoyese => amrVulHoyese.Department).Select(seeUnotForMind => seeUnotForMind.Department.DepartmentName).FirstOrDefault() ?? "",
+
                 Role = string.Join(", ", await _userManager.GetRolesAsync(user)).ToCleanRoleName(),
                 EmployeeCode = user.Employees?.EmployeeCode
             };

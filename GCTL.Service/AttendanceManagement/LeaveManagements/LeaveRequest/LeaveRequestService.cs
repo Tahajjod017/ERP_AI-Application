@@ -140,7 +140,44 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             }
         }
 
-        
+
+        #endregion
+
+        #region Get Data By LeaveRequestID
+        public async Task<LeaveApplicationEditVM> GetLeaveRequestByIdAsync(int leaveApplicationID)
+        {
+            if (leaveApplicationID ==0) 
+            {
+                return null;
+            }
+
+            await leaveRequest.BeginTransactionAsync();
+            try
+            {
+                var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
+                if (data == null) return null;
+                LeaveApplicationEditVM entityVM = new LeaveApplicationEditVM
+                { 
+                LeaveApplicationID = data.LeaveApplicationID,
+                EmployeeIDEdit=data.EmployeeID,
+                LeaveTypeIDEdit=data.LeaveTypeID,
+                ReasonEdit=data.Reason,
+                IsFullDayEdit=data.IsFullDay,
+                FromDateEdit=data.FromDate,
+                ToDateEdit=data.ToDate,
+                PartialFromTimeEdit=data.PartialFromTime,
+                PartialToTimeEdit=data.PartialToTime,
+                };
+                return entityVM;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+       
+        }
+
         #endregion
 
         #region  Save Leave Reqest
@@ -199,6 +236,82 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+        #endregion
+
+        #region  Update Method
+        public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationEditVM entityVM)
+        {
+            if (entityVM == null)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Data Can not be null"
+                };
+            }
+           
+            await leaveRequest.BeginTransactionAsync();
+
+            try
+            {
+               
+
+                var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
+                if (entity == null)
+                    return null;
+
+                entity.EmployeeID = entityVM.EmployeeIDEdit;
+                entity.LeaveTypeID = entityVM.LeaveTypeIDEdit;
+               // entity.LeaveDays = entityVM.LeaveDaysEdit; // Add this property in your model if it exists
+
+                entity.IsFullDay = entityVM.IsFullDayEdit;
+
+                if (entityVM.IsFullDayEdit)
+                {
+                    entity.FromDate = entityVM.FromDateEdit ?? default;
+                    entity.ToDate = entityVM.ToDateEdit ?? default;
+
+                    // Clear partial day data
+                    entity.PartialFromTime = null;
+                    entity.PartialToTime = null;
+                }
+                else
+                {
+                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                    {
+                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                        entity.FromDate = dateOnly;
+                        entity.ToDate = dateOnly;
+                    }
+
+                    entity.PartialFromTime = entityVM.PartialFromTimeEdit;
+                    entity.PartialToTime = entityVM.PartialToTimeEdit;
+                }
+                entity.Reason = entityVM.ReasonEdit ?? string.Empty;
+                await leaveRequest.UpdateAsync(entity);
+              //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
+                await leaveRequest.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Updated Successfully."
+
+                };
+            }
+            catch (Exception ex)
+            {
+
+                await leaveRequest.RollbackTransactionAsync();
+                Console.WriteLine(ex.Message);
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while saving the leave request Update."
+                };
+            }
+        }
+
         #endregion
 
         #region Delete Leave Request
@@ -337,6 +450,71 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region
+        //public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
+        //{
+        //    var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
+        //        .Select(x => new
+        //        {
+        //            x.IsHolidayCountedAsLeave,
+        //            x.IsWeekendCountedAsLeave
+        //        }).FirstOrDefaultAsync();
+
+        //    if (isWeenedHoliday == null)
+        //        return null;
+
+        //    int totalHolidayDays = 0;
+
+        //    if (isWeenedHoliday.IsHolidayCountedAsLeave)
+        //    {
+        //        var holidaysInRange = await holidays.AllActive()
+        //            .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+        //            .ToListAsync();
+
+        //        foreach (var h in holidaysInRange)
+        //        {
+        //            var holidayStart = h.StartDate.GetValueOrDefault();
+        //            var holidayEnd = h.EndDate.GetValueOrDefault();
+
+        //            // Clip holidays to within the selected date range
+        //            var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
+        //            var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
+
+        //            int days = (actualEnd - actualStart).Days + 1;
+        //            totalHolidayDays += days;
+        //        }
+        //    }
+
+        //    int totalWeekend = 0;
+        //    if (isWeenedHoliday.IsWeekendCountedAsLeave)
+        //    {
+        //        var holidaysInRange = await weenkendsettings.AllActive()
+        //            .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+        //            .ToListAsync();
+
+        //        foreach (var h in holidaysInRange)
+        //        {
+        //            var holidayStart = h.StartDate.GetValueOrDefault();
+        //            var holidayEnd = h.EndDate.GetValueOrDefault();
+
+        //            // Clip holidays to within the selected date range
+        //            var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
+        //            var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
+
+        //            int days = (actualEnd - actualStart).Days + 1;
+        //            totalWeekend += days;
+        //        }
+        //    }
+
+        //    return new SubsequentVM
+        //    {
+        //            TotalSubsequentDays = totalHolidayDays+ totalWeekend,
+        //          IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
+        //          IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
+        //    };
+
+
+        //}
+
         public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
         {
             var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
@@ -349,7 +527,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             if (isWeenedHoliday == null)
                 return null;
 
-            int totalHolidayDays = 0;
+            // Use HashSet to avoid duplicate dates
+            HashSet<DateTime> uniqueDates = new HashSet<DateTime>();
 
             if (isWeenedHoliday.IsHolidayCountedAsLeave)
             {
@@ -359,48 +538,49 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                 foreach (var h in holidaysInRange)
                 {
-                    var holidayStart = h.StartDate.GetValueOrDefault();
-                    var holidayEnd = h.EndDate.GetValueOrDefault();
+                    var start = h.StartDate.GetValueOrDefault();
+                    var end = h.EndDate.GetValueOrDefault();
 
-                    // Clip holidays to within the selected date range
-                    var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
-                    var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
+                    var actualStart = start < fromDate ? fromDate : start;
+                    var actualEnd = end > toDate ? toDate : end;
 
-                    int days = (actualEnd - actualStart).Days + 1;
-                    totalHolidayDays += days;
+                    for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
+                    {
+                        uniqueDates.Add(date);
+                    }
                 }
             }
 
-            int totalWeekend = 0;
             if (isWeenedHoliday.IsWeekendCountedAsLeave)
             {
-                var holidaysInRange = await weenkendsettings.AllActive()
+                var weekendsInRange = await weenkendsettings.AllActive()
                     .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
                     .ToListAsync();
 
-                foreach (var h in holidaysInRange)
+                foreach (var w in weekendsInRange)
                 {
-                    var holidayStart = h.StartDate.GetValueOrDefault();
-                    var holidayEnd = h.EndDate.GetValueOrDefault();
+                    var start = w.StartDate.GetValueOrDefault();
+                    var end = w.EndDate.GetValueOrDefault();
 
-                    // Clip holidays to within the selected date range
-                    var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
-                    var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
+                    var actualStart = start < fromDate ? fromDate : start;
+                    var actualEnd = end > toDate ? toDate : end;
 
-                    int days = (actualEnd - actualStart).Days + 1;
-                    totalWeekend += days;
+                    for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
+                    {
+                        uniqueDates.Add(date); // Add to HashSet (no duplicates)
+                    }
                 }
             }
 
             return new SubsequentVM
             {
-                    TotalSubsequentDays = totalHolidayDays+ totalWeekend,
-                  IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
-                  IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
+                TotalSubsequentDays = uniqueDates.Count,
+                IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
+                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
             };
-            
-           
         }
+
+       
 
 
         #endregion
