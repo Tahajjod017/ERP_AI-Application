@@ -186,11 +186,13 @@
 
     function populateForm(data) {
         console.log('populate form', data);
-        debugger
+        
         // Basic fields
         $('#EmployeeBaseAllowanceID').val(data.employeeBaseAllowanceID || 0);
         $('#PersonalEmail').val(data.personalEmail || '');
         $('#PersonalPhone').val(data.personalPhone || '');
+
+        choiceManager.setChoiceValue('organizationDD', data.organizationID || ''); // Assuming choiceManager is defined globally
 
         // Main allowance toggle
         $('#allowanceEnabled').prop('checked', data.isEmployeeAllowanceEnabled || false);
@@ -257,6 +259,8 @@
     function clearForm() {
         $('form')[0].reset();
         $('#EmployeeBaseAllowanceID').val(0);
+
+        choiceManager.clearChoice('organizationDD')
 
         // Clear all choice dropdowns
         clearChoiceDD('HouseRentAllowancePercentage');

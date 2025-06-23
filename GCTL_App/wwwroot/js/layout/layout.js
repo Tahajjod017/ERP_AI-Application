@@ -94,57 +94,61 @@ function hideLoadingBaseIndicator() {
 
 //#region Show Loading on page Load
 
-var loadingTimer;
-var loadingShown = false; // flag to ensure only one modal show
-var loadingTimeout; // for auto-hide
+//var loadingTimer;
+//var loadingShown = false; // flag to ensure only one modal show
+//var loadingTimeout; // for auto-hide
 
-function triggerLoadingModal(message) {
-    if (!loadingShown) {
-        loadingTimer = setTimeout(function () {
-            showLoadingBaseIndicator(message);
-            loadingShown = true;
+//function triggerLoadingModal(message) {
+//    if (!loadingShown) {
+//        loadingTimer = setTimeout(function () {
+//            showLoadingBaseIndicator(message);
+//            loadingShown = true;
 
-            // Auto-hide modal after 10 seconds
-            loadingTimeout = setTimeout(function () {
-                hideLoadingBaseIndicator(); // make sure this exists
-                loadingShown = false;
-            }, 10000);
-        }, 2000); // delay before showing modal
-    }
-}
+//            // Auto-hide modal after 10 seconds
+//            loadingTimeout = setTimeout(function () {
+//                hideLoadingBaseIndicator(); // make sure this exists
+//                loadingShown = false;
+//            }, 100);
+//        }, 2000); // delay before showing modal
+//    }
+//}
 
-window.addEventListener('beforeunload', function () {
-    triggerLoadingModal('Loading, please wait...');
-});
+//window.addEventListener('beforeunload', function () {
+//    triggerLoadingModal('Loading, please wait...');
+//});
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Intercept anchor clicks (real page navigations only)
-    document.querySelectorAll('a[href]').forEach(function (anchor) {
-        anchor.addEventListener('click', function (e) {
-            var href = anchor.getAttribute('href');
+//document.addEventListener('DOMContentLoaded', function () {
+//    // Intercept anchor clicks (real page navigations only)
+//    document.querySelectorAll('a[href]').forEach(function (anchor) {
+//        anchor.addEventListener('click', function (e) {
+//            var href = anchor.getAttribute('href');
 
-            // Skip links that are empty, hashes, or same-page
-            if (
-                !href ||
-                href.trim() === '' ||
-                href.trim() === '#' ||
-                href.startsWith('#') ||
-                e.ctrlKey || e.shiftKey || e.altKey || e.metaKey
-            ) return;
+//            // Skip links that are empty, hashes, or same-page
+//            if (
+//                !href ||
+//                href.trim() === '' ||
+//                href.trim() === '#' ||
+//                href.startsWith('#') ||
+//                e.ctrlKey || e.shiftKey || e.altKey || e.metaKey
+//            ) return;
 
-            triggerLoadingModal('Loading, please wait...');
-        });
-    });
+//            triggerLoadingModal('Loading, please wait...');
+//        });
+//    });
 
-    // Intercept form submissions
-    document.querySelectorAll('form').forEach(function (form) {
-        form.addEventListener('submit', function () {
-            triggerLoadingModal('Processing, please wait...');
-        });
-    });
-});
+//    // Intercept form submissions
+//    document.querySelectorAll('form').forEach(function (form) {
+//        form.addEventListener('submit', function () {
+//            triggerLoadingModal('Processing, please wait...');
+//        });
+//    });
+//});
 
 //#endregion
+
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     feather.replace();
 });

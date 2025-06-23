@@ -15,11 +15,14 @@
                 <div class="col-12">
                     <input type="hidden" asp-for="EmployeeBaseAllowanceID" id="EmployeeBaseAllowanceID" />
 
-                    <div class="row g-2 align-items-center">
+                    <div class="row g-2 align-items-center" id="EmployeeDropDownDiv" style="display:none">
+
                         <div class="col-md-3">
                             <div class="position-relative">
-                                <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
-                                <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                                <!--
+                            <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                -->
                             </div>
                         </div>
                         <div class="col-md-3"></div>
@@ -53,65 +56,65 @@
 
                             <!--
 
-                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
-                                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo">
-                                        <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
-                                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo">
-                                        <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
-                                    <a class="nav-link active" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo">
-                                        <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
-                                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo">
-                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
-                                    <a class="nav-link" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo">
-                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
-                                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo">
-                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
-                                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo">
-                                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")
-                                    </a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
-                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
-                                </li>
-                            </ul>
+            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
+                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo">
+                        <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
+                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo">
+                        <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
+                    <a class="nav-link active" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo">
+                        <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
+                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo">
+                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
+                    <a class="nav-link" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo">
+                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
+                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo">
+                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
+                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo">
+                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")
+                    </a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
+                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
+                </li>
+            </ul>
 
-                            -->
+            -->
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="tabpanel" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
                                     <div class="px-25">
                                         <!--
-                                        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <a class="nav-link" id="empSalary-tab" href="/EmployeeSalary/index" role="tab" aria-controls="tab-empSalary" aria-selected="false">@Html.SmartLocalize("Employee Salary Settings")</a>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <a class="nav-link" id="empBenefits-tab" href="/EmployeeBenifit/index" role="tab" aria-controls="tab-empBenefits" aria-selected="false">@Html.SmartLocalize("Employee Benefits")</a>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <a class="nav-link active" id="empAllowance-tab" href="#" role="tab" aria-controls="tab-empAllowance" aria-selected="true">@Html.SmartLocalize("Employee Allowance")</a>
-                                            </li>
-                                        </ul>
-                                        -->
+                        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="empSalary-tab" href="/EmployeeSalary/index" role="tab" aria-controls="tab-empSalary" aria-selected="false">@Html.SmartLocalize("Employee Salary Settings")</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="empBenefits-tab" href="/EmployeeBenifit/index" role="tab" aria-controls="tab-empBenefits" aria-selected="false">@Html.SmartLocalize("Employee Benefits")</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="empAllowance-tab" href="#" role="tab" aria-controls="tab-empAllowance" aria-selected="true">@Html.SmartLocalize("Employee Allowance")</a>
+                            </li>
+                        </ul>
+                        -->
                                         <div class="tab-content mt-3" id="myTabContent">
                                             <div class="tab-pane fade show active" id="tab-empAllowance" role="tabpanel" aria-labelledby="empAllowance-tab">
                                                 <div class="">
@@ -131,17 +134,16 @@
 
                                                             <div class="col-md-4">
                                                                 <div class="mb-3">
-                                                                    <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Company Name")</label>
-                                                                        <div class="form-check form-switch">
-                                                                        </div>
-                                                                    </div>
-                                                                    <select class="form-multi-select" id="multiple-select-tag" multiple data-coreui-selection-type="tags"
-                                                                            data-coreui-search="true">
-                                                                        <option value="0">@Html.SmartLocalize("Select Company...")</option>
-                                                                        <option value="1">CSL</option>
-                                                                        <option value="2">GCTL</option>
+
+                                                                    <label>@Html.SmartLocalize("Organization")</label>
+                                                                    <select class="form-select choiceDD" id="organizationDD" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
+                                                                        <option value="">@Html.SmartLocalize("No Organization Selected")</option>
                                                                     </select>
+
+
+
+
+
                                                                 </div>
                                                             </div>
 
