@@ -13,10 +13,6 @@ public partial class WeekendSettings
 
     public int? OrganizationBranchID { get; set; }
 
-    public DateTime? StartDate { get; set; }
-
-    public DateTime? EndDate { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }
@@ -42,4 +38,6 @@ public partial class WeekendSettings
     public virtual OrganizationBranches OrganizationBranch { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<WeekendDays> WeekendDays { get; set; } = new List<WeekendDays>();
 }

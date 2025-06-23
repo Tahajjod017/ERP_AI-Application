@@ -7,7 +7,7 @@ namespace GCTL.Data.Models;
 
 public partial class ApprovalSettings
 {
-    public int WeekendSettingID { get; set; }
+    public int ApprovalSettingID { get; set; }
 
     public int? OrganizationID { get; set; }
 

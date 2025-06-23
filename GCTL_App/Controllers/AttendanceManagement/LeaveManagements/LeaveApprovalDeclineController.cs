@@ -1,10 +1,12 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveApproval;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
@@ -29,7 +31,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         public IActionResult Index()
         {
-            LeaveApplicationEditVM model=new LeaveApplicationEditVM();
+            LeaveApprovalPageVM model = new LeaveApprovalPageVM
+            {
+                Setup = new LeaveApplicationApprovalModifyVM()
+            };
+
+         
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
             return View(model);
@@ -58,14 +65,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         #endregion
 
         #region  Update Leave request in Approval Side
-        //[Route("LeaveApprovalDecline/UpdateRequestAsync")]
+        [Route("LeaveApprovalDeclineRoute/UpdateRequestAsync")]
         [HttpPost]
-        public async Task<IActionResult> UpdateRequestAsync(LeaveApplicationEditVM entityVM)
+        public async Task<IActionResult> UpdateRequestAsync([FromBody]LeaveApplicationApprovalModifyVM entityVM)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+                }
                 if (entityVM == null) return BadRequest();
-                var data = await leaveRequestService.UpdateLeaveRequestAsynce(entityVM);
+                var data = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM);
                 return Json(data);
             }
             catch (Exception)
@@ -76,5 +87,45 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         #endregion
 
+        #region Get By Data leave Request
+        [Route("LeaveApprovalDeclineRoute/GetLeaveRequestByIdAsync")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetLeaveRequestByIdAsync(int leaveApplicationID)
+        {
+            try
+            {
+                if (leaveApplicationID == 0) return BadRequest();
+                var data = await leaveApprovalService.GetLeaveRequestByIdAsync(leaveApplicationID);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+        #endregion
+
+        #region Check Leave Subsequent Days 
+        [HttpGet]
+        [Route("LeaveApprovalDeclineRoute/SubsequentLeaveCount")]
+        public async Task<IActionResult> SubsequentLeaveCount(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var data = await leaveRequestService.SubsequentAsynce(fromDate, toDate);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
     }
 }

@@ -187,7 +187,7 @@ $(document).ready(function () {
         if (!fromDate || !toDate) return;
 
         $.ajax({
-            url: '/LeaveRequest/SubsequentLeaveCount',
+            url: '/LeaveApprovalDeclineRoute/SubsequentLeaveCount',
             type: 'GET',
             data: {
                 fromDate: fromDate,
@@ -209,6 +209,9 @@ $(document).ready(function () {
         });
     });
 
+    //
+
+    
 
 
     //
@@ -216,25 +219,22 @@ $(document).ready(function () {
 
     //
     // Handle form submit
-    $('body').on('submit', '#LeaveRequestUpdatedForm', function (e) {
+    $(document).on('click', '#ApplyLeaveSubmitButtonApproval', function (e) {
         e.preventDefault();
 
-        var $form = $(this);
+        const formdata = {
+            LeaveApplicationID: $('#LeaveApplicationID').val(),
+            FromDateEdit: flatpickrHelper.getDate('FromDate'),
+            ToDateEdit: flatpickrHelper.getDate('ToDate'),
+            IsFullDayEdit: $('input[name="IsFullDayEdit"]:checked').val() === "true"
 
-        if (!$form.valid()) {
-
-            return false;
-        }
-
-        var url = $form.attr('action');
-        var formData = new FormData(this);
+        };
 
         $.ajax({
             type: 'POST',
-            url: url,
-            data: formData,
-            contentType: false,
-            processData: false,
+            url: '/LeaveApprovalDeclineRoute/UpdateRequestAsync',
+            data: JSON.stringify(formdata), // Send data as JSON string
+            contentType: 'application/json; charset=utf-8', // Tell server it's JSON
             dataType: 'json',
             success: function (response) {
                 console.log("Response:", response);
@@ -242,7 +242,6 @@ $(document).ready(function () {
                     toastr.success(response.message);
                     resetForm(); // Reset after successful save
                 } else {
-                    // Show server-side validation errors
                     if (response.errors && response.errors.length > 0) {
                         response.errors.forEach(function (error) {
                             toastr.error(error);
@@ -257,6 +256,7 @@ $(document).ready(function () {
             }
         });
     });
+
 
 
 
@@ -335,7 +335,7 @@ $(document).ready(function () {
         var leaveApplicationID = $(this).data('id');
 
         $.ajax({
-            url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
+            url: '/LeaveApprovalDeclineRoute/GetLeaveRequestByIdAsync',
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
@@ -365,7 +365,7 @@ $(document).ready(function () {
 
                     // ToDateFromDateCombinedEdit
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
-                    $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
+                    $('#TotalAppliedDays').val(data.period);
                     // PartialFromTimeEdit
                     $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
 
@@ -379,10 +379,25 @@ $(document).ready(function () {
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');
                         $('#PartialDayDivEdit').addClass('d-none');
+
+                        $('#PartialDayRadioWrapper').addClass('d-none');
+                        $('#FullDayRadioWrapper').removeClass('d-none');
                     } else {
                         $('#FullDayDivEdit').addClass('d-none');
                         $('#PartialDayDivEdit').removeClass('d-none');
+
+                        $('#FullDayRadioWrapper').addClass('d-none');
+                        $('#PartialDayRadioWrapper').removeClass('d-none');
                     }
+
+                    if (data.totalSubsequentDays > 0) {
+                        $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val("Not Applicable");
+                    } else {
+                        $('#SubsequentHolydayDays').val("0");
+                    }
+
                 }
             },
 
@@ -397,7 +412,9 @@ $(document).ready(function () {
 
 });
 
-//
+
+
+// Approval Table 
 
 
 var currentPage = 1;
@@ -469,26 +486,6 @@ function updateSortingIndicator() {
     });
 }
 
-
-
-//function getBadgeClass(status) {
-//    if (!status || status.trim() === '') return 'text-bg-success';
-
-//    switch (status.trim().toUpperCase()) {
-//        case 'DECLINEED':
-//            return 'badge-phoenix badge-phoenix-danger';
-//        case 'APPROVED':
-//            return 'badge-phoenix badge-phoenix-success';
-//        case 'PENDING':
-//            return 'badge-phoenix-warning';
-//        default:
-//            return 'text-bg-success';
-//    }
-//}
-
-//<td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-//    <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
-//</td>
 
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
@@ -683,6 +680,5 @@ $(document).on('click', '.page-btn', function () {
     currentPage = page;
     loadTableData();
 });
-
 
 

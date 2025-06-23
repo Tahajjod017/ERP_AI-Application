@@ -53,6 +53,8 @@ public partial class LeaveTypes
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
 
+    public virtual ICollection<LeaveBalances> LeaveBalances { get; set; } = new List<LeaveBalances>();
+
     public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

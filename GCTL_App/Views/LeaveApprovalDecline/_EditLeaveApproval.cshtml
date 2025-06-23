@@ -1,5 +1,7 @@
-﻿ @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationEditVM
-<form asp-action="UpdateRequestAsync" asp-controller="LeaveApprovalDecline" method="post" id="LeaveRequestUpdatedForm">
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDecline.LeaveApplicationApprovalModifyVM
+
+
+<form  id="LeaveRequestUpdatedForm">
     <div class="modal-body pb-0">
         <div class="row">
             <div class="col-md-12">
@@ -7,7 +9,7 @@
                 <div class="mb-3">
 
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required>
+                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required disabled>
                         <option value="">Select Employee</option>
                     </select>
                     <span asp-validation-for="EmployeeIDEdit" class="text-danger small"></span>
@@ -16,7 +18,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">Leave Type</label>
-                    <select class="form-select choiceDD" asp-for="LeaveTypeIDEdit" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
+                    <select class="form-select choiceDD" asp-for="LeaveTypeIDEdit" required asp-items="@ViewBag.LeaveTypeDD as SelectList" disabled>
                         <option value="">Select Leave</option>
                     </select>
                     <span asp-validation-for="LeaveTypeIDEdit" class="text-danger small"></span>
@@ -29,13 +31,13 @@
                 </div>
             </div>
 
-            <div class="d-flex col-md-6">
-                <div class="form-check me-3">
+            <div class="d-flex col-md-6" id="IsFullDaySection">
+                <div class="form-check me-3" id="FullDayRadioWrapper">
                     <input class="form-check-input" type="radio" asp-for="IsFullDayEdit" id="option1" value="true" checked>
                     <label class="form-check-label" for="option1">Full Day</label>
                 </div>
 
-                <div class="form-check">
+                <div class="form-check" id="PartialDayRadioWrapper">
                     <input class="form-check-input" type="radio" asp-for="IsFullDayEdit" id="option2" value="false">
                     <label class="form-check-label" for="option2">Partial Day</label>
                 </div>
@@ -121,7 +123,7 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Reason</label>
-                    <textarea asp-for="ReasonEdit" class="form-control" rows="3"></textarea>
+                    <textarea asp-for="ReasonEdit" class="form-control" rows="3"   disabled></textarea>
                 </div>
             </div>
 
@@ -130,7 +132,7 @@
 
     <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button id="ApplyLeaveSubmitButton" type="submit" class="btn btn-primary">Apply Leave</button>
+        <button id="ApplyLeaveSubmitButtonApproval" class="btn btn-primary">Modify Apply Leave</button>
     </div>
 </form>
 <script>
