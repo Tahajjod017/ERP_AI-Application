@@ -13,7 +13,7 @@
 
 
     .cusMinHeight {
-        min-height: 158px; /* Set a minimum height for the table container */
+        min-height: 167px; /* Set a minimum height for the table container */
     }
 
 
@@ -207,11 +207,12 @@
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <span class="d-inline-flex align-items-center">@Html.SmartLocalize("Primary")</span>
-                                <h6 class="d-flex align-items-center fw-medium mt-1">
-                                    <span id="primaryContactName"></span>
+                                <div class="d-flex align-items-center fw-medium mt-1">
+                                    <h5><span id="primaryContactName"></span></h5>
+
                                     <span class="d-inline-flex mx-1"><i class="ti ti-point-filled text-danger mx-1"></i></span>
-                                    <span id="primaryContactRelation"></span>
-                                </h6>
+                                    <h6>  <span id="primaryContactRelation"></span></h6>
+                                </div>
                             </div>
                             <p class="text-dark" id="primaryContactNumber"></p>
                         </div>
@@ -325,7 +326,7 @@
                                 </div>
                             </div>
                             <div class="my-3">
-                                <div class="accordion-body mt-2 border-bottom">
+                                <div class="accordion-body mt-2 ">
                                     <div class="d-flex align-items-center flex-fill">
                                         <h5 class="ms-2">@Html.SmartLocalize("Training Information")</h5>
                                     </div>

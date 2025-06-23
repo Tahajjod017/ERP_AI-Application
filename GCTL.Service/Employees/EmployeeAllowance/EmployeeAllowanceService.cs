@@ -18,12 +18,14 @@ namespace GCTL.Service.Employees.EmployeeAllowance
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<GCTL.Data.Models.EmployeeBaseAllowances> _employeeAllowancesRepository;
         private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficialRepository;
 
-        public EmployeeAllowanceService(IGenericRepository<EmployeeBaseAllowances> employeeAllowancesRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository)
+        public EmployeeAllowanceService(IGenericRepository<EmployeeBaseAllowances> employeeAllowancesRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository)
         {
             _employeeAllowancesRepository = employeeAllowancesRepository;
             _employeeRepository = employeeRepository;
             _employeeSalaryRepository = employeeSalaryRepository;
+            _employeeOfficialRepository = employeeOfficialRepository;
         }
 
         public async Task<EmployeeAdditionalPostViewModel> GetEmployeeAllowance(int employeeId)
@@ -37,6 +39,10 @@ namespace GCTL.Service.Employees.EmployeeAllowance
                                   on emp.EmployeeID equals empSaley.EmployeeID into empSaleyGroup // Second left join
                                   from empSaley in empSaleyGroup.DefaultIfEmpty()
 
+                                  join empOfficial in _employeeOfficialRepository.AllActive()
+                                  on emp.EmployeeID equals empOfficial.EmployeeID into empOfficialGroup // Third left join
+                                  from empOfficial in empOfficialGroup.DefaultIfEmpty()
+
                                   where eb.EmployeeID == employeeId
 
                                   select new EmployeeAdditionalPostViewModel
@@ -46,7 +52,7 @@ namespace GCTL.Service.Employees.EmployeeAllowance
                                      PersonalPhone = emp.MobileNumber ?? "N/A",
                                      EmployeeBaseAllowanceID = eb.EmployeeBaseAllowanceID,
 
-                                    
+                                      OrganizationID = empOfficial.OrganizationID,
                                       //MobileInternetAllowance = eb.MobileInternetAllowance,
                                       //IsMobileInternetAllowanceEnabled = eb.IsMobileInternetAllowanceEnabled,
 
@@ -81,13 +87,26 @@ namespace GCTL.Service.Employees.EmployeeAllowance
             }
             else
             {
-                var emp = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeAdditionalPostViewModel
-                {
-                    EmployeePersonalId = (int)m.EmployeeID,
+                var emp = await (from eb in _employeeRepository.AllActive()
+                                 
 
-                    PersonalEmail = m.Email ?? "N/A",
-                    PersonalPhone = m.MobileNumber ?? "N/A",
-                }).FirstOrDefaultAsync();
+                                 join empOfficial in _employeeOfficialRepository.AllActive()
+                                 on eb.EmployeeID equals empOfficial.EmployeeID into empOfficialGroup 
+                                 from empOfficial in empOfficialGroup.DefaultIfEmpty()
+
+                                 where eb.EmployeeID == employeeId
+
+                                 select new EmployeeAdditionalPostViewModel
+                                 {
+                                     EmployeePersonalId = eb.EmployeeID,
+                                     PersonalEmail = eb.Email ?? "N/A",
+                                     PersonalPhone = eb.MobileNumber ?? "N/A",
+                                     
+
+                                     OrganizationID = empOfficial.OrganizationID,
+                                     
+
+                                 }).FirstOrDefaultAsync();
 
                 return emp;
             }

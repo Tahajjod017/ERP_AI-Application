@@ -24,7 +24,10 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, UserManager<ApplicationUser> userManagerRepository2) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+
+
+        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeAllowanceService = employeeAllowanceService;
@@ -33,6 +36,7 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
             _userManagerRepository2 = userManagerRepository2;
+            _organizationRepository = organizationRepository;
         }
 
         public async Task< IActionResult> Index(int id)
@@ -72,6 +76,13 @@ namespace GCTL_App.Controllers.Employees
         private void PopulateViewBag()
         {
             #region ViewBag
+
+
+            ViewBag.OrganizationDD = new SelectList(
+                _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+                "OrganizationID",
+                "OrganizationName"
+            );
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
@@ -191,6 +202,9 @@ namespace GCTL_App.Controllers.Employees
                     employeeBaseAllowanceID =  allowanceData?.EmployeeBaseAllowanceID ?? 0,
                     personalEmail = allowanceData.PersonalEmail ?? "",
                     personalPhone = allowanceData.PersonalPhone,
+
+                    organizationID = allowanceData.OrganizationID,
+
                     //mobileInternetAllowance = allowanceData?.MobileInternetAllowance,
                     //isMobileInternetAllowanceEnabled =  allowanceData?.IsMobileInternetAllowanceEnabled ?? false,
                     mobileAllowance = allowanceData?.MobileAllowance,
