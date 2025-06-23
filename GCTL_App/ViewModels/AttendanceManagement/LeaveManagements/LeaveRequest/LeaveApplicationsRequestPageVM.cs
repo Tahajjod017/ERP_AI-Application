@@ -6,5 +6,6 @@ namespace GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest
     public class LeaveApplicationsRequestPageVM:BaseViewModel
     {
         public LeaveApplicationsRequestVM SetupForm = new LeaveApplicationsRequestVM();
+        public LeaveApplicationEditVM SetupFormEdit = new LeaveApplicationEditVM();
     }
 }

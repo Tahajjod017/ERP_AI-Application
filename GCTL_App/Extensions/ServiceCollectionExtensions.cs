@@ -63,6 +63,11 @@ using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
+
+using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
+
+
 
 
 
@@ -132,12 +137,14 @@ namespace GCTL_App.Extensions
             services.AddScoped<IVisitingPathService, VisitingPathService>();
             services.AddScoped<ILeaveRequestService , LeaveRequestService>();
             services.AddScoped<ILeaveSettingsService , LeaveSettingsService>();
+            services.AddScoped<ILeaveApprovalService , LeaveApprovalService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IElementPermissionService, ElementPermissionService>();
             services.AddScoped<IEmailSettingService, EmailSettingsService>();
+            services.AddScoped<IHolidaySettingService, HolidaySettingService>();
             #endregion
 
 

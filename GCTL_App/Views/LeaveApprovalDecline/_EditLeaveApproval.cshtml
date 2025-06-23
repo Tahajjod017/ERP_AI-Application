@@ -1,11 +1,11 @@
 ﻿ @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationEditVM
-<form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
+<form asp-action="UpdateRequestAsync" asp-controller="LeaveApprovalDecline" method="post" id="LeaveRequestUpdatedForm">
     <div class="modal-body pb-0">
         <div class="row">
             <div class="col-md-12">
                 <input asp-for="LeaveApplicationID" type="hidden" />
                 <div class="mb-3">
-                   
+
                     <label class="form-label req" for="organizerSingle">Name</label>
                     <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required>
                         <option value="">Select Employee</option>
@@ -130,7 +130,7 @@
 
     <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button id="ApplyLeaveSubmitButton" class="btn btn-primary">Apply Leave</button>
+        <button id="ApplyLeaveSubmitButton" type="submit" class="btn btn-primary">Apply Leave</button>
     </div>
 </form>
 <script>

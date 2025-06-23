@@ -59,6 +59,8 @@ public partial class Organization
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 
+    public virtual Country Country { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
@@ -72,6 +74,8 @@ public partial class Organization
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
 

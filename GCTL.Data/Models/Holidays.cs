@@ -33,9 +33,17 @@ public partial class Holidays
 
     public int? DeletedBy { get; set; }
 
+    public int? OrganizationID { get; set; }
+
+    public int? OrganizationBranchID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Organization Organization { get; set; }
+
+    public virtual OrganizationBranches OrganizationBranch { get; set; }
 
     public virtual Statuses Status { get; set; }
 

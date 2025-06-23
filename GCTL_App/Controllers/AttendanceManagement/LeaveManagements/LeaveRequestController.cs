@@ -34,7 +34,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         {
             LeaveApplicationsRequestPageVM model = new LeaveApplicationsRequestPageVM
             {
-                SetupForm = new LeaveApplicationsRequestVM()
+                SetupForm = new LeaveApplicationsRequestVM(),
+                SetupFormEdit=new LeaveApplicationEditVM(),
             };
 
 
@@ -112,6 +113,26 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 Console.WriteLine(ex.Message);   
                 return BadRequest(ex.Message);
              }
+        }
+        #endregion
+
+        #region  GetBY Data LeaveRequest
+        [Route("LeaveRequestRoute/GetLeaveRequestByIdAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetLeaveRequestByIdAsync(int leaveApplicationID)
+        {
+            try
+            {
+                if (leaveApplicationID == 0) return BadRequest();
+                var data = await leaveRequestService.GetLeaveRequestByIdAsync(leaveApplicationID);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+           
         }
         #endregion
 
