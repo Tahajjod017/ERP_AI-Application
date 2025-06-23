@@ -28,7 +28,9 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+
+        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeBenifitService = employeeBenifitService;
@@ -40,6 +42,7 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _organizationRepository = organizationRepository;
         }
 
         #endregion
@@ -83,6 +86,8 @@ namespace GCTL_App.Controllers.Employees
         private void PopulateViewBag()
         {
             #region Voriwe Bag
+
+            ViewBag.OrganizationDD = new SelectList(    _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),    "OrganizationID",    "OrganizationName");
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
@@ -170,6 +175,8 @@ namespace GCTL_App.Controllers.Employees
                 // Map to view model
                 var response = new
                 {
+                    organizationID = benefit.OrganizationID,
+
                     employeeBaseBenefitID = benefit.EmployeeBaseBenefitID,
                     employeePersonalId = benefit.EmployeePersonalId,
                     personalEmail = benefit.PersonalEmail,

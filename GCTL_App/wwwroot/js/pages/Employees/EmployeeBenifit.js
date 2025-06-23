@@ -186,6 +186,7 @@
         $('#EmployeeBaseBenefitID').val(data.employeeBaseBenefitID || '');
         $('#EmployeePersonalId').val(data.employeePersonalId || '');
 
+        choiceManager.setChoiceValue('organizationDD', data.organizationID || '');
         
         $('#PersonalEmail').val(data.personalEmail || '');
         $('#PersonalPhone').val(data.personalPhone || '');
@@ -226,6 +227,7 @@
         $('#festivalBonusSwitch').prop('checked', false);
         $('#providentFundSwitch1').prop('checked', false);
 
+        choiceManager.clearChoice('organizationDD')
         
         employeeChoices.clearStore();
         yearlyEndBonusTypeChoices.clearStore();

@@ -9,6 +9,7 @@
         public string? Department { get; set; }
         public string? Role { get; set; }
         public string? EmployeeCode { get; set; }
+        public string? ImageName { get; set; }
         public ChangePasswordRequest? PasswordRequest { get; set; }
 
     }

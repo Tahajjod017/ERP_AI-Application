@@ -8,7 +8,8 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeBenifit
 {
     public class EmployeeBenifitPostViewModel : EmployeeBaseViewModel
     {
-   
+
+        public int? OrganizationID { get; set; }
         public int? EmployeeBaseBenefitID { get; set; }
 
         

@@ -354,10 +354,13 @@
                 return;
             }
 
+            const form = $(this); // Reference to the form element
+            const formData = form.serialize();
+
            
 
             // Show loading state
-            const $submitBtn = form.find('button[type="submit"]');
+            const $submitBtn = $('#btnSubmit');
             const originalText = $submitBtn.text();
             $submitBtn.prop('disabled', true).text('Saving...');
 
