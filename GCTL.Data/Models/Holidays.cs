@@ -37,6 +37,10 @@ public partial class Holidays
 
     public int? OrganizationBranchID { get; set; }
 
+    public string LIP { get; set; }
+
+    public string LMAC { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
