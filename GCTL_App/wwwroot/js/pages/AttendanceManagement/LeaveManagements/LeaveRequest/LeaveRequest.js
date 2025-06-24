@@ -340,7 +340,7 @@ $(document).ready(function () {
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-                debugger
+              
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
 

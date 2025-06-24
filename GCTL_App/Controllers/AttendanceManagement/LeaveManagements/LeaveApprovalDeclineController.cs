@@ -42,7 +42,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             return View(model);
         }
 
-        #region Get All Data List
+        #region Get All Data List above table Data
 
         [Route("LeaveApprovalDeclineRoute/GetAllTableListAsync")]
 
@@ -62,7 +62,30 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 return BadRequest(ex.Message);
             }
         }
-        #endregion
+        #endregion 
+
+        #region Get All Data List above below Data
+
+        [Route("LeaveApprovalDeclineRoute/GetAllTableBelowAsync")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null)
+        {
+            try
+            {
+                string url = GetEmployeePictureURL();
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var data = await leaveApprovalService.GetAllTableBelowAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion 
+
 
         #region  Update Leave request in Approval Side
         [Route("LeaveApprovalDeclineRoute/UpdateRequestAsync")]
@@ -75,7 +98,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 {
                     return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
                 }
-                if (entityVM == null) return BadRequest();
                 var data = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM);
                 return Json(data);
             }
