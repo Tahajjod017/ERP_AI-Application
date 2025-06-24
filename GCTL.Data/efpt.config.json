@@ -191,6 +191,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LeaveBalances]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LeavePolicyConfiguration]",
          "ObjectType": 0
       },
@@ -316,6 +320,10 @@
       },
       {
          "Name": "[dbo].[UserVisitLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[WeekendDays]",
          "ObjectType": 0
       },
       {

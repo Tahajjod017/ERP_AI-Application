@@ -1,7 +1,10 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,12 +23,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         private readonly IGenericRepository<LeaveApplications> leaveRequest;
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
-
-        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi):base(leaveRequest)
+        private readonly ILeaveRequestService leaveRequestService;
+        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.appDb = appDb;
             this.empoffi = empoffi;
+            this.leaveRequestService = leaveRequestService;
         }
 
 
@@ -103,6 +107,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault()
+                       
 
                     });
 
@@ -126,5 +131,137 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
         #endregion
 
+        #region Get Data By LeaveRequestID
+
+
+       
+        public async Task<LeaveApplicationApprovalModifyVM> GetLeaveRequestByIdAsync(int leaveApplicationID)
+        {
+            if (leaveApplicationID == 0)
+            {
+                return null;
+            }
+
+            await leaveRequest.BeginTransactionAsync();
+            try
+            {
+                var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
+                if (data == null) return null;
+                //
+                SubsequentVM subsequent = null;
+               
+                    var fromDateTime = data.FromDate.ToDateTime(TimeOnly.MinValue);
+                    var toDateTime = data.ToDate.ToDateTime(TimeOnly.MinValue);
+
+                     subsequent = await leaveRequestService.SubsequentAsynce(fromDateTime, toDateTime);
+                
+             
+
+                //
+                LeaveApplicationApprovalModifyVM entityVM = new LeaveApplicationApprovalModifyVM
+                {
+                    LeaveApplicationID = data.LeaveApplicationID,
+                    EmployeeIDEdit = data.EmployeeID,
+                    LeaveTypeIDEdit = data.LeaveTypeID,
+                    ReasonEdit = data.Reason,
+                    IsFullDayEdit = data.IsFullDay,
+                    FromDateEdit = data.FromDate,
+                    ToDateEdit = data.ToDate,
+                    PartialFromTimeEdit = data.PartialFromTime,
+                    PartialToTimeEdit = data.PartialToTime,
+                    Period = data.IsFullDay ? (data.ToDate.DayNumber - data.FromDate.DayNumber) + 1 : data.PartialFromTime.HasValue && data.PartialToTime.HasValue ? (int)(data.PartialToTime.Value - data.PartialFromTime.Value).TotalHours : 0,
+
+                    TotalSubsequentDays = subsequent?.TotalSubsequentDays,
+                    IsHolidayCountedAsLeave = subsequent?.IsHolidayCountedAsLeave ?? false,
+                    IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false
+
+                };
+                return entityVM;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+        }
+
+        #endregion
+
+        #region  Update Method
+        public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
+        {
+            if (entityVM == null)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Data Can not be null"
+                };
+            }
+
+            await leaveRequest.BeginTransactionAsync();
+
+            try
+            {
+
+
+                var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
+                if (entity == null)
+                    return null;
+
+                entity.IsFullDay = entityVM.IsFullDayEdit;
+
+                if (entityVM.IsFullDayEdit)
+                {
+                    entity.FromDate = entityVM.FromDateEdit ?? default;
+                    entity.ToDate = entityVM.ToDateEdit ?? default;
+
+                    // Clear partial day data
+                    entity.PartialFromTime = null;
+                    entity.PartialToTime = null;
+                }
+                else
+                {
+                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                    {
+                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                        entity.FromDate = dateOnly;
+                        entity.ToDate = dateOnly;
+                    }
+
+                    entity.PartialFromTime = entityVM.PartialFromTimeEdit;
+                    entity.PartialToTime = entityVM.PartialToTimeEdit;
+                }
+                entity.Reason = entityVM.ReasonEdit ?? string.Empty;
+                entity.LIP = entityVM.LIP;
+                entity.LMAC = entityVM.LMAC;
+                entity.UpdatedAt = DateTime.Now;
+                entity.UpdatedBy = entityVM.UpdatedBy;
+                await leaveRequest.UpdateAsync(entity);
+                //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
+                await leaveRequest.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Updated Successfully."
+
+                };
+            }
+            catch (Exception ex)
+            {
+
+                await leaveRequest.RollbackTransactionAsync();
+                Console.WriteLine(ex.Message);
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while saving the leave request Update."
+                };
+            }
+        }
+
+        #endregion
     }
 }
