@@ -90,6 +90,7 @@ namespace GCTL_App.Controllers.Employees
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
 
+
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "OfficialInfo");
                 ViewBag.Navigation = navigationModel;
 

@@ -1,33 +1,6 @@
 ﻿
-$(document).ready(function () {
-    // Also initialize flatpickr for other date fields
-    flatpickr("#StartDate", { dateFormat: "Y-m-d" });
-    flatpickr("#EndDate", { dateFormat: "Y-m-d" });
 
-    $('#holidayForm').on('submit', function (e) {
-        e.preventDefault();
 
-        var form = $(this);
-        var formData = form.serialize();
-
-        $.ajax({
-            url: form.attr('action'),
-            method: 'POST',
-            data: formData,
-            success: function (response) {
-                if (response.isSuccess) {
-                    toastr.success(response.message, '');
-                    form.trigger("reset");
-                } else {
-                    toastr.error(response.message, 'Error');
-                }
-            },
-            error: function (xhr, status, error) {
-                toastr.error("Unexpected error: " + error, 'Server Error');
-            }
-        });
-    });
-});
 
 
 
@@ -35,7 +8,7 @@ $(document).ready(function () {
 var currentPage = 1;
 var pageSize = 5;
 
-$('#addHolidayConfig-pageSizeSelect').on('change', function () {
+$('#addBranchSettings-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -49,19 +22,19 @@ $('#addHolidayConfig-pageSizeSelect').on('change', function () {
 $(document).ready(function () {
     loadTableData();
 
-    $("#addHolidayConfig-searchInput").on("input", function () {
+    $("#addBranchSettings-searchInput").on("input", function () {
         currentPage = 1;
         loadTableData();
     });
 
-    $("#addHolidayConfig-prevPageBtn").on('click', function () {
+    $("#addBranchSettings-prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
             loadTableData();
         }
     });
 
-    $("#addHolidayConfig-nextPageBtn").on('click', function () {
+    $("#addBranchSettings-nextPageBtn").on('click', function () {
         currentPage++;
         loadTableData();
     });
@@ -101,7 +74,7 @@ function updateSortingIndicator() {
 }
 
 function loadTableData(sortColumn, sortOrder) {
-    var searchTerm = $("#addHolidayConfig-searchInput").val();
+    var searchTerm = $("#addBranchSettings-searchInput").val();
     $.ajax({
         url: '/HolidaySettings/GetAlls',
         method: 'GET',
@@ -113,7 +86,7 @@ function loadTableData(sortColumn, sortOrder) {
             sortOrder: sortOrder
         },
         success: function (response) {
-            var tableBody = $("#addHolidayConfig-tBody");
+            var tableBody = $("#addBranchSettings-tBody");
             tableBody.empty();
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
@@ -161,8 +134,8 @@ function loadTableData(sortColumn, sortOrder) {
 
             var paginationInfo = response.paginationInfo;
 
-            $("#addHolidayConfig-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-            $("#addHolidayConfig-totalCount").text(`(${paginationInfo.totalItems})`);
+            $("#addBranchSettings-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+            $("#addBranchSettings-totalCount").text(`(${paginationInfo.totalItems})`);
 
             updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
         },
@@ -173,7 +146,7 @@ function loadTableData(sortColumn, sortOrder) {
 }
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
-    const paginationLinks = $("#addHolidayConfig-paginationLinks");
+    const paginationLinks = $("#addBranchSettings-paginationLinks");
     paginationLinks.empty();
     // Window size (number of pages before/after the current page)
     const windowSize = 1;
@@ -199,8 +172,8 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
         paginationLinks.append(addEllipsis(), createPageButton(totalPages));
     }
     // Disable or enable previous/next buttons
-    $("#addHolidayConfig-prevPageBtn").prop('disabled', currentPage === 1);
-    $("#addHolidayConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
+    $("#addBranchSettings-prevPageBtn").prop('disabled', currentPage === 1);
+    $("#addBranchSettings-nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
 $(document).on('click', '.page-btn', function () {

@@ -1,10 +1,29 @@
-﻿
+﻿$('#OrganizationID').on('change', function () {
+    var orgId = $(this).val();
+    if (orgId) {
+        $.ajax({
+            url: '/WeekendSettings/GetBranches',
+            type: 'GET',
+            data: { organizationId: orgId },
+            success: function (branches) {
+                var $branchSelect = $('#OrganizationBranchID');
+                $branchSelect.empty().append('<option value="">-- Select Branch --</option>');
+                $.each(branches, function (i, branch) {
+                    $branchSelect.append(`<option value="${branch.value}">${branch.text}</option>`);
+                });
+            }
+        });
+    } else {
+        $('#OrganizationBranchID').empty().append('<option value="">-- Select Branch --</option>');
+    }
+});
+
 $(document).ready(function () {
     // Also initialize flatpickr for other date fields
     flatpickr("#StartDate", { dateFormat: "Y-m-d" });
     flatpickr("#EndDate", { dateFormat: "Y-m-d" });
 
-    $('#holidayForm').on('submit', function (e) {
+    $('#weekendForm').on('submit', function (e) {
         e.preventDefault();
 
         var form = $(this);
@@ -30,12 +49,12 @@ $(document).ready(function () {
 });
 
 
-
+//////////////////////////////Data Table Initialization//////////////////////////////
 //////////////////////////////Data Table Initialization//////////////////////////////
 var currentPage = 1;
 var pageSize = 5;
 
-$('#addHolidayConfig-pageSizeSelect').on('change', function () {
+$('#weekendSettings-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -49,19 +68,19 @@ $('#addHolidayConfig-pageSizeSelect').on('change', function () {
 $(document).ready(function () {
     loadTableData();
 
-    $("#addHolidayConfig-searchInput").on("input", function () {
+    $("#weekendSettings-searchInput").on("input", function () {
         currentPage = 1;
         loadTableData();
     });
 
-    $("#addHolidayConfig-prevPageBtn").on('click', function () {
+    $("#weekendSettings-prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
             loadTableData();
         }
     });
 
-    $("#addHolidayConfig-nextPageBtn").on('click', function () {
+    $("#weekendSettings-nextPageBtn").on('click', function () {
         currentPage++;
         loadTableData();
     });
@@ -101,9 +120,9 @@ function updateSortingIndicator() {
 }
 
 function loadTableData(sortColumn, sortOrder) {
-    var searchTerm = $("#addHolidayConfig-searchInput").val();
+    var searchTerm = $("#weekendSettings-searchInput").val();
     $.ajax({
-        url: '/HolidaySettings/GetAlls',
+        url: '/WeekendSettings/GetAlls',
         method: 'GET',
         data: {
             pageNumber: currentPage,
@@ -113,7 +132,7 @@ function loadTableData(sortColumn, sortOrder) {
             sortOrder: sortOrder
         },
         success: function (response) {
-            var tableBody = $("#addHolidayConfig-tBody");
+            var tableBody = $("#weekendSettings-tBody");
             tableBody.empty();
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
@@ -121,37 +140,35 @@ function loadTableData(sortColumn, sortOrder) {
                     tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
+                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.weekendDayID}" />
                             </td>
                             <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
                             
-                             <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
-                             <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
-                            <td class="align-middle white-space-nowrap ">${item.startDate}</td>
-                            <td class="align-middle white-space-nowrap ">${item.endDate}</td>
-                            <td class="text-center align-middle white-space-nowrap ps-0">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap ps-0">${item.statusName}</td>
-                             <td class="align-middle white-space-nowrap text-end pe-0">
-                          <div class="d-flex justify-content-end align-items-center">
-                         <a
-                               href="#"
-                               title="Edit"
-                               id="LeaveRequestEditButton"
-                               data-id="${item.holidayID}"
-                               class="btn btn-outline-light btn-icon me-1 " 
-                               data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves"
-                              >
-                               <i class="fas fa-edit text-black"></i>
-                        </a>
-                            <a 
-                              href="#" title="Delete"  data-id="${item.holidayID}"
-                              class="btn btn-outline-light btn-icon"  
-                              id="leaveRequestDelete-singleDelBtn" >
-                              <i class="far fa-trash-alt text-black"></i>
-                            </a>
-                          </div>
-                    </td>
+                            <td class="align-middle white-space-nowrap ">${item.organizationName}</td>
+                            <td class="align-middle white-space-nowrap ">${item.organizationBranchName}</td>
+                            <td class="align-middle white-space-nowrap ">${item.weekendTitle}</td>
+                           
+                            <td class="align-middle white-space-nowrap text-end pe-0">
+                            <div class="d-flex justify-content-end align-items-center">
+                                     <a
+                                           href="#"
+                                           title="Edit"
+                                           id="LeaveRequestEditButton"
+                                           data-id="${item.weekendDayID}"
+                                           class="btn btn-outline-light btn-icon me-1 " 
+                                           data-bs-toggle="" 
+                                           data-bs-target=""
+                                          >
+                                           <i class="fas fa-edit text-black"></i>
+                                    </a>
+                                        <a 
+                                          href="#" title="Delete"  data-id="${item.weekendDayID}"
+                                          class="btn btn-outline-light btn-icon"  
+                                          id="" >
+                                          <i class="far fa-trash-alt text-black"></i>
+                                        </a>
+                           </div>
+                         </td>
                         </tr>
                     `);
                 });
@@ -161,8 +178,8 @@ function loadTableData(sortColumn, sortOrder) {
 
             var paginationInfo = response.paginationInfo;
 
-            $("#addHolidayConfig-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-            $("#addHolidayConfig-totalCount").text(`(${paginationInfo.totalItems})`);
+            $("#weekendSettings-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+            $("#weekendSettings-totalCount").text(`(${paginationInfo.totalItems})`);
 
             updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
         },
@@ -173,7 +190,7 @@ function loadTableData(sortColumn, sortOrder) {
 }
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
-    const paginationLinks = $("#addHolidayConfig-paginationLinks");
+    const paginationLinks = $("#weekendSettings-paginationLinks");
     paginationLinks.empty();
     // Window size (number of pages before/after the current page)
     const windowSize = 1;
@@ -199,8 +216,8 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
         paginationLinks.append(addEllipsis(), createPageButton(totalPages));
     }
     // Disable or enable previous/next buttons
-    $("#addHolidayConfig-prevPageBtn").prop('disabled', currentPage === 1);
-    $("#addHolidayConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
+    $("#weekendSettings-prevPageBtn").prop('disabled', currentPage === 1);
+    $("#weekendSettings-nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
 $(document).on('click', '.page-btn', function () {

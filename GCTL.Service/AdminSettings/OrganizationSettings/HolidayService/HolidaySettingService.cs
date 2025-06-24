@@ -264,6 +264,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                 .AsNoTracking()
                 .Include(x => x.Organization) // Include related Organization entity
                 .Include(x => x.OrganizationBranch) // Include related OrganizationBranch entity
+                .Include(x => x.Status) // Include related Status entity
                 .Where(x => x.DeletedAt == null);
 
             // Filter by organization if provided
@@ -306,7 +307,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     TotalDays = x.TotalDays,
-                    StatusID = x.StatusID,
+                    StatusName = !string.IsNullOrEmpty(x.Status?.StatusName) ? x.Status.StatusName : "",
+
+
                     // CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy,
                     //UpdatedAt = x.UpdatedAt,

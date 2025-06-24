@@ -95,6 +95,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; }
 
+
     public virtual DbSet<LeavePolicyConfiguration> LeavePolicyConfiguration { get; set; }
 
     public virtual DbSet<LeaveTypes> LeaveTypes { get; set; }
@@ -280,8 +281,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-
         modelBuilder.Entity<BloodGroup>(entity =>
         {
             entity.HasKey(e => e.BloodGroupID).HasName("PK__BloodGro__4398C6AF27330EED");

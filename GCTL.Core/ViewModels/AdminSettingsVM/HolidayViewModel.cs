@@ -21,6 +21,7 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public int? TotalDays { get; set; }
 
         public int? StatusID { get; set; }
+        public string? StatusName { get; set; }
         public int? OrganizationID { get; set; }
 
         public int? OrganizationBranchID { get; set; }

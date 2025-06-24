@@ -12,6 +12,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         public IActionResult Index()
         {
+            //ViewBag.Organizations = await  _holidaySettingService.GetOrganizationsAsync();
             return View();
         }
     }
