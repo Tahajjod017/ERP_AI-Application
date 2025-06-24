@@ -39,5 +39,7 @@ public partial class Statuses
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
 
+    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

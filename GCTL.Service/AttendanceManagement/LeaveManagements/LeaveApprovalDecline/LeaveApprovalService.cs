@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline
 {
@@ -24,20 +25,137 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly ILeaveRequestService leaveRequestService;
-        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService) : base(leaveRequest)
+        private readonly IGenericRepository<LeaveBalances> leaveBalance;
+        private readonly IGenericRepository<LeaveTypes> leaveTypesRepository;
+        private readonly IGenericRepository<LeaveBaseApprovalHistory> leaveBaseAprovalHistory;
+        private readonly IGenericRepository<Statuses> status;
+        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService, IGenericRepository<LeaveBalances> leaveBalance, IGenericRepository<LeaveTypes> leaveTypesRepository , IGenericRepository<LeaveBaseApprovalHistory> leaveBaseAprovalHistory , IGenericRepository<Statuses> status) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.appDb = appDb;
             this.empoffi = empoffi;
             this.leaveRequestService = leaveRequestService;
+            this.leaveBalance = leaveBalance;
+
+            this.leaveTypesRepository = leaveTypesRepository;
+            this.leaveBaseAprovalHistory = leaveBaseAprovalHistory;
+            this.status = status;
         }
 
 
 
 
 
-        #region  Get Data All  Leave  Requyest
-        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null)
+        #region  Get Data All  Leave  Requyest above table 
+
+
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>>
+    GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null)
+        {
+            try
+            {
+                var employeeId = await appDb.Users
+                    .Where(u => u.Id == userId)
+                    .Select(e => e.EmployeeId)
+                    .FirstOrDefaultAsync();
+
+                var roleName = await (from user in appDb.Users
+                                      join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                      join role in appDb.Roles on userRole.RoleId equals role.Id
+                                      where user.Id == userId
+                                      select role.Name).FirstOrDefaultAsync();
+
+                var query = leaveRequest.AllActive()
+                    .Where(x => x.StatusID == null)
+                    .Include(x => x.Employee)
+                    .Include(x => x.Status)
+                    .Include(x => x.LeaveType)
+                    .OrderByDescending(x => x.LeaveApplicationID)
+                    .AsQueryable();
+
+                if (statusID != null)
+                {
+                    query = query.Where(x => x.StatusID == statusID);
+                }
+
+                if (leaveTypeID != null)
+                {
+                    query = query.Where(x => x.LeaveTypeID == leaveTypeID);
+                }
+
+                if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => x.EmployeeID == employeeId);
+                }
+
+                var leaveBalances = await leaveBalance.AllActive().ToListAsync();
+                var leaveTypes = await leaveTypesRepository.AllActive().ToListAsync();
+                var employeeDepartments = await empoffi.AllActive()
+                    .Include(e => e.Department)
+                    .Select(e => new { e.EmployeeID, e.Department.DepartmentName })
+                    .ToListAsync();
+
+                var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+                    currentSortColumn,
+                    currentSortOrder,
+                    term => b => EF.Functions.Like(b.LeaveApplicationID.ToString(), $"%{term}%"),
+                    b =>
+                    {
+                        var balance = leaveBalances.FirstOrDefault(lb =>
+                            lb.EmployeeID == b.EmployeeID &&
+                            lb.LeaveTypeID == b.LeaveTypeID &&
+                            lb.ApplicableYear == b.FromDate.Year);
+
+                        var defaultLeaveDays = leaveTypes.FirstOrDefault(x => x.LeaveTypeID == b.LeaveTypeID)?.LeaveDays ?? 0;
+
+                        var availableLeaveDays = balance != null
+                            ? (balance.TotalLeave ?? 0) - (balance.Taken ?? 0)
+                            : defaultLeaveDays;
+
+                        var department = employeeDepartments.FirstOrDefault(e => e.EmployeeID == b.EmployeeID)?.DepartmentName ?? "";
+
+                        return new LeaveApplicationsList
+                        {
+                            LeaveApplicationID = b.LeaveApplicationID,
+                            StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
+                            IsFullDay = b.IsFullDay,
+                            LeaveType = b.LeaveType?.LeaveTypeName ?? "",
+                            FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
+                            ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
+                            Period = b.IsFullDay
+                                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
+                                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
+                                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
+                                    : 0,
+                            EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
+                            EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
+                            EmployeeDepartment = department,
+                            AvailableLeaveDays = availableLeaveDays
+                        };
+                    });
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error : {ex.Message}");
+
+                return new PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>
+                {
+                    Data = new List<LeaveApplicationsList>(),
+                    TotalCount = 0
+                };
+            }
+        }
+
+        #endregion
+
+        #region  Get Data All  Leave  Requyest below table 
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null)
         {
             try
             {
@@ -46,17 +164,22 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 var roleName = await (from user in appDb.Users
                                       join userRole in appDb.UserRoles on user.Id equals userRole.UserId
                                       join role in appDb.Roles on userRole.RoleId equals role.Id
-                                      where user.Id == userId
-                                      select role.Name)
-                                     .FirstOrDefaultAsync();
+                                      where user.Id == userId  select role.Name) .FirstOrDefaultAsync();
 
+
+                //
+               
+
+                //
                 // 🔹 Step 3: Base query with includes
-                var query = leaveRequest.AllActive().Where(x=>x.StatusID==null)
+                var query = leaveRequest.AllActive().Where(x=>x.StatusID !=null)
                     .Include(x => x.Employee)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)
-                    .OrderByDescending(x => x.LeaveApplicationID)
-                    .AsQueryable();
+                    .OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
+                //
+
+             
                 if (statusID != null)
                 {
                     query = query.Where(x => x.StatusID == statusID);
@@ -106,9 +229,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
-                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault()
-                       
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
 
+                        //
                     });
 
 
@@ -154,9 +277,25 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     var toDateTime = data.ToDate.ToDateTime(TimeOnly.MinValue);
 
                      subsequent = await leaveRequestService.SubsequentAsynce(fromDateTime, toDateTime);
-                
-             
 
+
+
+                //
+
+                // avilable days 
+                int applicableYear = data.FromDate.Year;
+
+                var leaveBalancevaluse = await leaveBalance.AllActive().FirstOrDefaultAsync(x=>x.EmployeeID==data.EmployeeID && x.LeaveTypeID==data.LeaveTypeID || x.ApplicableYear==applicableYear);
+                var leaveType = await leaveTypesRepository.AllActive().FirstOrDefaultAsync(x => x.LeaveTypeID == data.LeaveTypeID);
+                decimal availableLeaveDays = 0;
+                if (leaveBalancevaluse != null && leaveBalancevaluse.TotalLeave.HasValue && leaveBalancevaluse.Taken.HasValue)
+                {
+                    availableLeaveDays = leaveBalancevaluse.TotalLeave.Value - leaveBalancevaluse.Taken.Value;
+                }
+                else
+                {
+                    availableLeaveDays = leaveType?.LeaveDays ?? 0;
+                }
                 //
                 LeaveApplicationApprovalModifyVM entityVM = new LeaveApplicationApprovalModifyVM
                 {
@@ -170,10 +309,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     PartialFromTimeEdit = data.PartialFromTime,
                     PartialToTimeEdit = data.PartialToTime,
                     Period = data.IsFullDay ? (data.ToDate.DayNumber - data.FromDate.DayNumber) + 1 : data.PartialFromTime.HasValue && data.PartialToTime.HasValue ? (int)(data.PartialToTime.Value - data.PartialFromTime.Value).TotalHours : 0,
-
                     TotalSubsequentDays = subsequent?.TotalSubsequentDays,
                     IsHolidayCountedAsLeave = subsequent?.IsHolidayCountedAsLeave ?? false,
-                    IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false
+                    IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false,
+                    AvailableLeaveDays=availableLeaveDays,
 
                 };
                 return entityVM;
@@ -209,31 +348,71 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
                 if (entity == null)
                     return null;
+                var leavStatusApproved = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%APPROVED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
+                var leavStatusDecline = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%DECLINEED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
+                var leaveBalanceSave = await leaveBalance.AllActive().Select(x=> new {x.LeaveTypeID, x.EmployeeID,x.TotalLeave,x.Taken}).ToListAsync();
 
-                entity.IsFullDay = entityVM.IsFullDayEdit;
-
-                if (entityVM.IsFullDayEdit)
-                {
-                    entity.FromDate = entityVM.FromDateEdit ?? default;
-                    entity.ToDate = entityVM.ToDateEdit ?? default;
-
-                    // Clear partial day data
-                    entity.PartialFromTime = null;
-                    entity.PartialToTime = null;
-                }
-                else
-                {
-                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                    entity.IsFullDay = entityVM.IsFullDayEdit;
+                    if (entityVM.IsFullDayEdit)
                     {
-                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
-                        entity.FromDate = dateOnly;
-                        entity.ToDate = dateOnly;
-                    }
+                        entity.FromDate = entityVM.FromDateEdit ?? default;
+                        entity.ToDate = entityVM.ToDateEdit ?? default;
 
-                    entity.PartialFromTime = entityVM.PartialFromTimeEdit;
-                    entity.PartialToTime = entityVM.PartialToTimeEdit;
+                        // Clear partial day data
+                        entity.PartialFromTime = null;
+                        entity.PartialToTime = null;
+                    }
+                    else
+                    {
+                        if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                        {
+                            var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                            entity.FromDate = dateOnly;
+                            entity.ToDate = dateOnly;
+                        }
+
+                        entity.PartialFromTime = entityVM.PartialFromTimeEdit;
+                        entity.PartialToTime = entityVM.PartialToTimeEdit;
+                    }
+                   
+                if (entityVM.Approved)
+                {
+
+                    entity.StatusID = leavStatusApproved;
+                    var applicableYear = entity.FromDate.Year;
+                  
+                    var leaveDaysfromLeaveType = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveDays).FirstOrDefaultAsync();
+                    var newBalance = new LeaveBalances
+                    {
+                        EmployeeID = entityVM.EmployeeIDEdit,
+                        LeaveTypeID = entityVM.LeaveTypeIDEdit,
+                        Taken = entityVM.TotalAppliedDays,
+                        TotalLeave = leaveDaysfromLeaveType,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = entityVM.CreatedBy,
+                        LIP = entityVM.LIP,
+                        LMAC = entityVM.LMAC
+                    };
+                    await leaveBalance.AddAsync(newBalance);
+                    
+                } else if(entityVM.Declined)
+                {   
+                    entity.StatusID = leavStatusDecline;
                 }
-                entity.Reason = entityVM.ReasonEdit ?? string.Empty;
+
+                var leaveBase = new LeaveBaseApprovalHistory
+                {
+                    LeaveApplicationID = entityVM.LeaveApplicationID,
+                   // StatusID = entityVM.,
+                   // Taken = entityVM.TotalAppliedDays,
+                    ApproverNote = entityVM.ApprovalNote,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = entityVM.CreatedBy,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC
+                };
+                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
+
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;

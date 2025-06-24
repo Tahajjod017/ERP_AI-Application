@@ -195,6 +195,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LeaveBaseApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LeavePolicyConfiguration]",
          "ObjectType": 0
       },
