@@ -2,6 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeFamily;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
@@ -23,8 +24,9 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
+        private readonly IElementPermissionService _elementPermissionService;
 
-        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeFamilyService employeeFamilyService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        public EmployeeFamilyController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeFamilyService employeeFamilyService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
 
         {
             _employeeFamilyService = employeeFamilyService;
@@ -34,6 +36,7 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _elementPermissionService = elementPermissionService;
         }
 
         public async Task< IActionResult> Index(int id)
@@ -111,8 +114,46 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public async Task<IActionResult> GetEmployeeData(int id)
         {
-            var employee = await _employeeFamilyService.GetEmployeeFamilyByIdAsync(id);
-            return Ok(employee);
+
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+                var userId = loggedUser.Id;
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return Ok();
+
+                    }
+                    else
+                    {
+
+
+                        var employee = await _employeeFamilyService.GetEmployeeFamilyByIdAsync((int)empid);
+                        return Ok(employee);
+                    }
+
+
+                }
+                else
+                {
+
+                    var employee = await _employeeFamilyService.GetEmployeeFamilyByIdAsync(id);
+                    return Ok(employee);
+                }
+
+
+            }
+
+            return Ok();
+
+           
         }
 
         [HttpGet]
@@ -120,8 +161,45 @@ namespace GCTL_App.Controllers.Employees
         {
             try
             {
-                var data = await _employeeFamilyService.GetEmployeeFamilyData(id);
-                return Ok(data);
+                var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+                if (loggedUser != null)
+                {
+                    var userId = loggedUser.Id;
+                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                    if (!hasEmployeePermission)
+                    {
+                        var empid = loggedUser.EmployeeId;
+
+                        if (empid == null || empid == 0)
+                        {
+                            return Ok();
+
+                        }
+                        else
+                        {
+
+
+                            var data = await _employeeFamilyService.GetEmployeeFamilyData((int)empid);
+                            return Ok(data);
+                        }
+
+
+                    }
+                    else
+                    {
+
+                        var data = await _employeeFamilyService.GetEmployeeFamilyData(id);
+                        return Ok(data);
+                    }
+
+
+                }
+
+                return Ok();
+
+               
             }
             catch (Exception ex)
             {

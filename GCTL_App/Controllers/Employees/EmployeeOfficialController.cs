@@ -70,6 +70,8 @@ namespace GCTL_App.Controllers.Employees
         #region Index 
         public async Task< IActionResult> Index(int id)
         {
+            ViewBagData();
+            SetSmartPageCode(112000);
 
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
@@ -88,22 +90,42 @@ namespace GCTL_App.Controllers.Employees
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
 
-                // Check if the user has permission to choose an employee (for a specific page and element)
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "OfficialInfo");
+                ViewBag.Navigation = navigationModel;
+
                 bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
-                // Pass the permission status to the view
-                ViewBag.HasEmployeePermission = hasEmployeePermission;
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
 
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
 
-                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs ,"OfficialInfo");
-                ViewBag.Navigation = navigationModel;
+                    }
+                    else
+                    {
+                        EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod((int)loggedUser.EmployeeId);
+                        return View(model);
+                    }
+
+                   
+                }
+                else {
+                    EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);
+                    return View(model);
+                }
+
+                
+
+                
+
+                
             }
-            ViewBagData();
 
-            EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);
-       
-            SetSmartPageCode(112000);
-            return View(model);
+
+            return View();
         }
 
         private void ViewBagData()
