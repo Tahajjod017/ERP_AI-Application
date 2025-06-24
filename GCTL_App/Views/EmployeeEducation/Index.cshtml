@@ -123,7 +123,7 @@
 
 
 <div class="mb-9">
-    <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="row align-items-center justify-content-between g-3 ">
         <div class="col-auto">
         </div>
     </div>
@@ -132,13 +132,16 @@
         <div class="row">
             <form asp-controller="EmployeeEducation" asp-action="Index" method="post">
                 <div class="col-12">
-                    
 
-                    <div class="row g-2 align-items-center">
+
+                    <div class="row g-2 align-items-center" id="EmployeeDropDownDiv" style="display:none">
+
                         <div class="col-md-3">
                             <div class="position-relative">
-                                <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
-                                <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                                <!--
+                            <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                -->
                             </div>
                         </div>
                         <div class="col-md-3"></div>
@@ -171,34 +174,34 @@
 
                             <!--
 
-                            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
-                                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
-                                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
-                                    <a class="nav-link" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
-                                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
-                                    <a class="nav-link active" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
-                                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
-                                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")</a>
-                                </li>
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
-                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
-                                </li>
-                            </ul>
+            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
+                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
+                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
+                    <a class="nav-link" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
+                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
+                    <a class="nav-link active" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
+                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
+                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")</a>
+                </li>
+                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
+                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
+                </li>
+            </ul>
 
-                            -->
+            -->
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane show active fade p-2" role="educationInfo" id="educationInfo" aria-labelledby="educationInfo">
@@ -278,7 +281,7 @@
                                                         <label asp-for="Achievement">@Html.SmartLocalize("Achievement")</label>
                                                     </div>
                                                 </div>
-                                                <button  class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" style="width: 100px;">
+                                                <button class="btn btn-outline-primary rounded-pill me-1 mb-1 mx-3" type="submit" style="width: 100px;">
                                                     @Html.SmartLocalize("Add")
                                                 </button>
                                             </div>
@@ -302,62 +305,62 @@
                                                 </thead>
                                                 <tbody>
                                                     <!--<tr>
-                                                        <th scope="row">@Html.SmartLocalize("Bachelor of Science (BSc)")</th>
-                                                        <td>@Html.SmartLocalize("Computer Science & Engineering")</td>
-                                                        <td>@Html.SmartLocalize("Dhaka International University")</td>
-                                                        <td>@Html.SmartLocalize("CGPA:3.94 (out of 4)")</td>
-                                                        <td>2018</td>
-                                                        <td>4</td>
-                                                        <td>@Html.SmartLocalize("Height CGPA in the year of 2018 in Computer Science and Engineering department.")</td>
-                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
-                                                            <div class="btn-reveal-trigger position-static g-3">
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row">@Html.SmartLocalize("Diploma")</th>
-                                                        <td>@Html.SmartLocalize("Computer Technology")</td>
-                                                        <td>@Html.SmartLocalize("Jhenaidah Govt Polytechnic Institute")</td>
-                                                        <td>@Html.SmartLocalize("CGPA:3.79 (out of 4)")</td>
-                                                        <td>2014</td>
-                                                        <td>4</td>
-                                                        <td>@Html.SmartLocalize("Second Height CGPA in BTEB in the year of 2014 in Computer Technology.")</td>
-                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
-                                                            <div class="btn-reveal-trigger position-static g-3">
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row">@Html.SmartLocalize("SSC")</th>
-                                                        <td>@Html.SmartLocalize("Science")</td>
-                                                        <td>@Html.SmartLocalize("Jhenaidah Govt High School")</td>
-                                                        <td>@Html.SmartLocalize("CGPA:5.00 (out of 5)")</td>
-                                                        <td>2009</td>
-                                                        <td>2</td>
-                                                        <td>-</td>
-                                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
-                                                            <div class="btn-reveal-trigger position-static g-3">
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr> -->
+                                        <th scope="row">@Html.SmartLocalize("Bachelor of Science (BSc)")</th>
+                                        <td>@Html.SmartLocalize("Computer Science & Engineering")</td>
+                                        <td>@Html.SmartLocalize("Dhaka International University")</td>
+                                        <td>@Html.SmartLocalize("CGPA:3.94 (out of 4)")</td>
+                                        <td>2018</td>
+                                        <td>4</td>
+                                        <td>@Html.SmartLocalize("Height CGPA in the year of 2018 in Computer Science and Engineering department.")</td>
+                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                            <div class="btn-reveal-trigger position-static g-3">
+                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">@Html.SmartLocalize("Diploma")</th>
+                                        <td>@Html.SmartLocalize("Computer Technology")</td>
+                                        <td>@Html.SmartLocalize("Jhenaidah Govt Polytechnic Institute")</td>
+                                        <td>@Html.SmartLocalize("CGPA:3.79 (out of 4)")</td>
+                                        <td>2014</td>
+                                        <td>4</td>
+                                        <td>@Html.SmartLocalize("Second Height CGPA in BTEB in the year of 2014 in Computer Technology.")</td>
+                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                            <div class="btn-reveal-trigger position-static g-3">
+                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">@Html.SmartLocalize("SSC")</th>
+                                        <td>@Html.SmartLocalize("Science")</td>
+                                        <td>@Html.SmartLocalize("Jhenaidah Govt High School")</td>
+                                        <td>@Html.SmartLocalize("CGPA:5.00 (out of 5)")</td>
+                                        <td>2009</td>
+                                        <td>2</td>
+                                        <td>-</td>
+                                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4 ">
+                                            <div class="btn-reveal-trigger position-static g-3">
+                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#edit_education">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="nav-item me-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr> -->
                                                 </tbody>
                                             </table>
                                         </div>

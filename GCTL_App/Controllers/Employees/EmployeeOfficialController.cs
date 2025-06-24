@@ -70,6 +70,8 @@ namespace GCTL_App.Controllers.Employees
         #region Index 
         public async Task< IActionResult> Index(int id)
         {
+            ViewBagData();
+            SetSmartPageCode(112000);
 
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
@@ -88,22 +90,43 @@ namespace GCTL_App.Controllers.Employees
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
 
-                // Check if the user has permission to choose an employee (for a specific page and element)
-                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeDropDown");
 
-                // Pass the permission status to the view
-                ViewBag.HasEmployeePermission = hasEmployeePermission;
-
-
-                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs ,"OfficialInfo");
+                var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "OfficialInfo");
                 ViewBag.Navigation = navigationModel;
-            }
-            ViewBagData();
 
-            EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);
-       
-            SetSmartPageCode(112000);
-            return View(model);
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
+
+                    }
+                    else
+                    {
+                        EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod((int)loggedUser.EmployeeId);
+                        return View(model);
+                    }
+
+                   
+                }
+                else {
+                    EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);
+                    return View(model);
+                }
+
+                
+
+                
+
+                
+            }
+
+
+            return View();
         }
 
         private void ViewBagData()

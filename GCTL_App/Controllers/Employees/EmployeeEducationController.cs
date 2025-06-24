@@ -3,6 +3,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeEducational;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
@@ -33,8 +34,9 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
+        private readonly IElementPermissionService _elementPermissionService;
 
-        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.EducationLevels> educationLevelsRepository, IGenericRepository<GCTL.Data.Models.Degree> degreeRepository, IGenericRepository<GCTL.Data.Models.EducationBoard> educationBoardRepository, IGenericRepository<GCTL.Data.Models.ResultTypes> resultTypeRepository, IGenericRepository<GCTL.Data.Models.PassingYears> passingYearRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        public EmployeeEducationController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeEducationalService employeeEducationalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<GCTL.Data.Models.EducationLevels> educationLevelsRepository, IGenericRepository<GCTL.Data.Models.Degree> degreeRepository, IGenericRepository<GCTL.Data.Models.EducationBoard> educationBoardRepository, IGenericRepository<GCTL.Data.Models.ResultTypes> resultTypeRepository, IGenericRepository<GCTL.Data.Models.PassingYears> passingYearRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeEducationalService = employeeEducationalService;
             _employeeRepository = employeeRepository;
@@ -48,11 +50,23 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _elementPermissionService = elementPermissionService;
         }
         #endregion
 
         public async Task< IActionResult> Index(int id)
         {
+
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+
+            ViewBag.EducationLevel = _educationLevelsRepository.GetActiveSelectListById(e => e.EducationLevelID, e => e.EducationLevelName);
+            ViewBag.Degree = _degreeRepository.GetActiveSelectListById(e => e.DegreeID, e => e.DegreeName);
+            ViewBag.EducationBoard = _educationBoardRepository.GetActiveSelectListById(e => e.EducationBoardID, e => e.EducationBoardName);
+            ViewBag.ResultType = _resultTypeRepository.GetActiveSelectListById(e => e.ResultTypeID, e => e.ResultTypeName);
+            ViewBag.PassingYear = _passingYearRepository.GetActiveSelectListById(e => e.PassingYearID, e => e.PassingYearName);
+
+            SetSmartPageCode(114000);
+
 
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
@@ -74,24 +88,48 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "EducationInfo");
                 ViewBag.Navigation = navigationModel;
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
+
+                    }
+                    else
+                    {
+
+
+                        var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync((int)empid).Result;
+
+                        ViewBag.EduList = eduList;
+
+
+                        return View();
+                    }
+
+
+                }
+                else
+                {
+
+
+                    var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id).Result;
+
+                    ViewBag.EduList = eduList;
+                    return View();
+                }
             }
 
             
 
 
-            var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id).Result;
 
-            ViewBag.EduList = eduList;
-
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
-
-            ViewBag.EducationLevel = _educationLevelsRepository.GetActiveSelectListById(e => e.EducationLevelID, e => e.EducationLevelName);
-            ViewBag.Degree = _degreeRepository.GetActiveSelectListById(e => e.DegreeID, e => e.DegreeName);
-            ViewBag.EducationBoard = _educationBoardRepository.GetActiveSelectListById(e => e.EducationBoardID, e => e.EducationBoardName);
-            ViewBag.ResultType = _resultTypeRepository.GetActiveSelectListById(e => e.ResultTypeID, e => e.ResultTypeName);
-            ViewBag.PassingYear = _passingYearRepository.GetActiveSelectListById(e => e.PassingYearID, e => e.PassingYearName);
-
-            SetSmartPageCode(114000);
+            
             return View();
         }
 

@@ -16,14 +16,14 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public string? EmployeeDepartment { get; set; }
         public string? StatusName { get; set; }
         public double? Period { get; set; }
-        //public string? UserType { get; set; }
         public string? ToDate { get; set; }
         public string? FromDate { get; set; }
         public bool IsFullDay { get; set; }
         
-        public int? EmployeeID { get; set; } 
-        //public TimeOnly? PartialFromTime { get; set; }
-        //public TimeOnly? PartialToTime { get; set; }
+        public int? EmployeeID { get; set; }
+
+        public decimal AvailableLeaveDays { get; set; }
+    
 
     }
 }

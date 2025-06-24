@@ -218,14 +218,14 @@ namespace GCTL.Service.Employees.EmployeeDetails
                             duration = e.YearDuration ?? "-"
                         }).ToListAsync();
 
-                    query.trainingInfoData = await _employeeTrainingRepository.AllActive()
+                    query.trainingInfoData = await _employeeTrainingRepository.AllActive().Include(t=>t.TrainingYear)
                         .Where(t => t.EmployeeID == empID)
                         .Select(t => new TrainingInfoDetailsViewModel
                         {
                             trainingTitle = t.TranningTitle ?? "-",
                             topic = t.TopicCovered ?? "-",
                             institute = t.InstituteName ?? "-",
-                            year = t.TrainingYear.ToString() ?? "-",
+                            year = t.TrainingYear.TrainingYearName.ToString() ?? "-",
                             duration = t.YearDuration ?? "-"
                         }).ToListAsync();
 

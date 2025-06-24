@@ -1,6 +1,8 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeAllowance;
+using GCTL.Core.ViewModels.Employee.EmployeeOfficial;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
@@ -24,7 +26,12 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, UserManager<ApplicationUser> userManagerRepository2) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+
+        private readonly IElementPermissionService _elementPermissionService;
+
+
+        public EmployeeAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeAllowanceService employeeAllowanceService, IEmployeeNavigationService employeeNavigationService, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<Organization> organizationRepository, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeAllowanceService = employeeAllowanceService;
@@ -33,10 +40,19 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
             _userManagerRepository2 = userManagerRepository2;
+            _organizationRepository = organizationRepository;
+            _elementPermissionService = elementPermissionService;
         }
 
         public async Task< IActionResult> Index(int id)
         {
+
+            PopulateViewBag();
+
+
+            SetSmartPageCode(119000);
+
+
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
             if (loggedUser != null)
@@ -57,21 +73,53 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo", "EmployeeAllowance" );
                 ViewBag.Navigation = navigationModel;
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
+
+                    }
+                    else
+                    {
+                        var model = _employeeAllowanceService.GetEmployeeAllowance((int)empid).Result;
+
+                        
+                        return View(model);
+                    }
+
+
+                }
+                else
+                {
+                    var model = _employeeAllowanceService.GetEmployeeAllowance(id).Result;
+
+                    
+                    return View(model);
+                }
             }
 
             
 
-            PopulateViewBag();
-
-            var model = _employeeAllowanceService.GetEmployeeAllowance(id).Result;
-
-            SetSmartPageCode(119000);
-            return View(model);
+           
+            return View();
         }
 
         private void PopulateViewBag()
         {
             #region ViewBag
+
+
+            ViewBag.OrganizationDD = new SelectList(
+                _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+                "OrganizationID",
+                "OrganizationName"
+            );
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
@@ -191,6 +239,9 @@ namespace GCTL_App.Controllers.Employees
                     employeeBaseAllowanceID =  allowanceData?.EmployeeBaseAllowanceID ?? 0,
                     personalEmail = allowanceData.PersonalEmail ?? "",
                     personalPhone = allowanceData.PersonalPhone,
+
+                    organizationID = allowanceData.OrganizationID,
+
                     //mobileInternetAllowance = allowanceData?.MobileInternetAllowance,
                     //isMobileInternetAllowanceEnabled =  allowanceData?.IsMobileInternetAllowanceEnabled ?? false,
                     mobileAllowance = allowanceData?.MobileAllowance,

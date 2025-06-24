@@ -2,6 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
@@ -28,7 +29,11 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+
+        private readonly IElementPermissionService _elementPermissionService;
+
+        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<Organization> organizationRepository, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeBenifitService = employeeBenifitService;
@@ -40,12 +45,18 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _organizationRepository = organizationRepository;
+            _elementPermissionService = elementPermissionService;
         }
 
         #endregion
 
         public async Task< IActionResult> Index(int id)
         {
+            PopulateViewBag();
+
+            SetSmartPageCode(118000);
+
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
             if (loggedUser != null)
@@ -66,23 +77,51 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo" , "EmployeeBenefits");
                 ViewBag.Navigation = navigationModel;
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
+
+                    }
+                    else
+                    {
+                       
+                        var model = await _employeeBenifitService.GetEmployeeBenefitsAsync(empid.ToString());
+
+
+                        return View(model);
+                    }
+
+
+                }
+                else
+                {
+                 
+                    var model = await _employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
+
+
+                    return View(model);
+                }
             }
 
           
 
-            var model = await _employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
 
-            PopulateViewBag();
-
-
-
-            SetSmartPageCode(118000);
-            return View(model);
+           
+            return View();
         }
 
         private void PopulateViewBag()
         {
             #region Voriwe Bag
+
+            ViewBag.OrganizationDD = new SelectList(    _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),    "OrganizationID",    "OrganizationName");
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
@@ -170,6 +209,8 @@ namespace GCTL_App.Controllers.Employees
                 // Map to view model
                 var response = new
                 {
+                    organizationID = benefit.OrganizationID,
+
                     employeeBaseBenefitID = benefit.EmployeeBaseBenefitID,
                     employeePersonalId = benefit.EmployeePersonalId,
                     personalEmail = benefit.PersonalEmail,

@@ -1,0 +1,37 @@
+﻿@*<div class="row g-2 align-items-center">
+
+    <div class="col-md-3">
+        <div class="position-relative">
+            
+                        <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+            
+        </div>
+    </div>
+    <div class="col-md-3"></div>
+    <div class="col-md-2">
+        <div class="form-floating form-floating-advance-select mb-2">
+            <label asp-for="EmployeePersonalId">@Html.SmartLocalize("Choose Employee")</label>
+            <select class="form-select" asp-for="EmployeePersonalId" asp-items="@ViewBag.EmployeeDD as SelectList">
+                <option value="">@Html.SmartLocalize("Select Employee")</option>
+            </select>
+
+        </div>
+    </div>
+
+
+
+    <div class="col-md-2 mb-2">
+        <div class="form-floating">
+            <input asp-for="PersonalEmail" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize(" Email")" />
+            <label asp-for="PersonalEmail">@Html.SmartLocalize("Email")</label>
+        </div>
+    </div>
+    <div class="col-md-2 mb-2">
+        <div class="form-floating">
+            <input asp-for="PersonalPhone" class="form-control" id="" type="text" placeholder="@Html.SmartLocalize(" Enter Phone")" />
+            <label asp-for="PersonalPhone">@Html.SmartLocalize("Phone")</label>
+        </div>
+    </div>
+
+</div>*@

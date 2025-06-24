@@ -1,5 +1,7 @@
 ﻿//#region Jump Tab
 
+//const { ajax } = require("jquery");
+
 $(document).ready(function () {
 
     const lastInt = getLastIntFromUrl();
@@ -7,7 +9,30 @@ $(document).ready(function () {
         
         TabChange(lastInt);
     }
+
+    ShowTabToAdmin();
+
+    //$('#EmployeeDropDownDiv').show(); // Or use .css('display', 'block');
+
 });
+
+
+function ShowTabToAdmin() {
+    $.ajax({
+        url: '/EmployeePersonal/RoleElementPermission',
+        type: 'GET',
+        success: function (response) {
+            
+            if (response) {
+                $('#EmployeeDropDownDiv').show(); // Show the dropdown
+                
+            } else {
+                $('#EmployeeDropDownDiv').hide(); // Show the dropdown
+            }
+        },
+    })
+}
+
 
 
 function getLastIntFromUrl() {
@@ -17,7 +42,7 @@ function getLastIntFromUrl() {
 
 function setEmpIdOnStart(selectedEmployeeId) {
 
-    debugger
+   
     // **Check pre-selected value on page load**
     const initialSelectedEmployeeId = employeeElement.value;
     if (initialSelectedEmployeeId && initialSelectedEmployeeId !== '') {

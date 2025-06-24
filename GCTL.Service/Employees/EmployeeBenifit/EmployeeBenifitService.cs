@@ -18,13 +18,15 @@ namespace GCTL.Service.Employees.EmployeeBenifit
         private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
         private readonly IGenericRepository<EmployeeBaseBenefits> _employeeBenifitRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficialRepository;
 
 
-        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository)
+        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeRepository = employeeRepository;
             _employeeSalaryRepository = employeeSalaryRepository;
+            _employeeOfficialRepository = employeeOfficialRepository;
         }
 
         //public Task<EmployeeBenifitGetViewModel> GetEmployeeBenifitByEmployeeIdAsync(int employeeId)
@@ -46,13 +48,18 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                                   on emp.EmployeeID equals empSaley.EmployeeID into empSaleyGroup 
                                   from empSaley in empSaleyGroup.DefaultIfEmpty()
 
+                                  join empOff in _employeeOfficialRepository.AllActive()
+                                    on emp.EmployeeID equals empOff.EmployeeID into empOffGroup
+                                  from empOff in empOffGroup.DefaultIfEmpty()
+
                                   where eb.EmployeeID == id
 
                                   select new EmployeeBenifitPostViewModel
                                   {
                                       EmployeeBaseBenefitID = eb.EmployeeBaseBenefitID,
                                       EmployeePersonalId = (int)eb.EmployeeID,
-                                     
+                                      OrganizationID = empOff.OrganizationID,
+
                                       PersonalEmail = emp.Email ?? "N/A",
                                       PersonalPhone = emp.MobileNumber ?? "N/A",
                                       //IsBenifitEnabled = true,
@@ -78,15 +85,29 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             }
             else
             {
-                var emp = await _employeeRepository.AllActive().Where(e=>e.EmployeeID == id).Select(m=> new EmployeeBenifitPostViewModel
-                {
-                    EmployeePersonalId = (int)m.EmployeeID,
+                var benefits2 = await (from  emp in _employeeRepository.AllActive()
+                                     
 
-                    PersonalEmail = m.Email ?? "N/A",
-                    PersonalPhone = m.MobileNumber ?? "N/A",
-                }).FirstOrDefaultAsync();
+                                    
+                                      join empOff in _employeeOfficialRepository.AllActive()
+                                        on emp.EmployeeID equals empOff.EmployeeID into empOffGroup
+                                      from empOff in empOffGroup.DefaultIfEmpty()
 
-                return emp;
+                                      where emp.EmployeeID == id
+
+                                      select new EmployeeBenifitPostViewModel
+                                      {
+                                         
+                                          EmployeePersonalId = (int)emp.EmployeeID,
+                                          OrganizationID = empOff.OrganizationID,
+
+                                          PersonalEmail = emp.Email ?? "N/A",
+                                          PersonalPhone = emp.MobileNumber ?? "N/A",
+                                          
+                                       
+                                      }).FirstOrDefaultAsync();
+
+                return benefits2;
             }
 
             

@@ -51,6 +51,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 
 
 
+
                     existingEntity.CreatedAt = DateTime.Now;
                     existingEntity.CreatedBy = model.CreatedBy; // You can replace this with current user ID  
                     existingEntity.LIP = model.LIP;
@@ -70,6 +71,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                         OrganizationID = model.OrganizationID,
                         DepartmentName = model.DepartmentName,
                         //IsDepartmentHead = model.IsDepartmentHead,
+
 
 
 
@@ -125,6 +127,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 
 
 
+
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy ?? 0; // default or current user
                 entity.DeletedAt = null; // Restore if previously deleted
@@ -164,6 +167,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 OrganizationID = entity.OrganizationID,
                 DepartmentName = entity.DepartmentName,
                 //IsDepartmentHead = entity.IsDepartmentHead,
+
 
 
 
@@ -279,6 +283,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                     OrganizationID = x.OrganizationID,
                     DepartmentName = x.DepartmentName,
                     //IsDepartmentHead = x.IsDepartmentHead,
+
 
                     // CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy,
