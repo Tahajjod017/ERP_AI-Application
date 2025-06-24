@@ -89,7 +89,7 @@ namespace GCTL_App.Controllers.Employees
                                 select mt.ControllerName).Distinct().ToList();
 
                 // Check if the user has permission to choose an employee (for a specific page and element)
-                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeDropDown");
 
                 // Pass the permission status to the view
                 ViewBag.HasEmployeePermission = hasEmployeePermission;

@@ -551,26 +551,26 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
             }
 
-            if (isWeenedHoliday.IsWeekendCountedAsLeave)
-            {
-                var weekendsInRange = await weenkendsettings.AllActive()
-                    .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
-                    .ToListAsync();
+            //if (isWeenedHoliday.IsWeekendCountedAsLeave)
+            //{
+            //    var weekendsInRange = await weenkendsettings.AllActive()
+            //        .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+            //        .ToListAsync();
 
-                foreach (var w in weekendsInRange)
-                {
-                    var start = w.StartDate.GetValueOrDefault();
-                    var end = w.EndDate.GetValueOrDefault();
+            //    foreach (var w in weekendsInRange)
+            //    {
+            //        var start = w.StartDate.GetValueOrDefault();
+            //        var end = w.EndDate.GetValueOrDefault();
 
-                    var actualStart = start < fromDate ? fromDate : start;
-                    var actualEnd = end > toDate ? toDate : end;
+            //        var actualStart = start < fromDate ? fromDate : start;
+            //        var actualEnd = end > toDate ? toDate : end;
 
-                    for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
-                    {
-                        uniqueDates.Add(date); // Add to HashSet (no duplicates)
-                    }
-                }
-            }
+            //        for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
+            //        {
+            //            uniqueDates.Add(date); // Add to HashSet (no duplicates)
+            //        }
+            //    }
+            //}
 
             return new SubsequentVM
             {

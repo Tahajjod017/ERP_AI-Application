@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
 {
-    class ApprovalSettingService
+    public class ApprovalSettingService
     {
+
     }
 }

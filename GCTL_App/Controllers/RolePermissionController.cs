@@ -1,6 +1,8 @@
-﻿using GCTL.Core.ViewModels.Login;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.Login;
 using GCTL.Core.ViewModels.RoleModule;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
@@ -20,13 +22,15 @@ namespace GCTL_App.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly AppDbContext _Db;
+        private readonly IElementPermissionService _elementPermissionService;
 
-        public RolePermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db) : base(translateService, userProfileService)
+        public RolePermissionController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _Db = db;
+            _elementPermissionService = elementPermissionService;
         }
 
         public async Task<IActionResult> Index()
@@ -34,13 +38,6 @@ namespace GCTL_App.Controllers
             // Get current user ID  
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            //// Load roles into ViewBag (No tenant check here)  
-            //ViewBag.Companies = _Db.Organization.Select(x=> new
-            //{
-            //    Id= x.OrganizationID,
-            //    Name = x.OrganizationName // Assuming ToCleanRoleName() is an extension method to format the name
-            //}).ToList();
-            //ViewBag.Roles = new List<ApplicationRole>();
             var user = await _userManager.Users
                 .Where(u => u.Id == currentUserId)
                 .Select(u => new { u.TenantInfoId, u.OrganizationID })
@@ -126,6 +123,34 @@ namespace GCTL_App.Controllers
             await _Db.SaveChangesAsync();
 
             return Json(new { success = true, message = "Permissions updated." });
+        }
+
+        public async Task<ActionResult> ElementPermissionList(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationID", string sortOrder = "desc", int? organizationID = null)
+        {
+            var result = await _elementPermissionService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
+            return Json(result);
+        }
+
+        public async Task<IActionResult> ElementSoftDelete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No id selected to delete." });
+                }
+                var result = await _elementPermissionService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No id found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         [HttpGet]
         public JsonResult GetRolesByCompany(int? companyId)

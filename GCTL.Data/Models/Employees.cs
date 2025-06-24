@@ -149,6 +149,8 @@ public partial class Employees
 
     public virtual ICollection<Departments> DepartmentsDeletedByNavigation { get; set; } = new List<Departments>();
 
+    public virtual ICollection<Departments> DepartmentsDepartmentHeadEmp { get; set; } = new List<Departments>();
+
     public virtual ICollection<Departments> DepartmentsUpdatedByNavigation { get; set; } = new List<Departments>();
 
     public virtual ICollection<Designations> DesignationsCreatedByNavigation { get; set; } = new List<Designations>();
@@ -302,6 +304,14 @@ public partial class Employees
     public virtual ICollection<LeaveApplications> LeaveApplicationsEmployee { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveApplications> LeaveApplicationsUpdatedByNavigation { get; set; } = new List<LeaveApplications>();
+
+    public virtual ICollection<LeaveBalances> LeaveBalancesCreatedByNavigation { get; set; } = new List<LeaveBalances>();
+
+    public virtual ICollection<LeaveBalances> LeaveBalancesDeletedByNavigation { get; set; } = new List<LeaveBalances>();
+
+    public virtual ICollection<LeaveBalances> LeaveBalancesEmployee { get; set; } = new List<LeaveBalances>();
+
+    public virtual ICollection<LeaveBalances> LeaveBalancesUpdatedByNavigation { get; set; } = new List<LeaveBalances>();
 
     public virtual ICollection<LeavePolicyConfiguration> LeavePolicyConfigurationCreatedByNavigation { get; set; } = new List<LeavePolicyConfiguration>();
 
@@ -462,6 +472,12 @@ public partial class Employees
     public virtual ICollection<TrainingYears> TrainingYearsUpdatedByNavigation { get; set; } = new List<TrainingYears>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<WeekendDays> WeekendDaysCreatedByNavigation { get; set; } = new List<WeekendDays>();
+
+    public virtual ICollection<WeekendDays> WeekendDaysDeletedByNavigation { get; set; } = new List<WeekendDays>();
+
+    public virtual ICollection<WeekendDays> WeekendDaysUpdatedByNavigation { get; set; } = new List<WeekendDays>();
 
     public virtual ICollection<WeekendSettings> WeekendSettingsCreatedByNavigation { get; set; } = new List<WeekendSettings>();
 
