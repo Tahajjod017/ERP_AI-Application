@@ -1,7 +1,9 @@
 
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeAdditional;
+using GCTL.Core.ViewModels.Employee.EmployeeOfficial;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
@@ -23,15 +25,15 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeNavigationService _employeeNavigationService;
 
+        private readonly IElementPermissionService _elementPermissionService;
 
-    
         private readonly UserManager<ApplicationUser> _userManagerRepository2;
         
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeAdditionalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAdditionalService employeeAdditionalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<LicenceTypes> licenceTypesRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        public EmployeeAdditionalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAdditionalService employeeAdditionalService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<LicenceTypes> licenceTypesRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeRepository = employeeRepository;
@@ -41,12 +43,22 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _elementPermissionService = elementPermissionService;
         }
         #endregion
 
 
         public async Task<IActionResult> Index(int id)
         {
+
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+
+
+            ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
+
+
+
+            SetSmartPageCode(113000);
 
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
@@ -68,21 +80,41 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "AdditionalInfo");
                 ViewBag.Navigation = navigationModel;
+
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
+
+                    }
+                    else
+                    {
+                        var employee = _employeeAdditionalService.GetEmployeeAdditionalByIdAsync((int)empid).Result;
+
+                        return View(employee);
+                    }
+
+
+                }
+                else
+                {
+                    var employee = _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id).Result;
+
+                    return View(employee);
+                }
             }
 
 
             
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
            
-           
-            ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById( e => e.LicenceTypeID, e => e.LicenceTypeName);
-
-            var employee =  _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id).Result;
-
-
-            SetSmartPageCode(113000);
-            return View(employee);
+            return View();
         }
 
 

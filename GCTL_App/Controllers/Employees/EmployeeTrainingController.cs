@@ -3,6 +3,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeEducational;
 using GCTL.Core.ViewModels.Employee.EmployeeTraining;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Language;
@@ -29,8 +30,9 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
+        private readonly IElementPermissionService _elementPermissionService;
 
-        public EmployeeTrainingController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        public EmployeeTrainingController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeTrainingService employeeTrainingService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<TrainingYears> trainingYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeTrainingService = employeeTrainingService;
             _employeeRepository = employeeRepository;
@@ -41,6 +43,7 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _elementPermissionService = elementPermissionService;
         }
 
 
@@ -122,10 +125,46 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public async Task<IActionResult> GetEmployeeData(int id)
         {
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
-            var employee = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
+            if (loggedUser != null)
+            {
+                var userId = loggedUser.Id;
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
-            return Ok(employee);
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return Ok();
+
+                    }
+                    else
+                    {
+
+
+                        var employee = await _employeeTrainingService.GetEmployeeTrainingByIdAsync((int)empid);
+
+                        return Ok(employee);
+                    }
+
+
+                }
+                else
+                {
+
+                    var employee = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
+
+                    return Ok(employee);
+                }
+
+
+            }
+
+            return Ok();
+           
         }
 
 
