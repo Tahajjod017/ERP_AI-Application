@@ -22,7 +22,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="",int? leaveTypeID=null,int ? statusID=null );
 
-        Task<object> GetLeaveTypeTotaldays(int leaveTypeID);
+        Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID);
         Task<List<CommonSelectVM>> GetAllEmployee(string userId);
 
         #region Get Leavepolicy as count or else

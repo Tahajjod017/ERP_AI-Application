@@ -9,6 +9,7 @@ using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
@@ -36,7 +37,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<Holidays> holidays;
         private readonly IGenericRepository<WeekendSettings> weenkendsettings;
         private readonly IGenericRepository<WeekendDays> weekedays;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays ) : base(leaveRequest)
+        private readonly IGenericRepository<LeaveBalances> leaveBalances;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -49,6 +51,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.holidays = holidays;
             this.weenkendsettings = weenkendsettings;
             this.weekedays = weekedays;
+            this.leaveBalances = leaveBalances;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -158,6 +161,42 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             {
                 var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
                 if (data == null) return null;
+
+                //
+                var leaveBalance = await leaveBalances.AllActive()
+                          .Where(x => x.EmployeeID == data.EmployeeID && x.LeaveTypeID == data.LeaveTypeID)
+                          .Select(x => new
+                          {
+                              leaveDays = x.TotalLeave - x.Taken
+                          }).FirstOrDefaultAsync();
+
+                decimal availableDays = 0;
+
+                if (leaveBalance != null)
+                {
+                    availableDays = leaveBalance.leaveDays ?? 0;
+                }
+                else
+                {
+                    var defaultLeave = await leaveTypes.AllActive()
+                        .Where(l => l.LeaveTypeID == data.LeaveTypeID)
+                        .Select(l => new
+                        {
+                            leaveDays = l.LeaveDays
+                        }).FirstOrDefaultAsync();
+
+                    if (defaultLeave == null) return null;
+
+                    availableDays = defaultLeave.leaveDays ?? 0;
+                }
+                //
+                SubsequentVM subsequent = null;
+
+                var fromDateTime = data.FromDate.ToDateTime(TimeOnly.MinValue);
+                var toDateTime = data.ToDate.ToDateTime(TimeOnly.MinValue);
+
+                subsequent = await SubsequentAsynce(fromDateTime, toDateTime);
+
                 LeaveApplicationEditVM entityVM = new LeaveApplicationEditVM
                 { 
                 LeaveApplicationID = data.LeaveApplicationID,
@@ -169,6 +208,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 ToDateEdit=data.ToDate,
                 PartialFromTimeEdit=data.PartialFromTime,
                 PartialToTimeEdit=data.PartialToTime,
+                LeaveDaysEdit = availableDays,
+                Period = data.IsFullDay ? (data.ToDate.DayNumber - data.FromDate.DayNumber) + 1 : data.PartialFromTime.HasValue && data.PartialToTime.HasValue ? (int)(data.PartialToTime.Value - data.PartialFromTime.Value).TotalHours : 0,
+                TotalSubsequentDays = subsequent?.TotalSubsequentDays,
+               IsHolidayCountedAsLeave = subsequent?.IsHolidayCountedAsLeave ?? false,
+               IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false,
+              
                 };
                 return entityVM;
             }
@@ -363,22 +408,40 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region Get LeaveType Total Days
-        public async Task<object> GetLeaveTypeTotaldays(int leaveTypeID)
+        public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
         {
-            var data = await leaveTypes.AllActive()
-         .Where(l => l.LeaveTypeID == leaveTypeID)
-         .Select(l => new 
-         {
-             leaveDays = l.LeaveDays
-         }).FirstOrDefaultAsync();
+            var leaveBalance = await leaveBalances.AllActive()
+                .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
+                .Select(x => new
+                {
+                    leaveDays = x.TotalLeave - x.Taken
+                })
+                .FirstOrDefaultAsync();
 
-            return data;
+            if (leaveBalance != null)
+            {
+                return leaveBalance;
+            }
+            else
+            {
+                var defaultLeave = await leaveTypes.AllActive()
+                    .Where(l => l.LeaveTypeID == leaveTypeID)
+                    .Select(l => new
+                    {
+                        leaveDays = l.LeaveDays
+                    })
+                    .FirstOrDefaultAsync();
+                if (defaultLeave == null) return null;
+                return defaultLeave;
+            }
         }
 
 
+
         #endregion
+
         #region Get All Employee or Single
-       
+
         public async Task<List<CommonSelectVM>> GetAllEmployee(string userId)
         {
             // Step 1: Get employeeId from the user

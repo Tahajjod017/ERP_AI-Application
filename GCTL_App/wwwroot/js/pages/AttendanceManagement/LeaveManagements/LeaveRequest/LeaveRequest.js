@@ -49,32 +49,48 @@ $(document).ready(function () {
     }
    
 
-    // Get LeaveDays according to LeaveType
-    $('#LeaveTypeID').on('change', function () {
-        var selectedId = $(this).val();
-        if (selectedId) {
+    function GetleaveDaysOrAvailble(employeeId, leaveTypeID) {
+        if (leaveTypeID && employeeId) {
             $.ajax({
                 url: '/LeaveRequest/GetLeaveDays',
                 type: 'GET',
-                data: { leaveTypeId: selectedId },
+                data: { employeeId: employeeId, leaveTypeId: leaveTypeID },
                 success: function (data) {
                     if (data && data.leaveDays !== null) {
                         $('#LeaveDays').val(data.leaveDays);
+                        $('#LeaveDaysEdit').val(data.leaveDays);
                     } else {
                         $('#LeaveDays').val('0');
+                        $('#LeaveDaysEdit').val('0');
                     }
                 },
                 error: function () {
                     toastr.error('Failed to fetch leave days.');
                     $('#LeaveDays').val('0');
+                    $('#LeaveDaysEdit').val('0');
                 }
             });
         } else {
             $('#LeaveDays').val('');
+            $('#LeaveDaysEdit').val('');
         }
-    });
-
+    }
     //
+    function handleLeaveChange(employeeIdField, leaveTypeIdField) {
+        var leaveTypeID = $(leaveTypeIdField).val();
+        var employeeId = choiceManager.getChoiceValue(employeeIdField);
+        GetleaveDaysOrAvailble(employeeId, leaveTypeID);
+    }
+
+    // Bind events for both Add and Edit forms
+    $('#EmployeeID,#LeaveTypeID').on('change', () =>
+        handleLeaveChange('EmployeeID', '#LeaveTypeID')
+    );
+
+    $('#EmployeeIDEdit,#LeaveTypeIDEdit').on('change', () =>
+        handleLeaveChange('EmployeeIDedit', '#LeaveTypeIDEdit')
+    );
+  
    
     toggleTimeDateValidation();
 
@@ -132,13 +148,17 @@ $(document).ready(function () {
         flatpickr("#ToDate", { dateFormat: "Y-m-d" });
     //
 
-    //Calculate Days
-    function calculateDays() {
-        let fromDate = flatpickrHelper.getDate('FromDate');
-        let toDate = flatpickrHelper.getDate('ToDate');
 
-        console.log("FromDate:", fromDate);
-        console.log("ToDate:", toDate);
+
+   
+    // Finding subsequent days and count days
+
+    function calculateDays(fromDateId, toDateId, totalDaysId) {
+        let fromDate = flatpickrHelper.getDate(fromDateId);
+        let toDate = flatpickrHelper.getDate(toDateId);
+
+        console.log(`${fromDateId}:`, fromDate);
+        console.log(`${toDateId}:`, toDate);
 
         // Convert string to Date if needed
         if (typeof fromDate === 'string') fromDate = new Date(fromDate);
@@ -147,16 +167,16 @@ $(document).ready(function () {
         // Validate both are valid Date objects
         if (!(fromDate instanceof Date) || isNaN(fromDate) ||
             !(toDate instanceof Date) || isNaN(toDate)) {
-            document.getElementById('TotalAppliedDays').value = '';
+            document.getElementById(totalDaysId).value = '';
             return;
         }
 
         // Ensure ToDate >= FromDate
         if (toDate < fromDate) {
             toastr.warning("To Date must be greater than or equal to From Date");
-            document.getElementById('TotalAppliedDays').value = '';
-            flatpickrHelper.clearDate('ToDate')
-            document.getElementById('ToDate').value = '';
+            document.getElementById(totalDaysId).value = '';
+            flatpickrHelper.clearDate(toDateId);
+            document.getElementById(toDateId).value = '';
             return;
         }
 
@@ -167,24 +187,10 @@ $(document).ready(function () {
         const timeDiff = toDate.getTime() - fromDate.getTime();
         const dayDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Inclusive
 
-        document.getElementById('TotalAppliedDays').value = dayDiff;
+        document.getElementById(totalDaysId).value = dayDiff;
     }
-
-    // Bind change events
-    document.getElementById('FromDate').addEventListener('change', calculateDays);
-    document.getElementById('ToDate').addEventListener('change', calculateDays);
-
-
-    //
-
-    $(document).on('change', '#FromDate, #ToDate', function (e) {
-        e.preventDefault();
-
-        let fromDate = flatpickrHelper.getDate('FromDate');
-        let toDate = flatpickrHelper.getDate('ToDate');
-        console.log("SubFromDate", fromDate);
-        console.log("SubToDate", toDate);
-       
+    function GetLeavedaysSubsequent(fromDate, toDate) {
+        debugger
         if (!fromDate || !toDate) return;
 
         $.ajax({
@@ -197,25 +203,58 @@ $(document).ready(function () {
             success: function (data) {
                 if (data && data.totalSubsequentDays > 0) {
                     $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
                 } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
                     $('#SubsequentHolydayDays').val("Not Applicable");
+                    $('#SubsequentHolydayDaysTT').val("Not Applicable");
                 } else {
                     $('#SubsequentHolydayDays').val("0");
+                    $('#SubsequentHolydayDaysTT').val("0");
                 }
             }
-,
+            ,
             error: function () {
                 toastr.error('Failed to fetch subsequent.');
             }
         });
+    }
+
+ 
+    $(document).on('change', '#FromDate, #ToDate', function (e) {
+        e.preventDefault();
+
+        let fromDate = flatpickrHelper.getDate('FromDate');
+        let toDate = flatpickrHelper.getDate('ToDate');
+        GetLeavedaysSubsequent(fromDate, toDate);
+    });
+    //
+    $(document).on('change', '#FromDateEdit, #ToDateEdit', function (e) {
+        e.preventDefault();
+
+        let fromDate = flatpickrHelper.getDate('FromDateEdit');
+        let toDate = flatpickrHelper.getDate('ToDateEdit');
+        GetLeavedaysSubsequent(fromDate, toDate);
+
     });
 
 
+    // Bind change events for first set
+    document.getElementById('FromDate').addEventListener('change', () =>
+        calculateDays('FromDate', 'ToDate', 'TotalAppliedDays')
+    );
+    document.getElementById('ToDate').addEventListener('change', () =>
+        calculateDays('FromDate', 'ToDate', 'TotalAppliedDays')
+    );
 
-    //
-   
+    // Bind change events for second set
+    document.getElementById('FromDateEdit').addEventListener('change', () =>
+        calculateDays('FromDateEdit', 'ToDateEdit', 'TotalAppliedDaysTT')
+    );
+    document.getElementById('ToDateEdit').addEventListener('change', () =>
+        calculateDays('FromDateEdit', 'ToDateEdit', 'TotalAppliedDaysTT')
+    );
 
-    //
+
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
@@ -346,34 +385,19 @@ $(document).ready(function () {
 
                     // Set hidden ID
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
-
-                    // EmployeeIDEdit
-
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
-                    // LeaveDaysEdit
-                    $('input[name="LeaveDaysEdit"]').val(data.leaveDaysEdit);
-
-                    // IsFullDayEdit (radio buttons)
+                    $('#TotalAppliedDaysTT').val(data.period);
+                    $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
+                    $('#LeaveDaysEdit').val(data.leaveDaysEdit);
                     $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-
-                    // FromDateEdit
                     $('input[name="FromDateEdit"]').val(data.fromDateEdit);
-
-                    // ToDateEdit
                     $('input[name="ToDateEdit"]').val(data.toDateEdit);
-
-                    // ToDateFromDateCombinedEdit
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
                     $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
-                    // PartialFromTimeEdit
                     $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
-
-                    // PartialToTimeEdit
                     $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
-
-                    // ReasonEdit
                     $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
 
                     // Optionally toggle the sections based on IsFullDayEdit
@@ -384,6 +408,15 @@ $(document).ready(function () {
                         $('#FullDayDivEdit').addClass('d-none');
                         $('#PartialDayDivEdit').removeClass('d-none');
                     }
+                   
+                    
+                    if (data.totalSubsequentDays > 0) {
+                        $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val("Not Applicable");
+                    } else {
+                        $('#SubsequentHolydayDays').val("0");
+                    }
                 }
             },
 
@@ -393,6 +426,13 @@ $(document).ready(function () {
         })
     })
 
+
+    //
+
+
+
+   
+    
     //
 
 
