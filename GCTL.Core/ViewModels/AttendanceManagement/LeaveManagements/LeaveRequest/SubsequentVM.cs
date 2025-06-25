@@ -11,6 +11,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public bool IsHolidayCountedAsLeave { get; set; }
         public bool IsWeekendCountedAsLeave { get; set; }
         public int ? TotalSubsequentDays { get; set; }  
-        
+        public int TotalDays { get; set; }
     }
 }

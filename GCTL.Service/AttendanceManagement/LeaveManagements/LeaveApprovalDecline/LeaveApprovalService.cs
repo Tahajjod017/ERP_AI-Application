@@ -398,7 +398,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     {
                         // 3a) Update the existing record
                         existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
-                        existingBalance.TotalLeave = leaveDaysFromConfig;
+                       // existingBalance.TotalLeave = leaveDaysFromConfig;
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.UpdatedAt = DateTime.Now;

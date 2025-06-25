@@ -518,6 +518,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
         {
+
+            var normalizedFrom = fromDate.Date;
+            var normalizedTo = toDate.Date;
+            if (normalizedTo < normalizedFrom)
+                throw new ArgumentException("toDate must be on or after fromDate");
+
+            int totalDays = (int)(normalizedTo - normalizedFrom).TotalDays + 1;
+
             var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
                 .Select(x => new
                 {
@@ -577,6 +585,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             return new SubsequentVM
             {
+                TotalDays = totalDays,
                 TotalSubsequentDays = uniqueDates.Count,
                 IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
                 IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
