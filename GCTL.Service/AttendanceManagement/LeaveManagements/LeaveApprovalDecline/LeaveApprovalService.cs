@@ -107,7 +107,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     {
                         var balance = leaveBalances.FirstOrDefault(lb =>
                             lb.EmployeeID == b.EmployeeID &&
-                            lb.LeaveTypeID == b.LeaveTypeID &&
+                            lb.LeaveTypeID == b.LeaveTypeID ||
                             lb.ApplicableYear == b.FromDate.Year);
 
                         var defaultLeaveDays = leaveTypes.FirstOrDefault(x => x.LeaveTypeID == b.LeaveTypeID)?.LeaveDays ?? 0;
@@ -380,21 +380,49 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                     entity.StatusID = leavStatusApproved;
                     var applicableYear = entity.FromDate.Year;
-                  
-                    var leaveDaysfromLeaveType = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveDays).FirstOrDefaultAsync();
-                    var newBalance = new LeaveBalances
+
+                    // 1) Fetch default total for this leave type
+                    var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
+                        .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
+                        .Select(x => x.LeaveDays)
+                        .FirstOrDefaultAsync();
+
+                    // 2) Try to get an existing balance row
+                    var existingBalance = await leaveBalance.AllActive()
+                        .FirstOrDefaultAsync(x =>
+                            x.EmployeeID == entityVM.EmployeeIDEdit &&
+                            x.LeaveTypeID == entityVM.LeaveTypeIDEdit
+                        );
+
+                    if (existingBalance != null)
                     {
-                        EmployeeID = entityVM.EmployeeIDEdit,
-                        LeaveTypeID = entityVM.LeaveTypeIDEdit,
-                        Taken = entityVM.TotalAppliedDays,
-                        TotalLeave = leaveDaysfromLeaveType,
-                        CreatedAt = DateTime.Now,
-                        CreatedBy = entityVM.CreatedBy,
-                        LIP = entityVM.LIP,
-                        LMAC = entityVM.LMAC
-                    };
-                    await leaveBalance.AddAsync(newBalance);
-                    
+                        // 3a) Update the existing record
+                        existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
+                        existingBalance.TotalLeave = leaveDaysFromConfig;
+                        existingBalance.LMAC = entityVM.LMAC;
+                        existingBalance.LIP = entityVM.LIP;
+                        existingBalance.UpdatedAt = DateTime.Now;
+                        existingBalance.UpdatedBy = entityVM.UpdatedBy;
+                      await leaveBalance.UpdateAsync(existingBalance);
+                    }
+                    else
+                    {
+                        // 3b) Create a brand‐new record
+                        var newBalance = new LeaveBalances
+                        {
+                            EmployeeID = entityVM.EmployeeIDEdit,
+                            LeaveTypeID = entityVM.LeaveTypeIDEdit,
+                            Taken = entityVM.TotalAppliedDays,
+                            TotalLeave = leaveDaysFromConfig,
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = entityVM.CreatedBy,
+                            LIP = entityVM.LIP,
+                            LMAC = entityVM.LMAC
+                        };
+
+                        await leaveBalance.AddAsync(newBalance);
+                    }
+
                 } else if(entityVM.Declined)
                 {   
                     entity.StatusID = leavStatusDecline;

@@ -62,9 +62,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         [HttpGet]
         [Route("LeaveRequest/GetLeaveDays")]
-        public async Task<IActionResult> GetLeaveDays(int leaveTypeId)
+        public async Task<IActionResult> GetLeaveDays(int employeeId, int leaveTypeId)
         {
-            var data = await leaveRequestService.GetLeaveTypeTotaldays(leaveTypeId);
+            var data = await leaveRequestService.GetLeaveTypeTotaldays(employeeId,leaveTypeId);
                 
                 if(data==null)
             {
