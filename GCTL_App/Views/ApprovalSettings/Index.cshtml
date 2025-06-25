@@ -57,11 +57,25 @@
                                             { label: "Third", checkboxId: "chkThird", selectId: "selThird", toggleId: "toggleThird" }
                                         ];
 
-                                        const employees = ["CEO", "Manager", "Team Lead"];
-                                        const designations = ["Executive", "Supervisor", "Director"];
+                                        const employees = ["Rakib", "Siam", "Shefain"];
+                                        const designations = ["CEO", "Supervisor", "Manager"];
 
                                         document.addEventListener('DOMContentLoaded', function () {
-                                            approvers.forEach(ap => {
+                                            // Special case: First Approver – always enabled, controlled only by toggle
+                                            const selFirst = document.getElementById("selFirst");
+                                            const toggleFirst = document.getElementById("toggleFirst");
+
+                                            toggleFirst.addEventListener('change', function () {
+                                                populateOptions(selFirst, this.checked ? employees : designations);
+                                            });
+
+                                            // Enable first approver dropdown and toggle by default
+                                            selFirst.disabled = false;
+                                            toggleFirst.disabled = false;
+                                            populateOptions(selFirst, designations); // default view
+
+                                            // Apply normal behavior for Second and Third Approvers
+                                            approvers.slice(1).forEach(ap => {
                                                 const checkbox = document.getElementById(ap.checkboxId);
                                                 const select = document.getElementById(ap.selectId);
                                                 const toggle = document.getElementById(ap.toggleId);
@@ -78,7 +92,7 @@
                                                 // Initialize
                                                 select.disabled = true;
                                                 toggle.disabled = true;
-                                                populateOptions(select, designations); // default
+                                                populateOptions(select, designations);
                                             });
 
                                             function populateOptions(selectEl, items) {
@@ -91,6 +105,41 @@
                                                 });
                                             }
                                         });
+
+
+                                        // if need first approver 
+                                        //     document.addEventListener('DOMContentLoaded', function () {
+                                        //     approvers.forEach(ap => {
+                                        //         const checkbox = document.getElementById(ap.checkboxId);
+                                        //         const select = document.getElementById(ap.selectId);
+                                        //         const toggle = document.getElementById(ap.toggleId);
+
+                                        //         checkbox.addEventListener('change', function () {
+                                        //             select.disabled = !this.checked;
+                                        //             toggle.disabled = !this.checked;
+                                        //         });
+
+                                        //         toggle.addEventListener('change', function () {
+                                        //             populateOptions(select, this.checked ? employees : designations);
+                                        //         });
+
+                                        //         // Initialize
+                                        //         select.disabled = true;
+                                        //         toggle.disabled = true;
+                                        //         populateOptions(select, designations); // default
+                                        //     });
+
+                                        //     function populateOptions(selectEl, items) {
+                                        //         selectEl.innerHTML = '<option value="">Select</option>';
+                                        //         items.forEach(item => {
+                                        //             const opt = document.createElement('option');
+                                        //             opt.value = item.toLowerCase().replace(/\s+/g, '-');
+                                        //             opt.text = item;
+                                        //             selectEl.appendChild(opt);
+                                        //         });
+                                        //     }
+                                        // });
+
                                     </script>
 
                                     <!-- Approver Fields -->
@@ -98,10 +147,15 @@
                                         <div class="mb-3">
                                             <div class="row">
                                                 <!-- First Approvers Checkbox (Left Half) -->
-                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                               @*  <div class="form-check form-switch col-6 custom-padding-left">
                                                     <input class="form-check-input" id="chkFirst" type="checkbox" />
-                                                    <label class="form-check-label" for="chkFirst">First Approvers</label>
-                                                </div>
+                                                    <label class="form-check-label" for="chkFirst">First Approver</label>
+                                                </div> *@
+
+                                               @*  <div class="form-check form-switch col-6">
+                                                    
+                                                    <label class="form-check-label" for="chkFirst">First Approver</label>
+                                                </div> *@
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
@@ -129,7 +183,7 @@
                                                 <!-- Second Approvers Checkbox (Left Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
                                                     <input class="form-check-input" id="chkSecond" type="checkbox" />
-                                                    <label class="form-check-label" for="chkSecond">Second Approvers</label>
+                                                    <label class="form-check-label" for="chkSecond">Second Approver</label>
                                                 </div>
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
@@ -141,7 +195,7 @@
 
                                             <!-- Select Dropdown (Below Checkboxes) -->
                                             <div class="mt-3">
-                                                <select class="form-select" id="selSecond" disabled>
+                                                <select class="form-select " id="selSecond" disabled>
                                                     <option value="">Select</option>
                                                     <option value="ceo">CEO</option>
                                                     <option value="manager">Manager</option>
@@ -158,11 +212,11 @@
                                                 <!-- Third Approvers Checkbox (Left Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
                                                     <input class="form-check-input" id="chkThird" type="checkbox" />
-                                                    <label class="form-check-label" for="chkThird">Third Approvers</label>
+                                                    <label class="form-check-label" for="chkThird">Third Approver</label>
                                                 </div>
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
-                                                <div class="form-check form-switch col-6">
+                                                <div class="form-check form-switch col-6 custom-padding-left">
                                                     <input class="form-check-input" id="toggleThird" type="checkbox" />
                                                     <label class="form-check-label" for="toggleThird">Use Employee</label>
                                                 </div>
@@ -170,7 +224,7 @@
 
                                             <!-- Select Dropdown (Below Checkboxes) -->
                                             <div class="mt-3">
-                                                <select class="form-select" id="selThird" disabled>
+                                                <select class="form-select " id="selThird" disabled>
                                                     <option value="">Select</option>
                                                     <option value="ceo">CEO</option>
                                                     <option value="manager">Manager</option>
@@ -189,7 +243,7 @@
 
                 <!-- Form Buttons -->
                 <div class="d-flex align-items-center justify-content-end">
-                    <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
