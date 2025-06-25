@@ -151,46 +151,9 @@ $(document).ready(function () {
 
 
    
-    // Finding subsequent days and count days
-
-    function calculateDays(fromDateId, toDateId, totalDaysId) {
-        let fromDate = flatpickrHelper.getDate(fromDateId);
-        let toDate = flatpickrHelper.getDate(toDateId);
-
-        console.log(`${fromDateId}:`, fromDate);
-        console.log(`${toDateId}:`, toDate);
-
-        // Convert string to Date if needed
-        if (typeof fromDate === 'string') fromDate = new Date(fromDate);
-        if (typeof toDate === 'string') toDate = new Date(toDate);
-
-        // Validate both are valid Date objects
-        if (!(fromDate instanceof Date) || isNaN(fromDate) ||
-            !(toDate instanceof Date) || isNaN(toDate)) {
-            document.getElementById(totalDaysId).value = '';
-            return;
-        }
-
-        // Ensure ToDate >= FromDate
-        if (toDate < fromDate) {
-            toastr.warning("To Date must be greater than or equal to From Date");
-            document.getElementById(totalDaysId).value = '';
-            flatpickrHelper.clearDate(toDateId);
-            document.getElementById(toDateId).value = '';
-            return;
-        }
-
-        // Normalize time to midnight
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-
-        const timeDiff = toDate.getTime() - fromDate.getTime();
-        const dayDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Inclusive
-
-        document.getElementById(totalDaysId).value = dayDiff;
-    }
+   
     function GetLeavedaysSubsequent(fromDate, toDate) {
-        debugger
+    
         if (!fromDate || !toDate) return;
 
         $.ajax({
@@ -201,6 +164,8 @@ $(document).ready(function () {
                 toDate: toDate
             },
             success: function (data) {
+                
+                if (!data) return;
                 if (data && data.totalSubsequentDays > 0) {
                     $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
                     $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
@@ -210,6 +175,11 @@ $(document).ready(function () {
                 } else {
                     $('#SubsequentHolydayDays').val("0");
                     $('#SubsequentHolydayDaysTT').val("0");
+                }
+                if (typeof data.totalDays !== 'undefined') {
+                    $('#TotalAppliedDays').val(data.totalDays);
+                    $('#TotalAppliedDaysTT').val(data.totalDays);
+                    
                 }
             }
             ,
@@ -238,37 +208,31 @@ $(document).ready(function () {
     });
 
 
-    // Bind change events for first set
-    document.getElementById('FromDate').addEventListener('change', () =>
-        calculateDays('FromDate', 'ToDate', 'TotalAppliedDays')
-    );
-    document.getElementById('ToDate').addEventListener('change', () =>
-        calculateDays('FromDate', 'ToDate', 'TotalAppliedDays')
-    );
+   
 
-    // Bind change events for second set
-    document.getElementById('FromDateEdit').addEventListener('change', () =>
-        calculateDays('FromDateEdit', 'ToDateEdit', 'TotalAppliedDaysTT')
-    );
-    document.getElementById('ToDateEdit').addEventListener('change', () =>
-        calculateDays('FromDateEdit', 'ToDateEdit', 'TotalAppliedDaysTT')
-    );
-
+    //
 
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
-
+        debugger
         var $form = $(this);
 
         if (!$form.valid()) {
 
             return false;
         }
+        var available = parseFloat($('#LeaveDays').val()) || 0;
+        var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
 
+        if (applied > available) {
+            toastr.error(`You only have ${available} day(s) available, but you tried to apply for ${applied}.`);
+            return false;   
+        }
         var url = $form.attr('action');
         var formData = new FormData(this);
-
+        
+      
         $.ajax({
             type: 'POST',
             url: url,
