@@ -251,13 +251,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             }
         }
 
+     
 
         #endregion
 
         #region Get Data By LeaveRequestID
 
 
-       
+
         public async Task<LeaveApplicationApprovalModifyVM> GetLeaveRequestByIdAsync(int leaveApplicationID)
         {
             if (leaveApplicationID == 0)
@@ -467,6 +468,40 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     Message = "An error occurred while saving the leave request Update."
                 };
             }
+        }
+
+        #endregion
+
+        #region Dispaly LeaveDays 
+        //public async Task<LeaveBalancesDisplayVM> GetLeaveDisplayEmpoyee(int employeeId)
+        //{
+        //    var leaveDisplay = await leaveBalance.AllActive().Where(x => x.EmployeeID == employeeId).SumAsync(x=>x.TotalLeave-x.Taken);
+        //    throw new NotImplementedException();
+        //}
+
+        public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
+        {
+            var result = await (
+                from lt in leaveTypesRepository.AllActive()
+                join lb in leaveBalance.AllActive().Where(x => x.EmployeeID == employeeId)
+                    on lt.LeaveTypeID equals lb.LeaveTypeID into lbGroup
+                from lb in lbGroup.DefaultIfEmpty()
+                select new LeaveBalancesDisplayVM
+                {
+                    LeaveBalanceID = lb != null ? lb.LeaveBalanceID : 0,
+                    EmployeeID = employeeId,
+                    LeaveTypeID = lt.LeaveTypeID,
+                    LeaveTypeName = lt.LeaveTypeName,
+                    TotalLeave = lb.TotalLeave,
+                    Taken = lb.Taken,
+                    ApplicableYear = lb.ApplicableYear,
+                    RemainingDays = lb != null
+                        ? (lb.TotalLeave - lb.Taken)
+                        : (lt.LeaveDays ?? 0)
+                }
+            ).ToListAsync();
+
+            return result;
         }
 
         #endregion

@@ -410,6 +410,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #region Get LeaveType Total Days
         public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
         {
+
+            //
+            var usedUpLeaveTypeIds = await leaveBalances.AllActive()
+        .Where(lb => lb.EmployeeID == employeeId && (lb.TotalLeave - lb.Taken) <= 0)
+        .Select(lb => lb.LeaveTypeID)
+        .ToListAsync();
+
+            var leaveTypess = await leaveTypes.AllActive()
+                .Where(lt => !usedUpLeaveTypeIds.Contains(lt.LeaveTypeID))
+                .ToListAsync();
+            //
             var leaveBalance = await leaveBalances.AllActive()
                 .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
                 .Select(x => new
@@ -429,12 +440,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     .Select(l => new
                     {
                         leaveDays = l.LeaveDays
-                    })
-                    .FirstOrDefaultAsync();
+                    }).FirstOrDefaultAsync();
                 if (defaultLeave == null) return null;
                 return defaultLeave;
             }
         }
+
+
 
 
 

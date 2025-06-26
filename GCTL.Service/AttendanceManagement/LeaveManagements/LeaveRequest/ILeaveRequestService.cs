@@ -29,5 +29,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<List<GetLeavePolicyConfigurationVM>> GetLeavePolicyIsCountAsync();
         Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate);
         #endregion
+
+        
     }
 }
