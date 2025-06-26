@@ -75,6 +75,11 @@ $(document).ready(function () {
             $('#LeaveDaysEdit').val('');
         }
     }
+
+    //
+
+ 
+
     //
     function handleLeaveChange(employeeIdField, leaveTypeIdField) {
         var leaveTypeID = $(leaveTypeIdField).val();
