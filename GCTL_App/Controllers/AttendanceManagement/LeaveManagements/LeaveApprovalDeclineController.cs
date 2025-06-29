@@ -149,5 +149,33 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
 
         #endregion
+
+        #region Display Leave banlance
+
+        [Route("LeaveApprovalDeclineRoute/GetLeaveTypeBalancesForEmployeeDisplay")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetLeaveTypeBalancesForEmployee()
+        {
+
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                    return BadRequest("EmployeeID not found in claims.");
+
+               
+                var data = await leaveApprovalService.GetLeaveTypeBalancesForEmployee(userId);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                // Optional: log the exception before re-throwing
+                throw;
+            }
+
+        }
+        #endregion
     }
 }
