@@ -2,7 +2,7 @@
 @model GCTL.Core.ViewModels.Employee.EmployeeSalary.EmployeeSalaryPostViewModel
 
 <div class="mb-9">
-    <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="row align-items-center justify-content-between g-3 ">
         <div class="col-auto">
         </div>
     </div>
@@ -14,11 +14,14 @@
 
                     <input type="hidden" asp-for="EmployeeSalarySettingsID" />
 
-                    <div class="row g-2 align-items-center">
+                    <div class="row g-2 align-items-center" id="EmployeeDropDownDiv" style="display:none">
+
                         <div class="col-md-3">
                             <div class="position-relative">
-                                <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
-                                <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                                <!--
+                            <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
+                               -->
                             </div>
                         </div>
 
@@ -51,12 +54,12 @@
 
                             @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
 
-                           
+
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane fade show active p-2" role="tabpanel" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
                                     <div class="px-25">
-                                        
+
                                         <div class="tab-content mt-3" id="myTabContent">
                                             <div class="tab-pane fade show active" id="tab-empSalary" role="tabpanel" aria-labelledby="empSalary-tab">
                                                 <div class="">
@@ -140,8 +143,8 @@
                                                             <p class="border-bottom mt-6">@Html.SmartLocalize("Salary Information")</p>
 
 
-                                                           
-                                                            
+
+
 
                                                             <div class="col-sm-12 col-md-4">
                                                                 <div class="form-floating form-floating-advance-select mb-2">
@@ -159,7 +162,7 @@
                                                                     <label asp-for="Salary">@Html.SmartLocalize("Salary")</label>
                                                                 </div>
                                                             </div>
-                                                           
+
 
                                                             <div class="col-sm-12 col-md-4">
                                                                 <div class="form-floating form-floating-advance-select mb-2">
@@ -178,13 +181,13 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            
 
-                                                            
+
+
                                                             <div class="col-sm-12 col-md-4 mb-3">
                                                                 <div class="form-floating form-floating-advance-select mb-2">
                                                                     <label asp-for="PaymentModeIds">@Html.SmartLocalize("Payment Mode")</label>
-                                                                 
+
                                                                     <select class="form-select" asp-for="PaymentModeIds" asp-items="@ViewBag.PaymenModeDD as SelectList" id="PaymentModeId" multiple>
                                                                         <option value="">@Html.SmartLocalize("Select Payment Mode")</option>
                                                                     </select>
@@ -193,12 +196,12 @@
                                                             </div>
 
 
-                                                            
+
 
                                                             <div class="row" id="multyPayment" style="display: none;">
                                                                 <div class="d-flex">
                                                                     <div class="col-sm-6 col-md-4 me-3">
-                                                                        
+
 
 
                                                                         <div class="form-floating form-floating-advance-select mb-2">
@@ -217,7 +220,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-sm-6 col-md-4">
-                                                                        
+
 
                                                                         <div class="form-floating form-floating-advance-select mb-2">
                                                                             <label asp-for="SecondaryPaymentModeId">@Html.SmartLocalize("Secondary Payment Mode")</label>

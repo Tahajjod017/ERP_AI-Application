@@ -187,7 +187,7 @@ $(document).ready(function () {
         if (!fromDate || !toDate) return;
 
         $.ajax({
-            url: '/LeaveRequest/SubsequentLeaveCount',
+            url: '/LeaveApprovalDeclineRoute/SubsequentLeaveCount',
             type: 'GET',
             data: {
                 fromDate: fromDate,
@@ -209,6 +209,9 @@ $(document).ready(function () {
         });
     });
 
+    //
+
+    
 
 
     //
@@ -216,25 +219,32 @@ $(document).ready(function () {
 
     //
     // Handle form submit
-    $('body').on('submit', '#LeaveRequestUpdatedForm', function (e) {
+    $(document).on('click', '#ApplyLeaveSubmitButtonApproval', function (e) {
         e.preventDefault();
-
-        var $form = $(this);
-
-        if (!$form.valid()) {
-
-            return false;
+        const isFullDay = $('input[name="IsFullDayEdit"]:checked').val() === "true";
+        const approvalStatus = $('input[name="ApprovalStatus"]:checked').val();
+        const isApproved = approvalStatus === "true"; 
+        const formdata = {
+            LeaveApplicationID: $('#LeaveApplicationID').val(),
+            FromDateEdit: flatpickrHelper.getDate('FromDate'),
+            ToDateEdit: flatpickrHelper.getDate('ToDate'),
+            EmployeeIDEdit: choiceManager.getChoiceValue('EmployeeIDEdit'),
+            LeaveTypeIDEdit: choiceManager.getChoiceValue('LeaveTypeIDEdit'),
+            IsFullDayEdit: isFullDay,
+            Approved: isApproved,
+            Declined: !isApproved,
+            ApprovalNote: $('#ApprovalNote').val(),
+            TotalAppliedDays: $('#TotalAppliedDays').val()
+        };
+        if (!isFullDay) {
+            formdata.PartialFromTimeEdit = $('#PartialFromTimeEdit').val();
+            formdata.PartialToTimeEdit = $('#PartialToTimeEdit').val();
         }
-
-        var url = $form.attr('action');
-        var formData = new FormData(this);
-
         $.ajax({
             type: 'POST',
-            url: url,
-            data: formData,
-            contentType: false,
-            processData: false,
+            url: '/LeaveApprovalDeclineRoute/UpdateRequestAsync',
+            data: JSON.stringify(formdata), // Send data as JSON string
+            contentType: 'application/json; charset=utf-8', // Tell server it's JSON
             dataType: 'json',
             success: function (response) {
                 console.log("Response:", response);
@@ -242,7 +252,6 @@ $(document).ready(function () {
                     toastr.success(response.message);
                     resetForm(); // Reset after successful save
                 } else {
-                    // Show server-side validation errors
                     if (response.errors && response.errors.length > 0) {
                         response.errors.forEach(function (error) {
                             toastr.error(error);
@@ -257,6 +266,7 @@ $(document).ready(function () {
             }
         });
     });
+
 
 
 
@@ -335,7 +345,7 @@ $(document).ready(function () {
         var leaveApplicationID = $(this).data('id');
 
         $.ajax({
-            url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
+            url: '/LeaveApprovalDeclineRoute/GetLeaveRequestByIdAsync',
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
@@ -351,38 +361,39 @@ $(document).ready(function () {
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
-                    // LeaveDaysEdit
                     $('input[name="LeaveDaysEdit"]').val(data.leaveDaysEdit);
-
-                    // IsFullDayEdit (radio buttons)
                     $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-
-                    // FromDateEdit
                     $('input[name="FromDateEdit"]').val(data.fromDateEdit);
-
-                    // ToDateEdit
                     $('input[name="ToDateEdit"]').val(data.toDateEdit);
-
-                    // ToDateFromDateCombinedEdit
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
-                    $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
-                    // PartialFromTimeEdit
+                    $('#TotalAppliedDays').val(data.period);
                     $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
-
-                    // PartialToTimeEdit
                     $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
-
-                    // ReasonEdit
                     $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
-
+                    $('#AvailableLeaveDays').val(data.availableLeaveDays)
                     // Optionally toggle the sections based on IsFullDayEdit
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');
                         $('#PartialDayDivEdit').addClass('d-none');
+
+                        $('#PartialDayRadioWrapper').addClass('d-none');
+                        $('#FullDayRadioWrapper').removeClass('d-none');
                     } else {
                         $('#FullDayDivEdit').addClass('d-none');
                         $('#PartialDayDivEdit').removeClass('d-none');
+
+                        $('#FullDayRadioWrapper').addClass('d-none');
+                        $('#PartialDayRadioWrapper').removeClass('d-none');
                     }
+
+                    if (data.totalSubsequentDays > 0) {
+                        $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val("Not Applicable");
+                    } else {
+                        $('#SubsequentHolydayDays').val("0");
+                    }
+
                 }
             },
 
@@ -397,7 +408,9 @@ $(document).ready(function () {
 
 });
 
-//
+
+
+// Approval Table 
 
 
 var currentPage = 1;
@@ -471,23 +484,37 @@ function updateSortingIndicator() {
 
 
 
-//function getBadgeClass(status) {
-//    if (!status || status.trim() === '') return 'text-bg-success';
+//<td class="dptStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+//    <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Approved">
+//        <i class="fas fa-check-square text-success"></i>
+//    </a>
 
-//    switch (status.trim().toUpperCase()) {
-//        case 'DECLINEED':
-//            return 'badge-phoenix badge-phoenix-danger';
-//        case 'APPROVED':
-//            return 'badge-phoenix badge-phoenix-success';
-//        case 'PENDING':
-//            return 'badge-phoenix-warning';
-//        default:
-//            return 'text-bg-success';
-//    }
-//}
+//    <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Declined">
+//        <i class="far fa-window-close text-danger"></i>
+//    </a>
+//</td>
 
-//<td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-//    <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
+
+//<td class="align-middle white-space-nowrap text-end pe-0">
+//    <div class="d-flex justify-content-end align-items-center">
+//        <a
+//            href="#"
+//            title="Edit"
+//            id="LeaveRequestEditButton"
+//            data-id="${item.leaveApplicationID}"
+//            class="btn btn-outline-light btn-icon me-1 ${isDisabled ? 'disabled' : ''}"
+//            data-bs-toggle="modal"
+//            data-bs-target="#edit_leaves"
+//            ${isDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
+//            <i class="fas fa-edit text-black"></i>
+//        </a>
+//        <a
+//            href="#" title="Delete" data-id="${item.leaveApplicationID}"
+//            class="btn btn-outline-light btn-icon"
+//            id="leaveRequestDelete-singleDelBtn" >
+//            <i class="far fa-trash-alt text-black"></i>
+//        </a>
+//    </div>
 //</td>
 
 function getAvatarHtml(employee) {
@@ -591,33 +618,29 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromDate}</td>
                         <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
-                      
-                          <td class="leaveTotal align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">3(Remaining)</td>
+
+                          <td class="leaveTotal align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.availableLeaveDays}</td>
                     
+                     <td class="align-middle white-space-nowrap text-end pe-0 ps-5">
+                      <div class="d-flex  align-items-center">
+                      <a href="#"
+                         title="View"
+                         id="LeaveRequestEditButton"
+                         data-id="${item.leaveApplicationID}"
+                         class="btn btn-outline-light btn-icon d-flex align-items-center justify-content-center"
+                         data-bs-toggle="modal"
+                         data-bs-target="#edit_leaves">
+                          <i class="fas fa-eye text-primary"></i>
+                      </a>
+                     </div>
+                    </td>
 
-                        <td class="dptStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Approved">
-                                    <i class="fas fa-check-square text-success"></i>
-                                </a>
 
-                                <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Declined">
-                                    <i class="far fa-window-close text-danger"></i>
-                                </a>
-                            </td>
+                      
 
                      <td class="align-middle white-space-nowrap text-end pe-0">
-                          <div class="d-flex justify-content-end align-items-center">
-                         <a
-                               href="#"
-                               title="Edit"
-                               id="LeaveRequestEditButton"
-                               data-id="${item.leaveApplicationID}"
-                               class="btn btn-outline-light btn-icon me-1 ${isDisabled ? 'disabled' : ''}" 
-                               data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves"
-                               ${isDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
-                               <i class="fas fa-edit text-black"></i>
-                    </a>
+                          <div class="d-flex  align-items-center">
+                        
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"
                               class="btn btn-outline-light btn-icon"  
@@ -685,4 +708,245 @@ $(document).on('click', '.page-btn', function () {
 });
 
 
+
+// for Below Table 
+
+$(document).ready(function () {
+    var attendPage = 1;
+    var attendPageSize = 5;
+    let attendSortColumn = '';
+    let attendSortOrder = '';
+
+    loadAttendanceTable();
+
+    $('#attendance-pageSizeSelect').on('change', function () {
+        var selectedSize = $(this).val();
+        if (selectedSize) {
+            attendPageSize = parseInt(selectedSize, 10);
+            attendPage = 1;
+            loadAttendanceTable();
+        }
+    });
+
+    $("#attendance-searchInput").on("input", function () {
+        attendPage = 1;
+        loadAttendanceTable();
+    });
+
+    $("#attendance-prevPageBtn").on('click', function () {
+        if (attendPage > 1) {
+            attendPage--;
+            loadAttendanceTable();
+        }
+    });
+
+    $("#attendance-nextPageBtn").on('click', function () {
+        attendPage++;
+        loadAttendanceTable();
+    });
+
+    $('th.attend-sort').on('click', function () {
+        const column = $(this).data('sort');
+
+        if (attendSortColumn === column) {
+            attendSortOrder = attendSortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            attendSortColumn = column;
+            attendSortOrder = 'asc';
+        }
+
+        loadAttendanceTable(attendSortColumn, attendSortOrder);
+        updateAttendSortIcons(column, attendSortOrder);
+    });
+
+    $(document).on("change", "#attendanceStatusFilter,#attendanceTypeFilter", function () {
+        attendPage = 1;
+        loadAttendanceTable();
+    });
+
+    $(document).on('click', '.attend-page-btn', function () {
+        const page = $(this).data('page');
+        attendPage = page;
+        loadAttendanceTable();
+    });
+
+    function getBadgeClass(status) {
+        if (!status || status.trim() === '') return 'text-bg-success';
+
+        switch (status.trim().toUpperCase()) {
+            case 'DECLINEED':
+                return 'badge-phoenix badge-phoenix-danger';
+            case 'APPROVED':
+                return 'badge-phoenix badge-phoenix-success';
+            case 'PENDING':
+                return 'badge-phoenix-warning';
+            default:
+                return 'text-bg-success';
+        }
+    }
+    function loadAttendanceTable(sortCol, sortOrder) {
+        var keyword = $("#attendance-searchInput").val();
+        var typeID = $('#attendanceTypeFilter').val();
+        var statusID = $('#attendanceStatusFilter').val();
+
+        $.ajax({
+            url: '/LeaveApprovalDeclineRoute/GetAllTableBelowAsync',
+            method: 'GET',
+            data: {
+                pageNumber: attendPage,
+                pageSize: attendPageSize,
+                searchTerm: keyword,
+                currentSortColumn: sortCol,
+                currentSortOrder: sortOrder,
+                attendanceTypeID: typeID,
+                attendanceStatusID: statusID
+            },
+            success: function (response) {
+                var tbody = $("#attendanceRequestTableBody");
+                tbody.empty();
+                var total = response.paginationInfo.totalItems;
+
+                if (response.data.length > 0) {
+                    response.data.forEach(function (item, index) {
+                        let rowIndex = sortOrder === 'asc'
+                            ? (attendPage - 1) * attendPageSize + index + 1
+                            : total - ((attendPage - 1) * attendPageSize + index);
+
+                        
+                        const isFullDay = item.isFullDay;
+                        // pick the right label and pluralize
+                        const unitLabel = isFullDay
+                            ? (item.period > 1 ? 'Days' : 'Day')
+                            : (item.period > 1 ? 'Hours' : 'Hour');
+                        let avatar = renderAttendAvatar(item);
+
+                        tbody.append(`
+                                  <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                        <td class="fs-9 align-middle py-0">
+                          <div class="form-check mb-0 fs-8">
+                            <input class="form-check-input" data-id="${item.leaveApplicationID}" type="checkbox" />
+                          </div>
+                        </td>
+  
+                        
+                        <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                          <div class="d-flex align-items-center file-name-icon">
+                            <div class="avatar avatar-m avatar-bordered me-2">
+                             ${avatar}
+                            </div>
+                            <div class="ms-1">
+                              <h6 class="fw-bold">${item.employeeName}</h6>
+                              <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        
+                        <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                          <div class="d-flex align-items-center">
+                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">${item.leaveType}</p>
+                            <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                              data-bs-title="I am currently experiencing a fever and design & Development">
+                              <i class="ti ti-info-circle text-info"></i>
+                          </span>
+                          </div>
+                        </td>
+
+                        <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromDate}</td>
+                        <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
+                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
+
+
+                        <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
+                        </td>
+                    
+
+                       
+
+                     <td class="align-middle white-space-nowrap text-end pe-0">
+                          <div class="d-flex justify-content-end align-items-center">
+                         
+                            <a 
+                              href="#" title="Delete"  data-id="${item.leaveApplicationID}"
+                              class="btn btn-outline-light btn-icon"  
+                              id="leaveRequestDelete-singleDelBtn" >
+                              <i class="far fa-trash-alt text-black"></i>
+                            </a>
+                          </div>
+                    </td>
+
+  
+                      </tr>
+                        `);
+                    });
+                } else {
+                    tbody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
+                }
+
+                let pageInfo = response.paginationInfo;
+                $("#attendance-paginationInfo").text(`Showing ${pageInfo.startItem} to ${pageInfo.endItem} of ${pageInfo.totalItems}`);
+                $("#attendance-totalCount").text(`(${pageInfo.totalItems})`);
+
+                updateAttendPagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
+            }
+        });
+    }
+
+    function updateAttendSortIcons() {
+        $('th.attend-sort').each(function () {
+            const $th = $(this);
+            const col = $th.data('sort');
+            $th.find('.sort-icon').remove();
+
+            const iconClass = col === attendSortColumn
+                ? (attendSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down')
+                : 'fa-sort';
+
+            $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
+        });
+    }
+
+    function updateAttendPagination(pageNumbers, currentPage, totalPages) {
+        const pager = $("#attendance-paginationLinks");
+        pager.empty();
+        const win = 1;
+
+        const pageBtn = (p) => `<li class="page-item ${p === currentPage ? 'active' : ''}">
+            <button class="page-link attend-page-btn" data-page="${p}">${p}</button>
+        </li>`;
+
+        const ellipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+
+        if (currentPage > win + 1) {
+            pager.append(pageBtn(1), ellipsis());
+        }
+
+        const start = Math.max(1, currentPage - win);
+        const end = Math.min(totalPages, currentPage + win);
+        for (let i = start; i <= end; i++) {
+            pager.append(pageBtn(i));
+        }
+
+        if (currentPage < totalPages - win) {
+            pager.append(ellipsis(), pageBtn(totalPages));
+        }
+
+        $("#attendance-prevPageBtn").prop('disabled', currentPage === 1);
+        $("#attendance-nextPageBtn").prop('disabled', currentPage === totalPages);
+    }
+
+    function renderAttendAvatar(user) {
+        if (user.employeeImage && user.employeeImage !== '') {
+            return `<img src="${user.employeeImage}" class="rounded-circle" alt="${user.employeeName}" />`;
+        } else {
+            const first = user.employeeName?.charAt(0).toUpperCase() || '?';
+            return `<div class="avatar-placeholder bg-info text-white rounded-circle d-flex align-items-center justify-content-center">${first}</div>`;
+        }
+    }
+});
+
+
+
+//
 

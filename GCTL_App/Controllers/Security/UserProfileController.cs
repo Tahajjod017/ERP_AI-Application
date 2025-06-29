@@ -46,11 +46,16 @@ namespace GCTL_NBR.Controllers
                 return NotFound();
             }
 
+            var url = GetEmployeePictureURL();
+
             var model = new UserProfileViewModel
             {
                 FullName = (user.Employees.FirstName + " " + user.Employees.LastName) ?? user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.Employees.MobileNumber ?? "",
+                ImageName = string.IsNullOrEmpty(user.Employees.EmployeeImageFileName) ? "/img/No-Image-Placeholder.svg.png" : url + user.Employees.EmployeeImageFileName,
+
+               // ImageName = url + user.Employees.EmployeeImageFileName ?? "",
                 //Designation = string.Join(", ", user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Designation?.DesignationName)) ??"",
                 //Department = user.Employees?.EmployeeOfficeInfoSeniorSupervisor?.Select(x => x.Department?.DepartmentName).FirstOrDefault() ?? "",
 

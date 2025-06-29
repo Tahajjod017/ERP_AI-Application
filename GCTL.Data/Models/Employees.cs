@@ -313,6 +313,14 @@ public partial class Employees
 
     public virtual ICollection<LeaveBalances> LeaveBalancesUpdatedByNavigation { get; set; } = new List<LeaveBalances>();
 
+    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistoryApproveByNavigation { get; set; } = new List<LeaveBaseApprovalHistory>();
+
+    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistoryCreatedByNavigation { get; set; } = new List<LeaveBaseApprovalHistory>();
+
+    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistoryDeletedByNavigation { get; set; } = new List<LeaveBaseApprovalHistory>();
+
+    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistoryUpdatedByNavigation { get; set; } = new List<LeaveBaseApprovalHistory>();
+
     public virtual ICollection<LeavePolicyConfiguration> LeavePolicyConfigurationCreatedByNavigation { get; set; } = new List<LeavePolicyConfiguration>();
 
     public virtual ICollection<LeavePolicyConfiguration> LeavePolicyConfigurationDeletedByNavigation { get; set; } = new List<LeavePolicyConfiguration>();

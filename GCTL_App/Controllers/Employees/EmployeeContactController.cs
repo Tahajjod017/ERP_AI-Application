@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeContact;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeContact;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
@@ -25,7 +26,10 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
-        public EmployeeContactController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeContactService employeeContactService, IGenericRepository<GCTL.Data.Models.EmployeeFamilyInfo> employeeFamilyInfoRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        private readonly IElementPermissionService _elementPermissionService;
+
+
+        public EmployeeContactController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IEmployeeContactService employeeContactService, IGenericRepository<GCTL.Data.Models.EmployeeFamilyInfo> employeeFamilyInfoRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeContactService = employeeContactService;
@@ -35,10 +39,15 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _elementPermissionService = elementPermissionService;
         }
 
         public async Task<IActionResult> Index(int id)
         {
+
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            SetSmartPageCode(117000);
+
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
             if (loggedUser != null)
@@ -59,13 +68,13 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "EmergencyContact");
                 ViewBag.Navigation = navigationModel;
+
+
             }
 
 
           
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName" );
-            SetSmartPageCode(117000);
             return View();
         }
 
@@ -108,8 +117,46 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public async Task<IActionResult> GetEmployeeData(int id)
         {
-            var employee = await _employeeContactService.GetEmployeeContactByIdAsync(id);
-            return Ok(employee);
+
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+            if (loggedUser != null)
+            {
+                var userId = loggedUser.Id;
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return Ok();
+
+                    }
+                    else
+                    {
+
+                        
+                        var employee = await _employeeContactService.GetEmployeeContactByIdAsync((int)empid);
+                        return Ok(employee);
+                    }
+
+
+                }
+                else
+                {
+
+                    var employee = await _employeeContactService.GetEmployeeContactByIdAsync(id);
+                    return Ok(employee);
+                }
+
+
+            }
+
+            return Ok();
+
+           
         }
 
         [HttpGet]
@@ -117,8 +164,45 @@ namespace GCTL_App.Controllers.Employees
         {
             try
             {
-                var data = await _employeeContactService.GetEmployeeContactData(id);
-                return Ok(data);
+
+                var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+
+                if (loggedUser != null)
+                {
+                    var userId = loggedUser.Id;
+                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                    if (!hasEmployeePermission)
+                    {
+                        var empid = loggedUser.EmployeeId;
+
+                        if (empid == null || empid == 0)
+                        {
+                            return Ok();
+
+                        }
+                        else
+                        {
+
+
+                            var data = await _employeeContactService.GetEmployeeContactData((int)empid);
+                            return Ok(data);
+                        }
+
+
+                    }
+                    else
+                    {
+
+                        var data = await _employeeContactService.GetEmployeeContactData(id);
+                        return Ok(data);
+
+
+                    }
+                }
+                return Ok();
+
+                
             }
             catch (Exception ex)
             {

@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeSalary;
 using GCTL.Data.Models;
+using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Language;
@@ -28,8 +29,9 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
+        private readonly IElementPermissionService _elementPermissionService;
 
-        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2) : base(translateService, userProfileService)
+        public EmployeeSalaryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Grade> gradeRepository, IGenericRepository<Currencies> currencyRepository, IGenericRepository<PaymentPeriodTypes> paymentPeriodTypeRepository, IGenericRepository<PaymentModes> paymentModeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IEmployeeSalaryService employeeSalaryService, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _gradeRepository = gradeRepository;
@@ -43,11 +45,21 @@ namespace GCTL_App.Controllers.Employees
             _menuTabRepository = menuTabRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
+            _elementPermissionService = elementPermissionService;
         }
         #endregion
 
         public async Task< IActionResult> Index(int id)
         {
+
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.GradeDD = new SelectList(_gradeRepository.All().Select(o => new { o.GradeID, o.GradeName }), "GradeID", "GradeName");
+            ViewBag.CurrencyDD = new SelectList(_currencyRepository.All().Select(o => new { o.CurrencyID, o.CurrencyName }), "CurrencyID", "CurrencyName");
+            ViewBag.PaymenPeriodTypeDD = new SelectList(_paymentPeriodTypeRepository.All().Select(o => new { o.PaymentPeriodTypeID, o.PaymentPeriodTypeName }), "PaymentPeriodTypeID", "PaymentPeriodTypeName");
+            ViewBag.PaymenModeDD = new SelectList(_paymentModeRepository.All().Select(o => new { o.PaymentModeID, o.PaymentModeName }), "PaymentModeID", "PaymentModeName");
+
+            SetSmartPageCode(117000);
+
 
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
@@ -69,21 +81,46 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo",  "EmployeeSalary");
                 ViewBag.Navigation = navigationModel;
+
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+
+                    if (empid == null || empid == 0)
+                    {
+                        return View();
+
+                    }
+                    else
+                    {
+
+                        var employeeSalaryData = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdPostAsync((int)empid);
+
+                        return View(employeeSalaryData);
+                    }
+
+
+                }
+                else
+                {
+
+                    var employeeSalaryData = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdPostAsync(id);
+
+                    return View(employeeSalaryData);
+                }
+
+
+
             }
 
-           
 
-            ViewBag.EmployeeDD = new SelectList( _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
-            ViewBag.GradeDD = new SelectList( _gradeRepository.All().Select(o => new { o.GradeID, o.GradeName }), "GradeID", "GradeName" );     
-            ViewBag.CurrencyDD = new SelectList( _currencyRepository.All().Select(o => new { o.CurrencyID, o.CurrencyName }), "CurrencyID", "CurrencyName");     
-            ViewBag.PaymenPeriodTypeDD = new SelectList( _paymentPeriodTypeRepository.All().Select(o => new { o.PaymentPeriodTypeID, o.PaymentPeriodTypeName }), "PaymentPeriodTypeID", "PaymentPeriodTypeName");     
-            ViewBag.PaymenModeDD = new SelectList( _paymentModeRepository.All().Select(o => new { o.PaymentModeID, o.PaymentModeName }), "PaymentModeID", "PaymentModeName");     
-            
-            SetSmartPageCode(117000);
+            return View();
 
-            var employeeSalaryData = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdPostAsync(id);
 
-            return View(employeeSalaryData);
+
         }
 
         #region GetEmployeeSalaryData

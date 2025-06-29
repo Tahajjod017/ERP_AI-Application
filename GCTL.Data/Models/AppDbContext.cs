@@ -22,17 +22,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
-    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
-
-    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
-
-    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
-
-    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
-
-    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
-
-    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -103,6 +92,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<LeaveApplications> LeaveApplications { get; set; }
 
     public virtual DbSet<LeaveBalances> LeaveBalances { get; set; }
+
+    public virtual DbSet<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; }
+
 
     public virtual DbSet<LeavePolicyConfiguration> LeavePolicyConfiguration { get; set; }
 
@@ -280,134 +272,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
 
-        //modelBuilder.Entity<AspNetRoleClaims>(entity =>
-        //{
-        //    entity.Property(e => e.RoleId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
-        //});
-
-        //modelBuilder.Entity<AspNetRoles>(entity =>
-        //{
-        //    entity.Property(e => e.Discriminator)
-        //        .IsRequired()
-        //        .HasMaxLength(21);
-        //    entity.Property(e => e.Name).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
-
-        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetRoles)
-        //        .HasForeignKey(d => d.OrganizationID)
-        //        .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-
-        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetRoles)
-        //        .HasForeignKey(d => d.TenantInfoId)
-        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-        //});
-
-        //modelBuilder.Entity<AspNetUserClaims>(entity =>
-        //{
-        //    entity.Property(e => e.UserId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
-        //});
-
-        //modelBuilder.Entity<AspNetUserLogins>(entity =>
-        //{
-        //    entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
-
-        //    entity.Property(e => e.UserId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
-        //});
-
-        //modelBuilder.Entity<AspNetUserTokens>(entity =>
-        //{
-        //    entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
-
-        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
-        //});
-
-        //modelBuilder.Entity<AspNetUsers>(entity =>
-        //{
-        //    entity.Property(e => e.Discriminator)
-        //        .IsRequired()
-        //        .HasMaxLength(21);
-        //    entity.Property(e => e.Email).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
-        //    entity.Property(e => e.UserName).HasMaxLength(256);
-
-        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.EmployeeId)
-        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.OrganizationID)
-        //        .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-
-        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.TenantInfoId)
-        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-
-        //    entity.HasMany(d => d.Role).WithMany(p => p.User)
-        //        .UsingEntity<Dictionary<string, object>>(
-        //            "AspNetUserRoles",
-        //            r => r.HasOne<AspNetRoles>().WithMany().HasForeignKey("RoleId"),
-        //            l => l.HasOne<AspNetUsers>().WithMany().HasForeignKey("UserId"),
-        //            j =>
-        //            {
-        //                j.HasKey("UserId", "RoleId");
-        //            });
-        //});
-        modelBuilder.Entity<ApplicationUser>()
-                    .HasDiscriminator<string>("Discriminator")
-                    .HasValue<ApplicationUser>("ApplicationUser");
 
         modelBuilder.Entity<ApplicationUser>()
-                    .HasOne(u => u.Employees)
-                    .WithMany(e => e.AspNetUsers)
-                    .HasForeignKey(u => u.EmployeeId)
-                    .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Employees)
-                .WithMany(e => e.AspNetUsers)
-                .HasForeignKey(u => u.EmployeeId)
-                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Organization)
-                .WithMany(o => o.AspNetUsers)
-                .HasForeignKey(u => u.OrganizationID)
-                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.TenantInfo)
-                .WithMany(t => t.AspNetUsers)
-                .HasForeignKey(u => u.TenantInfoId)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        //modelBuilder.Entity<ApplicationRole>()
-        //        .HasDiscriminator<string>("Discriminator")
-        //        .HasValue<ApplicationRole>("ApplicationRole");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.Organization)
-                .WithMany(o => o.AspNetRoles)
-                .HasForeignKey(r => r.OrganizationID)
-                .IsRequired(false)
-                .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
+        .HasOne(u => u.Employees)
+        .WithMany(e => e.AspNetUsers)
+        .HasForeignKey(u => u.EmployeeId)
+        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
         modelBuilder.Entity<BloodGroup>(entity =>
         {
             entity.HasKey(e => e.BloodGroupID).HasName("PK__BloodGro__4398C6AF27330EED");
@@ -1612,6 +1485,44 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeaveBalancesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__LeaveBala__Updat__473C8FC7");
+        });
+
+        modelBuilder.Entity<LeaveBaseApprovalHistory>(entity =>
+        {
+            entity.HasKey(e => e.LeaveBaseApprovalHistoryID).HasName("PK__LeaveBas__19E7FCF2201A4744");
+
+            entity.Property(e => e.ApproverNote).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApproveByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryApproveByNavigation)
+                .HasForeignKey(d => d.ApproveBy)
+                .HasConstraintName("FK__LeaveBase__Appro__39AD8A7F");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeaveBase__Creat__3B95D2F1");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeaveBase__Delet__3E723F9C");
+
+            entity.HasOne(d => d.LeaveApplication).WithMany(p => p.LeaveBaseApprovalHistory)
+                .HasForeignKey(d => d.LeaveApplicationID)
+                .HasConstraintName("FK__LeaveBase__Leave__38B96646");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.LeaveBaseApprovalHistory)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__LeaveBase__Statu__3AA1AEB8");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeaveBase__Updat__3C89F72A");
         });
 
         modelBuilder.Entity<LeavePolicyConfiguration>(entity =>

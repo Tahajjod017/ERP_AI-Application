@@ -35,7 +35,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly IGenericRepository<Holidays> holidays;
         private readonly IGenericRepository<WeekendSettings> weenkendsettings;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings) : base(leaveRequest)
+        private readonly IGenericRepository<WeekendDays> weekedays;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays ) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -47,6 +48,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.empoffi = empoffi;
             this.holidays = holidays;
             this.weenkendsettings = weenkendsettings;
+            this.weekedays = weekedays;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -449,71 +451,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #endregion
 
-        #region
-        //public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
-        //{
-        //    var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
-        //        .Select(x => new
-        //        {
-        //            x.IsHolidayCountedAsLeave,
-        //            x.IsWeekendCountedAsLeave
-        //        }).FirstOrDefaultAsync();
-
-        //    if (isWeenedHoliday == null)
-        //        return null;
-
-        //    int totalHolidayDays = 0;
-
-        //    if (isWeenedHoliday.IsHolidayCountedAsLeave)
-        //    {
-        //        var holidaysInRange = await holidays.AllActive()
-        //            .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
-        //            .ToListAsync();
-
-        //        foreach (var h in holidaysInRange)
-        //        {
-        //            var holidayStart = h.StartDate.GetValueOrDefault();
-        //            var holidayEnd = h.EndDate.GetValueOrDefault();
-
-        //            // Clip holidays to within the selected date range
-        //            var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
-        //            var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
-
-        //            int days = (actualEnd - actualStart).Days + 1;
-        //            totalHolidayDays += days;
-        //        }
-        //    }
-
-        //    int totalWeekend = 0;
-        //    if (isWeenedHoliday.IsWeekendCountedAsLeave)
-        //    {
-        //        var holidaysInRange = await weenkendsettings.AllActive()
-        //            .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
-        //            .ToListAsync();
-
-        //        foreach (var h in holidaysInRange)
-        //        {
-        //            var holidayStart = h.StartDate.GetValueOrDefault();
-        //            var holidayEnd = h.EndDate.GetValueOrDefault();
-
-        //            // Clip holidays to within the selected date range
-        //            var actualStart = holidayStart < fromDate ? fromDate : holidayStart;
-        //            var actualEnd = holidayEnd > toDate ? toDate : holidayEnd;
-
-        //            int days = (actualEnd - actualStart).Days + 1;
-        //            totalWeekend += days;
-        //        }
-        //    }
-
-        //    return new SubsequentVM
-        //    {
-        //            TotalSubsequentDays = totalHolidayDays+ totalWeekend,
-        //          IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
-        //          IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
-        //    };
-
-
-        //}
+        #region  SubsequentAsynce Leave Check
 
         public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
         {
@@ -551,26 +489,28 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
             }
 
-            //if (isWeenedHoliday.IsWeekendCountedAsLeave)
-            //{
-            //    var weekendsInRange = await weenkendsettings.AllActive()
-            //        .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
-            //        .ToListAsync();
+            if (isWeenedHoliday.IsWeekendCountedAsLeave)
+            {
+                // fromDate and toDate are DateTime variables passed to the method
+                var allWeekendDays = await weekedays.AllActive()
+                    .Include(x => x.WeekendSetting)
+                    .ToListAsync();
 
-            //    foreach (var w in weekendsInRange)
-            //    {
-            //        var start = w.StartDate.GetValueOrDefault();
-            //        var end = w.EndDate.GetValueOrDefault();
+                //var uniqueDates = new HashSet<DateTime>();
 
-            //        var actualStart = start < fromDate ? fromDate : start;
-            //        var actualEnd = end > toDate ? toDate : end;
+                // Loop through date range
+                for (var date = fromDate; date <= toDate; date = date.AddDays(1))
+                {
+                    int dayNumber = (int)date.DayOfWeek; // Sunday = 0, Monday = 1, ..., Saturday = 6
 
-            //        for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
-            //        {
-            //            uniqueDates.Add(date); // Add to HashSet (no duplicates)
-            //        }
-            //    }
-            //}
+                    // Check if this dayNumber exists in the WeekendDays table
+                    if (allWeekendDays.Any(w => w.WeekdayNumber == dayNumber))
+                    {
+                        uniqueDates.Add(date); // Add the date to the result if it's a weekend
+                    }
+                }
+
+            }
 
             return new SubsequentVM
             {
