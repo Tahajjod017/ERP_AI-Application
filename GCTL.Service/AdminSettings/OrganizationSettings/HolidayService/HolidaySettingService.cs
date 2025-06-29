@@ -257,7 +257,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+        #endregion
 
+        #region Data Table List
         public async Task<PaginationService<Holidays, HolidayViewModel>.PaginationResult<HolidayViewModel>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationID", string sortOrder = "desc", int? organizationID = null)
         {
             var query = _genericRepository.All()
