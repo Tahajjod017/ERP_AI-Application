@@ -24,7 +24,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
        string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null);
         //
         #region Dispaly LeaveDays 
-        Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId);
+        Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(string userId);
         #endregion
 
     }

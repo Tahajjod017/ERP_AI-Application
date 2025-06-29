@@ -3,6 +3,99 @@
 
 $(document).ready(function () {
 
+    $(document).ready(function () {
+        $.ajax({
+            url: '/LeaveApprovalDeclineRoute/GetLeaveTypeBalancesForEmployeeDisplay',
+            type: 'GET',
+            success: function (data) {
+                //debugger
+                if (data && data.length > 0) {
+                    let container = $('#leaveCardsContainer');
+                    container.empty(); // clear previous content if any
+                    console.log(data.length);
+                    data.forEach(function (item, index) {
+                        console.log(index);
+                        // Set background color based on leave type (optional logic)
+                        let bgColor = "bg-secondary"; // default
+                        let iconClass = "ti ti-calendar-event"; // default
+
+                        switch (item.leaveTypeName) {
+                            case "Annual Leaves":
+                                bgColor = "bg-black-le";
+                                iconClass = "ti ti-calendar-event";
+                                break;
+                            case "Medical Leaves":
+                                bgColor = "bg-blue-le";
+                                iconClass = "ti ti-vaccine";
+                                break;
+                            case "Casual Leaves":
+                                bgColor = "bg-purple-le";
+                                iconClass = "ti ti-hexagon-letter-c";
+                                break;
+                            default:
+                                bgColor = "bg-pink-le";
+                                iconClass = "ti ti-hexagonal-prism-plus";
+                                break;
+                        }
+
+                        // Build the card HTML
+                        let card = `
+                       <div class="col-xl-2 col-md-6 mb-2" style="padding-right: 4px; padding-left: 4px;">
+                            <div class="card ${bgColor}">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="text-start">
+                                            <p class="mb-1">${item.leaveTypeName}</p>
+                                            <h4>${item.totalLeave ?? 0}</h4>
+                                        </div>
+                                       
+                                    </div>
+                                    
+                                    <span class="badge badge-phoenix badge-phoenix-success">
+                                        Remaining Leaves : ${item.remainingDays ?? 0}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    console.log(data.length);
+                        if (data.length - 1 == index) {
+                            container.append(
+                                `
+                       <div class="col-xl-2 col-md-6 mb-2" style="padding-right: 0px; padding-left: 4px;">
+                            <div class="card ${bgColor}">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="text-start">
+                                            <p class="mb-1">${item.leaveTypeName}</p>
+                                            <h4>${item.totalLeave ?? 0}</h4>
+                                        </div>
+                                       
+                                    </div>
+                                    
+                                    <span class="badge badge-phoenix badge-phoenix-success">
+                                        Remaining Leaves : ${item.remainingDays ?? 0}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                            );
+                        } else {
+                        container.append(card);
+                        }
+                    });
+                } else {
+                    toastr.error('No leave balance data available.');
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load leave balance data.');
+            }
+        });
+    });
+
+    
 
     //Get Employee according to LoginID
     GetAllEmpoyee();
@@ -188,7 +281,27 @@ $(document).ready(function () {
 
 
     //
+    //$(document).on('change', '#FromDate', function () {
+    //    const minDate = flatpickrHelper.getDate('FromDate');
+    //    const $toInput = flatpickrHelper.getDate('ToDate');
 
+    //    // Destroy any existing flatpickr instance
+    //    if ($toInput[0]._flatpickr) {
+    //        $toInput[0]._flatpickr.destroy();
+    //    }
+
+    //    // Re-initialize with updated minDate
+    //    flatpickr(flatpickrHelper.getDate('ToDate'), {
+    //        dateFormat: "Y-m-d",
+    //        altInput: true,
+    //        altFormat: "d/m/Y",
+    //        allowInput: true,
+    //        minDate: minDate,
+    //        onReady: function (selectedDates, dateStr, instance) {
+    //            instance.input.placeholder = "dd/mm/yyyy";
+    //        }
+    //    });
+    //});
 
     //
     // Handle form submit

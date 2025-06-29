@@ -3,6 +3,20 @@
 $(document).ready(function () {
 
 
+
+    initializeDatepickerDMY("FromDate");
+    initializeDatepickerDMY("ToDate");
+    initializeDatepickerDMY("ToDateFromDateCombined");
+    $(document).on('change', "#FromDate", function ()
+    {
+        updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
+
+    })
+
+    
+    
+
+    //
     //Get Employee according to LoginID
     GetAllEmpoyee();
     function GetAllEmpoyee() {
@@ -139,18 +153,7 @@ $(document).ready(function () {
     });
     //
 
-        flatpickr("#ToDateFromDateCombined", {
-            dateFormat: "Y-m-d", // yyyy-mm-dd
-            onChange: function (selectedDates, dateStr) {
-                // Set the same date to both FromDate and ToDate
-                $('#FromDate').val(dateStr);
-                $('#ToDate').val(dateStr);
-            }
-        });
-
-        // Also initialize flatpickr for other date fields
-        flatpickr("#FromDate", { dateFormat: "Y-m-d" });
-        flatpickr("#ToDate", { dateFormat: "Y-m-d" });
+      
     //
 
 
@@ -220,7 +223,7 @@ $(document).ready(function () {
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
-        debugger
+       
         var $form = $(this);
 
         if (!$form.valid()) {
@@ -230,10 +233,23 @@ $(document).ready(function () {
         var available = parseFloat($('#LeaveDays').val()) || 0;
         var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
 
+       
+
         if (applied > available) {
-            toastr.error(`You only have ${available} day(s) available, but you tried to apply for ${applied}.`);
-            return false;   
+            toastr.error(`You have ${available} day(s) available, but you tried to apply for ${applied}.`);
+
+            $('#exceedAnnualLeaveModal .modal-body').text(
+                `You have ${available} day(s) available, but you tried to apply for ${applied}.`
+            );
+
+            var modal = new bootstrap.Modal(document.getElementById('exceedAnnualLeaveModal'));
+            modal.show();
+
+            return false;
         }
+
+
+
         var url = $form.attr('action');
         var formData = new FormData(this);
         
@@ -287,7 +303,7 @@ $(document).ready(function () {
         $('#ToDateFromDateCombined').val('');
         $('#PartialFromTime').val('');
         $('#PartialToTime').val('');
-
+        $('#TotalAppliedDays').val();
         // Reset validation states
         $('#ToDateFromDateCombined').removeClass('is-invalid');
         $('#ToDateFromDateCombinedError').hide().text('');

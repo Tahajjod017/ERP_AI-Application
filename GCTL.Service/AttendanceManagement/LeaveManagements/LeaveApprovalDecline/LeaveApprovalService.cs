@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline
@@ -473,36 +474,54 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         #endregion
 
         #region Dispaly LeaveDays 
-        //public async Task<LeaveBalancesDisplayVM> GetLeaveDisplayEmpoyee(int employeeId)
-        //{
-        //    var leaveDisplay = await leaveBalance.AllActive().Where(x => x.EmployeeID == employeeId).SumAsync(x=>x.TotalLeave-x.Taken);
-        //    throw new NotImplementedException();
-        //}
-
-        public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
+        public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(string userId)
         {
-            var result = await (
-                from lt in leaveTypesRepository.AllActive()
-                join lb in leaveBalance.AllActive().Where(x => x.EmployeeID == employeeId)
-                    on lt.LeaveTypeID equals lb.LeaveTypeID into lbGroup
-                from lb in lbGroup.DefaultIfEmpty()
-                select new LeaveBalancesDisplayVM
-                {
-                    LeaveBalanceID = lb != null ? lb.LeaveBalanceID : 0,
-                    EmployeeID = employeeId,
-                    LeaveTypeID = lt.LeaveTypeID,
-                    LeaveTypeName = lt.LeaveTypeName,
-                    TotalLeave = lb.TotalLeave,
-                    Taken = lb.Taken,
-                    ApplicableYear = lb.ApplicableYear,
-                    RemainingDays = lb != null
-                        ? (lb.TotalLeave - lb.Taken)
-                        : (lt.LeaveDays ?? 0)
-                }
-            ).ToListAsync();
+            // Get employee ID from user ID
+            var employeeId = await appDb.Users
+                .Where(u => u.Id == userId)
+                .Select(e => e.EmployeeId)
+                .FirstOrDefaultAsync();
 
-            return result;
+            if (employeeId == null)
+                return new List<LeaveBalancesDisplayVM>(); // or throw exception if required
+
+            // Get the role of the user
+            var roleName = await (
+                from user in appDb.Users
+                join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                join role in appDb.Roles on userRole.RoleId equals role.Id
+                where user.Id == userId
+                select role.Name
+            ).FirstOrDefaultAsync();
+
+            // Base query for leave balances
+            var baseQuery = from lt in leaveTypesRepository.AllActive()
+                            join lb in leaveBalance.AllActive().Where(x => x.EmployeeID == employeeId)
+                                on lt.LeaveTypeID equals lb.LeaveTypeID into lbGroup
+                            from lb in lbGroup.DefaultIfEmpty()
+                            select new LeaveBalancesDisplayVM
+                            {
+                                LeaveBalanceID = lb != null ? lb.LeaveBalanceID : 0,
+                                EmployeeID = employeeId,
+                                LeaveTypeID = lt.LeaveTypeID,
+                                LeaveTypeName = lt.LeaveTypeName,
+                                TotalLeave = lb.TotalLeave ?? lt.LeaveDays,
+                                Taken = lb.Taken,
+                                ApplicableYear = lb.ApplicableYear,
+                                RemainingDays = lb != null
+                                    ? (lb.TotalLeave - lb.Taken)
+                                    : (lt.LeaveDays ?? 0)
+                            };
+
+            // Only restrict by employee ID if the user is not SuperAdmin
+            if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+            {
+                baseQuery = baseQuery.Where(x => x.EmployeeID == employeeId);
+            }
+
+            return await baseQuery.ToListAsync();
         }
+
 
         #endregion
     }
