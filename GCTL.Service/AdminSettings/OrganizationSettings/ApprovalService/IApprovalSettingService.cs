@@ -19,7 +19,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         Task<PaginationService<ApprovalSettings, ApprovalSettingsVM>.PaginationResult<ApprovalSettingsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<ApprovalSettingsVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<bool> IsNameUniqueAsync(string name);
+        Task<bool> IsNameUniqueAsync(int approvalTypeId, int organizationId);
         Task<List<SelectListItem>> GetOrganizationsAsync();
         Task<List<SelectListItem>> GetApprovalTypesAsync();
         Task<List<SelectListItem>> GetEmployeeAsync();

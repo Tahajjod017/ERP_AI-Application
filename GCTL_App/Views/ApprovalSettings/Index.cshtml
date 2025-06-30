@@ -31,7 +31,7 @@
                                     <div class="col-md-6">
                                         <div class="mb-3 mt-1">
                                             <label class="form-label">Organization Name</label>
-                                            <select class="form-select choiceDD" name="OrganizationID">
+                                            <select class="form-select choiceDD" id="OrganizationID" name="OrganizationID">
                                                 <option value="">Select Organization</option>
                                                 @foreach (var org in ViewBag.Organizations)
                                                 {
@@ -44,7 +44,7 @@
                                     <div class="col-md-6">
                                         <div class="mb-3 mt-1">
                                             <label class="form-label">Approval Type</label>
-                                            <select class="form-select choiceDD" name="ApprovalTypeID">
+                                            <select class="form-select choiceDD" id="ApprovalTypeID" name="ApprovalTypeID">
                                                 <option value="">Select Approval Type</option>
                                                 @foreach (var status in ViewBag.ApprovalTypes)
                                                 {
@@ -66,14 +66,14 @@
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="toggleFirst" type="checkbox" />
+                                                    <input class="form-check-input" id="toggleFirst" type="checkbox" name="IsDesignationOrEmpFirstApprovalID" />
                                                     <label class="form-check-label" for="toggleFirst">Use Employee</label>
                                                 </div>
                                             </div>
 
                                             <!-- Select Dropdown (Below Checkboxes) -->
                                             <div class="mt-3">
-                                                <select class="form-select" id="selFirst" disabled name="FirstApprovalID">
+                                                <select class="form-select " id="selFirst" disabled name="FirstApprovalID">
                                                     <!-- Options will be populated dynamically -->
                                                 </select>
                                             </div>
@@ -86,13 +86,13 @@
                                             <div class="row">
                                                 <!-- Second Approvers Checkbox -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="chkSecond" type="checkbox" />
+                                                    <input class="form-check-input" id="chkSecond" type="checkbox" name="IsEnableSecondApproval" />
                                                     <label class="form-check-label" for="chkSecond">Second Approver</label>
                                                 </div>
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="toggleSecond" type="checkbox" />
+                                                    <input class="form-check-input" id="toggleSecond" type="checkbox" name="IsDesignationOrEmpSecondApprovalID" />
 
                                                     <label class="form-check-label" for="toggleSecond">Use Employee</label>
                                                 </div>
@@ -100,7 +100,7 @@
 
                                             <!-- Select Dropdown (Below Checkboxes) -->
                                             <div class="mt-3">
-                                                <select class="form-select" id="selSecond" disabled name="SecondApprovalID">
+                                                <select class="form-select " id="selSecond" disabled name="SecondApprovalID">
                                                     <!-- Options will be populated dynamically -->
                                                 </select>
                                             </div>
@@ -113,13 +113,13 @@
                                             <div class="row">
                                                 <!-- Third Approvers Checkbox -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="chkThird" type="checkbox"  />
+                                                    <input class="form-check-input" id="chkThird" type="checkbox" name="IsEnableThirdApproval" />
                                                     <label class="form-check-label" for="chkThird">Third Approver</label>
                                                 </div>
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="toggleThird" type="checkbox"  />
+                                                    <input class="form-check-input" id="toggleThird" type="checkbox" name="IsDesignationOrEmpThirdApprovalID" />
                                                     <label class="form-check-label" for="toggleThird">Use Employee</label>
                                                 </div>
                                             </div>

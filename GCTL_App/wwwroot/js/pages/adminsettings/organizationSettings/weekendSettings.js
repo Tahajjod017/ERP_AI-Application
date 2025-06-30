@@ -142,11 +142,11 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.weekendDayID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
+                            <td class="align-middle text-center white-space-nowrap pe-10">${rowIndex}</td>
                             
-                            <td class="align-middle white-space-nowrap ">${item.organizationName}</td>
-                            <td class="align-middle white-space-nowrap ">${item.organizationBranchName}</td>
-                            <td class="align-middle white-space-nowrap ">${item.weekendTitle}</td>
+                            <td class="align-middle white-space-nowrap ps-5">${item.organizationName}</td>
+                            <td class="align-middle white-space-nowrap ps-5">${item.organizationBranchName}</td>
+                            <td class="align-middle white-space-nowrap ps-5">${item.weekendTitle}</td>
                            
                             <td class="align-middle white-space-nowrap text-end pe-0">
                             <div class="d-flex justify-content-end align-items-center">

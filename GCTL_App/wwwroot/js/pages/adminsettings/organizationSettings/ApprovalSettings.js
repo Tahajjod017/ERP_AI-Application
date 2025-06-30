@@ -203,13 +203,14 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.approvalSettingID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
+                            <td class="align-middle text-center white-space-nowrap pe-4">${rowIndex}</td>
                             
-                             <td class="align-middle white-space-nowrap ">${item.organizationName}</td>
-                             <td class="align-middle white-space-nowrap ">${item.approvalTypeName}</td>
-                            <td class="align-middle white-space-nowrap "></td>
-                            <td class="text-center align-middle white-space-nowrap ps-0"></td>
-                            <td class=" text-center align-middle white-space-nowrap ps-0"></td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.organizationName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.approvalTypeName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.firstApprovalName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.secondApprovalName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.thirdApprovalName}</td>
+                           
                              <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a

@@ -123,14 +123,14 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
+                            <td class="align-middle text-center white-space-nowrap pe-4">${rowIndex}</td>
                             
                              <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
                              <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
-                            <td class="align-middle white-space-nowrap ">${item.startDate}</td>
-                            <td class="align-middle white-space-nowrap ">${item.endDate}</td>
-                            <td class="text-center align-middle white-space-nowrap ps-0">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap ps-0">${item.statusName}</td>
+                            <td class="align-middle white-space-nowrap ps-4">${item.startDate}</td>
+                            <td class="align-middle white-space-nowrap ps-4">${item.endDate}</td>
+                            <td class="text-center align-middle white-space-nowrap pe-4">${item.totalDays}</td>
+                            <td class=" text-center align-middle white-space-nowrap pe-4">${item.statusName}</td>
                              <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a

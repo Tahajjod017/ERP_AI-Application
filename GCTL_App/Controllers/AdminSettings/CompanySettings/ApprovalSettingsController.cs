@@ -21,7 +21,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return View();
         }
 
-        #region
+        #region create
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(ApprovalSettingsVM model)
@@ -30,7 +30,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _approvalSettingService.IsNameUniqueAsync(model.ApprovalTypeName);
+                    var uniqueName = await _approvalSettingService.IsNameUniqueAsync(model.ApprovalTypeID ?? 0, model.OrganizationID ?? 0);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
