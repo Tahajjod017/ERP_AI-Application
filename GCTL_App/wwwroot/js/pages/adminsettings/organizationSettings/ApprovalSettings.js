@@ -30,7 +30,29 @@
         select.prop('disabled', true);
         toggle.prop('disabled', true);
         populateOptions(select, designationsUrl); // Default to designations
+
+
     });
+    //$(document).ready(function () {
+    //    // Get the checkbox element by ID
+    //    const checkbox = document.getElementById('chkThird');
+
+    //    // Function to check if the checkbox is checked
+    //    function checkCheckbox() {
+    //        const isChecked = checkbox.checked; // true if checked, false if unchecked
+    //        alert('Checkbox checked: ' + isChecked); // Show value in alert
+    //    }
+
+    //    // Call this function to check the checkbox state
+    //    checkCheckbox();
+
+    //    // Optionally, add an event listener to trigger the check when the checkbox changes
+    //    checkbox.addEventListener('change', function () {
+    //        alert('Checkbox checked: ' + checkbox.checked); // Show value in alert on change
+    //    });
+
+    //});
+
 
     // Function to fetch data and populate dropdown using jQuery's $.ajax()
     function populateOptions(selectEl, url) {
@@ -75,6 +97,7 @@ $(document).ready(function () {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
                     form.trigger("reset");
+                    loadTableData();
                 } else {
                     toastr.error(response.message, 'Error');
                 }
@@ -184,9 +207,9 @@ function loadTableData(sortColumn, sortOrder) {
                             
                              <td class="align-middle white-space-nowrap ">${item.organizationName}</td>
                              <td class="align-middle white-space-nowrap ">${item.approvalTypeName}</td>
-                            <td class="align-middle white-space-nowrap ">${item.startDate}</td>
-                            <td class="text-center align-middle white-space-nowrap ps-0">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap ps-0">${item.statusName}</td>
+                            <td class="align-middle white-space-nowrap "></td>
+                            <td class="text-center align-middle white-space-nowrap ps-0"></td>
+                            <td class=" text-center align-middle white-space-nowrap ps-0"></td>
                              <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a
@@ -226,7 +249,7 @@ function loadTableData(sortColumn, sortOrder) {
             console.log("Error! Fetching all data.");
         }
     });
-}
+} 
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
     const paginationLinks = $("#approvalSettings-paginationLinks");
