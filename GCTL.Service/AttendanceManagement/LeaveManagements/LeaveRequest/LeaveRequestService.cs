@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.ActionLogVM;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
@@ -31,6 +32,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<Statuses> leaveStatuses;
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
+        //
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly IGenericRepository<Departments> _departmentRepository;
+       
+     
+        //
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
@@ -38,7 +45,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<WeekendSettings> weenkendsettings;
         private readonly IGenericRepository<WeekendDays> weekedays;
         private readonly IGenericRepository<LeaveBalances> leaveBalances;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances) : base(leaveRequest)
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository , IGenericRepository<Departments> departmentRepository ) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -52,6 +59,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.weenkendsettings = weenkendsettings;
             this.weekedays = weekedays;
             this.leaveBalances = leaveBalances;
+            _organizationRepository = organizationRepository;
+            _departmentRepository = departmentRepository;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -252,6 +261,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     PartialFromTime = entityVM.PartialFromTime,
                     PartialToTime = entityVM.PartialToTime,
                     StatusID = entityVM.StatusID,
+                    LeaveApplicableYear = DateTime.Now.Year,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LeaveTypeID = entityVM.LeaveTypeID,
@@ -604,9 +614,196 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             };
         }
 
-       
+
 
 
         #endregion
+
+
+        //
+
+        #region GetCompanies
+        public Task<List<CommonSelectVM>> GetCompanies()
+        {
+            var data = _organizationRepository.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.OrganizationID,
+                    Name = x.OrganizationName
+                }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetDepartments
+        public async Task<List<CommonSelectVM>> GetDepartments()
+        {
+            var data = await _departmentRepository.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.DepartmentID,
+                    Name = x.DepartmentName
+                }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetGroupedEmployees
+        public async Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees()
+        {
+            var data = await (from empOi in empoffi.AllActive().AsNoTracking()
+
+                              join emp in employee.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join org in _organizationRepository.AllActive() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+                              from org in orgGroup.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new AssignDefaultShiftSetupVM
+                              {
+                                  EmployeeID = empOi.EmployeeID ?? 0,
+                                  EmployeeName = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  DepartmentName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetFilteredEmployees
+        public async Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByDepartment(List<int> departmentIds)
+        {
+            var query = from empOi in empoffi.AllActive().AsNoTracking()
+                        join emp in employee.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
+                        join dep in _departmentRepository.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+                        select new
+                        {
+                            empOi.EmployeeID,
+                            emp.FirstName,
+                            emp.LastName,
+                            emp.EmployeeCode,
+                            dep.DepartmentName,
+                            empOi.OrganizationID,
+                            empOi.DepartmentID
+                        };
+
+            if (departmentIds?.Any() == true)
+                query = query.Where(x => departmentIds.Contains(x.DepartmentID ?? 0));
+
+            return await query
+                .Select(x => new AssignDefaultShiftSetupVM
+                {
+                    EmployeeID = x.EmployeeID ?? 0,
+                    EmployeeName = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                    DepartmentName = x.DepartmentName
+                }).ToListAsync();
+        }
+        #endregion
+
+
+
+
+        #region SoftDeleteAsync
+        public Task<AssignDefaultShiftSetupVM> SoftDeleteAsync(DeleteRequestVM model)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+
+        #region GetDepartmentByCompany
+        public async Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id)
+        {
+            var data = await (from eoi in empoffi.AllActive()
+
+                              where eoi.OrganizationID == id
+
+                              join emp in employee.AllActive() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join org in _organizationRepository.AllActive() on eoi.OrganizationID equals org.OrganizationID into orgGrouop
+                              from org in orgGrouop.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.AllActive() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new AssignDefaultShiftSetupVM
+                              {
+                                  DepartmentID = eoi.DepartmentID ?? 0,
+                                  DepartmentName = dep.DepartmentName,
+                              }).Distinct().ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetEmployeeByCompany
+        public async Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByCompany(int id)
+        {
+            var data = await (from eoi in empoffi.AllActive()
+
+                              where eoi.OrganizationID == id
+
+                              join emp in employee.AllActive() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.AllActive() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new AssignDefaultShiftSetupVM
+                              {
+                                  EmployeeID = eoi.EmployeeID,
+                                  EmployeeName = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  DepartmentName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        //
+
+        public async Task<List<AssignDefaultShiftSetupVM>> GetEmployees(int? organizationId = null, List<int>? departmentIds = null)
+        {
+            var query = from empOi in empoffi.AllActive().AsNoTracking()
+                        join emp in employee.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
+                        join dep in _departmentRepository.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+                        select new
+                        {
+                            empOi.EmployeeID,
+                            emp.FirstName,
+                            emp.LastName,
+                            emp.EmployeeCode,
+                            dep.DepartmentName,
+                            empOi.OrganizationID,
+                            empOi.DepartmentID
+                        };
+
+            if (organizationId.HasValue)
+                query = query.Where(x => x.OrganizationID == organizationId.Value);
+
+            if (departmentIds != null && departmentIds.Any())
+                query = query.Where(x => departmentIds.Contains(x.DepartmentID ?? 0));
+
+            return await query.Select(x => new AssignDefaultShiftSetupVM
+            {
+                EmployeeID = x.EmployeeID ?? 0,
+                EmployeeName = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                DepartmentName = x.DepartmentName
+            }).ToListAsync();
+        }
+
+
+
+        //
     }
 }
