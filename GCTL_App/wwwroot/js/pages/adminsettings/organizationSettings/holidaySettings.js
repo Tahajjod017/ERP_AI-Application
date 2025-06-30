@@ -1,8 +1,18 @@
 ﻿
 $(document).ready(function () {
+
+    //added By 404
+    initializeDatepickerDMY("StartDate, EndDate");  // For dd/MM/yyyy
+    // for Date restriction with total days count
+    $(document).on('change', "#StartDate", function () {
+        const fromDate = $("#StartDate").val();
+        updateDatepickerWithMinDateTotalDays("EndDate", fromDate, {}, "TotalDays", "StartDate");
+    });
+
+
     // Also initialize flatpickr for other date fields
-    flatpickr("#StartDate", { dateFormat: "Y-m-d" });
-    flatpickr("#EndDate", { dateFormat: "Y-m-d" });
+    //flatpickr("#StartDate", { dateFormat: "Y-m-d" });
+    //flatpickr("#EndDate", { dateFormat: "Y-m-d" });
 
     $('#holidayForm').on('submit', function (e) {
         e.preventDefault();

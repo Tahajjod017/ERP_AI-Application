@@ -20,7 +20,7 @@
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Organization</label>
-                                <select class="form-select choiceDD" name="OrganizationID">
+                                <select class="form-select choiceDD" id="OrganizationID" name="OrganizationID">
                                     <option value="">Select Organization</option>
                                     @foreach (var org in ViewBag.Organizations)
                                     {
@@ -56,14 +56,14 @@
                         <div class="col-sm-12 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Total Day</label>
-                                <input class="form-control" id="exampleFormControlInput" type="text" name="TotalDays" placeholder="Total Days" />
+                                <input class="form-control" id="TotalDays" type="text" name="TotalDays" placeholder="Total Days" readonly />
                             </div>
                         </div>
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
-                                <select class="form-select choiceDD" name="StatusID">
+                                <select class="form-select choiceDD" id="StatusID" name="StatusID">
                                     <option value="">Select Holiday Status</option>
                                     @foreach (var status in ViewBag.HolidayStatuses)
                                     {
@@ -104,6 +104,7 @@
 <partial name="_HolidaysListTable" />
 
 <partial name="_ConfirmDelete" />
+
 @section Scripts {
     <script src="~/js/pages/adminsettings/organizationsettings/holidaysettings.js"></script>
     @{

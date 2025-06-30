@@ -62,8 +62,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
 
                     existingEntity.CreatedAt = DateTime.Now;
                     existingEntity.CreatedBy = model.CreatedBy; // You can replace this with current user ID  
-                    //existingEntity.LIP = model.LIP;
-                    //existingEntity.LMAC = model.LMAC;
+                    existingEntity.LIP = model.LIP;
+                    existingEntity.LMAC = model.LMAC;
 
                     existingEntity.UpdatedAt = DateTime.Now;
                     existingEntity.UpdatedBy = model.UpdatedBy ?? null;
@@ -88,8 +88,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
 
                         CreatedAt = DateTime.Now,
                         CreatedBy = model.CreatedBy,
-                        //LIP = model.LIP,
-                       // LMAC = model.LMAC,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
                     };
 
                     await _genericRepository.AddAsync(newEntity);

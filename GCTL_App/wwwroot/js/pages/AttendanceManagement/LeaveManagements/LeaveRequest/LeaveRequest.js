@@ -4,9 +4,11 @@ $(document).ready(function () {
 
 
 
-    initializeDatepickerDMY("FromDate");
-    initializeDatepickerDMY("ToDate");
-    initializeDatepickerDMY("ToDateFromDateCombined");
+    //initializeDatepickerDMY("FromDate");
+    //initializeDatepickerDMY("ToDate");
+    //initializeDatepickerDMY("ToDateFromDateCombined");
+    initializeDatepickerDMY("FromDate, ToDate,oDateFromDateCombined");
+    
     $(document).on('change', "#FromDate", function ()
     {
         updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
