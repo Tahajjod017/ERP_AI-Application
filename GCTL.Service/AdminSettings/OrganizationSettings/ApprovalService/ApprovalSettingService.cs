@@ -66,13 +66,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     existingEntity.LIP = model.LIP;
                     existingEntity.LMAC = model.LMAC;
                     existingEntity.FirstApprovalID = model.FirstApprovalID;
-                    existingEntity.IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID;
-                    existingEntity.IsEnableSecondApproval = model.IsEnableSecondApproval;
+                    existingEntity.IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID =="on";
+                    existingEntity.IsEnableSecondApproval = model.IsEnableSecondApproval =="on";
                     existingEntity.SecondApprovalID = model.SecondApprovalID;
-                    existingEntity.IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID;
-                    existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval;
+                    existingEntity.IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID == "on";
+                    existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval == "on";
                     existingEntity.ThirdApprovalID = model.ThirdApprovalID;
-                    existingEntity.IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID;
+                    existingEntity.IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID == "on";
                     existingEntity.UpdatedAt = DateTime.Now;
                     existingEntity.UpdatedBy = model.UpdatedBy ?? model.CreatedBy;
                     existingEntity.CreatedAt = DateTime.Now;
@@ -96,13 +96,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                         LIP = model.LIP,
                         LMAC = model.LMAC,
                         FirstApprovalID = model.FirstApprovalID,
-                        IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID,
-                        IsEnableSecondApproval = model.IsEnableSecondApproval,
+                        IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID == "on",
+                        IsEnableSecondApproval = model.IsEnableSecondApproval == "on",
                         SecondApprovalID = model.SecondApprovalID,
-                        IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID,
-                        IsEnableThirdApproval = model.IsEnableThirdApproval,
+                        IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID == "on",
+                        IsEnableThirdApproval = model.IsEnableThirdApproval == "on",
                         ThirdApprovalID = model.ThirdApprovalID,
-                        IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID,
+                        IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID == "on",
                         CreatedAt = DateTime.Now,
                         CreatedBy = model.CreatedBy
                         // Optional: Additional fields can be added here
@@ -156,13 +156,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                 existingEntity.LIP = model.LIP;
                 existingEntity.LMAC = model.LMAC;
                 existingEntity.FirstApprovalID = model.FirstApprovalID;
-                existingEntity.IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID;
-                existingEntity.IsEnableSecondApproval = model.IsEnableSecondApproval;
+                existingEntity.IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID == "on";
+                existingEntity.IsEnableSecondApproval = model.IsEnableSecondApproval == "on";
                 existingEntity.SecondApprovalID = model.SecondApprovalID;
-                existingEntity.IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID;
-                existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval;
+                existingEntity.IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID == "on";
+                existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval == "on";
                 existingEntity.ThirdApprovalID = model.ThirdApprovalID;
-                existingEntity.IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID;
+                existingEntity.IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID == "on";
 
                 // Restore soft-deleted record (if previously deleted)
                 existingEntity.DeletedAt = null;
@@ -265,13 +265,20 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 FirstApprovalID = entity.FirstApprovalID,
-                IsDesignationOrEmpFirstApprovalID = entity.IsDesignationOrEmpFirstApprovalID,
-                IsEnableSecondApproval = entity.IsEnableSecondApproval,
+
+                // Fix for CS0029: Cannot implicitly convert type 'bool' to 'string'  
+                // The issue is that `IsDesignationOrEmpFirstApprovalID` is a `bool` in the `ApprovalSettings` entity,  
+                // but the `ApprovalSettingsVM` expects it to be a `string`.  
+                // To fix this, we need to convert the `bool` to a `string` representation (e.g., "on" or "off").  
+
+                IsDesignationOrEmpFirstApprovalID = entity.IsDesignationOrEmpFirstApprovalID ? "on" : null,
+                //IsDesignationOrEmpFirstApprovalID = entity.IsDesignationOrEmpFirstApprovalID,
+                //IsEnableSecondApproval = entity.IsEnableSecondApproval,
                 SecondApprovalID = entity.SecondApprovalID,
-                IsDesignationOrEmpSecondApprovalID = entity.IsDesignationOrEmpSecondApprovalID,
-                IsEnableThirdApproval = entity.IsEnableThirdApproval,
+               // IsDesignationOrEmpSecondApprovalID = entity.IsDesignationOrEmpSecondApprovalID,
+                //IsEnableThirdApproval = entity.IsEnableThirdApproval,
                 ThirdApprovalID = entity.ThirdApprovalID,
-                IsDesignationOrEmpThirdApprovalID = entity.IsDesignationOrEmpThirdApprovalID,
+               // IsDesignationOrEmpThirdApprovalID = entity.IsDesignationOrEmpThirdApprovalID,
                 CreatedBy = entity.CreatedBy,
                 UpdatedBy = entity.UpdatedBy
                 // You can add additional properties (LIP, LMAC) if required
@@ -349,14 +356,29 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     FirstApprovalID = x.FirstApprovalID,
-                    IsDesignationOrEmpFirstApprovalID = x.IsDesignationOrEmpFirstApprovalID,
-                   // FirstApprovalName = x.FirstApprovalID.HasValue ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName : "_",
-                    IsEnableSecondApproval = x.IsEnableSecondApproval,
+                    //IsDesignationOrEmpFirstApprovalID = x.IsDesignationOrEmpFirstApprovalID,
+                    // Conditional logic for FirstApprovalName based on IsDesignationOrEmpFirstApprovalID
+                    FirstApprovalName = x.FirstApprovalID.HasValue
+                        ? (x.IsDesignationOrEmpFirstApprovalID
+                            ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName
+                            : _genericRepositoryDesignations.All().FirstOrDefault(d => d.DesignationID == x.FirstApprovalID)?.DesignationName ?? "_")
+                        : "_",
+                    //IsEnableSecondApproval = x.IsEnableSecondApproval,
                     SecondApprovalID = x.SecondApprovalID,
-                    IsDesignationOrEmpSecondApprovalID = x.IsDesignationOrEmpSecondApprovalID,
-                    IsEnableThirdApproval = x.IsEnableThirdApproval,
+                    SecondApprovalName = x.SecondApprovalID.HasValue
+                         ? (x.IsDesignationOrEmpSecondApprovalID
+                             ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SecondApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SecondApprovalID)?.LastName
+                             : _genericRepositoryDesignations.All().FirstOrDefault(d => d.DesignationID == x.SecondApprovalID)?.DesignationName ?? "_")
+                         : "_",
+                    //IsDesignationOrEmpSecondApprovalID = x.IsDesignationOrEmpSecondApprovalID,
+                    // IsEnableThirdApproval = x.IsEnableThirdApproval,
                     ThirdApprovalID = x.ThirdApprovalID,
-                    IsDesignationOrEmpThirdApprovalID = x.IsDesignationOrEmpThirdApprovalID,
+                    ThirdApprovalName = x.ThirdApprovalID.HasValue
+                        ? (x.IsDesignationOrEmpThirdApprovalID
+                            ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.ThirdApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.ThirdApprovalID)?.LastName
+                            : _genericRepositoryDesignations.All().FirstOrDefault(d => d.DesignationID == x.ThirdApprovalID)?.DesignationName ?? "_")
+                        : "_",
+                    // IsDesignationOrEmpThirdApprovalID = x.IsDesignationOrEmpThirdApprovalID,
                     CreatedBy = x.CreatedBy,
                     UpdatedBy = x.UpdatedBy,
                     // Include additional fields if necessary (e.g., LIP, LMAC)
@@ -366,19 +388,25 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         }
         #endregion
 
-        #region Is UniqueName 
-        public async Task<bool> IsNameUniqueAsync(string name)
+        #region Is UniqueName
+        public async Task<bool> IsNameUniqueAsync(int approvalTypeId, int organizationId)
         {
             // Step 1: Find existing ApprovalSettings with no soft delete
             var existingApprovalSettings = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ApprovalSettingID != null);
 
-            // Step 2: Extract the relevant property for comparison (e.g., FirstApprovalID, SecondApprovalID)
-            var nameList = existingApprovalSettings.Select(b => b.ApprovalType.ApprovalTypeName);  // You can modify the property as needed
+            // Step 2: Extract the relevant properties (ApprovalTypeID and OrganizationID) for comparison
+            var nameList = existingApprovalSettings.Select(b => new
+            {
+                b.ApprovalTypeID,
+                b.OrganizationID
+            }).ToList();
 
-            // Step 3: Check if the provided name exists in the list of existing names
-            return !DuplicateChecker.IsDuplicate(name, nameList);
+            // Step 3: Check if the combination of the provided ApprovalTypeID and OrganizationID exists in the list
+            return !nameList.Any(x => x.ApprovalTypeID == approvalTypeId && x.OrganizationID == organizationId);
         }
         #endregion
+
+
 
         #region GetOrganizationsAsync
         public async Task<List<SelectListItem>> GetOrganizationsAsync()
