@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
 
 
+    initializeDatepickerDMY("LeaveBalanceResetDate");
     function resetForm()
     {
         // Reset radio buttons to default (usually the first option)
@@ -18,6 +19,10 @@
         $('#AllowRequestForFutureDays, #MaxLeavePerApplication, #MaxGapBetweenApplications').val('');
         choiceManager.clearChoice('RoundOffHour');
         $('#LeavePolicyConfigurationID').val('');
+
+        $('#EnableLeaveBalanceResetDate').prop('checked', false);
+        $('#LeaveBalanceResetDate').val('').trigger('change');
+        initializeDatepickerDMY("LeaveBalanceResetDate");
     }
 
 
@@ -40,20 +45,6 @@
             IsExceedLeaveBalance: $('input[name="IsExceedLeaveBalance"]:checked').val() === 'true',
 
             IsAllowRequestForPastDates: $('#IsAllowRequestForPastDates').is(':checked'),
-
-            //IsAllowRequestForFutureDays: $('#IsAllowRequestForFutureDays').is(':checked'),
-            //AllowRequestForFutureDays: $('#IsAllowRequestForFutureDays').is(':checked')
-            //    ? parseInt($('#AllowRequestForFutureDays').val()) || null : null,
-
-            //IsMaximumleaveDaysPerAplication: $('#IsMaximumleaveDaysPerAplication').is(':checked'),
-            //MaximumleaveDaysPerAplication: $('#IsMaximumleaveDaysPerAplication').is(':checked')
-            //    ? parseInt($('#MaxLeavePerApplication').val()) || null : null,
-
-            //IsMaximumGapDaysBetweenAplications: $('#IsMaximumGapDaysBetweenAplications').is(':checked'),
-            //MaximumGapDaysBetweenAplications: $('#IsMaximumGapDaysBetweenAplications').is(':checked')
-            //    ? parseInt($('#MaxGapBetweenApplications').val()) || null : null,
-
-
 
             IsRoundOffHour: $('#IsRoundOffHour').is(':checked'),
             RoundOffHour: $('#IsRoundOffHour').is(':checked') ? $('#RoundOffHour').val() : null,
@@ -79,6 +70,9 @@
                 return isNaN(v) ? null : v;
             })(),
 
+
+            EnableLeaveBalanceResetDate: $('#EnableLeaveBalanceResetDate').is(':checked'),
+            LeaveBalanceResetDate: $('#LeaveBalanceResetDate').val() || null,
             //
 
 
@@ -120,8 +114,7 @@
             success: function (data) {
                 if (data && data.length > 0) {
                     let config = data[0];
-
-                    // Radio buttons
+                 
                     $(`#IsWeekendCountedAsLeaveYes`).prop('checked', config.isWeekendCountedAsLeave === true);
                     $(`#IsWeekendCountedAsLeaveNo`).prop('checked', config.isWeekendCountedAsLeave === false);
 
@@ -146,6 +139,11 @@
                     // Dropdown
                     $('#LeavePolicyConfigurationID').val(config.leavePolicyConfigurationID);
                     choiceManager.setChoiceValue('RoundOffHour', config.roundOffHour);
+
+                    $('#EnableLeaveBalanceResetDate').prop('checked', config.enableLeaveBalanceResetDate === true);
+                    if ($('#LeaveBalanceResetDate')[0]._flatpickr) {
+                        $('#LeaveBalanceResetDate')[0]._flatpickr.setDate(config.leaveBalanceResetDate, true);
+                    }
                 }
             },
             error: function () {

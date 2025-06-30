@@ -43,6 +43,7 @@ public partial class LeaveApplications
 
     public string Reason { get; set; }
 
+    public int? LeaveApplicableYear { get; set; }
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -30,6 +31,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate);
         #endregion
 
-        
+        #region Filtering Company Department Employee
+        Task<List<CommonSelectVM>> GetCompanies();
+        Task<List<CommonSelectVM>> GetDepartments();
+        Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees();
+
+        Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id);
+        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByCompany(int id);
+        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByDepartment(List<int> departmentIds);
+        Task<List<AssignDefaultShiftSetupVM>> GetEmployees(int? organizationId = null, List<int>? departmentIds = null);
+        #endregion
     }
+
+    
 }

@@ -1,4 +1,8 @@
-﻿<style>
+﻿@{
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift.AssignDefaultShiftSetupVM>;
+}
+
+<style>
     #leaveRequest-searchForm {
         position: relative;
     }
@@ -27,22 +31,19 @@
 
         <div class="row g-3 align-items-end mb-4" style="margin-right:1%">
             <!-- Company -->
-            <div class="col-md-4">
+            <div class="col-md-4 one">
                 <div class="dropdown">
-                    <select class="form-select" data-choices="data-choices" size="1">
-                        <option value="">Select Company</option>
-                        <option value="01">GCTL</option>
-                        <option value="02">ABC</option>
+                    <select class="form-multi-select" id="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" data-coreui-multiple="false" data-coreui-search="true">
+                        <option value="">@Html.SmartLocalize("Select Company")</option>
                     </select>
                 </div>
             </div>
 
             <!-- Department -->
-            <div class="col-md-4">
+            <div class="col-md-4 two">
+                <label class="form-label" asp-id="DepartmentIDs">@Html.SmartLocalize("Department")</label>
                 <div class="dropdown">
-                    <select class="form-select" data-choices="data-choices" size="1">
-                        <option value="">Select Department</option>
-                        <option value="01">HR</option>
+                    <select class="form-multi-select" id="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
                     </select>
                 </div>
             </div>
@@ -50,9 +51,16 @@
             <!-- Employee -->
             <div class="col-md-4">
                 <div class="dropdown">
-                    <select class="form-select choiceDD" id="EmployeeIDFilterDD"  required>
-                      
-                        <option value="">Select Employee</option>
+                    <select class="form-multi-select" id="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+                        @foreach (var group in employees.GroupBy(e => e.DepartmentName))
+                        {
+                            <optgroup label="@group.Key">
+                                @foreach (var emp in group)
+                                {
+                                    <option value="@emp.EmployeeID">@emp.EmployeeName</option>
+                                }
+                            </optgroup>
+                        }
                     </select>
                 </div>
             </div>
