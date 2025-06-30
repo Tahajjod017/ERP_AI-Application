@@ -111,6 +111,7 @@ $(document).ready(function () {
 
 
 
+
 //////////////////////////////Data Table Initialization//////////////////////////////
 var currentPage = 1;
 var pageSize = 5;
@@ -216,7 +217,7 @@ function loadTableData(sortColumn, sortOrder) {
                          <a
                                href="#"
                                title="Edit"
-                               id="LeaveRequestEditButton"
+                               id="edit_approval_settingBtn"
                                data-id="${item.approvalSettingID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 
@@ -227,7 +228,7 @@ function loadTableData(sortColumn, sortOrder) {
                             <a 
                               href="#" title="Delete"  data-id="${item.approvalSettingID}"
                               class="btn btn-outline-light btn-icon"  
-                              id="leaveRequestDelete-singleDelBtn" >
+                              id="approvalSettingsDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
                           </div>
@@ -287,4 +288,18 @@ $(document).on('click', '.page-btn', function () {
     const page = $(this).data('page');
     currentPage = page;
     loadTableData();
+});
+
+// delete 
+$(document).on('click', '#approvalSettingsDelete-singleDelBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+
+//edit
+$(document).on('click', '#edit_approval_settingBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#edit_approval_setting').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
 });
