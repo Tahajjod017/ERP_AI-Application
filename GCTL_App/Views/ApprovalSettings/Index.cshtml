@@ -30,7 +30,7 @@
                                     <!-- Company and Approval Type -->
                                     <div class="col-md-6">
                                         <div class="mb-3 mt-1">
-                                            <label class="form-label">Company Name</label>
+                                            <label class="form-label">Organization Name</label>
                                             <select class="form-select choiceDD" name="OrganizationID">
                                                 <option value="">Select Organization</option>
                                                 @foreach (var org in ViewBag.Organizations)
@@ -86,13 +86,13 @@
                                             <div class="row">
                                                 <!-- Second Approvers Checkbox -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="chkSecond" type="checkbox" name="IsEnableSecondApproval" />
+                                                    <input class="form-check-input" id="chkSecond" type="checkbox" />
                                                     <label class="form-check-label" for="chkSecond">Second Approver</label>
                                                 </div>
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="toggleSecond" type="checkbox" name="IsDesignationOrEmpSecondApprovalID" value="true"/>
+                                                    <input class="form-check-input" id="toggleSecond" type="checkbox" />
 
                                                     <label class="form-check-label" for="toggleSecond">Use Employee</label>
                                                 </div>
@@ -113,13 +113,13 @@
                                             <div class="row">
                                                 <!-- Third Approvers Checkbox -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="chkThird" type="checkbox" name="IsEnableThirdApproval" />
+                                                    <input class="form-check-input" id="chkThird" type="checkbox"  />
                                                     <label class="form-check-label" for="chkThird">Third Approver</label>
                                                 </div>
 
                                                 <!-- Use Employee Checkbox (Right Half) -->
                                                 <div class="form-check form-switch col-6 custom-padding-left">
-                                                    <input class="form-check-input" id="toggleThird" type="checkbox" name="IsDesignationOrEmpThirdApprovalID"  value="true"/>
+                                                    <input class="form-check-input" id="toggleThird" type="checkbox"  />
                                                     <label class="form-check-label" for="toggleThird">Use Employee</label>
                                                 </div>
                                             </div>
