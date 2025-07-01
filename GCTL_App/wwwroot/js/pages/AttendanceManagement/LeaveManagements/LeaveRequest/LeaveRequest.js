@@ -2,13 +2,7 @@
 
 $(document).ready(function () {
 
-
-   
-
-
-    //
-
-
+    
     //
 
     $('.one').on('changed.coreui.multi-select', function (event) {
@@ -19,9 +13,11 @@ $(document).ready(function () {
             if (selectedOrgId) {
                 loadDepartmentsByCompany(selectedOrgId);
                 loadEmplooyeesByCompany(selectedOrgId);
-               
+                currentPage = 1;
+                loadTableData(); 
             } else {
-               
+                currentPage = 1;
+                loadTableData(); 
             }
         }
     });
@@ -167,6 +163,8 @@ $(document).ready(function () {
 
         if (target.id === 'DepartmentIDs') {
             loadFilteredEmployees();
+            currentPage = 1;
+            loadTableData(); 
         }
     });
 
@@ -771,15 +769,39 @@ $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
     loadTableData();
 });
 
+$('#EmployeeIDs').on('changed.coreui.multi-select', function () {
+    currentPage = 1;
+    loadTableData(); // Make AJAX call or reload the table
+});
+// Filtering according to formdate to ToDate
+initializeGlobalDateRangePicker(
+    'basic-daterange',
+    'basic-daterange_fromHidden',
+    'basic-daterange_toHidden',
+    function () {
+        currentPage = 1;
+        loadTableData();
+    }
+);
+
+//
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
     var statusID = $('#StatusIDFilterDD').val();
-   
+    const organizationId = $('#OrganizationID').val();
+    const departmentIds = $('#DepartmentIDs').val() || [];
+    const employeeIds = $('#EmployeeIDs').val() || [];
+    const fromDate = $('#basic-daterange_fromHidden').val(); // YYYY-MM-DD
+    const toDate = $('#basic-daterange_toHidden').val();     // YYYY-MM-DD
+    console.log("Dept: " + departmentIds + " | Emp: " + employeeIds + " | Org: " + organizationId);
+    console.log("From: " + fromDate + " | To: " + toDate);
   
     $.ajax({
         url: '/LeaveRequestRoute/GetAllTableListAsync',
         method: 'GET',
+        traditional: true,
         data: {
             pageNumber: currentPage,
             pageSize: pageSize,
@@ -787,7 +809,12 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             currentSortColumn: currentSortColumn,
             currentSortOrder: currentSortOrder,
             leaveTypeID: leaveTypeID,
-            statusID: statusID
+            statusID: statusID,
+            organizationId: organizationId,
+            departmentIds: departmentIds,
+            employeeIds: employeeIds,
+            fromDate: fromDate,    // 👈 added
+            toDate: toDate  
         },
         success: function (response) {
            
