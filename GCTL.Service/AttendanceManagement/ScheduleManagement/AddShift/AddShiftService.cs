@@ -286,6 +286,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 };
             }
 
+            if(pageSize == 0)
+            {
+                pageSize = await query.CountAsync();
+                pageNumber = 1;
+            }
+
             var result = await PaginationService<Shifts, ShiftsSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.ShiftName, $"%{term}%"),
                 x => new ShiftsSetupVM
