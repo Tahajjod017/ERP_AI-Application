@@ -275,11 +275,17 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
             }
         }
 
+        #endregion
+
+
+        #region GetAllAsync
+
+
         public async Task<PaginationService<Organization, CompanySettingsVM>.PaginationResult<CompanySettingsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationID", string sortOrder = "desc", int? organizationID = null)
         {
             var query = _genericRepository.All()
                 .AsNoTracking()
-                
+                .Include(x => x.Country)
                 .Where(x => x.DeletedAt == null);
 
             // Filter by organization if provided
@@ -311,38 +317,42 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                 searchTerm,
                 sortColumn,
                 sortOrder,
-                term => x => EF.Functions.Like(x.OrganizationName, $"%{term}%") || EF.Functions.Like(x.City, $"%{term}%"),
+                term => x => EF.Functions.Like(x.OrganizationName, $"%{term}%") ||
+                EF.Functions.Like(x.EmailAddress, $"%{term}%") ||
+                EF.Functions.Like(x.Phone, $"%{term}%") ||
+                //EF.Functions.Like(x.WebAddress, $"%{term}%") ||
+              //  EF.Functions.Like(x.Fax, $"%{term}%") ||
+                EF.Functions.Like(x.Address, $"%{term}%") ||
+                EF.Functions.Like(x.Country.CountryName, $"%{term}%") ,
+                //  EF.Functions.Like(x.Street, $"%{term}%") ||
+                //  EF.Functions.Like(x.City, $"%{term}%"),
                 x => new CompanySettingsVM
                 {
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.OrganizationName,
-                    EmailAddress = x.EmailAddress,
-                    Phone = x.Phone,
-                    WebAddress = x.WebAddress,
-                    Fax = x.Fax,
-                    LogoLink = x.LogoLink,
-                    FaviconLink = x.FaviconLink,
-                    Address = x.Address,
-                    Street = x.Street,
-                    City = x.City,
-                    PostCode = x.PostCode,
+                    EmailAddress = x.EmailAddress ?? "_",
+                    Phone = x.Phone ?? "_",
+                    WebAddress = x.WebAddress ?? "_",
+                    Fax = x.Fax ?? "_",
+                    LogoLink = x.LogoLink ?? "_",
+                    FaviconLink = x.FaviconLink ?? "_",
+                    Address = x.Address ?? "_",
+                    Street = x.Street ?? "_",
+                    City = x.City ?? "_",
+                    PostCode = x.PostCode ?? "_",
+                    CountryID = x.CountryID,
+                    CountryName = x.Country?.CountryName ?? "_",
 
                     // CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy,
                     //UpdatedAt = x.UpdatedAt,
                     UpdatedBy = x.UpdatedBy,
-                    LIP = x.LIP,
-                    LMAC = x.LMAC
+                    LIP = x.LIP ?? "_",
+                    LMAC = x.LMAC ?? "_"
                 });
 
             return result;
         }
-        #endregion
-
-
-        #region GetAllAsync
-
-
 
 
 
