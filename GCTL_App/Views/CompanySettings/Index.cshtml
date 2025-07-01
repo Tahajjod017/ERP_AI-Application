@@ -25,155 +25,131 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Organization Name</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Organization Name" />
+                                        <label class="form-label" for="OrganizationName">Organization Name</label>
+                                        <input class="form-control" id="OrganizationName" type="text" name="OrganizationName" placeholder="Organization Name" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Email Address</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="company@email.com" />
+                                        <label class="form-label" for="EmailAddress">Email Address</label>
+                                        <input class="form-control" id="EmailAddress" type="email" name="EmailAddress" placeholder="company@email.com" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Phone</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="number" placeholder="xxxx xxx xx" />
+                                        <label class="form-label" for="Phone">Phone</label>
+                                        <input class="form-control" id="Phone" type="number" name="Phone" placeholder="xxxx xxx xx" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Fax</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="xxxx xxx xxx" />
+                                        <label class="form-label" for="Fax">Fax</label>
+                                        <input class="form-control" id="Fax" type="text" name="Fax" placeholder="xxxx xxx xxx" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Web</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="text" placeholder="www.company.com" />
+                                        <label class="form-label" for="WebAddress">Web</label>
+                                        <input class="form-control" id="WebAddress" type="text" name="WebAddress" placeholder="www.company.com" />
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
 
                         <div class="border-bottom mb-3">
                             <h6 class="mb-3">Organization Images</h6>
                             <div class="row">
-
                                 <div class="col-md-6">
                                     <div class="d-flex justify-content-between bg-light p-3 mb-4">
-
                                         <div class="me-2">
                                             <img id="logoPreview" src="assets/img/logo-small.svg" style="width: 100px; height: 100px;">
-                                         
                                         </div>
                                         <i id="clearLogo" class="fas fa-times-circle" style="color: red; position: absolute; top: 0; right: 0; display: none; cursor: pointer;"></i>
                                         <div class="">
                                             <div class="mb-2">
                                                 <h6 class="mb-1">Logo</h6>
                                                 <p class="fs-12">Recommended image size is 160px x 50px</p>
-                                                <input type="file" class="form-control image-sign" id="logoUpload" name="LogoLink" multiple="">
-                                                <p id="logoWarning" class="text-danger mt-2" style="display:none;" font-size: 0.8rem;></p> <!-- Warning message -->
+                                                <input type="file" class="form-control image-sign" id="logoUpload" name="LogoLinkIform" multiple="">
+                                                <p id="logoWarning" class="text-danger mt-2" style="display:none;"></p> <!-- Warning message -->
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="d-flex justify-content-between bg-light p-3 mb-4">
-
                                         <div class="me-2">
                                             <img id="faviconPreview" src="assets/img/logo-small.svg" style="width: 100px; height: 100px;">
                                         </div>
-
                                         <div class="">
                                             <div class="mb-2">
                                                 <h6 class="mb-1">Favicon</h6>
                                                 <p class="fs-12">Recommended image size is 128px x 128px</p>
-                                                <input type="file" class="form-control image-sign" id="faviconUpload" name="FaviconLink" multiple="">
-                                                <p id="faviconWarning" class="text-danger mt-2" style="display:none;" font-size: 0.8rem;></p> <!-- Warning message -->
+                                                <input type="file" class="form-control image-sign" id="faviconUpload" name="FaviconLinkIform" multiple="">
+                                                <p id="faviconWarning" class="text-danger mt-2" style="display:none;"></p> <!-- Warning message -->
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
-
-
-
                             </div>
                         </div>
 
                         <div class="border-bottom mb-3">
                             <h6 class="mb-3">Address Information</h6>
                             <div class="row">
-
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Address</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="text" placeholder="www.company.com" />
+                                        <label class="form-label" for="Address">Address</label>
+                                        <input class="form-control" id="Address" type="text" name="Address" placeholder="www.company.com" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Country</label>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option>Select</option>
-                                            <option>USA</option>
-                                            <option>Canada</option>
-                                            <option>Germany</option>
-                                            <option>France</option>
+                                        <label class="form-label" for="CountryID">Country</label>
+                                        <select class="form-select choiceDD" id="CountryID" name="CountryID">
+                                            <option value="">Select Country</option>
+                                            @foreach (var cntry in ViewBag.CountriesDropDown)
+                                            {
+                                                <option value="@cntry.Value">@cntry.Text</option>
+                                            }
                                         </select>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">State</label>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option>Select</option>
-                                            <option>California</option>
-                                            <option>New York</option>
-                                            <option>Texas</option>
-                                            <option>Florida</option>
-                                        </select>
+                                        <label class="form-label" for="Street">Street</label>
+                                        <input class="form-control" id="Street" type="text" name="Street" placeholder="" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">City</label>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option>Select</option>
-                                            <option>Los Angeles</option>
-                                            <option>San Diego</option>
-                                            <option>Fresno</option>
-                                            <option>San Francisco</option>
-                                        </select>
+                                        <label class="form-label" for="City">City</label>
+                                        <input class="form-control" id="City" type="text" name="City" placeholder="" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Postal Code</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="text" placeholder="" />
+                                        <label class="form-label" for="PostCode">Postal Code</label>
+                                        <input class="form-control" id="PostCode" type="text" name="PostCode" placeholder="" />
                                     </div>
                                 </div>
-
                             </div>
                         </div>
+
                         <div class="d-flex align-items-center justify-content-end">
-                            <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                            <button type="reset" class="btn btn-outline-secondary me-3">Reset</button>
                             <button type="submit" class="btn btn-primary">Save</button>
                         </div>
                     </form>
+
                 </div>
             </div>
 
@@ -184,6 +160,7 @@
 </div>
 
 <partial name="_organizationTableList" />
+
 
 @section Scripts {
     <script src="~/js/pages/adminsettings/organizationsettings/companysetting.js"></script>

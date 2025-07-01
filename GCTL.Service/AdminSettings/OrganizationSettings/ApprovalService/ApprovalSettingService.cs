@@ -25,8 +25,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         private readonly IGenericRepository<ApprovalTypes> _genericRepositoryApprovalType;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _genericRepositoryEmployees;
         private readonly IGenericRepository<Designations> _genericRepositoryDesignations;
+        private readonly IGenericRepository<Country> _genericRepositoryCountry;
 
-        public ApprovalSettingService(IUserInfoService userInfoService, IGenericRepository<ApprovalSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<OrganizationBranches> genericRepositoryBranches, IGenericRepository<ApprovalTypes> genericRepositoryApprovalType, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees, IGenericRepository<Designations> genericRepositoryDesignations) : base(genericRepository)
+        public ApprovalSettingService(IUserInfoService userInfoService, IGenericRepository<ApprovalSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<OrganizationBranches> genericRepositoryBranches, IGenericRepository<ApprovalTypes> genericRepositoryApprovalType, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees, IGenericRepository<Designations> genericRepositoryDesignations, IGenericRepository<Country> genericRepositoryCountry) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -35,6 +36,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             _genericRepositoryApprovalType = genericRepositoryApprovalType;
             _genericRepositoryEmployees = genericRepositoryEmployees;
             _genericRepositoryDesignations = genericRepositoryDesignations;
+            _genericRepositoryCountry = genericRepositoryCountry;
         }
 
         #endregion
@@ -457,7 +459,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         }
         #endregion
 
-        #region
+        #region GetDesignationAsync
         public async Task<List<SelectListItem>> GetDesignationAsync()
         {
             var designations = await _genericRepositoryDesignations.All()
@@ -471,5 +473,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             return designations;
         }
         #endregion
+
+      
     }
 }

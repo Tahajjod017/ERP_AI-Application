@@ -53,6 +53,7 @@
 
   <ItemGroup>
     <Folder Include="ViewModels\ProjectManagements\" />
+    <Folder Include="wwwroot\img\companyImages\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
 
     <Folder Include="wwwroot\uploads\employee\images\" />
