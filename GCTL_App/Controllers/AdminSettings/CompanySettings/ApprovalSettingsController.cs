@@ -33,7 +33,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     var uniqueName = await _approvalSettingService.IsNameUniqueAsync(model.ApprovalTypeID ?? 0, model.OrganizationID ?? 0);
                     if (!uniqueName)
                     {
-                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                        return Json(new { isSuccess = false, message = "This approvalType already exists!" });
                     }
                     await _approvalSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ApprovalTypeName });

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
 {
@@ -20,12 +21,14 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Organization> _genericRepository;
         private readonly IGenericRepository<TenantInfo> _tenantInfoRepository;
+        private readonly IGenericRepository<Country> _genericRepositoryCountry;
 
-        public CompanySettingService(IUserInfoService userInfoService, IGenericRepository<Organization> genericRepository, IGenericRepository<TenantInfo> tenantInfoRepository) : base(genericRepository)
+        public CompanySettingService(IUserInfoService userInfoService, IGenericRepository<Organization> genericRepository, IGenericRepository<TenantInfo> tenantInfoRepository, IGenericRepository<Country> genericRepositoryCountry) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _tenantInfoRepository = tenantInfoRepository;
+            _genericRepositoryCountry = genericRepositoryCountry;
         }
 
 
@@ -47,7 +50,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                 if (existingEntity != null)
                 {
                     // Update and restore
-                   existingEntity.OrganizationName = model.OrganizationName;
+                    existingEntity.OrganizationName = model.OrganizationName;
                     existingEntity.EmailAddress  = model.EmailAddress;
                     existingEntity.Phone = model.Phone;
                     existingEntity.WebAddress = model.WebAddress;
@@ -344,6 +347,21 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
 
 
 
+        #endregion
+
+        #region GetCountryAsync
+        public async Task<List<SelectListItem>> GetCountriesAsync()
+        {
+            var countries = await _genericRepositoryCountry.All()
+                .Where(c => c.DeletedAt == null)
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CountryID.ToString(),
+                    Text = c.CountryName
+                })
+                .ToListAsync();
+            return countries;
+        }
         #endregion
 
     }

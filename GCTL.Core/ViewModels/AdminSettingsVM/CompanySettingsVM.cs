@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,15 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
 
         public string? WebAddress { get; set; }
 
-        public string? LogoLink { get; set; }
+        public IFormFile? LogoLinkIform { get; set; }
 
-        public string? FaviconLink { get; set; }
+        public IFormFile? FaviconLinkIform { get; set; }
+
+        //These will store the file paths after upload
+        public string? LogoLink { get; set; } 
+        public string? FaviconLink { get; set; } 
+
+
 
         public string? Address { get; set; }
 
