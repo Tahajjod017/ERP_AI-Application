@@ -1,5 +1,5 @@
 ﻿@{
-    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift.AssignDefaultShiftSetupVM>;
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.MultiDropDown>;
 }
 
 <style>
@@ -21,10 +21,38 @@
         pointer-events: none;
     }
 
+
+    .date-input {
+        width: 108%;
+        
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+    .date-picker-wrapper .footer {
+        display: none !important;
+    }
+
+    .date-picker-wrapper {
+       margin-left:8.2vw !important;
+        
+    }
+    
 </style>
 
 
+@* <input type="text" id="basic-daterange" class="date-input" placeholder="Click to select date range" readonly>
 
+<div id="basic-result" class="result" style="display:none;"></div> *@
 
 <div class="card-body py-0 scrollbar to-do-list-body">
     <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
@@ -32,6 +60,7 @@
         <div class="row g-3 align-items-end mb-4" style="margin-right:1%">
             <!-- Company -->
             <div class="col-md-4 one">
+                <label class="form-label">@Html.SmartLocalize("Organizer")</label>
                 <div class="dropdown">
                     <select class="form-multi-select" id="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" data-coreui-multiple="false" data-coreui-search="true">
                         <option value="">@Html.SmartLocalize("Select Company")</option>
@@ -41,7 +70,7 @@
 
             <!-- Department -->
             <div class="col-md-4 two">
-                <label class="form-label" asp-id="DepartmentIDs">@Html.SmartLocalize("Department")</label>
+                <label class="form-label">@Html.SmartLocalize("Department")</label>
                 <div class="dropdown">
                     <select class="form-multi-select" id="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
                     </select>
@@ -50,6 +79,7 @@
 
             <!-- Employee -->
             <div class="col-md-4">
+                <label class="form-label">@Html.SmartLocalize("Employee")</label>
                 <div class="dropdown">
                     <select class="form-multi-select" id="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
                         @foreach (var group in employees.GroupBy(e => e.DepartmentName))
@@ -92,11 +122,12 @@
                         </div>
                     </div>
 
-                    <div class="me-3">
-                        <div class="input-icon-end position-relative">
-
-                            <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
-
+                    <div class="me-5">
+                        <div class="position-relative">
+                            <input type="text" id="basic-daterange" class="date-input form-control-sm" placeholder="d/m/y to d/m/y" readonly>
+                          @*  @*  <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly"> *@ 
+                            <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
+                            <input type="hidden" id="basic-daterange_toHidden" name="ToDate" />
                         </div>
                     </div>
 

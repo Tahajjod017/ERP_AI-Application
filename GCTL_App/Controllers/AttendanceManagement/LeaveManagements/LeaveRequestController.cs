@@ -107,13 +107,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         [Route("LeaveRequestRoute/GetAllTableListAsync")]
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null)
+        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
+    List<int> departmentIds = null,
+    List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
                  string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url,userId,leaveTypeID,statusID);
+                var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url,userId,leaveTypeID,statusID,organizationId,departmentIds,employeeIds, fromDate, toDate);
                 return Json(data);
             } catch (Exception ex)
             {
@@ -239,17 +241,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         #endregion
 
-        [Route("LeaveRequest/GetFilteredEmployees")]
-        [HttpGet]
-        public async Task<JsonResult> GetFilteredEmployees(int? organizationId, string departmentIds)
-        {
-            var deptIdList = !string.IsNullOrEmpty(departmentIds)
-                ? departmentIds.Split(',').Select(int.Parse).ToList()
-                : new List<int>();
-
-            var data = await leaveRequestService.GetEmployees(organizationId, deptIdList);
-            return Json(data);
-        }
+        
 
     }
 }
