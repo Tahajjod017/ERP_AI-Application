@@ -89,40 +89,40 @@
     initEmploymentNatureChoices();
 
 
-    let seniorSupervisorChoices;
-    function initSeniorSupervisorChoices() {
-        seniorSupervisorChoices = new Choices('#SeniorSupervisorId', {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select Senior Supervisor'
-        });
-    }
-    document.addEventListener('DOMContentLoaded', initSeniorSupervisorChoices);
-    initSeniorSupervisorChoices();
+    //let seniorSupervisorChoices;
+    //function initSeniorSupervisorChoices() {
+    //    seniorSupervisorChoices = new Choices('#SeniorSupervisorId', {
+    //        removeItemButton: true,
+    //        shouldSort: false,
+    //        placeholderValue: 'Select Senior Supervisor'
+    //    });
+    //}
+    //document.addEventListener('DOMContentLoaded', initSeniorSupervisorChoices);
+    //initSeniorSupervisorChoices();
 
 
-    let immediateSupervisorChoices;
-    function initImmediateSupervisorChoices() {
-        immediateSupervisorChoices = new Choices('#ImmediateSupervisorId', {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select Immediate Supervisor'
-        });
-    }
-    document.addEventListener('DOMContentLoaded', initImmediateSupervisorChoices);
-    initImmediateSupervisorChoices();
+    //let immediateSupervisorChoices;
+    //function initImmediateSupervisorChoices() {
+    //    immediateSupervisorChoices = new Choices('#ImmediateSupervisorId', {
+    //        removeItemButton: true,
+    //        shouldSort: false,
+    //        placeholderValue: 'Select Immediate Supervisor'
+    //    });
+    //}
+    //document.addEventListener('DOMContentLoaded', initImmediateSupervisorChoices);
+    //initImmediateSupervisorChoices();
 
 
-    let headOfDepartmentChoices;
-    function initHeadOfDepartmentChoices() {
-        headOfDepartmentChoices = new Choices('#HeadOfDepartmentId', {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select Head of Department'
-        });
-    }
-    document.addEventListener('DOMContentLoaded', initHeadOfDepartmentChoices);
-    initHeadOfDepartmentChoices();
+    //let headOfDepartmentChoices;
+    //function initHeadOfDepartmentChoices() {
+    //    headOfDepartmentChoices = new Choices('#HeadOfDepartmentId', {
+    //        removeItemButton: true,
+    //        shouldSort: false,
+    //        placeholderValue: 'Select Head of Department'
+    //    });
+    //}
+    //document.addEventListener('DOMContentLoaded', initHeadOfDepartmentChoices);
+    //initHeadOfDepartmentChoices();
 
 
 
@@ -408,15 +408,79 @@
     //#region On change
 
 
+    $("#DepartmentID").change(function () {
+        var selectedId = $(this).val();
+
+        populateDepartmentHead(selectedId);
+
+    });
+
+    function populateDepartmentHead(selectedId) {
+        if (selectedId) {
+            $.ajax({
+                url: "/EmployeeOfficial/GetEmployeeHOD",
+                type: "GET",
+                data: { id: selectedId },
+                success: function (response) {
+                    console.log("Response received:", response);
+                    choiceManager.setChoiceValue('HeadOfDepartmentId' , response)
+                    
+                },
+                error: function (xhr, status, error) {
+                    $(".form-control").prop('disabled', false);
+                    console.error("Error loading employee data:", error);
+                    console.error("Response:", xhr.responseText);
+                    alert("Error loading employee data. Please try again.");
+                }
+            });
+        }
+    };
+
+
+
     // Enhanced employee change handler with better dropdown population
     $("#EmployeePersonalId").change(function () {
         var selectedId = $(this).val();
 
 
         TabChange(selectedId) // this function is located in EmployeeTabChange.js
+
+        populateSuperVisorDD(selectedId);
+
         LoadEmployeeOfficData(selectedId)
 
     });
+
+    function populateSuperVisorDD(selectedId) {
+
+        if (selectedId) {
+
+
+          
+
+            $.ajax({
+                url: "/EmployeeOfficial/GetEmployeeSupDD",
+                type: "GET",
+                data: { id: selectedId },
+                success: function (response) {
+                    console.log("Response received:", response);
+
+                   
+                    choiceManager.populateDropdown('ImmediateSupervisorId', response);
+                    choiceManager.populateDropdown('SeniorSupervisorId', response);
+
+                    console.log("Employee data loaded successfully");
+                },
+                error: function (xhr, status, error) {
+                    $(".form-control").prop('disabled', false);
+                    console.error("Error loading employee data:", error);
+                    console.error("Response:", xhr.responseText);
+                    alert("Error loading employee data. Please try again.");
+                }
+            });
+        }
+    };
+
     function LoadEmployeeOfficData(selectedId) {
 
         if (selectedId) {
@@ -472,12 +536,20 @@
             { instance: departmentChoices, value: response.departmentID },
             { instance: designationChoices, value: response.designationID },
             { instance: employmentNatureChoices, value: response.employmentNatureID },
-            { instance: seniorSupervisorChoices, value: response.seniorSupervisorId },
-            { instance: immediateSupervisorChoices, value: response.immediateSupervisorId },
-            { instance: headOfDepartmentChoices, value: response.headOfDepartmentId },
+
+            //{ instance: seniorSupervisorChoices, value: response.seniorSupervisorId },
+            //{ instance: immediateSupervisorChoices, value: response.immediateSupervisorId },
+            //{ instance: headOfDepartmentChoices, value: response.headOfDepartmentId },
+
             { instance: timeUnitChoices, value: response.provisionPeriodTtimeTypeID },
             { instance: employmentStatusChoices, value: response.employmentStatusId }
         ];
+
+      
+        choiceManager.setChoiceValue('HeadOfDepartmentId', response.headOfDepartmentId);
+        choiceManager.setChoiceValue('ImmediateSupervisorId', response.immediateSupervisorId);
+        choiceManager.setChoiceValue('SeniorSupervisorId', response.seniorSupervisorId);
+
 
         dropdownMappings.forEach(mapping => {
             if (mapping.instance && mapping.value) {
