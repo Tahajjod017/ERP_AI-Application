@@ -356,5 +356,28 @@ namespace GCTL_App.Controllers.Employees
         }
 
         #endregion
+
+        #region Get For DD
+
+        [HttpGet]
+        public IActionResult GetEmployeeSupDD(int id)
+        {
+            var a = _employeeRepository.All().Where(e=>e.EmployeeID != id).Select(e => new { id =  e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
+                
+            return Ok(a);
+        }
+
+        [HttpGet]
+        public IActionResult GetEmployeeHOD(int id)
+        {
+
+            var a = _departmentRepository.AllActive().Where(e=>e.DepartmentID == id).Select(u=>u.DepartmentHeadEmpID).FirstOrDefault();
+
+            //var a = _employeeRepository.All().Where(e => e.EmployeeID != id).Select(e => new { id = e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
+
+            return Ok(a);
+        }
+
+        #endregion
     }
 }
