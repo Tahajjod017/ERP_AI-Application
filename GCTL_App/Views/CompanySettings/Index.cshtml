@@ -141,6 +141,10 @@
                                         <input class="form-control" id="PostCode" type="text" name="PostCode" placeholder="" />
                                     </div>
                                 </div>
+                                <!-- Google Map Container -->
+                                <div class="col-md-12">
+                                    <div id="map" style="height: 400px; width: 100%;"></div> <!-- Set a height for the map -->
+                                </div>
                             </div>
                         </div>
 
@@ -152,8 +156,6 @@
 
                 </div>
             </div>
-
-          
            
         </div>
     </div>
@@ -164,5 +166,7 @@
 
 @section Scripts {
     <script src="~/js/pages/adminsettings/organizationsettings/companysetting.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+
 }
 

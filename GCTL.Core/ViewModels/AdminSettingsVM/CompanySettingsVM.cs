@@ -33,6 +33,7 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? Address { get; set; }
 
         public int? CountryID { get; set; }
+        public string? CountryName { get; set; }
 
         public string? Street { get; set; }
 
