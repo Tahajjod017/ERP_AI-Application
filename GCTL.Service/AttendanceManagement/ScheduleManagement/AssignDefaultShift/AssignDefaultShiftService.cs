@@ -298,6 +298,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 };
             }
 
+            if(pageSize == 0)
+            {
+                pageSize = await query.CountAsync();
+                pageNumber = 1;
+            }
+
             var result = await PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
                 EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),

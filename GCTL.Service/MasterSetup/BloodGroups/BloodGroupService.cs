@@ -214,6 +214,12 @@ namespace GCTL.Service.MasterSetup.BloodGroups
                 };
             }
 
+            if(pageSize == 0)
+            {
+                pageSize = await query.CountAsync();
+                pageNumber = 1;
+            }
+
             return await PaginationService<BloodGroup, BloodGroupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.BloodGroupName, $"%{term}%"),
                 x => new BloodGroupVM
