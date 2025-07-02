@@ -383,6 +383,12 @@ public partial class Employees
 
     public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesUpdatedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
 
+    public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsCreatedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
+
+    public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsDeletedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
+
+    public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsUpdatedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
+
     public virtual ICollection<ProvisionPeriodTtimeTypes> ProvisionPeriodTtimeTypesCreatedByNavigation { get; set; } = new List<ProvisionPeriodTtimeTypes>();
 
     public virtual ICollection<ProvisionPeriodTtimeTypes> ProvisionPeriodTtimeTypesDeletedByNavigation { get; set; } = new List<ProvisionPeriodTtimeTypes>();
