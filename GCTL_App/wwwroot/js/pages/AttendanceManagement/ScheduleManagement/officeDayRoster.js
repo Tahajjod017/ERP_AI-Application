@@ -12,10 +12,39 @@
         $(() => {
 
 
+            $('body').on('click', '#rosterInOfficeDays-resetBtn', function () {
+                const orgSelect = document.getElementById('OrganizationID');
+                const orgInstance = coreui.MultiSelect.getInstance(orgSelect);
+                if (orgInstance) {
+                    orgInstance.deselectAll();
+                }
 
-            $('.one').on('changed.coreui.multi-select', function (event) {
+                const deptSelect = document.getElementById('DepartmentIDs');
+                const deptInstance = coreui.MultiSelect.getInstance(deptSelect);
+                if (deptInstance) {
+                    deptInstance.deselectAll();
+                }
+
+                const empSelect = document.getElementById('EmployeeIDs');
+                const empInstance = coreui.MultiSelect.getInstance(empSelect);
+                if (empInstance) {
+                    empInstance.deselectAll();
+                }
+            });
+
+
+            //const myMutliSelect = document.getElementById('myMutliSelect')
+            //myMutliSelect.addEventListener('changed.coreui.multi-select', event => {
+            //    // Get the list of selected options.
+            //    const selected = event.value
+            //});
+
+            $('body').on('changed.coreui.multi-select', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
                 const target = event.target;
-
+                toastr.info('working');
                 if (target && target.id === 'OrganizationID') {
                     const selectedOrgId = $(target).val();
                     if (selectedOrgId) {
@@ -34,7 +63,7 @@
             function loadDepartmentsByCompany(organizationId) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
-                        url: '/AssignDefaultShift/GetDepartmentByCompany',
+                        url: '/OfficeDayRoster/GetDepartmentByCompany',
                         type: 'GET',
                         data: { id: organizationId },
                         success: function (departments) {

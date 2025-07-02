@@ -14,6 +14,7 @@
     <Compile Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <Compile Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <Compile Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <Compile Remove="wwwroot\js\layout\coreui-5.4.0\**" />
     <Content Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <Content Remove="ViewModels\MasterSetup\Organization\**" />
     <Content Remove="ViewModels\MasterSetup\PassingYears\**" />
@@ -21,6 +22,7 @@
     <Content Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <Content Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <Content Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <Content Remove="wwwroot\js\layout\coreui-5.4.0\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\Organization\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\PassingYears\**" />
@@ -28,6 +30,7 @@
     <EmbeddedResource Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <EmbeddedResource Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <EmbeddedResource Remove="wwwroot\js\layout\coreui-5.4.0\**" />
     <None Remove="ViewModels\MasterSetup\LicenceTypes\**" />
     <None Remove="ViewModels\MasterSetup\Organization\**" />
     <None Remove="ViewModels\MasterSetup\PassingYears\**" />
@@ -35,6 +38,7 @@
     <None Remove="ViewModels\MasterSetup\ServiceYears\**" />
     <None Remove="ViewModels\MasterSetup\TrainingYears\**" />
     <None Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
+    <None Remove="wwwroot\js\layout\coreui-5.4.0\**" />
   </ItemGroup>
 
   <ItemGroup>
