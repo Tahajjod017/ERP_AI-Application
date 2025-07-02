@@ -1,0 +1,140 @@
+﻿@{
+    var activeTab = "ProbationSetting";
+}
+
+<partial name="~/Views/Shared/HRMsettingsNavs/HRMsettingNavPartial.cshtml" model="activeTab" />
+
+
+<div class="col-xl-12">
+    <div class="card mb-4 mt-2">
+        <div class="card-body">
+            <div class="border-bottom mb-3 pb-3">
+                <h4>Probetion Period Settings</h4>
+            </div>
+            <form action="settings-ui.html">
+                <div class=" mb-3">
+
+
+
+                    <div class="row">
+
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Company Name</label>
+                                <select class="form-select" aria-label="Default select example">
+                                    <option>GCTL</option>
+                                    <option>CSL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="exampleFormControlInput">Probiation Period</label>
+                                <select class="form-select" aria-label="Default select example">
+                                    <option selected="selected">Select Probiation Period </option>
+                                    <option value="1">04 Months</option>
+                                    <option value="1">06 Months</option>
+                                    <option value="1">12 Months</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="datepicker">Start Date</label>
+                                <input class="form-control datetimepicker flatpickr-input" id="datepicker" type="text"
+                                       placeholder="dd/mm/yyyy"
+                                       data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}"
+                                       readonly="readonly">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="reset" class="btn btn-outline-secondary border me-3">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h6>Company Probetion Period List</h6>
+        </div>
+
+        <div class="border-top border-translucent p-3">
+            <div id="companyProbetionPeriodTable"
+                 data-list='{"valueNames":["ppCompanyName","ppTime","ppDate"],"page":5,"pagination":true}'>
+
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr>
+
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                    data-sort="ppCompanyName">Company Name</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="ppTime">
+                                    Time
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="ppDate">
+                                    Address
+                                </th>
+                                <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="companyProbetionPeriodTable-info-body">
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="ppCompanyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">GCTL</td>
+                                <td class="ppTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">6 Months</td>
+                                <td class="ppDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">dd/mm/yyyy</td>
+
+                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                    <div class="btn-reveal-trigger position-static">
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_Probetion_Period">
+                                            <i class="fas fa-edit text-success"></i>
+                                        </a>
+
+                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">
+                            View all<span class="fas fa-angle-right ms-1"
+                                          data-fa-transform="down-1"></span>
+                        </a><a class="fw-semibold d-none" href="#!"
+                               data-list-view="less">
+                            View Less<span class="fas fa-angle-right ms-1"
+                                           data-fa-transform="down-1"></span>
+                        </a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next">
+                            <span class="fas fa-chevron-right"></span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

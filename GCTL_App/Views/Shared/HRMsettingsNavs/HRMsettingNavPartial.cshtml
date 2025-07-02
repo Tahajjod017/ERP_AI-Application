@@ -1,0 +1,14 @@
+﻿@model string
+
+<ul class="nav nav-underline fs-9" id="myTab4" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link @(Model == "ProbationSetting" ? "active" : "")"
+           id="emailSettings-tab"
+           href="@Url.Action("Index", "ProbationPeriodSetting")"
+           role="tab"
+           aria-selected="@(Model == "ProbationSetting" ? "true" : "false")">
+            Probation Period Setting
+        </a>
+    </li>
+    
+</ul>

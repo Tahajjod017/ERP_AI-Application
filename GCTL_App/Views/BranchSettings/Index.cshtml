@@ -113,13 +113,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" for="exampleFormControlInput">City</label>
-                                    <select class="form-select" aria-label="Default select example">
-                                        <option>Select</option>
-                                        <option>Los Angeles</option>
-                                        <option>San Diego</option>
-                                        <option>Fresno</option>
-                                        <option>San Francisco</option>
-                                    </select>
+                                    
                                 </div>
                             </div>
 
@@ -133,18 +127,26 @@
                         </div>
                     </div>
                     <div class="d-flex align-items-center justify-content-end">
-                        <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                        <button type="button" class="btn btn-outline-secondary border me-3">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
             </div>
         </div>
-
-
-    <partial name="_BranchedTableList" />
+    
     </div>
 
-    @section Scripts {
+<div class="col-md-6">
+    <div class="mb-3">
+        <label class="form-label" for="exampleFormControlInput">Branch Name</label>
+        <input class="form-control" id="exampleFormControlInput" type="email" placeholder="Branch Name" />
+    </div>
+</div>
+
+<partial name="_BranchedTableList" />
+<partial name="_ConfirmDelete" />
+
+@section Scripts {
     <script src="~/js/branchSettings.js"></script>
-    }
+}
 
