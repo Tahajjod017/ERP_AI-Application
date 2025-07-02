@@ -66,9 +66,12 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 
 using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
+
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
+using GCTL.Service.ImageFileHandler;
+
 
 
 
@@ -183,6 +186,12 @@ namespace GCTL_App.Extensions
 
             #endregion
 
+
+            #region File Handler
+
+            services.AddScoped<IImageFileHandlerService, ImageFileHandlerService>();
+
+            #endregion
         }
     }
 }
