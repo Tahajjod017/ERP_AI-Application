@@ -21,7 +21,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<LeaveApplicationEditVM> GetLeaveRequestByIdAsync(int leaveApplicationID);
         Task<CommonReturnViewModel> SoftDeleteLeaveRequest(DeleteRequestVM deleteRequestVM);
         Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="",int? leaveTypeID=null,int ? statusID=null );
+        string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="",int? leaveTypeID=null,int ? statusID=null, int? organizationId = null,
+    List<int> departmentIds = null,
+    List<int> employeeIds = null, DateOnly ? fromDate =null, DateOnly ? toDate = null );
 
         Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID);
         Task<List<CommonSelectVM>> GetAllEmployee(string userId);
@@ -34,12 +36,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #region Filtering Company Department Employee
         Task<List<CommonSelectVM>> GetCompanies();
         Task<List<CommonSelectVM>> GetDepartments();
-        Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees();
+        Task<List<MultiDropDown>> GetGroupedEmployees();
 
-        Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id);
-        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByCompany(int id);
-        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByDepartment(List<int> departmentIds);
-        Task<List<AssignDefaultShiftSetupVM>> GetEmployees(int? organizationId = null, List<int>? departmentIds = null);
+        Task<List<MultiDropDown>> GetDepartmentByCompany(int id);
+        Task<List<MultiDropDown>> GetEmployeeByCompany(int id);
+        Task<List<MultiDropDown>> GetEmployeeByDepartment(List<int> departmentIds);
+      
         #endregion
     }
 

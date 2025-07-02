@@ -45,7 +45,8 @@
     <link href="~/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl" />
     <link href="~/js/layout/toastr.js/toastr.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
-
+    <!-- ✅ jQuery Date Range Picker CSS  added By 404-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-date-range-picker/0.21.0/daterangepicker.min.css" />
     <style>
         .flatpickr-calendar.noCalendar.hasTime .flatpickr-time {
             height: auto;
@@ -138,8 +139,20 @@
     <script src="~/js/layout/language/language.js"></script>
     <script src="~/js/layout/layout.js"></script>
 
-    <!-- Layout Scripts For Date Format -->
+    <!-- Layout Scripts For Date Format 404 -->
     <script src="~/js/pages/datepickercustom/datepickercustomby404.js"></script>
+
+    <!-- ✅ jQuery (must be before daterangepicker) 404 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- ✅ Moment.js (required by daterangepicker) 404 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+ 
+
+    <!-- ✅ jQuery Date Range Picker JS  404-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-date-range-picker/0.21.0/jquery.daterangepicker.min.js"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

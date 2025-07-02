@@ -85,3 +85,100 @@ function updateDatepickerWithMinDateTotalDays(dateId, minDate, options = {}, dis
 
     flatpickr(`#${dateId}`, { ...defaultOptions, ...options });
 }
+
+// Date range Global
+
+function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onChangeCallback) {
+   
+    $(`#${pickerId}`).dateRangePicker({
+        format: 'DD/MM/YYYY',
+        separator: ' to ',
+        language: 'en',
+        autoClose: true,
+        getValue: function () {
+            return $(this).val();
+        },
+        setValue: function (s) {
+            $(this).val(s);
+        }
+    })
+        .bind('datepicker-change datepicker-apply', function (event, obj) {
+            const start = moment(obj.date1).format("YYYY-MM-DD");
+            const end = moment(obj.date2).format("YYYY-MM-DD");
+
+            $(`#${fromHiddenId}`).val(start);
+            $(`#${toHiddenId}`).val(end);
+
+            if (typeof onChangeCallback === 'function') {
+                onChangeCallback();
+            }
+        });
+}
+
+
+//
+
+//$(document).ready(function () {
+//    $('#basic-daterange').dateRangePicker({
+//        format: 'DD/MM/YYYY',
+//        separator: ' to ',
+//        language: 'en',
+//        autoClose: true,
+//        getValue: function () {
+//            return $(this).val();
+//        },
+//        setValue: function (s) {
+//            $(this).val(s);
+//        }
+//    }).bind('datepicker-change', function (event, obj)
+//    {
+
+//        const start = moment(obj.date1).format("YYYY-MM-DD");
+//        const end = moment(obj.date2).format("YYYY-MM-DD");
+//        console.log("FromDatePairDate" + start);
+//        console.log("ToDatePairDate" + end);
+//        $('#basic-daterange_fromHidden').val(start);
+//        $('#basic-daterange_toHidden').val(end);
+//        currentPage = 1;
+//        loadTableData();
+//    });
+//});
+
+
+
+//$(document).ready(function () {
+//    $('#basic-daterange').dateRangePicker({
+//        format: 'DD/MM/YYYY',
+//        separator: ' to ',
+//        language: 'en',
+//        autoClose: true,
+//        getValue: function () {
+//            return $(this).val();
+//        },
+//        setValue: function (s) {
+//            $(this).val(s);
+//        }
+//    })
+//        // Fires when a new range is selected
+//        .bind('datepicker-change', function (event, obj) {
+//            const start = moment(obj.date1).format("YYYY-MM-DD");
+//            const end = moment(obj.date2).format("YYYY-MM-DD");
+
+//            $('#basic-daterange_fromHidden').val(start);
+//            $('#basic-daterange_toHidden').val(end);
+
+//            currentPage = 1;
+//            loadTableData(); // ✅ refresh data immediately
+//        })
+//        // Fires even if the same range is selected again
+//        .bind('datepicker-apply', function (event, obj) {
+//            const start = moment(obj.date1).format("YYYY-MM-DD");
+//            const end = moment(obj.date2).format("YYYY-MM-DD");
+
+//            $('#basic-daterange_fromHidden').val(start);
+//            $('#basic-daterange_toHidden').val(end);
+
+//            currentPage = 1;
+//            loadTableData(); // ✅ refresh data immediately again
+//        });
+//});

@@ -56,15 +56,22 @@
 
     // Function to fetch data and populate dropdown using jQuery's $.ajax()
     function populateOptions(selectEl, url) {
- 
+        let defaultOptionText = '';
+
+        // Determine the default text based on the URL (employees or designations)
+        if (url === employeesUrl) {
+            defaultOptionText = 'Select Employee';
+        } else if (url === designationsUrl) {
+            defaultOptionText = 'Select Designation';
+        }
+
         $.ajax({
-            
             url: url,
             type: 'GET',
             dataType: 'json',
             success: function (data) {
                 selectEl.empty();  // Clear existing options
-                selectEl.append('<option value="">Select</option>');  // Add default empty option
+                selectEl.append('<option value="">' + defaultOptionText + '</option>');  // Set dynamic default option
 
                 // Append options from the response data
                 $.each(data, function (index, item) {
@@ -77,6 +84,7 @@
             }
         });
     }
+
 });
 
 // Function to handle form submission
