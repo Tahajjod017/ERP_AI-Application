@@ -28,6 +28,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
             _genericRepositoryOraganization = genericRepositoryOraganization;
         }
         #endregion
+
         #region AddAsync  
         public async Task<bool> AddAsync(BranchSettingsVM model)
         {
