@@ -38,12 +38,13 @@
     <!-- CoreUI CSS -->
     <link href="~/js/layout/coreui/coreui.min.css" rel="stylesheet" />
 
-    <!-- Theme CSS -->
+	<!-- Theme CSS -->
     <link href="~/css/theme.min.css" rel="stylesheet" id="style-default" />
     <link href="~/css/user.min.css" rel="stylesheet" id="user-style-default" />
     <link href="~/css/theme-rtl.css" rel="stylesheet" id="style-rtl" />
     <link href="~/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl" />
     <link href="~/js/layout/toastr.js/toastr.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
     <!-- ✅ jQuery Date Range Picker CSS  added By 404-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-date-range-picker/0.21.0/daterangepicker.min.css" />
     <style>
@@ -56,6 +57,11 @@
             content: '*';
             color: red;
             margin-left: 2px;
+        }
+
+        .form-multi-select-dropdown .form-multi-select-options {
+            max-height: 300px; /* You can adjust this height */
+            overflow-y: auto;
         }
     </style>
 </head>

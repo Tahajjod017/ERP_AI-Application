@@ -5,22 +5,40 @@
 }
 
 <form asp-controller="OfficeDayRoster" asp-action="Create" id="rosterInOfficeDays-form" enctype="multipart/form-data">
-    <div class="d-flex gap-3 flex-wrap">
-        <div class="mb-3 one">
-            <label class="form-label" for="organizerSingle">Company Name</label>
-            <select class="form-multi-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" multiple data-coreui-multiple="false" data-coreui-selection-type="counter" data-coreui-search="true">
+    <div class="row g-3 mb-3">
+        <div class="col-md">
+            <label class="form-label" for="organizerSingle">Organization Name</label>
+            <select class="form-multi-select"
+                    asp-for="OrganizationID"
+                    asp-items="@ViewBag.OrganizationDD as SelectList"
+                    data-coreui-options-style="text"
+                    data-coreui-multiple="false"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="Select Organization...">
+                <option value="">Select Organization...</option>
             </select>
         </div>
 
-        <div class="mb-3 two">
-            <label class="form-label" for="organizerSingle">Select Department</label>
-            <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+        <div class="col-md">
+            <label class="form-label" for="organizerSingle">Department Name</label>
+            <select class="form-multi-select"
+                    asp-for="DepartmentIDs"
+                    asp-items="@ViewBag.DepartmentDD as SelectList"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="Select Department...">
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label" for="organizerSingle">Employee</label>
-            <select class="form-multi-select" asp-for="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+        <div class="col-md">
+            <label class="form-label" for="organizerSingle">Employee Name</label>
+            <select class="form-multi-select"
+                    asp-for="EmployeeIDs"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="Select Employee...">
                 @foreach (var group in employees.GroupBy(e => e.DepartmentName))
                 {
                     <optgroup label="@group.Key">
@@ -33,37 +51,42 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label" for="organizerSingle">Select Shift</label>
+        <div class="col-md">
+            <label class="form-label" for="organizerSingle">Shift Name</label>
             <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                 <option value="">Select Roster...</option>
             </select>
         </div>
 
-        <div class="mb-3">
+        <div class="col-md">
             <label class="form-label" for="timepicker2">Select Date Range</label>
             <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="DD/MM/YYYY to DD/MM/YYYY" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
         </div>
 
     </div>
-    @* <div class="modal-body pb-0">
-        <div class="row">
-            <div class="col-md-2">
+    <div class="col-12">
+        <div class="row g-3 justify-content-end">
+            <div class="col-auto">
+                <button type="reset" class="btn btn-phoenix-primary px-5" id="rosterInOfficeDays-resetBtn">@Html.SmartLocalize("Reset")</button>
             </div>
-
-            <div class="col-md-2">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Publish")</button>
             </div>
-
-
-            <div class="col-md-2">
-            </div>
-
-            <div class="col-md-2">
-            </div>
-
-            <div class="col-md-2">
-            </div>
-
         </div>
-    </div> *@
+    </div>
 </form>
+@* data-coreui-cleaner="true|false" — Show or hide the “clear selection” button
+data-coreui-disabled="true|false" — Enable or disable the dropdown
+data-coreui-invalid="true|false" — Apply invalid state styling
+data-coreui-multiple="true|false" — Allow single or multi-select
+data-coreui-name="string" — Set form name attribute
+data-coreui-options-max-height="[value]" — Max‑height of dropdown (e.g., 200px)
+data-coreui-options-style="checkbox|text" — Display checkboxes or plain text lists
+data-coreui-placeholder="string" — Input placeholder, e.g. "Select..."
+data-coreui-search="true|false" — Enable search/filter input
+data-coreui-search-no-results-label="string" — Customize “no results” message
+data-coreui-select-all="true|false" — Show or hide a “Select All” option
+data-coreui-select-all-label="string" — Set custom label for “Select All”
+data-coreui-selection-type="tag|counter|text" — Display selected items as tags, counter, or comma‑separated text
+data-coreui-selection-type-counter-text="string" — Change counter text, e.g. "items selected"
+data-coreui-valid="true|false" — Apply valid state styling *@
