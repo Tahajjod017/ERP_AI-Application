@@ -1,15 +1,16 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 {
@@ -220,13 +221,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region GetFilteredEmployees
-        public async Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(List<int> departmentIds)
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(int? orgId, List<int>? departmentIds)
         {
             var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
-                        join emp in _employeesRepository.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        
+                        join emp in _employeesRepository.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
                         from emp in empGroup.DefaultIfEmpty()
-                        join dep in _departmentRepository.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+
+                        join dep in _departmentRepository.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                         from dep in depGroup.DefaultIfEmpty()
+
                         select new
                         {
                             empOi.EmployeeID,
@@ -239,7 +243,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                         };
 
             if (departmentIds?.Any() == true)
-                query = query.Where(x => departmentIds.Contains(x.DepartmentID ?? 0));
+                query = query.Where(x => x.OrganizationID == orgId && departmentIds.Contains(x.DepartmentID ?? 0));
 
             return await query
                 .Select(x => new RosterInOfficeDaysSetupVM
@@ -247,7 +251,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                     EmployeeID = x.EmployeeID ?? 0,
                     EmployeeName = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
                     DepartmentName = x.DepartmentName
-                }).ToListAsync();
+                }).AsNoTracking().ToListAsync();
         }
         #endregion
 
@@ -274,72 +278,88 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
-        #region GetDepartmentByCompany
-        public async Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByCompany(int id)
+        #region GetDepartmentByOrganization
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByOrganization(int? id)
         {
-            var data = await (from eoi in _employeeOfficeInfo.All()
+            var query = from eoi in _employeeOfficeInfo.AllActive().AsNoTracking()
 
-                              where eoi.OrganizationID == id
+                        join dep in _departmentRepository.AllActive().AsNoTracking() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
 
-                              join emp in _employeesRepository.All() on eoi.EmployeeID equals emp.EmployeeID into empGroup
-                              from emp in empGroup.DefaultIfEmpty()
+                        select new { eoi, dep };
 
-                              join org in _organizationRepository.All() on eoi.OrganizationID equals org.OrganizationID into orgGrouop
-                              from org in orgGrouop.DefaultIfEmpty()
+            if (id.HasValue && id.Value != 0)
+            {
+                query = query.Where(x => x.eoi.OrganizationID == id.Value);
+            }
 
-                              join dep in _departmentRepository.All() on eoi.DepartmentID equals dep.DepartmentID into depGroup
-                              from dep in depGroup.DefaultIfEmpty()
+            var result = await query
+                .Select(x => new RosterInOfficeDaysSetupVM
+                {
+                    DepartmentID = x.eoi.DepartmentID ?? 0,
+                    DepartmentName = x.dep.DepartmentName
+                }).Distinct().AsNoTracking().ToListAsync();
 
-                              select new RosterInOfficeDaysSetupVM
-                              {
-                                  DepartmentID = eoi.DepartmentID ?? 0,
-                                  DepartmentName = dep.DepartmentName,
-                              }).Distinct().ToListAsync();
-            return data;
+            return result;
         }
+
         #endregion
 
 
-        #region GetEmployeeByCompany
-        public async Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByCompany(int id)
+        #region GetEmployeeByOrganization
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByOrganization(int? id)
         {
-            var data = await (from eoi in _employeeOfficeInfo.All()
+            var query = from eoi in _employeeOfficeInfo.AllActive().AsNoTracking()
 
-                              where eoi.OrganizationID == id
+                        join emp in _employeesRepository.AllActive().AsNoTracking() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
 
-                              join emp in _employeesRepository.All() on eoi.EmployeeID equals emp.EmployeeID into empGroup
-                              from emp in empGroup.DefaultIfEmpty()
+                        join dep in _departmentRepository.AllActive().AsNoTracking() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
 
-                              join dep in _departmentRepository.All() on eoi.DepartmentID equals dep.DepartmentID into depGroup
-                              from dep in depGroup.DefaultIfEmpty()
+                        select new { eoi, emp, dep };
 
-                              select new RosterInOfficeDaysSetupVM
-                              {
-                                  EmployeeID = eoi.EmployeeID,
-                                  EmployeeName = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
-                                  DepartmentName = dep.DepartmentName
-                              }).ToListAsync();
-            return data;
+            if(id.HasValue && id.Value != 0)
+            {
+                query = query.Where(x => x.eoi.OrganizationID == id.Value);
+            }
+
+            var result = await query
+                .Select(x => new RosterInOfficeDaysSetupVM
+                {
+                    EmployeeID = x.eoi.EmployeeID,
+                    EmployeeName = $"{x.emp.FirstName} {x.emp.LastName} ({x.emp.EmployeeCode})",
+                    DepartmentName = x.dep.DepartmentName
+                }).Distinct().AsNoTracking().ToListAsync();
+
+            return result;
         }
         #endregion
 
 
         #region GetShiftByCompany
-        public async Task<List<RosterInOfficeDaysSetupVM>> GetShiftByCompany(int id)
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetShiftByOrganization(int? id)
         {
-            var data = await (from sft in _shiftsRepository.All()
+            var query = from sft in _shiftsRepository.AllActive().AsNoTracking()
 
-                              where sft.OrganizationID == id
+                        join org in _organizationRepository.AllActive().AsNoTracking() on sft.OrganizationID equals org.OrganizationID into orgGroup
+                        from org in orgGroup.DefaultIfEmpty()
 
-                              join org in _organizationRepository.All() on sft.OrganizationID equals org.OrganizationID into orgGroup
-                              from org in orgGroup.DefaultIfEmpty()
+                        select new { sft, org };
 
-                              select new RosterInOfficeDaysSetupVM
-                              {
-                                  ShiftID = sft.ShiftID,
-                                  ShiftName = $"{sft.ShiftName} ({sft.StartTime} - {sft.EndTime})"
-                              }).ToListAsync();
-            return data;
+            if(id.HasValue && id.Value != 0)
+            {
+                query = query.Where(x => x.sft.OrganizationID == id.Value);
+            }
+
+            var result = await query
+                .Select(x => new RosterInOfficeDaysSetupVM
+                {
+                    ShiftID = x.sft.ShiftID,
+                    ShiftName = $"{x.sft.ShiftName} ({x.sft.StartTime} - {x.sft.EndTime})"
+                }).AsNoTracking().ToListAsync();
+                              
+            return result;
         }
         #endregion
     }

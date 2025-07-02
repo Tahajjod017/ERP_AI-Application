@@ -4,23 +4,29 @@
     var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDaysSetupVM>;
 }
 
+<style>
+    element.style {
+        top: 276.25px;
+        left: 1378.03px;
+        user-select: none;
+    }
+
+    .date-picker-wrapper {
+        margin-left: 1.2vw !important;
+    }
+</style>
+
 <form asp-controller="OfficeDayRoster" asp-action="Create" id="rosterInOfficeDays-form" enctype="multipart/form-data">
     <div class="row g-3 mb-3">
         <div class="col-md">
-            <label class="form-label" for="organizerSingle">Organization Name</label>
-            <select class="form-multi-select"
-                    asp-for="OrganizationID"
-                    asp-items="@ViewBag.OrganizationDD as SelectList"
-                    data-coreui-options-style="text"
-                    data-coreui-multiple="false"
-                    data-coreui-search="true"
-                    data-coreui-placeholder="Select Organization...">
+            <label class="form-label" asp-for="OrganizationID">Organization Name</label>
+            <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                 <option value="">Select Organization...</option>
             </select>
         </div>
 
-        <div class="col-md">
-            <label class="form-label" for="organizerSingle">Department Name</label>
+        <div class="col-md department">
+            <label class="form-label" asp-for="DepartmentIDs">Department Name</label>
             <select class="form-multi-select"
                     asp-for="DepartmentIDs"
                     asp-items="@ViewBag.DepartmentDD as SelectList"
@@ -31,8 +37,8 @@
             </select>
         </div>
 
-        <div class="col-md">
-            <label class="form-label" for="organizerSingle">Employee Name</label>
+        <div class="col-md employee">
+            <label class="form-label" asp-for="EmployeeIDs">Employee Name</label>
             <select class="form-multi-select"
                     asp-for="EmployeeIDs"
                     multiple data-coreui-multiple="true"
@@ -52,15 +58,18 @@
         </div>
 
         <div class="col-md">
-            <label class="form-label" for="organizerSingle">Shift Name</label>
-            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                <option value="">Select Roster...</option>
+            <label class="form-label" asp-for="ShiftID">Shift Name</label>
+            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
+                <option value="">Select Shift...</option>
             </select>
         </div>
 
         <div class="col-md">
             <label class="form-label" for="timepicker2">Select Date Range</label>
-            <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="DD/MM/YYYY to DD/MM/YYYY" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
+            @* <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="DD/MM/YYYY to DD/MM/YYYY" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>
+            <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
+            <input type="hidden" id="basic-daterange_toHidden" name="ToDate" />
         </div>
 
     </div>
