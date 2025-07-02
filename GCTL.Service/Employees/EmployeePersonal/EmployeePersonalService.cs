@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 using GCTL.Core.ServiceExtensions;
 using System.Text.RegularExpressions;
+using GCTL.Service.ImageFileHandler;
 
 
 namespace GCTL.Service.Employees.EmployeePersonal
@@ -22,12 +23,13 @@ namespace GCTL.Service.Employees.EmployeePersonal
     {
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeePersonalRepository;
         private readonly IGenericRepository<Country> _countryRepository;
+        private readonly IImageFileHandlerService _imageFileHandlerService;
 
-
-        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository)
+        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService)
         {
             _employeePersonalRepository = employeePersonalRepository;
             _countryRepository = countryRepository;
+            _imageFileHandlerService = imageFileHandlerService;
         }
 
         #region Save Method
@@ -62,12 +64,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
                 if (model.EmployeePicture != null)
                 {
-                     EmployeeImageFileName = await SaveFileAsync(model.EmployeePicture, "uploads/employee/images");
+                     EmployeeImageFileName = await _imageFileHandlerService.SaveFileAsync(model.EmployeePicture, "uploads/employee/images" , true);
                 }
 
                 if (model.Signature != null)
                 {
-                     EmployeeSignatureFileName = await SaveFileAsync(model.Signature, "uploads/employee/signatures");
+                     EmployeeSignatureFileName = await _imageFileHandlerService.SaveFileAsync(model.Signature, "uploads/employee/signatures");
                 }
                 
                 

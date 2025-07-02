@@ -28,7 +28,7 @@ namespace GCTL_App.Controllers.Employees
 
         public async Task<IActionResult> BasicDetail(int empID)
         {
-            string imgURL = GetEmployeePictureURL();
+            string imgURL = GetEmployeePictureURL(true);
 
             CommonReturnViewModel result = await _employeeDetailsService.GetBasicDetail(empID, imgURL);
             return Ok(result);
