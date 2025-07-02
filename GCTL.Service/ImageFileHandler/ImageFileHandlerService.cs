@@ -92,74 +92,74 @@ namespace GCTL.Service.ImageFileHandler
         // Alternative method for saving file with stream
 
 
-        public async Task<string> SaveFileAsyncSixLabor(IFormFile file, string folderName, bool saveThumb)
-        {
-            if (file == null || file.Length == 0)
-                return null;
+        //public async Task<string> SaveFileAsyncSixLabor(IFormFile file, string folderName, bool saveThumb)
+        //{
+        //    if (file == null || file.Length == 0)
+        //        return null;
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folderName);
-            var thumbFolder = Path.Combine(uploadsFolder, "thumbs");
-            Directory.CreateDirectory(uploadsFolder);
+        //    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folderName);
+        //    var thumbFolder = Path.Combine(uploadsFolder, "thumbs");
+        //    Directory.CreateDirectory(uploadsFolder);
 
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
+        //    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        //    var filePath = Path.Combine(uploadsFolder, fileName);
 
-            // Save original file
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+        //    // Save original file
+        //    using (var stream = new FileStream(filePath, FileMode.Create))
+        //    {
+        //        await file.CopyToAsync(stream);
+        //    }
 
-            // Save thumbnail if requested
-            if (saveThumb)
-            {
-                Directory.CreateDirectory(thumbFolder);
-                var thumbPath = Path.Combine(thumbFolder, fileName);
-                await CreateThumbnailAsyncSixLabor(filePath, thumbPath, 100, 100);
-            }
+        //    // Save thumbnail if requested
+        //    if (saveThumb)
+        //    {
+        //        Directory.CreateDirectory(thumbFolder);
+        //        var thumbPath = Path.Combine(thumbFolder, fileName);
+        //        await CreateThumbnailAsyncSixLabor(filePath, thumbPath, 100, 100);
+        //    }
 
-            return fileName;
-        }
+        //    return fileName;
+        //}
 
-        private async Task CreateThumbnailAsyncSixLabor(string originalPath, string thumbnailPath, int width, int height)
-        {
-            using var image = await Image.LoadAsync(originalPath);
+        //private async Task CreateThumbnailAsyncSixLabor(string originalPath, string thumbnailPath, int width, int height)
+        //{
+        //    using var image = await Image.LoadAsync(originalPath);
 
-            // Resize image maintaining aspect ratio and cropping if necessary
-            image.Mutate(x => x
-                .Resize(new ResizeOptions
-                {
-                    Size = new Size(width, height),
-                    Mode = ResizeMode.Crop,
-                    Position = AnchorPositionMode.Center
-                }));
+        //    // Resize image maintaining aspect ratio and cropping if necessary
+        //    image.Mutate(x => x
+        //        .Resize(new ResizeOptions
+        //        {
+        //            Size = new Size(width, height),
+        //            Mode = ResizeMode.Crop,
+        //            Position = AnchorPositionMode.Center
+        //        }));
 
-            // Save as JPEG with high quality
-            var encoder = new JpegEncoder
-            {
-                Quality = 85
-            };
+        //    // Save as JPEG with high quality
+        //    var encoder = new JpegEncoder
+        //    {
+        //        Quality = 85
+        //    };
 
-            await image.SaveAsync(thumbnailPath, encoder);
-        }
+        //    await image.SaveAsync(thumbnailPath, encoder);
+        //}
 
-        // Alternative method for creating thumbnail from stream
-        private async Task CreateThumbnailFromStreamAsyncSixLabor(Stream sourceStream, string thumbnailPath, int width, int height)
-        {
-            sourceStream.Position = 0; // Reset stream position
+        //// Alternative method for creating thumbnail from stream
+        //private async Task CreateThumbnailFromStreamAsyncSixLabor(Stream sourceStream, string thumbnailPath, int width, int height)
+        //{
+        //    sourceStream.Position = 0; // Reset stream position
 
-            using var image = await Image.LoadAsync(sourceStream);
+        //    using var image = await Image.LoadAsync(sourceStream);
 
-            image.Mutate(x => x
-                .Resize(new ResizeOptions
-                {
-                    Size = new Size(width, height),
-                    Mode = ResizeMode.Crop,
-                    Position = AnchorPositionMode.Center
-                }));
+        //    image.Mutate(x => x
+        //        .Resize(new ResizeOptions
+        //        {
+        //            Size = new Size(width, height),
+        //            Mode = ResizeMode.Crop,
+        //            Position = AnchorPositionMode.Center
+        //        }));
 
-            var encoder = new JpegEncoder { Quality = 85 };
-            await image.SaveAsync(thumbnailPath, encoder);
-        }
+        //    var encoder = new JpegEncoder { Quality = 85 };
+        //    await image.SaveAsync(thumbnailPath, encoder);
+        //}
     }
 }

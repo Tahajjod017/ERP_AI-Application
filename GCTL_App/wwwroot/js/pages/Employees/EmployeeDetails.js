@@ -42,14 +42,48 @@
 
     //#endregion
 
-
+    $('#btnExport').on('click', function () {
+        var id = $('#empPersonalId').val();
+        GenaratePDF(id);
+        });
    
    // populateExperienceInfoTable(experienceInfoData);
 
 });
 
+//#region PDF
 
-//#region Populate real
+function GenaratePDF(empId) {
+    if (!empId) {
+        toastr.warning("Employee ID is required.");
+        return;
+    }
+
+    $.ajax({
+        url: '/EmployeeReport/GenerateIndiEmpDetailsPDF', // Backend route
+        type: 'POST',
+        data: { id: empId },
+        xhrFields: {
+            responseType: 'blob' // Important for handling binary files
+        },
+        success: function (response, status, xhr) {
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Employee_${empId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error generating PDF:", error);
+        }
+    });
+}
+//#endregion 
+
+//#region all Populate function real
 
 
 function populateBaseInfo(profile) {
@@ -78,6 +112,8 @@ function populateBaseInfo(profile) {
     $("#numberOfChildren").text(profile.numberOfChildren);
 
     $("#employeeBio").text(profile.bio);
+
+    $("#empPersonalId").val(profile.employeeId);
 }
 
 
@@ -177,9 +213,6 @@ function populateEmergencyContactInfo(data) {
 }
 
 //#endregion
-
-
-
 
 //#region Conststants for Employee Data
 
