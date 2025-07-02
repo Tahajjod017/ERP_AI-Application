@@ -5,12 +5,15 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.ActionLogVM;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,13 +33,20 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<Statuses> leaveStatuses;
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
+        //
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly IGenericRepository<Departments> _departmentRepository;
+       
+     
+        //
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly IGenericRepository<Holidays> holidays;
         private readonly IGenericRepository<WeekendSettings> weenkendsettings;
         private readonly IGenericRepository<WeekendDays> weekedays;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays ) : base(leaveRequest)
+        private readonly IGenericRepository<LeaveBalances> leaveBalances;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository , IGenericRepository<Departments> departmentRepository ) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -49,15 +59,20 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.holidays = holidays;
             this.weenkendsettings = weenkendsettings;
             this.weekedays = weekedays;
+            this.leaveBalances = leaveBalances;
+            _organizationRepository = organizationRepository;
+            _departmentRepository = departmentRepository;
         }
 
         #region  Get Data All  Leave  Requyest
-        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "" , string url = "", string userId="", int? leaveTypeID = null, int? statusID = null)
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
+    List<int> departmentIds = null,
+    List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
 
-                var employeeId = await appDb.Users .Where(u => u.Id == userId) .Select(e => e.EmployeeId).FirstOrDefaultAsync();
+                var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
                 var roleName = await (from user in appDb.Users
                                       join userRole in appDb.UserRoles on user.Id equals userRole.UserId
                                       join role in appDb.Roles on userRole.RoleId equals role.Id
@@ -81,8 +96,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 {
                     query = query.Where(x => x.LeaveTypeID == leaveTypeID);
                 }
+                if (fromDate.HasValue && toDate.HasValue)
+                {
+                    query = query.Where(x => x.FromDate >= fromDate.Value && x.ToDate <= toDate.Value);
+                }
 
-              
+
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");
@@ -93,7 +112,36 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     query = query.Where(x => x.EmployeeID == employeeId);
                 }
                 //
+                //
+                // Get all EmployeeOfficeInfo for filtering
+                var officeInfoQuery = empoffi.AllActive().AsQueryable();
 
+                if (organizationId.HasValue)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => x.OrganizationID == organizationId)
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (departmentIds?.Any() == true)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => departmentIds.Contains(x.DepartmentID ?? 0))
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (employeeIds?.Any() == true)
+                {
+                    query = query.Where(x => employeeIds.Contains((int)x.EmployeeID));
+                }
+
+                //
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
 
 
@@ -127,8 +175,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
 
                 return result;
-             
-           
+
+
             }
             catch (Exception ex)
             {
@@ -141,6 +189,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+
 
 
         #endregion
@@ -158,6 +207,42 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             {
                 var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
                 if (data == null) return null;
+
+                //
+                var leaveBalance = await leaveBalances.AllActive()
+                          .Where(x => x.EmployeeID == data.EmployeeID && x.LeaveTypeID == data.LeaveTypeID)
+                          .Select(x => new
+                          {
+                              leaveDays = x.TotalLeave - x.Taken
+                          }).FirstOrDefaultAsync();
+
+                decimal availableDays = 0;
+
+                if (leaveBalance != null)
+                {
+                    availableDays = leaveBalance.leaveDays ?? 0;
+                }
+                else
+                {
+                    var defaultLeave = await leaveTypes.AllActive()
+                        .Where(l => l.LeaveTypeID == data.LeaveTypeID)
+                        .Select(l => new
+                        {
+                            leaveDays = l.LeaveDays
+                        }).FirstOrDefaultAsync();
+
+                    if (defaultLeave == null) return null;
+
+                    availableDays = defaultLeave.leaveDays ?? 0;
+                }
+                //
+                SubsequentVM subsequent = null;
+
+                var fromDateTime = data.FromDate.ToDateTime(TimeOnly.MinValue);
+                var toDateTime = data.ToDate.ToDateTime(TimeOnly.MinValue);
+
+                subsequent = await SubsequentAsynce(fromDateTime, toDateTime);
+
                 LeaveApplicationEditVM entityVM = new LeaveApplicationEditVM
                 { 
                 LeaveApplicationID = data.LeaveApplicationID,
@@ -169,6 +254,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 ToDateEdit=data.ToDate,
                 PartialFromTimeEdit=data.PartialFromTime,
                 PartialToTimeEdit=data.PartialToTime,
+                LeaveDaysEdit = availableDays,
+                Period = data.IsFullDay ? (data.ToDate.DayNumber - data.FromDate.DayNumber) + 1 : data.PartialFromTime.HasValue && data.PartialToTime.HasValue ? (int)(data.PartialToTime.Value - data.PartialFromTime.Value).TotalHours : 0,
+                TotalSubsequentDays = subsequent?.TotalSubsequentDays,
+               IsHolidayCountedAsLeave = subsequent?.IsHolidayCountedAsLeave ?? false,
+               IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false,
+              
                 };
                 return entityVM;
             }
@@ -183,6 +274,29 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region  Save Leave Reqest
+
+        //
+        private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to)
+        {
+            var leaveStatusRejected = await leaveStatuses.AllActive()
+                .Where(x => x.StatusName == "DECLINEED")
+                .Select(x => x.StatusID)
+                .ToListAsync();
+
+            var retult = await leaveRequest.AllActive().AnyAsync(x =>
+                x.EmployeeID == employeeId &&
+                !leaveStatusRejected.Contains(x.Status.StatusID) &&
+                (
+                    (from >= x.FromDate && from <= x.ToDate) ||
+                    (to >= x.FromDate && to <= x.ToDate) ||
+                    (from <= x.FromDate && to >= x.ToDate)
+                )
+            );
+            return retult;
+        }
+
+
+        //
         public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
         {
             if (entityVM == null)
@@ -193,11 +307,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     Message = "Data Can not be null"
                 };
             }
+            // Duplicate Date Check
+            if (await HasOverlappingLeave(entityVM.EmployeeID, entityVM.FromDate, entityVM.ToDate))
+            { 
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "You already have leave on selected dates"
+                };
 
-            await leaveRequest.BeginTransactionAsync();
-
+            }
+            //
+       
+        await leaveRequest.BeginTransactionAsync();
+            
             try
             {
+
+
                 var entity = new LeaveApplications
                 {
                     EmployeeID = entityVM.EmployeeID,
@@ -207,6 +334,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     PartialFromTime = entityVM.PartialFromTime,
                     PartialToTime = entityVM.PartialToTime,
                     StatusID = entityVM.StatusID,
+                    LeaveApplicableYear = DateTime.Now.Year,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LeaveTypeID = entityVM.LeaveTypeID,
@@ -363,22 +491,52 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region Get LeaveType Total Days
-        public async Task<object> GetLeaveTypeTotaldays(int leaveTypeID)
+        public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
         {
-            var data = await leaveTypes.AllActive()
-         .Where(l => l.LeaveTypeID == leaveTypeID)
-         .Select(l => new 
-         {
-             leaveDays = l.LeaveDays
-         }).FirstOrDefaultAsync();
 
-            return data;
+            //
+            var usedUpLeaveTypeIds = await leaveBalances.AllActive()
+        .Where(lb => lb.EmployeeID == employeeId && (lb.TotalLeave - lb.Taken) <= 0)
+        .Select(lb => lb.LeaveTypeID)
+        .ToListAsync();
+
+            var leaveTypess = await leaveTypes.AllActive()
+                .Where(lt => !usedUpLeaveTypeIds.Contains(lt.LeaveTypeID))
+                .ToListAsync();
+            //
+            var leaveBalance = await leaveBalances.AllActive()
+                .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
+                .Select(x => new
+                {
+                    leaveDays = x.TotalLeave - x.Taken
+                })
+                .FirstOrDefaultAsync();
+
+            if (leaveBalance != null)
+            {
+                return leaveBalance;
+            }
+            else
+            {
+                var defaultLeave = await leaveTypes.AllActive()
+                    .Where(l => l.LeaveTypeID == leaveTypeID)
+                    .Select(l => new
+                    {
+                        leaveDays = l.LeaveDays
+                    }).FirstOrDefaultAsync();
+                if (defaultLeave == null) return null;
+                return defaultLeave;
+            }
         }
 
 
+
+
+
         #endregion
+
         #region Get All Employee or Single
-       
+
         public async Task<List<CommonSelectVM>> GetAllEmployee(string userId)
         {
             // Step 1: Get employeeId from the user
@@ -455,6 +613,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
         {
+
+            var normalizedFrom = fromDate.Date;
+            var normalizedTo = toDate.Date;
+            if (normalizedTo < normalizedFrom)
+                throw new ArgumentException("toDate must be on or after fromDate");
+
+            int totalDays = (int)(normalizedTo - normalizedFrom).TotalDays + 1;
+
             var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
                 .Select(x => new
                 {
@@ -514,15 +680,173 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             return new SubsequentVM
             {
+                TotalDays = totalDays,
                 TotalSubsequentDays = uniqueDates.Count,
                 IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
                 IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
             };
         }
 
-       
+
 
 
         #endregion
+
+
+        //
+
+        #region GetCompanies
+        public Task<List<CommonSelectVM>> GetCompanies()
+        {
+            var data = _organizationRepository.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.OrganizationID,
+                    Name = x.OrganizationName
+                }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetDepartments
+        public async Task<List<CommonSelectVM>> GetDepartments()
+        {
+            var data = await _departmentRepository.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.DepartmentID,
+                    Name = x.DepartmentName
+                }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetGroupedEmployees
+        public async Task<List<MultiDropDown>> GetGroupedEmployees()
+        {
+            var data = await (from empOi in empoffi.AllActive().AsNoTracking()
+
+                              join emp in employee.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join org in _organizationRepository.AllActive() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+                              from org in orgGroup.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new MultiDropDown
+                              {
+                                  EmployeeID = empOi.EmployeeID ?? 0,
+                                  EmployeeName = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  DepartmentName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetFilteredEmployees
+        public async Task<List<MultiDropDown>> GetEmployeeByDepartment(List<int> departmentIds)
+        {
+            var query = from empOi in empoffi.AllActive().AsNoTracking()
+                        join emp in employee.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
+                        join dep in _departmentRepository.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+                        select new
+                        {
+                            empOi.EmployeeID,
+                            emp.FirstName,
+                            emp.LastName,
+                            emp.EmployeeCode,
+                            dep.DepartmentName,
+                            empOi.OrganizationID,
+                            empOi.DepartmentID
+                        };
+
+            if (departmentIds?.Any() == true)
+                query = query.Where(x => departmentIds.Contains(x.DepartmentID ?? 0));
+
+            return await query
+                .Select(x => new MultiDropDown
+                {
+                    EmployeeID = x.EmployeeID ?? 0,
+                    EmployeeName = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                    DepartmentName = x.DepartmentName
+                }).ToListAsync();
+        }
+        #endregion
+
+
+
+
+        #region SoftDeleteAsync
+        public Task<MultiDropDown> SoftDeleteAsync(DeleteRequestVM model)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+
+        #region GetDepartmentByCompany
+        public async Task<List<MultiDropDown>> GetDepartmentByCompany(int id)
+        {
+            var data = await (from eoi in empoffi.AllActive()
+
+                              where eoi.OrganizationID == id
+
+                              join emp in employee.AllActive() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join org in _organizationRepository.AllActive() on eoi.OrganizationID equals org.OrganizationID into orgGrouop
+                              from org in orgGrouop.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.AllActive() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new MultiDropDown
+                              {
+                                  DepartmentID = eoi.DepartmentID ?? 0,
+                                  DepartmentName = dep.DepartmentName,
+                              }).Distinct().ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetEmployeeByCompany
+        public async Task<List<MultiDropDown>> GetEmployeeByCompany(int id)
+        {
+            var data = await (from eoi in empoffi.AllActive()
+
+                              where eoi.OrganizationID == id
+
+                              join emp in employee.AllActive() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join dep in _departmentRepository.AllActive() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new MultiDropDown
+                              {
+                                  EmployeeID = eoi.EmployeeID,
+                                  EmployeeName = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  DepartmentName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        //
+
+        
+
+
+
+        //
     }
 }

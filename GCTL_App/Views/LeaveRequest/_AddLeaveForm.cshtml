@@ -1,62 +1,54 @@
-﻿
- @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
+﻿ @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
 
 <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
-          <div class="modal-body pb-0">
-            <div class="row">
-              <div class="col-md-12">
+    <div class="modal-body pb-0">
+        <div class="row">
+            <div class="col-md-12">
                 <div class="mb-3">
-                  <label class="form-label req" for="organizerSingle">Name</label>
+                    <label class="form-label req" for="organizerSingle">Name</label>
                     <select class="form-select choiceDD" asp-for="EmployeeID" required>
-                      @*   asp-items="@ViewBag.EmployeeDD as SelectList" *@
+
                         <option value="">Select Employee</option>
                     </select>
                     <span asp-validation-for="EmployeeID" class="text-danger small"></span>
                 </div>
-              </div>
-              <div class="col-md-6">
+            </div>
+            <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">Leave Type</label>
                     <select class="form-select choiceDD" asp-for="LeaveTypeID" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
                         <option value="">Select Leave</option>
                     </select>
                     <span asp-validation-for="LeaveTypeID" class="text-danger small"></span>
-                  </div>
-              </div>
-              <div class="col-md-6">
+                </div>
+            </div>
+            <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Available No of Days</label>
-                  <input type="text" class="form-control" asp-for="LeaveDays"  disabled>
+                    <input type="text" class="form-control" asp-for="LeaveDays" readonly>
                 </div>
-              </div>
+            </div>
 
-            @*   < div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Remaining Days</label>
-                  <input type="text" class="form-control"  disabled>
-                </div>
-                
-              </div>  *@
-
-              <div class="d-flex col-md-6">
+       
+            <div class="d-flex col-md-6">
                 <div class="form-check me-3">
                     <input class="form-check-input" type="radio" asp-for="IsFullDay" id="option1" value="true" checked>
-                  <label class="form-check-label" for="option1">Full Day</label>
+                    <label class="form-check-label" for="option1">Full Day</label>
                 </div>
 
                 <div class="form-check">
                     <input class="form-check-input" type="radio" asp-for="IsFullDay" id="option2" value="false">
-                  <label class="form-check-label" for="option2">Partial Day</label>
+                    <label class="form-check-label" for="option2">Partial Day</label>
                 </div>
-              </div>
+            </div>
 
 
-               <!-- Divs to Show/Hide -->
+            <!-- Divs to Show/Hide -->
             <div id="FullDayDiv" class="">
                 <div class="">
-                  <div class="row">
+                    <div class="row">
 
-                    <div class=" col-md-6">
+                        <div class=" col-md-6">
                             <div class="mb-3">
                                 <div class="mb-3 flatpickr-input-container">
                                     <label class="form-label req">From</label>
@@ -69,11 +61,11 @@
 
                                     <span id="FromDateError" class="text-danger small"></span>
                                 </div>
-                      
-                      </div>
-                    </div>
 
-                    <div class="col-md-6">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label req">To</label>
                                 <div class="input-icon-end position-relative">
@@ -83,37 +75,30 @@
                                 </div>
                                 <span id="ToDateError" class="text-danger small"></span>
                             </div>
-                    </div>
+                        </div>
 
-                    <div class="col-md-6">
-                      <div class="mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
                                 <label class="form-label">Subsequent Holyday Days</label>
                                 <input type="text" id="SubsequentHolydayDays" class="form-control" disabled>
-                      </div>
-                    </div>
+                            </div>
+                        </div>
 
-                    <div class="col-md-6">
-                      <div class="mb-3">
-                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+
                                 <label class="form-label">Total Applied Days</label>
-                                <input type="text" id="TotalAppliedDays" class="form-control" disabled>
-                      </div>
+                                <input type="text" id="TotalAppliedDays" class="form-control" readonly>
+                            </div>
+                        </div>
+
                     </div>
-
-                   @*  <div class="col-md-4">
-                      <div class="mb-3">
-                        <label class="form-label">Total Days</label>
-                        <input type="text" class="form-control"  disabled>
-                      </div>
-                    </div> *@
-
-                  </div>
                 </div>
-              </div>
+            </div>
 
             <div id="PartialDayDiv" class="mt-4 d-none">
                 <div class="row">
-                  <div class=" col-md-4">
+                    <div class=" col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">Date </label>
                             <div class="input-icon-end position-relative">
@@ -123,45 +108,63 @@
                             </div>
                             <span id="ToDateFromDateCombinedError" class="text-danger small"></span>
                         </div>
-                  </div>
-                  <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">Start Time</label>
                             <input class="form-control datetimepicker" asp-for="PartialFromTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
                             <span asp-validation-for="PartialFromTime" class="text-danger small"></span>
                         </div>
-                  </div>
-                  <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">End Time</label>
                             <input class="form-control datetimepicker" asp-for="PartialToTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
                             <span asp-validation-for="PartialToTime" class="text-danger small"></span>
                         </div>
-                  </div>
+                    </div>
                 </div>
-              </div>
+            </div>
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Reason</label>
                     <textarea asp-for="Reason" class="form-control" rows="3"></textarea>
                 </div>
             </div>
-            </div>
-          </div>
-    
+        </div>
+    </div>
+
     <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
         <button id="ApplyLeaveSubmitButton" class="btn btn-primary">Apply Leave</button>
     </div>
 
-        </form> 
+</form>
+
+<div class="modal fade" id="exceedAnnualLeaveModal" tabindex="-1" aria-labelledby="exceedAnnualLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content" style="height: 350px;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exceedAnnualLeaveModalLabel">Leave Limit Exceeded</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                You applied for more days than available.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 <script>
-    
+
 
     document.addEventListener('DOMContentLoaded', function () {
         const radios = document.querySelectorAll('input[name="IsFullDay"]');
-        const div1 = document.getElementById('FullDayDiv'); 
-        const div2 = document.getElementById('PartialDayDiv'); 
+        const div1 = document.getElementById('FullDayDiv');
+        const div2 = document.getElementById('PartialDayDiv');
 
         function toggleLeaveSections() {
             const isFullDay = document.querySelector('input[name="IsFullDay"]:checked').value === 'true';
@@ -181,13 +184,6 @@
     });
 
 
-    //
-    
-
-    //
-      
-    
-    
 </script>
 
 

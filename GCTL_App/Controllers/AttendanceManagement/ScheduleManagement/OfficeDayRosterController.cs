@@ -1,5 +1,4 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -21,6 +20,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             _assignDefaultShiftService = assignDefaultShiftService;
         }
 
+
+        #region Index
         public async Task<IActionResult> Index()
         {
             RosterInOfficeDaysPageVM model = new RosterInOfficeDaysPageVM();
@@ -33,6 +34,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
             return View(model);
         }
+        #endregion
 
 
         #region Create
@@ -85,6 +87,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 return Json(new { isSuccess = false, message = ex.Message });
             }
+        }
+        #endregion
+
+
+        #region 
+        public async Task<IActionResult> GetDepartmentByCompany(int id)
+        {
+            var result = await _assignDefaultShiftService.GetDepartmentByCompany(id);
+            return Json(result);
         }
         #endregion
     }

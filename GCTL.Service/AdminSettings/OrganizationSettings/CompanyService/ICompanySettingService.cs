@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
 {
@@ -22,6 +23,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
         #endregion
         #region Others
         Task<bool> IsNameUniqueAsync(string name);
+        Task<List<SelectListItem>> GetCountriesAsync();
         #endregion
     }
 }

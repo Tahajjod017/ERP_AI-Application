@@ -11,7 +11,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public int LeaveApplicationID { get; set; }
         public int? EmployeeIDEdit { get; set; }
         public int? LeaveTypeIDEdit { get; set; }
-        public double LeaveDaysEdit { get; set; }
+        public decimal LeaveDaysEdit { get; set; }
         public bool IsFullDayEdit { get; set; }
         public DateOnly? FromDateEdit { get; set; }
         public DateOnly? ToDateEdit { get; set; }
@@ -20,7 +20,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public TimeOnly? PartialFromTimeEdit { get; set; }
         public TimeOnly? PartialToTimeEdit { get; set; }
         public string? ReasonEdit { get; set; }
-      
-      
+        public int? TotalSubsequentDays { get; set; }
+        public bool IsHolidayCountedAsLeave { get; set; }
+        public bool IsWeekendCountedAsLeave { get; set; }
+        public double? Period { get; set; }
+
     }
 }

@@ -5,117 +5,133 @@
 
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
+<style>
+    .custom-padding-left {
+        padding-left: 4.5em;
+        margin-bottom: -0.656rem;
+        padding-top:1rem;
+    }
+</style>
 
 <div class="col-xl-12 mt-3">
-
     <div class="card mb-4">
         <div class="card-body">
             <div class="border-bottom d-flex align-items-center pb-3 mb-3">
                 <h4>Approval Settings</h4>
-
             </div>
-            <form action="approval-settings.html">
 
+            <!-- Start Approval Settings Form -->
+            <form id="aprovalSettingsForm" asp-controller="ApprovalSettings" asp-action="Create" method="post">
                 <div class="border-bottom mb-3">
                     <div class="row">
                         <div class="col-md-12 d-flex">
                             <div class="flex-fill">
-
-
                                 <div class="row">
+                                    <!-- Company and Approval Type -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3 mt-1">
+                                            <label class="form-label">Organization Name</label>
+                                            <select class="form-select choiceDD" id="OrganizationID" name="OrganizationID">
+                                                <option value="">Select Organization</option>
+                                                @foreach (var org in ViewBag.Organizations)
+                                                {
+                                                    <option value="@org.Value">@org.Text</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3 mt-1">
-                                            <label class="form-label" for="exampleFormControlInput">Company Name</label>
-                                            <select class="form-multi-select" multiple data-coreui-search="true">
-                                                <option value="1">CSL</option>
-                                                <option value="2">GCTL</option>
+                                            <label class="form-label">Approval Type</label>
+                                            <select class="form-select choiceDD" id="ApprovalTypeID" name="ApprovalTypeID">
+                                                <option value="">Select Approval Type</option>
+                                                @foreach (var status in ViewBag.ApprovalTypes)
+                                                {
+                                                    <option value="@status.Value">@status.Text</option>
+                                                }
                                             </select>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <div class="mb-3 mt-1">
-                                            <label class="form-label" for="exampleFormControlInput">Approval Type</label>
-                                            <select class="form-select" id="approval" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                <option>Leave Approval</option>
-                                                <option>Purchage Approval</option>
-                                                <option>Loan Approval</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-
-                                    <!-- Second Div -->
-                                    <div class="col-md-4">
-                                        <div class="mb-3 mt-1">
-                                            <label class="form-label" for="exampleFormControlInput">First Approvers</label>
-                                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                <option>Select</option>
-                                                <option>CEO</option>A
-                                                <option>Manager</option>
-                                                <option>Team Lead</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <!-- First Div -->
+                                    <!-- Approver Sections (First, Second, Third Approver) -->
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" id="flexSwitchCheckDefault1" type="checkbox" />
-                                                <label class="form-check-label" for="flexSwitchCheckDefault1">Second Approvers</label>
+                                            <div class="row">
+                                                <!-- First Approvers Checkbox -->
+                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                                    <input class="form-check-input" id="chkFirst" type="checkbox" />
+                                                    <label class="form-check-label" for="chkFirst">First Approver</label>
+                                                </div>
+
+                                                <!-- Use Employee Checkbox (Right Half) -->
+                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                                    <input class="form-check-input" id="toggleFirst" type="checkbox" name="IsDesignationOrEmpFirstApprovalID" />
+                                                    <label class="form-check-label" for="toggleFirst">Use Employee</label>
+                                                </div>
                                             </div>
-                                            <select class="form-select" id="organizerSingle1" disabled>
-                                                <option value="">Select</option>
-                                                <option value="ceo">CEO</option>
-                                                <option value="manager">Manager</option>
-                                                <option value="teamlead">Team Lead</option>
-                                            </select>
+
+                                            <!-- Select Dropdown (Below Checkboxes) -->
+                                            <div class="mt-3">
+                                                <select class="form-select " id="selFirst" disabled name="FirstApprovalID">
+                                                    <!-- Options will be populated dynamically -->
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <!-- Second Div -->
+                                    <!-- Second Approvers Section -->
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" id="flexSwitchCheckDefault2" type="checkbox" />
-                                                <label class="form-check-label" for="flexSwitchCheckDefault2">Third Approvers</label>
+                                            <div class="row">
+                                                <!-- Second Approvers Checkbox -->
+                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                                    <input class="form-check-input" id="chkSecond" type="checkbox" name="IsEnableSecondApproval" />
+                                                    <label class="form-check-label" for="chkSecond">Second Approver</label>
+                                                </div>
+
+                                                <!-- Use Employee Checkbox (Right Half) -->
+                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                                    <input class="form-check-input" id="toggleSecond" type="checkbox" name="IsDesignationOrEmpSecondApprovalID" />
+
+                                                    <label class="form-check-label" for="toggleSecond">Use Employee</label>
+                                                </div>
                                             </div>
-                                            <select class="form-select" id="organizerSingle2" disabled>
-                                                <option value="">Select</option>
-                                                <option value="ceo">CEO</option>
-                                                <option value="manager">Manager</option>
-                                                <option value="teamlead">Team Lead</option>
-                                            </select>
+
+                                            <!-- Select Dropdown (Below Checkboxes) -->
+                                            <div class="mt-3">
+                                                <select class="form-select " id="selSecond" disabled name="SecondApprovalID">
+                                                    <!-- Options will be populated dynamically -->
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
 
+                                    <!-- Third Approvers Section -->
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <div class="row">
+                                                <!-- Third Approvers Checkbox -->
+                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                                    <input class="form-check-input" id="chkThird" type="checkbox" name="IsEnableThirdApproval" />
+                                                    <label class="form-check-label" for="chkThird">Third Approver</label>
+                                                </div>
 
-                                    <!-- JavaScript Logic -->
-                                    <script>
-                                        document.addEventListener('DOMContentLoaded', function () {
-                                          const firstCheckbox = document.getElementById('flexSwitchCheckDefault1');
-                                          const secondCheckbox = document.getElementById('flexSwitchCheckDefault2');
-                                          const firstSelect = document.getElementById('organizerSingle1');
-                                          const secondSelect = document.getElementById('organizerSingle2');
+                                                <!-- Use Employee Checkbox (Right Half) -->
+                                                <div class="form-check form-switch col-6 custom-padding-left">
+                                                    <input class="form-check-input" id="toggleThird" type="checkbox" name="IsDesignationOrEmpThirdApprovalID" />
+                                                    <label class="form-check-label" for="toggleThird">Use Employee</label>
+                                                </div>
+                                            </div>
 
-                                          // Task 1: Enable first select when first checkbox is checked
-                                          firstCheckbox.addEventListener('change', function () {
-                                            firstSelect.disabled = !this.checked;
-                                          });
-
-                                          // Task 2: Enable second select only if first checkbox is checked
-                                          secondCheckbox.addEventListener('change', function () {
-                                            if (firstCheckbox.checked) {
-                                              secondSelect.disabled = !this.checked;
-                                            } else {
-                                              alert('Please check the "Second Leave Approvers" first.');
-                                              this.checked = false; // Prevent checking if first is not checked
-                                            }
-                                          });
-                                        });
-                                    </script>
+                                            <!-- Select Dropdown (Below Checkboxes) -->
+                                            <div class="mt-3">
+                                                <select class="form-select" id="selThird" disabled name="ThirdApprovalID">
+                                                    <!-- Options will be populated dynamically -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>
@@ -123,183 +139,31 @@
                     </div>
                 </div>
 
+                <!-- Form Buttons -->
                 <div class="d-flex align-items-center justify-content-end">
-                    <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
+
+           
+            <!-- End Approval Settings Form -->
+
         </div>
     </div>
-    <div class="card mt-4 mb-4">
-        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
-            <h4 class="mb-1">@Html.SmartLocalize("Approval List")</h4>
-            @* <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-                                <div class="dropdown me-3">
-                                    <select class="form-select" id="addEmailConfig-dd-search" asp-items="ViewBag.OrganizationDD as SelectList" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                        <option value="">@Html.SmartLocalize("Company Name")</option>
-                                    </select>
-                                </div>
-                            </div> *@
-        </div>
-
-        <div class="border-translucent p-3">
-            <div class="row g-3 justify-content-between align-items-end mb-4">
-                <div class="col-12 col-sm-auto">
-                    <div class="d-flex align-items-center me-3" style="width: auto;">
-                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
-                        <div style="width: 100%;">
-                            <select id="addEmailConfig-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
-                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
-                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
-                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
-                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-auto">
-                    <div class="d-flex align-items-center">
-                        <div class="d-none me-3" id="addEmailConfig-bulkSelectActions">
-                            <div class="position-relative">
-                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="addEmailConfig-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
-                            </div>
-                        </div>
-
-                        <div class="search-box me-3" id="addShift-searchBox">
-                            <form class="position-relative" id="addShift-searchForm">
-                                <input class="form-control search-input search" id="addEmailConfig-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
-                                <span class="fas fa-search search-box-icon"></span>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-responsive scrollbar mx-n1 px-1">
-                <table class="table table-sm fs-9 leads-table">
-                    <thead>
-                        <tr>
-                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input" id="addShift-check-all" />
-                            </th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("Company Name")</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Approval Type")</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("First Approval")</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPort">@Html.SmartLocalize("Second Approval")</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("Third Approval")</th>
-                            <th class="text-end align-middle pe-0 ps-5 text-uppercase" scope="col">@Html.SmartLocalize("Action")</th>
-                        </tr>
-                    </thead>
-                    <tbody id="addEmailConfig-tBody">
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
-                <div class="d-flex">
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="addEmailConfig-paginationInfo"></p>
-
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                </div>
-                <div class="d-flex">
-                    <button class="page-link" data-list-pagination="prev" id="addShift-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
-                    <ul class="mb-0 pagination" id="addEmailConfig-paginationLinks"></ul>
-                    <button class="page-link pe-0" data-list-pagination="next" id="addEmailConfig-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @* <div class="card">
-        <div class="card-header">
 
 
-            <div class="d-flex justify-content-between mb-2">
-                <h4 class="mb-1">Approval List</h4>
+    
 
 
-            </div>
+ 
+   
 
-            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-
-                <div class="dropdown me-2">
-                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Select Company...</option>
-                        <option>CSL</option>
-                        <option>GCTL</option>
-                    </select>
-                </div>
-
-
-            </div>
-
-        </div>
-
-
-        <div class="card-body">
-            <div class="border-translucent p-3">
-                <div id="employeeListTable" data-list='{"valueNames":["approvalType","companyName","firstApproval","secondApproval","thirdApproval"],"page":5,"pagination":true}'>
-
-                    <div class="table-responsive scrollbar mx-n1 px-1">
-                        <table class="table table-sm fs-9 leads-table">
-
-                            <thead>
-                                <tr>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approvalType">Approval Type</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="companyName">Company Name</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="firstApproval">First Approval</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="secondApproval">Second Approval</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="thirdApproval">Third Approval</th>
-                                    <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
-                                </tr>
-                            </thead>
-
-                            <tbody class="list" id="purchasers-sellers-body">
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                                        <span>Leave Approval</span>
-                                    </td>
-                                    <td class="companyName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">GCTL</td>
-                                    <td class="firstApproval align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">CEO</td>
-                                    <td class="secondApproval align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">-</td>
-                                    <td class="thirdApproval align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">-</td>
-
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_employee_approval">
-                                                <i class="fas fa-edit text-success"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-
-
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="row align-items-center justify-content-between pe-0 fs-9">
-                        <div class="col-auto d-flex">
-                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                        </div>
-                        <div class="col-auto d-flex">
-                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                            <ul class="mb-0 pagination"></ul>
-                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div> *@
-
+    <partial name="_ApprovalSettingsTable"/>
+    <partial name="_editApprovalSettings" />
+    <partial name="_ConfirmDelete" />
 </div>
+
+@section Scripts {
+    <script src="~/js/pages/adminsettings/organizationsettings/approvalsettings.js"></script>
+}
