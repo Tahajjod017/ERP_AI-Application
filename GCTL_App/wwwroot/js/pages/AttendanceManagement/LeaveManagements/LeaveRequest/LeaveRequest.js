@@ -2,7 +2,262 @@
 
 $(document).ready(function () {
 
+    
+    //
 
+    $('.one').on('changed.coreui.multi-select', function (event) {
+        const target = event.target;
+
+        if (target && target.id === 'OrganizationID') {
+            const selectedOrgId = $(target).val();
+            if (selectedOrgId) {
+                loadDepartmentsByCompany(selectedOrgId);
+                loadEmplooyeesByCompany(selectedOrgId);
+                currentPage = 1;
+                loadTableData(); 
+            } else {
+                currentPage = 1;
+                loadTableData(); 
+            }
+        }
+    });
+
+
+    function loadDepartmentsByCompany(organizationId) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/LeaveRequest/GetDepartmentByCompany',
+                type: 'GET',
+                data: { id: organizationId },
+                success: function (departments) {
+                    recreateDepartmentDropdown(departments);
+                    //resolve(); 
+                    setTimeout(() => resolve(), 100);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading departments:', error);
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    function loadDepartmentsByCompany(organizationId) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/LeaveRequest/GetDepartmentByCompany',
+                type: 'GET',
+                data: { id: organizationId },
+                success: function (departments) {
+                    recreateDepartmentDropdown(departments);
+                    //resolve(); 
+                    setTimeout(() => resolve(), 100);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading departments:', error);
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    function loadEmplooyeesByCompany(organizationId) {
+        $.ajax({
+            url: '/LeaveRequest/GetEmployeeByCompany',
+            type: 'GET',
+            data: { id: organizationId },
+            success: function (data) {
+                updateEmployeeDropdown(data);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error loading employees:', error);
+            }
+        });
+    }
+
+    function updateEmployeeDropdown(data, employeeIDs = []) {
+        var $empSelect = $('#EmployeeIDs');
+        $empSelect.empty();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            $empSelect.append('<option disabled>No employees found</option>');
+            refreshCoreUIMultiSelect();
+            return;
+        }
+
+        // Group employees by department name
+        const grouped = {};
+        data.forEach(emp => {
+            const dept = emp.departmentName || 'No Department';
+            if (!grouped[dept]) grouped[dept] = [];
+            grouped[dept].push(emp);
+        });
+
+        // Append optgroups and options
+        Object.entries(grouped).forEach(([dept, employees]) => {
+            const $optgroup = $('<optgroup>').attr('label', dept);
+            employees.forEach(emp => {
+                const $option = $('<option>')
+                    .val(emp.employeeID)
+                    .text(emp.employeeName);
+
+                // Pre-select if employeeID is in employeeIDs
+                if (employeeIDs.includes(emp.employeeID.toString())) {
+                    $option.prop('selected', true);
+                }
+
+                $option.appendTo($optgroup);
+            });
+            $empSelect.append($optgroup);
+        });
+
+        // Refresh CoreUI multi-select
+        refreshCoreUIMultiSelect();
+
+        // Ensure CoreUI reflects the pre-selected values
+        if (employeeIDs.length > 0) {
+            setMultiSelectValues('EmployeeIDs', employeeIDs);
+        }
+    }
+
+    function setMultiSelectValues(selectId, values) {
+        return new Promise(resolve => {
+            const select = document.getElementById(selectId);
+            if (!select) return resolve();
+
+            const valueArray = Array.isArray(values) ? values.map(v => v.toString()) : [values.toString()];
+
+            for (const option of select.options) {
+                option.selected = valueArray.includes(option.value);
+            }
+
+            const multiSelect = coreui.MultiSelect.getInstance(select);
+            if (multiSelect) {
+                multiSelect.update();
+            }
+
+            // Small timeout to ensure UI is fully refreshed
+            setTimeout(() => resolve(), 50);
+        });
+    }
+    function refreshCoreUIMultiSelect() {
+        const empSelect = document.getElementById('EmployeeIDs');
+
+        // Dispose existing CoreUI MultiSelect instance
+        const existingInstance = coreui.MultiSelect.getInstance(empSelect);
+        if (existingInstance) {
+            existingInstance.dispose();
+        }
+
+        // Remove previously generated UI dropdown manually
+        const generatedDropdown = empSelect.nextElementSibling;
+        if (generatedDropdown && generatedDropdown.classList.contains('form-multi-select')) {
+            generatedDropdown.remove();
+        }
+
+        // Reinitialize CoreUI MultiSelect
+        coreui.MultiSelect.getOrCreateInstance(empSelect);
+    }
+    document.querySelector('.two').addEventListener('changed.coreui.multi-select', function (event) {
+        const target = event.target;
+
+        if (target.id === 'DepartmentIDs') {
+            loadFilteredEmployees();
+            currentPage = 1;
+            loadTableData(); 
+        }
+    });
+
+
+
+    function recreateDepartmentDropdown(departments) {
+        const container = document.querySelector('.two'); // The div with class "two"
+        const originalSelect = document.getElementById('DepartmentIDs');
+
+        // ✅ Step 1: Dispose existing MultiSelect instance
+        const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
+        if (existingInstance) {
+            existingInstance.dispose();
+        }
+
+        // ✅ Step 2: Store original attributes
+        const originalAttributes = {
+            id: originalSelect.id,
+            name: originalSelect.name,
+            className: originalSelect.className,
+            multiple: originalSelect.multiple
+        };
+
+        // ✅ Step 3: Remove the entire content and recreate
+        container.innerHTML = `
+                    <label class="form-label" for="DepartmentIDs">${container.querySelector('label').textContent}</label>
+                    <select class="form-multi-select" 
+                            id="${originalAttributes.id}" 
+                            name="${originalAttributes.name}" 
+                            multiple 
+                            data-coreui-multiple="true" 
+                            data-coreui-selection-type="counter" 
+                            data-coreui-search="true">
+                    </select>
+                `;
+
+        // ✅ Step 4: Get the new select element and populate it
+        const newSelect = container.querySelector('select');
+
+        if (!departments || departments.length === 0) {
+            const option = new Option('No departments found', '', false, false);
+            option.disabled = true;
+            newSelect.appendChild(option);
+        } else {
+            departments.forEach(dep => {
+                const option = new Option(dep.departmentName, dep.departmentID, false, false);
+                newSelect.appendChild(option);
+            });
+        }
+
+        // ✅ Step 5: Initialize MultiSelect
+        new coreui.MultiSelect(newSelect, {
+            multiple: true,
+            search: true,
+            selectionType: 'counter'
+        });
+    }
+
+
+
+    function loadFilteredEmployees(employeeIDs = []) {
+        var deptIds = $('#DepartmentIDs').val() || [];
+
+        if (!Array.isArray(deptIds)) deptIds = [deptIds];
+
+        $.ajax({
+            url: '/AssignDefaultShift/GetEmployeeByDepartment',
+            type: 'GET',
+            data: {
+                departmentIds: deptIds.join(',')
+            },
+            success: function (data) {
+                updateEmployeeDropdown(data, employeeIDs);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error loading employees:', error);
+            }
+        });
+    }
+
+
+    //
+
+   
+    initializeDatepickerDMY("FromDate, ToDate,oDateFromDateCombined");
+    
+    $(document).on('change', "#FromDate", function ()
+    {
+        updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
+
+    })
+
+    //
     //Get Employee according to LoginID
     GetAllEmpoyee();
     function GetAllEmpoyee() {
@@ -49,32 +304,53 @@ $(document).ready(function () {
     }
    
 
-    // Get LeaveDays according to LeaveType
-    $('#LeaveTypeID').on('change', function () {
-        var selectedId = $(this).val();
-        if (selectedId) {
+    function GetleaveDaysOrAvailble(employeeId, leaveTypeID) {
+        if (leaveTypeID && employeeId) {
             $.ajax({
                 url: '/LeaveRequest/GetLeaveDays',
                 type: 'GET',
-                data: { leaveTypeId: selectedId },
+                data: { employeeId: employeeId, leaveTypeId: leaveTypeID },
                 success: function (data) {
                     if (data && data.leaveDays !== null) {
                         $('#LeaveDays').val(data.leaveDays);
+                        $('#LeaveDaysEdit').val(data.leaveDays);
                     } else {
                         $('#LeaveDays').val('0');
+                        $('#LeaveDaysEdit').val('0');
                     }
                 },
                 error: function () {
                     toastr.error('Failed to fetch leave days.');
                     $('#LeaveDays').val('0');
+                    $('#LeaveDaysEdit').val('0');
                 }
             });
         } else {
             $('#LeaveDays').val('');
+            $('#LeaveDaysEdit').val('');
         }
-    });
+    }
 
     //
+
+ 
+
+    //
+    function handleLeaveChange(employeeIdField, leaveTypeIdField) {
+        var leaveTypeID = $(leaveTypeIdField).val();
+        var employeeId = choiceManager.getChoiceValue(employeeIdField);
+        GetleaveDaysOrAvailble(employeeId, leaveTypeID);
+    }
+
+    // Bind events for both Add and Edit forms
+    $('#EmployeeID,#LeaveTypeID').on('change', () =>
+        handleLeaveChange('EmployeeID', '#LeaveTypeID')
+    );
+
+    $('#EmployeeIDEdit,#LeaveTypeIDEdit').on('change', () =>
+        handleLeaveChange('EmployeeIDedit', '#LeaveTypeIDEdit')
+    );
+  
    
     toggleTimeDateValidation();
 
@@ -118,73 +394,15 @@ $(document).ready(function () {
     });
     //
 
-        flatpickr("#ToDateFromDateCombined", {
-            dateFormat: "Y-m-d", // yyyy-mm-dd
-            onChange: function (selectedDates, dateStr) {
-                // Set the same date to both FromDate and ToDate
-                $('#FromDate').val(dateStr);
-                $('#ToDate').val(dateStr);
-            }
-        });
-
-        // Also initialize flatpickr for other date fields
-        flatpickr("#FromDate", { dateFormat: "Y-m-d" });
-        flatpickr("#ToDate", { dateFormat: "Y-m-d" });
+      
     //
 
-    //Calculate Days
-    function calculateDays() {
-        let fromDate = flatpickrHelper.getDate('FromDate');
-        let toDate = flatpickrHelper.getDate('ToDate');
-
-        console.log("FromDate:", fromDate);
-        console.log("ToDate:", toDate);
-
-        // Convert string to Date if needed
-        if (typeof fromDate === 'string') fromDate = new Date(fromDate);
-        if (typeof toDate === 'string') toDate = new Date(toDate);
-
-        // Validate both are valid Date objects
-        if (!(fromDate instanceof Date) || isNaN(fromDate) ||
-            !(toDate instanceof Date) || isNaN(toDate)) {
-            document.getElementById('TotalAppliedDays').value = '';
-            return;
-        }
-
-        // Ensure ToDate >= FromDate
-        if (toDate < fromDate) {
-            toastr.warning("To Date must be greater than or equal to From Date");
-            document.getElementById('TotalAppliedDays').value = '';
-            flatpickrHelper.clearDate('ToDate')
-            document.getElementById('ToDate').value = '';
-            return;
-        }
-
-        // Normalize time to midnight
-        fromDate.setHours(0, 0, 0, 0);
-        toDate.setHours(0, 0, 0, 0);
-
-        const timeDiff = toDate.getTime() - fromDate.getTime();
-        const dayDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1; // Inclusive
-
-        document.getElementById('TotalAppliedDays').value = dayDiff;
-    }
-
-    // Bind change events
-    document.getElementById('FromDate').addEventListener('change', calculateDays);
-    document.getElementById('ToDate').addEventListener('change', calculateDays);
 
 
-    //
-
-    $(document).on('change', '#FromDate, #ToDate', function (e) {
-        e.preventDefault();
-
-        let fromDate = flatpickrHelper.getDate('FromDate');
-        let toDate = flatpickrHelper.getDate('ToDate');
-        console.log("SubFromDate", fromDate);
-        console.log("SubToDate", toDate);
-       
+   
+   
+    function GetLeavedaysSubsequent(fromDate, toDate) {
+    
         if (!fromDate || !toDate) return;
 
         $.ajax({
@@ -195,41 +413,88 @@ $(document).ready(function () {
                 toDate: toDate
             },
             success: function (data) {
+                
+                if (!data) return;
                 if (data && data.totalSubsequentDays > 0) {
                     $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
                 } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
                     $('#SubsequentHolydayDays').val("Not Applicable");
+                    $('#SubsequentHolydayDaysTT').val("Not Applicable");
                 } else {
                     $('#SubsequentHolydayDays').val("0");
+                    $('#SubsequentHolydayDaysTT').val("0");
+                }
+                if (typeof data.totalDays !== 'undefined') {
+                    $('#TotalAppliedDays').val(data.totalDays);
+                    $('#TotalAppliedDaysTT').val(data.totalDays);
+                    
                 }
             }
-,
+            ,
             error: function () {
                 toastr.error('Failed to fetch subsequent.');
             }
         });
+    }
+
+ 
+    $(document).on('change', '#FromDate, #ToDate', function (e) {
+        e.preventDefault();
+
+        let fromDate = flatpickrHelper.getDate('FromDate');
+        let toDate = flatpickrHelper.getDate('ToDate');
+        GetLeavedaysSubsequent(fromDate, toDate);
+    });
+    //
+    $(document).on('change', '#FromDateEdit, #ToDateEdit', function (e) {
+        e.preventDefault();
+
+        let fromDate = flatpickrHelper.getDate('FromDateEdit');
+        let toDate = flatpickrHelper.getDate('ToDateEdit');
+        GetLeavedaysSubsequent(fromDate, toDate);
+
     });
 
 
-
-    //
    
 
     //
+
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
-
+       
         var $form = $(this);
 
         if (!$form.valid()) {
 
             return false;
         }
+        var available = parseFloat($('#LeaveDays').val()) || 0;
+        var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
+
+       
+
+        if (applied > available) {
+            toastr.error(`You have ${available} day(s) available, but you tried to apply for ${applied}.`);
+
+            $('#exceedAnnualLeaveModal .modal-body').text(
+                `You have ${available} day(s) available, but you tried to apply for ${applied}.`
+            );
+
+            var modal = new bootstrap.Modal(document.getElementById('exceedAnnualLeaveModal'));
+            modal.show();
+
+            return false;
+        }
+
+
 
         var url = $form.attr('action');
         var formData = new FormData(this);
-
+        
+      
         $.ajax({
             type: 'POST',
             url: url,
@@ -279,7 +544,7 @@ $(document).ready(function () {
         $('#ToDateFromDateCombined').val('');
         $('#PartialFromTime').val('');
         $('#PartialToTime').val('');
-
+        $('#TotalAppliedDays').val();
         // Reset validation states
         $('#ToDateFromDateCombined').removeClass('is-invalid');
         $('#ToDateFromDateCombinedError').hide().text('');
@@ -340,40 +605,25 @@ $(document).ready(function () {
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-                debugger
+              
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
 
                     // Set hidden ID
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
-
-                    // EmployeeIDEdit
-
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
-                    // LeaveDaysEdit
-                    $('input[name="LeaveDaysEdit"]').val(data.leaveDaysEdit);
-
-                    // IsFullDayEdit (radio buttons)
+                    $('#TotalAppliedDaysTT').val(data.period);
+                    $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
+                    $('#LeaveDaysEdit').val(data.leaveDaysEdit);
                     $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-
-                    // FromDateEdit
                     $('input[name="FromDateEdit"]').val(data.fromDateEdit);
-
-                    // ToDateEdit
                     $('input[name="ToDateEdit"]').val(data.toDateEdit);
-
-                    // ToDateFromDateCombinedEdit
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
                     $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
-                    // PartialFromTimeEdit
                     $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
-
-                    // PartialToTimeEdit
                     $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
-
-                    // ReasonEdit
                     $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
 
                     // Optionally toggle the sections based on IsFullDayEdit
@@ -384,6 +634,15 @@ $(document).ready(function () {
                         $('#FullDayDivEdit').addClass('d-none');
                         $('#PartialDayDivEdit').removeClass('d-none');
                     }
+                   
+                    
+                    if (data.totalSubsequentDays > 0) {
+                        $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val("Not Applicable");
+                    } else {
+                        $('#SubsequentHolydayDays').val("0");
+                    }
                 }
             },
 
@@ -393,6 +652,13 @@ $(document).ready(function () {
         })
     })
 
+
+    //
+
+
+
+   
+    
     //
 
 
@@ -503,15 +769,39 @@ $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
     loadTableData();
 });
 
+$('#EmployeeIDs').on('changed.coreui.multi-select', function () {
+    currentPage = 1;
+    loadTableData(); // Make AJAX call or reload the table
+});
+// Filtering according to formdate to ToDate
+initializeGlobalDateRangePicker(
+    'basic-daterange',
+    'basic-daterange_fromHidden',
+    'basic-daterange_toHidden',
+    function () {
+        currentPage = 1;
+        loadTableData();
+    }
+);
+
+//
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
     var statusID = $('#StatusIDFilterDD').val();
-   
+    const organizationId = $('#OrganizationID').val();
+    const departmentIds = $('#DepartmentIDs').val() || [];
+    const employeeIds = $('#EmployeeIDs').val() || [];
+    const fromDate = $('#basic-daterange_fromHidden').val(); // YYYY-MM-DD
+    const toDate = $('#basic-daterange_toHidden').val();     // YYYY-MM-DD
+    console.log("Dept: " + departmentIds + " | Emp: " + employeeIds + " | Org: " + organizationId);
+    console.log("From: " + fromDate + " | To: " + toDate);
   
     $.ajax({
         url: '/LeaveRequestRoute/GetAllTableListAsync',
         method: 'GET',
+        traditional: true,
         data: {
             pageNumber: currentPage,
             pageSize: pageSize,
@@ -519,7 +809,12 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             currentSortColumn: currentSortColumn,
             currentSortOrder: currentSortOrder,
             leaveTypeID: leaveTypeID,
-            statusID: statusID
+            statusID: statusID,
+            organizationId: organizationId,
+            departmentIds: departmentIds,
+            employeeIds: employeeIds,
+            fromDate: fromDate,    // 👈 added
+            toDate: toDate  
         },
         success: function (response) {
            

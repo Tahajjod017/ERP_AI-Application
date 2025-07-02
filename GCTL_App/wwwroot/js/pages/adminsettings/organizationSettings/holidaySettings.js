@@ -1,6 +1,19 @@
 ﻿
 $(document).ready(function () {
-    
+
+    //added By 404
+    initializeDatepickerDMY("StartDate, EndDate");  // For dd/MM/yyyy
+    // for Date restriction with total days count
+    $(document).on('change', "#StartDate", function () {
+        const fromDate = $("#StartDate").val();
+        updateDatepickerWithMinDateTotalDays("EndDate", fromDate, {}, "TotalDays", "StartDate");
+    });
+
+
+    // Also initialize flatpickr for other date fields
+    //flatpickr("#StartDate", { dateFormat: "Y-m-d" });
+    //flatpickr("#EndDate", { dateFormat: "Y-m-d" });
+
     $('#holidayForm').on('submit', function (e) {
         e.preventDefault();
 
@@ -120,20 +133,35 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
+                            <td class="align-middle text-center white-space-nowrap pe-4">${rowIndex}</td>
                             
                              <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
                              <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
-                            <td class="align-middle white-space-nowrap ">${item.startDate}</td>
-                            <td class="align-middle white-space-nowrap ">${item.endDate}</td>
-                            <td class="text-center align-middle white-space-nowrap ps-0">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap ps-0">${item.statusID}</td>
-                            <td class=" align-middle text-end white-space-nowrap pe-2">
-                                <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 bloodGroup-bulkDelete" href="#!" id="bloodGroup-edit" data-id="${item.holidayID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 bloodGroup-bulkEdit" href="#!" id="bloodGroup-single-delete" data-id="${item.holidayID}"><span class="fas fa-trash"></span></a>
-                                </div>
-                            </td>
+                            <td class="align-middle white-space-nowrap ps-4">${item.startDate}</td>
+                            <td class="align-middle white-space-nowrap ps-4">${item.endDate}</td>
+                            <td class="text-center align-middle white-space-nowrap pe-4">${item.totalDays}</td>
+                            <td class=" text-center align-middle white-space-nowrap pe-4">${item.statusName}</td>
+                             <td class="align-middle white-space-nowrap text-end pe-0">
+                          <div class="d-flex justify-content-end align-items-center">
+                         <a
+                               href="#"
+                               title="Edit"
+                               id="LeaveRequestEditButton"
+                               data-id="${item.holidayID}"
+                               class="btn btn-outline-light btn-icon me-1 " 
+                               data-bs-toggle="modal" 
+                               data-bs-target="#edit_leaves"
+                              >
+                               <i class="fas fa-edit text-black"></i>
+                        </a>
+                            <a 
+                              href="#" title="Delete"  data-id="${item.holidayID}"
+                              class="btn btn-outline-light btn-icon"  
+                              id="leaveRequestDelete-singleDelBtn" >
+                              <i class="far fa-trash-alt text-black"></i>
+                            </a>
+                          </div>
+                    </td>
                         </tr>
                     `);
                 });

@@ -9,7 +9,7 @@
                 <div class="mb-3">
 
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required disabled>
+                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required>
                         <option value="">Select Employee</option>
                     </select>
                     <span asp-validation-for="EmployeeIDEdit" class="text-danger small"></span>
@@ -18,7 +18,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">Leave Type</label>
-                    <select class="form-select choiceDD" asp-for="LeaveTypeIDEdit" required asp-items="@ViewBag.LeaveTypeDD as SelectList" disabled>
+                    <select class="form-select choiceDD" asp-for="LeaveTypeIDEdit" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
                         <option value="">Select Leave</option>
                     </select>
                     <span asp-validation-for="LeaveTypeIDEdit" class="text-danger small"></span>
@@ -27,7 +27,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Available No of Days</label>
-                    <input type="text" class="form-control" asp-for="LeaveDaysEdit" disabled>
+                    <input type="text" class="form-control" id="AvailableLeaveDays" disabled>
                 </div>
             </div>
 
@@ -80,7 +80,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Total Applied Days</label>
-                            <input type="text" id="TotalAppliedDays" class="form-control" disabled>
+                            <input type="text" id="TotalAppliedDays" class="form-control" readonly >
                         </div>
                     </div>
                 </div>
@@ -120,43 +120,54 @@
             </div>
 
             <!-- Reason -->
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Reason</label>
-                    <textarea asp-for="ReasonEdit" class="form-control" rows="3"   disabled></textarea>
+                    <textarea asp-for="ReasonEdit" class="form-control" rows="2"   disabled></textarea>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Note</label>
+                    <textarea id="ApprovalNote" class="form-control" rows="2" placeholder="Note"></textarea>
                 </div>
             </div>
 
         </div>
+
     </div>
 
-    <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button id="ApplyLeaveSubmitButtonApproval" class="btn btn-primary">Modify Apply Leave</button>
+ 
+
+   @*  <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
+        <div class="mb-2 col-4">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="ApprovalStatus" id="approveRadio" value="true">
+                <label class="form-check-label" for="approveRadio">Approve</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="ApprovalStatus" id="declineRadio" value="false">
+                <label class="form-check-label" for="declineRadio">Decline</label>
+            </div>
+        </div>
+        <button id="ApplyLeaveSubmitButtonApproval" class="btn btn-primary">Approved</button>
+    </div> *@
+
+    <div class="d-flex justify-content-end align-items-center gap-3 mt-1 mb-2 me-3">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="ApprovalStatus" id="approveRadio" value="true">
+            <label class="form-check-label" for="approveRadio">Approve</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="ApprovalStatus" id="declineRadio" value="false">
+            <label class="form-check-label" for="declineRadio">Decline</label>
+        </div>
+
+        <button id="ApplyLeaveSubmitButtonApproval" class="btn btn-primary">Approved</button>
     </div>
+
+
 </form>
-<script>
-        document.addEventListener('DOMContentLoaded', function () {
-      const radios = document.querySelectorAll('input[name="IsFullDayEdit"]');
-      const div1 = document.getElementById('FullDayDivEdit');
-      const div2 = document.getElementById('PartialDayDivEdit');
 
-      function toggleLeaveSections() {
-        const isFullDay = document.querySelector('input[name="IsFullDayEdit"]:checked').value === 'true';
-        if (isFullDay) {
-          div1.classList.remove('d-none');
-          div2.classList.add('d-none');
-        } else {
-          div1.classList.add('d-none');
-          div2.classList.remove('d-none');
-        }
-      }
 
-      radios.forEach(radio => {
-        radio.addEventListener('change', toggleLeaveSections);
-      });
-
-      toggleLeaveSections();
-    });
-
-</script>

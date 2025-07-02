@@ -32,6 +32,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 
         public bool? IsMaximumGapDaysBetweenAplications { get; set; }
 
-       
+        public DateTime? LeaveBalanceResetDate { get; set; }
+
+        public bool EnableLeaveBalanceResetDate { get; set; }
+
+
     }
 }

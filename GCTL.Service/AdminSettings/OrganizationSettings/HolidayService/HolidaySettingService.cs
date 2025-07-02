@@ -54,16 +54,21 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                    existingEntity.OrganizationBranchID = model.OrganizationBranchID;
                     existingEntity.HolidayTitle = model.HolidayTitle;
                     existingEntity.HolidayDescription = model.HolidayDescription;
-                    existingEntity.StartDate = model.StartDate;
-                    existingEntity.EndDate = model.EndDate;
+
+                    // Fix for CS0029: Convert string to DateTime? using DateTime.TryParse or DateTime.ParseExact if format is known.
+
+                    existingEntity.StartDate = DateTime.TryParse(model.StartDate, out var parsedStartDate) ? parsedStartDate : null;
+                    existingEntity.EndDate = DateTime.TryParse(model.EndDate, out var parsedEndDate) ? parsedEndDate : null;
+                    //existingEntity.StartDate = model.StartDate;
+                    //existingEntity.EndDate = model.EndDate;
                     existingEntity.TotalDays = model.TotalDays;
                     existingEntity.StatusID = model.StatusID;
 
 
                     existingEntity.CreatedAt = DateTime.Now;
                     existingEntity.CreatedBy = model.CreatedBy; // You can replace this with current user ID  
-                    //existingEntity.LIP = model.LIP;
-                    //existingEntity.LMAC = model.LMAC;
+                    existingEntity.LIP = model.LIP;
+                    existingEntity.LMAC = model.LMAC;
 
                     existingEntity.UpdatedAt = DateTime.Now;
                     existingEntity.UpdatedBy = model.UpdatedBy ?? null;
@@ -80,16 +85,16 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                         OrganizationBranchID = model.OrganizationBranchID,
                         HolidayTitle = model.HolidayTitle,
                         HolidayDescription = model.HolidayDescription,
-                        StartDate = model.StartDate,
-                        EndDate = model.EndDate,
+                        StartDate = DateTime.TryParse(model.StartDate, out var parsedStartDate) ? parsedStartDate : null,
+                        EndDate = DateTime.TryParse(model.EndDate, out var parsedEndDate) ? parsedEndDate : null,
                         TotalDays = model.TotalDays,
                         StatusID = model.StatusID,
 
 
                         CreatedAt = DateTime.Now,
                         CreatedBy = model.CreatedBy,
-                        //LIP = model.LIP,
-                       // LMAC = model.LMAC,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
                     };
 
                     await _genericRepository.AddAsync(newEntity);
@@ -131,11 +136,11 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
 
                 // Update properties
                 entity.OrganizationID = model.OrganizationID;
-               entity.OrganizationBranchID = model.OrganizationBranchID;
+                entity.OrganizationBranchID = model.OrganizationBranchID;
                 entity.HolidayTitle = model.HolidayTitle;
                 entity.HolidayDescription = model.HolidayDescription;
-                entity.StartDate = model.StartDate;
-                entity.EndDate = model.EndDate;
+                entity.StartDate = DateTime.TryParse(model.StartDate, out var parsedStartDate) ? parsedStartDate : null;
+                entity.EndDate = DateTime.TryParse(model.EndDate, out var parsedEndDate) ? parsedEndDate : null;
                 entity.TotalDays = model.TotalDays;
                 entity.StatusID = model.StatusID;
 
@@ -161,39 +166,28 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
             }
         }
 
-        #endregion
-
-
-        #region Get
         public async Task<HolidayViewModel> GetByIdAsync(int id)
         {
-            // Retrieve the EmailSettings entity by ID, excluding soft-deleted records
+            // Retrieve the EmailSettings entity by ID, excluding soft-deleted records  
             var entityList = await _genericRepository.FindAsync(x => x.HolidayID == id && x.DeletedAt == null);
             var entity = entityList.FirstOrDefault();
 
             if (entity == null)
                 return null;
 
-            // Map to ViewModel
+            // Map to ViewModel  
             var model = new HolidayViewModel
             {
                 OrganizationID = entity.OrganizationID,
                 OrganizationBranchID = entity.OrganizationBranchID,
-                //HolidayID = entity.HolidayID,
                 HolidayTitle = entity.HolidayTitle,
                 HolidayDescription = entity.HolidayDescription,
-                StartDate = entity.StartDate,
-                EndDate = entity.EndDate,
+                StartDate = entity.StartDate.HasValue ? entity.StartDate.Value.ToString("yyyy-MM-dd") : null,
+                EndDate = entity.EndDate.HasValue ? entity.EndDate.Value.ToString("yyyy-MM-dd") : null,
                 TotalDays = entity.TotalDays,
                 StatusID = entity.StatusID,
-
-
-                //CreatedAt = entity.CreatedAt,
                 CreatedBy = entity.CreatedBy,
-                //UpdatedAt = entity.UpdatedAt,
-                UpdatedBy = entity.UpdatedBy,
-                //LIP = entity.LIP,
-                //LMAC = entity.LMAC
+                UpdatedBy = entity.UpdatedBy
             };
 
             return model;
@@ -257,13 +251,16 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+        #endregion
 
+        #region Data Table List
         public async Task<PaginationService<Holidays, HolidayViewModel>.PaginationResult<HolidayViewModel>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationID", string sortOrder = "desc", int? organizationID = null)
         {
             var query = _genericRepository.All()
                 .AsNoTracking()
                 .Include(x => x.Organization) // Include related Organization entity
                 .Include(x => x.OrganizationBranch) // Include related OrganizationBranch entity
+                .Include(x => x.Status) // Include related Status entity
                 .Where(x => x.DeletedAt == null);
 
             // Filter by organization if provided
@@ -301,12 +298,14 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                     OrganizationID = x.OrganizationID,
                     OrganizationBranchID = x.OrganizationBranchID,
                     HolidayID = x.HolidayID,
-                    HolidayTitle = x.HolidayTitle,
-                    HolidayDescription = x.HolidayDescription,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
+                    HolidayTitle = x.HolidayTitle??"_",
+                    HolidayDescription = x.HolidayDescription??"_",
+                    StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToString("yyyy-MM-dd") : "_",
+                    EndDate = x.EndDate.HasValue ? x.EndDate.Value.ToString("yyyy-MM-dd") : "_",
                     TotalDays = x.TotalDays,
-                    StatusID = x.StatusID,
+                    StatusName = !string.IsNullOrEmpty(x.Status?.StatusName) ? x.Status.StatusName : "_",
+
+
                     // CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy,
                     //UpdatedAt = x.UpdatedAt,

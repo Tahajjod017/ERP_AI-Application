@@ -272,6 +272,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      IsMaximumleaveDaysPerAplication=entityVM.IsMaximumleaveDaysPerAplication,
                      IsAllowRequestForFutureDays=entityVM.IsAllowRequestForFutureDays,
                      IsRoundOffHour=entityVM.IsRoundOffHour,
+                     LeaveBalanceResetDate=entityVM.LeaveBalanceResetDate,
+                     EnableLeaveBalanceResetDate=entityVM.EnableLeaveBalanceResetDate,
                      LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
@@ -334,10 +336,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.IsAllowRequestForFutureDays = entityVM.IsAllowRequestForFutureDays;
                 existingPolicy.IsMaximumleaveDaysPerAplication = entityVM.IsMaximumleaveDaysPerAplication;
                 existingPolicy.IsMaximumGapDaysBetweenAplications = entityVM.IsMaximumGapDaysBetweenAplications;
-
+                existingPolicy.LeaveBalanceResetDate = entityVM.LeaveBalanceResetDate;
+                existingPolicy.EnableLeaveBalanceResetDate = entityVM.EnableLeaveBalanceResetDate;
                 existingPolicy.UpdatedAt = DateTime.Now;
                 existingPolicy.UpdatedBy = entityVM.UpdatedBy;
-
+                existingPolicy.LIP = entityVM.LIP;
+                existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
                 var afterEntity = JsonConvert.DeserializeObject<AddLeavePolicyConfigarationVM>(JsonConvert.SerializeObject(existingPolicy, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
                 await userInfoService.ActionLogAsync("Add Leave Policy", ActionName.DataUpdated, beforeEntity, afterEntity, existingPolicy.LeavePolicyConfigurationID, entityVM);
@@ -385,7 +389,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     MaximumGapDaysBetweenAplications = x.MaximumGapDaysBetweenAplications,
                     IsAllowRequestForFutureDays = x.IsAllowRequestForFutureDays,
                     IsMaximumleaveDaysPerAplication = x.IsMaximumleaveDaysPerAplication,
-                    IsMaximumGapDaysBetweenAplications = x.IsMaximumGapDaysBetweenAplications
+                    IsMaximumGapDaysBetweenAplications = x.IsMaximumGapDaysBetweenAplications,
+                    EnableLeaveBalanceResetDate=x.EnableLeaveBalanceResetDate,
+                    LeaveBalanceResetDate=x.LeaveBalanceResetDate
+                    
                 }).ToList();
 
                 await leavepolicy.CommitTransactionAsync();

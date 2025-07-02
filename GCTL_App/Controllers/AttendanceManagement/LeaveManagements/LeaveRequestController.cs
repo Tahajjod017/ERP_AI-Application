@@ -30,7 +30,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
            
         }
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index()
         {
             LeaveApplicationsRequestPageVM model = new LeaveApplicationsRequestPageVM
             {
@@ -41,6 +41,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
+            ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
+            ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
+            ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
             return View(model);
         }
         #region Get All Or Single Employee according to loginID
@@ -60,18 +63,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         #endregion
 
+        #region  Get LeaveDays
         [HttpGet]
         [Route("LeaveRequest/GetLeaveDays")]
-        public async Task<IActionResult> GetLeaveDays(int leaveTypeId)
+        public async Task<IActionResult> GetLeaveDays(int employeeId, int leaveTypeId)
         {
-            var data = await leaveRequestService.GetLeaveTypeTotaldays(leaveTypeId);
-                
-                if(data==null)
+            var data = await leaveRequestService.GetLeaveTypeTotaldays(employeeId, leaveTypeId);
+
+            if (data == null)
             {
                 return NotFound();
             }
             return Json(data);
         }
+
+        #endregion
+
         #region  Save Data 
 
         [HttpPost]
@@ -100,13 +107,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         [Route("LeaveRequestRoute/GetAllTableListAsync")]
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null)
+        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
+    List<int> departmentIds = null,
+    List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
                  string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url,userId,leaveTypeID,statusID);
+                var data=await leaveRequestService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder , url,userId,leaveTypeID,statusID,organizationId,departmentIds,employeeIds, fromDate, toDate);
                 return Json(data);
             } catch (Exception ex)
             {
@@ -195,5 +204,44 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             }
         }
         #endregion
+
+        #region GetEmployeeByDepartment
+        [Route("LeaveRequest/GetEmployeeByDepartment")]
+        [HttpGet]
+        public async Task<JsonResult> GetEmployeeByDepartment(string departmentIds)
+        {
+            var deptIds = !string.IsNullOrEmpty(departmentIds)
+                ? departmentIds.Split(',').Select(int.Parse).ToList()
+                : new List<int>();
+
+            var data = await leaveRequestService.GetEmployeeByDepartment(deptIds);
+            return Json(data);
+        }
+        #endregion
+
+
+        #region GetDepartmentByCompany
+        [Route("LeaveRequest/GetDepartmentByCompany")]
+        [HttpGet]
+        public async Task<JsonResult> GetDepartmentByCompany(int id)
+        {
+            var data = await leaveRequestService.GetDepartmentByCompany(id);
+            return Json(data);
+        }
+        #endregion
+
+
+        #region GetEmployeeByCompany
+        [Route("LeaveRequest/GetEmployeeByCompany")]
+        [HttpGet]
+        public async Task<JsonResult> GetEmployeeByCompany(int id)
+        {
+            var data = await leaveRequestService.GetEmployeeByCompany(id);
+            return Json(data);
+        }
+        #endregion
+
+        
+
     }
 }

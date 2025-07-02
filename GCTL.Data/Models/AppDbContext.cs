@@ -93,6 +93,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LeaveBalances> LeaveBalances { get; set; }
 
+    public virtual DbSet<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; }
+
+
     public virtual DbSet<LeavePolicyConfiguration> LeavePolicyConfiguration { get; set; }
 
     public virtual DbSet<LeaveTypes> LeaveTypes { get; set; }
@@ -269,9 +272,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
 
+
         modelBuilder.Entity<ApplicationUser>()
- .HasDiscriminator<string>("Discriminator")
- .HasValue<ApplicationUser>("ApplicationUser");
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
@@ -1481,6 +1485,44 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeaveBalancesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__LeaveBala__Updat__473C8FC7");
+        });
+
+        modelBuilder.Entity<LeaveBaseApprovalHistory>(entity =>
+        {
+            entity.HasKey(e => e.LeaveBaseApprovalHistoryID).HasName("PK__LeaveBas__19E7FCF2201A4744");
+
+            entity.Property(e => e.ApproverNote).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApproveByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryApproveByNavigation)
+                .HasForeignKey(d => d.ApproveBy)
+                .HasConstraintName("FK__LeaveBase__Appro__39AD8A7F");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeaveBase__Creat__3B95D2F1");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeaveBase__Delet__3E723F9C");
+
+            entity.HasOne(d => d.LeaveApplication).WithMany(p => p.LeaveBaseApprovalHistory)
+                .HasForeignKey(d => d.LeaveApplicationID)
+                .HasConstraintName("FK__LeaveBase__Leave__38B96646");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.LeaveBaseApprovalHistory)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__LeaveBase__Statu__3AA1AEB8");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeaveBaseApprovalHistoryUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeaveBase__Updat__3C89F72A");
         });
 
         modelBuilder.Entity<LeavePolicyConfiguration>(entity =>

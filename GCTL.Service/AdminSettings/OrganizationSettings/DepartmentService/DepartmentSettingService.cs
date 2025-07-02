@@ -47,7 +47,6 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                     // Update and restore
                     existingEntity.OrganizationID = model.OrganizationID;
                     existingEntity.DepartmentName = model.DepartmentName;
-
                     //existingEntity.IsDepartmentHead = model.IsDepartmentHead;
 
 
@@ -71,7 +70,6 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                     {
                         OrganizationID = model.OrganizationID,
                         DepartmentName = model.DepartmentName,
-
                         //IsDepartmentHead = model.IsDepartmentHead,
 
 
@@ -124,8 +122,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 
                 entity.OrganizationID = model.OrganizationID;
                 entity.DepartmentName = model.DepartmentName;
-
-               // entity.IsDepartmentHead = model.IsDepartmentHead;
+                //entity.IsDepartmentHead = model.IsDepartmentHead;
 
 
 
@@ -169,8 +166,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 DepartmentID = entity.DepartmentID,
                 OrganizationID = entity.OrganizationID,
                 DepartmentName = entity.DepartmentName,
-
-               // IsDepartmentHead = entity.IsDepartmentHead,
+                //IsDepartmentHead = entity.IsDepartmentHead,
 
 
 
@@ -286,7 +282,6 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 {
                     OrganizationID = x.OrganizationID,
                     DepartmentName = x.DepartmentName,
-
                     //IsDepartmentHead = x.IsDepartmentHead,
 
 

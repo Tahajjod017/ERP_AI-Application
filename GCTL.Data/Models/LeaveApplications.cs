@@ -43,11 +43,14 @@ public partial class LeaveApplications
 
     public string Reason { get; set; }
 
+    public int? LeaveApplicableYear { get; set; }
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
+
+    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
 
     public virtual LeaveTypes LeaveType { get; set; }
 
