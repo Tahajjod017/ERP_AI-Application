@@ -9,6 +9,7 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveApproval;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
@@ -47,13 +48,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         [Route("LeaveApprovalDeclineRoute/GetAllTableListAsync")]
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null)
+        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
                 string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data = await leaveApprovalService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID);
+                var data = await leaveApprovalService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID, fromDate, toDate);
                 return Json(data);
             }
             catch (Exception ex)
@@ -69,13 +70,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         [Route("LeaveApprovalDeclineRoute/GetAllTableBelowAsync")]
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null)
+        public async Task<IActionResult> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate=null, DateOnly ? toDate=null)
         {
             try
             {
                 string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data = await leaveApprovalService.GetAllTableBelowAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID);
+                var data = await leaveApprovalService.GetAllTableBelowAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID, fromDate, toDate);
                 return Json(data);
             }
             catch (Exception ex)

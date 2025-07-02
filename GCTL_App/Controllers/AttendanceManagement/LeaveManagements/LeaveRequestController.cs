@@ -3,6 +3,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -10,6 +11,7 @@ using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Execution;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -21,13 +23,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private readonly IGenericRepository<LeaveTypes> leaveType;
         private readonly IGenericRepository<Statuses> status;
         private ILeaveRequestService  leaveRequestService;
-     
-        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService ) : base(translateService, userProfileService)
+        private ILeaveApprovalService leaveApprovalService;
+        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService = null) : base(translateService, userProfileService)
         {
             this.leaveType = leaveType;
             this.status = status;
             this.leaveRequestService = leaveRequestService;
-           
+            this.leaveApprovalService = leaveApprovalService;
         }
 
         public async Task< IActionResult> Index()
@@ -241,7 +243,33 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         #endregion
 
-        
 
+        #region Display Leave banlance
+
+        [Route("LeaveRequest/GetLeaveTypeBalancesForEmployeeDisplay")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetLeaveTypeBalancesForEmployee(int employeeId)
+        {
+
+            try
+            {
+
+                
+                if (employeeId==0)
+                    return BadRequest("EmployeeID not found in claims.");
+
+
+                var data = await leaveRequestService.GetLeaveTypeBalancesForEmployee(employeeId);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                // Optional: log the exception before re-throwing
+                throw;
+            }
+
+        }
+        #endregion
     }
 }

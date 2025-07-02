@@ -9,7 +9,7 @@
                 <div class="mb-3">
 
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required>
+                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required disabled>
                         <option value="">Select Employee</option>
                     </select>
                     <span asp-validation-for="EmployeeIDEdit" class="text-danger small"></span>
@@ -18,7 +18,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">Leave Type</label>
-                    <select class="form-select choiceDD" asp-for="LeaveTypeIDEdit" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
+                    <select class="form-select choiceDD" asp-for="LeaveTypeIDEdit" required asp-items="@ViewBag.LeaveTypeDD as SelectList" disabled>
                         <option value="">Select Leave</option>
                     </select>
                     <span asp-validation-for="LeaveTypeIDEdit" class="text-danger small"></span>
@@ -27,7 +27,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Available No of Days</label>
-                    <input type="text" class="form-control" id="AvailableLeaveDays" disabled>
+                    <input type="text" class="form-control" id="AvailableLeaveDays" readonly>
                 </div>
             </div>
 
@@ -73,7 +73,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Subsequent Holiday Days</label>
-                            <input type="text" id="SubsequentHolydayDays" class="form-control" disabled>
+                            <input type="text" id="SubsequentHolydayDays" class="form-control" readonly>
                         </div>
                     </div>
 
