@@ -18,6 +18,30 @@
         pointer-events: none;
     }
 
+    .date-input {
+        width: 108%;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+    .date-picker-wrapper .footer {
+        display: none !important;
+    }
+
+
+    .date-picker-wrapper {
+        margin-left: 8.2vw !important;
+    }
+
 </style>
 
 
@@ -53,10 +77,15 @@
                         </div>
                     </div>
 
-                    <div class="me-3">
-                        <div class="input-icon-end position-relative">
+                    <div class="me-5">
+                        <div class="position-relative">
+                          
 
-                            <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+                            <input type="text" id="basic-daterange_aboveTable" class="date-input form-control-sm" placeholder="d/m/y to d/m/y" readonly>
+
+                            <input type="hidden" id="basic-daterange_fromHidden_aboveTable" name="FromDate" />
+                            <input type="hidden" id="basic-daterange_toHidden_aboveTable" name="ToDate" />
+
 
                         </div>
                     </div>

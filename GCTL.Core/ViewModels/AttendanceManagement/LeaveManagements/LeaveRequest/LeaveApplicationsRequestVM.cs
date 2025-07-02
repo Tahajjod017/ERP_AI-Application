@@ -65,6 +65,8 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public string? Reason { get; set; }
         public decimal? LeaveDays { get; set; }
 
+        public bool? IsGroupApplication { get; set; }
+        public int? GroupApplicationID { get; set; }
         public class RequiredIfAttribute : ValidationAttribute
         {
             private readonly string _propertyName;

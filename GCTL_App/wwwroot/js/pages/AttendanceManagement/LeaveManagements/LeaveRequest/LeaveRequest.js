@@ -460,7 +460,7 @@ $(document).ready(function () {
    
 
     //
-
+    let exceedConfirmed = false; // state flag
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
@@ -474,22 +474,39 @@ $(document).ready(function () {
         var available = parseFloat($('#LeaveDays').val()) || 0;
         var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
 
-       
+        if (applied > available && !exceedConfirmed) {
+            const message = `You have ${available} day(s) available, but you tried to apply for ${applied}.
+        So, your exceed leave will be deducted from Annual Leave.
 
-        if (applied > available) {
-            toastr.error(`You have ${available} day(s) available, but you tried to apply for ${applied}.`);
+        
 
-            $('#exceedAnnualLeaveModal .modal-body').text(
-                `You have ${available} day(s) available, but you tried to apply for ${applied}.`
-            );
+        `;
 
+        const tbl = `<table>
+  <tr>
+    <td class="me-4">AL</td>
+    <td class="me-4">Reaminig</td>
+    <td class="me-4">taken</td>
+  </tr>
+  
+</table>`;
+
+            toastr.error(message);
+
+          //  $('#exceedAnnualLeaveModal').find('.modal-body').text(message);
+            $('#DisplayContainer').text(message);
+            $('#DisplayContainer').append(tbl);
             var modal = new bootstrap.Modal(document.getElementById('exceedAnnualLeaveModal'));
+            debugger
+            var employeeId =$('#EmployeeID').val();
+            DisplayLeave(employeeId)
             modal.show();
 
             return false;
         }
 
-
+        // ✅ Set flag before submission
+        $('#IsGroupApplication').val(exceedConfirmed ? 'true' : 'false');
 
         var url = $form.attr('action');
         var formData = new FormData(this);
@@ -524,8 +541,42 @@ $(document).ready(function () {
         });
     });
 
-   
+    //
 
+    $('#confirmExceedLeaveBtn').on('click', function () {
+        exceedConfirmed = true;
+        $('#IsGroupApplication').val('true');
+        $('#exceedAnnualLeaveModal').modal('hide');
+        $('#LeaveRequestForm').submit();
+    });
+
+
+    
+    function DisplayLeave(employeeId)
+    {
+        debugger
+        $.ajax({
+            url: '/LeaveRequest/GetLeaveTypeBalancesForEmployeeDisplay',
+            type: 'GET',
+            data: { employeeId: employeeId },
+            success: function (data) {
+                //debugger
+                if (data && data.length > 0) {
+                  
+                } else {
+                    toastr.error('No leave balance data available.');
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load leave balance data.');
+            }
+        });
+    }
+   
+    
+
+    
+    //
     // Reset button click
     $('#ResetButton').on('click', function () {
         resetForm();
@@ -785,7 +836,10 @@ initializeGlobalDateRangePicker(
 );
 
 //
+//
 
+
+//
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
