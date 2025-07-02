@@ -71,6 +71,7 @@ using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.ImageFileHandler;
+using GCTL.Service.Employees.EmployeeReport;
 
 
 
@@ -183,6 +184,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeDetailsService, EmployeeDetailsService>();
 
             services.AddScoped<IEmployeeNavigationService, EmployeeNavigationService>();
+            services.AddScoped<IEmployeeReportService, EmployeeReportService>();
 
             #endregion
 

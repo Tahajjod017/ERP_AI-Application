@@ -386,6 +386,8 @@ namespace GCTL_App.Controllers.Employees
                 var request = _httpContextAccessor.HttpContext.Request;
                 string url = $"{request.Scheme}://{request.Host}";
 
+                string url1 = GetEmployeePictureURL(true);
+
                 // Build query
                 IQueryable<EmployeeListGetViewModel> query = await _employeeListService.GetEmployees();
 
@@ -468,7 +470,7 @@ namespace GCTL_App.Controllers.Employees
                          department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
                          joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null, // Keeping null for date field
                          status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
-                         avatar = string.IsNullOrEmpty(e.Avatar) ? null : url + "/uploads/employee/images/" + e.Avatar,
+                         avatar = string.IsNullOrEmpty(e.Avatar) ? null : url1 + e.Avatar,
                          url = url + "/uploads/employee/"
                      })
                      .ToListAsync();

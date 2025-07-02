@@ -69,7 +69,8 @@
     function getAvatarHtml(employee) {
         if (employee.avatar && employee.avatar !== '') {
             urle = employee.url;
-            return `<img class="rounded-circle" src="${employee.avatar}" alt="${employee.name}" />`;
+            const initial2 = employee.name.charAt(0).toUpperCase();
+            return `<img class="rounded-circle" src="${employee.avatar}" alt="${initial2}" />`;
         } else {
             const initial = employee.name.charAt(0).toUpperCase();
             return `<div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="height: 100%;">${initial}</div>`;
@@ -84,6 +85,7 @@
 
     }
 
+    
     //#endregion
 
     //#region Render board view
