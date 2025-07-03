@@ -7,6 +7,7 @@ using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Intrinsics.Arm;
 using System.Text;
@@ -44,7 +45,131 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #region AddAsync
         public async Task<bool> AddAsync(RosterInOfficeDaysSetupVM model)
         {
-            throw new NotImplementedException();
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                //var startDate = DateTime.ParseExact(model.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+                if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
+                {
+                    var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
+                    //if (employees == null || !employees.Any())
+                    //    continue;
+                    foreach (var employee in employees)
+                    {
+                        //if (model.ExcludedEmployeeIDs != null && model.ExcludedEmployeeIDs.Contains(employee.EmployeeID ?? 0))
+                        //    continue;
+
+                        var existingEntity = await _genericRepository.All()
+                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                        if (existingEntity != null)
+                        {
+                            existingEntity.ShiftID = model.ShiftID;
+                            existingEntity.LIP = model.LIP;
+                            existingEntity.LMAC = model.LMAC;
+                            existingEntity.CreatedBy = model.CreatedBy;
+                            existingEntity.CreatedAt = DateTime.Now;
+
+                            await _genericRepository.UpdateAsync(existingEntity);
+                        }
+                        else
+                        {
+                            RosterInOfficeDays entity = new RosterInOfficeDays();
+                            entity.OrganizationID = employee.OrganizationID;
+                            entity.DepartmentID = employee.DepartmentID;
+                            entity.EmployeeID = employee.EmployeeID;
+                            entity.ShiftID = model.ShiftID;
+                            entity.StartDate = model.StartDate;
+                            entity.EndDate = model.EndDate;
+                            entity.LIP = model.LIP;
+                            entity.LMAC = model.LMAC;
+                            entity.CreatedBy = model.CreatedBy;
+                            entity.CreatedAt = DateTime.Now;
+                            await _genericRepository.AddAsync(entity);
+                        }
+                    }
+                }
+                else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
+                {
+                    foreach (var depId in model.DepartmentIDs)
+                    {
+                        var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
+                        if (employees == null || !employees.Any())
+                            continue;
+                        foreach (var employee in employees)
+                        {
+                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            if (existingEntity != null)
+                            {
+                                existingEntity.ShiftID = model.ShiftID;
+                                existingEntity.LIP = model.LIP;
+                                existingEntity.LMAC = model.LMAC;
+                                existingEntity.CreatedBy = model.CreatedBy;
+                                existingEntity.CreatedAt = DateTime.Now;
+
+                                await _genericRepository.UpdateAsync(existingEntity);
+                            }
+                            else
+                            {
+                                RosterInOfficeDays entity = new RosterInOfficeDays();
+                                entity.ShiftID = model.ShiftID;
+                                entity.OrganizationID = employee.OrganizationID;
+                                entity.DepartmentID = employee.DepartmentID;
+                                entity.EmployeeID = employee.EmployeeID;
+                                entity.LIP = model.LIP;
+                                entity.LMAC = model.LMAC;
+                                entity.CreatedBy = model.CreatedBy;
+                                entity.CreatedAt = DateTime.Now;
+                                await _genericRepository.AddAsync(entity);
+                            }
+                        }
+                    }
+                }
+                else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
+                {
+                    foreach (var empId in model.EmployeeIDs)
+                    {
+                        var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
+
+                        if (employee == null || employee.DepartmentID == null) continue;
+
+                        var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                        if (existingEntity != null)
+                        {
+                            existingEntity.ShiftID = model.ShiftID;
+                            existingEntity.LIP = model.LIP;
+                            existingEntity.LMAC = model.LMAC;
+                            existingEntity.CreatedBy = model.CreatedBy;
+                            existingEntity.CreatedAt = DateTime.Now;
+
+                            await _genericRepository.UpdateAsync(existingEntity);
+                        }
+                        else
+                        {
+                            RosterInOfficeDays entity = new RosterInOfficeDays();
+                            entity.OrganizationID = employee.OrganizationID;
+                            entity.DepartmentID = employee.DepartmentID;
+                            entity.EmployeeID = empId;
+                            entity.ShiftID = model.ShiftID;
+
+                            entity.LIP = model.LIP;
+                            entity.LMAC = model.LMAC;
+                            entity.CreatedBy = model.CreatedBy;
+                            entity.CreatedAt = DateTime.Now;
+
+                            await _genericRepository.AddAsync(entity);
+                        }
+                    }
+                }
+
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
         }
         #endregion
 
@@ -110,10 +235,45 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region GetAllAsync
-        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int? organizationID = null)
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetAllAsync(int daysToShow = 7)
         {
-            //var query = _genericRepository.All().AsNoTracking().Include(x => x.Shift).Include(x => x.Organization).Include(x => x.Department).Include(x => x.Employee).Where(x => x.DeletedAt == null);
-            var query = _genericRepository.All().AsNoTracking().Include(x => x.Shift).Include(x => x.Organization).Include(x => x.Employee).Where(x => x.DeletedAt == null);
+            var startDate = DateTime.Today;
+            var endDate = startDate.AddDays(daysToShow - 1);
+
+            var query = _genericRepository.AllActive().AsNoTracking()
+                .Include(x => x.Shift).Include(x => x.Organization)
+                .Include(x => x.Department).Include(x => x.Employee)
+                .Where(x => x.DeletedAt == null)
+                .Where(x => x.StartDate <= endDate && x.EndDate >= startDate); // ✅ FIXED
+
+            var result = await query.Select(x => new RosterInOfficeDaysSetupVM
+            {
+                RosterInOfficeDayID = x.RosterInOfficeDayID,
+                OrganizationName = x.Organization.OrganizationName ?? "-",
+                DepartmentName = x.Department.DepartmentName ?? "-",
+                EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
+                ShiftName = x.Shift.ShiftName ?? "-",
+                ShiftID = x.ShiftID ?? 0,
+                EmployeeID = x.EmployeeID ?? 0,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}"
+            }).ToListAsync();
+
+            return result;
+        }
+
+        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllPaging(int pageNumber = 1, int pageSize = 5, 
+            string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        {
+            var startDate = DateTime.Today;
+            var endDate = startDate.AddDays(daysToShow - 1);
+
+            var query = _genericRepository.AllActive().AsNoTracking()
+                .Include(x => x.Shift).Include(x => x.Organization)
+                .Include(x => x.Department).Include(x => x.Employee)
+                .Where(x => x.DeletedAt == null)
+                .Where(x => x.StartDate <= endDate && x.EndDate >= startDate);
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
@@ -122,7 +282,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                     "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
                     "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
                     "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-                    //"DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
+                    "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
                     "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
                     _ => query.OrderBy(x => x.ShiftID)
                 };
@@ -131,14 +291,20 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
                 //EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || 
-                EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
+                EF.Functions.Like(x.Employee.FirstName, $"%{term}%") || EF.Functions.Like(x.Employee.LastName, $"%{term}%") || EF.Functions.Like(x.Employee.EmployeeCode, $"%{term}%") ||
+                EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") || EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Shift.ShiftName, $"%{term}%"),
                 x => new RosterInOfficeDaysSetupVM
                 {
                     RosterInOfficeDayID = x.RosterInOfficeDayID,
                     OrganizationName = x.Organization.OrganizationName ?? "-",
-                    //DepartmentName = x.Department.DepartmentName ?? "-",
+                    DepartmentName = x.Department.DepartmentName ?? "-",
                     EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
-                    //ShiftName = x.Shift.ShiftName ?? "-",
+                    ShiftName = x.Shift.ShiftName ?? "-",
+                    ShiftID = x.ShiftID ?? 0,
+                    EmployeeID = x.EmployeeID ?? 0,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}"
                 });
 
             return result;

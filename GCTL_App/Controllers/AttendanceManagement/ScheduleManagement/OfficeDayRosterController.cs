@@ -49,7 +49,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 {
                     if (model.OrganizationID == null)
                     {
-                        return Json(new { isSuccess = false, message = "Please choose a Company!" });
+                        return Json(new { isSuccess = false, message = "Please choose an Organization!" });
                     }
 
                     if (model.ShiftID == null)
@@ -57,14 +57,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                         return Json(new { isSuccess = false, message = "Please choose a shift!" });
                     }
 
-                    if(model.StartDate == null)
+                    if(model.StartDate == null && model.EndDate == null)
                     {
-                        return Json(new { isSuccess = false, message = "Please select start date!" });
-                    }
-
-                    if(model.EndDate == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Please select end date!" });
+                        return Json(new { isSuccess = false, message = "Please select start date & end date!" });
                     }
 
                     //var hasData = 
@@ -87,6 +82,49 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 return Json(new { isSuccess = false, message = ex.Message });
             }
+        }
+        #endregion
+
+
+        #region GetAll
+        public async Task<IActionResult> GetAll(int daysToShow = 7)
+        {
+            var result = await _assignDefaultShiftService.GetAllAsync(daysToShow);
+
+            var startDate = DateTime.Today;
+            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+
+            return Json(new
+            {
+                result,
+                headers = dateList.Select(date => new
+                {
+                    day = date.ToString("ddd"),
+                    date = date.ToString("dd MMM yyyy")
+                }).ToList()
+            });
+
+            //return Json(result);
+        }
+
+        public async Task<IActionResult> GetAllPaging(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        {
+            var result = await _assignDefaultShiftService.GetAllPaging(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+
+            var startDate = DateTime.Today;
+            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+
+            return Json(new
+            {
+                result,
+                headers = dateList.Select(date => new
+                {
+                    day = date.ToString("ddd"),
+                    date = date.ToString("dd MMM yyyy")
+                }).ToList()
+            });
+
+            //return Json(result);
         }
         #endregion
 
