@@ -12,6 +12,7 @@ namespace GCTL.Service.Employees.EmployeeAdditional
     public interface IEmployeeAdditionalService
     {
         Task<EmployeeAdditionalPostViewModel> GetEmployeeAdditionalByIdAsync(int employeeId);
+        Task<EmployeeAdditionalGetViewModel> GetFullEmployeeAdditionalByIdAsync(int employeeId);
         Task<CommonReturnViewModel> SubmitAsync(EmployeeAdditionalPostViewModel model);
     }
 }
