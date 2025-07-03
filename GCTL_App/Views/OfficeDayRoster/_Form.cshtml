@@ -18,6 +18,9 @@
 
 <form asp-controller="OfficeDayRoster" asp-action="Create" id="rosterInOfficeDays-form" enctype="multipart/form-data">
     <div class="row g-3 mb-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="RosterInOfficeDayID" />
+
         <div class="col-md">
             <label class="form-label" asp-for="OrganizationID">Organization Name</label>
             <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
@@ -56,7 +59,9 @@
                 }
             </select>
         </div>
+    </div>
 
+    <div class="row g-3 mb-3">
         <div class="col-md">
             <label class="form-label" asp-for="ShiftID">Shift Name</label>
             <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
@@ -65,13 +70,20 @@
         </div>
 
         <div class="col-md">
-            <label class="form-label" for="timepicker2">Select Date Range</label>
-            @* <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="DD/MM/YYYY to DD/MM/YYYY" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' /> *@
-            <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>
-            <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
-            <input type="hidden" id="basic-daterange_toHidden" name="ToDate" />
+            <label class="form-label" asp-for="StartDate">Start Date</label>
+            @* <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
         </div>
 
+        <div class="col-md">
+            <label class="form-label" asp-for="EndDate">End Date</label>
+            @* <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
+        </div>
+
+        @* <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>
+            <input type="hidden" asp-for="StartDate" name="StartDate" />
+            <input type="hidden" asp-for="EndDate" name="EndDate" /> *@
     </div>
     <div class="col-12">
         <div class="row g-3 justify-content-end">
@@ -79,7 +91,7 @@
                 <button type="reset" class="btn btn-phoenix-primary px-5" id="rosterInOfficeDays-resetBtn">@Html.SmartLocalize("Reset")</button>
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Publish")</button>
+                <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Save")</button>
             </div>
         </div>
     </div>

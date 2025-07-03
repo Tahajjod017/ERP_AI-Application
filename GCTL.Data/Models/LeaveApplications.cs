@@ -43,8 +43,6 @@ public partial class LeaveApplications
 
     public string Reason { get; set; }
 
-    public bool ? IsGroupApplication { get; set; }
-    public int? GroupApplicationID { get; set; }
     public int? LeaveApplicableYear { get; set; }
 
     public bool? IsGroupApplication { get; set; }
