@@ -47,6 +47,8 @@ public partial class LeaveTypes
 
     public bool IsActive { get; set; }
 
+    public int? ApplicableYear { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

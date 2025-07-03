@@ -72,7 +72,12 @@ using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Employees.EmployeeReport;
+
 using GCTL.Service.FileHandler;
+
+using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
+using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
+
 
 
 
@@ -113,7 +118,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICurrencyService, CurrencyService>();
             services.AddScoped<IDegreeService, DegreeService>();
             services.AddScoped<IDepartmentService, DepartmentService>();
-            services.AddScoped<IDesignationService, DesignationService>();
+            services.AddScoped<IDesignationService, DesignationSettingService>();
             services.AddScoped<IEducationBoardService, EducationBoardService>();
             services.AddScoped<IEducationLevelsService, EducationLevelService>();
             services.AddScoped<IEmployeeTypesService, EmployeeTypesService>();
@@ -156,6 +161,9 @@ namespace GCTL_App.Extensions
             services.AddScoped<IWeekendSettingService, WeekendSettingService>();
             services.AddScoped<IApprovalSettingService, ApprovalSettingService>();
             services.AddScoped<ICompanySettingService, CompanySettingService>();
+            services.AddScoped<IBranchSettingService, BranchSettingService>();
+            services.AddScoped<IDesignationService, DesignationSettingService>();
+            services.AddScoped<IDepartmentSettingService, DepartmentSettingService>();
             #endregion
 
 

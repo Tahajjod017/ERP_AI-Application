@@ -4,23 +4,32 @@
     var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDaysSetupVM>;
 }
 
+<style>
+    element.style {
+        top: 276.25px;
+        left: 1378.03px;
+        user-select: none;
+    }
+
+    .date-picker-wrapper {
+        margin-left: 1.2vw !important;
+    }
+</style>
+
 <form asp-controller="OfficeDayRoster" asp-action="Create" id="rosterInOfficeDays-form" enctype="multipart/form-data">
     <div class="row g-3 mb-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="RosterInOfficeDayID" />
+
         <div class="col-md">
-            <label class="form-label" for="organizerSingle">Organization Name</label>
-            <select class="form-multi-select"
-                    asp-for="OrganizationID"
-                    asp-items="@ViewBag.OrganizationDD as SelectList"
-                    data-coreui-options-style="text"
-                    data-coreui-multiple="false"
-                    data-coreui-search="true"
-                    data-coreui-placeholder="Select Organization...">
+            <label class="form-label" asp-for="OrganizationID">Organization Name</label>
+            <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                 <option value="">Select Organization...</option>
             </select>
         </div>
 
-        <div class="col-md">
-            <label class="form-label" for="organizerSingle">Department Name</label>
+        <div class="col-md department">
+            <label class="form-label" asp-for="DepartmentIDs">Department Name</label>
             <select class="form-multi-select"
                     asp-for="DepartmentIDs"
                     asp-items="@ViewBag.DepartmentDD as SelectList"
@@ -31,8 +40,8 @@
             </select>
         </div>
 
-        <div class="col-md">
-            <label class="form-label" for="organizerSingle">Employee Name</label>
+        <div class="col-md employee">
+            <label class="form-label" asp-for="EmployeeIDs">Employee Name</label>
             <select class="form-multi-select"
                     asp-for="EmployeeIDs"
                     multiple data-coreui-multiple="true"
@@ -50,19 +59,31 @@
                 }
             </select>
         </div>
+    </div>
 
+    <div class="row g-3 mb-3">
         <div class="col-md">
-            <label class="form-label" for="organizerSingle">Shift Name</label>
-            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                <option value="">Select Roster...</option>
+            <label class="form-label" asp-for="ShiftID">Shift Name</label>
+            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
+                <option value="">Select Shift...</option>
             </select>
         </div>
 
         <div class="col-md">
-            <label class="form-label" for="timepicker2">Select Date Range</label>
-            <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="DD/MM/YYYY to DD/MM/YYYY" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
+            <label class="form-label" asp-for="StartDate">Start Date</label>
+            @* <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
         </div>
 
+        <div class="col-md">
+            <label class="form-label" asp-for="EndDate">End Date</label>
+            @* <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
+        </div>
+
+        @* <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>
+            <input type="hidden" asp-for="StartDate" name="StartDate" />
+            <input type="hidden" asp-for="EndDate" name="EndDate" /> *@
     </div>
     <div class="col-12">
         <div class="row g-3 justify-content-end">
@@ -70,7 +91,7 @@
                 <button type="reset" class="btn btn-phoenix-primary px-5" id="rosterInOfficeDays-resetBtn">@Html.SmartLocalize("Reset")</button>
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Publish")</button>
+                <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Save")</button>
             </div>
         </div>
     </div>

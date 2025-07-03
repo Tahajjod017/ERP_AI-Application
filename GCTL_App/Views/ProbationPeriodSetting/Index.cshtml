@@ -1,0 +1,80 @@
+﻿@{
+    var activeTab = "ProbationSetting";
+}
+
+<partial name="~/Views/Shared/HRMsettingsNavs/HRMsettingNavPartial.cshtml" model="activeTab" />
+
+
+<div class="col-xl-12">
+    <div class="card mb-4 mt-2">
+        <div class="card-body">
+            <div class="border-bottom mb-3 pb-3">
+                <h4>Probetion Period Settings</h4>
+            </div>
+            <form action="settings-ui.html">
+                <div class="mb-3">
+                    <div class="row">
+                        <!-- Company Name Dropdown -->
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="companyName">Company Name</label>
+                                <select class="form-select" id="companyName" aria-label="Company Name Select">
+                                    <option>GCTL</option>
+                                    <option>CSL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Probation Period Number Dropdown -->
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="probationPeriod">Probation Period (Number)</label>
+                                <input type="number" class="form-control" id="probationPeriod" placeholder="Enter number (e.g., 1)" min="1" aria-label="Probation Period">
+                            </div>
+                        </div>
+
+                        <!-- Probation Period Type Dropdown -->
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="periodType">Probation Period Type</label>
+                                <select class="form-select" id="periodType" aria-label="Probation Period Type">
+                                    <option selected="selected">Select Period Type</option>
+                                    <option value="month">Month</option>
+                                    <option value="year">Year</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Start Date Picker -->
+                        <div class="col-sm-6 col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="datepicker">Joining Date</label>
+                                <input class="form-control datetimepicker flatpickr-input" id="datepicker" type="text"
+                                       placeholder="dd/mm/yyyy"
+                                       data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}"
+                                       readonly="readonly">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="reset" class="btn btn-outline-secondary border me-3">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+   
+</div>
+
+<partial name="_ProbationPeriodTableList"/>
+
+@section Scripts {
+   
+
+}

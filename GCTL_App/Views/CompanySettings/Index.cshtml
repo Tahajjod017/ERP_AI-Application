@@ -141,10 +141,31 @@
                                         <input class="form-control" id="PostCode" type="text" name="PostCode" placeholder="" />
                                     </div>
                                 </div>
+
+                                <!-- Google Map Container -->
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="Latitude">Latitude</label>
+                                        <input class="form-control" id="Latitude" type="text" name="Latitude" placeholder="Latitude"  />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="Longitude">Longitude</label>
+                                        <input class="form-control" id="Longitude" type="text" name="Longitude" placeholder="Longitude"  />
+                                    </div>
+                                </div>
+
                                 <!-- Google Map Container -->
                                 <div class="col-md-12">
                                     <div id="map" style="height: 400px; width: 100%;"></div> <!-- Set a height for the map -->
                                 </div>
+
+                                <div class="col-md-12">
+                                    <a href="https://www.latlong.net/" id="getLocation" class="btn btn-primary mt-3 mb-3">Get Location</a>
+                                </div>
+                                
                             </div>
                         </div>
 
@@ -162,11 +183,13 @@
 </div>
 
 <partial name="_organizationTableList" />
+<partial name="_ConfirmDelete" />
 
 
 @section Scripts {
     <script src="~/js/pages/adminsettings/organizationsettings/companysetting.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer></script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeHMgN5z-dNA7bE5bpXosfFlEijVN6pyI&callback=initMap" async defer></script> 
 
 }
 

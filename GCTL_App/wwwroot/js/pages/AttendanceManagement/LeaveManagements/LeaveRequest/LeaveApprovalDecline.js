@@ -280,29 +280,7 @@ $(document).ready(function () {
     
 
 
-    //
-    //$(document).on('change', '#FromDate', function () {
-    //    const minDate = flatpickrHelper.getDate('FromDate');
-    //    const $toInput = flatpickrHelper.getDate('ToDate');
-
-    //    // Destroy any existing flatpickr instance
-    //    if ($toInput[0]._flatpickr) {
-    //        $toInput[0]._flatpickr.destroy();
-    //    }
-
-    //    // Re-initialize with updated minDate
-    //    flatpickr(flatpickrHelper.getDate('ToDate'), {
-    //        dateFormat: "Y-m-d",
-    //        altInput: true,
-    //        altFormat: "d/m/Y",
-    //        allowInput: true,
-    //        minDate: minDate,
-    //        onReady: function (selectedDates, dateStr, instance) {
-    //            instance.input.placeholder = "dd/mm/yyyy";
-    //        }
-    //    });
-    //});
-
+   
     //
     // Handle form submit
     $(document).on('click', '#ApplyLeaveSubmitButtonApproval', function (e) {
@@ -452,13 +430,14 @@ $(document).ready(function () {
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
 
                     // EmployeeIDEdit
-
+                    debugger
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
                     $('input[name="LeaveDaysEdit"]').val(data.leaveDaysEdit);
                     $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-                    $('input[name="FromDateEdit"]').val(data.fromDateEdit);
+                    //$('input[name="FromDateEdit"]').val(data.fromDateEdit);
+                    flatpickrHelper.setDate('FromDate', data.fromDateEdit)
                     $('input[name="ToDateEdit"]').val(data.toDateEdit);
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
                     $('#TotalAppliedDays').val(data.period);
@@ -627,11 +606,31 @@ $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
     loadTableData();
 });
 
+// Filtering according to formdate to ToDate
+
+
+$(document).ready(function () {
+    initializeGlobalDateRangePicker(
+        'basic-daterange_aboveTable',                   // visible input
+        'basic-daterange_fromHidden_aboveTable',        // hidden FromDate
+        'basic-daterange_toHidden_aboveTable',          // hidden ToDate
+        function () {
+            currentPage = 1;
+            loadTableData(); // Your reload logic here
+        }
+    );
+});
+
+//
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
     var statusID = $('#StatusIDFilterDD').val();
+    const fromDate = $('#basic-daterange_fromHidden_aboveTable').val();
+    const toDate = $('#basic-daterange_toHidden_aboveTable').val();
 
+    console.log("From: " + fromDate + " | To: " + toDate);
 
     $.ajax({
         url: '/LeaveApprovalDeclineRoute/GetAllTableListAsync',
@@ -643,7 +642,9 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             currentSortColumn: currentSortColumn,
             currentSortOrder: currentSortOrder,
             leaveTypeID: leaveTypeID,
-            statusID: statusID
+            statusID: statusID,
+            fromDate: fromDate,
+            toDate: toDate
         },
         success: function (response) {
 
@@ -859,6 +860,20 @@ $(document).ready(function () {
         loadAttendanceTable();
     });
 
+    $(document).ready(function () {
+        initializeGlobalDateRangePicker(
+            'basic-daterange_belowTable',                    // visible input
+            'basic-daterange_fromHidden_belowTable',         // hidden FromDate
+            'basic-daterange_toHidden_belowTable',           // hidden ToDate
+            function () {
+                attendPage = 1;
+                loadAttendanceTable(); // You can change this function name if needed
+            }
+        );
+    });
+
+
+
     $(document).on('click', '.attend-page-btn', function () {
         const page = $(this).data('page');
         attendPage = page;
@@ -883,6 +898,9 @@ $(document).ready(function () {
         var keyword = $("#attendance-searchInput").val();
         var typeID = $('#attendanceTypeFilter').val();
         var statusID = $('#attendanceStatusFilter').val();
+        var fromDate = $('#basic-daterange_fromHidden_belowTable').val();
+        var toDate = $('#basic-daterange_toHidden_belowTable').val();
+
 
         $.ajax({
             url: '/LeaveApprovalDeclineRoute/GetAllTableBelowAsync',
@@ -894,7 +912,9 @@ $(document).ready(function () {
                 currentSortColumn: sortCol,
                 currentSortOrder: sortOrder,
                 attendanceTypeID: typeID,
-                attendanceStatusID: statusID
+                attendanceStatusID: statusID,
+                fromDate: fromDate,
+                toDate: toDate
             },
             success: function (response) {
                 var tbody = $("#attendanceRequestTableBody");
@@ -960,7 +980,7 @@ $(document).ready(function () {
                        
 
                      <td class="align-middle white-space-nowrap text-end pe-0">
-                          <div class="d-flex justify-content-end align-items-center">
+                          <div class="d-flex  align-items-center">
                          
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"

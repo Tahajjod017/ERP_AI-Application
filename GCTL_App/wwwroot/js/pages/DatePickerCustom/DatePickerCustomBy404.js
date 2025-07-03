@@ -89,7 +89,7 @@ function updateDatepickerWithMinDateTotalDays(dateId, minDate, options = {}, dis
 // Date range Global
 
 function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onChangeCallback) {
-   
+
     $(`#${pickerId}`).dateRangePicker({
         format: 'DD/MM/YYYY',
         separator: ' to ',

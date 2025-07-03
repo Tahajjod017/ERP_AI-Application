@@ -51,7 +51,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
 
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>>
-    GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null)
+    GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
@@ -83,7 +83,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
                     query = query.Where(x => x.LeaveTypeID == leaveTypeID);
                 }
-
+                if(fromDate.HasValue && toDate.HasValue)
+                {
+                    query = query.Where(x => x.FromDate >= fromDate.Value && x.ToDate <= toDate.Value);
+                }
                 if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
                 {
                     query = query.Where(x => x.EmployeeID == employeeId);
@@ -156,7 +159,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         #endregion
 
         #region  Get Data All  Leave  Requyest below table 
-        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null)
+        public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
@@ -191,7 +194,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     query = query.Where(x => x.LeaveTypeID == leaveTypeID);
                 }
 
-
+                if (fromDate.HasValue && toDate.HasValue)
+                {
+                    query = query.Where(x => x.FromDate >= fromDate.Value && x.ToDate <= toDate.Value);
+                }
                 if (query == null)
                 {
                     throw new InvalidOperationException("ActionLogs query source is null.");

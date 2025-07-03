@@ -51,6 +51,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
         }
         #endregion
+
         #region GetAll
         public async Task<IActionResult> GetAlls(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayTitle", string sortOrder = "desc", int? organizationID = null)
         {

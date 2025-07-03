@@ -19,8 +19,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysSetupVM model);
         Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(DeleteRequestVM model);
         Task<RosterInOfficeDaysSetupVM> GetByIdAsync(int id);
-        Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int? organizationID = null);
+        Task<List<RosterInOfficeDaysSetupVM>> GetAllAsync(int daysToShow = 7);
+        Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllPaging(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+            string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7);
         #endregion
 
 
@@ -29,10 +30,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         Task<List<CommonSelectVM>> GetDepartments();
         Task<List<RosterInOfficeDaysSetupVM>> GetGroupedEmployees();
         Task<List<CommonSelectVM>> GetShift();
-        Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByCompany(int id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByCompany(int id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetShiftByCompany(int id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(List<int> departmentIds);
+        Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByOrganization(int? id);
+        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByOrganization(int? id);
+        Task<List<RosterInOfficeDaysSetupVM>> GetShiftByOrganization(int? id);
+        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(int? orgId, List<int>? departmentIds);
         #endregion
     }
 }

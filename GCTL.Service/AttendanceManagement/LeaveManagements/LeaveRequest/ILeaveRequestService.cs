@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
@@ -41,9 +42,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<List<MultiDropDown>> GetDepartmentByCompany(int id);
         Task<List<MultiDropDown>> GetEmployeeByCompany(int id);
         Task<List<MultiDropDown>> GetEmployeeByDepartment(List<int> departmentIds);
-      
+
+        #endregion
+
+        #region Dispaly LeaveDays in Modal
+        Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId);
         #endregion
     }
 
-    
+
 }

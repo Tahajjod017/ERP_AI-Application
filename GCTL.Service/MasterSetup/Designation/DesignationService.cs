@@ -15,19 +15,21 @@ using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.Designation
 {
-    public class DesignationService : AppService<Designations>, IDesignationService
+    public class DesignationSettingService : AppService<Designations>, IDesignationService
     {
         #region Repositories
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Designations> _genericRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
 
-        public DesignationService(IGenericRepository<Designations> genericRepository, IGenericRepository<Departments> departmentRepository, IUserInfoService userInfoService) : base(genericRepository)
+        public DesignationSettingService(IUserInfoService userInfoService, IGenericRepository<Designations> genericRepository, IGenericRepository<Departments> departmentRepository):base(genericRepository)
         {
+            _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _departmentRepository = departmentRepository;
-            _userInfoService = userInfoService;
         }
+
+
         #endregion
 
 

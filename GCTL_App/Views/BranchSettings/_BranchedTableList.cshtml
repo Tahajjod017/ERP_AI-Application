@@ -22,6 +22,7 @@
                             <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
                             <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
                             <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                            <option class="dropdown-item" value="0">@Html.SmartLocalize("All")</option>
                         </select>
                     </div>
                 </div>
@@ -52,12 +53,14 @@
                         <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
                             <input type="checkbox" class="form-check-input" id="addBranchSettings-check-all" />
                         </th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("SL")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("Company Name")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Branch Name")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Address")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("Country")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailPort">@Html.SmartLocalize("Email")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("Phone")</th>
+
 
                         <th class="text-end align-middle pe-0 ps-5 text-uppercase" scope="col">@Html.SmartLocalize("Action")</th>
                     </tr>

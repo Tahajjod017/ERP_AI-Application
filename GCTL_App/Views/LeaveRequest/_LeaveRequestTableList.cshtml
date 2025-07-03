@@ -27,7 +27,7 @@
         
         border: 2px solid #ddd;
         border-radius: 8px;
-        font-size: 16px;
+        font-size: 14px;
         transition: all 0.3s ease;
         background: white;
     }
@@ -42,17 +42,27 @@
         display: none !important;
     }
 
+
     .date-picker-wrapper {
        margin-left:8.2vw !important;
         
     }
     
+
+    /* .input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .clear-btn {
+        color: #999;
+        font-size: 1rem;
+        padding: 0 5px;
+    } */
+
 </style>
 
-
-@* <input type="text" id="basic-daterange" class="date-input" placeholder="Click to select date range" readonly>
-
-<div id="basic-result" class="result" style="display:none;"></div> *@
 
 <div class="card-body py-0 scrollbar to-do-list-body">
     <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
@@ -125,10 +135,18 @@
                     <div class="me-5">
                         <div class="position-relative">
                             <input type="text" id="basic-daterange" class="date-input form-control-sm" placeholder="d/m/y to d/m/y" readonly>
-                          @*  @*  <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly"> *@ 
+                         
                             <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
                             <input type="hidden" id="basic-daterange_toHidden" name="ToDate" />
                         </div>
+                       @*  <div class="input-wrapper position-relative">
+                            <input type="text" id="basic-daterange" class="form-control form-control-sm pr-4" placeholder="d/m/y to d/m/y" readonly>
+                            <span class="clear-btn position-absolute" onclick="clearDateRange()" style="top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">&times;</span>
+                        </div>
+
+                        <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
+                        <input type="hidden" id="basic-daterange_toHidden" name="ToDate" /> *@
+
                     </div>
 
                     <div class="dropdown me-3">
