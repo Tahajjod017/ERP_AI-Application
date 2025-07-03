@@ -20,10 +20,10 @@ namespace GCTL.Service.HRMsettings.ProbationService
         Task<PaginationService<ProbetionPeriodSettings, ProbationSettingVM>.PaginationResult<ProbationSettingVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<ProbationSettingVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<bool> IsNameUniqueAsync(int approvalTypeId, int organizationId);
+        Task<bool> IsNameUniqueAsync(string name);
         Task<List<SelectListItem>> GetOrganizationsAsync();
-        Task<List<SelectListItem>> GetApprovalTypesAsync();
-        Task<List<SelectListItem>> GetEmployeeAsync();
-        Task<List<SelectListItem>> GetDesignationAsync();
+        //Task<List<SelectListItem>> GetApprovalTypesAsync();
+        //Task<List<SelectListItem>> GetEmployeeAsync();
+        //Task<List<SelectListItem>> GetDesignationAsync();
     }
 }

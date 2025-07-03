@@ -1,10 +1,38 @@
-﻿
+﻿// submit 
+$(document).ready(function () {
+    $('#branchSettingsForm').on('submit', function (e) {
+        e.preventDefault();  // Prevent the default form submission
+
+        var form = $(this);
+        var formData = new FormData(form[0]);  // Create a FormData object from the form
 
 
+       
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message, '');
+                    form.trigger("reset");
+                    loadTableData();
+                } else {
+                    toastr.error(response.message, 'Error');
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        });
+    });
+});
 
 
-
-//////////////////////////////Data Table Initialization//////////////////////////////
+// Function to load table data
 var currentPage = 1;
 var pageSize = 5;
 
@@ -40,7 +68,8 @@ $(document).ready(function () {
     });
 });
 
-let currentSortColumn = 'HolidayTitle';
+
+let currentSortColumn = 'BloodGroupName';
 let currentSortOrder = 'asc';
 
 $('th.sort').on('click', function () {
@@ -75,8 +104,9 @@ function updateSortingIndicator() {
 
 function loadTableData(sortColumn, sortOrder) {
     var searchTerm = $("#addBranchSettings-searchInput").val();
+
     $.ajax({
-        url: '/HolidaySettings/GetAlls',
+        url: '/BranchSettings/GetAllData',
         method: 'GET',
         data: {
             pageNumber: currentPage,
@@ -94,23 +124,24 @@ function loadTableData(sortColumn, sortOrder) {
                     tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
+                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.organizationBranchID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap ps-0">${rowIndex}</td>
+                            <td class="align-middle text-center white-space-nowrap pe-8">${rowIndex}</td>
                             
-                             <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
-                             <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
-                            <td class="align-middle white-space-nowrap ">${item.startDate}</td>
-                            <td class="align-middle white-space-nowrap ">${item.endDate}</td>
-                            <td class="text-center align-middle white-space-nowrap ps-0">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap ps-0">${item.statusName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.organizationName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.organizationBranchName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.emailAddress}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.countryName}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.emailAddress}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.phone}</td>
+                           
                              <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a
                                href="#"
                                title="Edit"
-                               id="LeaveRequestEditButton"
-                               data-id="${item.holidayID}"
+                               id="edit_approval_settingBtn"
+                               data-id="${item.organizationBranchID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 
                                data-bs-target="#edit_leaves"
@@ -118,9 +149,9 @@ function loadTableData(sortColumn, sortOrder) {
                                <i class="fas fa-edit text-black"></i>
                         </a>
                             <a 
-                              href="#" title="Delete"  data-id="${item.holidayID}"
+                              href="#" title="Delete"  data-id="${item.organizationBranchID}"
                               class="btn btn-outline-light btn-icon"  
-                              id="leaveRequestDelete-singleDelBtn" >
+                              id="approvalSettingsDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
                           </div>
@@ -181,3 +212,117 @@ $(document).on('click', '.page-btn', function () {
     currentPage = page;
     loadTableData();
 });
+
+
+let map;
+let marker;
+
+// Initialize the map with the user's current location
+function initMap() {
+    // Default coordinates (San Francisco, will be overwritten by user's current location)
+    const defaultLat = 37.7749;
+    const defaultLng = -122.4194;
+
+    // Try to get the user's current location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+            // Show an alert when GPS is successfully enabled and location is fetched
+            alert("GPS is enabled. Current location: Latitude " + userLat + ", Longitude " + userLng);
+
+            // Initialize the map with the user's location
+            const mapOptions = {
+                center: { lat: userLat, lng: userLng },
+                zoom: 12,
+            };
+
+            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            // Place a marker at the current location
+            marker = new google.maps.Marker({
+                position: map.getCenter(),
+                map: map,
+                draggable: true,  // Allow the user to drag the marker
+            });
+
+            // Update the Latitude and Longitude fields with the user's current position
+            updateCoordinates(userLat, userLng);
+
+            // Listen for marker drag and update latitude and longitude fields
+            google.maps.event.addListener(marker, 'dragend', function (event) {
+                const lat = event.latLng.lat();
+                const lng = event.latLng.lng();
+                updateCoordinates(lat, lng);
+            });
+        }, function () {
+            alert("Geolocation service failed. Using default location.");
+            // Fallback to default location if geolocation is not available
+            const mapOptions = {
+                center: { lat: defaultLat, lng: defaultLng },
+                zoom: 12,
+            };
+            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            // Place a marker at the default location
+            marker = new google.maps.Marker({
+                position: map.getCenter(),
+                map: map,
+                draggable: true,
+            });
+
+            updateCoordinates(defaultLat, defaultLng);
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+        // Fallback to default location if geolocation is not supported
+        const mapOptions = {
+            center: { lat: defaultLat, lng: defaultLng },
+            zoom: 12,
+        };
+        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+        // Place a marker at the default location
+        marker = new google.maps.Marker({
+            position: map.getCenter(),
+            map: map,
+            draggable: true,
+        });
+
+        updateCoordinates(defaultLat, defaultLng);
+    }
+
+    // Listen for changes in the Latitude and Longitude input fields
+    const latInput = document.getElementById("Latitude");
+    const lngInput = document.getElementById("Longitude");
+
+    latInput.addEventListener('input', function () {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const newLocation = new google.maps.LatLng(lat, lng);
+            marker.setPosition(newLocation);  // Update the marker position
+            map.setCenter(newLocation);  // Recenter the map
+        }
+    });
+
+    lngInput.addEventListener('input', function () {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const newLocation = new google.maps.LatLng(lat, lng);
+            marker.setPosition(newLocation);  // Update the marker position
+            map.setCenter(newLocation);  // Recenter the map
+        }
+    });
+}
+
+// Update the Latitude and Longitude input fields
+function updateCoordinates(lat, lng) {
+    document.getElementById("Latitude").value = lat;
+    document.getElementById("Longitude").value = lng;
+}
+
+// Call initMap when the script is loaded
+window.initMap = initMap;

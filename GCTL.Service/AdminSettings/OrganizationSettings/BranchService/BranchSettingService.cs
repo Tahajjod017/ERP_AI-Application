@@ -11,21 +11,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
 {
-    public class BranchSettingService:AppService<OrganizationBranches>, IBranchSettingService
+    public class BranchSettingService : AppService<OrganizationBranches>, IBranchSettingService
     {
         #region Repositories & Services
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<OrganizationBranches> _genericRepository;
         private readonly IGenericRepository<Organization> _genericRepositoryOraganization;
+        private readonly IGenericRepository<Country> _genericRepositoryCountry;
 
-        public BranchSettingService(IUserInfoService userInfoService, IGenericRepository<OrganizationBranches> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization) : base(genericRepository)
+        public BranchSettingService(IUserInfoService userInfoService, IGenericRepository<OrganizationBranches> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<Country> genericRepositoryCountry) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _genericRepositoryOraganization = genericRepositoryOraganization;
+            _genericRepositoryCountry = genericRepositoryCountry;
         }
         #endregion
 
@@ -57,6 +60,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                     existingEntity.Street = model.Street;
                     existingEntity.City = model.City;
                     existingEntity.PostCode = model.PostCode;
+                    // Fix for CS0029: Convert Latitude and Longitude to decimal?  
+                    existingEntity.Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude);
+                    existingEntity.Longitude = string.IsNullOrEmpty(model.Longitude) ? null : decimal.Parse(model.Longitude);
 
 
                     existingEntity.CreatedAt = DateTime.Now;
@@ -81,12 +87,15 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                         Phone = model.Phone,
                         WebAddress = model.WebAddress,
                         Fax = model.Fax,
-                      
+
                         Address = model.Address,
                         CountryID = model.CountryID,
                         Street = model.Street,
                         City = model.City,
                         PostCode = model.PostCode,
+                        // Fix for CS0029: Convert Latitude and Longitude to decimal?
+                        Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude),
+                        Longitude = string.IsNullOrEmpty(model.Longitude) ? null : decimal.Parse(model.Longitude),
 
 
                         CreatedAt = DateTime.Now,
@@ -139,12 +148,15 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                 entity.Phone = model.Phone;
                 entity.WebAddress = model.WebAddress;
                 entity.Fax = model.Fax;
-                
+
                 entity.Address = model.Address;
                 entity.CountryID = model.CountryID;
                 entity.Street = model.Street;
                 entity.City = model.City;
                 entity.PostCode = model.PostCode;
+                // Fix for CS0029: Convert Latitude and Longitude to decimal?
+                entity.Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude);
+                entity.Longitude = string.IsNullOrEmpty(model.Longitude) ? null : decimal.Parse(model.Longitude);
 
 
 
@@ -184,25 +196,28 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
             var model = new BranchSettingsVM
             {
                 OrganizationID = entity.OrganizationID,
-                OrganizationBranchName = entity.OrganizationBranchName,
-                EmailAddress = entity.EmailAddress,
-                Phone = entity.Phone,
-                WebAddress = entity.WebAddress,
-                Fax = entity.Fax,
-               
-                Address = entity.Address,
+                OrganizationBranchID = entity.OrganizationBranchID,
+                OrganizationBranchName = entity.OrganizationBranchName ?? "_",
+                EmailAddress = entity.EmailAddress ?? "_",
+                Phone = entity.Phone ?? "_",
+                WebAddress = entity.WebAddress ?? "_",
+                Fax = entity.Fax ?? "_",
+
+                Address = entity.Address ?? "_",
                 CountryID = entity.CountryID,
-                Street = entity.Street,
-                City = entity.City,
-                PostCode = entity.PostCode,
+                Street = entity.Street ?? "_",
+                City = entity.City ?? "_",
+                PostCode = entity.PostCode ?? "_",
+                Latitude = entity.Latitude?.ToString(),
+                Longitude = entity.Longitude?.ToString(),
 
 
                 //CreatedAt = entity.CreatedAt,
                 CreatedBy = entity.CreatedBy,
                 //UpdatedAt = entity.UpdatedAt,
                 UpdatedBy = entity.UpdatedBy,
-                LIP = entity.LIP,
-                LMAC = entity.LMAC
+                LIP = entity.LIP ?? "_",
+                LMAC = entity.LMAC ?? "_"
             };
 
             return model;
@@ -272,6 +287,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
             var query = _genericRepository.All()
                 .AsNoTracking()
                 .Include(x => x.Organization) // Include related Organization entity
+                .Include(x => x.Country) // Include related Country entity
                 .Where(x => x.DeletedAt == null);
 
             // Filter by organization if provided
@@ -303,20 +319,26 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                 searchTerm,
                 sortColumn,
                 sortOrder,
-                term => x => EF.Functions.Like(x.OrganizationBranchName, $"%{term}%") || EF.Functions.Like(x.City, $"%{term}%"),
+                term => x => EF.Functions.Like(x.OrganizationBranchName, $"%{term}%") ||
+                EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
+                EF.Functions.Like(x.EmailAddress, $"%{term}%") ||
+                EF.Functions.Like(x.Country.CountryName ?? "", $"%{term}%") ||
+                EF.Functions.Like(x.City, $"%{term}%"),
                 x => new BranchSettingsVM
                 {
                     OrganizationID = x.OrganizationID,
-                    OrganizationBranchName = x.OrganizationBranchName,
-                    EmailAddress = x.EmailAddress,
-                    Phone = x.Phone,
-                    WebAddress = x.WebAddress,
-                    Fax = x.Fax,
-                   
-                    Address = x.Address,
-                    Street = x.Street,
-                    City = x.City,
-                    PostCode = x.PostCode,
+                    OrganizationName = x.Organization.OrganizationName ?? "_", // Include organization name
+                    OrganizationBranchName = x.OrganizationBranchName ?? "_",
+                    EmailAddress = x.EmailAddress ?? "_",
+                    Phone = x.Phone ?? "_",
+                    WebAddress = x.WebAddress ?? "_",
+                    Fax = x.Fax ?? "_",
+                    CountryID = x.CountryID,
+                    CountryName = x.Country?.CountryName ?? "_", // Include country name
+                    Address = x.Address ?? "_",
+                    Street = x.Street ?? "_",
+                    City = x.City ?? "_",
+                    PostCode = x.PostCode ?? "_",
 
                     // CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy,
@@ -327,6 +349,37 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                 });
 
             return result;
+        }
+        #endregion
+
+        #region GetCountryAsync
+        public async Task<List<SelectListItem>> GetCountriesAsync()
+        {
+            var countries = await _genericRepositoryCountry.All()
+                .Where(c => c.DeletedAt == null)
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CountryID.ToString(),
+                    Text = c.CountryName
+                })
+                .ToListAsync();
+            return countries;
+        }
+        #endregion
+
+        #region
+        public async Task<List<SelectListItem>> GetOrganizationsAsync()
+        {
+            var organizations = await _genericRepositoryOraganization.All()
+                .Where(o => o.DeletedAt == null)
+                .Select(o => new SelectListItem
+                {
+                    Value = o.OrganizationID.ToString(),
+                    Text = o.OrganizationName
+                })
+                .ToListAsync();
+            return organizations;
+
         }
         #endregion
     }

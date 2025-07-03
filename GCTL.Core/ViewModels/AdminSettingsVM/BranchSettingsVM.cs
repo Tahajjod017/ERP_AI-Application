@@ -11,9 +11,10 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public int? OrganizationBranchID { get; set; }
 
         public int? OrganizationID { get; set; }
+        public string? OrganizationName { get; set; }
 
         public string? OrganizationBranchName { get; set; }
-        public string EmailAddress { get; set; }
+        public string? EmailAddress { get; set; }
 
         public string? Phone { get; set; }
 
@@ -24,12 +25,15 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? Address { get; set; }
 
         public int? CountryID { get; set; }
+        public string? CountryName { get; set; }
 
         public string? Street { get; set; }
 
         public string? City { get; set; }
 
         public string? PostCode { get; set; }
+        public string? Latitude { get; set; }
+        public string? Longitude { get; set; }
 
     }
 }

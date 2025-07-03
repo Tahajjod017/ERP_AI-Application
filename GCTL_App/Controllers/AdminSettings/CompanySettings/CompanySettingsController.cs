@@ -24,7 +24,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return View();
         }
 
-        #region
+        #region create
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(CompanySettingsVM model)
@@ -122,7 +122,8 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
         }
 
-        #endregion
+        #endregion  
+
         #region Table
 
         public async Task<IActionResult> GetAllData(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationID", string sortOrder = "desc", int? organizationID = null)
@@ -131,6 +132,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return Json(result);
         }
         #endregion
+
         #region sanitize and validate file names and extensions
         // Method to sanitize file names (remove any special characters or path traversal characters)
         private string SanitizeFileName(string fileName)
@@ -146,5 +148,6 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return allowedExtensions.Contains(fileExtension);
         }
         #endregion
+
     }
 }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
 {
@@ -20,8 +21,11 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
         Task<PaginationService<OrganizationBranches, BranchSettingsVM>.PaginationResult<BranchSettingsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "OrganizationBranchID", string sortOrder = "desc", int? organizationID = null);
         #endregion
+
         #region Others
         Task<bool> IsNameUniqueAsync(string name);
+        Task<List<SelectListItem>> GetCountriesAsync();
+        Task<List<SelectListItem>> GetOrganizationsAsync();
         #endregion
 
     }

@@ -30,9 +30,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
             _tenantInfoRepository = tenantInfoRepository;
             _genericRepositoryCountry = genericRepositoryCountry;
         }
-
-
         #endregion
+
         #region AddAsync  
         public async Task<bool> AddAsync(CompanySettingsVM model)
         {
@@ -41,7 +40,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
             {
                 // Try to find an existing soft-deleted record  
                 var existingEntityList = await _genericRepository.FindAsync(e =>
-                    e.DeletedAt != null &&                 
+                    e.DeletedAt != null &&
                     e.OrganizationID == model.OrganizationID
                 );
 
@@ -49,9 +48,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
 
                 if (existingEntity != null)
                 {
-                    // Update and restore
+                    // Update and restore  
                     existingEntity.OrganizationName = model.OrganizationName;
-                    existingEntity.EmailAddress  = model.EmailAddress;
+                    existingEntity.EmailAddress = model.EmailAddress;
                     existingEntity.Phone = model.Phone;
                     existingEntity.WebAddress = model.WebAddress;
                     existingEntity.Fax = model.Fax;
@@ -63,6 +62,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                     existingEntity.City = model.City;
                     existingEntity.PostCode = model.PostCode;
 
+                    // Fix for CS0029: Convert Latitude and Longitude to decimal?  
+                    existingEntity.Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude);
+                    existingEntity.Longitude = string.IsNullOrEmpty(model.Longitude) ? null : decimal.Parse(model.Longitude);
 
                     existingEntity.CreatedAt = DateTime.Now;
                     existingEntity.CreatedBy = model.CreatedBy; // You can replace this with current user ID  
@@ -94,6 +96,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                         City = model.City,
                         PostCode = model.PostCode,
 
+                        // Fix for CS0029: Convert Latitude and Longitude to decimal?  
+                        Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude),
+                        Longitude = string.IsNullOrEmpty(model.Longitude) ? null : decimal.Parse(model.Longitude),
 
                         CreatedAt = DateTime.Now,
                         CreatedBy = model.CreatedBy,
@@ -152,6 +157,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                 entity.Street = model.Street;
                 entity.City = model.City;
                 entity.PostCode = model.PostCode;
+                // Convert Latitude and Longitude to decimal? if they are not null or empty
+                entity.Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude);
+                entity.Longitude = string.IsNullOrEmpty(model.Longitude) ? null : decimal.Parse(model.Longitude);
 
 
 
@@ -203,6 +211,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                 Street = entity.Street,
                 City = entity.City,
                 PostCode = entity.PostCode,
+                Latitude = entity.Latitude?.ToString(),
+                Longitude = entity.Longitude?.ToString(),
 
 
                 //CreatedAt = entity.CreatedAt,
