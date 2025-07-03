@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 {
@@ -20,12 +21,14 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Departments> _genericRepository;
         private readonly IGenericRepository<Organization> _genericRepositoryOraganization;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> genericRepositoryEmployees;
 
-        public DepartmentSettingService(IUserInfoService userInfoService, IGenericRepository<Departments> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization) :base(genericRepository)
+        public DepartmentSettingService(IUserInfoService userInfoService, IGenericRepository<Departments> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _genericRepositoryOraganization = genericRepositoryOraganization;
+            this.genericRepositoryEmployees = genericRepositoryEmployees;
         }
         #endregion
         #region AddAsync  
@@ -47,7 +50,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                     // Update and restore
                     existingEntity.OrganizationID = model.OrganizationID;
                     existingEntity.DepartmentName = model.DepartmentName;
-                    //existingEntity.IsDepartmentHead = model.IsDepartmentHead;
+                    existingEntity.DepartmentHeadEmpID = model.DepartmentHeadEmpID;
 
 
 
@@ -70,6 +73,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                     {
                         OrganizationID = model.OrganizationID,
                         DepartmentName = model.DepartmentName,
+                        DepartmentHeadEmpID = model.DepartmentHeadEmpID,
                         //IsDepartmentHead = model.IsDepartmentHead,
 
 
@@ -122,6 +126,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 
                 entity.OrganizationID = model.OrganizationID;
                 entity.DepartmentName = model.DepartmentName;
+                entity.DepartmentHeadEmpID = model.DepartmentHeadEmpID;
                 //entity.IsDepartmentHead = model.IsDepartmentHead;
 
 
@@ -166,6 +171,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 DepartmentID = entity.DepartmentID,
                 OrganizationID = entity.OrganizationID,
                 DepartmentName = entity.DepartmentName,
+                DepartmentHeadEmpID = entity.DepartmentHeadEmpID,
                 //IsDepartmentHead = entity.IsDepartmentHead,
 
 
@@ -240,7 +246,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
+        #endregion
 
+        #region Table
         public async Task<PaginationService<Departments, DepartmentSettingsVM>.PaginationResult<DepartmentSettingsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationID", string sortOrder = "desc", int? organizationID = null)
         {
             var query = _genericRepository.All()
@@ -283,6 +291,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                     OrganizationID = x.OrganizationID,
                     DepartmentName = x.DepartmentName,
                     //IsDepartmentHead = x.IsDepartmentHead,
+                    DepartmentHeadEmpID = x.DepartmentHeadEmpID,
+                    HeadEmployeeName = x.DepartmentHeadEmpID.HasValue
+                        ? genericRepositoryEmployees.All()
+                            .Where(emp => emp.EmployeeID == x.DepartmentHeadEmpID)
+                            .Select(emp => emp.FirstName +" "+emp.LastName)
+                            .FirstOrDefault()
+                        : null,
 
 
                     // CreatedAt = x.CreatedAt,
@@ -294,6 +309,35 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 });
 
             return result;
+        }
+        #endregion
+
+
+        #region GetOrganizationsAsync
+        public async Task<List<SelectListItem>> GetOrganizationsAsync()
+        {
+            var organizations = await _genericRepositoryOraganization.All()
+                .Where(o => o.DeletedAt == null)
+                .Select(o => new SelectListItem
+                {
+                    Value = o.OrganizationID.ToString(),
+                    Text = o.OrganizationName
+                })
+                .ToListAsync();
+
+            return organizations;
+        }
+        public async Task<List<SelectListItem>> GetEmployeeCodeAsync()
+        {
+            var employeeCodeWithName = await genericRepositoryEmployees.All()
+                .Where(e => e.DeletedAt == null)
+                .Select(e => new SelectListItem
+                {
+                    Value = e.EmployeeID.ToString(),
+                    Text = e.FirstName + " " + e.LastName + "|" + e.EmployeeCode
+                }).ToListAsync();
+
+            return employeeCodeWithName;
         }
         #endregion
     }

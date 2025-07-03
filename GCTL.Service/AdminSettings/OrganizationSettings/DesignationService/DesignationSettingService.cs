@@ -12,24 +12,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
+using System.Web.Mvc;
 
-namespace GCTL.Service.MasterSetup.Designation
+namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 {
-    public class DesignationSettingService : AppService<Designations>, IDesignationService
+    public class DesignationSettingService : AppService<Designations>, IDesignationSettingService
     {
         #region Repositories
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Designations> _genericRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
+        private readonly IGenericRepository<Organization> _genericRepositoryOraganization;
 
-        public DesignationSettingService(IUserInfoService userInfoService, IGenericRepository<Designations> genericRepository, IGenericRepository<Departments> departmentRepository):base(genericRepository)
+        public DesignationSettingService(IGenericRepository<Designations> genericRepository, IGenericRepository<Departments> departmentRepository, IUserInfoService userInfoService, IGenericRepository<Organization> genericRepositoryOraganization) : base(genericRepository)
         {
-            _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _departmentRepository = departmentRepository;
+            _userInfoService = userInfoService;
+            _genericRepositoryOraganization = genericRepositoryOraganization;
         }
-
-
         #endregion
 
 
@@ -236,6 +237,21 @@ namespace GCTL.Service.MasterSetup.Designation
             }).ToList();
 
             return result;
+        }
+        #endregion
+        #region GetOrganizationsAsync
+        public async Task<List<SelectListItem>> GetOrganizationsAsync()
+        {
+            var organizations = await _genericRepositoryOraganization.All()
+                .Where(o => o.DeletedAt == null)
+                .Select(o => new SelectListItem
+                {
+                    Value = o.OrganizationID.ToString(),
+                    Text = o.OrganizationName
+                })
+                .ToListAsync();
+
+            return organizations;
         }
         #endregion
     }

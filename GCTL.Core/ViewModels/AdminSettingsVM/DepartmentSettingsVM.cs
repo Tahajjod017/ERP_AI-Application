@@ -13,6 +13,7 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? DepartmentName { get; set; }
         public int? OrganizationID { get; set; }
 
-        public bool? IsDepartmentHead { get; set; }
+        public int? DepartmentHeadEmpID { get; set; } 
+        public string? HeadEmployeeName { get; set; }
     }
 }

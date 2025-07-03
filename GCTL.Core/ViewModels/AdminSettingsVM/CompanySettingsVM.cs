@@ -29,7 +29,6 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? FaviconLink { get; set; } 
 
 
-
         public string? Address { get; set; }
 
         public int? CountryID { get; set; }
@@ -40,6 +39,10 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? City { get; set; }
 
         public string? PostCode { get; set; }
+        public string? Latitude { get; set; }
+
+        public string? Longitude { get; set; }
+
 
     }
 }

@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AdminSettings\OrganizationSettings\DesignationService\" />
     <Folder Include="ProjectManagements\" />
   </ItemGroup>
 
