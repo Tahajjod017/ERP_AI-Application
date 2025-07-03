@@ -69,6 +69,12 @@ namespace GCTL.Core.ViewModels.Employee.EmployeePersonal
 
        
 
-        public string EmployeeCode { get; set; }
+        public string? EmployeeCode { get; set; }
+        public string? GenderName { get; set; }
+        public string? ReligionName { get; set; }
+        public string? BloodGroupName { get; set; }
+        public string? NationalityName { get; set; }
+        public string? MaritalStatusName { get; set; }
+        public string? CountryName { get; set; }
     }
 }

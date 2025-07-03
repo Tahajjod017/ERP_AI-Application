@@ -72,6 +72,7 @@ using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Employees.EmployeeReport;
+using GCTL.Service.FileHandler;
 
 
 
@@ -192,6 +193,7 @@ namespace GCTL_App.Extensions
             #region File Handler
 
             services.AddScoped<IImageFileHandlerService, ImageFileHandlerService>();
+            services.AddScoped<IPdfFileHandler, PdfFileHandler>();
 
             #endregion
         }

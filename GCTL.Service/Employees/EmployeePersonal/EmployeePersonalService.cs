@@ -370,7 +370,8 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
         public async Task<EmployeePersonalGetViewModel> GetEmployeePersonalById(int id)
         {
-            var employee = await _employeePersonalRepository.AllActive().Include(e=>e.Country)
+            var employee = await _employeePersonalRepository.AllActive().Include(e=>e.Country).Include(t=>t.Gender)
+                .Include(r=>r.Religion).Include(q=>q.BloodGroup).Include(n=>n.Nationality).Include(m=>m.MaritalStatus)
                 .Where(e => e.EmployeeID == id)
                 .Select(e => new EmployeePersonalGetViewModel
                 {
@@ -381,17 +382,23 @@ namespace GCTL.Service.Employees.EmployeePersonal
                     FatherName = e.FatherName,
                     MotherName = e.MotherName,
                     GenderID = e.GenderID,
+                    GenderName = e.Gender.GenderName,
                     TIN = e.TIN,
                     ReligionID = e.ReligionID,
+                    ReligionName = e.Religion.ReligionName,
                     DateOfBirth = e.DateOfBirth,
                     BirthCertificateNo = e.BirthCertificateNo,
                     BloodGroupID = e.BloodGroupID,
+                    BloodGroupName = e.BloodGroup.BloodGroupName,
                     NationalityID = e.NationalityID,
+                    NationalityName = e.Nationality.CountryName,
                     Nationality = e.Country.CountryName,
                     NID = e.NID,
                     MaritalStatusID = e.MaritalStatusID,
+                    MaritalStatusName = e.MaritalStatus.MaritalStatusName,
                     AboutEmployee = e.AboutEmployee,
                     CountryID = e.CountryID,
+                    CountryName = e.Country.CountryName,
                     State = e.State,
                     City = e.City,
                     HouseNo = e.HouseNo,
@@ -414,6 +421,8 @@ namespace GCTL.Service.Employees.EmployeePersonal
         }
 
         #endregion
+
+
 
 
     }
