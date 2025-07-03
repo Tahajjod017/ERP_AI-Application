@@ -91,12 +91,40 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region 
-        public async Task<IActionResult> GetDepartmentByCompany(int id)
+        #region GetDepartmentByOrganization
+        public async Task<IActionResult> GetDepartmentByOrganization(int? id)
         {
-            var result = await _assignDefaultShiftService.GetDepartmentByCompany(id);
+            var result = await _assignDefaultShiftService.GetDepartmentByOrganization(id);
             return Json(result);
         }
+        #endregion
+
+
+        #region GetEmployeeByOrganization
+        public async Task<IActionResult> GetEmployeeByOrganization(int? id)
+        {
+            var result = await _assignDefaultShiftService.GetEmployeeByOrganization(id);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetShiftByOrganization
+        public async Task<IActionResult> GetShiftByOrganization(int? id)
+        {
+            var result = await _assignDefaultShiftService.GetShiftByOrganization(id);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetEmployeeByDepartment
+        public async Task<IActionResult> GetEmployeeByDepartment(int? orgId, [FromQuery] List<int> depIds)
+        {
+            var result = await _assignDefaultShiftService.GetEmployeeByDepartment(orgId, depIds);
+            return Json(result);
+        }
+
         #endregion
     }
 }

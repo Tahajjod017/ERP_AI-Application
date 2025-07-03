@@ -5,6 +5,17 @@
     {
       "library": "bootstrap-multiselect@1.1.2",
       "destination": "wwwroot/lib/bootstrap-multiselect/"
+    },
+    {
+      "library": "jquery-date-range-picker@0.21.1",
+      "destination": "wwwroot/js/layout/jquery-date-range-picker/"
+    },
+    {
+      "library": "moment.js@2.30.1",
+      "destination": "wwwroot/js/layout/moment.js/",
+      "files": [
+        "moment.min.js"
+      ]
     }
   ]
 }
