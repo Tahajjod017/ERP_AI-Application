@@ -12,6 +12,7 @@
         }, options);
 
         var getAll = settings.baseUrl + "/GetAll";
+        var getAllSp = settings.baseUrl + "/GetAllFromStoredProc";
         var createUrl = settings.baseUrl + "/Create";
         var deleteUrl = settings.baseUrl + "/Delete";
         let organizationDD;
@@ -64,24 +65,31 @@
 
             // #region Delete
             let selectedId = null;
+            let selectedDate = null;
 
             $(document).on('click', settings.delBtn, function () {
                 selectedId = $(this).data('id');
-                
+                selectedDate = $(this).data('date');
             });
 
             $(settings.modalDelBtn).on('click', function () {
-                debugger
-                if (selectedId) {
+                if (selectedId && selectedDate) {
                     $.ajax({
-                        url: settings.baseUrl + "/Delete",
+                        url: deleteUrl,
                         method: 'POST',
-                        data: { ids: [selectedId] },
+                        data: {
+                            id: selectedId,
+                            overrideDate: selectedDate
+                        },
                         success: function (response) {
                             if (response.isSuccess) {
                                 toastr.success(response.message);
-                                $('#delete_modal').modal('hide');
-                                clear(); // or refresh the table/list
+                                $(settings.delModal).modal('hide');
+                                const modalElement = document.getElementById('rosterInOfficeDays-delModal');
+                                const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                                modalInstance.hide();
+                                loadTableData();
+                                clear(); 
                             } else {
                                 toastr.error(response.message);
                             }
@@ -94,33 +102,6 @@
                     toastr.error("Invalid action.");
                 }
             });
-
-
-            //$(document).on('click', settings.delBtn, function () {
-            //    debugger
-            //    var id = $(this).data('id');
-
-            //    if (id) {
-            //        $.ajax({
-            //            url: deleteUrl,
-            //            method: 'POST',
-            //            data: { ids: [id] },
-            //            success: function (response) {
-            //                if (response.isSuccess) {
-            //                    toastr.success(response.message);
-            //                    clear();
-            //                } else {
-            //                    toastr.error(response.message);
-            //                }
-            //            },
-            //            error: function () {
-            //                toastr.error("Error occurred while deleting.");
-            //            }
-            //        });
-            //    } else {
-            //        toastr.error("Invalid action.");
-            //    }
-            //});
             // #endregion
             
             
@@ -189,11 +170,8 @@
 
             const departmentIds = document.getElementById('DepartmentIDs')
             departmentIds.addEventListener('changed.coreui.multi-select', event => {
-                debugger
                 // Get the list of selected options.
                 const selected = event.value
-
-                
             });
             // #endregion
 
@@ -596,7 +574,11 @@
                             const dateKey = current.toISOString().split('T')[0];
                             grouped[empId].shifts[dateKey] = {
                                 timeRange: item.timeRange,
-                                shiftName: item.shiftName
+                                shiftName: item.shiftName,
+                                rosterInOfficeDayId: item.rosterInOfficeDayID, 
+                                overrides: item.rosterInOfficeDaysOverrideSetupVMs?.filter(ov =>
+                                    ov.overrideDate && new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
+                                ) || []
                             };
                             current.setDate(current.getDate() + 1);
                         }
@@ -619,19 +601,19 @@
                         headers.forEach(h => {
                             const dateKey = new Date(h.date).toISOString().split('T')[0];
                             const shift = emp.shifts[dateKey];
+                            const hasDeletedOverride = shift?.overrides?.length > 0;
 
-                            if (shift) {
+                            if (shift && !hasDeletedOverride) {
                                 bodyHtml += `
                                 <td class="startTime">
                                     <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
                                         <p class="fs-10">${shift.timeRange}</p>
                                         <p class="fs-10">${shift.shiftName}</p>
-                                        <p>${empId}</p>
                                         <div class="add-shift-btn2 position-absolute">
                                             <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
                                                 <i class="fas fa-edit text-success"></i>
                                             </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-deleteBtn" data-id="${empId}" data-bs-target="#rosterInOfficeDays-delModal">
+                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-deleteBtn" data-id="${shift.rosterInOfficeDayId}" data-date="${h.date}" data-bs-target="#rosterInOfficeDays-delModal">
                                                 <i class="fas fa-trash text-danger"></i>
                                             </a>
                                         </div>

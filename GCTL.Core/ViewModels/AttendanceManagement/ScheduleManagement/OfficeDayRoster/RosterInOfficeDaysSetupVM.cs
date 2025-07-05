@@ -31,5 +31,15 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public string? TimeRange { get; set; }
 
         public List<int>? ExcludedEmployeeIDs { get; set; }
+
+        public virtual ICollection<RosterInOfficeDaysOverrideSetupVM>? RosterInOfficeDaysOverrideSetupVMs { get; set; } = new List<RosterInOfficeDaysOverrideSetupVM>();
+    }
+
+
+    public class RosterDelVM : BaseViewModel
+    {
+        //public List<int> Ids { get; set; } = new List<int>();
+        public int? Id { get; set; }
+        public DateTime? OverrideDate { get; set; }
     }
 }
