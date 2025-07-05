@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Repository;
+using GCTL.Data.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -11,8 +13,31 @@ namespace GCTL.Service.FileHandler
 {
     public class PdfFileHandler : IPdfFileHandler
     {
-        public void ComposeHeader(IContainer container, string companyName, string companyAddress , bool showOnce = false)
+
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficialRepository;
+        private readonly IGenericRepository<Organization> _organizationRepository;
+
+        public PdfFileHandler(IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Organization> organizationRepository)
         {
+            _employeeOfficialRepository = employeeOfficialRepository;
+            _organizationRepository = organizationRepository;
+        }
+
+        public void ComposeHeader(IContainer container, int companyId , bool showOnce = false)
+        {
+
+            // Define default values for fields not directly available
+            string companyName = "";
+            string companyAddress = "";
+            string companyImage = ""; // Default image path
+            var company = _organizationRepository.AllActive().Where(e => e.OrganizationID == companyId).FirstOrDefault();
+            if (company != null)
+            {
+                companyName = company.OrganizationName;
+                companyAddress = company.Address;
+                companyImage = company.LogoLink;
+            }
+
             if (showOnce)
             {
                 container.ShowOnce().PaddingBottom(10).Column(column =>
@@ -21,7 +46,7 @@ namespace GCTL.Service.FileHandler
                     {
                         row.ConstantItem(50).Height(50).Element(logo =>
                         {
-                            logo.Padding(5).Image("wwwroot/img/No-Image-Placeholder.svg.png", ImageScaling.FitArea);
+                            logo.Padding(5).Image("wwwroot/uploads/company/logo/" + companyImage , ImageScaling.FitArea);
                         });
 
                         row.RelativeItem().AlignCenter().Column(centerCol =>
