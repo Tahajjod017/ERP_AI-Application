@@ -1,0 +1,113 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div class="col-xl-5 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="emp-location-chart-container" style="height: 25rem; overflow: hidden;"></div>
+
+            <script>
+                var dom = document.getElementById('emp-location-chart-container');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                    text: 'Working Location ',
+                    subtext: 'Fake Data ',
+                    left: 'right'
+                  },
+                  tooltip: {
+                    trigger: 'item'
+                  },
+                  legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                  },
+                  series: [
+                    {
+                      name: 'Working From',
+                      type: 'pie',
+                      radius: '50%',
+                      data: [
+                        { value: 100, name: 'Home' },
+                        { value: 25, name: 'Office' }
+                      ],
+                      emphasis: {
+                        itemStyle: {
+                          shadowBlur: 10,
+                          shadowOffsetX: 0,
+                          shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                      }
+                    }
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-7 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="overall-attendance-line-chart" style="height: 25rem; overflow: hidden;"></div>
+
+
+            <script>
+                var dom = document.getElementById('overall-attendance-line-chart');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                    text: 'Overall Attendance',
+                    subtext: 'Last 6 Months',
+                    left: 'left'
+                  },
+                  xAxis: {
+                    type: 'category',
+                    data: ['April', 'May', 'June', 'July', 'August', 'September']
+                  },
+                  yAxis: {
+                    type: 'value'
+                  },
+                  series: [
+                    {
+                      data: [82, 72, 90, 64, 85, 71],
+                      type: 'line',
+                      smooth: true
+                    }
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+            </script>
+
+        </div>
+    </div>
+</div>
