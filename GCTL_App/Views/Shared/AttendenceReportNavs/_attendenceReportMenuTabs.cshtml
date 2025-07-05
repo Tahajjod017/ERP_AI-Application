@@ -1,0 +1,56 @@
+﻿@model string
+
+<div class="col-12 col-md-auto">
+    <ul class="nav nav-underline fs-9" id="adminAttendanceReport" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link @(Model == "DailyReport" ? "active" : "")"
+               id="shift-tab"
+               href="@Url.Action("Index", "DailyReportForAll")"
+               role="tab"
+               aria-controls="tab-home"
+               aria-selected="@(Model == "DailyReport" ? "true" : "false")">
+                <span class="fa-solid far fa-address-card me-2 tab-icon-color"></span>Daily Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model == "MonthlyReport" ? "active" : "")"
+               id="roster-tab"
+               href="@Url.Action("Index", "MonthlyReport")"
+               role="tab"
+               aria-controls="tab-profile"
+               aria-selected="@(Model == "MonthlyReport" ? "true" : "false")">
+                <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Monthly Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model == "YearlyReport" ? "active" : "")"
+               id="yearly-tab"
+               href="@Url.Action("Index", "YearlyReport")"
+               role="tab"
+               aria-controls="tab-profile"
+               aria-selected="@(Model == "YearlyReport" ? "true" : "false")">
+                <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Yearly Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model == "MovementReport" ? "active" : "")"
+               id="movement-tab"
+               href="@Url.Action("Index", "MovementReport")"
+               role="tab"
+               aria-controls="tab-profile"
+               aria-selected="@(Model == "MovementReport" ? "true" : "false")">
+                <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Movement Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model == "AvailabilityReport" ? "active" : "")"
+               id="availability-tab"
+               href="@Url.Action("Index", "AvailabilityReport")"
+               role="tab"
+               aria-controls="tab-profile"
+               aria-selected="@(Model == "AvailabilityReport" ? "true" : "false")">
+                <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Availability Report
+            </a>
+        </li>
+    </ul>
+</div>
