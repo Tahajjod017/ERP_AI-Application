@@ -1,0 +1,160 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div class="col-xl-6 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="overall-attendance-by-department-bar-chart" style="height: 25rem; overflow: hidden;"></div>
+
+
+            <script>
+                var dom = document.getElementById('overall-attendance-by-department-bar-chart');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                    text: 'Attendance by Department',
+                    subtext: 'Previous Month'
+                  },
+                  dataset: {
+                    source: [
+                      ['employee', 'nish'],
+                      [32, 'Finance'],
+                      [82, 'IT'],
+                      [85, 'Sales'],
+                      [76, 'HR'],
+                      [45, 'Marcating'],
+                      [79, 'Administration'],
+                      [73, 'Customer Support'],
+                      [78, 'Accounting'],
+                      [90, 'Developer'],
+                      [87, 'Designer'],
+                    ]
+                  },
+                  grid: { containLabel: true },
+                  xAxis: { name: 'employee' },
+                  yAxis: { type: 'category' },
+                  visualMap: {
+                    orient: 'horizontal',
+                    left: 'center',
+                    min: 0,
+                    max: 100,
+                    text: ['High Score', 'Low Score'],
+                    // Map the score column to color
+                    dimension: 0,
+                    inRange: {
+                      color: ['#65B581', '#FFCE34', '#FD665F']
+                    }
+                  },
+                  series: [
+                    {
+                      type: 'bar',
+                      encode: {
+                        // Map the "amount" column to X axis.
+                        x: 'employee',
+                        // Map the "product" column to Y axis
+                        y: 'nish'
+                      }
+                    }
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-6 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="emp-compare-bar-chart-container" style="height: 25rem; overflow: hidden;"></div>
+
+            <script>
+                var dom = document.getElementById('emp-compare-bar-chart-container');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                    text: 'You vs Best_Emp',
+                    subtext: 'Previous Month'
+                  },
+                  tooltip: {
+                    trigger: 'axis'
+                  },
+                  legend: {
+                    data: ['You', 'Best_Emp']
+                  },
+                  toolbox: {
+                    show: true,
+                    feature: {
+                      magicType: { show: true, type: ['line', 'bar'] },
+                      restore: { show: true },
+                      saveAsImage: { show: true }
+                    }
+                  },
+                  calculable: true,
+                  xAxis: [
+                    {
+                      type: 'category',
+                      // prettier-ignore
+                      data: ['Present', 'Absent', 'Early Leave', 'Late Leave']
+                    }
+                  ],
+                  yAxis: [
+                    {
+                      type: 'value'
+                    }
+                  ],
+                  series: [
+                    {
+                      name: 'You',
+                      type: 'bar',
+                      data: [16, 3, 3, 2],
+                      itemStyle: {
+                        color: '#ef5c08',
+                      },
+                    },
+                    {
+                      name: 'Best_Emp',
+                      type: 'bar',
+                      data: [20, 2, 1, 1],
+                      itemStyle: {
+                        color: '#48cd00',
+                      },
+                    }
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+
+            </script>
+
+        </div>
+    </div>
+</div>
+

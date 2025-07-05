@@ -9,13 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers
 {
-    public class VisitingPathController : Controller
+    public class VisitingPathController : BaseController
     {
-
-       
         private readonly IVisitingPathService visitingPathService;
-
-        public VisitingPathController(IVisitingPathService visitingPathService)
+        public VisitingPathController(ITranslateService translateService, IUserProfileService userProfileService, IVisitingPathService visitingPathService) : base(translateService, userProfileService)
         {
             this.visitingPathService = visitingPathService;
         }

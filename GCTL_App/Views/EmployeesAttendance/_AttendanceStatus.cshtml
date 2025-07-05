@@ -1,0 +1,249 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div class="mb-4">
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">Attendance Status</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="me-3">
+                    <div class="input-icon-end position-relative">
+
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+
+                    </div>
+                </div>
+
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Select Status</option>
+                        <option>Presen</option>
+                        <option>Absent</option>
+                    </select>
+                </div>
+
+                <div class="dropdown">
+                    <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Sort by: Last 7 days</option>
+                        <option>Recently Added</option>
+                        <option>Ascending</option>
+                        <option>Desending</option>
+                        <option>Last Month</option>
+                        <option>Last 7 days</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="border-translucent p-3">
+            <div id="employeeListTable" data-list='{"valueNames":["empAttDate","attStatus","checkIn","checkOut","break","late","pHour"],"page":10,"pagination":true}'>
+
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr>
+                                <th class="py-2">Date</th>
+                                <th class="py-2">Check In</th>
+                                <th class="py-2">Check Out</th>
+                                <th class="py-2">Break</th>
+                                <th class="py-2">Late</th>
+                                <th class="py-2">Overtime</th>
+                                <th class="py-2">Production Hours</th>
+                                <th class="py-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="purchasers-sellers-body">
+                            <tr>
+                                <td class="py-2">14 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">06:45 PM</td>
+                                <td class="py-2">30 Min</td>
+                                <td class="py-2">32 Min</td>
+                                <td class="py-2">20 Min</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>8.55 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">
+                                    15 Jan 2024
+                                </td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">06:12 PM</td>
+                                <td class="py-2">20 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">45 Min</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>7.54 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">16 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">06:13 PM</td>
+                                <td class="py-2">50 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">33 Min</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>8.45 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-danger">
+                                        <i class="ti ti-point-filled me-1"></i>Absent
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="py-2">17 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">06:23 PM</td>
+                                <td class="py-2">41 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">50 Min</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>8.35 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">18 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">06:43 PM</td>
+                                <td class="py-2">23 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">10 Min</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>8.22 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">19 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">07:15 PM</td>
+                                <td class="py-2">03 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>8.32 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">20 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">07:13 PM</td>
+                                <td class="py-2">32 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>9.15 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">21 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">09:17 PM</td>
+                                <td class="py-2">14 Min</td>
+                                <td class="py-2">12 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>8.35Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-success">
+                                        <i class="ti ti-point-filled me-1"></i>Present
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2">23 Jan 2024</td>
+                                <td class="py-2">09:00 AM</td>
+                                <td class="py-2">09:23 PM</td>
+                                <td class="py-2">10 Min</td>
+                                <td class="py-2">-</td>
+                                <td class="py-2">45 Min</td>
+                                <td class="py-2">
+                                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                        <i class="ti ti-clock-hour-11 me-1"></i>9.25 Hrs
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    <span class="badge text-bg-danger">
+                                        <i class="ti ti-point-filled me-1"></i>Absent
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
