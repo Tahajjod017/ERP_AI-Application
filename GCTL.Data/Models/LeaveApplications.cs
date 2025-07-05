@@ -47,10 +47,6 @@ public partial class LeaveApplications
 
     public int? LeaveApplicableYear { get; set; }
 
-    public bool? IsGroupApplication { get; set; }
-
-    public int? GroupApplicationID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -61,9 +57,6 @@ public partial class LeaveApplications
 
     public virtual ICollection<LeaveApplications> InverseGroupApplication { get; set; } = new List<LeaveApplications>();
 
-    public bool? IsGroupApplication { get; set; }
-
-    public int? GroupApplicationID { get; set; }
 
     public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
 
