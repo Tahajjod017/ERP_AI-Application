@@ -5,19 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class RosterInOfficeDays
+public partial class RosterInOfficeDaysOverride
 {
-    public int RosterInOfficeDayID { get; set; }
+    public int RosterInOfficeDaysOverrideID { get; set; }
 
-    public int? OrganizationID { get; set; }
+    public int? RosterInOfficeDayID { get; set; }
 
-    public int? EmployeeID { get; set; }
+    public DateTime? OverrideDate { get; set; }
 
     public int? ShiftID { get; set; }
-
-    public DateTime? StartDate { get; set; }
-
-    public DateTime? EndDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -35,19 +31,11 @@ public partial class RosterInOfficeDays
 
     public int? DeletedBy { get; set; }
 
-    public int? DepartmentID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Departments Department { get; set; }
-
-    public virtual Employees Employee { get; set; }
-
-    public virtual Organization Organization { get; set; }
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverride { get; set; } = new List<RosterInOfficeDaysOverride>();
+    public virtual RosterInOfficeDays RosterInOfficeDay { get; set; }
 
     public virtual Shifts Shift { get; set; }
 
