@@ -1,4 +1,5 @@
-﻿using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
+﻿using GCTL.Core.ViewModels.MasterSetup.Designations;
+using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,37 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         {
             ViewBag.Organizations = await _designationSettingService.GetOrganizationsAsync();
             return View();
+        }
+        public async Task<IActionResult> GetDesignations(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "DesignationID", string sortOrder = "desc")
+        {
+            var result = await _designationSettingService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            return Json(result);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Create(DesignationVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var uniqueName = await _designationSettingService.IsNameUniqueAsync(model.DesignationName);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    await _designationSettingService.AddAsync(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.DesignationName });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+
+
         }
     }
 }

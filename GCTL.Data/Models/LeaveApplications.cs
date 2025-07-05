@@ -24,6 +24,8 @@ public partial class LeaveApplications
     public int? StatusID { get; set; }
 
     public int? LeaveTypeID { get; set; }
+    public int? GroupApplicationID { get; set; }
+    public bool? IsGroupApplication { get; set; }
 
     public string LIP { get; set; }
 
@@ -55,6 +57,7 @@ public partial class LeaveApplications
     public virtual LeaveApplications GroupApplication { get; set; }
 
     public virtual ICollection<LeaveApplications> InverseGroupApplication { get; set; } = new List<LeaveApplications>();
+
 
     public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
 

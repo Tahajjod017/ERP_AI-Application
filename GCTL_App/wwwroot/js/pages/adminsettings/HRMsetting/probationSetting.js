@@ -1,5 +1,5 @@
 ﻿
-$('#departmentSettingsForm').on('submit', function (e) {
+$('#probationPeriodSettingForm').on('submit', function (e) {
     e.preventDefault();
 
     var form = $(this);
@@ -22,15 +22,13 @@ $('#departmentSettingsForm').on('submit', function (e) {
         }
     });
 });
- 
 
-
-// Table
+//table
 
 var currentPage = 1;
 var pageSize = 5;
 
-$('#addDepartmentSettings-pageSizeSelect').on('change', function () {
+$('#probation-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -44,19 +42,19 @@ $('#addDepartmentSettings-pageSizeSelect').on('change', function () {
 $(document).ready(function () {
     loadTableData();
 
-    $("#addDepartmentSettings-searchInput").on("input", function () {
+    $("#probation-searchInput").on("input", function () {
         currentPage = 1;
         loadTableData();
     });
 
-    $("#addDepartmentSettings-prevPageBtn").on('click', function () {
+    $("#probation-prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
             loadTableData();
         }
     });
 
-    $("#addDepartmentSettings-nextPageBtn").on('click', function () {
+    $("#probation-nextPageBtn").on('click', function () {
         currentPage++;
         loadTableData();
     });
@@ -97,10 +95,10 @@ function updateSortingIndicator() {
 }
 
 function loadTableData(sortColumn, sortOrder) {
-    var searchTerm = $("#addDepartmentSettings-searchInput").val();
+    var searchTerm = $("#probation-searchInput").val();
 
     $.ajax({
-        url: '/DepartmentSettings/GetAll',
+        url: '/ProbationPeriodSetting/GetProbationPeriods',
         method: 'GET',
         data: {
             pageNumber: currentPage,
@@ -110,7 +108,7 @@ function loadTableData(sortColumn, sortOrder) {
             sortOrder: sortOrder
         },
         success: function (response) {
-            var tableBody = $("#addDepartmentSettings-tBody");
+            var tableBody = $("#probation-tBody");
             tableBody.empty();
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
@@ -118,20 +116,20 @@ function loadTableData(sortColumn, sortOrder) {
                     tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.departmentID}" />
+                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.probetionPeriodSettingID}" />
                             </td>
                             <td class="align-middle text-center white-space-nowrap pe-4">${rowIndex}</td>
                             
-                             <td class="align-middle white-space-nowrap ps-4">${item.organizationName}</td>
-                             <td class="align-middle white-space-nowrap ps-4">${item.departmentName}</td>
-                            <td class="align-middle white-space-nowrap ps-4">${item.headEmployeeName}</td>
-                             <td class="align-middle white-space-nowrap text-end pe-0">
+                             <td class="align-middle white-space-nowrap ps-0">${item.organizationName}</td>
+                             <td class="align-middle white-space-nowrap ps-0">${item.period}</td>
+                             <td class="align-middle white-space-nowrap ps-0">${item.periodType}</td>
+                             <td class="align-middle white-space-nowrap  pe-15">
                           <div class="d-flex justify-content-end align-items-center">
                          <a
                                href="#"
                                title="Edit"
                                id="LeaveRequestEditButton"
-                               data-id="${item.departmentID}"
+                               data-id="${item.probetionPeriodSettingID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 
                                data-bs-target="#edit_leaves"
@@ -139,7 +137,7 @@ function loadTableData(sortColumn, sortOrder) {
                                <i class="fas fa-edit text-black"></i>
                         </a>
                             <a 
-                              href="#" title="Delete"  data-id="${item.departmentID}"
+                              href="#" title="Delete"  data-id="${item.probetionPeriodSettingID}"
                               class="btn btn-outline-light btn-icon"  
                               id="leaveRequestDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
@@ -155,8 +153,8 @@ function loadTableData(sortColumn, sortOrder) {
 
             var paginationInfo = response.paginationInfo;
 
-            $("#addDepartmentSettings-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-            $("#addDepartmentSettings-totalCount").text(`(${paginationInfo.totalItems})`);
+            $("#probation-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+            $("#probation-totalCount").text(`(${paginationInfo.totalItems})`);
 
             updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
         },
@@ -167,7 +165,7 @@ function loadTableData(sortColumn, sortOrder) {
 }
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
-    const paginationLinks = $("#addDepartmentSettings-paginationLinks");
+    const paginationLinks = $("#probation-paginationLinks");
     paginationLinks.empty();
     // Window size (number of pages before/after the current page)
     const windowSize = 1;
@@ -193,8 +191,8 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
         paginationLinks.append(addEllipsis(), createPageButton(totalPages));
     }
     // Disable or enable previous/next buttons
-    $("#addDepartmentSettings-prevPageBtn").prop('disabled', currentPage === 1);
-    $("#addDepartmentSettings-nextPageBtn").prop('disabled', currentPage === totalPages);
+    $("#probation-prevPageBtn").prop('disabled', currentPage === 1);
+    $("#probation-nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
 $(document).on('click', '.page-btn', function () {
@@ -202,3 +200,8 @@ $(document).on('click', '.page-btn', function () {
     currentPage = page;
     loadTableData();
 });
+
+
+
+
+

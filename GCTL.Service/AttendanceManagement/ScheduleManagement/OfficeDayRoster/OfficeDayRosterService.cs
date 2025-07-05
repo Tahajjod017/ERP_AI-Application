@@ -235,35 +235,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region GetAllAsync
-        public async Task<List<RosterInOfficeDaysSetupVM>> GetAllAsync(int daysToShow = 7)
-        {
-            var startDate = DateTime.Today;
-            var endDate = startDate.AddDays(daysToShow - 1);
-
-            var query = _genericRepository.AllActive().AsNoTracking()
-                .Include(x => x.Shift).Include(x => x.Organization)
-                .Include(x => x.Department).Include(x => x.Employee)
-                .Where(x => x.DeletedAt == null)
-                .Where(x => x.StartDate <= endDate && x.EndDate >= startDate); // ✅ FIXED
-
-            var result = await query.Select(x => new RosterInOfficeDaysSetupVM
-            {
-                RosterInOfficeDayID = x.RosterInOfficeDayID,
-                OrganizationName = x.Organization.OrganizationName ?? "-",
-                DepartmentName = x.Department.DepartmentName ?? "-",
-                EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
-                ShiftName = x.Shift.ShiftName ?? "-",
-                ShiftID = x.ShiftID ?? 0,
-                EmployeeID = x.EmployeeID ?? 0,
-                StartDate = x.StartDate,
-                EndDate = x.EndDate,
-                TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}"
-            }).ToListAsync();
-
-            return result;
-        }
-
-        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllPaging(int pageNumber = 1, int pageSize = 5, 
+        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, 
             string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
         {
             var startDate = DateTime.Today;
@@ -437,9 +409,41 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region SoftDeleteAsync
-        public Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(DeleteRequestVM model)
+        public async Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(DeleteRequestVM model)
         {
-            throw new NotImplementedException();
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var data = await _genericRepository.FindAsync(x => model.Ids.Contains(x.RosterInOfficeDayID));
+                if(data == null || data.Count == 0)
+                {
+                    return new RosterInOfficeDaysSetupVM
+                    {
+                        Message = "No data found to delete."
+                    };
+                }
+
+                foreach(var item in data)
+                {
+                    item.ShiftID = null;
+                    item.DeletedAt = DateTime.Now;
+                    item.DeletedBy = model.DeletedBy ?? null;
+                }
+
+                await _genericRepository.UpdateRangeAsync(data);
+
+                await _genericRepository.CommitTransactionAsync();
+
+                return new RosterInOfficeDaysSetupVM
+                {
+                    Message = $"{data.Count} shift deleted successfully."
+                };
+            }
+            catch(Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                throw new Exception("Error occured during the deletion of data.", ex);
+            }
         }
         #endregion
 

@@ -6,18 +6,20 @@
             form: '#rosterInOfficeDays-form',
             saveBtn: '#rosterInOfficeDays-saveBtn',
             resetBtn: '#rosterInOfficeDays-resetBtn',
+            delBtn: '#rosterInOfficeDays-deleteBtn',
+            delModal: '#rosterInOfficeDays-delModal',
+            modalDelBtn: '#rosterInOfficeDays-delModal-delBtn'
         }, options);
 
         var getAll = settings.baseUrl + "/GetAll";
-        var getAllPaging = settings.baseUrl + "/GetAllPaging";
         var createUrl = settings.baseUrl + "/Create";
-
+        var deleteUrl = settings.baseUrl + "/Delete";
         let organizationDD;
         let shiftDD;
         $(() => {
 
 
-
+            // #region Save
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
@@ -45,6 +47,8 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             toastr.success(response.message);
+                            loadTableData();
+                            clear();
                         } else {
                             toastr.info(response.message);
                         }
@@ -54,9 +58,74 @@
                     }
                 });
             });
+            // #endregion
+
+
+
+            // #region Delete
+            let selectedId = null;
+
+            $(document).on('click', settings.delBtn, function () {
+                selectedId = $(this).data('id');
+                
+            });
+
+            $(settings.modalDelBtn).on('click', function () {
+                debugger
+                if (selectedId) {
+                    $.ajax({
+                        url: settings.baseUrl + "/Delete",
+                        method: 'POST',
+                        data: { ids: [selectedId] },
+                        success: function (response) {
+                            if (response.isSuccess) {
+                                toastr.success(response.message);
+                                $('#delete_modal').modal('hide');
+                                clear(); // or refresh the table/list
+                            } else {
+                                toastr.error(response.message);
+                            }
+                        },
+                        error: function () {
+                            toastr.error("Error occurred while deleting.");
+                        }
+                    });
+                } else {
+                    toastr.error("Invalid action.");
+                }
+            });
+
+
+            //$(document).on('click', settings.delBtn, function () {
+            //    debugger
+            //    var id = $(this).data('id');
+
+            //    if (id) {
+            //        $.ajax({
+            //            url: deleteUrl,
+            //            method: 'POST',
+            //            data: { ids: [id] },
+            //            success: function (response) {
+            //                if (response.isSuccess) {
+            //                    toastr.success(response.message);
+            //                    clear();
+            //                } else {
+            //                    toastr.error(response.message);
+            //                }
+            //            },
+            //            error: function () {
+            //                toastr.error("Error occurred while deleting.");
+            //            }
+            //        });
+            //    } else {
+            //        toastr.error("Invalid action.");
+            //    }
+            //});
+            // #endregion
             
             
 
+            // #region clear
             $('#rosterInOfficeDays-resetBtn').on('click', function (e) {
                 e.preventDefault();
                 clear();
@@ -90,8 +159,11 @@
                 initOrganizationDD();
                 initShiftDD();
             }
+            // #endregion
 
-            
+
+
+            // #region Dropdown
             function initOrganizationDD() {
                 organizationDD = new Choices('#OrganizationID', {
                     removeItemButton: true,
@@ -123,8 +195,11 @@
 
                 
             });
+            // #endregion
 
 
+
+            // #region OrganizationID on change
             $('#OrganizationID').on('change', function (e) {
                 e.preventDefault();
 
@@ -133,10 +208,11 @@
                 loadEmpByOrg(organizationId);
                 loadShiftByOrg(organizationId);
             });
+            // #endregion
 
 
 
-
+            // #region loadDepartmentsByCompany
             function loadDepartmentsByCompany(organizationId) {
                 $.ajax({
                     url: '/OfficeDayRoster/GetDepartmentByOrganization',
@@ -150,8 +226,11 @@
                     }
                 });
             }
+            // #endregion
 
 
+
+            // #region loadEmpByOrg
             function loadEmpByOrg(organizationId) {
                 $.ajax({
                     url: '/OfficeDayRoster/GetEmployeeByOrganization',
@@ -165,10 +244,11 @@
                     }
                 });
             }
+            // #endregion
 
 
 
-
+            // #region loadShiftByOrg
             function loadShiftByOrg(organizationId, selectedShiftId = null) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
@@ -198,11 +278,11 @@
                     });
                 });
             }
+            // #endregion
 
 
 
-
-
+            // #region recreateDepartmentDropdown
             function recreateDepartmentDropdown(departments) {
                 const container = document.querySelector('.department'); // The div with class "two"
                 const originalSelect = document.getElementById('DepartmentIDs');
@@ -267,7 +347,11 @@
                         loadEmployeesByFilter(orgId, departmentIds);
                     });
             }
+            // #endregion
 
+
+
+            // #region loadEmployeesByFilter
             function loadEmployeesByFilter(organizationId, departmentIds = []) {
                 console.log('departmentIds:', departmentIds);
                 $.ajax({
@@ -286,11 +370,11 @@
                     }
                 });
             }
+            // #endregion
 
 
 
-
-
+            // #region recreateEmpDD
             function recreateEmpDD(data, employeeIDs = []) {
                 const container = document.querySelector('.employee');
                 const originalSelect = document.getElementById('EmployeeIDs');
@@ -361,26 +445,11 @@
                     selectionType: 'counter'
                 });
             }
+            // #endregion
 
 
 
-
-
-
-
-            $('#timeFrame').on('change', toggleTables);
-
-            function toggleTables() {
-                var selectedValue = $('#timeFrame').val();
-                $('#day7, #day14').hide();
-                $('#' + selectedValue).show();
-            }
-            toggleTables();
-
-
-
-
-
+            // #region For Range Date
             //$(document).ready(function () {
             //    $('#basic-daterange').dateRangePicker({
             //        format: 'DD/MM/YYYY',
@@ -400,20 +469,17 @@
             //        $('#EndDate').val(end);
             //    });
             //});
+            // #endregion
         });
 
 
-
-
-
         
-
+        // #region Table With Pagination
         var currentPage = 1;
         var pageSize = 5;
         let currentSortColumn = 'DefaultShiftID';
         let currentSortOrder = 'desc';
 
-        // 🔁 On page size change
         $('#rosterInOfficeDays-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
             if (selectedSize) {
@@ -423,7 +489,6 @@
             }
         });
 
-        // 🔁 On document ready
         $(document).ready(function () {
             loadTableData();
 
@@ -445,7 +510,6 @@
             });
         });
 
-        // 🔁 Sorting
         $('th.sort').on('click', function () {
             const column = $(this).data('sort');
             if (currentSortColumn === column) {
@@ -459,7 +523,6 @@
             updateSortingIndicator(column, currentSortOrder);
         });
 
-        // 🔁 Sorting icon
         function updateSortingIndicator() {
             $('th.sort').each(function () {
                 const $th = $(this);
@@ -475,18 +538,17 @@
             });
         }
 
-        // 🔄 Trigger on time frame change
         $('#timeFrame').on('change', function () {
             const days = parseInt($(this).val(), 10);
             loadTableData(currentSortColumn, currentSortOrder, days);
         });
 
-        // 🔁 Load data function
+
         function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = 7) {
             var searchTerm = $("#rosterInOfficeDays-searchInput").val();
 
             $.ajax({
-                url: getAllPaging,
+                url: getAll,
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
@@ -506,14 +568,14 @@
                     let headerRow = `<th class="align-middle text-uppercase text-nowrap">Employee Name</th>`;
                     headers.forEach(h => {
                         headerRow += `
-                    <th class="align-middle px-3 text-uppercase text-nowrap">
-                        <p class="weekDay">${h.day}</p>
-                        <p class="date">${h.date}</p>
-                    </th>`;
+                        <th class="align-middle px-3 text-uppercase text-nowrap">
+                            <p class="weekDay">${h.day}</p>
+                            <p class="date">${h.date}</p>
+                        </th>`;
                     });
                     $('table thead tr').html(headerRow);
 
-                    // ✅ Group data by EmployeeID
+                    // ✅ Group and flatten shift data by employee and day
                     const grouped = {};
                     data.forEach(item => {
                         const empId = item.employeeID;
@@ -521,15 +583,23 @@
                             grouped[empId] = {
                                 name: item.employeeName,
                                 designation: item.departmentName,
+                                organization: item.organizationName,
                                 shifts: {}
                             };
                         }
 
-                        const shiftDateKey = new Date(item.startDate).toISOString().split('T')[0];
-                        grouped[empId].shifts[shiftDateKey] = {
-                            timeRange: item.timeRange,
-                            shiftName: item.shiftName
-                        };
+                        const start = new Date(item.startDate);
+                        const end = new Date(item.endDate);
+                        const current = new Date(start);
+
+                        while (current <= end) {
+                            const dateKey = current.toISOString().split('T')[0];
+                            grouped[empId].shifts[dateKey] = {
+                                timeRange: item.timeRange,
+                                shiftName: item.shiftName
+                            };
+                            current.setDate(current.getDate() + 1);
+                        }
                     });
 
                     // ✅ Build tbody
@@ -538,12 +608,11 @@
                         const emp = grouped[empId];
                         bodyHtml += `
                         <tr>
-                            <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
-                                <div class="d-flex align-items-center file-name-icon">
-                                    <div class="ms-1">
-                                        <h5>${emp.name}</h5>
-                                        <p class="fs-9">${emp.designation}</p>
-                                    </div>
+                            <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                                <div class="d-inline-flex flex-column align-items-center justify-content-center">
+                                    <h5>${emp.name}</h5>
+                                    <p class="fs-9 mb-0">${emp.designation}</p>
+                                    <p class="fs-9 mb-0">${emp.organization}</p>
                                 </div>
                             </td>`;
 
@@ -553,28 +622,29 @@
 
                             if (shift) {
                                 bodyHtml += `
-                            <td class="startTime">
-                                <div class="badge badge-phoenix-primary shift-block px-4">
-                                    <p class="fs-10">${shift.timeRange}</p>
-                                    <p class="fs-10">${shift.shiftName}</p>
-                                    <div class="add-shift-btn2">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
+                                <td class="startTime">
+                                    <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
+                                        <p class="fs-10">${shift.timeRange}</p>
+                                        <p class="fs-10">${shift.shiftName}</p>
+                                        <p>${empId}</p>
+                                        <div class="add-shift-btn2 position-absolute">
+                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                                <i class="fas fa-edit text-success"></i>
+                                            </a>
+                                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-deleteBtn" data-id="${empId}" data-bs-target="#rosterInOfficeDays-delModal">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>`;
-                                } else {
-                                    bodyHtml += `
-                            <td class="shift-cell">
-                                <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
-                                    <i class="fa fa-plus" aria-hidden="true"></i>
-                                </button>
-                            </td>`;
-                                }
+                                </td>`;
+                            } else {
+                                bodyHtml += `
+                                <td class="shift-cell">
+                                    <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
+                                </td>`;
+                            }
                         });
 
                         bodyHtml += `</tr>`;
@@ -597,7 +667,6 @@
         }
 
 
-        // 🔁 Pagination logic
         function updatePagination(pageNumbers, currentPage, totalPages) {
             const paginationLinks = $("#rosterInOfficeDays-paginationLinks");
             paginationLinks.empty();
@@ -634,6 +703,6 @@
             currentPage = page;
             loadTableData(currentSortColumn, currentSortOrder);
         });
-
+        // #endregion
     }
 }(jQuery));
