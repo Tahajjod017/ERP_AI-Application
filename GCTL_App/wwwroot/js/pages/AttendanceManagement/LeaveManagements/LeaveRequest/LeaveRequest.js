@@ -475,29 +475,16 @@ $(document).ready(function () {
         var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
 
         if (applied > available && !exceedConfirmed) {
-            const message = `You have ${available} day(s) available, but you tried to apply for ${applied}.
-        So, your exceed leave will be deducted from Annual Leave.
+            const message = `You have ${available} day(s) available, but you tried to apply for ${applied} day(s).
+        So, your exceed leave will be deducted from Annual Leave. `;
 
-        
-
-        `;
-
-        const tbl = `<table>
-  <tr>
-    <td class="me-4">AL</td>
-    <td class="me-4">Reaminig</td>
-    <td class="me-4">taken</td>
-  </tr>
-  
-</table>`;
-
-            toastr.error(message);
+      
+           // toastr.error(message);
 
           //  $('#exceedAnnualLeaveModal').find('.modal-body').text(message);
             $('#DisplayContainer').text(message);
-            $('#DisplayContainer').append(tbl);
             var modal = new bootstrap.Modal(document.getElementById('exceedAnnualLeaveModal'));
-            debugger
+          
             var employeeId =$('#EmployeeID').val();
             DisplayLeave(employeeId)
             modal.show();
@@ -564,6 +551,7 @@ $(document).ready(function () {
                 if (data && data.length > 0) {
                   
                 } else {
+
                     toastr.error('No leave balance data available.');
                 }
             },
