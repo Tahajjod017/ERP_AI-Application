@@ -37,6 +37,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
         public DateTime? LeaveBalanceResetDate { get; set; }
 
         public bool EnableLeaveBalanceResetDate { get; set; }
-
+        public bool IsAllowCrossLeave { get; set; }
     }
 }

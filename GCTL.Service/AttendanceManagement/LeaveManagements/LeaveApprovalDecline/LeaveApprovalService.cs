@@ -358,7 +358,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     return null;
                 var leavStatusApproved = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%APPROVED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
                 var leavStatusDecline = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%DECLINEED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
-                var leaveBalanceSave = await leaveBalance.AllActive().Select(x=> new {x.LeaveTypeID, x.EmployeeID,x.TotalLeave,x.Taken}).ToListAsync();
+                var leaveBalanceSave = await leaveBalance.AllActive().Select(x=> new {x.LeaveTypeID, x.EmployeeID,x.TotalLeave,x.Taken,x.ApplicableYear}).ToListAsync();
 
                     entity.IsFullDay = entityVM.IsFullDayEdit;
                     if (entityVM.IsFullDayEdit)
@@ -387,12 +387,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
 
                     entity.StatusID = leavStatusApproved;
-                    var applicableYear = entity.FromDate.Year;
+                    //var applicableYear = entity.FromDate.Year;
 
                     // 1) Fetch default total for this leave type
                     var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
                         .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
-                        .Select(x => x.LeaveDays)
+                        .Select(x => new
+                        {
+                            x.LeaveDays,
+                            x.ApplicableYear
+                        })
                         .FirstOrDefaultAsync();
 
                     // 2) Try to get an existing balance row
@@ -406,7 +410,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     {
                         // 3a) Update the existing record
                         existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
-                       // existingBalance.TotalLeave = leaveDaysFromConfig;
+                        existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
+                         existingBalance.ApplicableYear= leaveDaysFromConfig.ApplicableYear;
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.UpdatedAt = DateTime.Now;
@@ -421,7 +426,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                             EmployeeID = entityVM.EmployeeIDEdit,
                             LeaveTypeID = entityVM.LeaveTypeIDEdit,
                             Taken = entityVM.TotalAppliedDays,
-                            TotalLeave = leaveDaysFromConfig,
+                            TotalLeave = leaveDaysFromConfig.LeaveDays,
+                            ApplicableYear=leaveDaysFromConfig.ApplicableYear,
                             CreatedAt = DateTime.Now,
                             CreatedBy = entityVM.CreatedBy,
                             LIP = entityVM.LIP,

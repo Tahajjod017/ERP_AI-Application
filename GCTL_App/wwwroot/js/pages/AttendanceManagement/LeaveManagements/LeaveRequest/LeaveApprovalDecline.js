@@ -430,13 +430,12 @@ $(document).ready(function () {
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
 
                     // EmployeeIDEdit
-                    debugger
+             
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
                     $('input[name="LeaveDaysEdit"]').val(data.leaveDaysEdit);
                     $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-                    //$('input[name="FromDateEdit"]').val(data.fromDateEdit);
                     flatpickrHelper.setDate('FromDate', data.fromDateEdit)
                     $('input[name="ToDateEdit"]').val(data.toDateEdit);
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
