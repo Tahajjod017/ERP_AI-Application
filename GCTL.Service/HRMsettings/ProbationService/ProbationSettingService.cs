@@ -21,11 +21,14 @@ namespace GCTL.Service.HRMsettings.ProbationService
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<ProbetionPeriodSettings> _genericRepository;
         private readonly IGenericRepository<Organization> _genericRepositoryOraganization;
-        public ProbationSettingService(IGenericRepository<ProbetionPeriodSettings> genericRepository, IUserInfoService userInfoService, IGenericRepository<Organization> genericRepositoryOraganization) : base(genericRepository)
+
+        public ProbationSettingService(IUserInfoService userInfoService, IGenericRepository<ProbetionPeriodSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization):base(genericRepository)
         {
             _userInfoService = userInfoService;
+            _genericRepository = genericRepository;
             _genericRepositoryOraganization = genericRepositoryOraganization;
         }
+
         #region AddAsync  
         public async Task<bool> AddAsync(ProbationSettingVM model)
         {

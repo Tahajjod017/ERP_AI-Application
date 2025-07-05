@@ -17,10 +17,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
         Task<bool> UpdateAsync(RosterInOfficeDaysSetupVM model);
         Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysSetupVM model);
-        Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(DeleteRequestVM model);
+        Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);
         Task<RosterInOfficeDaysSetupVM> GetByIdAsync(int id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetAllAsync(int daysToShow = 7);
-        Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllPaging(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<List<RosterInOfficeDaysSetupVM>> GetAllFromSPAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder, int daysToShow);
+        Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
             string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7);
         #endregion
 

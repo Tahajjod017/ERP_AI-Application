@@ -423,6 +423,12 @@ public partial class Employees
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysEmployee { get; set; } = new List<RosterInOfficeDays>();
 
+    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideCreatedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
+
+    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideDeletedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
+
+    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideUpdatedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
+
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysUpdatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<SMSSettings> SMSSettingsCreatedByNavigation { get; set; } = new List<SMSSettings>();

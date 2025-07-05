@@ -56,6 +56,8 @@ public partial class LeavePolicyConfiguration
 
     public bool EnableLeaveBalanceResetDate { get; set; }
 
+    public bool IsAllowCrossLeave { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

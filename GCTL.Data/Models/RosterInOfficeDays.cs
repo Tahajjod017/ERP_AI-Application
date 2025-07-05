@@ -47,6 +47,8 @@ public partial class RosterInOfficeDays
 
     public virtual Organization Organization { get; set; }
 
+    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverride { get; set; } = new List<RosterInOfficeDaysOverride>();
+
     public virtual Shifts Shift { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

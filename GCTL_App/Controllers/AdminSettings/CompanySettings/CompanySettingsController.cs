@@ -49,14 +49,13 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         string uniqueLogoFileName = Guid.NewGuid().ToString() + Path.GetExtension(logoFileName);
 
                         // Define the file path
-                        logoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "img", "companyImages", uniqueLogoFileName);
+                        logoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "company","logo", uniqueLogoFileName);
 
                         // Ensure the directory exists
                         var logoDirectory = Path.GetDirectoryName(logoFilePath);
-                        if (!Directory.Exists(logoDirectory))
-                        {
-                            Directory.CreateDirectory(logoDirectory);  // Create the directory if it doesn't exist
-                        }
+                        CreateDirectoryIfNotExists(logoDirectory);
+
+                       
 
                         // Save the file
                         using (var stream = new FileStream(logoFilePath, FileMode.Create))
@@ -84,14 +83,13 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         string uniqueFaviconFileName = Guid.NewGuid().ToString() + Path.GetExtension(faviconFileName);
 
                         // Define the file path
-                        faviconFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "img", "companyImages", uniqueFaviconFileName);
+                        faviconFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "company", "fevicon", uniqueFaviconFileName);
 
                         // Ensure the directory exists
                         var faviconDirectory = Path.GetDirectoryName(faviconFilePath);
-                        if (!Directory.Exists(faviconDirectory))
-                        {
-                            Directory.CreateDirectory(faviconDirectory);  // Create the directory if it doesn't exist
-                        }
+                        CreateDirectoryIfNotExists(faviconDirectory);
+
+                        
 
                         // Save the file
                         using (var stream = new FileStream(faviconFilePath, FileMode.Create))
@@ -146,6 +144,16 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             var fileExtension = Path.GetExtension(fileName)?.ToLower();
             return allowedExtensions.Contains(fileExtension);
+        }
+        #endregion
+
+        #region Helper function to create directories if they do not exist
+        private void CreateDirectoryIfNotExists(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
         }
         #endregion
 

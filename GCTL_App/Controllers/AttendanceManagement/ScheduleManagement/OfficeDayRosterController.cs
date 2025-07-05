@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -11,6 +12,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
     public class OfficeDayRosterController : BaseController
     {
+        #region Services & Repositories
         private readonly IOfficeDayRosterService _assignDefaultShiftService;
 
         public OfficeDayRosterController(ITranslateService translateService, 
@@ -19,6 +21,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         {
             _assignDefaultShiftService = assignDefaultShiftService;
         }
+        #endregion
 
 
         #region Index
@@ -86,10 +89,46 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetAll
-        public async Task<IActionResult> GetAll(int daysToShow = 7)
+        #region GetAllFromStoredProc
+        [HttpGet]
+        public async Task<IActionResult> GetAllFromStoredProc(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
         {
-            var result = await _assignDefaultShiftService.GetAllAsync(daysToShow);
+            var result = await _assignDefaultShiftService.GetAllFromSPAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+
+            // Generate date headers (same as before)
+            var startDate = DateTime.Today;
+            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+
+
+            return Json(new
+            {
+                result = new
+                {
+                    data = result,
+                    paginationInfo = new
+                    {
+                        currentPage = pageNumber,
+                        pageSize,
+                        totalItems = result.Count, // Update if your SP returns total count separately
+                        totalPages = (int)Math.Ceiling((double)result.Count / pageSize),
+                        startItem = (pageNumber - 1) * pageSize + 1,
+                        endItem = Math.Min(pageNumber * pageSize, result.Count)
+                    }
+                },
+                headers = dateList.Select(date => new
+                {
+                    day = date.ToString("ddd"),
+                    date = date.ToString("yyyy-MM-dd")
+                })
+            });
+        }
+        #endregion
+
+
+        #region GetAll
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        {
+            var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
 
             var startDate = DateTime.Today;
             var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
@@ -106,25 +145,30 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
             //return Json(result);
         }
+        #endregion
 
-        public async Task<IActionResult> GetAllPaging(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+
+        #region Delete
+        public async Task<IActionResult> Delete(RosterDelVM model)
         {
-            var result = await _assignDefaultShiftService.GetAllPaging(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
-
-            var startDate = DateTime.Today;
-            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
-
-            return Json(new
+            try
             {
-                result,
-                headers = dateList.Select(date => new
+                if(model.Id == null || model.Id == 0)
                 {
-                    day = date.ToString("ddd"),
-                    date = date.ToString("dd MMM yyyy")
-                }).ToList()
-            });
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
 
-            //return Json(result);
+                var result = await _assignDefaultShiftService.SoftDeleteAsync(model);
+                if(result == null)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
 

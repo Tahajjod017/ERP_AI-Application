@@ -2,7 +2,7 @@
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports
+namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.AvailabilityReport
 {
     public class AvailabilityReportController : BaseController
     {

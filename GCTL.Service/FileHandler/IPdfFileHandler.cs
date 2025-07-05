@@ -11,6 +11,6 @@ namespace GCTL.Service.FileHandler
 {
     public interface IPdfFileHandler
     {
-        void ComposeHeader(IContainer container, string companyName, string companyAddress, bool showOnce = false);
+        void ComposeHeader(IContainer container, int companyId, bool showOnce = false);
     }
 }

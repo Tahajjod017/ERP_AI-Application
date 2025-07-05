@@ -24,6 +24,8 @@ public partial class LeaveApplications
     public int? StatusID { get; set; }
 
     public int? LeaveTypeID { get; set; }
+    public int? GroupApplicationID { get; set; }
+    public bool? IsGroupApplication { get; set; }
 
     public string LIP { get; set; }
 
@@ -44,7 +46,8 @@ public partial class LeaveApplications
     public string Reason { get; set; }
 
     public int? LeaveApplicableYear { get; set; }
-
+    public bool? IsGroupApplication { get; set; }
+    public int? GroupApplicationID { get; set; }
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
