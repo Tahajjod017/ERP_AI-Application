@@ -288,8 +288,10 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
                 term => x => EF.Functions.Like(x.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%"),
                 x => new DepartmentSettingsVM
                 {
+                    DepartmentID = x.DepartmentID,
                     OrganizationID = x.OrganizationID,
                     DepartmentName = x.DepartmentName,
+                    OrganizationName = x.Organization?.OrganizationName ?? "_", 
                     //IsDepartmentHead = x.IsDepartmentHead,
                     DepartmentHeadEmpID = x.DepartmentHeadEmpID,
                     HeadEmployeeName = x.DepartmentHeadEmpID.HasValue

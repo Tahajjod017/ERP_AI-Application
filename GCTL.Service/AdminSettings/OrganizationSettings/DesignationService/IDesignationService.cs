@@ -14,7 +14,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 {
     public interface IDesignationSettingService
     {
-        #region CRUD
+        #region
         Task<bool> AddAsync(DesignationVM model);
         Task<bool> UpdateAsync(DesignationVM model);
         Task<DesignationVM> SoftDeleteAsync(DeleteRequestVM requestVM);
@@ -29,5 +29,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
         IEnumerable<CommonSelectVM> GetDepartments();
         Task<List<SelectListItem>> GetOrganizationsAsync();
         #endregion
+
     }
+   
 }

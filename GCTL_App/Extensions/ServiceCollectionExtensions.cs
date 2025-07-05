@@ -72,8 +72,14 @@ using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Employees.EmployeeReport;
+
+using GCTL.Service.FileHandler;
+
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
+using GCTL.Service.HRMsettings.ProbationService;
+using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
+
 
 
 
@@ -114,7 +120,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICurrencyService, CurrencyService>();
             services.AddScoped<IDegreeService, DegreeService>();
             services.AddScoped<IDepartmentService, DepartmentService>();
-            services.AddScoped<IDesignationService, DesignationSettingService>();
+            services.AddScoped<IDesignationService, GCTL.Service.MasterSetup.Designation.DesignationSettingService>();
             services.AddScoped<IEducationBoardService, EducationBoardService>();
             services.AddScoped<IEducationLevelsService, EducationLevelService>();
             services.AddScoped<IEmployeeTypesService, EmployeeTypesService>();
@@ -158,8 +164,9 @@ namespace GCTL_App.Extensions
             services.AddScoped<IApprovalSettingService, ApprovalSettingService>();
             services.AddScoped<ICompanySettingService, CompanySettingService>();
             services.AddScoped<IBranchSettingService, BranchSettingService>();
-            services.AddScoped<IDesignationService, DesignationSettingService>();
+            services.AddScoped<IDesignationSettingService, GCTL.Service.AdminSettings.OrganizationSettings.DesignationService.DesignationSettingService>();
             services.AddScoped<IDepartmentSettingService, DepartmentSettingService>();
+            services.AddScoped<IProbationSettingService, ProbationSettingService>();
             #endregion
 
 
@@ -197,6 +204,7 @@ namespace GCTL_App.Extensions
             #region File Handler
 
             services.AddScoped<IImageFileHandlerService, ImageFileHandlerService>();
+            services.AddScoped<IPdfFileHandler, PdfFileHandler>();
 
             #endregion
         }

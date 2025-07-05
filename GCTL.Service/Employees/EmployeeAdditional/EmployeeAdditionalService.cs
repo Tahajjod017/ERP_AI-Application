@@ -23,6 +23,8 @@ namespace GCTL.Service.Employees.EmployeeAdditional
             _employeeRepository = employeeRepository;
         }
 
+        #region Get By Id
+
         public async Task<EmployeeAdditionalPostViewModel> GetEmployeeAdditionalByIdAsync(int employeeId)
         {
 
@@ -83,6 +85,75 @@ namespace GCTL.Service.Employees.EmployeeAdditional
 
             
         }
+
+
+        #endregion
+
+
+        #region Get Full buy Id
+
+        public async Task<EmployeeAdditionalGetViewModel> GetFullEmployeeAdditionalByIdAsync(int employeeId)
+        {
+
+            var employee = await 
+                                  //from ea in _employeeAdditionalRepository.AllActive()
+                                  //join emp in _employeeRepository.AllActive()
+                                  //on ea.EmployeeID equals emp.EmployeeID into empGroup // First left join
+                                  //from emp in empGroup.DefaultIfEmpty()
+
+                                    _employeeAdditionalRepository.AllActive().Include(ea => ea.Employee).Where(r=>r.EmployeeID == employeeId)
+                                    .Include(r=>r.LicenceType)
+                                    .Select(ea => new  EmployeeAdditionalGetViewModel
+                                  {
+                                      EmployeeAdditionalInfoID = ea.EmployeeAdditionalInfoID,
+                                      EmployeePersonalId = (int)ea.EmployeeID,
+                                      PersonalEmail = ea.Employee.Email,
+                                      PersonalPhone = ea.Employee.MobileNumber,
+                                      PasportName = ea.PasportName,
+                                      PasportNo = ea.PasportNo,
+                                      PasportPlaceOfIssue = ea.PasportPlaceOfIssue,
+                                      PasportIssueDate = ea.PasportIssueDate,
+                                      PasportExpireDate = ea.PasportExpireDate,
+                                      DrivingLicenceNo = ea.DrivingLicenceNo,
+                                      LicenceTypeID = ea.LicenceTypeID,
+                                      LicenceTypeName = ea.LicenceType.LicenceTypeName,
+                                      DrivingLicenceIssueDate = ea.DrivingLicenceIssueDate,
+                                      DrivingLicenceExpireDate = ea.DrivingLicenceExpireDate,
+                                      SymbolOfVehicleClass = ea.SymbolOfVehicleClass,
+                                      DrivingLicencePlaceOfIssue = ea.DrivingLicencePlaceOfIssue,
+                                      WorkPermaitNumber = ea.WorkPermaitNumber,
+                                      WorkPermitType = ea.WorkPermitType,
+                                      WorkPermitEffectiveDate = ea.WorkPermitEffectiveDate,
+                                      WorkPermitExpireDate = ea.WorkPermitExpireDate,
+                                      VisaExpireDate = ea.VisaExpireDate
+
+                                  }).FirstOrDefaultAsync();
+
+
+            if (employee != null)
+            {
+                return employee;
+            }
+            else
+            {
+                var emp = await _employeeRepository.AllActive().Where(e => e.EmployeeID == employeeId).Select(m => new EmployeeAdditionalGetViewModel
+                {
+                    EmployeePersonalId = (int)m.EmployeeID,
+
+                    PersonalEmail = m.Email ?? "N/A",
+                    PersonalPhone = m.MobileNumber ?? "N/A",
+                }).FirstOrDefaultAsync();
+
+                return emp;
+            }
+
+
+
+
+
+        }
+
+        #endregion
 
         public async Task<CommonReturnViewModel> SubmitAsync(EmployeeAdditionalPostViewModel model)
         {

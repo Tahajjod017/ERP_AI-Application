@@ -380,5 +380,98 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         #endregion
 
+        #region GetFull Emploffice
+
+        public async Task<EmployeeOfficialGetViewModel> GetFullEmployeeOfficalDetails(int id)
+        {
+            try
+            {
+                var empPersonal = await _employeePersonalRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == id);
+                var empOfficial = await _employeeOfficialRepository.AllActive()
+                    .Include(e => e.Organization).Include(e => e.OrganizationBranch).Include(w => w.Department)
+                    .Include(e => e.Designation).Include(e => e.EmployeeType).Include(w => w.EmploymentNature)
+                    .Include(e => e.SeniorSupervisor).Include(e => e.ImmediateSupervisor).Include(w => w.HeadOfDepartment)
+                    .Include(e => e.EmploymentStatus).Include(e => e.ProvisionPeriodTtimeType)
+                    .FirstOrDefaultAsync(e => e.EmployeeID == id);
+
+                EmployeeOfficialGetViewModel model = new EmployeeOfficialGetViewModel();
+
+                if (empPersonal != null)
+                {
+                    model.EmployeePersonalId = empPersonal.EmployeeID;
+                    model.PersonalEmail = empPersonal.Email;
+                    model.PersonalPhone = empPersonal.MobileNumber;
+                }
+
+                if (empOfficial != null)
+                {
+                    model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
+                    model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
+                    model.OrganizationID = empOfficial.OrganizationID;
+                    model.OrganizationName = empOfficial.Organization?.OrganizationName ?? string.Empty;
+
+                    model.OrganizationBranchID = empOfficial.OrganizationBranchID;
+                    model.OrganizationBranchName = empOfficial.OrganizationBranch?.OrganizationBranchName ?? string.Empty;
+
+                    model.DepartmentID = empOfficial.DepartmentID;
+                    model.DepartmentName = empOfficial.Department?.DepartmentName ?? string.Empty;
+
+                    model.DesignationID = empOfficial.DesignationID;
+                    model.DesignationName = empOfficial.Designation?.DesignationName ?? string.Empty;
+
+                    model.EmployeeTypeID = empOfficial.EmployeeTypeID;
+                    model.EmployeeTypeName = empOfficial.EmployeeType?.EmployeeTypeName ?? string.Empty;
+
+                    model.EmploymentNatureID = empOfficial.EmploymentNatureID;
+                    model.EmploymentNatureName = empOfficial.EmploymentNature?.EmploymentNatureName ?? string.Empty;
+
+                    model.SeniorSupervisorId = empOfficial.SeniorSupervisorId;
+                    model.SeniorSupervisorName = empOfficial.SeniorSupervisor != null
+                        ? $"{empOfficial.SeniorSupervisor.FirstName} {empOfficial.SeniorSupervisor.LastName}"
+                        : string.Empty;
+
+                    model.ImmediateSupervisorId = empOfficial.ImmediateSupervisorId;
+                    model.ImmediateSupervisorName = empOfficial.ImmediateSupervisor != null
+                        ? $"{empOfficial.ImmediateSupervisor.FirstName} {empOfficial.ImmediateSupervisor.LastName}"
+                        : string.Empty;
+
+                    model.HeadOfDepartmentId = empOfficial.HeadOfDepartmentId;
+                    model.HeadOfDepartmentName = empOfficial.HeadOfDepartment != null
+                        ? $"{empOfficial.HeadOfDepartment.FirstName} {empOfficial.HeadOfDepartment.LastName}"
+                        : string.Empty;
+
+                    model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
+                    model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
+                    model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
+
+                    model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                    model.EmploymentStatusName = empOfficial.EmploymentStatus?.StatusName ?? string.Empty;
+
+                    model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
+                    model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
+                    model.JoiningDate = empOfficial.JoiningDate;
+
+                    model.ProvisionPeriodStartDate = empOfficial.ProvisionPeriodStartDate;
+                    model.ProvisionPeriod = empOfficial.ProvisionPeriod;
+                    model.ProvisionPeriodTtimeTypeID = empOfficial.ProvisionPeriodTtimeTypeID;
+                    model.ProvisionPeriodTtimeTypeName = empOfficial.ProvisionPeriodTtimeType?.ProvisionPeriodTtimeTypeName ?? string.Empty;
+
+                    model.ConfirmationDate = empOfficial.ConfirmationDate;
+                    model.ConfirmationLetterNo = empOfficial.ConfirmationLetterNo ?? string.Empty;
+                    model.ContractEndDate = empOfficial.ContractEndDate;
+                }
+
+                return model;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
+        }
+
+        #endregion
+
     }
 }

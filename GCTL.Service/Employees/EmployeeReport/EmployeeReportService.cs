@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using GCTL.Core.ViewModels.Employee.EmployeeEducational;
 using GCTL.Core.ViewModels.Employee.EmployeeFamily;
 using GCTL.Core.ViewModels.Employee.EmployeeTraining;
+using GCTL.Service.FileHandler;
 
 namespace GCTL.Service.Employees.EmployeeReport
 {
@@ -40,8 +41,10 @@ namespace GCTL.Service.Employees.EmployeeReport
         private readonly IEmployeePersonalService _employeePersonalService;
         private readonly IEmployeeSalaryService _employeeSalaryService;
         private readonly IEmployeeTrainingService _employeeTrainingService;
+        private readonly IPdfFileHandler _pdfFileHandlerService;
 
-        public EmployeeReportService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService)
+
+        public EmployeeReportService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IPdfFileHandler pdfFileHandlerService)
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeAllowanceService = employeeAllowanceService;
@@ -53,6 +56,7 @@ namespace GCTL.Service.Employees.EmployeeReport
             _employeePersonalService = employeePersonalService;
             _employeeSalaryService = employeeSalaryService;
             _employeeTrainingService = employeeTrainingService;
+            _pdfFileHandlerService = pdfFileHandlerService;
         }
 
         public async Task<byte[]> GenaratePDF(int id)
@@ -64,11 +68,11 @@ namespace GCTL.Service.Employees.EmployeeReport
             try
             {
                 var personal = await _employeePersonalService.GetEmployeePersonalById(id);
-                var official = await _employeeOfficialService.GetEmployeeOfficalDetails(id);
+                var official = await _employeeOfficialService.GetFullEmployeeOfficalDetails(id);
                 var contact = await _employeeContactService.GetEmployeeContactByIdAsync(id);
                 var family = await _employeeFamilyService.GetEmployeeFamilyByIdAsync(id);
                 var educational = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id);
-                var additional = await _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id);
+                var additional = await _employeeAdditionalService.GetFullEmployeeAdditionalByIdAsync(id);
                 var salary = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdAsync(id);
                 var allowance = await _employeeAllowanceService.GetEmployeeAllowance(id);
                 var training = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
@@ -89,19 +93,60 @@ namespace GCTL.Service.Employees.EmployeeReport
                             page.Margin(35);
                             page.DefaultTextStyle(x => x.FontFamily(Fonts.TimesNewRoman).FontSize(10));
 
-                            // Header with Logo and Company Info
-                            page.Header().Element(container =>
+
+                            //page.Header().Element(container =>
+                            //{
+                            //    container.Row(row =>
+                            //    {
+                            //        row.RelativeItem().AlignRight().Column(column =>
+                            //        {
+                            //            column.Item().Height(100).Width(100).Image("wwwroot/img/No-Image-Placeholder.svg.png");
+                            //            column.Item().Text(companyName).FontSize(18).Bold().AlignRight();
+                            //            column.Item().Width(200).Text(companyAddress).FontSize(12).Bold().LineHeight(1.2f).AlignRight();
+                            //        });
+                            //    });
+                            //});
+                            page.Header().Element(header =>
                             {
-                                container.Row(row =>
-                                {
-                                    row.RelativeItem().AlignRight().Column(column =>
-                                    {
-                                        column.Item().Height(100).Width(100).Image("wwwroot/img/No-Image-Placeholder.svg.png");
-                                        column.Item().Text(companyName).FontSize(18).Bold().AlignRight();
-                                        column.Item().Width(200).Text(companyAddress).FontSize(12).Bold().LineHeight(1.2f).AlignRight();
-                                    });
-                                });
+                                _pdfFileHandlerService.ComposeHeader(header, companyName, companyAddress, true);
                             });
+
+                            //page.Header()
+                            //.ShowOnce()
+                            //.Element(container =>
+                            //{
+                            //    container.PaddingBottom(10).Column(column =>
+                            //    {
+                            //        column.Item().Row(row =>
+                            //        {
+
+                            //            //row.ConstantItem(50).Height(50).Image("wwwroot/img/No-Image-Placeholder.svg.png");
+
+                            //            row.ConstantItem(50).Height(50).Element(logo =>
+                            //            {
+                            //                logo.PaddingLeft(10).PaddingTop(5).Image("wwwroot/img/No-Image-Placeholder.svg.png", ImageScaling.FitArea);
+                            //            });
+
+
+
+                            //            // Company name and address centered vertically
+                            //            row.RelativeItem().AlignCenter().Column(centerCol =>
+                            //            {
+                            //                centerCol.Item().AlignCenter().Text(companyName)
+                            //                    .FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
+
+                            //                centerCol.Item().AlignCenter().Text(companyAddress)
+                            //                    .FontSize(10).Light().FontColor(Colors.Grey.Darken2).LineHeight(1.3f);
+                            //            });
+
+                            //            // Optional: empty space on the right for symmetry
+                            //            row.ConstantItem(100);
+                            //        });
+
+                            //        // Add horizontal line (HR) separator
+                            //        column.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            //    });
+                            //});
 
                             // Content
                             page.Content().Column(column =>
@@ -130,9 +175,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                                     table.Cell().Text(value ?? " ").AlignLeft();
                                                 }
 
-                                                AddInfoRow("Department", official.DepartmentID.ToString());
+                                                AddInfoRow("Department", official.DepartmentName.ToString());
                                                 AddInfoRow("Employee’s ID", personal.EmployeeCode);
-                                                AddInfoRow("Designation", official.DesignationID.ToString());
+                                                AddInfoRow("Designation", official.DesignationName.ToString());
                                                 AddInfoRow("Date of Hire", official.JoiningDate?.ToString("dd/MM/yyyy"));
                                             });
                                         });
@@ -151,8 +196,8 @@ namespace GCTL.Service.Employees.EmployeeReport
                                 {
                                     table.ColumnsDefinition(columns =>
                                     {
-                                        columns.RelativeColumn(50);
-                                        columns.RelativeColumn(50);
+                                        columns.RelativeColumn(55);
+                                        columns.RelativeColumn(45);
                                     });
 
                                     table.Cell().Table(leftTable =>
@@ -161,7 +206,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         {
                                             columns.RelativeColumn(24);
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(60);
+                                            columns.RelativeColumn(45);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -178,24 +223,26 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(" ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Employee Name", $"{personal?.FirstName} {personal?.LastName}");
-                                        AddInfoRow("Father's Name", personal?.FatherName);
-                                        AddInfoRow("Mother's Name", personal?.MotherName);
-                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
-                                        AddInfoRow("Permanent Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
-                                        AddInfoRow("Date of Birth", personal?.DateOfBirth?.ToString("dd/MM/yyyy"));
-                                        AddInfoRow("Gender", personal?.GenderID.ToString());
-                                        AddInfoRow("Blood Group", personal?.BloodGroupID.ToString());
-                                        AddInfoRow("Nationality", personal?.Nationality);
-                                        AddInfoRow("Religion", personal?.ReligionID.ToString());
-                                        AddInfoRow("Marital Status", personal?.MaritalStatusID.ToString());
-                                        AddInfoRow("Personal Mobile No", personal?.MobileNumber);
-                                        AddInfoRow("TIN No", personal?.TIN);
-                                        AddInfoRow("Birth Certificate No", personal?.BirthCertificateNo);
-                                        AddInfoRow("About Employee", personal?.AboutEmployee);
+                                        AddInfoRow("Employee Name", $"{personal?.FirstName ?? ""} {personal?.LastName ?? ""}".Trim());
+                                        AddInfoRow("Father's Name", personal?.FatherName ?? "");
+                                        AddInfoRow("Mother's Name", personal?.MotherName ?? "");
+                                        AddInfoRow("Present Address", $"{personal?.HouseNo ?? ""}, {personal?.RoadNo ?? ""}, {personal?.City ?? ""}, {personal?.State ?? ""}, {personal?.PostalCode ?? ""}".Trim(' ', ','));
+                                        AddInfoRow("Permanent Address", $"{personal?.HouseNo ?? ""}, {personal?.RoadNo ?? ""}, {personal?.City ?? ""}, {personal?.State ?? ""}, {personal?.PostalCode ?? ""}".Trim(' ', ','));
+                                        AddInfoRow("Date of Birth", personal?.DateOfBirth?.ToString("dd/MM/yyyy") ?? "");
+                                        AddInfoRow("Gender", personal?.GenderName?.ToString() ?? "");
+                                        AddInfoRow("Blood Group", personal?.BloodGroupName?.ToString() ?? "");
+                                        AddInfoRow("Nationality", personal?.Nationality ?? "");
+                                        AddInfoRow("Religion", personal?.ReligionName?.ToString() ?? "");
+                                        AddInfoRow("Marital Status", personal?.MaritalStatusName?.ToString() ?? "");
+                                        AddInfoRow("Personal Mobile No", personal?.MobileNumber ?? "");
+                                        AddInfoRow("TIN No", personal?.TIN ?? "");
+                                        AddInfoRow("Birth Certificate No", personal?.BirthCertificateNo ?? "");
+                                        
+                                        AddInfoRow("Passport No.", additional?.PasportNo ?? "");
+                                        AddInfoRow("Driving License No.", additional?.DrivingLicenceNo ?? "");
+
                                         AddEmptyRow();
-                                        AddInfoRow("Passport No.", additional?.PasportNo);
-                                        AddInfoRow("Driving License No.", additional?.DrivingLicenceNo);
+                                        AddInfoRow("About Employee", personal?.AboutEmployee ?? "");
                                     });
 
                                     table.Cell().Table(rightTable =>
@@ -204,7 +251,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         {
                                             columns.RelativeColumn(21.5f);
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(60);
+                                            columns.RelativeColumn(40);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -232,22 +279,22 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
                                         AddInfoRow("Personal Mail ID", personal?.Email);
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddInfoRow("Passport Expiry Date", additional?.PasportExpireDate?.ToString("dd/MM/yyyy"));
-                                        AddInfoRow("Driving License Expiry Date", additional?.DrivingLicenceExpireDate?.ToString("dd/MM/yyyy"));
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        //AddEmptyRow();
+                                        AddInfoRow("Expiry Date", additional?.PasportExpireDate?.ToString("dd/MM/yyyy"));
+                                        AddInfoRow("Expiry Date", additional?.DrivingLicenceExpireDate?.ToString("dd/MM/yyyy"));
                                     });
                                 });
 
