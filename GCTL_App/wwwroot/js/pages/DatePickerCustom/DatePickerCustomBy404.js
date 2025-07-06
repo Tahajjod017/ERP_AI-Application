@@ -25,6 +25,24 @@ function initializeDatepickerDMY(dateIds) {
     });
 }
 
+function initializeDatepickerDMY2(dateIds, minDate = null) {
+    dateIds.split(',').forEach(function (id) {
+        const trimmedId = id.trim();
+        flatpickr(`#${trimmedId}`, {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            allowInput: true,
+            minDate: minDate, // dynamically set
+            onReady: function (selectedDates, dateStr, instance) {
+                instance.input.placeholder = "dd/mm/yyyy";
+            }
+        });
+    });
+}
+
+
+// Hide Date less than Today date
 function updateDatepickerWithMinDate(dateId, minDate, options = {}) {
     // Destroy existing flatpickr instance if any
     const input = document.getElementById(dateId);

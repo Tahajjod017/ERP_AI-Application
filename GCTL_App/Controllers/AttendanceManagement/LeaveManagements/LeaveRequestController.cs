@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.Execution;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
@@ -257,7 +258,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
                 
                 if (employeeId==0)
-                    return BadRequest("EmployeeID not found in claims.");
+                 return BadRequest("EmployeeID not found in claims.");
 
 
                 var data = await leaveRequestService.GetLeaveTypeBalancesForEmployee(employeeId);
@@ -265,11 +266,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             }
             catch (Exception ex)
             {
-                // Optional: log the exception before re-throwing
+                Console.WriteLine(ex.Message);
                 throw;
             }
 
         }
+
+
+
+
         #endregion
     }
 }

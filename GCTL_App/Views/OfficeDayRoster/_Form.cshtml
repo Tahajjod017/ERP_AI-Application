@@ -22,32 +22,32 @@
         <input type="hidden" asp-for="RosterInOfficeDayID" />
 
         <div class="col-md">
-            <label class="form-label" asp-for="OrganizationID">Organization Name</label>
+            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")</label>
             <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                <option value="">Select Organization...</option>
+                <option value="">@Html.SmartLocalize("Select Organization")...</option>
             </select>
         </div>
 
         <div class="col-md department">
-            <label class="form-label" asp-for="DepartmentIDs">Department Name</label>
+            <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department Name")</label>
             <select class="form-multi-select"
                     asp-for="DepartmentIDs"
                     asp-items="@ViewBag.DepartmentDD as SelectList"
                     multiple data-coreui-multiple="true"
                     data-coreui-selection-type="counter"
                     data-coreui-search="true"
-                    data-coreui-placeholder="Select Department...">
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
             </select>
         </div>
 
         <div class="col-md employee">
-            <label class="form-label" asp-for="EmployeeIDs">Employee Name</label>
+            <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
             <select class="form-multi-select"
                     asp-for="EmployeeIDs"
                     multiple data-coreui-multiple="true"
                     data-coreui-selection-type="counter"
                     data-coreui-search="true"
-                    data-coreui-placeholder="Select Employee...">
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
                 @foreach (var group in employees.GroupBy(e => e.DepartmentName))
                 {
                     <optgroup label="@group.Key">
@@ -63,21 +63,19 @@
 
     <div class="row g-3 mb-3">
         <div class="col-md">
-            <label class="form-label" asp-for="ShiftID">Shift Name</label>
+            <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Shift Name")</label>
             <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
-                <option value="">Select Shift...</option>
+                <option value="">@Html.SmartLocalize("Select Shift")...</option>
             </select>
         </div>
 
         <div class="col-md">
-            <label class="form-label" asp-for="StartDate">Start Date</label>
-            @* <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")</label>
             <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
         </div>
 
         <div class="col-md">
-            <label class="form-label" asp-for="EndDate">End Date</label>
-            @* <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"dateFormat":"d/m/y","disableMobile":true}' /> *@
+            <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")</label>
             <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
         </div>
 

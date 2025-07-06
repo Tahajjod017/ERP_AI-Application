@@ -18,10 +18,10 @@ namespace GCTL_App.Controllers.Language
         private readonly AppDbContext _dbContext;
         private readonly IHubContext<ProgressHub> _hubContext;
 
-        public LanguageController(ITranslateService translateService, IUserProfileService userProfileService, ILanguageTableService languageTableService, ITranslateService translationService, AppDbContext dbContext, IHubContext<ProgressHub> hubContext) : base(translateService, userProfileService)
+        public LanguageController(ITranslateService translateService, IUserProfileService userProfileService, ILanguageTableService languageTableService, AppDbContext dbContext, IHubContext<ProgressHub> hubContext) : base(translateService, userProfileService)
         {
+            _translationService = translateService;
             _languageTableService = languageTableService;
-            _translationService = translationService;
             _dbContext = dbContext;
             _hubContext = hubContext;
         }

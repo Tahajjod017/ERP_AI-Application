@@ -249,7 +249,7 @@ $(document).ready(function () {
     //
 
    
-    initializeDatepickerDMY("FromDate, ToDate,oDateFromDateCombined");
+   /* initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
     
     $(document).on('change', "#FromDate", function ()
     {
@@ -265,7 +265,7 @@ $(document).ready(function () {
             url: '/LeaveRequest/GetEmployee', 
             type: 'GET',
             success: function (data) {
-                
+               
                 choiceManager.populateDropdown('EmployeeID', data);
                 choiceManager.populateDropdown('EmployeeIDEdit', data);
                
@@ -284,25 +284,95 @@ $(document).ready(function () {
     }
 
     GetLeavePolicyIsCountAsync();
+    //function GetLeavePolicyIsCountAsync() {
+    //    $.ajax({
+    //        url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
+    //        type: 'GET',
+    //        success: function (data) {
+    //            if (data.length > 0) {
+    //                const policy = data[0];
+    //                debugger
+    //                // Set the message based on weekend/holiday
+    //                if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
+    //                    $('#SubsequentHolydayDays').val('');
+    //                } else {
+    //                    $('#SubsequentHolydayDays').val('Not Applicable');
+    //                }
+    //                const minDate = !policy.isAllowRequestForPastDates ? null : new Date();
+    //                initializeDatepickerDMY2("FromDate,ToDate", minDate);
+    //            }
+    //        },
+    //        error: function () {
+    //            toastr.error('Failed to retrieve data.');
+    //        }
+    //    });
+    //}
+
+
     function GetLeavePolicyIsCountAsync() {
         $.ajax({
             url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
             type: 'GET',
             success: function (data) {
-               
-                if (data.length > 0 && (data[0].isWeekendCountedAsLeave  || data[0].isHolidayCountedAsLeave )) {
-                    $('#SubsequentHolydayDays').val('');
-                } else {
-                    $('#SubsequentHolydayDays').val('Not Applicable');
+                if (data.length > 0) {
+                    const policy = data[0];
+                    debugger;
+
+                    // Set message for holidays/weekends
+                    if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val('');
+                    } else {
+                        $('#SubsequentHolydayDays').val('Not Applicable');
+                    }
+
+                    // Calculate minDate for flatpickr
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // strip time
+
+                    let minDate = null;
+
+                    // Rule: disallow past dates
+                    if (!policy.isAllowRequestForPastDates) {
+                        minDate = today;
+                    }
+
+                    // Rule: future dates only after X days (overrides past)
+                    if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
+                        const futureDate = new Date(today);
+                        futureDate.setDate(today.getDate() + policy.allowRequestForFutureDays);
+                        minDate = futureDate;
+                    }
+
+                    // Initialize datepickers
+                    initializeDatepickerDMY2("FromDate,ToDate", minDate);
+
+                    // Optional: enforce max leave days
+                    if (policy.isMaximumleaveDaysPerAplication && policy.maximumleaveDaysPerAplication > 0) {
+                        $('#FromDate, #ToDate').on('change', function () {
+                            const fromVal = $('#FromDate').val();
+                            const toVal = $('#ToDate').val();
+
+                            if (fromVal && toVal) {
+                                const from = new Date(fromVal);
+                                const to = new Date(toVal);
+
+                                const diff = (to - from) / (1000 * 60 * 60 * 24) + 1;
+
+                                if (diff > policy.maximumleaveDaysPerAplication) {
+                                    toastr.warning(`Maximum ${policy.maximumleaveDaysPerAplication} days allowed.`);
+                                    $('#ToDate').val('');
+                                }
+                            }
+                        });
+                    }
                 }
-                
             },
             error: function () {
                 toastr.error('Failed to retrieve data.');
             }
-        })
+        });
     }
-   
+
 
     function GetleaveDaysOrAvailble(employeeId, leaveTypeID) {
         if (leaveTypeID && employeeId) {
@@ -541,15 +611,15 @@ $(document).ready(function () {
     
     function DisplayLeave(employeeId)
     {
-        debugger
+
         $.ajax({
             url: '/LeaveRequest/GetLeaveTypeBalancesForEmployeeDisplay',
             type: 'GET',
             data: { employeeId: employeeId },
             success: function (data) {
-                //debugger
+
                 if (data && data.length > 0) {
-                  
+
                 } else {
 
                     toastr.error('No leave balance data available.');
@@ -560,10 +630,9 @@ $(document).ready(function () {
             }
         });
     }
-   
-    
 
-    
+
+ 
     //
     // Reset button click
     $('#ResetButton').on('click', function () {
