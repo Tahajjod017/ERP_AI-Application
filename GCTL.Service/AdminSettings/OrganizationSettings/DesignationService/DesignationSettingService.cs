@@ -16,14 +16,13 @@ using System.Web.Mvc;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 {
-    public class DesignationSettingService : AppService<Designations>, IDesignationSettingService
+
+    public class DesignationSettingService : AppService<Designations> , IDesignationSettingService
     {
-        #region Repositories
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Designations> _genericRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
         private readonly IGenericRepository<Organization> _genericRepositoryOraganization;
-
         public DesignationSettingService(IGenericRepository<Designations> genericRepository, IGenericRepository<Departments> departmentRepository, IUserInfoService userInfoService, IGenericRepository<Organization> genericRepositoryOraganization) : base(genericRepository)
         {
             _genericRepository = genericRepository;
@@ -31,8 +30,6 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
             _userInfoService = userInfoService;
             _genericRepositoryOraganization = genericRepositoryOraganization;
         }
-        #endregion
-
 
         #region AddAsync
         public async Task<bool> AddAsync(DesignationVM model)
@@ -45,6 +42,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
                 {
                     var entityToRestore = existingEntity.FirstOrDefault();
 
+                    entityToRestore.OrganizationID = model.OrganizationID;
                     entityToRestore.DesignationName = model.DesignationName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
@@ -60,6 +58,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
                 else
                 {
                     Designations entity = new Designations();
+                    entity.OrganizationID = model.OrganizationID;
                     entity.DesignationName = model.DesignationName;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
@@ -204,7 +203,10 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
         #region GetAllAsync
         public async Task<PaginationService<Designations, DesignationVM>.PaginationResult<DesignationVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "DesignationID", string sortOrder = "desc")
         {
-            var query = _genericRepository.All().AsNoTracking().Where(x => x.DeletedAt == null);
+            var query = _genericRepository.All()
+                .AsNoTracking()
+                .Include(x => x.Organization)
+                .Where(x => x.DeletedAt == null);
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
@@ -221,6 +223,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
                 x => new DesignationVM
                 {
                     DesignationID = x.DesignationID,
+                    OrganizationID = x.OrganizationID,
+                    OrganizationName = x.Organization?.OrganizationName ?? "-",
                     DesignationName = x.DesignationName ?? "-",
                 });
         }

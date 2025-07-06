@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.Department;
@@ -49,5 +50,89 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
         }
         #endregion
-    }
+
+        #region Update
+        //[Permission("Update", "HolidaySettings")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(DepartmentSettingsVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var uniqueName = await _departmentSettingService.IsNameUniqueAsync(model.DepartmentName);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    await _departmentSettingService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+        #region GetById
+        [HttpGet]
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                var department = await _departmentSettingService.GetByIdAsync(id);
+                if (department == null)
+                {
+                    return Json(new { isSuccess = false, message = "Department not found." });
+                }
+                return Json(new { isSuccess = true, data = department });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+        #region GetAll
+        [HttpGet]
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationDepartmentID", string sortOrder = "desc", int? organizationID = null)
+        {
+            try
+            {
+                var result = await _departmentSettingService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+        #region SoftDelete
+       // [HttpPost]
+       // [ValidateAntiForgeryToken]
+        //public async Task<IActionResult> SoftDelete(int id)
+        //{
+        //    try
+        //    {
+        //        var requestVM = new DeleteRequestVM { Id = id };
+        //        var deletedDepartment = await _departmentSettingService.SoftDeleteAsync(requestVM);
+        //        if (deletedDepartment == null)
+        //        {
+        //            return Json(new { isSuccess = false, message = "Department not found." });
+        //        }
+        //        return Json(new { isSuccess = true, message = "Deleted Successfully.", data = deletedDepartment });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
+        #endregion
+
+    }  
 }

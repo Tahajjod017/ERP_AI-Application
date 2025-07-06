@@ -8,7 +8,7 @@ namespace GCTL.Core.ViewModels.HRMsettingsVM
 {
     public class ProbationSettingVM :BaseViewModel
     {
-        public int ProbetionPeriodSettingID { get; set; }
+        public int? ProbetionPeriodSettingID { get; set; }
 
         public int? OrganizationID { get; set; }
         public string? OrganizationName { get; set; }

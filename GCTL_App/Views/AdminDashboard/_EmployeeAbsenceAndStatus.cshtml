@@ -1,0 +1,113 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="col-xl-6 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="emp-absences-line-chart-container" style="height: 25rem; overflow: hidden;"></div>
+
+            <script>
+                var dom = document.getElementById('emp-absences-line-chart-container');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                    text: 'Absences By Months',
+                    subtext: 'Last 6 Months',
+                    left: 'left'
+                  },
+                  xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['Apr', 'May', 'June', 'July', 'Aug', 'Sep']
+                  },
+                  yAxis: {
+                    type: 'value'
+                  },
+                  series: [
+                    {
+                      data: [3, 13, 6, 9, 14,23],
+                      type: 'line',
+                      areaStyle: {
+                        color: '#ef7700',
+                      }
+                    },
+
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-6 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="leave-type-distrebution-pie-chart" style="height: 25rem; overflow: hidden;"></div>
+
+            <script>
+                var dom = document.getElementById('leave-type-distrebution-pie-chart');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                    text: 'Employees Status',
+                    subtext: 'Fake Data ',
+                    left: 'left'
+                  },
+                  tooltip: {
+                    trigger: 'item'
+                  },
+                  legend: {
+                    orient: 'vertical',
+                    left: 'right'
+                  },
+                  series: [
+                    {
+                      name: 'Status',
+                      type: 'pie',
+                      radius: '80%',
+                      top: 50,
+                      data: [
+                        { value: 76, name: 'Present' },
+                        { value: 25, name: 'Absent' },
+                        { value: 5, name: 'Casual Leave' },
+                        { value: 3, name: 'Sick Leave' },
+                        { value: 2, name: 'Maternity Leave' }
+                      ],
+                    }
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+
+            </script>
+
+        </div>
+    </div>
+</div>

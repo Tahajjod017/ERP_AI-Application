@@ -1,0 +1,316 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div class="col-xl-4 col-md-6 mb-3">
+<div class="card">
+    <div class="card-body">
+        <div id="avg-attendance-hrs-chart" style="height: 25rem; overflow: hidden;"></div>
+        <script>
+            var dom = document.getElementById('avg-attendance-hrs-chart');
+            var myChart = echarts.init(dom, null, {
+              renderer: 'canvas',
+              useDirtyRect: false
+            });
+            var app = {};
+
+            var option;
+
+            option = {
+              title: {
+                  text: 'Avg. Hours Worked'
+                },
+              series: [
+                {
+                  type: 'gauge',
+                  progress: {
+                    show: true,
+                    width: 50
+                  },
+
+                  itemStyle: {
+                    color: '#89d809',
+                  },
+                  axisLine: {
+                    lineStyle: {
+                      width: 50
+                    }
+                  },
+                  axisTick: {
+                    show: false
+                  },
+                  splitLine: {
+                    length: 40,
+                    lineStyle: {
+                      width: 0,
+                      color: '#999'
+                    }
+                  },
+                  axisLabel: {   //no need
+                    show: false,
+                    distance: 45,
+                    color: '#999',
+                    fontSize: 20
+                  },
+                  anchor: {
+                    show: true,
+                    color: '#bb00c4',
+                    showAbove: true,
+                    size: 25,
+                    itemStyle: {
+                      borderWidth: 10
+                    }
+                  },
+                  detail: {
+                    valueAnimation: true,
+                    fontSize: 40,
+                    offsetCenter: [0, '70%'],
+                    formatter: function (value) {
+                      return '{value|' + value.toFixed(0) + '}{unit|Hrs}';
+                    },
+                    rich: {
+                      value: {
+                        fontSize: 40,
+                        fontWeight: 'bolder',
+                        color: '#777'
+                      },
+                      unit: {
+                        fontSize: 40,
+                        color: '#999',
+                        padding: [0, 0, 0, 10]
+                      }
+                    }
+                  },
+                  data: [
+                    {
+                      value: 6.20
+                    }
+                  ]
+                }
+              ]
+            };
+
+            if (option && typeof option === 'object') {
+              myChart.setOption(option);
+            }
+
+            window.addEventListener('resize', myChart.resize);
+        </script>
+    </div>
+</div>
+</div>
+
+<div class="col-xl-4 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="attendance-Rate-gadge-for-attendance-chart" style="position: relative; height: 25rem; overflow: hidden;"></div>
+            <script>
+                var dom = document.getElementById('attendance-Rate-gadge-for-attendance-chart');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                      text: 'Absenteeism Rate'
+                    },
+                  series: [
+                    {
+                      type: 'gauge',
+                      progress: {
+                        show: true,
+                        width: 50
+                      },
+
+                      itemStyle: {
+                        color: '#5d048c',
+                        shadowColor: 'rgba(0,138,255,0.45)',
+                        shadowBlur: 10,
+                        shadowOffsetX: 2,
+                        shadowOffsetY: 2
+                      },
+                      axisLine: {
+                        lineStyle: {
+                          width: 50
+                        }
+                      },
+                      axisTick: {
+                        show: false
+                      },
+                      splitLine: {
+                        length: 40,
+                        lineStyle: {
+                          width: 0,
+                          color: '#999'
+                        }
+                      },
+                      axisLabel: {   //no need
+                        show: false,
+                        distance: 45,
+                        color: '#999',
+                        fontSize: 20
+                      },
+                      anchor: {
+                        show: true,
+                        color: '#5d048c',
+                        showAbove: true,
+                        size: 25,
+                        itemStyle: {
+                          borderWidth: 10
+                        }
+                      },
+                      detail: {
+                        valueAnimation: true,
+                        fontSize: 40,
+                        offsetCenter: [0, '70%'],
+                        formatter: function (value) {
+                          return '{value|' + value.toFixed(0) + '}{unit|%}';
+                        },
+                        rich: {
+                          value: {
+                            fontSize: 40,
+                            fontWeight: 'bolder',
+                            color: '#777'
+                          },
+                          unit: {
+                            fontSize: 40,
+                            color: '#999',
+                            padding: [0, 0, 0, 10]
+                          }
+                        }
+                      },
+                      data: [
+                        {
+                          value: 25
+                        }
+                      ]
+                    }
+                  ]
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+            </script>
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-4 col-md-6 mb-3">
+    <div class="card">
+        <div class="card-body">
+            <div id="attendance-Rate-gadge-for-avg-work-hours-chart" style="height: 25rem; overflow: hidden;"></div>
+            <script>
+                var dom = document.getElementById('attendance-Rate-gadge-for-avg-work-hours-chart');
+                var myChart = echarts.init(dom, null, {
+                  renderer: 'canvas',
+                  useDirtyRect: false
+                });
+                var app = {};
+
+                var option;
+
+                option = {
+                  title: {
+                      text: 'Attendance Rate'
+                    },
+                  grid: {
+                    left: 'auto',
+                    right: 'auto',
+                    top: 10,
+                    bottom: 10,
+                    containLabel: true
+                  },
+                  series: [
+                    {
+                      type: 'gauge',
+                      progress: {
+                        show: true,
+                        width: 50,
+                        color:'#ef5c08'
+                      },
+
+                      itemStyle: {
+                        color: '#ef5c08',
+                        shadowColor: 'rgba(0,138,255,0.45)',
+                        shadowBlur: 10,
+                        shadowOffsetX: 2,
+                        shadowOffsetY: 2
+                      },
+                      axisLine: {
+                        lineStyle: {
+                          width: 50
+                        }
+                      },
+                      axisTick: {
+                        show: false
+                      },
+                      splitLine: {
+                        length: 40,
+                        lineStyle: {
+                          width: 0,
+                          color: '#999'
+                        }
+                      },
+                      axisLabel: {   //no need
+                        show: false,
+                        distance: 45,
+                        color: '#999',
+                        fontSize: 20
+                      },
+                      anchor: {
+                        show: true,
+                        showAbove: true,
+                        size: 25,
+                        itemStyle: {
+                          borderWidth: 10
+                        }
+                      },
+
+                      detail: {
+                        valueAnimation: true,
+                        fontSize: 40,
+                        offsetCenter: [0, '70%'],
+                        formatter: function (value) {
+                          return '{value|' + value.toFixed(0) + '}{unit|%}';
+                        },
+
+                        rich: {
+                          value: {
+                            fontSize: 40,
+                            fontWeight: 'bolder',
+                            color: '#777'
+                          },
+                          unit: {
+                            fontSize: 40,
+                            color: '#999',
+                            padding: [0, 0, 0, 10]
+                          }
+                        }
+                      },
+                      data: [
+                        {
+                          value: 75
+                        }
+                      ]
+                    }
+                  ]
+
+                };
+
+                if (option && typeof option === 'object') {
+                  myChart.setOption(option);
+                }
+
+                window.addEventListener('resize', myChart.resize);
+            </script>
+        </div>
+    </div>
+</div> 
