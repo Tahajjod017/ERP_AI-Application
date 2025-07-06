@@ -16,12 +16,21 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #region CRUD
         Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
         Task<bool> UpdateAsync(RosterInOfficeDaysSetupVM model);
-        Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysSetupVM model);
-        Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);
+        Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model);
+        //Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);
         Task<RosterInOfficeDaysSetupVM> GetByIdAsync(int id);
         Task<List<RosterInOfficeDaysSetupVM>> GetAllFromSPAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder, int daysToShow);
-        Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-            string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7);
+        //Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        //    string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7);
+        Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(
+    int pageNumber = 1,
+    int pageSize = 5,
+    string searchTerm = "",
+    string sortColumn = "RosterInOfficeDayID",
+    string sortOrder = "desc",
+    int daysToShow = 7,
+    DateTime? startDate = null
+);
         #endregion
 
 
