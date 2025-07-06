@@ -44,6 +44,7 @@
 
     $('#btnExport').on('click', function () {
         var id = $('#empPersonalId').val();
+        toastr.info("Generating PDF for Employee ID: " + id);
         GenaratePDF(id);
         });
    

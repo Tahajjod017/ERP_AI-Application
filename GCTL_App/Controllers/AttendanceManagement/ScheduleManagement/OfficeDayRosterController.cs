@@ -89,6 +89,42 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetAllFromStoredProc
+        [HttpGet]
+        public async Task<IActionResult> GetAllFromStoredProc(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        {
+            var result = await _assignDefaultShiftService.GetAllFromSPAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+
+            // Generate date headers (same as before)
+            var startDate = DateTime.Today;
+            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+
+
+            return Json(new
+            {
+                result = new
+                {
+                    data = result,
+                    paginationInfo = new
+                    {
+                        currentPage = pageNumber,
+                        pageSize,
+                        totalItems = result.Count, // Update if your SP returns total count separately
+                        totalPages = (int)Math.Ceiling((double)result.Count / pageSize),
+                        startItem = (pageNumber - 1) * pageSize + 1,
+                        endItem = Math.Min(pageNumber * pageSize, result.Count)
+                    }
+                },
+                headers = dateList.Select(date => new
+                {
+                    day = date.ToString("ddd"),
+                    date = date.ToString("yyyy-MM-dd")
+                })
+            });
+        }
+        #endregion
+
+
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
         {
@@ -113,11 +149,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Delete
-        public async Task<IActionResult> Delete(DeleteRequestVM model)
+        public async Task<IActionResult> Delete(RosterDelVM model)
         {
             try
             {
-                if(model.Ids == null || !model.Ids.Any() || model.Ids.Count == 0)
+                if(model.Id == null || model.Id == 0)
                 {
                     return Json(new { isSuccess = false, message = "Something went wrong!" });
                 }

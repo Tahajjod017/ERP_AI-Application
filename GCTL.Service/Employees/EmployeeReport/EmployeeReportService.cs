@@ -26,6 +26,9 @@ using GCTL.Core.ViewModels.Employee.EmployeeEducational;
 using GCTL.Core.ViewModels.Employee.EmployeeFamily;
 using GCTL.Core.ViewModels.Employee.EmployeeTraining;
 using GCTL.Service.FileHandler;
+using GCTL.Core.Repository;
+using GCTL.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.Employees.EmployeeReport
 {
@@ -42,9 +45,11 @@ namespace GCTL.Service.Employees.EmployeeReport
         private readonly IEmployeeSalaryService _employeeSalaryService;
         private readonly IEmployeeTrainingService _employeeTrainingService;
         private readonly IPdfFileHandler _pdfFileHandlerService;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficialRepository;
 
 
-        public EmployeeReportService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IPdfFileHandler pdfFileHandlerService)
+
+        public EmployeeReportService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IPdfFileHandler pdfFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository)
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeAllowanceService = employeeAllowanceService;
@@ -57,13 +62,18 @@ namespace GCTL.Service.Employees.EmployeeReport
             _employeeSalaryService = employeeSalaryService;
             _employeeTrainingService = employeeTrainingService;
             _pdfFileHandlerService = pdfFileHandlerService;
+            _employeeOfficialRepository = employeeOfficialRepository;
         }
 
         public async Task<byte[]> GenaratePDF(int id)
         {
-            // Define default values for fields not directly available
-            string companyName = "Your Company Name"; // Default company name
-            string companyAddress = "Your Company Address"; // Default company address
+           
+
+            
+            var company = await _employeeOfficialRepository.AllActive().Where(e => e.EmployeeID == id).Include(m => m.Organization).FirstOrDefaultAsync();
+           
+
+
             QuestPDF.Settings.License = LicenseType.Community;
             try
             {
@@ -94,59 +104,13 @@ namespace GCTL.Service.Employees.EmployeeReport
                             page.DefaultTextStyle(x => x.FontFamily(Fonts.TimesNewRoman).FontSize(10));
 
 
-                            //page.Header().Element(container =>
+                           
+                            //page.Header().Element(header =>
                             //{
-                            //    container.Row(row =>
-                            //    {
-                            //        row.RelativeItem().AlignRight().Column(column =>
-                            //        {
-                            //            column.Item().Height(100).Width(100).Image("wwwroot/img/No-Image-Placeholder.svg.png");
-                            //            column.Item().Text(companyName).FontSize(18).Bold().AlignRight();
-                            //            column.Item().Width(200).Text(companyAddress).FontSize(12).Bold().LineHeight(1.2f).AlignRight();
-                            //        });
-                            //    });
+                            //    _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
                             //});
-                            page.Header().Element(header =>
-                            {
-                                _pdfFileHandlerService.ComposeHeader(header, companyName, companyAddress, true);
-                            });
 
-                            //page.Header()
-                            //.ShowOnce()
-                            //.Element(container =>
-                            //{
-                            //    container.PaddingBottom(10).Column(column =>
-                            //    {
-                            //        column.Item().Row(row =>
-                            //        {
-
-                            //            //row.ConstantItem(50).Height(50).Image("wwwroot/img/No-Image-Placeholder.svg.png");
-
-                            //            row.ConstantItem(50).Height(50).Element(logo =>
-                            //            {
-                            //                logo.PaddingLeft(10).PaddingTop(5).Image("wwwroot/img/No-Image-Placeholder.svg.png", ImageScaling.FitArea);
-                            //            });
-
-
-
-                            //            // Company name and address centered vertically
-                            //            row.RelativeItem().AlignCenter().Column(centerCol =>
-                            //            {
-                            //                centerCol.Item().AlignCenter().Text(companyName)
-                            //                    .FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
-
-                            //                centerCol.Item().AlignCenter().Text(companyAddress)
-                            //                    .FontSize(10).Light().FontColor(Colors.Grey.Darken2).LineHeight(1.3f);
-                            //            });
-
-                            //            // Optional: empty space on the right for symmetry
-                            //            row.ConstantItem(100);
-                            //        });
-
-                            //        // Add horizontal line (HR) separator
-                            //        column.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            //    });
-                            //});
+                            
 
                             // Content
                             page.Content().Column(column =>
@@ -313,6 +277,11 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     table.Cell().Table(t => t.ColumnsDefinition(c => { c.RelativeColumn(33); c.RelativeColumn(5); c.RelativeColumn(62); }));
                                 });
 
+
+
+                                #region Salary
+
+
                                 // Salary Account Info
                                 column.Item().PaddingTop(10).Text("Salary Account Info").FontSize(12).Bold();
                                 column.Item().Table(table =>
@@ -324,26 +293,24 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         columns.RelativeColumn(25);
                                         columns.RelativeColumn(20);
                                     });
-
                                     table.Header(header =>
                                     {
-                                       
-
                                         header.Cell().Border(0.5f).Padding(2).Text("Bank Name").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Branch").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("A/C Name").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("A/C No.").Bold().FontSize(10).AlignCenter();
-
                                     });
-
                                     if (salary != null)
                                     {
-                                        table.Cell().Text(salary?.BankName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(salary?.BranchName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(salary?.AccountName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(salary?.AccountNo ?? " ").FontSize(9).AlignLeft();
+                                        table.Cell().Border(0.5f).Padding(2).Text(salary?.BankName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(salary?.BranchName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(salary?.AccountName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(salary?.AccountNo ?? " ").FontSize(9).AlignCenter();
                                     }
                                 });
+
+                                #endregion
+
 
                                 // Work Permit Info
                                 column.Item().PaddingTop(10).Text("Work Permit Info").FontSize(12).Bold();
@@ -360,8 +327,8 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         leftTable.ColumnsDefinition(columns =>
                                         {
                                             columns.RelativeColumn(24);
-                                            columns.RelativeColumn(1.5f);
-                                            columns.RelativeColumn(58);
+                                            columns.RelativeColumn(2);
+                                            columns.RelativeColumn(45);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -379,9 +346,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         rightTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.RelativeColumn(23);
-                                            columns.RelativeColumn(1.5f);
-                                            columns.RelativeColumn(58);
+                                            columns.RelativeColumn(21.5f);
+                                            columns.RelativeColumn(2f);
+                                            columns.RelativeColumn(40);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -411,9 +378,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         leftTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.RelativeColumn(26.5f);
+                                            columns.RelativeColumn(24);
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(65);
+                                            columns.RelativeColumn(45);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -434,9 +401,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         rightTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.RelativeColumn(26);
+                                            columns.RelativeColumn(21.5f);
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(65);
+                                            columns.RelativeColumn(40);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -454,7 +421,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         }
 
                                         AddEmptyRow();
-                                        AddEmptyRow();
+                                       
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
@@ -477,9 +444,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         leftTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.RelativeColumn(26.5f);
+                                            columns.RelativeColumn(24);
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(65);
+                                            columns.RelativeColumn(45);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -500,9 +467,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         rightTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.RelativeColumn(26);
+                                            columns.RelativeColumn(21.5f);
                                             columns.RelativeColumn(2);
-                                            columns.RelativeColumn(65);
+                                            columns.RelativeColumn(40);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -522,7 +489,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        AddEmptyRow();
+                                       
                                         AddEmptyRow();
                                         AddInfoRow("Personal Phone", contact2?.PersonalPhone);
                                     });
@@ -554,15 +521,15 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Organization", official?.OrganizationID.ToString());
-                                        AddInfoRow("Branch", official?.OrganizationBranchID.ToString());
-                                        AddInfoRow("Department", official?.DepartmentID.ToString());
-                                        AddInfoRow("Designation", official?.DesignationID.ToString());
-                                        AddInfoRow("Employee Type", official?.EmployeeTypeID.ToString());
-                                        AddInfoRow("Employment Nature", official?.EmploymentNatureID.ToString());
+                                        AddInfoRow("Organization", official?.OrganizationName.ToString());
+                                        AddInfoRow("Branch", official?.OrganizationBranchName.ToString());
+                                        AddInfoRow("Department", official?.DepartmentName.ToString());
+                                        AddInfoRow("Designation", official?.DesignationName.ToString());
+                                        AddInfoRow("Employee Type", official?.EmployeeTypeName.ToString());
+                                        AddInfoRow("Employment Nature", official?.EmploymentNatureName.ToString());
                                         AddInfoRow("Grade No", salary?.GradeID.ToString());
                                         AddInfoRow("Gross Salary", salary?.Salary?.ToString("N0"));
-                                        AddInfoRow("Immediate Supervisor", official?.ImmediateSupervisorId.ToString());
+                                        AddInfoRow("Immediate Supervisor", official?.ImmediateSupervisorName.ToString());
                                         AddInfoRow("Official Phone", official?.OfficePhone);
                                         AddInfoRow("Appointment Date", official?.AppointmentLetterIssueDate?.ToString("dd/MM/yyyy"));
                                         AddInfoRow("Probation Period", official?.ProvisionPeriod.ToString());
@@ -618,6 +585,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     });
                                 });
 
+
+                                #region Family
+
                                 // Family Information
                                 column.Item().PaddingTop(10).Text("Family Information").FontSize(12).Bold();
                                 column.Item().Table(table =>
@@ -629,25 +599,25 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         columns.RelativeColumn(25);
                                         columns.RelativeColumn(25);
                                     });
-
                                     table.Header(header =>
                                     {
-                                        
                                         header.Cell().Border(0.5f).Padding(2).Text("Name").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Relationship").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Occupation").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Contact").Bold().FontSize(10).AlignCenter();
-
                                     });
-
                                     foreach (var member in family ?? Enumerable.Empty<EmployeeFamilyGetViewModel>())
                                     {
-                                        table.Cell().Text(member?.FullName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(member?.RelationToEmployee ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(member?.Occupation ?? " ").FontSize(9).AlignCenter();
-                                        table.Cell().Text(member?.ContactNumber ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(member?.FullName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(member?.RelationToEmployee ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(member?.Occupation ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(member?.ContactNumber ?? " ").FontSize(9).AlignCenter();
                                     }
                                 });
+
+                                #endregion
+
+                                #region Education
 
                                 // Educational Information
                                 column.Item().PaddingTop(10).Text("Educational Information").FontSize(12).Bold();
@@ -663,11 +633,8 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         columns.RelativeColumn(10);
                                         columns.RelativeColumn(7);
                                     });
-
                                     table.Header(header =>
                                     {
-                                        
-
                                         header.Cell().Border(0.5f).Padding(2).Text("Exam Title").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Major").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Institution").Bold().FontSize(10).AlignCenter();
@@ -675,20 +642,23 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         header.Cell().Border(0.5f).Padding(2).Text("Result").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Passing Year").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Duration").Bold().FontSize(10).AlignCenter();
-
                                     });
-
                                     foreach (var edu in educational ?? Enumerable.Empty<EmployeeEducationGetViewModel>())
                                     {
-                                        table.Cell().Text(edu?.DegreeID ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(edu?.MajorSubject ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(edu?.InstitutionName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(edu?.EducationBoardID ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(edu?.ResultTypeID ?? " ").FontSize(9).AlignCenter();
-                                        table.Cell().Text(edu?.PassingYearID ?? " ").FontSize(9).AlignCenter();
-                                        table.Cell().Text(edu?.YearDuration?.ToString() ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.DegreeID ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.MajorSubject ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.InstitutionName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.EducationBoardID ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.ResultTypeID ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.PassingYearID ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(edu?.YearDuration?.ToString() ?? " ").FontSize(9).AlignCenter();
                                     }
                                 });
+
+                                #endregion
+
+
+                                #region Training
 
                                 // Training Information
                                 column.Item().PaddingTop(10).Text("Training Information").FontSize(12).Bold();
@@ -704,11 +674,8 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         columns.RelativeColumn(8);
                                         columns.RelativeColumn(10);
                                     });
-
                                     table.Header(header =>
                                     {
-                                       
-
                                         header.Cell().Border(0.5f).Padding(2).Text("Course Type").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Course Title").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Institute").Bold().FontSize(10).AlignCenter();
@@ -716,21 +683,23 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         header.Cell().Border(0.5f).Padding(2).Text("Duration").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Country").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Year").Bold().FontSize(10).AlignCenter();
-
                                     });
-
                                     foreach (var qual in training ?? Enumerable.Empty<EmployeeTrainingGetViewModel>())
                                     {
-                                        table.Cell().Text(qual?.TopicCovered ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(qual?.TranningTitle ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(qual?.InstituteName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(qual?.LocationName ?? " ").FontSize(9).AlignLeft();
-                                        table.Cell().Text(qual?.YearDuration?.ToString() ?? " ").FontSize(9).AlignCenter();
-                                        table.Cell().Text(qual?.CountryID ?? " ").FontSize(9).AlignCenter();
-                                        table.Cell().Text(qual?.TrainingYearID ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.TopicCovered ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.TranningTitle ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.InstituteName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.LocationName ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.YearDuration?.ToString() ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.CountryID ?? " ").FontSize(9).AlignCenter();
+                                        table.Cell().Border(0.5f).Padding(2).Text(qual?.TrainingYearID ?? " ").FontSize(9).AlignCenter();
                                     }
                                 });
 
+
+                                #endregion
+
+                                #region ALlowance
                                 // Allowance Information
                                 column.Item().PaddingTop(10).Text("Allowance Information").FontSize(12).Bold();
                                 column.Item().Table(table =>
@@ -741,58 +710,56 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         columns.RelativeColumn(33);
                                         columns.RelativeColumn(33);
                                     });
-
                                     table.Header(header =>
                                     {
-                                       
-
                                         header.Cell().Border(0.5f).Padding(2).Text("Allowance Type").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Amount").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Effective Date").Bold().FontSize(10).AlignCenter();
-
                                     });
-
                                     if (allowance != null)
                                     {
                                         if (allowance.IsMobileAllowanceEnabled)
                                         {
-                                            table.Cell().Text("Mobile Allowance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(allowance?.MobileAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Text(allowance?.MobileAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Mobile Allowance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.MobileAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.MobileAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
                                         }
                                         if (allowance.IsInternetAllowanceEnabled)
                                         {
-                                            table.Cell().Text("Internet Allowance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(allowance?.InternetAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Text(allowance?.InternetAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Internet Allowance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.InternetAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.InternetAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
                                         }
                                         if (allowance.IsShiftAllowanceEnabled)
                                         {
-                                            table.Cell().Text("Shift Allowance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(allowance?.ShiftAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Text(" ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Shift Allowance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.ShiftAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
                                         }
                                         if (allowance.IsHouseRentAllowancePercentageEnabled)
                                         {
-                                            table.Cell().Text("House Rent Allowance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(allowance?.HouseRentAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Text(" ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("House Rent Allowance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.HouseRentAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
                                         }
                                         if (allowance.IsMedicalAllowancePercentageEnabled)
                                         {
-                                            table.Cell().Text("Medical Allowance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(allowance?.MedicalAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Text(" ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Medical Allowance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.MedicalAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
                                         }
                                         if (allowance.IsConveyanceAllowancePercentageEnabled)
                                         {
-                                            table.Cell().Text("Conveyance Allowance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(allowance?.ConveyanceAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Text(" ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Conveyance Allowance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.ConveyanceAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
                                         }
                                     }
                                 });
 
+                                #endregion
+
+                                #region Benifit
                                 // Benefits Information
                                 column.Item().PaddingTop(10).Text("Benefits Information").FontSize(12).Bold();
                                 column.Item().Table(table =>
@@ -802,42 +769,39 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         columns.RelativeColumn(50);
                                         columns.RelativeColumn(50);
                                     });
-
                                     table.Header(header =>
                                     {
-                                       
-
                                         header.Cell().Border(0.5f).Padding(2).Text("Benefit Type").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Amount").Bold().FontSize(10).AlignCenter();
-
                                     });
-
                                     if (benifit != null)
                                     {
                                         if (benifit.IsHealthInsuranceEnabled)
                                         {
-                                            table.Cell().Text("Health Insurance").FontSize(9).AlignLeft();
-                                            table.Cell().Text(benifit?.HealthInsurance?.ToString("N0") ?? " ").FontSize(9).AlignLeft();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Health Insurance").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(benifit?.HealthInsurance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
                                         }
                                         if (benifit.IsPerformanceBonusEnabled)
                                         {
-                                            table.Cell().Text("Performance Bonus").FontSize(9).AlignLeft();
-                                            table.Cell().Text(benifit?.PerformanceBonus?.ToString("N0") ?? " ").FontSize(9).AlignLeft();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Performance Bonus").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(benifit?.PerformanceBonus?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
                                         }
                                         if (benifit.IsFastivalBonusPercentageEnabled)
                                         {
-                                            table.Cell().Text("Festival Bonus").FontSize(9).AlignLeft();
-                                            table.Cell().Text(benifit?.FastivalBonusPercentage?.ToString("N0") ?? " ").FontSize(9).AlignLeft();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Festival Bonus").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(benifit?.FastivalBonusPercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
                                         }
                                         if (benifit.IsProvidantFundEnabled)
                                         {
-                                            table.Cell().Text("Provident Fund (Employee)").FontSize(9).AlignLeft();
-                                            table.Cell().Text(benifit?.ProvidantFundEmployeePercentage?.ToString("N0") ?? " ").FontSize(9).AlignLeft();
-                                            table.Cell().Text("Provident Fund (Organization)").FontSize(9).AlignLeft();
-                                            table.Cell().Text(benifit?.ProvidantFundOrganizationPercentage?.ToString("N0") ?? " ").FontSize(9).AlignLeft();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Provident Fund (Employee)").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(benifit?.ProvidantFundEmployeePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text("Provident Fund (Organization)").FontSize(9).AlignCenter();
+                                            table.Cell().Border(0.5f).Padding(2).Text(benifit?.ProvidantFundOrganizationPercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
                                         }
                                     }
                                 });
+
+                                #endregion
 
                                 // Signature Section
                                 column.Item().PaddingTop(15).Table(table =>

@@ -107,7 +107,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     LMAC = entityVM.LMAC,
                     EffectiveFromMonthYear = entityVM.EffectiveFromMonthYear,
                     EffectiveFrom = entityVM.EffectiveFrom,
-                    EffectiveAfter = entityVM.EffectiveAfter
+                    EffectiveAfter = entityVM.EffectiveAfter,
+                    ApplicableYear=DateTime.Now.Year,
+                    
                 };
 
                 await leaveType.AddAsync(entity);
@@ -169,6 +171,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingLeave.EffectiveAfter = entityVM.EffectiveAfter;
                 existingLeave.MinimumDaysRequiredEncashement = entityVM.MinimumDaysRequiredEncashement;
                 existingLeave.MaximumDaysAllowedEncashement = entityVM.MaximumDaysAllowedEncashement;
+                existingLeave.ApplicableYear = DateTime.Now.Year;
                 existingLeave.LIP = entityVM.LIP;
                 existingLeave.LMAC = entityVM.LMAC;
                 existingLeave.UpdatedAt = DateTime.Now;
@@ -274,6 +277,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      IsRoundOffHour=entityVM.IsRoundOffHour,
                      LeaveBalanceResetDate=entityVM.LeaveBalanceResetDate,
                      EnableLeaveBalanceResetDate=entityVM.EnableLeaveBalanceResetDate,
+                     IsAllowCrossLeave=entityVM.IsAllowCrossLeave,
                      LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
@@ -340,6 +344,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.EnableLeaveBalanceResetDate = entityVM.EnableLeaveBalanceResetDate;
                 existingPolicy.UpdatedAt = DateTime.Now;
                 existingPolicy.UpdatedBy = entityVM.UpdatedBy;
+                existingPolicy.IsAllowCrossLeave = entityVM.IsAllowCrossLeave;
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
@@ -391,7 +396,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     IsMaximumleaveDaysPerAplication = x.IsMaximumleaveDaysPerAplication,
                     IsMaximumGapDaysBetweenAplications = x.IsMaximumGapDaysBetweenAplications,
                     EnableLeaveBalanceResetDate=x.EnableLeaveBalanceResetDate,
-                    LeaveBalanceResetDate=x.LeaveBalanceResetDate
+                    LeaveBalanceResetDate=x.LeaveBalanceResetDate,
+                    IsAllowCrossLeave=x.IsAllowCrossLeave,
+                    
                     
                 }).ToList();
 

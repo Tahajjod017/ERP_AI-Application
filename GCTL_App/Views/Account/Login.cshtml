@@ -54,12 +54,12 @@
                                         <h3 class="text-body-highlight">Sign In</h3>
                                         <p class="text-body-tertiary">Get access to your account</p>
                                     </div>
-                                   @*  <button class="btn btn-phoenix-secondary w-100 mb-3"><span class="fab fa-google text-danger me-2 fs-9"></span>Sign in with google</button>
-                                    <button class="btn btn-phoenix-secondary w-100"><span class="fab fa-facebook text-primary me-2 fs-9"></span>Sign in with facebook</button>
-                                    <div class="position-relative">
-                                        <hr class="bg-body-secondary mt-5 mb-4" />
-                                        <div class="divider-content-center bg-body-emphasis">or use email</div>
-                                    </div> *@
+                                    @*  <button class="btn btn-phoenix-secondary w-100 mb-3"><span class="fab fa-google text-danger me-2 fs-9"></span>Sign in with google</button>
+                                        <button class="btn btn-phoenix-secondary w-100"><span class="fab fa-facebook text-primary me-2 fs-9"></span>Sign in with facebook</button>
+                                        <div class="position-relative">
+                                            <hr class="bg-body-secondary mt-5 mb-4" />
+                                            <div class="divider-content-center bg-body-emphasis">or use email</div>
+                                        </div> *@
                                     <form asp-action="Login" method="post" novalidate>
                                         @Html.AntiForgeryToken() <!-- Add Anti-forgery token for protection -->
                                         <!-- Validation Summary: Displays form validation errors -->
@@ -80,17 +80,17 @@
                                         </div>
                                         <div class="row flex-between-center mb-5">
                                             @* <div class="col-auto">
-                                                <div class="form-check mb-0">
-                                                    <input asp-for="RememberMe" class="form-check-input" id="basic-checkbox" type="checkbox" checked="checked" />
-                                                    <label class="form-check-label mb-0" for="basic-checkbox">Remember me</label>
-                                                </div>
-                                            </div> *@
+                                                    <div class="form-check mb-0">
+                                                        <input asp-for="RememberMe" class="form-check-input" id="basic-checkbox" type="checkbox" checked="checked" />
+                                                        <label class="form-check-label mb-0" for="basic-checkbox">Remember me</label>
+                                                    </div>
+                                                </div> *@
                                             <div class="col-auto"><a class="fs-9 fw-semibold" href="/Account/EmailOtpPage">Forgot Password?</a></div>
                                         </div>
                                         <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>
                                     </form>
 
-                                   @*  <div class="text-center"><a class="fs-9 fw-bold" href="/Account/Register">Create an account</a></div> *@
+                                    @*  <div class="text-center"><a class="fs-9 fw-bold" href="/Account/Register">Create an account</a></div> *@
                                 </div>
                             </div>
                         </div>
@@ -101,7 +101,46 @@
     </div>
 
 
+    <button id="btnExport">export</button>
+
 </main>
 
 
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $('#btnExport').on('click', function () {
 
+        GenaratePDF(8);
+    });
+
+    function GenaratePDF(empId) {
+        if (!empId) {
+            toastr.warning("Employee ID is required.");
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeeReport/GenerateIndiEmpDetailsPDF', // Backend route
+            type: 'POST',
+            data: { id: empId },
+            xhrFields: {
+                responseType: 'blob' // Important for handling binary files
+            },
+            success: function (response, status, xhr) {
+                const blob = new Blob([response], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Employee_${empId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error generating PDF:", error);
+            }
+        });
+    }
+
+
+</script>
