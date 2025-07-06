@@ -58,4 +58,5 @@ public partial class LeavePolicyConfiguration
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+    public bool IsAllowCrossLeave { get; set; }
 }
