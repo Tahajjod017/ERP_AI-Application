@@ -54,10 +54,13 @@ public partial class LeaveApplications
 
     public virtual Employees Employee { get; set; }
 
-    public virtual LeaveApplications GroupApplication { get; set; }
+    public bool? IsGroupApplication { get; set; }
 
-    public virtual ICollection<LeaveApplications> InverseGroupApplication { get; set; } = new List<LeaveApplications>();
+    public int? GroupApplicationID { get; set; }
+    
+     public virtual LeaveApplications GroupApplication { get; set; }
 
+     public virtual ICollection<LeaveApplications> InverseGroupApplication { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
 

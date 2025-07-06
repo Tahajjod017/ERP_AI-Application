@@ -1,12 +1,16 @@
-﻿using GCTL.Core.Helpers;
+﻿using Dapper;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Intrinsics.Arm;
@@ -24,13 +28,17 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeesRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
         private readonly IGenericRepository<Shifts> _shiftsRepository;
+        private readonly IGenericRepository<RosterInOfficeDaysOverride> _rosterInOfficeDayOverride;
+        private readonly IConfiguration _configuration;
 
-        public OfficeDayRosterService(IGenericRepository<RosterInOfficeDays> genericRepository, 
-            IGenericRepository<Organization> organizationRepository, 
-            IGenericRepository<Departments> departmentRepository, 
-            IGenericRepository<Data.Models.Employees> employeesRepository, 
-            IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo, 
-            IGenericRepository<Shifts> shiftsRepository) : base(genericRepository)
+        public OfficeDayRosterService(IGenericRepository<RosterInOfficeDays> genericRepository,
+            IGenericRepository<Organization> organizationRepository,
+            IGenericRepository<Departments> departmentRepository,
+            IGenericRepository<Data.Models.Employees> employeesRepository,
+            IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo,
+            IGenericRepository<Shifts> shiftsRepository,
+            IGenericRepository<RosterInOfficeDaysOverride> rosterInOfficeDayOverride,
+            IConfiguration configuration) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _organizationRepository = organizationRepository;
@@ -38,6 +46,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             _employeesRepository = employeesRepository;
             _employeeOfficeInfo = employeeOfficeInfo;
             _shiftsRepository = shiftsRepository;
+            _rosterInOfficeDayOverride = rosterInOfficeDayOverride;
+            _configuration = configuration;
         }
         #endregion
 
@@ -234,6 +244,31 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
+        #region GetAllFromSPAsync
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetAllFromSPAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder, int daysToShow)
+        {
+            using (var connection = new SqlConnection(_configuration.GetConnectionString("connection")))
+            {
+                var result = await connection.QueryAsync<RosterInOfficeDaysSetupVM>(
+                    "GetPagedRosterInOfficeDays",
+                    new
+                    {
+                        PageNumber = pageNumber,
+                        PageSize = pageSize,
+                        SearchTerm = searchTerm,
+                        SortColumn = sortColumn,
+                        SortOrder = sortOrder,
+                        DaysToShow = daysToShow
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result.ToList();
+            }
+        }
+        #endregion
+
+
         #region GetAllAsync
         public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, 
             string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
@@ -244,6 +279,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             var query = _genericRepository.AllActive().AsNoTracking()
                 .Include(x => x.Shift).Include(x => x.Organization)
                 .Include(x => x.Department).Include(x => x.Employee)
+                .Include(x => x.RosterInOfficeDaysOverride)
                 .Where(x => x.DeletedAt == null)
                 .Where(x => x.StartDate <= endDate && x.EndDate >= startDate);
 
@@ -262,7 +298,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
             var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
-                //EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || 
                 EF.Functions.Like(x.Employee.FirstName, $"%{term}%") || EF.Functions.Like(x.Employee.LastName, $"%{term}%") || EF.Functions.Like(x.Employee.EmployeeCode, $"%{term}%") ||
                 EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") || EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Shift.ShiftName, $"%{term}%"),
                 x => new RosterInOfficeDaysSetupVM
@@ -276,7 +311,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                     EmployeeID = x.EmployeeID ?? 0,
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
-                    TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}"
+                    TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}",
+                    RosterInOfficeDaysOverrideSetupVMs = x.RosterInOfficeDaysOverride
+                    .Where(o => o.ShiftID == null && o.DeletedAt != null && o.DeletedBy != null)
+                    .Select(o => new RosterInOfficeDaysOverrideSetupVM
+                    {
+                        RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
+                        RosterInOfficeDayID = o.RosterInOfficeDayID,
+                        OverrideDate = o.OverrideDate,
+                        ShiftID = o.ShiftID
+                    }).ToList()
                 });
 
             return result;
@@ -409,12 +453,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region SoftDeleteAsync
-        public async Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(DeleteRequestVM model)
+        public async Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => model.Ids.Contains(x.RosterInOfficeDayID));
+                var data = await _genericRepository.FindAsync(x => x.RosterInOfficeDayID == model.Id);
                 if(data == null || data.Count == 0)
                 {
                     return new RosterInOfficeDaysSetupVM
@@ -423,14 +467,29 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                     };
                 }
 
-                foreach(var item in data)
+                var overrideList = new List<RosterInOfficeDaysOverride>();
+
+                foreach (var item in data)
                 {
-                    item.ShiftID = null;
-                    item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = model.DeletedBy ?? null;
+                    //item.ShiftID = null;
+                    //item.DeletedAt = DateTime.Now;
+                    //item.DeletedBy = model.DeletedBy ?? null;
+                    var overrideEntry = new RosterInOfficeDaysOverride
+                    {
+                        RosterInOfficeDayID = item.RosterInOfficeDayID,
+                        OverrideDate = model.OverrideDate, 
+                        ShiftID = null,
+                        DeletedAt = DateTime.Now,
+                        DeletedBy = model.DeletedBy ?? null,
+                        LIP = item.LIP,
+                        LMAC = item.LMAC
+                    };
+
+                    overrideList.Add(overrideEntry);
                 }
 
-                await _genericRepository.UpdateRangeAsync(data);
+                //await _genericRepository.UpdateRangeAsync(data);
+                await _rosterInOfficeDayOverride.AddRangeAsync(overrideList);
 
                 await _genericRepository.CommitTransactionAsync();
 
