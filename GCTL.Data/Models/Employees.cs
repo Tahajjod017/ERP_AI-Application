@@ -93,6 +93,20 @@ public partial class Employees
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 
+    public virtual ICollection<Attendance> AttendanceCreatedByNavigation { get; set; } = new List<Attendance>();
+
+    public virtual ICollection<Attendance> AttendanceDeletedByNavigation { get; set; } = new List<Attendance>();
+
+    public virtual ICollection<Attendance> AttendanceEmployee { get; set; } = new List<Attendance>();
+
+    public virtual ICollection<AttendanceLog> AttendanceLogCreatedByNavigation { get; set; } = new List<AttendanceLog>();
+
+    public virtual ICollection<AttendanceLog> AttendanceLogDeletedByNavigation { get; set; } = new List<AttendanceLog>();
+
+    public virtual ICollection<AttendanceLog> AttendanceLogUpdatedByNavigation { get; set; } = new List<AttendanceLog>();
+
+    public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
+
     public virtual BloodGroup BloodGroup { get; set; }
 
     public virtual ICollection<BloodGroup> BloodGroupCreatedByNavigation { get; set; } = new List<BloodGroup>();

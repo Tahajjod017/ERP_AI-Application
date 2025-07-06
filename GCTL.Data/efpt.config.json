@@ -59,6 +59,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Attendance]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AttendanceLog]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[BloodGroup]",
          "ObjectType": 0
       },
