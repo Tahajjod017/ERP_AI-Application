@@ -49,9 +49,6 @@ public partial class LeavePolicyConfiguration
 
     public bool IsRoundOffHour { get; set; }
 
-    public bool IsAllowCrossLeave { get; set; }
-
-
     public DateTime? LeaveBalanceResetDate { get; set; }
 
     public bool EnableLeaveBalanceResetDate { get; set; }

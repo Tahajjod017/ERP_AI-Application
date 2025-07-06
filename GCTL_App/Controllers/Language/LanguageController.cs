@@ -7,21 +7,22 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium;
 using Microsoft.EntityFrameworkCore;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers.Language
 {
-    public class LanguageController : Controller
+    public class LanguageController : BaseController
     {
         private readonly ILanguageTableService _languageTableService;
         private readonly ITranslateService _translationService;
         private readonly AppDbContext _dbContext;
         private readonly IHubContext<ProgressHub> _hubContext;
 
-        public LanguageController(ILanguageTableService languageTableService, AppDbContext dbContext, ITranslateService translationService, IHubContext<ProgressHub> hubContext)
+        public LanguageController(ITranslateService translateService, IUserProfileService userProfileService, ILanguageTableService languageTableService, ITranslateService translationService, AppDbContext dbContext, IHubContext<ProgressHub> hubContext) : base(translateService, userProfileService)
         {
             _languageTableService = languageTableService;
-            _dbContext = dbContext;
             _translationService = translationService;
+            _dbContext = dbContext;
             _hubContext = hubContext;
         }
 

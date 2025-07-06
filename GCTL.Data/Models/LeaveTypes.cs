@@ -41,8 +41,6 @@ public partial class LeaveTypes
 
     public string EffectiveAfter { get; set; }
 
-    public int ? LeavePriorityId { get; set; }
-
     public int? MinimumDaysRequiredEncashement { get; set; }
 
     public int? MaximumDaysAllowedEncashement { get; set; }
@@ -50,6 +48,8 @@ public partial class LeaveTypes
     public bool IsActive { get; set; }
 
     public int? ApplicableYear { get; set; }
+
+    public int? LeavePriorityId { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

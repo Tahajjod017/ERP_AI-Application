@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Statuses
+public partial class AttendanceLog
 {
-    public int StatusID { get; set; }
+    public int AttendanceLogID { get; set; }
 
-    public string StatusName { get; set; }
+    public int? AttendanceID { get; set; }
+
+    public DateTime PunchTime { get; set; }
+
+    public string SourceType { get; set; }
 
     public string LIP { get; set; }
 
@@ -23,25 +27,15 @@ public partial class Statuses
 
     public DateTime? UpdatedAt { get; set; }
 
-    public string StatusType { get; set; }
-
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
 
-    public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
+    public virtual Attendance Attendance { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
-
-    public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
-
-    public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
-
-    public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
