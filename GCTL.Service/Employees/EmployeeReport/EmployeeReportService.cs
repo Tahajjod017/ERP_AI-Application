@@ -29,6 +29,10 @@ using GCTL.Service.FileHandler;
 using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+
 
 namespace GCTL.Service.Employees.EmployeeReport
 {
@@ -68,11 +72,7 @@ namespace GCTL.Service.Employees.EmployeeReport
         public async Task<byte[]> GenaratePDF(int id)
         {
            
-
-            
             var company = await _employeeOfficialRepository.AllActive().Where(e => e.EmployeeID == id).Include(m => m.Organization).FirstOrDefaultAsync();
-           
-
 
             QuestPDF.Settings.License = LicenseType.Community;
             try
@@ -925,6 +925,221 @@ namespace GCTL.Service.Employees.EmployeeReport
             }
         }
 
+
+
+        public async Task<byte[]> GenerateEmployeeExcelReportAsync()
+        {
+            
+            ExcelPackage.License.SetNonCommercialOrganization("GCTL");
+
+
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Employee Report");
+
+                // Title
+                worksheet.Cells[1, 1, 1, 9].Merge = true;
+                worksheet.Cells[1, 1].Value = "ABC Corporation";
+                worksheet.Cells[1, 1].Style.Font.Size = 14;
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                worksheet.Cells[2, 1, 2, 9].Merge = true;
+                worksheet.Cells[2, 1].Value = "123 Business Street, City, Country";
+                worksheet.Cells[2, 1].Style.Font.Size = 12;
+                worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                worksheet.Cells[3, 1, 3, 9].Merge = true;
+                worksheet.Cells[3, 1].Value = $"Report Generated: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+                worksheet.Cells[3, 1].Style.Font.Size = 10;
+                worksheet.Cells[3, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                // Fetch data
+                var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsAsync();
+                var personalData = await _employeePersonalService.GetAllEmployeePersonalAsync();
+                var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryAsync();
+
+                var employees = officialData.Select(o => new
+                {
+                    EmployeeID = o.EmployeePersonalId,
+                    DepartmentName = o.DepartmentName ?? "Unknown",
+                    DesignationName = o.DesignationName ?? "",
+                    JoiningDate = o.JoiningDate,
+                    FullName = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId) is var person && person != null ? $"{person.FirstName} {person.LastName}".Trim() : string.Empty,
+                    Email = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.Email ?? "",
+                    GrossSalary = salaryData.FirstOrDefault(s => s.EmployeePersonalId == o.EmployeePersonalId)?.Salary ?? 0,
+                    EmployeeCode = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.EmployeeCode ?? "",
+                    DateOfBirth = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.DateOfBirth,
+                    Gender = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.GenderName ?? ""
+                }).OrderBy(e => e.DepartmentName).ToList();
+
+                var departmentGroups = employees.GroupBy(e => e.DepartmentName).ToList();
+
+                if (!departmentGroups.Any())
+                {
+                    throw new Exception("No employee data found.");
+                }
+
+                int currentRow = 5;
+
+                foreach (var department in departmentGroups)
+                {
+                    // Department Header
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Merge = true;
+                    worksheet.Cells[currentRow, 1].Value = $"Department: {department.Key}";
+                    worksheet.Cells[currentRow, 1].Style.Font.Size = 12;
+                    worksheet.Cells[currentRow, 1].Style.Font.Bold = true;
+                    worksheet.Cells[currentRow, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[currentRow, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                    currentRow++;
+
+                    // Table Header
+                    worksheet.Cells[currentRow, 1].Value = "Employee ID";
+                    worksheet.Cells[currentRow, 2].Value = "Employee Code";
+                    worksheet.Cells[currentRow, 3].Value = "Name";
+                    worksheet.Cells[currentRow, 4].Value = "Designation";
+                    worksheet.Cells[currentRow, 5].Value = "Joining Date";
+                    worksheet.Cells[currentRow, 6].Value = "Gross Salary";
+                    worksheet.Cells[currentRow, 7].Value = "Email";
+                    worksheet.Cells[currentRow, 8].Value = "Date of Birth";
+                    worksheet.Cells[currentRow, 9].Value = "Gender";
+
+                    using (var range = worksheet.Cells[currentRow, 1, currentRow, 9])
+                    {
+                        range.Style.Font.Bold = true;
+                        range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                        range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                    }
+                    currentRow++;
+
+                    // Employee Data
+                    foreach (var employee in department)
+                    {
+                        worksheet.Cells[currentRow, 1].Value = employee.EmployeeID;
+                        worksheet.Cells[currentRow, 2].Value = employee.EmployeeCode;
+                        worksheet.Cells[currentRow, 3].Value = employee.FullName;
+                        worksheet.Cells[currentRow, 4].Value = employee.DesignationName;
+                        worksheet.Cells[currentRow, 5].Value = employee.JoiningDate?.ToString("dd/MM/yyyy") ?? "";
+                        worksheet.Cells[currentRow, 6].Value = employee.GrossSalary;
+                        worksheet.Cells[currentRow, 6].Style.Numberformat.Format = "#,##0";
+                        worksheet.Cells[currentRow, 7].Value = employee.Email;
+                        worksheet.Cells[currentRow, 8].Value = employee.DateOfBirth?.ToString("dd/MM/yyyy") ?? "";
+                        worksheet.Cells[currentRow, 9].Value = employee.Gender;
+
+                        using (var range = worksheet.Cells[currentRow, 1, currentRow, 9])
+                        {
+                            range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                        }
+                        currentRow++;
+                    }
+
+                    // Total Employees
+                    worksheet.Cells[currentRow, 1, currentRow, 9].Merge = true;
+                    worksheet.Cells[currentRow, 1].Value = $"Total Employees: {department.Count()}";
+                    worksheet.Cells[currentRow, 1].Style.Font.Bold = true;
+                    worksheet.Cells[currentRow, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    currentRow += 2; // Add spacing between departments
+                }
+
+                worksheet.Cells[1, 1, currentRow - 1, 9].AutoFitColumns();
+
+                using (var stream = new MemoryStream())
+                {
+                    package.SaveAs(stream);
+                    return stream.ToArray();
+                }
+            }
+
+
+            //using (var package = new ExcelPackage())
+            //{
+            //    var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsAsync();
+            //    var personalData = await _employeePersonalService.GetAllEmployeePersonalAsync();
+            //    var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryAsync();
+
+            //    var employees = officialData.Select(o => new
+            //    {
+            //        EmployeeID = o.EmployeePersonalId,
+            //        DepartmentName = o.DepartmentName ?? "Unknown",
+            //        DesignationName = o.DesignationName ?? "",
+            //        JoiningDate = o.JoiningDate,
+            //        FullName = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.FirstName ?? "",
+            //        Email = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.Email ?? "",
+            //        GrossSalary = salaryData.FirstOrDefault(s => s.EmployeePersonalId == o.EmployeePersonalId)?.Salary ?? 0
+            //    }).OrderBy(e => e.DepartmentName).ToList();
+
+            //    var departmentGroups = employees.GroupBy(e => e.DepartmentName).ToList();
+
+            //    if (!departmentGroups.Any())
+            //    {
+            //        throw new Exception("No employee data found.");
+            //    }
+
+            //    foreach (var department in departmentGroups)
+            //    {
+            //        var worksheet = package.Workbook.Worksheets.Add(department.Key.Length > 31 ? department.Key.Substring(0, 31) : department.Key);
+
+            //        worksheet.Cells[1, 1, 1, 6].Merge = true;
+            //        worksheet.Cells[1, 1].Value = "ABC Corporation";
+            //        worksheet.Cells[1, 1].Style.Font.Size = 14;
+            //        worksheet.Cells[1, 1].Style.Font.Bold = true;
+            //        worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+            //        worksheet.Cells[2, 1, 2, 6].Merge = true;
+            //        worksheet.Cells[2, 1].Value = "123 Business Street, City, Country";
+            //        worksheet.Cells[2, 1].Style.Font.Size = 12;
+            //        worksheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+            //        worksheet.Cells[3, 1, 3, 6].Merge = true;
+            //        worksheet.Cells[3, 1].Value = $"Report Generated: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
+            //        worksheet.Cells[3, 1].Style.Font.Size = 10;
+            //        worksheet.Cells[3, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+            //        worksheet.Cells[5, 1].Value = "Employee ID";
+            //        worksheet.Cells[5, 2].Value = "Name";
+            //        worksheet.Cells[5, 3].Value = "Designation";
+            //        worksheet.Cells[5, 4].Value = "Joining Date";
+            //        worksheet.Cells[5, 5].Value = "Gross Salary";
+            //        worksheet.Cells[5, 6].Value = "Email";
+
+            //        using (var range = worksheet.Cells[5, 1, 5, 6])
+            //        {
+            //            range.Style.Font.Bold = true;
+            //            range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+            //            range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+            //            range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+            //        }
+
+            //        int row = 6;
+            //        foreach (var employee in department)
+            //        {
+            //            worksheet.Cells[row, 1].Value = employee.EmployeeID;
+            //            worksheet.Cells[row, 2].Value = employee.FullName;
+            //            worksheet.Cells[row, 3].Value = employee.DesignationName;
+            //            worksheet.Cells[row, 4].Value = employee.JoiningDate?.ToString("dd/MM/yyyy") ?? "";
+            //            worksheet.Cells[row, 5].Value = employee.GrossSalary;
+            //            worksheet.Cells[row, 5].Style.Numberformat.Format = "#,##0";
+            //            worksheet.Cells[row, 6].Value = employee.Email;
+
+            //            using (var range = worksheet.Cells[row, 1, row, 6])
+            //            {
+            //                range.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+            //            }
+            //            row++;
+            //        }
+
+            //        worksheet.Cells[1, 1, row - 1, 6].AutoFitColumns();
+            //    }
+
+            //    using (var stream = new MemoryStream())
+            //    {
+            //        package.SaveAs(stream);
+            //        return stream.ToArray();
+            //    }
+            //}
+        }
 
     }
 }
