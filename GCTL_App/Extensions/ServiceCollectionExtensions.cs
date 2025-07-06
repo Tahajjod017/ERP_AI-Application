@@ -79,6 +79,7 @@ using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
+using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 
 
 
@@ -167,6 +168,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IDesignationSettingService, GCTL.Service.AdminSettings.OrganizationSettings.DesignationService.DesignationSettingService>();
             services.AddScoped<IDepartmentSettingService, DepartmentSettingService>();
             services.AddScoped<IProbationSettingService, ProbationSettingService>();
+            services.AddScoped<IEmployeeAttendanceReport, EmployeeAttendanceService>();
             #endregion
 
 

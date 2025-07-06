@@ -46,6 +46,24 @@ namespace GCTL.Service.UserProfile
 
             return (fullName, profilePicturePath);
         }
+        // New method to fetch only the current EmployeeID
+        public async Task<int?> GetCurrentEmployeeIdAsync(string userId)
+        {
+            int? currentEmployeeId = null;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user != null)
+                {
+                    currentEmployeeId = user.EmployeeId;  // Fetch and return the Employee ID directly
+                }
+            }
+
+            return currentEmployeeId;
+        }
     }
 
 }
