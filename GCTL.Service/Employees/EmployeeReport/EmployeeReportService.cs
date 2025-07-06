@@ -104,13 +104,13 @@ namespace GCTL.Service.Employees.EmployeeReport
                             page.DefaultTextStyle(x => x.FontFamily(Fonts.TimesNewRoman).FontSize(10));
 
 
-                           
-                            //page.Header().Element(header =>
-                            //{
-                            //    _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
-                            //});
 
-                            
+                            page.Header().Element(header =>
+                            {
+                                _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
+                            });
+
+
 
                             // Content
                             page.Content().Column(column =>

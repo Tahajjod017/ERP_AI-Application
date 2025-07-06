@@ -23,14 +23,89 @@ namespace GCTL.Service.FileHandler
             _organizationRepository = organizationRepository;
         }
 
-        public void ComposeHeader(IContainer container, int companyId , bool showOnce = false)
-        {
+        //public void ComposeHeader(IContainer container, int companyId , bool showOnce = false)
+        //{
 
+        //    // Define default values for fields not directly available
+        //    string companyName = "";
+        //    string companyAddress = "";
+        //    string companyImage = ""; // Default image path
+        //    var company = _organizationRepository.AllActive().Where(e => e.OrganizationID == companyId).FirstOrDefault();
+        //    if (company != null)
+        //    {
+        //        companyName = company.OrganizationName;
+        //        companyAddress = company.Address;
+        //        companyImage = company.LogoLink;
+        //    }
+
+        //    if (showOnce)
+        //    {
+        //        container.ShowOnce().PaddingBottom(10).Column(column =>
+        //        {
+        //            column.Item().Row(row =>
+        //            {
+        //                row.ConstantItem(50).Height(50).Element(logo =>
+        //                {
+        //                    logo.Padding(5).Image("wwwroot/uploads/company/logo/" + companyImage , ImageScaling.FitArea);
+        //                });
+
+        //                row.RelativeItem().AlignCenter().Column(centerCol =>
+        //                {
+        //                    centerCol.Item().AlignCenter().Text(companyName)
+        //                        .FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
+
+        //                    centerCol.Item().AlignCenter().Text(companyAddress)
+        //                        .FontSize(10).Light().FontColor(Colors.Grey.Darken2).LineHeight(1.3f);
+        //                });
+
+        //                row.ConstantItem(90);
+        //            });
+
+        //            column.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+        //        });
+        //    }
+        //    else
+        //    {
+        //        container.PaddingBottom(10).Column(column =>
+        //        {
+        //            column.Item().Row(row =>
+        //            {
+        //                row.ConstantItem(90).Height(90).Element(logo =>
+        //                {
+        //                    logo.Padding(5).Image("wwwroot/uploads/company/logo/" + companyImage, ImageScaling.FitArea);
+        //                });
+
+        //                row.RelativeItem().AlignCenter().Column(centerCol =>
+        //                {
+        //                    centerCol.Item().AlignCenter().Text(companyName)
+        //                        .FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
+
+        //                    centerCol.Item().AlignCenter().Text(companyAddress)
+        //                        .FontSize(10).Light().FontColor(Colors.Grey.Darken2).LineHeight(1.3f);
+        //                });
+
+        //                row.ConstantItem(90);
+        //            });
+
+        //            column.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+        //        });
+        //    }
+
+        //}
+
+
+        public void ComposeHeader(IContainer container, int companyId, bool showOnce = false)
+        {
             // Define default values for fields not directly available
             string companyName = "";
             string companyAddress = "";
             string companyImage = ""; // Default image path
-            var company = _organizationRepository.AllActive().Where(e => e.OrganizationID == companyId).FirstOrDefault();
+            string imagePath = "";    // Full image path for checking
+
+            var company = _organizationRepository.AllActive()
+                .Where(e => e.OrganizationID == companyId)
+                .FirstOrDefault();
+
             if (company != null)
             {
                 companyName = company.OrganizationName;
@@ -38,16 +113,22 @@ namespace GCTL.Service.FileHandler
                 companyImage = company.LogoLink;
             }
 
+            imagePath = "wwwroot/uploads/company/logo/" + companyImage;
+            bool imageExists = !string.IsNullOrEmpty(companyImage) && File.Exists(imagePath);
+
             if (showOnce)
             {
                 container.ShowOnce().PaddingBottom(10).Column(column =>
                 {
                     column.Item().Row(row =>
                     {
-                        row.ConstantItem(50).Height(50).Element(logo =>
+                        if (imageExists)
                         {
-                            logo.Padding(5).Image("wwwroot/uploads/company/logo/" + companyImage , ImageScaling.FitArea);
-                        });
+                            row.ConstantItem(50).Height(50).Element(logo =>
+                            {
+                                logo.Padding(5).Image(imagePath, ImageScaling.FitArea);
+                            });
+                        }
 
                         row.RelativeItem().AlignCenter().Column(centerCol =>
                         {
@@ -70,10 +151,13 @@ namespace GCTL.Service.FileHandler
                 {
                     column.Item().Row(row =>
                     {
-                        row.ConstantItem(90).Height(90).Element(logo =>
+                        if (imageExists)
                         {
-                            logo.Padding(5).Image("wwwroot/img/No-Image-Placeholder.svg.png", ImageScaling.FitArea);
-                        });
+                            row.ConstantItem(90).Height(90).Element(logo =>
+                            {
+                                logo.Padding(5).Image(imagePath, ImageScaling.FitArea);
+                            });
+                        }
 
                         row.RelativeItem().AlignCenter().Column(centerCol =>
                         {
@@ -90,9 +174,10 @@ namespace GCTL.Service.FileHandler
                     column.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                 });
             }
-            
         }
 
+
+       
 
 
     }
