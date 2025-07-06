@@ -41,6 +41,8 @@ public partial class LeaveTypes
 
     public string EffectiveAfter { get; set; }
 
+    public int ? LeavePriorityId { get; set; }
+
     public int? MinimumDaysRequiredEncashement { get; set; }
 
     public int? MaximumDaysAllowedEncashement { get; set; }
