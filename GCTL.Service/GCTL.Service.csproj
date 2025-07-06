@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AttendanceManagement\EmployeeAttendence\" />
     <Folder Include="ProjectManagements\" />
   </ItemGroup>
 
