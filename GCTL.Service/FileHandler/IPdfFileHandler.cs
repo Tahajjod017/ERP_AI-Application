@@ -12,5 +12,6 @@ namespace GCTL.Service.FileHandler
     public interface IPdfFileHandler
     {
         void ComposeHeader(IContainer container, int companyId, bool showOnce = false);
+        void ComposeWatermark(IContainer container, int companyId, float opacity = 0.1f);
     }
 }
