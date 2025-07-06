@@ -64,4 +64,6 @@ public partial class LeaveApplications
     public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+    public bool? IsGroupApplication { get;  set; }
+    public int GroupApplicationID { get;  set; }
 }

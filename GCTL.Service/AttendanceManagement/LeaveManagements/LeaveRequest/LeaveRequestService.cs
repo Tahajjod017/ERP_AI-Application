@@ -586,7 +586,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                     Reason = $"Exceeded original leave – adjusted using prioritized leave type ({leaveType.LeaveTypeName})",
                                     LIP = entityVM.LIP,
                                     LMAC = entityVM.LMAC,
-                                    GroupApplicationID = sequence > 0 ? sequence : null
+                                    GroupApplicationID = sequence > 0 ? sequence : 0 // null
                                 };
 
                                 await leaveRequest.AddAsync(partialLeave);
@@ -622,7 +622,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                             Reason = $"Exceeded leave days – fallback to LWP ({lwpLeaveTypeName})",
                             LIP = entityVM.LIP,
                             LMAC = entityVM.LMAC,
-                            GroupApplicationID = sequence > 0 ? sequence : null
+                            GroupApplicationID = sequence > 0 ? sequence : 0 // null
                         };
 
                         await leaveRequest.AddAsync(lwpEntity);
