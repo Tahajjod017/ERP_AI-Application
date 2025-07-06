@@ -471,6 +471,98 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             
         }
 
+        public async Task<IEnumerable<EmployeeOfficialGetViewModel>> GetAllEmployeeOfficialDetailsAsync()
+        {
+            try
+            {
+                var empPersonals = await _employeePersonalRepository.AllActive().ToListAsync();
+                var empOfficials = await _employeeOfficialRepository.AllActive()
+                    .Include(e => e.Organization)
+                    .Include(e => e.OrganizationBranch)
+                    .Include(w => w.Department)
+                    .Include(e => e.Designation)
+                    .Include(e => e.EmployeeType)
+                    .Include(w => w.EmploymentNature)
+                    .Include(e => e.SeniorSupervisor)
+                    .Include(e => e.ImmediateSupervisor)
+                    .Include(w => w.HeadOfDepartment)
+                    .Include(e => e.EmploymentStatus)
+                    .Include(e => e.ProvisionPeriodTtimeType)
+                    .ToListAsync();
+
+                var result = from official in empOfficials
+                             join personal in empPersonals on official.EmployeeID equals personal.EmployeeID into personalGroup
+                             from personal in personalGroup.DefaultIfEmpty()
+                             select new EmployeeOfficialGetViewModel
+                             {
+                                 EmployeePersonalId = personal?.EmployeeID ?? 0,
+                                 PersonalEmail = personal?.Email ?? string.Empty,
+                                 PersonalPhone = personal?.MobileNumber ?? string.Empty,
+
+                                 EmployeeOfficeId = official.EmployeeOfficeId ?? string.Empty,
+                                 EmployeeOfficeInfoID = official.EmployeeOfficeInfoID,
+                                 OrganizationID = official.OrganizationID,
+                                 OrganizationName = official.Organization?.OrganizationName ?? string.Empty,
+
+                                 OrganizationBranchID = official.OrganizationBranchID,
+                                 OrganizationBranchName = official.OrganizationBranch?.OrganizationBranchName ?? string.Empty,
+
+                                 DepartmentID = official.DepartmentID,
+                                 DepartmentName = official.Department?.DepartmentName ?? string.Empty,
+
+                                 DesignationID = official.DesignationID,
+                                 DesignationName = official.Designation?.DesignationName ?? string.Empty,
+
+                                 EmployeeTypeID = official.EmployeeTypeID,
+                                 EmployeeTypeName = official.EmployeeType?.EmployeeTypeName ?? string.Empty,
+
+                                 EmploymentNatureID = official.EmploymentNatureID,
+                                 EmploymentNatureName = official.EmploymentNature?.EmploymentNatureName ?? string.Empty,
+
+                                 SeniorSupervisorId = official.SeniorSupervisorId,
+                                 SeniorSupervisorName = official.SeniorSupervisor != null
+                                     ? $"{official.SeniorSupervisor.FirstName} {official.SeniorSupervisor.LastName}"
+                                     : string.Empty,
+
+                                 ImmediateSupervisorId = official.ImmediateSupervisorId,
+                                 ImmediateSupervisorName = official.ImmediateSupervisor != null
+                                     ? $"{official.ImmediateSupervisor.FirstName} {official.ImmediateSupervisor.LastName}"
+                                     : string.Empty,
+
+                                 HeadOfDepartmentId = official.HeadOfDepartmentId,
+                                 HeadOfDepartmentName = official.HeadOfDepartment != null
+                                     ? $"{official.HeadOfDepartment.FirstName} {official.HeadOfDepartment.LastName}"
+                                     : string.Empty,
+
+                                 OfficePhone = official.OfficePhone ?? string.Empty,
+                                 OfficeEmail = official.OfficeEmail ?? string.Empty,
+                                 AttendanceId = official.AttendanceId ?? string.Empty,
+
+                                 EmploymentStatusId = official.EmploymentStatusId,
+                                 EmploymentStatusName = official.EmploymentStatus?.StatusName ?? string.Empty,
+
+                                 AppointmentLetterNo = official.AppointmentLetterNo ?? string.Empty,
+                                 AppointmentLetterIssueDate = official.AppointmentLetterIssueDate,
+                                 JoiningDate = official.JoiningDate,
+
+                                 ProvisionPeriodStartDate = official.ProvisionPeriodStartDate,
+                                 ProvisionPeriod = official.ProvisionPeriod,
+                                 ProvisionPeriodTtimeTypeID = official.ProvisionPeriodTtimeTypeID,
+                                 ProvisionPeriodTtimeTypeName = official.ProvisionPeriodTtimeType?.ProvisionPeriodTtimeTypeName ?? string.Empty,
+
+                                 ConfirmationDate = official.ConfirmationDate,
+                                 ConfirmationLetterNo = official.ConfirmationLetterNo ?? string.Empty,
+                                 ContractEndDate = official.ContractEndDate
+                             };
+
+                return result.ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         #endregion
 
     }

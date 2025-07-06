@@ -29,6 +29,82 @@ namespace GCTL.Service.Employees.EmployeeSalary
             _employeeBasePaymentRepository = employeeBasePaymentRepository;
         }
 
+        #region Get All Employee Salary
+
+        public async Task<IEnumerable<EmployeeSalaryGetViewModel>> GetAllEmployeeSalaryAsync()
+        {
+            try
+            {
+                var salaryData = await (
+                    from sal in _employeeSalaryRepository.AllActive()
+                    join emp in _employeeRepository.AllActive()
+                        on sal.EmployeeID equals emp.EmployeeID into empGroup
+                    from emp in empGroup.DefaultIfEmpty()
+                    select new
+                    {
+                        sal,
+                        emp
+                    }
+                ).ToListAsync();
+
+                var employeeIds = salaryData.Select(x => x.sal.EmployeeID).Distinct().ToList();
+
+                var basePayments = await _employeeBasePaymentRepository.AllActive()
+                    .Where(p => employeeIds.Contains(p.EmployeeID))
+                    .ToListAsync();
+
+                var result = salaryData.Select(data =>
+                {
+                    var empBasePayments = basePayments.Where(p => p.EmployeeID == data.sal.EmployeeID).ToList();
+
+                    return new EmployeeSalaryGetViewModel
+                    {
+                        EmployeePersonalId = data.emp?.EmployeeID ?? 0,
+                        PersonalPhone = data.emp?.MobileNumber,
+                        PersonalEmail = data.emp?.Email,
+                        EmployeeSalarySettingsID = data.sal?.EmployeeSalarySettingsID,
+                        BankName = data.sal?.BankName,
+                        BranchName = data.sal?.BranchName,
+                        AccountName = data.sal?.AccountName,
+                        AccountNo = data.sal?.AccountNo,
+                        Address = data.sal?.Address,
+                        ATMCardNo = data.sal?.ATMCardNo,
+                        RoutingNo = data.sal?.RoutingNo,
+                        SWIFTCode = data.sal?.SWIFTCode,
+                        IFSCCode = data.sal?.IFSCCode,
+                        bKashAccountNo = data.sal?.bKashAccountNo,
+                        RoketAccountNo = data.sal?.RoketAccountNo,
+                        NagodAccountNo = data.sal?.NagodAccountNo,
+                        EmployeeGID = data.sal?.EmployeeGID,
+                        GradeID = data.sal?.GradeID,
+                        Salary = data.sal?.Salary,
+                        CurrencyID = data.sal?.CurrencyID,
+                        PaymenPeriodTypeID = data.sal?.PaymenPeriodTypeID,
+                        IsBenefitsEnabled = data.sal?.IsBenefitsEnabled ?? false,
+                        IsAllowanceEnabled = data.sal?.IsAllowanceEnabled ?? false,
+                        PaymentModeIds = empBasePayments
+                            .Where(p => p.PaymentModeID.HasValue)
+                            .Select(p => p.PaymentModeID.Value)
+                            .ToList(),
+                        PrimaryPaymentModeId = empBasePayments
+                            .FirstOrDefault(p => p.IsPrimary)?.PaymentModeID,
+                        PrimaryPaymentPercent = empBasePayments
+                            .FirstOrDefault(p => p.IsPrimary)?.Percentage,
+                        SecondaryPaymentModeId = empBasePayments
+                            .FirstOrDefault(p => !p.IsPrimary)?.PaymentModeID
+                    };
+                });
+
+                return result.ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
         #region Get EmpDetails
         public async Task<EmployeeSalaryGetViewModel> GetEmployeeSalaryByEmployeeIdAsync(int employeeId)
         {
@@ -100,6 +176,11 @@ namespace GCTL.Service.Employees.EmployeeSalary
             
             return empPersonal;
         }
+
+
+
+       
+
 
         public async Task<EmployeeSalaryPostViewModel> GetEmployeeSalaryByEmployeeIdPostAsync(int employeeId)
         {

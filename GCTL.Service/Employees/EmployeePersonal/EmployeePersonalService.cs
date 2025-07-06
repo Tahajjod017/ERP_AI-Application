@@ -422,6 +422,69 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
         #endregion
 
+        #region Get All Employee Personal Info
+
+
+        public async Task<IEnumerable<EmployeePersonalGetViewModel>> GetAllEmployeePersonalAsync()
+        {
+            try
+            {
+                var employees = await _employeePersonalRepository.AllActive()
+                    .Include(e => e.Country)
+                    .Include(t => t.Gender)
+                    .Include(r => r.Religion)
+                    .Include(q => q.BloodGroup)
+                    .Include(n => n.Nationality)
+                    .Include(m => m.MaritalStatus)
+                    .Select(e => new EmployeePersonalGetViewModel
+                    {
+                        FirstName = e.FirstName,
+                        LastName = e.LastName,
+                        MobileNumber = e.MobileNumber,
+                        Email = e.Email,
+                        FatherName = e.FatherName,
+                        MotherName = e.MotherName,
+                        GenderID = e.GenderID,
+                        GenderName = e.Gender.GenderName,
+                        TIN = e.TIN,
+                        ReligionID = e.ReligionID,
+                        ReligionName = e.Religion.ReligionName,
+                        DateOfBirth = e.DateOfBirth,
+                        BirthCertificateNo = e.BirthCertificateNo,
+                        BloodGroupID = e.BloodGroupID,
+                        BloodGroupName = e.BloodGroup.BloodGroupName,
+                        NationalityID = e.NationalityID,
+                        NationalityName = e.Nationality.CountryName,
+                        Nationality = e.Country.CountryName,
+                        NID = e.NID,
+                        MaritalStatusID = e.MaritalStatusID,
+                        MaritalStatusName = e.MaritalStatus.MaritalStatusName,
+                        AboutEmployee = e.AboutEmployee,
+                        CountryID = e.CountryID,
+                        CountryName = e.Country.CountryName,
+                        State = e.State,
+                        City = e.City,
+                        HouseNo = e.HouseNo,
+                        RoadNo = e.RoadNo,
+                        PostalCode = e.PostalCode,
+                        EmployeeID = e.EmployeeID,
+                        EmployeeImageFileName = e.EmployeeImageFileName,
+                        EmployeeSignatureFileName = e.EmployeeSignatureFileName,
+                        HasUser = e.HasUser,
+                        EmployeeCode = e.EmployeeCode,
+                    })
+                    .ToListAsync();
+
+                return employees;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
 
 
 

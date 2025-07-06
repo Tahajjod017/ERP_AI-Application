@@ -2042,6 +2042,9 @@
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
             <div>
                 <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(@ViewBag.ActiveEmployee)</span></span>
+                <a class="btn btn-info mb-1" id="btnExportXL">
+                    <i class="fa fa-file-pdf text-white me-2"></i>@Html.SmartLocalize("Export Employee Report")
+                </a>
             </div>
 
 
@@ -2065,10 +2068,12 @@
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
 
             <a class="btn btn-primary mb-1" href="@Url.Action("Index", "EmployeePersonal")">
-                <i class="fa-solid fa-plus me-2"></i>Add new Employee
+                <i class="fa-solid fa-plus me-2"></i>@Html.SmartLocalize("Add new Employee")
             </a>
 
-            
+           
+
+
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div class="search-box me-3">
                     <form class="position-relative">
@@ -2078,22 +2083,22 @@
                     </form>
                 </div>
 
-               <!-- <div class="dropdown me-3">
-                    <select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="5">Show</option>
-                        <option value="10">10</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                 </div> -->
+                <!-- <div class="dropdown me-3">
+             <select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                 <option value="5">Show</option>
+                 <option value="10">10</option>
+                 <option value="50">50</option>
+                 <option value="100">100</option>
+             </select>
+          </div> -->
 
-                <div class="dropdown me-3">             
+                <div class="dropdown me-3">
                     <select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.DepartmentDD as SelectList">
                         <option value="">@Html.SmartLocalize("Select Department")</option>
                     </select>
                 </div>
 
-                
+
 
                 <div class="dropdown me-3">
                     <select class="form-select choiceDD" id="statusFilter" data-choices="data-choices" size="1" required="required"

@@ -10,5 +10,6 @@ namespace GCTL.Service.Employees.EmployeeReport
     public interface IEmployeeReportService
     {
         Task<byte[]> GenaratePDF(int id);
+        Task<byte[]> GenerateEmployeeExcelReportAsync();
     }
 }

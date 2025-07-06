@@ -2683,4 +2683,44 @@
 
     // Ensure table header is visible
     $('#employeeListTable').find('thead').show();
+
+
+
+    $('#btnExportXL').on('click', function () {
+        
+        toastr.info("Generating Excel");
+        GenarateXL();
+    });
+
+
+
 });
+
+
+//#region XL
+
+function GenarateXL() {
+    $.ajax({
+        url: '/EmployeeReport/GenerateAllEmployeeExcel',
+        type: 'POST',
+        xhrFields: {
+            responseType: 'blob' // Important for handling binary files
+        },
+        success: function (response, status, xhr) {
+            const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'AllEmployeesReport.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error generating Excel:", error);
+        }
+    });
+}
+
+
+//#endregion 
