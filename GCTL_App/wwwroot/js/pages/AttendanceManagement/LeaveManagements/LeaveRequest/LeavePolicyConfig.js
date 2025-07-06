@@ -22,6 +22,9 @@
 
         $('#EnableLeaveBalanceResetDate').prop('checked', false);
         $('#LeaveBalanceResetDate').val('').trigger('change');
+        $('input[type=radio][name=IsAllowCrossLeave][value=true]').prop('checked', true);
+
+
         initializeDatepickerDMY("LeaveBalanceResetDate");
     }
 
@@ -73,12 +76,15 @@
 
             EnableLeaveBalanceResetDate: $('#EnableLeaveBalanceResetDate').is(':checked'),
             LeaveBalanceResetDate: $('#LeaveBalanceResetDate').val() || null,
+
+            IsAllowCrossLeave: $('input[name="IsAllowCrossLeave"]:checked').val() === 'true',
+
             //
 
 
         };
 
-
+       
         $.ajax({
             url: '/LeaveSettings/LeavePolicyConfig', // Replace with your controller name
             type: 'POST',
@@ -144,6 +150,10 @@
                     if ($('#LeaveBalanceResetDate')[0]._flatpickr) {
                         $('#LeaveBalanceResetDate')[0]._flatpickr.setDate(config.leaveBalanceResetDate, true);
                     }
+
+                    $('input[name="IsAllowCrossLeave"][value="' + config.isAllowCrossLeave + '"]').prop('checked', true);
+
+
                 }
             },
             error: function () {

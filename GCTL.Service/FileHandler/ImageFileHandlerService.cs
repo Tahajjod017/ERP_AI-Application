@@ -4,14 +4,58 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SkiaSharp;
+
+
 
 
 namespace GCTL.Service.ImageFileHandler
 {
     public class ImageFileHandlerService : IImageFileHandlerService
     {
+
+
+
+        public string ApplyImageOpacity(string originalPath, float opacity)
+        {
+            if (!File.Exists(originalPath)) return null;
+
+            var folder = Path.GetDirectoryName(originalPath);
+            var fileName = Path.GetFileNameWithoutExtension(originalPath);
+            var extension = Path.GetExtension(originalPath);
+            var outputPath = Path.Combine(folder, $"{fileName}_transparent{extension}");
+
+            using (var image = Image.Load<Rgba32>(originalPath))
+            {
+                //image.Mutate(ctx =>
+                //{
+                //    ctx.DrawImage(image.Clone(x => x.Opacity(opacity)), new Point(0, 0), 1f);
+                //});
+
+                float desiredOpacity = 0.1f;        // Transparency level inside the image
+                float blendPercentage = 0.3f;       // Strength of watermark (0 = invisible, 1 = full)
+
+                // Apply watermark
+                image.Mutate(ctx =>
+                {
+                    ctx.DrawImage(
+                        image.Clone(x => x.Opacity(desiredOpacity)),
+                        new Point(0, 0),
+                        blendPercentage);
+                });
+
+
+
+                image.Save(outputPath);
+            }
+
+            return outputPath;
+        }
+
+
+
         public async Task<string> SaveFileAsync(IFormFile file, string folderName, bool saveThumb = false)
         {
             if (file == null || file.Length == 0)
@@ -89,77 +133,6 @@ namespace GCTL.Service.ImageFileHandler
         }
 
 
-        // Alternative method for saving file with stream
 
-
-        //public async Task<string> SaveFileAsyncSixLabor(IFormFile file, string folderName, bool saveThumb)
-        //{
-        //    if (file == null || file.Length == 0)
-        //        return null;
-
-        //    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folderName);
-        //    var thumbFolder = Path.Combine(uploadsFolder, "thumbs");
-        //    Directory.CreateDirectory(uploadsFolder);
-
-        //    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        //    var filePath = Path.Combine(uploadsFolder, fileName);
-
-        //    // Save original file
-        //    using (var stream = new FileStream(filePath, FileMode.Create))
-        //    {
-        //        await file.CopyToAsync(stream);
-        //    }
-
-        //    // Save thumbnail if requested
-        //    if (saveThumb)
-        //    {
-        //        Directory.CreateDirectory(thumbFolder);
-        //        var thumbPath = Path.Combine(thumbFolder, fileName);
-        //        await CreateThumbnailAsyncSixLabor(filePath, thumbPath, 100, 100);
-        //    }
-
-        //    return fileName;
-        //}
-
-        //private async Task CreateThumbnailAsyncSixLabor(string originalPath, string thumbnailPath, int width, int height)
-        //{
-        //    using var image = await Image.LoadAsync(originalPath);
-
-        //    // Resize image maintaining aspect ratio and cropping if necessary
-        //    image.Mutate(x => x
-        //        .Resize(new ResizeOptions
-        //        {
-        //            Size = new Size(width, height),
-        //            Mode = ResizeMode.Crop,
-        //            Position = AnchorPositionMode.Center
-        //        }));
-
-        //    // Save as JPEG with high quality
-        //    var encoder = new JpegEncoder
-        //    {
-        //        Quality = 85
-        //    };
-
-        //    await image.SaveAsync(thumbnailPath, encoder);
-        //}
-
-        //// Alternative method for creating thumbnail from stream
-        //private async Task CreateThumbnailFromStreamAsyncSixLabor(Stream sourceStream, string thumbnailPath, int width, int height)
-        //{
-        //    sourceStream.Position = 0; // Reset stream position
-
-        //    using var image = await Image.LoadAsync(sourceStream);
-
-        //    image.Mutate(x => x
-        //        .Resize(new ResizeOptions
-        //        {
-        //            Size = new Size(width, height),
-        //            Mode = ResizeMode.Crop,
-        //            Position = AnchorPositionMode.Center
-        //        }));
-
-        //    var encoder = new JpegEncoder { Quality = 85 };
-        //    await image.SaveAsync(thumbnailPath, encoder);
-        //}
     }
 }

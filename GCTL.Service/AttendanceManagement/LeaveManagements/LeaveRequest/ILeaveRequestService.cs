@@ -9,9 +9,11 @@ using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 {
@@ -47,8 +49,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region Dispaly LeaveDays in Modal
         Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId);
+
+        // Server side past dates allow or not 
+      
         #endregion
     }
 
-
+    
+    
 }

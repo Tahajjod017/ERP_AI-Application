@@ -49,6 +49,8 @@ public partial class LeaveTypes
 
     public int? ApplicableYear { get; set; }
 
+    public int? LeavePriorityId { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

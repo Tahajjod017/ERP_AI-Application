@@ -10,5 +10,7 @@ namespace GCTL.Service.ImageFileHandler
     public interface IImageFileHandlerService
     {
         Task<string> SaveFileAsync(IFormFile file, string folderName, bool saveThumb = false);
+
+         string ApplyImageOpacity(string originalPath, float opacity);
     }
 }

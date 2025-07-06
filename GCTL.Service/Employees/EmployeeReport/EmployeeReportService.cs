@@ -104,13 +104,20 @@ namespace GCTL.Service.Employees.EmployeeReport
                             page.DefaultTextStyle(x => x.FontFamily(Fonts.TimesNewRoman).FontSize(10));
 
 
-                           
-                            //page.Header().Element(header =>
+                            //page.Background().Element(background =>
                             //{
-                            //    _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
+                            //    _pdfFileHandlerService.ComposeWatermark(background, (int)company.OrganizationID);
                             //});
 
-                            
+
+                            page.Header().Element(header =>
+                            {
+                                _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
+                            });
+
+
+
+
 
                             // Content
                             page.Content().Column(column =>
@@ -154,8 +161,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     });
                                 });
 
-                                // Personal Information Section
-                                column.Item().PaddingTop(10).Text("Personal Information").FontSize(12).Bold();
+                                #region Personal Information Section
+
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Personal Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -205,7 +213,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddInfoRow("Passport No.", additional?.PasportNo ?? "");
                                         AddInfoRow("Driving License No.", additional?.DrivingLicenceNo ?? "");
 
-                                        AddEmptyRow();
+                                        
                                         AddInfoRow("About Employee", personal?.AboutEmployee ?? "");
                                     });
 
@@ -243,26 +251,26 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
+                                       
                                         AddInfoRow("Personal Mail ID", personal?.Email);
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
-                                        //AddEmptyRow();
+                                       
                                         AddInfoRow("Expiry Date", additional?.PasportExpireDate?.ToString("dd/MM/yyyy"));
                                         AddInfoRow("Expiry Date", additional?.DrivingLicenceExpireDate?.ToString("dd/MM/yyyy"));
                                     });
+
+                                 
+
+                                    
+
+
                                 });
 
-                                // Additional Information (Empty as in original)
+                                #endregion
+
+                                #region Additional Information (Empty as in original)
+
                                 column.Item().PaddingTop(5).Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -277,13 +285,13 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     table.Cell().Table(t => t.ColumnsDefinition(c => { c.RelativeColumn(33); c.RelativeColumn(5); c.RelativeColumn(62); }));
                                 });
 
-
+                                #endregion
 
                                 #region Salary
 
 
                                 // Salary Account Info
-                                column.Item().PaddingTop(10).Text("Salary Account Info").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Salary Account Info").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -311,9 +319,9 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                                 #endregion
 
+                                #region Work Permit Info
 
-                                // Work Permit Info
-                                column.Item().PaddingTop(10).Text("Work Permit Info").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Work Permit Info").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -363,9 +371,13 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     });
                                 });
 
+                                #endregion
+
+                                #region emergency Contact
+
                                 // Emergency Contact-1
                                 var contact1 = contact?.FirstOrDefault();
-                                column.Item().PaddingTop(10).Text("Emergency Contact-1").FontSize(11).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Emergency Contact-1").FontSize(11).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -391,10 +403,10 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         }
 
                                         AddInfoRow("Name", contact1?.ContactName);
-                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
-                                        AddInfoRow("Relationship", contact1?.Relationship);
                                         AddInfoRow("Phone", contact1?.ContactNumber);
-                                        AddInfoRow("E-mail", contact1?.ContactEmail);
+                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
+                                      
+                                        
                                     });
 
                                     table.Cell().Table(rightTable =>
@@ -420,18 +432,16 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             rightTable.Cell().Text(" ").AlignLeft();
                                         }
 
-                                        AddEmptyRow();
-                                       
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
+                                        AddInfoRow("Relationship", contact1?.Relationship);
                                         AddInfoRow("Personal Phone", contact1?.PersonalPhone);
+                                        AddInfoRow("E-mail", contact1?.ContactEmail);
+                                        
                                     });
                                 });
 
                                 // Emergency Contact-2
                                 var contact2 = contact?.Skip(1).FirstOrDefault();
-                                column.Item().PaddingTop(10).Text("Emergency Contact-2").FontSize(11).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Emergency Contact-2").FontSize(11).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -457,10 +467,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         }
 
                                         AddInfoRow("Name", contact2?.ContactName);
-                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
-                                        AddInfoRow("Relationship", contact2?.Relationship);
                                         AddInfoRow("Phone", contact2?.ContactNumber);
-                                        AddInfoRow("E-mail", contact2?.ContactEmail);
+                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
+                                      
                                     });
 
                                     table.Cell().Table(rightTable =>
@@ -486,17 +495,21 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             rightTable.Cell().Text(" ").AlignLeft();
                                         }
 
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                       
-                                        AddEmptyRow();
+                                      
+                                        AddInfoRow("Relationship", contact2?.Relationship);
                                         AddInfoRow("Personal Phone", contact2?.PersonalPhone);
+                                        AddInfoRow("E-mail", contact2?.ContactEmail);
                                     });
                                 });
 
-                                // Official Information
-                                column.Item().PaddingTop(10).Text("Official Information").FontSize(12).Bold();
+
+                                #endregion
+
+                                column.Item().PageBreak();
+
+                                #region Official Information
+
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Official Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -509,9 +522,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         leftTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.ConstantColumn(83);
+                                            columns.ConstantColumn(98);
                                             columns.ConstantColumn(6);
-                                            columns.ConstantColumn(150);
+                                            columns.ConstantColumn(135);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -533,7 +546,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddInfoRow("Official Phone", official?.OfficePhone);
                                         AddInfoRow("Appointment Date", official?.AppointmentLetterIssueDate?.ToString("dd/MM/yyyy"));
                                         AddInfoRow("Probation Period", official?.ProvisionPeriod.ToString());
-                                        AddInfoRow("Probation End Date", official?.ProvisionPeriodStartDate?.ToString("dd/MM/yyyy"));
+                                       
                                         AddInfoRow("Contract End Date", official?.ContractEndDate?.ToString("dd/MM/yyyy"));
                                     });
 
@@ -541,9 +554,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                     {
                                         rightTable.ColumnsDefinition(columns =>
                                         {
-                                            columns.ConstantColumn(78);
+                                            columns.ConstantColumn(93);
                                             columns.ConstantColumn(6);
-                                            columns.ConstantColumn(150);
+                                            columns.ConstantColumn(125);
                                         });
 
                                         void AddInfoRow(string label, string value)
@@ -568,28 +581,28 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
+                                      
+                                       
                                         AddInfoRow("Mode of Payment", salary?.PrimaryPaymentModeId.ToString());
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
+                                      
                                         AddInfoRow("Head of Department", official?.HeadOfDepartmentId.ToString());
                                         AddInfoRow("Official Email", official?.OfficeEmail);
                                         AddInfoRow("Joining Date", official?.JoiningDate?.ToString("dd/MM/yyyy"));
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
-                                        AddEmptyRow();
+                                        AddInfoRow("Probation Start Date", official?.ProvisionPeriodStartDate?.ToString("dd/MM/yyyy"));
+                                       
+                                      
+                                    
                                         AddInfoRow("Confirmation Date", official?.ConfirmationDate?.ToString("dd/MM/yyyy"));
                                     });
                                 });
 
 
+                                #endregion
+
                                 #region Family
 
                                 // Family Information
-                                column.Item().PaddingTop(10).Text("Family Information").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Family Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -620,18 +633,18 @@ namespace GCTL.Service.Employees.EmployeeReport
                                 #region Education
 
                                 // Educational Information
-                                column.Item().PaddingTop(10).Text("Educational Information").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Educational Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
                                     {
                                         columns.RelativeColumn(17);
                                         columns.RelativeColumn(15);
-                                        columns.RelativeColumn(20);
+                                        columns.RelativeColumn(21);
                                         columns.RelativeColumn(18);
                                         columns.RelativeColumn(8);
-                                        columns.RelativeColumn(10);
-                                        columns.RelativeColumn(7);
+                                        columns.RelativeColumn(8);
+                                        columns.RelativeColumn(8);
                                     });
                                     table.Header(header =>
                                     {
@@ -661,18 +674,18 @@ namespace GCTL.Service.Employees.EmployeeReport
                                 #region Training
 
                                 // Training Information
-                                column.Item().PaddingTop(10).Text("Training Information").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Training Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
                                     {
                                         columns.RelativeColumn(12);
                                         columns.RelativeColumn(18);
-                                        columns.RelativeColumn(20);
-                                        columns.RelativeColumn(15);
-                                        columns.RelativeColumn(7);
-                                        columns.RelativeColumn(8);
-                                        columns.RelativeColumn(10);
+                                        columns.RelativeColumn(22);
+                                        columns.RelativeColumn(14);
+                                        columns.RelativeColumn(9);
+                                        columns.RelativeColumn(9);
+                                        columns.RelativeColumn(6);
                                     });
                                     table.Header(header =>
                                     {
@@ -699,9 +712,11 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                                 #endregion
 
+                                column.Item().PageBreak();
+
                                 #region ALlowance
                                 // Allowance Information
-                                column.Item().PaddingTop(10).Text("Allowance Information").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Allowance Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -761,7 +776,7 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                                 #region Benifit
                                 // Benefits Information
-                                column.Item().PaddingTop(10).Text("Benefits Information").FontSize(12).Bold();
+                                column.Item().PaddingTop(10).PaddingBottom(5).Text("Benefits Information").FontSize(12).Bold().Underline().DecorationDotted().DecorationThickness(1);
                                 column.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
@@ -840,7 +855,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        AddInfoRow("Personal Mail ID", personal?.Email);
+                                        AddInfoRow("Employee's Signature", !string.IsNullOrEmpty(personal?.EmployeeSignatureFileName) ? "[Signature]" : "_______________________________");
+                                        AddInfoRow("Date", DateTime.Now.ToString("dd/MM/yyyy"));
+                                       
                                     });
 
                                     table.Cell().Table(rightTable =>
@@ -859,8 +876,18 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             rightTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Employee's Signature", !string.IsNullOrEmpty(personal?.EmployeeSignatureFileName) ? "[Signature]" : "_______________________________");
-                                        AddInfoRow("Date", DateTime.Now.ToString("dd/MM/yyyy"));
+                                        void AddEmptyRow()
+                                        {
+                                            rightTable.Cell().Text(" ").AlignLeft();
+                                            rightTable.Cell().Text(" ").AlignCenter();
+                                            rightTable.Cell().Text(" ").AlignLeft();
+                                        }
+
+                                        AddInfoRow("Personal Mail ID", personal?.Email);
+                                        AddEmptyRow();
+                                        AddEmptyRow();
+                                        AddEmptyRow();
+                                        AddEmptyRow();
                                         AddInfoRow("Verified By", "HR Department");
                                         AddInfoRow("Signature", "_______________________________");
                                         AddInfoRow("Date", DateTime.Now.ToString("dd/MM/yyyy"));
