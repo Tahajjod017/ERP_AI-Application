@@ -24,9 +24,7 @@ public partial class LeaveApplications
     public int? StatusID { get; set; }
 
     public int? LeaveTypeID { get; set; }
-    public int? GroupApplicationID { get; set; }
-    public bool? IsGroupApplication { get; set; }
-
+    
     public string LIP { get; set; }
 
     public string LMAC { get; set; }
@@ -54,10 +52,6 @@ public partial class LeaveApplications
 
     public virtual Employees Employee { get; set; }
 
-    public bool? IsGroupApplication { get; set; }
-
-    public int? GroupApplicationID { get; set; }
-    
      public virtual LeaveApplications GroupApplication { get; set; }
 
      public virtual ICollection<LeaveApplications> InverseGroupApplication { get; set; } = new List<LeaveApplications>();
