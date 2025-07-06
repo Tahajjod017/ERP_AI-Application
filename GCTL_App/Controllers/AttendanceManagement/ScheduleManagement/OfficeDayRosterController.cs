@@ -126,12 +126,23 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        public async Task<IActionResult> GetAll(
+    int pageNumber = 1,
+    int pageSize = 5,
+    string searchTerm = "",
+    string sortColumn = "RosterInOfficeDayID",
+    string sortOrder = "desc",
+    int daysToShow = 7,
+    DateTime? startDate = null
+)
         {
-            var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+            var start = startDate ?? DateTime.Today; // default to today if not provided
 
-            var startDate = DateTime.Today;
-            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+            // Pass start date to service
+            var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, start);
+
+            // Generate header dates based on provided start date
+            var dateList = Enumerable.Range(0, daysToShow).Select(offset => start.AddDays(offset)).ToList();
 
             return Json(new
             {
@@ -142,34 +153,84 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                     date = date.ToString("dd MMM yyyy")
                 }).ToList()
             });
+        }
 
-            //return Json(result);
+
+        //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        //{
+        //    var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+
+        //    var startDate = DateTime.Today;
+        //    var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+
+        //    return Json(new
+        //    {
+        //        result,
+        //        headers = dateList.Select(date => new
+        //        {
+        //            day = date.ToString("ddd"),
+        //            date = date.ToString("dd MMM yyyy")
+        //        }).ToList()
+        //    });
+
+        //    //return Json(result);
+        //}
+        #endregion
+
+
+        #region UpdateEmpShiftAsync
+        //[Permission("Edit", "OfficeDayRoster")]
+        [ValidateAntiForgeryToken]
+        [Route("OfficeDayRosterRoute/UpdateEmpShiftAsync")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
+        {
+            try
+            {
+                if(model.RosterInOfficeDayID == null || model.RosterInOfficeDayID == 0)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
+
+                var result = await _assignDefaultShiftService.UpdateEmpShiftAsync(model);
+
+                if(result == false)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
+
+                return Json(new { isSuccess = true, message = "Updated Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
 
 
         #region Delete
-        public async Task<IActionResult> Delete(RosterDelVM model)
-        {
-            try
-            {
-                if(model.Id == null || model.Id == 0)
-                {
-                    return Json(new { isSuccess = false, message = "Something went wrong!" });
-                }
+        //public async Task<IActionResult> Delete(RosterDelVM model)
+        //{
+        //    try
+        //    {
+        //        if(model.Id == null || model.Id == 0)
+        //        {
+        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
+        //        }
 
-                var result = await _assignDefaultShiftService.SoftDeleteAsync(model);
-                if(result == null)
-                {
-                    return Json(new { isSuccess = false, message = "Something went wrong!" });
-                }
-                return Json(new { isSuccess = true, message = "Deleted Successfully." });
-            }
-            catch(Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
+        //        var result = await _assignDefaultShiftService.SoftDeleteAsync(model);
+        //        if(result == null)
+        //        {
+        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
+        //        }
+        //        return Json(new { isSuccess = true, message = "Deleted Successfully." });
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
         #endregion
 
 

@@ -38,7 +38,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
 
     public class RosterDelVM : BaseViewModel
     {
-        //public List<int> Ids { get; set; } = new List<int>();
         public int? Id { get; set; }
         public DateTime? OverrideDate { get; set; }
     }

@@ -16,6 +16,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
 
         public int? ShiftID { get; set; }
 
+        public string? ShiftName { get; set; }
+
+        public string? TimeRange { get; set; }
+
         public virtual RosterInOfficeDaysSetupVM? RosterInOfficeDaysSetupVM { get; set; }
     }
 }
