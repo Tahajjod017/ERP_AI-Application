@@ -55,7 +55,9 @@ public partial class LeaveApplications
 
     public virtual Employees Employee { get; set; }
 
-    public virtual LeaveApplications GroupApplication { get; set; }
+
+     public virtual LeaveApplications GroupApplication { get; set; }
+
 
     public virtual ICollection<LeaveApplications> InverseGroupApplication { get; set; } = new List<LeaveApplications>();
 
