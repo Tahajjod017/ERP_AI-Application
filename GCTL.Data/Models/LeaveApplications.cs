@@ -46,17 +46,11 @@ public partial class LeaveApplications
     public string Reason { get; set; }
 
     public int? LeaveApplicableYear { get; set; }
-    public bool? IsGroupApplication { get; set; }
-    public int? GroupApplicationID { get; set; }
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
-
-    public bool? IsGroupApplication { get; set; }
-
-    public int? GroupApplicationID { get; set; }
     
      public virtual LeaveApplications GroupApplication { get; set; }
 

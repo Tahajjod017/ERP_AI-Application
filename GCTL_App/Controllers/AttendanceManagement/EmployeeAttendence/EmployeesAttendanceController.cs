@@ -21,6 +21,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             }
             // user profile
             SetUserProfile();
+            // Get the current time from the server
+            var serverTime = DateTime.Now.ToString("hh:mm tt, dd MMM yyyy");
+
+            // Pass the current time to the view
+            ViewData["CurrentTime"] = serverTime;
 
             return View();
         }
