@@ -352,82 +352,81 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             try
             {
 
-
+                var leavStatusApproved = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%APPROVED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
+                var leavStatusDecline = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%DECLINEED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
+                int statusId = entityVM.Approved ? leavStatusApproved : entityVM.Declined ? leavStatusDecline : 0;
+                if (statusId == 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Approval or Decline must be selected."
+                    };
+                }
+                var leaveBalanceSave = await leaveBalance.AllActive().Select(x => new { x.LeaveTypeID, x.EmployeeID, x.TotalLeave, x.Taken, x.ApplicableYear }).ToListAsync();
+                //
                 var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
                 if (entity == null)
                     return null;
-                var leavStatusApproved = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%APPROVED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
-                var leavStatusDecline = await status.AllActive().Where(x => EF.Functions.Like(x.StatusName, "%DECLINEED%")).Select(x => x.StatusID).FirstOrDefaultAsync();
-                var leaveBalanceSave = await leaveBalance.AllActive().Select(x=> new {x.LeaveTypeID, x.EmployeeID,x.TotalLeave,x.Taken,x.ApplicableYear}).ToListAsync();
 
-                    entity.IsFullDay = entityVM.IsFullDayEdit;
-                    if (entityVM.IsFullDayEdit)
-                    {
-                        entity.FromDate = entityVM.FromDateEdit ?? default;
-                        entity.ToDate = entityVM.ToDateEdit ?? default;
-
-                        // Clear partial day data
-                        entity.PartialFromTime = null;
-                        entity.PartialToTime = null;
-                    }
-                    else
-                    {
-                        if (entityVM.ToDateFromDateCombinedEdit.HasValue)
-                        {
-                            var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
-                            entity.FromDate = dateOnly;
-                            entity.ToDate = dateOnly;
-                        }
-
-                        entity.PartialFromTime = entityVM.PartialFromTimeEdit;
-                        entity.PartialToTime = entityVM.PartialToTimeEdit;
-                    }
-                   
-                if (entityVM.Approved)
+                // Update full-day or partial-day fields
+                entity.IsFullDay = entityVM.IsFullDayEdit;
+                if (entityVM.IsFullDayEdit)
                 {
+                    entity.FromDate = entityVM.FromDateEdit ?? default;
+                    entity.ToDate = entityVM.ToDateEdit ?? default;
+                    entity.PartialFromTime = null;
+                    entity.PartialToTime = null;
+                }
+                else
+                {
+                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                    {
+                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                        entity.FromDate = dateOnly;
+                        entity.ToDate = dateOnly;
+                    }
 
-                    entity.StatusID = leavStatusApproved;
-                    //var applicableYear = entity.FromDate.Year;
+                    entity.PartialFromTime = entityVM.PartialFromTimeEdit;
+                    entity.PartialToTime = entityVM.PartialToTimeEdit;
+                }
 
-                    // 1) Fetch default total for this leave type
+                
+                entity.StatusID = statusId;
+                // If approved, update or insert leave balance
+                if (statusId == leavStatusApproved)
+                {
                     var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
                         .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
-                        .Select(x => new
-                        {
-                            x.LeaveDays,
-                            x.ApplicableYear
-                        })
+                        .Select(x => new { x.LeaveDays, x.ApplicableYear })
                         .FirstOrDefaultAsync();
 
-                    // 2) Try to get an existing balance row
                     var existingBalance = await leaveBalance.AllActive()
                         .FirstOrDefaultAsync(x =>
                             x.EmployeeID == entityVM.EmployeeIDEdit &&
-                            x.LeaveTypeID == entityVM.LeaveTypeIDEdit
-                        );
+                            x.LeaveTypeID == entityVM.LeaveTypeIDEdit);
 
                     if (existingBalance != null)
                     {
-                        // 3a) Update the existing record
                         existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
                         existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
-                         existingBalance.ApplicableYear= leaveDaysFromConfig.ApplicableYear;
-                        existingBalance.LMAC = entityVM.LMAC;
+                        existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                         existingBalance.LIP = entityVM.LIP;
+                        existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.UpdatedAt = DateTime.Now;
                         existingBalance.UpdatedBy = entityVM.UpdatedBy;
-                      await leaveBalance.UpdateAsync(existingBalance);
+
+                        await leaveBalance.UpdateAsync(existingBalance);
                     }
                     else
                     {
-                        // 3b) Create a brand‐new record
                         var newBalance = new LeaveBalances
                         {
                             EmployeeID = entityVM.EmployeeIDEdit,
                             LeaveTypeID = entityVM.LeaveTypeIDEdit,
                             Taken = entityVM.TotalAppliedDays,
                             TotalLeave = leaveDaysFromConfig.LeaveDays,
-                            ApplicableYear=leaveDaysFromConfig.ApplicableYear,
+                            ApplicableYear = leaveDaysFromConfig.ApplicableYear,
                             CreatedAt = DateTime.Now,
                             CreatedBy = entityVM.CreatedBy,
                             LIP = entityVM.LIP,
@@ -436,30 +435,32 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                         await leaveBalance.AddAsync(newBalance);
                     }
-
-                } else if(entityVM.Declined)
-                {   
-                    entity.StatusID = leavStatusDecline;
                 }
 
-                var leaveBase = new LeaveBaseApprovalHistory
-                {
-                    LeaveApplicationID = entityVM.LeaveApplicationID,
-                   // StatusID = entityVM.,
-                   // Taken = entityVM.TotalAppliedDays,
-                    ApproverNote = entityVM.ApprovalNote,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = entityVM.CreatedBy,
-                    LIP = entityVM.LIP,
-                    LMAC = entityVM.LMAC
-                };
-                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
-
+                // Common metadata update
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = entityVM.UpdatedBy;
+
                 await leaveRequest.UpdateAsync(entity);
+
+                //
+
+                // LeaveBaseApprovalHistory
+                var leaveBase = new LeaveBaseApprovalHistory
+                {
+                    LeaveApplicationID = entityVM.LeaveApplicationID,
+                    StatusID = statusId,
+                    ApproverNote = entityVM.ApprovalNote,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = entityVM.CreatedBy,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+
+                };
+                await leaveBaseAprovalHistory.AddAsync(leaveBase);
+                //
                 //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 await leaveRequest.CommitTransactionAsync();
 

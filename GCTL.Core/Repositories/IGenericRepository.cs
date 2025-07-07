@@ -12,7 +12,7 @@ namespace GCTL.Core.Repository
         IQueryable<T> AllActive();
         IQueryable<T> Find(Expression<Func<T, bool>> expression);
         Task<List<T>> FindAsync(Expression<Func<T, bool>> expression);
-        //Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         #endregion
 
 

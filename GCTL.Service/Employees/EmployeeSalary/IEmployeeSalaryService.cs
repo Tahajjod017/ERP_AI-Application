@@ -1,11 +1,13 @@
 ﻿
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.Employee.EmployeeOfficial;
 using GCTL.Core.ViewModels.Employee.EmployeeSalary;
 
 namespace GCTL.Service.Employees.EmployeeSalary
 {
     public interface IEmployeeSalaryService
     {
+        Task<IEnumerable<EmployeeSalaryGetViewModel>> GetAllEmployeeSalaryAsync();
         Task<EmployeeSalaryGetViewModel> GetEmployeeSalaryByEmployeeIdAsync(int employeeId);
         Task<EmployeeSalaryPostViewModel> GetEmployeeSalaryByEmployeeIdPostAsync(int employeeId);
         

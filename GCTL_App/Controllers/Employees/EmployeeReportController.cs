@@ -21,5 +21,22 @@ namespace GCTL_App.Controllers.Employees
             var pdfBytes = await _employeeReportService.GenaratePDF(id);
             return File(pdfBytes, "application/pdf", $"Employee_{id}.pdf");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateAllEmployeeExcel()
+        {
+            try
+            {
+                var excelBytes = await _employeeReportService.GenerateEmployeeExcelReportAsync();
+                var fileName = $"Employee_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (e.g., using ILogger)
+                return StatusCode(500, "Error generating Excel report: " + ex.Message);
+            }
+        }
     }
 }
