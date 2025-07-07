@@ -16,6 +16,6 @@ namespace GCTL.Service.Employees.EmployeeOfficial
         Task<CommonReturnViewModel> CheckValidEmployeeInfo(EmployeeOfficialPostViewModel model);
         Task<EmployeeOfficialPostViewModel> GetEmployeeOfficalDetails(int id);
         Task<EmployeeOfficialGetViewModel> GetFullEmployeeOfficalDetails(int id);
-        Task<IEnumerable<EmployeeOfficialGetViewModel>> GetAllEmployeeOfficialDetailsAsync();
+        Task<IEnumerable<EmployeeOfficialGetViewModel>> GetAllEmployeeOfficialDetailsByCompanyAsync(int compId);
     }
 }

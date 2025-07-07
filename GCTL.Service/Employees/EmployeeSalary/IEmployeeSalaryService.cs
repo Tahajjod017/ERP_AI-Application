@@ -7,7 +7,7 @@ namespace GCTL.Service.Employees.EmployeeSalary
 {
     public interface IEmployeeSalaryService
     {
-        Task<IEnumerable<EmployeeSalaryGetViewModel>> GetAllEmployeeSalaryAsync();
+        Task<IEnumerable<EmployeeSalaryGetViewModel>> GetAllEmployeeSalaryByComapnyAsync(int compId);
         Task<EmployeeSalaryGetViewModel> GetEmployeeSalaryByEmployeeIdAsync(int employeeId);
         Task<EmployeeSalaryPostViewModel> GetEmployeeSalaryByEmployeeIdPostAsync(int employeeId);
         

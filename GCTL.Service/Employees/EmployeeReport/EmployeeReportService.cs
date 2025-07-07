@@ -50,10 +50,11 @@ namespace GCTL.Service.Employees.EmployeeReport
         private readonly IEmployeeTrainingService _employeeTrainingService;
         private readonly IPdfFileHandler _pdfFileHandlerService;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficialRepository;
+        private readonly IGenericRepository<Organization> _organizationRepository;
 
 
 
-        public EmployeeReportService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IPdfFileHandler pdfFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository)
+        public EmployeeReportService(IEmployeeAdditionalService employeeAdditionalService, IEmployeeAllowanceService employeeAllowanceService, IEmployeeBenifitService employeeBenifitService, IEmployeeContactService employeeContactService, IEmployeeEducationalService employeeEducationalService, IEmployeeFamilyService employeeFamilyService, IEmployeeOfficialService employeeOfficialService, IEmployeePersonalService employeePersonalService, IEmployeeSalaryService employeeSalaryService, IEmployeeTrainingService employeeTrainingService, IPdfFileHandler pdfFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Organization> organizationRepository)
         {
             _employeeAdditionalService = employeeAdditionalService;
             _employeeAllowanceService = employeeAllowanceService;
@@ -67,6 +68,7 @@ namespace GCTL.Service.Employees.EmployeeReport
             _employeeTrainingService = employeeTrainingService;
             _pdfFileHandlerService = pdfFileHandlerService;
             _employeeOfficialRepository = employeeOfficialRepository;
+            _organizationRepository = organizationRepository;
         }
 
         public async Task<byte[]> GenaratePDF(int id)
@@ -932,6 +934,14 @@ namespace GCTL.Service.Employees.EmployeeReport
             
             ExcelPackage.License.SetNonCommercialOrganization("GCTL");
 
+            int compId = 1; 
+
+            // Fetch data
+            var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsByCompanyAsync(compId);
+            var personalData = await _employeePersonalService.GetAllEmployeePersonalByCompanyAsync(compId);
+            var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryByComapnyAsync(compId);
+
+            var company = await _organizationRepository.AllActive().Where(e=>e.OrganizationID == compId).FirstOrDefaultAsync();
 
 
             using (var package = new ExcelPackage())
@@ -940,13 +950,13 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                 // Title
                 worksheet.Cells[1, 1, 1, 9].Merge = true;
-                worksheet.Cells[1, 1].Value = "ABC Corporation";
+                worksheet.Cells[1, 1].Value = company.OrganizationName ?? "";
                 worksheet.Cells[1, 1].Style.Font.Size = 14;
                 worksheet.Cells[1, 1].Style.Font.Bold = true;
                 worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                 worksheet.Cells[2, 1, 2, 9].Merge = true;
-                worksheet.Cells[2, 1].Value = "123 Business Street, City, Country";
+                worksheet.Cells[2, 1].Value = company.Address ?? ""; ;
                 worksheet.Cells[2, 1].Style.Font.Size = 12;
                 worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
@@ -955,10 +965,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                 worksheet.Cells[3, 1].Style.Font.Size = 10;
                 worksheet.Cells[3, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                // Fetch data
-                var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsAsync();
-                var personalData = await _employeePersonalService.GetAllEmployeePersonalAsync();
-                var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryAsync();
+               
 
                 var employees = officialData.Select(o => new
                 {
@@ -1055,9 +1062,9 @@ namespace GCTL.Service.Employees.EmployeeReport
 
             //using (var package = new ExcelPackage())
             //{
-            //    var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsAsync();
-            //    var personalData = await _employeePersonalService.GetAllEmployeePersonalAsync();
-            //    var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryAsync();
+            //    var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsByCompanyAsync();
+            //    var personalData = await _employeePersonalService.GetAllEmployeePersonalByCompanyAsync();
+            //    var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryByComapnyAsync();
 
             //    var employees = officialData.Select(o => new
             //    {
