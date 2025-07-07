@@ -193,11 +193,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         [HttpGet]
         [Route("LeaveRequest/SubsequentLeaveCount")]
-        public async Task<IActionResult> SubsequentLeaveCount(DateTime fromDate,DateTime toDate)
+        public async Task<IActionResult> SubsequentLeaveCount(int employeeId, DateTime fromDate,DateTime toDate)
         {
             try
             {
-                var data = await leaveRequestService.SubsequentAsynce(fromDate, toDate);
+                var data = await leaveRequestService.SubsequentAsynceWithRestriction(employeeId,fromDate, toDate);
                 return Json(data);
             }
             catch (Exception)
