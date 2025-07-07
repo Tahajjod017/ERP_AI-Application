@@ -291,7 +291,7 @@ $(document).ready(function () {
     //        success: function (data) {
     //            if (data.length > 0) {
     //                const policy = data[0];
-    //                debugger
+                   
     //                // Set the message based on weekend/holiday
     //                if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
     //                    $('#SubsequentHolydayDays').val('');
@@ -316,7 +316,7 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.length > 0) {
                     const policy = data[0];
-                    debugger;
+                 
 
                     // Set message for holidays/weekends
                     if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
