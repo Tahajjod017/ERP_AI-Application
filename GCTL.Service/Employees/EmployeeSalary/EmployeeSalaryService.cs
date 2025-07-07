@@ -29,9 +29,9 @@ namespace GCTL.Service.Employees.EmployeeSalary
             _employeeBasePaymentRepository = employeeBasePaymentRepository;
         }
 
-        #region Get All Employee Salary
+        #region Get All Employee Salary By Company
 
-        public async Task<IEnumerable<EmployeeSalaryGetViewModel>> GetAllEmployeeSalaryAsync()
+        public async Task<IEnumerable<EmployeeSalaryGetViewModel>> GetAllEmployeeSalaryByComapnyAsync( int compId)
         {
             try
             {

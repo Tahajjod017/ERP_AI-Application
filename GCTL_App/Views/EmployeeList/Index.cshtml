@@ -2042,19 +2042,47 @@
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
             <div>
                 <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(@ViewBag.ActiveEmployee)</span></span>
-                <a class="btn btn-info mb-1" id="btnExportXL">
+                @*<a class="btn btn-info mb-1" id="btnExportXL">
                     <i class="fa fa-file-pdf text-white me-2"></i>@Html.SmartLocalize("Export Employee Report")
-                </a>
+                </a>*@
+
+                @*<div class="col-auto text-end">
+                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                     
+                    </div>
+                </div>*@
+
             </div>
 
 
             <div>
+                <a class="btn btn-primary mb-1" href="@Url.Action("Index", "EmployeePersonal")">
+                    <i class="fa-solid fa-plus me-2"></i>@Html.SmartLocalize("Add new Employee")
+                </a>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-phoenix-secondary dropdown-toggle me-3" data-bs-toggle="dropdown" aria-expanded="false">
+                        Export <i class="fa-solid fa-file-export"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" id="btnExportXL"><span data-feather="download"></span>PDF</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="btnExportXL"> <span data-feather="download"></span>Excel </a>
+
+                        </li>
+
+                    </ul>
+                </div>
                 <a class="btn btn-phoenix-primary px-3 me-1 view-toggle" id="listViewBtn" href="#">
                     <span class="fa-solid far fa-list-alt fs-10"></span>
                 </a>
                 <a class="btn btn-phoenix-primary px-3 me-1 view-toggle active" id="boardViewBtn" href="#">
                     <span class="fa-solid fab fa-wpforms fs-10"></span>
                 </a>
+
+
+
             </div>
 
 
@@ -2067,11 +2095,16 @@
 
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
 
-            <a class="btn btn-primary mb-1" href="@Url.Action("Index", "EmployeePersonal")">
-                <i class="fa-solid fa-plus me-2"></i>@Html.SmartLocalize("Add new Employee")
-            </a>
 
-           
+            <div class="dropdown me-3">
+                <select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="5">Show</option>
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+
 
 
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
@@ -2083,14 +2116,14 @@
                     </form>
                 </div>
 
-                <!-- <div class="dropdown me-3">
-             <select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                 <option value="5">Show</option>
-                 <option value="10">10</option>
-                 <option value="50">50</option>
-                 <option value="100">100</option>
-             </select>
-          </div> -->
+
+
+
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.CompanyDD as SelectList">
+                        <option value="">@Html.SmartLocalize("Select Company")</option>
+                    </select>
+                </div>
 
                 <div class="dropdown me-3">
                     <select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.DepartmentDD as SelectList">
