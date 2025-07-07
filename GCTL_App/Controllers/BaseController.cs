@@ -86,6 +86,23 @@ namespace GCTL_App.Controllers
 
             return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/";
         }
+        // New method to get the current EmployeeID
+        protected async Task<int?> GetCurrentEmployeeIdAsync()
+        {
+            int? currentEmployeeId = null;
+
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    // Fetch current employee ID using IUserProfileService
+                    currentEmployeeId = await _userProfileService.GetCurrentEmployeeIdAsync(userId);
+                }
+            }
+
+            return currentEmployeeId;
+        }
 
     }
 
