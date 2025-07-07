@@ -249,6 +249,8 @@ public partial class Employees
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoDeletedByNavigation { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoEmployee { get; set; } = new List<EmployeeOfficeInfo>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoHeadOfDepartment { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoImmediateSupervisor { get; set; } = new List<EmployeeOfficeInfo>();
@@ -416,6 +418,12 @@ public partial class Employees
     public virtual ICollection<Religions> ReligionsDeletedByNavigation { get; set; } = new List<Religions>();
 
     public virtual ICollection<Religions> ReligionsUpdatedByNavigation { get; set; } = new List<Religions>();
+
+    public virtual ICollection<ReportContent> ReportContentCreatedByNavigation { get; set; } = new List<ReportContent>();
+
+    public virtual ICollection<ReportContent> ReportContentDeletedByNavigation { get; set; } = new List<ReportContent>();
+
+    public virtual ICollection<ReportContent> ReportContentUpdatedByNavigation { get; set; } = new List<ReportContent>();
 
     public virtual ICollection<ResultTypes> ResultTypesCreatedByNavigation { get; set; } = new List<ResultTypes>();
 

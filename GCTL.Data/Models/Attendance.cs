@@ -47,6 +47,8 @@ public partial class Attendance
 
     public decimal? EarlyHour { get; set; }
 
+    public decimal? WorkingHour { get; set; }
+
     public virtual ICollection<AttendanceLog> AttendanceLog { get; set; } = new List<AttendanceLog>();
 
     public virtual Employees CreatedByNavigation { get; set; }
