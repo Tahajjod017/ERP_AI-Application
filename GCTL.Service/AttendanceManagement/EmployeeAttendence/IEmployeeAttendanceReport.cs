@@ -14,6 +14,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
     {
         Task<PaginationService<Attendance, EmployeeAttendenceVM>.PaginationResult<EmployeeAttendenceVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, int? employeeId = null);
+        Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int employeeId);
+        Task<double> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId);
 
     }
 }

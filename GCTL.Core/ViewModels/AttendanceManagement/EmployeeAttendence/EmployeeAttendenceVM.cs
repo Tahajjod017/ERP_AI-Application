@@ -35,5 +35,11 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? EarlyHour { get; set; }
         public string? Break { get; set; }
         public string? WorkingHours { get; set; }
+        public string? TotalWorkingHours { get; set; }
+        public string? CurrentTime { get; set; }
+
+        // Add the following fields:
+        public string? ProductionTime { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
+        public string? Overtime { get; set; }        // Calculated overtime if the production time exceeds working hours
     }
 }
