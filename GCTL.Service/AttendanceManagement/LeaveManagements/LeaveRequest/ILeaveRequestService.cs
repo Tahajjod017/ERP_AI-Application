@@ -34,6 +34,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #region Get Leavepolicy as count or else
         Task<List<GetLeavePolicyConfigurationVM>> GetLeavePolicyIsCountAsync();
         Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate);
+        Task<SubsequentWithRestrictionVM> SubsequentAsynceWithRestriction(int employeeId, DateTime fromDate, DateTime toDate);
         #endregion
 
         #region Filtering Company Department Employee
