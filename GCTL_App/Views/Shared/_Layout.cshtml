@@ -64,6 +64,30 @@
             overflow-y: auto;
         }
 
+        /* Calendar Start */
+        .flatpickr-calendar {
+            background-color: #fff !important;
+        }
+
+        span.flatpickr-weekday, .flatpickr-weekdaycontainer, .flatpickr-months .flatpickr-month {
+            background-color: #fff !important;
+            color: var(--phoenix-body-color) !important;
+        }
+
+            .flatpickr-months .flatpickr-month .flatpickr-current-month {
+                background-color: #fff !important;
+                font-size: 1.5625rem;
+            }
+
+                .flatpickr-months .flatpickr-month .flatpickr-current-month .flatpickr-monthDropdown-months {
+                    font-weight: 700;
+                    background-color: rgba(0, 0, 0, 0);
+                    color: #141824;
+                    /* font-size: large; */
+                }
+
+        /* Calendar End */
+
         .date-input {
             width: 100%;
             border: 1px solid #ddd;
@@ -77,6 +101,7 @@
             display: none !important;
         }
     </style>
+    @RenderSection("Styles", required: false)
 </head>
 
 <body>
