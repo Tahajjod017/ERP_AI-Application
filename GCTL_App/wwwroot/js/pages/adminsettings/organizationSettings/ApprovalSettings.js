@@ -118,13 +118,81 @@ $(document).ready(function () {
 });
 
 
+// delete 
+$(document).on('click', '#approvalSettingsDelete-singleDelBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/ApprovalSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
+//$(document).on('click', '#approvalSettingsDelete-single-delete', function () {
 
+//    var id = $(this).data('id');
+//    alert(id)
+//    if (id) {
+//        showDeleteModal(function () {
+//            $.ajax({
+//                url: '/ApprovalSettings/SoftDelete',
+//                method: 'POST',
+//                data: { ids: [id] },
+//                success: function (response) {
+//                    if (response.isSuccess) {
+//                        toastr.success(response.message);
+//                        $("#approvalSettings-check-all").prop('checked', false);
+//                        clear();
+//                    } else {
+//                        toastr.error(response.message);
+//                    }
+//                },
+//                error: function () {
+//                    toastr.error("Error occurred while deleting.");
+//                }
+//            });
+//        });
+//    } else {
+//        toastr.error("Invalid action.");
+//    }
+//});
+
+//edit
+$(document).on('click', '#edit_approval_settingBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#edit_approval_setting').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 var currentPage = 1;
 var pageSize = 5;
 
-$('#addHolidayConfig-pageSizeSelect').on('change', function () {
+$('#approvalSettings-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -298,16 +366,3 @@ $(document).on('click', '.page-btn', function () {
     loadTableData();
 });
 
-// delete 
-$(document).on('click', '#approvalSettingsDelete-singleDelBtn', function () {
-    var approvalSettingID = $(this).data('id');
-    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
-    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
-});
-
-//edit
-$(document).on('click', '#edit_approval_settingBtn', function () {
-    var approvalSettingID = $(this).data('id');
-    $('#edit_approval_setting').modal('show'); // Show the delete confirmation modal
-    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
-});
