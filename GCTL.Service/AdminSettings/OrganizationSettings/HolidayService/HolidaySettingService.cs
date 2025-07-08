@@ -223,7 +223,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<HolidayViewModel>>(JsonConvert.SerializeObject(data));
+                //var beforeEntity = JsonConvert.DeserializeObject<List<HolidayViewModel>>(JsonConvert.SerializeObject(data));
                 var targetIds = data.Select(x => (int?)x.HolidayID).ToList();
 
                 foreach (var item in data)
@@ -236,7 +236,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Holiday", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                //await _userInfoService.ActionLogDeleteAsync("Holiday", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 
