@@ -71,12 +71,12 @@
 
         <div class="col-md">
             <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")</label>
-            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
+            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "monthSelectorType": "dropdown", "disableMobile": true}' />
         </div>
 
         <div class="col-md">
             <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")</label>
-            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "disableMobile": true}' />
+            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "monthSelectorType": "dropdown", "disableMobile": true}' />
         </div>
 
         @* <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>

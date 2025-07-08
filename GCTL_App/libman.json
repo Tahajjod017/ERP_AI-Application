@@ -16,6 +16,14 @@
       "files": [
         "moment.min.js"
       ]
+    },
+    {
+      "library": "flatpickr@4.6.13",
+      "destination": "wwwroot/js/layout/flatpickr/",
+      "files": [
+        "flatpickr.min.js",
+        "flatpickr.min.css"
+      ]
     }
   ]
 }
