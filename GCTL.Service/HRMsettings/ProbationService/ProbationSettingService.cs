@@ -155,7 +155,7 @@ namespace GCTL.Service.HRMsettings.ProbationService
                 }
 
                 // Step 2: Serialize before state for logging purposes
-                var beforeEntity = JsonConvert.DeserializeObject<List<ProbationSettingVM>>(JsonConvert.SerializeObject(data));
+               // var beforeEntity = JsonConvert.DeserializeObject<List<ProbationSettingVM>>(JsonConvert.SerializeObject(data));
                 var targetIds = data.Select(x => (int?)x.ProbetionPeriodSettingID).ToList();
 
                 // Step 3: Apply soft delete to each record
@@ -171,7 +171,7 @@ namespace GCTL.Service.HRMsettings.ProbationService
                 await _genericRepository.UpdateRangeAsync(data);
 
                 // Step 5: Log the delete action for auditing
-                await _userInfoService.ActionLogDeleteAsync("ProbationSetting", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+               // await _userInfoService.ActionLogDeleteAsync("ProbationSetting", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 // Step 6: Commit the transaction
                 await _genericRepository.CommitTransactionAsync();

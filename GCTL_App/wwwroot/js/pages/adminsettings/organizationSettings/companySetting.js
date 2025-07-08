@@ -426,7 +426,7 @@ function initMap() {
             const userLng = position.coords.longitude;
 
             // Show an alert when GPS is successfully enabled and location is fetched
-            alert("GPS is enabled. Current location: Latitude " + userLat + ", Longitude " + userLng);
+            //alert("GPS is enabled. Current location: Latitude " + userLat + ", Longitude " + userLng);
 
             // Initialize the map with the user's location
             const mapOptions = {
@@ -453,7 +453,7 @@ function initMap() {
                 updateCoordinates(lat, lng);
             });
         }, function () {
-            alert("Geolocation service failed. Using default location.");
+            //alert("Geolocation service failed. Using default location.");
             // Fallback to default location if geolocation is not available
             const mapOptions = {
                 center: { lat: defaultLat, lng: defaultLng },
@@ -471,7 +471,7 @@ function initMap() {
             updateCoordinates(defaultLat, defaultLng);
         });
     } else {
-        alert("Geolocation is not supported by this browser.");
+        //alert("Geolocation is not supported by this browser.");
         // Fallback to default location if geolocation is not supported
         const mapOptions = {
             center: { lat: defaultLat, lng: defaultLng },
