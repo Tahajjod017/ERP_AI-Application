@@ -126,42 +126,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(
-    int pageNumber = 1,
-    int pageSize = 5,
-    string searchTerm = "",
-    string sortColumn = "RosterInOfficeDayID",
-    string sortOrder = "desc",
-    int daysToShow = 7,
-    DateTime? startDate = null
-)
-        {
-            var start = startDate ?? DateTime.Today; // default to today if not provided
-
-            // Pass start date to service
-            var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, start);
-
-            // Generate header dates based on provided start date
-            var dateList = Enumerable.Range(0, daysToShow).Select(offset => start.AddDays(offset)).ToList();
-
-            return Json(new
-            {
-                result,
-                headers = dateList.Select(date => new
-                {
-                    day = date.ToString("ddd"),
-                    date = date.ToString("dd MMM yyyy")
-                }).ToList()
-            });
-        }
-
-
-        //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
+        //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
         //{
-        //    var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+        //    var start = startDate ?? DateTime.Today; // default to today if not provided
 
-        //    var startDate = DateTime.Today;
-        //    var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
+        //    // Pass start date to service
+        //    var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, start);
+
+        //    // Generate header dates based on provided start date
+        //    var dateList = Enumerable.Range(0, daysToShow).Select(offset => start.AddDays(offset)).ToList();
 
         //    return Json(new
         //    {
@@ -172,9 +145,26 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         //            date = date.ToString("dd MMM yyyy")
         //        }).ToList()
         //    });
-
-        //    //return Json(result);
         //}
+
+
+        public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        {
+            var (data, pagination) = await _assignDefaultShiftService.GetAllGroupedAsync(
+                pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
+
+            var headers = Enumerable.Range(0, daysToShow)
+                .Select(i => (startDate ?? DateTime.Today).AddDays(i))
+                .Select(date => new { day = date.ToString("ddd"), date = date.ToString("dd MMM yyyy") })
+                .ToList();
+
+            return Json(new
+            {
+                result = data,
+                paginationInfo = pagination,
+                headers = headers
+            });
+        }
         #endregion
 
 
