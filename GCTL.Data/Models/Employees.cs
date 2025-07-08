@@ -79,6 +79,12 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
+    public virtual ICollection<ApprovalDesignation> ApprovalDesignationCreatedByNavigation { get; set; } = new List<ApprovalDesignation>();
+
+    public virtual ICollection<ApprovalDesignation> ApprovalDesignationDeletedByNavigation { get; set; } = new List<ApprovalDesignation>();
+
+    public virtual ICollection<ApprovalDesignation> ApprovalDesignationUpdatedByNavigation { get; set; } = new List<ApprovalDesignation>();
+
     public virtual ICollection<ApprovalSettings> ApprovalSettingsCreatedByNavigation { get; set; } = new List<ApprovalSettings>();
 
     public virtual ICollection<ApprovalSettings> ApprovalSettingsDeletedByNavigation { get; set; } = new List<ApprovalSettings>();
@@ -360,6 +366,12 @@ public partial class Employees
     public virtual ICollection<MaritalStatus> MaritalStatusCreatedByNavigation { get; set; } = new List<MaritalStatus>();
 
     public virtual ICollection<MaritalStatus> MaritalStatusUpdatedByNavigation { get; set; } = new List<MaritalStatus>();
+
+    public virtual ICollection<MessageContent> MessageContentCreatedByNavigation { get; set; } = new List<MessageContent>();
+
+    public virtual ICollection<MessageContent> MessageContentDeletedByNavigation { get; set; } = new List<MessageContent>();
+
+    public virtual ICollection<MessageContent> MessageContentUpdatedByNavigation { get; set; } = new List<MessageContent>();
 
     public virtual Country Nationality { get; set; }
 
