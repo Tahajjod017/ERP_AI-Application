@@ -52,12 +52,15 @@ namespace GCTL.Service.Employees.EmployeeList
                     Id = emp.EmployeeID,
                     Name = emp.FirstName + " " + emp.LastName,
                     Department = dept != null ? dept.DepartmentName : "-",
+                    DepartmentId = dept != null ? dept.DepartmentID : 0,
+                   // DepartmentId = dept?.DepartmentID ?? 0,
                    // Designation = desig != null ? desig.DesignationName : "N/A"
                     JoiningDate =  office.JoiningDate ,
                     Email = emp.Email,
                     Phone = emp.MobileNumber,
                     Status = status != null ? status.StatusName : "-",
-                    Avatar = emp.EmployeeImageFileName 
+                    Avatar = emp.EmployeeImageFileName ,
+                    CompanyId = office != null ? office.OrganizationID : 0
                 });
 
             return employees.AsQueryable();

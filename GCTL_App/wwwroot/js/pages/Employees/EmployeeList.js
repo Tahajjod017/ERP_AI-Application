@@ -4,7 +4,9 @@
 
     let urle = '';
 
-    const ITEMS_PER_PAGE = 3;
+    //const ITEMS_PER_PAGE = 3;
+
+    const $pageSize = $('#pageSize');
 
     //#region  Page Load
 
@@ -13,6 +15,7 @@
     const $listView = $('#listView');
     const $employeeListTbody = $('#employeeListTbody'); // Target tbody specifically
     const $departmentFilter = $('#departmentFilter');
+    const $companyFilter = $('#companyFilter');
     const $statusFilter = $('#statusFilter');
     const $sortFilter = $('#sortFilter');
     const $pageSizeData = $('#pageSize');
@@ -31,30 +34,31 @@
         sort: '',
         search: '',
         sortColumn: 'joiningDate', // Default sort column
-        sortDirection: 'desc' // Default sort direction
+        sortDirection: 'desc', // Default sort direction
+        company : ''
     };
 
     //#endregion
 
     //#region Fetch employee data
+
     function fetchEmployees(page = 1, filters = currentFilters) {
 
-        test = $('#pageSize').val();
-
-        //console.log('test', test)
+        console.log(filters)
 
         return $.ajax({
             url: API_BASE_URL,
             method: 'GET',
             data: {
                 page: page,
-                limit:  ITEMS_PER_PAGE,
+                limit: $pageSize.val() || 3, // Use page size from selector
                 department: filters.department,
                 status: filters.status,
                 sort: filters.sort,
                 search: filters.search,
                 sortColumn: filters.sortColumn,
-                sortDirection: filters.sortDirection
+                sortDirection: filters.sortDirection,
+                company: filters.company
             },
             dataType: 'json'
         }).catch(function (error) {
@@ -62,6 +66,32 @@
             return { employees: [], total: 0 };
         });
     }
+
+    //function fetchEmployees(page = 1, filters = currentFilters) {
+
+    //    test = $('#pageSize').val();
+
+    //    //console.log('test', test)
+
+    //    return $.ajax({
+    //        url: API_BASE_URL,
+    //        method: 'GET',
+    //        data: {
+    //            page: page,
+    //            limit:  ITEMS_PER_PAGE,
+    //            department: filters.department,
+    //            status: filters.status,
+    //            sort: filters.sort,
+    //            search: filters.search,
+    //            sortColumn: filters.sortColumn,
+    //            sortDirection: filters.sortDirection
+    //        },
+    //        dataType: 'json'
+    //    }).catch(function (error) {
+    //        console.error('Error fetching employees:', error);
+    //        return { employees: [], total: 0 };
+    //    });
+    //}
 
     //#endregion
 
@@ -92,15 +122,19 @@
     function renderBoardView(employees) {
         $boardView.empty();
         $.each(employees, function (index, employee) {
+            
             const avatarHtml = getAvatarHtml(employee);
             const dateFileter = GetdateFileter(employee.joiningDate)
             const card = `
+              <a href="/EmployeeDetails/Index/${employee.id}">
                 <div class="col">
                     <div class="card mb-3">
                         <div class="card-body">
                             <div class="row align-items-center g-3">
                                 <div class="col-12 col-sm-auto flex-1">
                                     <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
+
+                                      
                                         <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
                                             <div class="avatar avatar-xl me-3">
                                                 ${avatarHtml}
@@ -110,6 +144,9 @@
                                                 <span class="badge badge-phoenix badge-phoenix-${employee.status === 'Active' ? 'success' : 'danger'} me-2">${employee.status}</span>
                                             </div>
                                         </div>
+                                       
+
+
                                         <div class="d-flex align-items-center mt-2">
                                             <p class="mb-0 fw-bold fs-9">
                                                 Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.department}</span>
@@ -135,7 +172,9 @@
                             </div>
                         </div>
                     </div>
-                </div>`;
+                </div>
+                  </a>
+              `;
             $boardView.append(card);
         });
     }
@@ -205,7 +244,7 @@
     //#region  pagination
 
     function renderTablePagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(totalItems / ($pageSize.val() || 3));
         $tablePaginationContainer.empty();
 
         let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
@@ -223,14 +262,37 @@
         paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
 
         $tablePaginationContainer.append(paginationHtml);
+        updateResultCount(totalItems, currentTablePage, $pageSize.val() || 3);
     }
+
+    //function renderTablePagination(totalItems) {
+    //    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    //    $tablePaginationContainer.empty();
+
+    //    let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
+
+    //    const startPage = Math.max(1, currentTablePage - 2);
+    //    const endPage = Math.min(totalPages, startPage + 4);
+
+    //    for (let i = startPage; i <= endPage; i++) {
+    //        paginationHtml += `
+    //        <li class="page-item ${i === currentTablePage ? 'active' : ''}">
+    //            <button class="page-link" data-page="${i}">${i}</button>
+    //        </li>`;
+    //    }
+
+    //    paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
+
+    //    $tablePaginationContainer.append(paginationHtml);
+    //}
 
     //#endregion
 
     //#region Render pagination for board view
 
+
     function renderBoardPagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(totalItems / ($pageSize.val() || 3));
         $boardPaginationContainer.empty();
 
         let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
@@ -248,7 +310,29 @@
         paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
 
         $boardPaginationContainer.append(paginationHtml);
+        updateResultCount(totalItems, currentBoardPage, $pageSize.val() || 3);
     }
+
+    //function renderBoardPagination(totalItems) {
+    //    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    //    $boardPaginationContainer.empty();
+
+    //    let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
+
+    //    const startPage = Math.max(1, currentBoardPage - 2);
+    //    const endPage = Math.min(totalPages, startPage + 4);
+
+    //    for (let i = startPage; i <= endPage; i++) {
+    //        paginationHtml += `
+    //        <li class="page-item ${i === currentBoardPage ? 'active' : ''}">
+    //            <button class="page-link" data-page="${i}">${i}</button>
+    //        </li>`;
+    //    }
+
+    //    paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
+
+    //    $boardPaginationContainer.append(paginationHtml);
+    //}
 
    
 
@@ -275,6 +359,17 @@
             renderBoardPagination(data.total);
             updateViewVisibility();
         });
+    }
+
+    //#endregion
+
+
+    //#region Updaet updateResultCount
+
+    function updateResultCount(totalItems, page, itemsPerPage) {
+        const start = (page - 1) * itemsPerPage + 1;
+        const end = Math.min(page * itemsPerPage, totalItems);
+        $('.result-count').text(`Showing ${start} to ${end} of ${totalItems} results`);
     }
 
     //#endregion
@@ -313,8 +408,63 @@
     //#endregion
 
     //#region Event handlers
-    $departmentFilter.on('change', function () {
-        currentFilters.department = $(this).val();
+
+   
+
+    const departmentIds = document.getElementById('departmentFilter')
+    departmentIds.addEventListener('changed.coreui.multi-select', event => {
+      
+        const selected = event.value
+        const commaSeparatedValues = selected.map(item => item.value).join(",");
+
+        currentFilters.department = commaSeparatedValues;
+       
+        loadTableData(1);
+        loadBoardData(1);
+
+       
+    });
+
+    //$departmentFilter.on('change', function () {
+    //    currentFilters.department = $(this).val();
+    //    var a = $(this).val();
+    //    toastr.success(a);
+    //    loadTableData(1);
+    //    loadBoardData(1);
+    //});
+
+    //$companyFilter.on('change', function () {
+    //    currentFilters.company = $(this).val();
+    //    loadTableData(1);
+    //    loadBoardData(1);
+    //});
+
+    const companyIds = document.getElementById('companyFilter')
+    companyIds.addEventListener('changed.coreui.multi-select', event => {
+
+        const selected = event.value
+        const commaSeparatedValues = selected.map(item => item.value).join(",");
+
+        currentFilters.company = commaSeparatedValues;
+
+        loadTableData(1);
+        loadBoardData(1);
+
+
+        if (commaSeparatedValues) {
+            populateDepartmentFilter('/EmployeeList/GetDepartmentsByOrgId', commaSeparatedValues);
+        }
+
+
+
+
+
+       
+    });
+
+
+
+    $pageSize.on('change', function () {
         loadTableData(1);
         loadBoardData(1);
     });
@@ -357,6 +507,56 @@
         loadBoardData(currentBoardPage);
     });
 
+    //#endregion
+
+
+    //#region Load Core UI
+
+    function populateDepartmentFilter(apiUrl, organizationId) {
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            data: { organizationId: organizationId },
+            success: function (departments) {
+                const select = document.getElementById('departmentFilter');
+                if (!select) {
+                    console.error('Select element not found: #departmentFilter');
+                    return;
+                }
+
+                // Dispose existing CoreUI MultiSelect instance
+                const existingInstance = coreui.MultiSelect.getInstance(select);
+                if (existingInstance) {
+                    existingInstance.dispose();
+                }
+
+                // Clear existing options
+                select.innerHTML = '';
+
+                // Populate new options
+                if (!departments || departments.length === 0) {
+                    const option = new Option('No departments found', '', false, false);
+                    option.disabled = true;
+                    select.appendChild(option);
+                } else {
+                    departments.forEach(dep => {
+                        const option = new Option(dep.departmentName, dep.departmentID, false, false);
+                        select.appendChild(option);
+                    });
+                }
+
+                // Re-initialize CoreUI MultiSelect
+                new coreui.MultiSelect(select, {
+                    multiple: true,
+                    search: true,
+                    selectionType: 'counter'
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Failed to load departments:', error);
+            }
+        });
+    }
     //#endregion
 
     //#region Pagination for table view

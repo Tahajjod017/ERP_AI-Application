@@ -1,4 +1,5 @@
 ﻿
+using System.Linq;
 using System.Web.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeListVM;
@@ -19,6 +20,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -120,6 +122,9 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+
+
+
         public IActionResult Index()
         {
             PopulateDDViewBag();
@@ -131,9 +136,9 @@ namespace GCTL_App.Controllers.Employees
         {
             #region ViewBag
 
-            ViewBag.TotalEmployee = _employeeRepository.All().Count();
-            ViewBag.ActiveEmployee = _employeeRepository.AllActive().Count();
-            ViewBag.InactiveEmployee = ViewBag.TotalEmployee - ViewBag.ActiveEmployee;
+            ViewBag.TotalEmployee = _employeeOfficeRepository.AllActive().Count();
+            ViewBag.ActiveEmployee = _employeeOfficeRepository.AllActive().Where(e => e.EmploymentStatusId == 1007).Count();
+            ViewBag.InactiveEmployee = _employeeOfficeRepository.AllActive().Where(e => e.EmploymentStatusId == 1008).Count();
 
             DateOnly threeMonthsAgo = DateOnly.FromDateTime(DateTime.Now.AddMonths(-3));
             var newJoinings = _employeeOfficeRepository.All().Where(emp => emp.JoiningDate.HasValue && emp.JoiningDate.Value >= threeMonthsAgo).ToList();
@@ -379,27 +384,53 @@ namespace GCTL_App.Controllers.Employees
 
         #region GetEmployee For Table and Board
 
+
         [HttpGet]
-        public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, 
-            [FromQuery] string department = "", [FromQuery] string status = "", [FromQuery] string sort = "", 
-            [FromQuery] string search = "", [FromQuery] string sortColumn = "joiningDate", [FromQuery] string sortDirection = "desc")
+        public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, [FromQuery] string department = "",
+        [FromQuery] string status = "",[FromQuery] string sort = "",[FromQuery] string search = "",[FromQuery] string sortColumn = "joiningDate",
+        [FromQuery] string sortDirection = "desc", [FromQuery] string company = "") // Added company parameter
         {
             try
             {
                 var request = _httpContextAccessor.HttpContext.Request;
                 string url = $"{request.Scheme}://{request.Host}";
-
                 string url1 = GetEmployeePictureURL(true);
 
                 // Build query
                 IQueryable<EmployeeListGetViewModel> query = await _employeeListService.GetEmployees();
 
+
+                if (!string.IsNullOrEmpty(company))
+                {
+                    var companyIds = company.Split(',').Select(id => long.Parse(id.Trim())).ToList();
+                    query = query.Where(e => e.CompanyId.HasValue && companyIds.Contains(e.CompanyId.Value));
+                }
+
+             
+
+                //if (!string.IsNullOrEmpty(company))
+                //{
+                //    var companyIds = company.Split(',').Select(id => Convert.ToInt64(id.Trim())).ToList();
+
+                //    query = query.Where(e => companyIds.Contains(Convert.ToInt64(e.CompanyId)));
+
+                //    //query = query.Where(e => e.CompanyId.ToString() == company); // Adjust based on your EmployeeListGetViewModel
+                //}
+
                 // Filter by department
                 if (!string.IsNullOrEmpty(department))
                 {
-                    var dept = _departmentRepository.All().Where(e => e.DepartmentID == Convert.ToInt64(department)).Select(e=>e.DepartmentName).FirstOrDefault();
-                    query = query.Where(e => e.Department == dept);
+                    var departmentIds = department.Split(',').Select(id => Convert.ToInt64(id.Trim())).ToList();
+
+                    query = query.Where(e => departmentIds.Contains(e.DepartmentId));
+
+
+
+                    //var dept = _departmentRepository.All().Where(e => e.DepartmentID == Convert.ToInt64(department)).Select(e => e.DepartmentName).FirstOrDefault();
+                    //query = query.Where(e => e.Department == dept);
                 }
+
+                
 
                 // Filter by status
                 if (!string.IsNullOrEmpty(status))
@@ -407,22 +438,19 @@ namespace GCTL_App.Controllers.Employees
                     query = query.Where(e => e.Status == status);
                 }
 
+                
+
+                // Filter by company
+                
+
                 // Search by name or email
                 if (!string.IsNullOrEmpty(search))
                 {
-                    //query = query.Where(e =>
-                    //    e.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    //    e.Email.Contains(search, StringComparison.OrdinalIgnoreCase));
-
-                    query = query.Where(e =>
-                        e.Name.ToLower().Contains(search.ToLower()) ||
-                        e.Email.ToLower().Contains(search.ToLower()));
+                    query = query.Where(e => e.Name.ToLower().Contains(search.ToLower()) || e.Email.ToLower().Contains(search.ToLower()));
                 }
 
-
-
+                // Date filter for sort
                 string lowerSort = sort.ToLowerInvariant();
-
                 DateOnly? dateFilter = lowerSort switch
                 {
                     "sort by last 7 days" => DateOnly.FromDateTime(DateTime.Today.AddDays(-7)),
@@ -433,15 +461,12 @@ namespace GCTL_App.Controllers.Employees
                     _ => null
                 };
 
-
-
                 if (dateFilter.HasValue)
                 {
                     query = query.Where(e => e.JoiningDate >= dateFilter.Value);
                 }
 
-                query = query.OrderByDescending(e => e.JoiningDate);
-
+                // Apply sorting
                 query = sortColumn.ToLower() switch
                 {
                     "empid" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Id) : query.OrderByDescending(e => e.Id),
@@ -454,7 +479,6 @@ namespace GCTL_App.Controllers.Employees
                     _ => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.JoiningDate) : query.OrderByDescending(e => e.JoiningDate)
                 };
 
-
                 // Get total count for pagination
                 int total = await query.CountAsync();
 
@@ -464,21 +488,19 @@ namespace GCTL_App.Controllers.Employees
 
                 // Execute query
                 var employees = await query
-                     .Select(e => new
-                     {
-                         id = e.Id,
-                         name = string.IsNullOrEmpty(e.Name) ? "-" : e.Name,
-                         email = string.IsNullOrEmpty(e.Email) ? "-" : e.Email,
-                         phone = string.IsNullOrEmpty(e.Phone) ? "-" : e.Phone,
-                         department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
-                         joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null, // Keeping null for date field
-                         status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
-                         avatar = string.IsNullOrEmpty(e.Avatar) ? null : url1 + e.Avatar,
-                         url = url + "/uploads/employee/"
-                     })
-                     .ToListAsync();
-
-
+                    .Select(e => new
+                    {
+                        id = e.Id,
+                        name = string.IsNullOrEmpty(e.Name) ? "-" : e.Name,
+                        email = string.IsNullOrEmpty(e.Email) ? "-" : e.Email,
+                        phone = string.IsNullOrEmpty(e.Phone) ? "-" : e.Phone,
+                        department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
+                        joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null,
+                        status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
+                        avatar = string.IsNullOrEmpty(e.Avatar) ? null : url1 + e.Avatar,
+                        url = url + "/Uploads/employee/"
+                    })
+                    .ToListAsync();
 
                 // Return response
                 return Ok(new
@@ -491,6 +513,137 @@ namespace GCTL_App.Controllers.Employees
             {
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
+        }
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, 
+        //    [FromQuery] string department = "", [FromQuery] string status = "", [FromQuery] string sort = "", 
+        //    [FromQuery] string search = "", [FromQuery] string sortColumn = "joiningDate", [FromQuery] string sortDirection = "desc")
+        //{
+        //    try
+        //    {
+        //        var request = _httpContextAccessor.HttpContext.Request;
+        //        string url = $"{request.Scheme}://{request.Host}";
+
+        //        string url1 = GetEmployeePictureURL(true);
+
+        //        // Build query
+        //        IQueryable<EmployeeListGetViewModel> query = await _employeeListService.GetEmployees();
+
+        //        // Filter by department
+        //        if (!string.IsNullOrEmpty(department))
+        //        {
+        //            var dept = _departmentRepository.All().Where(e => e.DepartmentID == Convert.ToInt64(department)).Select(e=>e.DepartmentName).FirstOrDefault();
+        //            query = query.Where(e => e.Department == dept);
+        //        }
+
+        //        // Filter by status
+        //        if (!string.IsNullOrEmpty(status))
+        //        {
+        //            query = query.Where(e => e.Status == status);
+        //        }
+
+        //        // Search by name or email
+        //        if (!string.IsNullOrEmpty(search))
+        //        {
+        //            //query = query.Where(e =>
+        //            //    e.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        //            //    e.Email.Contains(search, StringComparison.OrdinalIgnoreCase));
+
+        //            query = query.Where(e =>
+        //                e.Name.ToLower().Contains(search.ToLower()) ||
+        //                e.Email.ToLower().Contains(search.ToLower()));
+        //        }
+
+
+
+        //        string lowerSort = sort.ToLowerInvariant();
+
+        //        DateOnly? dateFilter = lowerSort switch
+        //        {
+        //            "sort by last 7 days" => DateOnly.FromDateTime(DateTime.Today.AddDays(-7)),
+        //            "sort by last 15 days" => DateOnly.FromDateTime(DateTime.Today.AddDays(-15)),
+        //            "sort by last 1 month" => DateOnly.FromDateTime(DateTime.Today.AddMonths(-1)),
+        //            "sort by last 3 month" => DateOnly.FromDateTime(DateTime.Today.AddMonths(-3)),
+        //            "sort by last 6 month" => DateOnly.FromDateTime(DateTime.Today.AddMonths(-6)),
+        //            _ => null
+        //        };
+
+
+
+        //        if (dateFilter.HasValue)
+        //        {
+        //            query = query.Where(e => e.JoiningDate >= dateFilter.Value);
+        //        }
+
+        //        query = query.OrderByDescending(e => e.JoiningDate);
+
+        //        query = sortColumn.ToLower() switch
+        //        {
+        //            "empid" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Id) : query.OrderByDescending(e => e.Id),
+        //            "empname" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Name) : query.OrderByDescending(e => e.Name),
+        //            "empemail" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Email) : query.OrderByDescending(e => e.Email),
+        //            "empphone" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Phone) : query.OrderByDescending(e => e.Phone),
+        //            "empdesignation" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Department) : query.OrderByDescending(e => e.Department),
+        //            "empjointindate" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.JoiningDate) : query.OrderByDescending(e => e.JoiningDate),
+        //            "empstatus" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Status) : query.OrderByDescending(e => e.Status),
+        //            _ => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.JoiningDate) : query.OrderByDescending(e => e.JoiningDate)
+        //        };
+
+
+        //        // Get total count for pagination
+        //        int total = await query.CountAsync();
+
+        //        // Apply pagination
+        //        int skip = (page - 1) * limit;
+        //        query = query.Skip(skip).Take(limit);
+
+        //        // Execute query
+        //        var employees = await query
+        //             .Select(e => new
+        //             {
+        //                 id = e.Id,
+        //                 name = string.IsNullOrEmpty(e.Name) ? "-" : e.Name,
+        //                 email = string.IsNullOrEmpty(e.Email) ? "-" : e.Email,
+        //                 phone = string.IsNullOrEmpty(e.Phone) ? "-" : e.Phone,
+        //                 department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
+        //                 joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null, // Keeping null for date field
+        //                 status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
+        //                 avatar = string.IsNullOrEmpty(e.Avatar) ? null : url1 + e.Avatar,
+        //                 url = url + "/uploads/employee/"
+        //             })
+        //             .ToListAsync();
+
+
+
+        //        // Return response
+        //        return Ok(new
+        //        {
+        //            employees,
+        //            total
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = "Server error", error = ex.Message });
+        //    }
+        //}
+
+
+        [HttpGet]
+        public IActionResult GetDepartmentsByOrgId(string organizationId)
+        {
+            var companyIds = organizationId.Split(',').Select(id => long.Parse(id.Trim())).ToList();
+
+            
+
+            var departments = _departmentRepository.AllActive().Where(e => e.OrganizationID.HasValue && companyIds.Contains(e.OrganizationID.Value))
+                .Select(d => new {
+                    departmentID = d.DepartmentID,
+                    departmentName = d.DepartmentName
+                }).ToList();
+
+            return Ok(departments);
         }
 
         #endregion

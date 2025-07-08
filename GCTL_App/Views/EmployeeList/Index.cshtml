@@ -2041,7 +2041,7 @@
     <div class="card" style="min-height: 550px;">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
             <div>
-                <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(@ViewBag.ActiveEmployee)</span></span>
+                <span class="mb-0 h3">All Employees<span class="fw-normal text-body-tertiary ms-3">(@ViewBag.TotalEmployee)</span></span>
                 @*<a class="btn btn-info mb-1" id="btnExportXL">
                     <i class="fa fa-file-pdf text-white me-2"></i>@Html.SmartLocalize("Export Employee Report")
                 </a>*@
@@ -2097,11 +2097,17 @@
 
 
             <div class="dropdown me-3">
-                <select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                @*<select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                     <option value="5">Show</option>
                     <option value="10">10</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
+                </select>*@
+                <select id="pageSize" class="form-select choiceDD" style="width: auto;">
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
                 </select>
             </div>
 
@@ -2120,22 +2126,29 @@
 
 
                 <div class="dropdown me-3">
-                    <select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.CompanyDD as SelectList">
+                    @*<select class="form-select choiceDD" id="companyFilter" asp-items="@ViewBag.CompanyDD as SelectList">
                         <option value="">@Html.SmartLocalize("Select Company")</option>
+                    </select>*@
+
+                    <select class="form-multi-select" id="companyFilter" asp-items="@ViewBag.CompanyDD as SelectList" multiple data-coreui-multiple="true"
+                            data-coreui-selection-type="counter" data-coreui-search="true" data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
                     </select>
                 </div>
 
                 <div class="dropdown me-3">
-                    <select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.DepartmentDD as SelectList">
+                    @*<select class="form-select choiceDD" id="departmentFilter" asp-items="@ViewBag.DepartmentDD as SelectList">
                         <option value="">@Html.SmartLocalize("Select Department")</option>
+                    </select>*@
+
+                    <select class="form-multi-select"  id="departmentFilter"  asp-items="@ViewBag.DepartmentDD as SelectList"   multiple data-coreui-multiple="true"
+                            data-coreui-selection-type="counter"  data-coreui-search="true"   data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
                     </select>
                 </div>
 
 
 
                 <div class="dropdown me-3">
-                    <select class="form-select choiceDD" id="statusFilter" data-choices="data-choices" size="1" required="required"
-                            name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <select class="form-select choiceDD" id="statusFilter" data-choices="data-choices" size="1" required="required"  name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Search By Status</option>
                         <option>Active</option>
                         <option>Inactive</option>
@@ -2144,7 +2157,7 @@
 
                 <div class="dropdown">
                     <select class="form-select choiceDD" id="sortFilter" data-choices="data-choices" size="1" required="required" name="sortFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Sort by days/Month</option>
+                        <option value="">Sort by Joining Date</option>
                         <option value="Sort by Last 7 days">Sort by Last 7 days</option>
                         <option value="Sort by Last 15 days">Sort by Last 15 days</option>
                         <option value="Sort by Last 1 Month">Sort by Last 1 Month</option>
@@ -2173,10 +2186,10 @@
         </div>
 
         <div id="listView" class="view-content border-top border-translucent p-3 hidden">
-            <div id="employeeListTable" >
+            <div id="employeeListTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
                     <table class="table" id="employeeListTable">
-                       
+
 
                         <thead>
                             <tr>
@@ -2243,14 +2256,15 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="result-count ms-3"></div>
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
-                       
+
                     </div>
                     <div class="col-auto d-flex">
-                        
+
                         <ul class="mb-0 pagination tblPagination"></ul>
-                       
+
                     </div>
                 </div>
             </div>
