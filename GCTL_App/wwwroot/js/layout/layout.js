@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-// For sort icon
+// #region For sort icon
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("th.sort").forEach(function (th) {
         const icon = document.createElement("span");
@@ -165,7 +165,37 @@ document.addEventListener("DOMContentLoaded", function () {
         th.appendChild(icon);
     });
 });
+// #endregion
 
 
+
+
+// #region For flatpicker datepicker
+document.addEventListener("DOMContentLoaded", function () {
+    flatpickr(".datetimepicker", {
+        onDayCreate: function (dObj, dStr, fp, dayElem) {
+            const dayNumber = parseInt(dayElem.textContent);
+            const year = fp.currentYear;
+            const month = fp.currentMonth;
+
+            // Check if the day is part of the currently displayed month
+            if (
+                !isNaN(dayNumber) &&
+                !dayElem.classList.contains("prevMonthDay") &&
+                !dayElem.classList.contains("nextMonthDay")
+            ) {
+                const date = new Date(year, month, dayNumber);
+                const dayOfWeek = date.getDay(); // 5 = Friday, 6 = Saturday
+
+                if (dayOfWeek === 5 || dayOfWeek === 6) {
+                    dayElem.style.backgroundColor = "#FFA500"; // #FFA500 = Orange, gray = #e8eaec
+                    dayElem.style.color = "#ffffff";
+                    dayElem.style.borderRadius = "50%";
+                }
+            }
+        }
+    });
+});
+// #endregion
 
 //

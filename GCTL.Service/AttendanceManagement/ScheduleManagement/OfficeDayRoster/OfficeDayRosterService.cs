@@ -71,7 +71,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                         //    continue;
 
                         var existingEntity = await _genericRepository.All()
-                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID && x.StartDate == model.StartDate && x.EndDate == model.EndDate).FirstOrDefaultAsync();
                         if (existingEntity != null)
                         {
                             existingEntity.ShiftID = model.ShiftID;
@@ -347,16 +347,149 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
+        public class PaginationInfo2
+        {
+            public int StartItem { get; set; }
+            public int EndItem { get; set; }
+            public int TotalItems { get; set; }
+            public List<int> PageNumbers { get; set; }
+            public int TotalPages { get; set; }
+            public int CurrentPage { get; set; }
+        }
+
+
+        public class RosterEmployeeGroupedVM
+        {
+            public int EmployeeID { get; set; }
+            public string EmployeeName { get; set; }
+            public string DepartmentName { get; set; }
+            public string OrganizationName { get; set; }
+
+            public List<RosterInOfficeDaysSetupVM> ShiftCells { get; set; } = new();
+        }
+
+
+
+        public async Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
+        int pageNumber = 1,
+        int pageSize = 5,
+        string searchTerm = "",
+        string sortColumn = "RosterInOfficeDayID",
+        string sortOrder = "desc",
+        int daysToShow = 7,
+        DateTime? startDate = null)
+        {
+            var start = startDate ?? DateTime.Today;
+            var end = start.AddDays(daysToShow - 1);
+
+            // Fetch from DB
+            var query = _genericRepository.AllActive().AsNoTracking()
+                .Include(x => x.Shift)
+                .Include(x => x.Organization)
+                .Include(x => x.Department)
+                .Include(x => x.Employee)
+                .Include(x => x.RosterInOfficeDaysOverride)
+                    .ThenInclude(o => o.Shift)
+                .Where(x => x.StartDate <= end && x.EndDate >= start);
+
+            // Optional filter
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
+            }
+
+            var records = await query.ToListAsync();
+
+            // Flatten shift records by day
+            var flattened = new List<RosterInOfficeDaysSetupVM>();
+
+            foreach (var item in records)
+            {
+                var current = item.StartDate;
+                while (current <= item.EndDate)
+                {
+                    if (current.Value.Date == DateTime.Today)
+                    {
+                        Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
+                    }
+
+                    if (current >= start && current <= end)
+                    {
+                        flattened.Add(new RosterInOfficeDaysSetupVM
+                        {
+                            RosterInOfficeDayID = item.RosterInOfficeDayID,
+                            OrganizationID = item.OrganizationID,
+                            OrganizationName = item.Organization?.OrganizationName ?? "-",
+                            DepartmentID = item.DepartmentID,
+                            DepartmentName = item.Department?.DepartmentName ?? "-",
+                            EmployeeID = item.EmployeeID,
+                            EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
+                            ShiftID = item.ShiftID,
+                            ShiftName = item.Shift?.ShiftName ?? "-",
+                            StartDate = current,
+                            EndDate = current,
+                            TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}",
+                            RosterInOfficeDaysOverrideSetupVMs = item.RosterInOfficeDaysOverride?
+                                .Where(o => o.OverrideDate?.Date == current.Value.Date)
+                                .Select(o => new RosterInOfficeDaysOverrideSetupVM
+                                {
+                                    RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
+                                    RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
+                                    OverrideDate = o.OverrideDate,
+                                    ShiftID = o.ShiftID ?? 0,
+                                    ShiftName = o.Shift?.ShiftName ?? "",
+                                    TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
+                                }).ToList()
+                        });
+                    }
+
+                    current = current?.AddDays(1);
+                }
+            }
+
+            // Group by Employee
+            var grouped = flattened
+                .GroupBy(x => x.EmployeeID)
+                .Select(g => new RosterEmployeeGroupedVM
+                {
+                    EmployeeID = g.Key ?? 0,
+                    EmployeeName = g.First().EmployeeName,
+                    DepartmentName = g.First().DepartmentName,
+                    OrganizationName = g.First().OrganizationName,
+                    ShiftCells = g.ToList()
+                })
+                .ToList();
+
+            var totalItems = grouped.Count;
+            var pagedGroups = grouped
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var pagination = new PaginationInfo2
+            {
+                TotalItems = totalItems,
+                CurrentPage = pageNumber,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                StartItem = (pageNumber - 1) * pageSize + 1,
+                EndItem = Math.Min(pageNumber * pageSize, totalItems),
+                PageNumbers = Enumerable.Range(1, (int)Math.Ceiling((double)totalItems / pageSize)).ToList()
+            };
+
+            return (pagedGroups, pagination);
+        }
+
+
+
+
         #region GetAllAsync
-        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(
-    int pageNumber = 1,
-    int pageSize = 5,
-    string searchTerm = "",
-    string sortColumn = "RosterInOfficeDayID",
-    string sortOrder = "desc",
-    int daysToShow = 7,
-    DateTime? startDate = null
-)
+        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
         {
             var start = startDate ?? DateTime.Today;
             var end = start.AddDays(daysToShow - 1);
@@ -368,7 +501,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 .Include(x => x.Employee)
                 .Include(x => x.RosterInOfficeDaysOverride)
                     .ThenInclude(o => o.Shift)
-                .Where(x => x.DeletedAt == null)
                 .Where(x => x.StartDate <= end && x.EndDate >= start); // Filter within selected range
 
             // Apply sorting
@@ -422,71 +554,11 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                             ShiftID = o.ShiftID ?? 0,
                             ShiftName = o.Shift?.ShiftName ?? "",
                             TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
-                        }).ToList()
+                        }).Distinct().ToList()
                 });
 
             return result;
         }
-
-
-        //public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, 
-        //    string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
-        //{
-        //    var startDate = DateTime.Today;
-        //    var endDate = startDate.AddDays(daysToShow - 1);
-
-        //    var query = _genericRepository.AllActive().AsNoTracking()
-        //        .Include(x => x.Shift).Include(x => x.Organization)
-        //        .Include(x => x.Department).Include(x => x.Employee)
-        //        .Include(x => x.RosterInOfficeDaysOverride).ThenInclude(o => o.Shift)
-        //        .Where(x => x.DeletedAt == null)
-        //        .Where(x => x.StartDate <= endDate && x.EndDate >= startDate);
-
-        //    if (!string.IsNullOrEmpty(sortColumn))
-        //    {
-        //        query = sortColumn switch
-        //        {
-        //            "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
-        //            "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
-        //            "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-        //            "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
-        //            "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
-        //            _ => query.OrderBy(x => x.ShiftID)
-        //        };
-        //    }
-
-        //    var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-        //        term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
-        //        EF.Functions.Like(x.Employee.FirstName, $"%{term}%") || EF.Functions.Like(x.Employee.LastName, $"%{term}%") || EF.Functions.Like(x.Employee.EmployeeCode, $"%{term}%") ||
-        //        EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") || EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Shift.ShiftName, $"%{term}%"),
-        //        x => new RosterInOfficeDaysSetupVM
-        //        {
-        //            RosterInOfficeDayID = x.RosterInOfficeDayID,
-        //            OrganizationID = x.OrganizationID,
-        //            OrganizationName = x.Organization.OrganizationName ?? "-",
-        //            DepartmentName = x.Department.DepartmentName ?? "-",
-        //            EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
-        //            ShiftName = x.Shift.ShiftName ?? "-",
-        //            ShiftID = x.ShiftID ?? 0,
-        //            EmployeeID = x.EmployeeID ?? 0,
-        //            StartDate = x.StartDate,
-        //            EndDate = x.EndDate,
-        //            TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}",
-        //            RosterInOfficeDaysOverrideSetupVMs = x.RosterInOfficeDaysOverride
-        //            .Where(o => o.ShiftID != null && o.RosterInOfficeDayID != null && o.OverrideDate != null)
-        //            .Select(o => new RosterInOfficeDaysOverrideSetupVM
-        //            {
-        //                RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
-        //                RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
-        //                OverrideDate = o.OverrideDate ?? null,
-        //                ShiftID = o.ShiftID ?? 0,
-        //                ShiftName = o.Shift?.ShiftName ?? "",
-        //                TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}",
-        //            }).ToList()
-        //        });
-
-        //    return result;
-        //}
         #endregion
 
 
