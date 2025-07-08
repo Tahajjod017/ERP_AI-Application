@@ -253,7 +253,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<BranchSettingsVM>>(JsonConvert.SerializeObject(data));
+                //var beforeEntity = JsonConvert.DeserializeObject<List<BranchSettingsVM>>(JsonConvert.SerializeObject(data));
                 var targetIds = data.Select(x => (int?)x.OrganizationBranchID).ToList();
 
                 foreach (var item in data)
@@ -266,7 +266,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Blood Group", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+               // await _userInfoService.ActionLogDeleteAsync("Blood Group", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

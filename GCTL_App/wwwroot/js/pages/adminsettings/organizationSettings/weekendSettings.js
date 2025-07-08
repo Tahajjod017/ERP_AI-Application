@@ -48,6 +48,42 @@ $(document).ready(function () {
     });
 });
 
+$(document).on('click', '#weekendSettings-singleDelBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/WeekendSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
+
+
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 //////////////////////////////Data Table Initialization//////////////////////////////
@@ -164,7 +200,7 @@ function loadTableData(sortColumn, sortOrder) {
                                         <a 
                                           href="#" title="Delete"  data-id="${item.weekendDayID}"
                                           class="btn btn-outline-light btn-icon"  
-                                          id="" >
+                                          id="weekendSettings-singleDelBtn" >
                                           <i class="far fa-trash-alt text-black"></i>
                                         </a>
                            </div>
