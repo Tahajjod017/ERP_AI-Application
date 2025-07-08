@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.HRMsettingsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.HRMsettingsVM;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -20,11 +21,13 @@ namespace GCTL_App.Controllers.HRMsettings
             ViewBag.Organizations = await _probationSettingService.GetOrganizationsAsync();
             return View();
         }
+
         public async Task<IActionResult> GetProbationPeriods(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ProbationID", string sortOrder = "desc")
         {
             var result = await _probationSettingService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
             return Json(result);
         }
+
         [HttpPost]
         public async Task<IActionResult> Create(ProbationSettingVM model)
         {
@@ -48,5 +51,32 @@ namespace GCTL_App.Controllers.HRMsettings
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+
+        #region delete 
+
+        [HttpPost]
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No id selected to delete." });
+                }
+                var result = await _probationSettingService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No id found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
     }
 }
