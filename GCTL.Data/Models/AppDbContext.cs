@@ -18,12 +18,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ActionTaken> ActionTaken { get; set; }
 
+    public virtual DbSet<ApprovalDesignation> ApprovalDesignation { get; set; }
+
     public virtual DbSet<ApprovalSettings> ApprovalSettings { get; set; }
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
 
     public virtual DbSet<Attendance> Attendance { get; set; }
 
@@ -108,6 +111,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<MaritalStatus> MaritalStatus { get; set; }
 
     public virtual DbSet<MenuTab> MenuTab { get; set; }
+
+    public virtual DbSet<MessageContent> MessageContent { get; set; }
 
     public virtual DbSet<OTPSettings> OTPSettings { get; set; }
 
@@ -208,6 +213,32 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
+        modelBuilder.Entity<ApprovalDesignation>(entity =>
+        {
+            entity.HasKey(e => e.ApprovalDesignationID).HasName("PK__Approval__E36CFBB82226728B");
+
+            entity.Property(e => e.ApprovalDesignationName).HasMaxLength(200);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ApprovalDesignationCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ApprovalD__Creat__2C1E8537");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ApprovalDesignationDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ApprovalD__Delet__2EFAF1E2");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ApprovalDesignationUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ApprovalD__Updat__2D12A970");
+        });
+
         modelBuilder.Entity<ApprovalSettings>(entity =>
         {
             entity.HasKey(e => e.ApprovalSettingID).HasName("PK__Approval__1EC4AF7889849AD9");
@@ -282,8 +313,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-          .HasDiscriminator<string>("Discriminator")
-          .HasValue<ApplicationUser>("ApplicationUser");
+           .HasDiscriminator<string>("Discriminator")
+           .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employees)
                 .WithMany(e => e.AspNetUsers)
@@ -1783,6 +1814,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasComputedColumnSql("([ControllerName])", true);
 
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent).HasForeignKey(d => d.ParentId);
+        });
+
+        modelBuilder.Entity<MessageContent>(entity =>
+        {
+            entity.HasKey(e => e.MessageContentID).HasName("PK__MessageC__025FFEA62447C054");
+
+            entity.HasIndex(e => e.MessageCode, "UQ__MessageC__54E8229FD080903C").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MessageCode)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.MessageText).IsRequired();
+            entity.Property(e => e.MessageType)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.MessageContentCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__MessageCo__Creat__21A0F6C4");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.MessageContentDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__MessageCo__Delet__247D636F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.MessageContentUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__MessageCo__Updat__22951AFD");
         });
 
         modelBuilder.Entity<OTPSettings>(entity =>
