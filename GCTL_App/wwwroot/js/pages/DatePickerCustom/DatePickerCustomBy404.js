@@ -25,7 +25,8 @@ function initializeDatepickerDMY(dateIds) {
     });
 }
 
-function initializeDatepickerDMY2(dateIds, minDate = null) {
+function initializeDatepickerDMY2(dateIds, minDate = null, maxDate = null) {
+   
     dateIds.split(',').forEach(function (id) {
         const trimmedId = id.trim();
         flatpickr(`#${trimmedId}`, {
@@ -33,7 +34,8 @@ function initializeDatepickerDMY2(dateIds, minDate = null) {
             altInput: true,
             altFormat: "d/m/Y",
             allowInput: true,
-            minDate: minDate, // dynamically set
+            minDate: minDate || undefined,
+            maxDate: maxDate || undefined,
             onReady: function (selectedDates, dateStr, instance) {
                 instance.input.placeholder = "dd/mm/yyyy";
             }
