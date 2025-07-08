@@ -26,8 +26,10 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _genericRepositoryEmployees;
         private readonly IGenericRepository<Designations> _genericRepositoryDesignations;
         private readonly IGenericRepository<Country> _genericRepositoryCountry;
+        private readonly IGenericRepository<ApprovalDesignation> _genericRepositoryApprovalDesignations;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _genericRepositoryEmployeeOfficeInfo;
 
-        public ApprovalSettingService(IUserInfoService userInfoService, IGenericRepository<ApprovalSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<OrganizationBranches> genericRepositoryBranches, IGenericRepository<ApprovalTypes> genericRepositoryApprovalType, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees, IGenericRepository<Designations> genericRepositoryDesignations, IGenericRepository<Country> genericRepositoryCountry) : base(genericRepository)
+        public ApprovalSettingService(IUserInfoService userInfoService, IGenericRepository<ApprovalSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<OrganizationBranches> genericRepositoryBranches, IGenericRepository<ApprovalTypes> genericRepositoryApprovalType, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees, IGenericRepository<Designations> genericRepositoryDesignations, IGenericRepository<Country> genericRepositoryCountry, IGenericRepository<ApprovalDesignation> genericRepositoryApprovalDesignations, IGenericRepository<EmployeeOfficeInfo> genericRepositoryEmployeeOfficeInfo) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -37,6 +39,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             _genericRepositoryEmployees = genericRepositoryEmployees;
             _genericRepositoryDesignations = genericRepositoryDesignations;
             _genericRepositoryCountry = genericRepositoryCountry;
+            _genericRepositoryApprovalDesignations = genericRepositoryApprovalDesignations;
+            _genericRepositoryEmployeeOfficeInfo = genericRepositoryEmployeeOfficeInfo;
         }
 
         #endregion
@@ -474,6 +478,47 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         }
         #endregion
 
-      
+        #region GetEmployeeWithApprovalDesignationAsync
+        //public async Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationAsync()
+        //{
+        //    // Fetching Approval Designations first
+        //    var approvalDesignations = await _genericRepositoryApprovalDesignations.All()
+        //        .Where(ad => ad.DeletedAt == null)
+        //        .Select(ad => new SelectListItem
+        //        {
+        //            Value = ad.ApprovalDesignationID.ToString(),
+        //            Text = ad.ApprovalDesignationName
+        //        })
+        //        .ToListAsync();
+
+        //    // Fetching employees and their designations with ranking, and ensuring ranking is between 1 and 5
+        //    var employeeWithDesignation = await _genericRepositoryEmployeeOfficeInfo.All()
+        //        .Where(e => e.DeletedAt == null)
+        //        .Join(_genericRepositoryDesignations.All()
+        //            .Where(d => d.DeletedAt == null && d.Ranking >= 1 && d.Ranking <= 5),  // Ensure ranking is between 1 and 5
+        //            e => e.DesignationID,  // Join condition on DesignationID
+        //            d => d.DesignationID,  // Join condition on DesignationID
+        //            (e, d) => new SelectListItem
+        //            {
+        //                Value = e.EmployeeID.ToString(),
+        //                Text = $"{e.EmployeeName} - {d.DesignationName} (Rank {d.Ranking})"
+        //            })
+        //        .ToListAsync();
+
+        //    // Combine both lists (first Approval Designations, then Employees with Designation and Ranking)
+        //    var combinedList = new List<SelectListItem>();
+
+        //    // Add Approval Designations first
+        //    combinedList.AddRange(approvalDesignations);
+
+        //    // Add Employees with Designation and Ranking after Approval Designations
+        //    combinedList.AddRange(employeeWithDesignation);
+
+        //    return combinedList;
+        //}
+        #endregion
+
+
+
     }
 }
