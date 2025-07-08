@@ -223,9 +223,13 @@ $(document).ready(function () {
     });
 
     // Also initialize flatpickr for other date fields
-    flatpickr("#FromDate", { dateFormat: "Y-m-d" });
-    flatpickr("#ToDate", { dateFormat: "Y-m-d" });
+    //flatpickr("#FromDate", { dateFormat: "Y-m-d" });
+    //flatpickr("#ToDate", { dateFormat: "Y-m-d" });
+    initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined")
+    $(document).on('change', "#FromDate", function () {
+        updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
 
+    })
 
     //
 

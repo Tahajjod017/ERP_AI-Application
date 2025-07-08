@@ -25,5 +25,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public int? MaximumGapDaysBetweenAplications { get; set; }
         public string? Message { get; set; }
         public string? MaxGapdaysMessage { get; set; }
+        public int LeaveDays {  get; set; } 
     }
 }

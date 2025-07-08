@@ -249,13 +249,17 @@ $(document).ready(function () {
     //
 
 
-    /* initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
+     /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
 
     $(document).on('change', "#FromDate", function () {
         updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
 
     })
 
+    $(document).on('change', "#FromDateEdit", function () {
+        updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
+
+    })
     //
     //Get Employee according to LoginID
     GetAllEmpoyee();
@@ -293,22 +297,34 @@ $(document).ready(function () {
                     } else {
                         $('#SubsequentHolydayDays').val('Not Applicable');
                     }
-                    // const minDate = !policy.isAllowRequestForPastDates ? null : new Date();
-                    //initializeDatepickerDMY2("FromDate,ToDate", minDate);
+                  
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0); 
                     let minDate = null;
-                    if (!policy.isAllowRequestForPastDates) {
-                        minDate = today.toISOString().split('T')[0];
+                    let maxDate = null;
+                    // Allow or disallow past dates
+                    if (policy.isAllowRequestForPastDates === true) {
+                        //minDate = today ;
+                        const pastDate = new Date(today);
+                        pastDate.setDate(today.getDate() +1); 
+                        minDate = pastDate;
+                    } else 
+                    {
+                        minDate = null
                     }
+                   
                     if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
                         const futureDate = new Date(today);
-                        futureDate.setDate(today.getDate() + policy.allowRequestForFutureDays);
-                        minDate = futureDate;
+                        futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays+1));
+                        maxDate = futureDate;
                     }
-                    initializeDatepickerDMY2("FromDate,ToDate", minDate);
+                    const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
+                    const maxDateStr = maxDate ? maxDate.toISOString().split('T')[0] : null;
+                    console.log("Today:", today.toISOString().split('T')[0]);
+                    console.log("Past dates allowed:", policy.isAllowRequestForPastDates);
+                    console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
 
-                    //
+                    initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
 
                     //
                 }
@@ -356,7 +372,7 @@ $(document).ready(function () {
 
 
 
-    //
+    
     function handleLeaveChange(employeeIdField, leaveTypeIdField) {
         var leaveTypeID = $(leaveTypeIdField).val();
         var employeeId = choiceManager.getChoiceValue(employeeIdField);
@@ -422,7 +438,7 @@ $(document).ready(function () {
 
 
 
-    function GetLeavedaysSubsequent(employeeId, fromDate, toDate) {
+    function GetLeavedaysSubsequent(employeeId,fromDate, toDate) {
 
         if (!fromDate || !toDate) return;
 
@@ -468,6 +484,7 @@ $(document).ready(function () {
                     $('#GapDaysTotalAppliedDaysValidation').text('');
 
                 }
+                
             }
             ,
             error: function () {
@@ -483,6 +500,7 @@ $(document).ready(function () {
         let fromDate = flatpickrHelper.getDate('FromDate');
         let toDate = flatpickrHelper.getDate('ToDate');
         var employeeId = $('#EmployeeID').val();
+       
         GetLeavedaysSubsequent(employeeId, fromDate, toDate);
     });
     
@@ -492,6 +510,7 @@ $(document).ready(function () {
         let fromDate = flatpickrHelper.getDate('FromDateEdit');
         let toDate = flatpickrHelper.getDate('ToDateEdit');
         var employeeId = $('#EmployeeIDEdit').val();
+      
         GetLeavedaysSubsequent(employeeId, fromDate, toDate);
 
     });

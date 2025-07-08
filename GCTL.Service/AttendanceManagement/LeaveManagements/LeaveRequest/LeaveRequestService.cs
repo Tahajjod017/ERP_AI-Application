@@ -938,6 +938,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         public async Task<SubsequentWithRestrictionVM> SubsequentAsynceWithRestriction(int employeeId, DateTime fromDate, DateTime toDate)
         {
 
+
+            if (employeeId == 0 || fromDate == null || toDate == null)
+            {
+                return new SubsequentWithRestrictionVM();
+            }
             var normalizedFrom = fromDate.Date;
             var normalizedTo = toDate.Date;
             if (normalizedTo < normalizedFrom)
@@ -998,10 +1003,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             }
 
-            //
-
-
-            //
             var policy = await leavePolicyConfiguration.AllActive()
                                                             .Select(x => new
                                                             {
@@ -1016,10 +1017,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             if (policy == null)
                 return null;
 
-
-
-           
-
             var maxDaysMassage = "";
             if (policy.IsMaximumleaveDaysPerAplication == true && policy.MaximumleaveDaysPerAplication.HasValue)
             {
@@ -1028,8 +1025,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     maxDaysMassage = $"Maximum {policy.MaximumleaveDaysPerAplication} days allowed.";
                 }
             }
-
-            //
 
             string MaxGapdaysMessage = "";
             int appliableYear = DateTime.Now.Year;
@@ -1045,11 +1040,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 && policy.IsMaximumGapDaysBetweenAplications == true
                 && policy.MaximumGapDaysBetweenAplications.HasValue)
             {
-                int allowedGap = policy.MaximumGapDaysBetweenAplications.Value;
 
+                
+                int allowedGap = policy.MaximumGapDaysBetweenAplications.Value;
                 // Calculate actual gap
                 int gap = (fromDate.Date - lastAcceptedLeaveToDate.ToDateTime(TimeOnly.MinValue)).Days - 1;
-
                 if (gap < allowedGap)
                 {
                     // Calculate next valid from date
@@ -1058,15 +1053,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     MaxGapdaysMessage = $"Maximum {allowedGap} days gap is allowed between two applications. " +
                                         $"You can apply for leave starting from {nextValidFrom:dd/MM/yyyy}.";
                 }
-                //else if(fromDateOnly <= lastAcceptedLeaveToDate)
-                //{
-                //    MaxGapdaysMessage = $"Your new leave request overlaps with a previously approved leave ending on {lastAcceptedLeaveToDate:dd/MM/yyyy}. " +
-                //     $"Please select a date after {lastAcceptedLeaveToDate.AddDays(allowedGap + 1).ToDateTime(TimeOnly.MinValue):dd/MM/yyyy} to meet the required {allowedGap}-day gap.";
-
-                //}
             }
-
             //
+            // Get Leave Balance or Default Leave Days
+            
+
             //
             return new SubsequentWithRestrictionVM
             {
@@ -1074,7 +1065,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 TotalSubsequentDays = uniqueDates.Count,
                 IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
                 IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave,
-
                 //
                 IsAllowRequestForPastDates = policy.IsAllowRequestForPastDates,
                 IsAllowRequestForFutureDays = policy.IsAllowRequestForFutureDays,
@@ -1084,7 +1074,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 IsMaximumGapDaysBetweenAplications = policy.IsMaximumGapDaysBetweenAplications,
                 MaximumGapDaysBetweenAplications = policy.MaximumGapDaysBetweenAplications,
                 Message = maxDaysMassage,
-                MaxGapdaysMessage= MaxGapdaysMessage
+                MaxGapdaysMessage= MaxGapdaysMessage,
+               
             };
         }
 
@@ -1152,59 +1143,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
 
             }
-            //
-            //var policy = await leavePolicyConfiguration.AllActive()
-            //                                                .Select(x => new
-            //                                                {
-            //                                                    x.IsAllowRequestForPastDates,
-            //                                                    x.IsAllowRequestForFutureDays,
-            //                                                    x.AllowRequestForFutureDays,
-            //                                                    x.IsMaximumleaveDaysPerAplication,
-            //                                                    x.MaximumleaveDaysPerAplication,
-            //                                                    x.IsMaximumGapDaysBetweenAplications,
-            //                                                    x.MaximumGapDaysBetweenAplications
-            //                                                }).FirstOrDefaultAsync();
-            //if (policy == null)
-            //    return null;
-
-            //var maxDaysMassage = "";
-            //if (policy.IsMaximumleaveDaysPerAplication==true && policy.MaximumleaveDaysPerAplication.HasValue)
-            //{
-            //    if (totalDays > policy.MaximumleaveDaysPerAplication.Value)
-            //    {
-            //        maxDaysMassage = $"Maximum {policy.MaximumleaveDaysPerAplication} days allowed.";
-            //    }
-            //}
-
-
             
-            //
             return new SubsequentVM
             {
                 TotalDays = totalDays,
                 TotalSubsequentDays = uniqueDates.Count,
                 IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
                 IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave,
-
-                ////
-                //IsAllowRequestForPastDates = policy.IsAllowRequestForPastDates,
-                //IsAllowRequestForFutureDays = policy.IsAllowRequestForFutureDays,
-                //AllowRequestForFutureDays = policy.AllowRequestForFutureDays,
-                //IsMaximumleaveDaysPerAplication = policy.IsMaximumleaveDaysPerAplication,
-                //MaximumleaveDaysPerAplication = policy.MaximumleaveDaysPerAplication,
-                //IsMaximumGapDaysBetweenAplications = policy.IsMaximumGapDaysBetweenAplications,
-                //MaximumGapDaysBetweenAplications = policy.MaximumGapDaysBetweenAplications,
-                //Message=maxDaysMassage
             };
         }
 
-
-
-
         #endregion
 
-
-        //
 
         #region GetCompanies
         public Task<List<CommonSelectVM>> GetCompanies()
@@ -1292,8 +1242,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
 
-
-
         #region SoftDeleteAsync
         public Task<MultiDropDown> SoftDeleteAsync(DeleteRequestVM model)
         {
@@ -1351,16 +1299,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
         #endregion
 
-
-        //
-
-
         #region Dispaly LeaveDays 
         public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
         {
-            // Get employee ID from user ID
-
-
+            
             // Base query for leave balances
             var baseQuery = from lt in leaveTypes.AllActive()
                             join lb in leaveBalances.AllActive().Where(x => x.EmployeeID == employeeId)
@@ -1384,14 +1326,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             return await baseQuery.ToListAsync();
         }
-
-        // Check server side 
-
-       
-
         #endregion
-
-
-        //
     }
 }
