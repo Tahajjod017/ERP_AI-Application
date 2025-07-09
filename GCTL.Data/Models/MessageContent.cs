@@ -5,15 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class RosterInOfficeDaysOverride
+public partial class MessageContent
 {
-    public int RosterInOfficeDaysOverrideID { get; set; }
+    public int MessageContentID { get; set; }
 
-    public int? RosterInOfficeDayID { get; set; }
+    public string MessageCode { get; set; }
 
-    public DateTime? OverrideDate { get; set; }
+    public string MessageText { get; set; }
 
-    public int? ShiftID { get; set; }
+    public string MessageType { get; set; }
+
+    public bool IsActive { get; set; }
 
     public string LIP { get; set; }
 
@@ -34,10 +36,6 @@ public partial class RosterInOfficeDaysOverride
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual RosterInOfficeDays RosterInOfficeDay { get; set; }
-
-    public virtual Shifts Shift { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

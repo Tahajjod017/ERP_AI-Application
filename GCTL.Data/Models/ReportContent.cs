@@ -5,17 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class RosterInOfficeDays
+public partial class ReportContent
 {
-    public int RosterInOfficeDayID { get; set; }
+    public int ReportContentID { get; set; }
 
-    public int? OrganizationID { get; set; }
+    public string Title { get; set; }
 
-    public int? EmployeeID { get; set; }
+    public string SubTitle1 { get; set; }
 
-    public int? ShiftID { get; set; }
+    public string SubTitle2 { get; set; }
 
-    public DateTime? DayDate { get; set; }
+    public string Address { get; set; }
+
+    public string FooterText { get; set; }
 
     public string LIP { get; set; }
 
@@ -33,23 +35,9 @@ public partial class RosterInOfficeDays
 
     public int? DeletedBy { get; set; }
 
-    public int? DepartmentID { get; set; }
-
-    public int? StatusID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual Departments Department { get; set; }
-
-    public virtual Employees Employee { get; set; }
-
-    public virtual Organization Organization { get; set; }
-
-    public virtual Shifts Shift { get; set; }
-
-    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

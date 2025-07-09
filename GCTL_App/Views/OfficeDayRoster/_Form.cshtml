@@ -28,6 +28,18 @@
             </select>
         </div>
 
+        <div class="col-md branch">
+            <label class="form-label" asp-for="BranchIDs">@Html.SmartLocalize("Branch Name")</label>
+            <select class="form-multi-select"
+                    asp-for="BranchIDs"
+                    asp-items="@ViewBag.BrnchDD as SelectList"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Branch")...">
+            </select>
+        </div>
+
         <div class="col-md department">
             <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department Name")</label>
             <select class="form-multi-select"

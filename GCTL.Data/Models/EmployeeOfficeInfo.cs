@@ -81,6 +81,8 @@ public partial class EmployeeOfficeInfo
 
     public virtual Designations Designation { get; set; }
 
+    public virtual Employees Employee { get; set; }
+
     public virtual EmployeeType EmployeeType { get; set; }
 
     public virtual EmploymentNature EmploymentNature { get; set; }

@@ -43,5 +43,9 @@ public partial class Statuses
 
     public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
 
+    public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
+
+    public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -79,6 +79,12 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
+    public virtual ICollection<ApprovalDesignation> ApprovalDesignationCreatedByNavigation { get; set; } = new List<ApprovalDesignation>();
+
+    public virtual ICollection<ApprovalDesignation> ApprovalDesignationDeletedByNavigation { get; set; } = new List<ApprovalDesignation>();
+
+    public virtual ICollection<ApprovalDesignation> ApprovalDesignationUpdatedByNavigation { get; set; } = new List<ApprovalDesignation>();
+
     public virtual ICollection<ApprovalSettings> ApprovalSettingsCreatedByNavigation { get; set; } = new List<ApprovalSettings>();
 
     public virtual ICollection<ApprovalSettings> ApprovalSettingsDeletedByNavigation { get; set; } = new List<ApprovalSettings>();
@@ -249,6 +255,8 @@ public partial class Employees
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoDeletedByNavigation { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoEmployee { get; set; } = new List<EmployeeOfficeInfo>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoHeadOfDepartment { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoImmediateSupervisor { get; set; } = new List<EmployeeOfficeInfo>();
@@ -311,6 +319,8 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<LeaveApplications> LeaveApplicationsApprovalPerson { get; set; } = new List<LeaveApplications>();
+
     public virtual ICollection<LeaveApplications> LeaveApplicationsCreatedByNavigation { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveApplications> LeaveApplicationsDeletedByNavigation { get; set; } = new List<LeaveApplications>();
@@ -358,6 +368,12 @@ public partial class Employees
     public virtual ICollection<MaritalStatus> MaritalStatusCreatedByNavigation { get; set; } = new List<MaritalStatus>();
 
     public virtual ICollection<MaritalStatus> MaritalStatusUpdatedByNavigation { get; set; } = new List<MaritalStatus>();
+
+    public virtual ICollection<MessageContent> MessageContentCreatedByNavigation { get; set; } = new List<MessageContent>();
+
+    public virtual ICollection<MessageContent> MessageContentDeletedByNavigation { get; set; } = new List<MessageContent>();
+
+    public virtual ICollection<MessageContent> MessageContentUpdatedByNavigation { get; set; } = new List<MessageContent>();
 
     public virtual Country Nationality { get; set; }
 
@@ -417,6 +433,12 @@ public partial class Employees
 
     public virtual ICollection<Religions> ReligionsUpdatedByNavigation { get; set; } = new List<Religions>();
 
+    public virtual ICollection<ReportContent> ReportContentCreatedByNavigation { get; set; } = new List<ReportContent>();
+
+    public virtual ICollection<ReportContent> ReportContentDeletedByNavigation { get; set; } = new List<ReportContent>();
+
+    public virtual ICollection<ReportContent> ReportContentUpdatedByNavigation { get; set; } = new List<ReportContent>();
+
     public virtual ICollection<ResultTypes> ResultTypesCreatedByNavigation { get; set; } = new List<ResultTypes>();
 
     public virtual ICollection<ResultTypes> ResultTypesDeletedByNavigation { get; set; } = new List<ResultTypes>();
@@ -436,12 +458,6 @@ public partial class Employees
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysDeletedByNavigation { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysEmployee { get; set; } = new List<RosterInOfficeDays>();
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideCreatedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideDeletedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideUpdatedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysUpdatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
 

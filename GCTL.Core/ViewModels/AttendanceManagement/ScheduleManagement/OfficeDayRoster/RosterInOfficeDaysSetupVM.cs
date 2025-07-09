@@ -13,6 +13,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public int? OrganizationID { get; set; }
         public string? OrganizationName { get; set; }
 
+        public int? BranchID { get; set; }
+        public List<int>? BranchIDs { get; set; }
+        public string? BranchName { get; set; }
+
         public int? DepartmentID { get; set; }
         public List<int>? DepartmentIDs { get; set; }
         public string? DepartmentName { get; set; }
