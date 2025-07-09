@@ -39,6 +39,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
 
                 ViewData["ProductionTime"] = getEmployeeTotalHoursRelated.ProductionTime;
+                ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                 ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
                 //ViewBag.ProductionTime = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["Overtime"] = getEmployeeTotalHoursRelated.Overtime;

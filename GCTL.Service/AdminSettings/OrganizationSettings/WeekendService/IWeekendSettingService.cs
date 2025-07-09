@@ -16,7 +16,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
         Task<bool> AddAsync(WeekendSettingVM model);
         Task<bool> UpdateAsync(WeekendSettingVM model);
         Task<WeekendSettingVM> GetByIdAsync(int id);
-        Task<PaginationService<WeekendDays, WeekendSettingVM>.PaginationResult<WeekendSettingVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<PaginationService<WeekendSettings, WeekendSettingVM>.PaginationResult<WeekendSettingVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<WeekendSettingVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<bool> IsNameUniqueAsync(string name);
