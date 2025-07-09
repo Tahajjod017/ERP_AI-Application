@@ -24,21 +24,21 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
 
 
         public string? IsDesignationOrEmpFirstApprovalID { get; set; }
-        public int? FirstApprovalID { get; set; }
+        public string? FirstApprovalID { get; set; }
         public string? FirstApprovalName { get; set; }
 
 
        
         public string? IsEnableSecondApproval { get; set; }
         public string? IsDesignationOrEmpSecondApprovalID { get; set; }
-        public int? SecondApprovalID { get; set; }
+        public string? SecondApprovalID { get; set; }
         public string? SecondApprovalName { get; set; }
 
 
 
         public string? IsEnableThirdApproval { get; set; }
         public string? IsDesignationOrEmpThirdApprovalID { get; set; }
-        public int? ThirdApprovalID { get; set; }
+        public string? ThirdApprovalID { get; set; }
         public string? ThirdApprovalName { get; set; }
 
        
