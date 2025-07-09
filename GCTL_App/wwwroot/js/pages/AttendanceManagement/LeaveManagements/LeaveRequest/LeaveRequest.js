@@ -2,7 +2,7 @@
 
 $(document).ready(function () {
 
-    
+
     //
 
     $('.one').on('changed.coreui.multi-select', function (event) {
@@ -14,10 +14,10 @@ $(document).ready(function () {
                 loadDepartmentsByCompany(selectedOrgId);
                 loadEmplooyeesByCompany(selectedOrgId);
                 currentPage = 1;
-                loadTableData(); 
+                loadTableData();
             } else {
                 currentPage = 1;
-                loadTableData(); 
+                loadTableData();
             }
         }
     });
@@ -164,7 +164,7 @@ $(document).ready(function () {
         if (target.id === 'DepartmentIDs') {
             loadFilteredEmployees();
             currentPage = 1;
-            loadTableData(); 
+            loadTableData();
         }
     });
 
@@ -248,67 +248,43 @@ $(document).ready(function () {
 
     //
 
-   
-   /* initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
-    
-    $(document).on('change', "#FromDate", function ()
-    {
+
+     /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
+
+    $(document).on('change', "#FromDate", function () {
         updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
 
     })
 
+    $(document).on('change', "#FromDateEdit", function () {
+        updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
+
+    })
     //
     //Get Employee according to LoginID
     GetAllEmpoyee();
     function GetAllEmpoyee() {
         $.ajax({
-            url: '/LeaveRequest/GetEmployee', 
+            url: '/LeaveRequest/GetEmployee',
             type: 'GET',
             success: function (data) {
-               
+
                 choiceManager.populateDropdown('EmployeeID', data);
                 choiceManager.populateDropdown('EmployeeIDEdit', data);
-               
-                if (data.length === 1)
-                {
+
+                if (data.length === 1) {
                     var firstData = data[0];
-                    choiceManager.setChoiceValue('EmployeeID', firstData.id); 
+                    choiceManager.setChoiceValue('EmployeeID', firstData.id);
                 }
-                
+
             },
-            error: function ()
-            {
+            error: function () {
                 toastr.error('Failed to retrieve employee data.');
             }
         });
     }
 
     GetLeavePolicyIsCountAsync();
-    //function GetLeavePolicyIsCountAsync() {
-    //    $.ajax({
-    //        url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
-    //        type: 'GET',
-    //        success: function (data) {
-    //            if (data.length > 0) {
-    //                const policy = data[0];
-    //                debugger
-    //                // Set the message based on weekend/holiday
-    //                if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
-    //                    $('#SubsequentHolydayDays').val('');
-    //                } else {
-    //                    $('#SubsequentHolydayDays').val('Not Applicable');
-    //                }
-    //                const minDate = !policy.isAllowRequestForPastDates ? null : new Date();
-    //                initializeDatepickerDMY2("FromDate,ToDate", minDate);
-    //            }
-    //        },
-    //        error: function () {
-    //            toastr.error('Failed to retrieve data.');
-    //        }
-    //    });
-    //}
-
-
     function GetLeavePolicyIsCountAsync() {
         $.ajax({
             url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
@@ -316,55 +292,41 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.length > 0) {
                     const policy = data[0];
-                    debugger;
-
-                    // Set message for holidays/weekends
                     if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
                         $('#SubsequentHolydayDays').val('');
                     } else {
                         $('#SubsequentHolydayDays').val('Not Applicable');
                     }
-
-                    // Calculate minDate for flatpickr
+                  
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0); // strip time
-
+                    today.setHours(0, 0, 0, 0); 
                     let minDate = null;
-
-                    // Rule: disallow past dates
-                    if (!policy.isAllowRequestForPastDates) {
-                        minDate = today;
+                    let maxDate = null;
+                    // Allow or disallow past dates
+                    if (policy.isAllowRequestForPastDates === true) {
+                        //minDate = today ;
+                        const pastDate = new Date(today);
+                        pastDate.setDate(today.getDate() +1); 
+                        minDate = pastDate;
+                    } else 
+                    {
+                        minDate = null
                     }
-
-                    // Rule: future dates only after X days (overrides past)
+                   
                     if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
                         const futureDate = new Date(today);
-                        futureDate.setDate(today.getDate() + policy.allowRequestForFutureDays);
-                        minDate = futureDate;
+                        futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays+1));
+                        maxDate = futureDate;
                     }
+                    const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
+                    const maxDateStr = maxDate ? maxDate.toISOString().split('T')[0] : null;
+                    console.log("Today:", today.toISOString().split('T')[0]);
+                    console.log("Past dates allowed:", policy.isAllowRequestForPastDates);
+                    console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
 
-                    // Initialize datepickers
-                    initializeDatepickerDMY2("FromDate,ToDate", minDate);
+                    initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
 
-                    // Optional: enforce max leave days
-                    if (policy.isMaximumleaveDaysPerAplication && policy.maximumleaveDaysPerAplication > 0) {
-                        $('#FromDate, #ToDate').on('change', function () {
-                            const fromVal = $('#FromDate').val();
-                            const toVal = $('#ToDate').val();
-
-                            if (fromVal && toVal) {
-                                const from = new Date(fromVal);
-                                const to = new Date(toVal);
-
-                                const diff = (to - from) / (1000 * 60 * 60 * 24) + 1;
-
-                                if (diff > policy.maximumleaveDaysPerAplication) {
-                                    toastr.warning(`Maximum ${policy.maximumleaveDaysPerAplication} days allowed.`);
-                                    $('#ToDate').val('');
-                                }
-                            }
-                        });
-                    }
+                    //
                 }
             },
             error: function () {
@@ -374,6 +336,7 @@ $(document).ready(function () {
     }
 
 
+
     function GetleaveDaysOrAvailble(employeeId, leaveTypeID) {
         if (leaveTypeID && employeeId) {
             $.ajax({
@@ -381,13 +344,17 @@ $(document).ready(function () {
                 type: 'GET',
                 data: { employeeId: employeeId, leaveTypeId: leaveTypeID },
                 success: function (data) {
+
                     if (data && data.leaveDays !== null) {
                         $('#LeaveDays').val(data.leaveDays);
                         $('#LeaveDaysEdit').val(data.leaveDays);
+
                     } else {
                         $('#LeaveDays').val('0');
                         $('#LeaveDaysEdit').val('0');
                     }
+
+
                 },
                 error: function () {
                     toastr.error('Failed to fetch leave days.');
@@ -403,9 +370,9 @@ $(document).ready(function () {
 
     //
 
- 
 
-    //
+
+    
     function handleLeaveChange(employeeIdField, leaveTypeIdField) {
         var leaveTypeID = $(leaveTypeIdField).val();
         var employeeId = choiceManager.getChoiceValue(employeeIdField);
@@ -420,8 +387,8 @@ $(document).ready(function () {
     $('#EmployeeIDEdit,#LeaveTypeIDEdit').on('change', () =>
         handleLeaveChange('EmployeeIDedit', '#LeaveTypeIDEdit')
     );
-  
-   
+
+
     toggleTimeDateValidation();
 
     $('#PartialFromTime, #PartialToTime').on('input change', function () {
@@ -434,7 +401,7 @@ $(document).ready(function () {
         }
     });
 
-   
+
 
     function toggleTimeDateValidation() {
         if ($('#IsFullDay').is(':checked')) {
@@ -457,33 +424,34 @@ $(document).ready(function () {
         }
     }
 
-  
+
     $('#IsFullDay').on('change', function () {
-     
+
         toggleTimeDateValidation();
     });
     //
 
-      
+
     //
 
 
 
-   
-   
-    function GetLeavedaysSubsequent(fromDate, toDate) {
-    
+
+
+    function GetLeavedaysSubsequent(employeeId,fromDate, toDate) {
+
         if (!fromDate || !toDate) return;
 
         $.ajax({
             url: '/LeaveRequest/SubsequentLeaveCount',
             type: 'GET',
             data: {
+                employeeId: employeeId,
                 fromDate: fromDate,
                 toDate: toDate
             },
             success: function (data) {
-                
+
                 if (!data) return;
                 if (data && data.totalSubsequentDays > 0) {
                     $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
@@ -498,8 +466,25 @@ $(document).ready(function () {
                 if (typeof data.totalDays !== 'undefined') {
                     $('#TotalAppliedDays').val(data.totalDays);
                     $('#TotalAppliedDaysTT').val(data.totalDays);
-                    
+
                 }
+                if (data.isMaximumleaveDaysPerAplication && data.maximumleaveDaysPerAplication) {
+
+                    $('#TotalAppliedDaysValidation').text(data.message);
+
+                } else {
+
+                    $('#TotalAppliedDaysValidation').text('');
+                }
+                if (data.isMaximumGapDaysBetweenAplications && data.maximumGapDaysBetweenAplications) {
+
+                    $('#GapDaysTotalAppliedDaysValidation').text(data.maxGapdaysMessage);
+
+                } else {
+                    $('#GapDaysTotalAppliedDaysValidation').text('');
+
+                }
+                
             }
             ,
             error: function () {
@@ -508,33 +493,34 @@ $(document).ready(function () {
         });
     }
 
- 
-    $(document).on('change', '#FromDate, #ToDate', function (e) {
+
+    $(document).on('change', '#EmployeeID,#FromDate, #ToDate', function (e) {
         e.preventDefault();
 
         let fromDate = flatpickrHelper.getDate('FromDate');
         let toDate = flatpickrHelper.getDate('ToDate');
-        GetLeavedaysSubsequent(fromDate, toDate);
+        var employeeId = $('#EmployeeID').val();
+       
+        GetLeavedaysSubsequent(employeeId, fromDate, toDate);
     });
-    //
-    $(document).on('change', '#FromDateEdit, #ToDateEdit', function (e) {
+    
+    $(document).on('change', '#EmployeeIDEdit,#FromDateEdit, #ToDateEdit', function (e) {
         e.preventDefault();
 
         let fromDate = flatpickrHelper.getDate('FromDateEdit');
         let toDate = flatpickrHelper.getDate('ToDateEdit');
-        GetLeavedaysSubsequent(fromDate, toDate);
+        var employeeId = $('#EmployeeIDEdit').val();
+      
+        GetLeavedaysSubsequent(employeeId, fromDate, toDate);
 
     });
-
-
-   
 
     //
     let exceedConfirmed = false; // state flag
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
-       
+
         var $form = $(this);
 
         if (!$form.valid()) {
@@ -548,14 +534,14 @@ $(document).ready(function () {
             const message = `You have ${available} day(s) available, but you tried to apply for ${applied} day(s).
         So, your exceed leave will be deducted from Annual Leave. `;
 
-      
-           // toastr.error(message);
 
-          //  $('#exceedAnnualLeaveModal').find('.modal-body').text(message);
+            // toastr.error(message);
+
+            //  $('#exceedAnnualLeaveModal').find('.modal-body').text(message);
             $('#DisplayContainer').text(message);
             var modal = new bootstrap.Modal(document.getElementById('exceedAnnualLeaveModal'));
-          
-            var employeeId =$('#EmployeeID').val();
+
+            var employeeId = $('#EmployeeID').val();
             DisplayLeave(employeeId)
             modal.show();
 
@@ -567,8 +553,8 @@ $(document).ready(function () {
 
         var url = $form.attr('action');
         var formData = new FormData(this);
-        
-      
+
+
         $.ajax({
             type: 'POST',
             url: url,
@@ -608,9 +594,8 @@ $(document).ready(function () {
     });
 
 
-    
-    function DisplayLeave(employeeId)
-    {
+
+    function DisplayLeave(employeeId) {
 
         $.ajax({
             url: '/LeaveRequest/GetLeaveTypeBalancesForEmployeeDisplay',
@@ -632,7 +617,7 @@ $(document).ready(function () {
     }
 
 
- 
+
     //
     // Reset button click
     $('#ResetButton').on('click', function () {
@@ -677,7 +662,7 @@ $(document).ready(function () {
     //
     $(document).on('click', '#leaveRequestDelete-singleDelBtn', function () {
         var id = $(this).data('id');
-        
+
         if (id) {
             showDeleteModal(function () {
                 $.ajax({
@@ -685,7 +670,7 @@ $(document).ready(function () {
                     method: 'POST',
                     data: { ids: [id] },
                     success: function (response) {
-                    
+
                         if (response.success) {
                             toastr.success(response.message);
                             loadTableData();
@@ -707,13 +692,13 @@ $(document).ready(function () {
     // Get By data leaveRequest
     $(document).on('click', '#LeaveRequestEditButton', function () {
         var leaveApplicationID = $(this).data('id');
-     
+
         $.ajax({
             url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-              
+
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
 
@@ -742,8 +727,8 @@ $(document).ready(function () {
                         $('#FullDayDivEdit').addClass('d-none');
                         $('#PartialDayDivEdit').removeClass('d-none');
                     }
-                   
-                    
+
+
                     if (data.totalSubsequentDays > 0) {
                         $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
                     } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
@@ -765,8 +750,8 @@ $(document).ready(function () {
 
 
 
-   
-    
+
+
     //
 
 
@@ -862,8 +847,7 @@ function getBadgeClass(status) {
 }
 
 function getAvatarHtml(employee) {
-    if (employee.employeeImage && employee.employeeImage !== '')
-    {
+    if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
     } else {
         const initial = employee.employeeName.charAt(0).toUpperCase();
@@ -908,7 +892,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     const toDate = $('#basic-daterange_toHidden').val();     // YYYY-MM-DD
     console.log("Dept: " + departmentIds + " | Emp: " + employeeIds + " | Org: " + organizationId);
     console.log("From: " + fromDate + " | To: " + toDate);
-  
+
     $.ajax({
         url: '/LeaveRequestRoute/GetAllTableListAsync',
         method: 'GET',
@@ -925,11 +909,11 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             departmentIds: departmentIds,
             employeeIds: employeeIds,
             fromDate: fromDate,    // 👈 added
-            toDate: toDate  
+            toDate: toDate
         },
         success: function (response) {
-           
-           
+
+
             console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
@@ -937,14 +921,14 @@ function loadTableData(currentSortColumn, currentSortOrder) {
 
             if (response.data.length > 0) {
                 response.data.forEach(function (item, index) {
-                   
+
                     if (currentSortOrder === 'asc') {
                         rowIndex = (currentPage - 1) * pageSize + index + 1;
                     } else {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
                     //
-           
+
                     //
                     let status = item.statusName; // Assuming this is your status value
                     let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINEED');

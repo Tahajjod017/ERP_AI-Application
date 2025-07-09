@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -62,5 +63,32 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return Json(result);
         }
         #endregion
+
+        #region delete 
+
+        [HttpPost]
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No id selected to delete." });
+                }
+                var result = await _branchSettingService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No id found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
     }
 }

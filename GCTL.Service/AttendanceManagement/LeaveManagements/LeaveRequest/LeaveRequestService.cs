@@ -23,6 +23,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Razor.Generator;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -173,7 +174,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
-                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault()
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
+                        
 
                     });
 
@@ -915,8 +917,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                         IsMaximumGapDaysBetweenAplications = x.IsMaximumGapDaysBetweenAplications,
                         MaximumGapDaysBetweenAplications = x.MaximumGapDaysBetweenAplications
-                    })
-                    .ToListAsync();
+                    }).ToListAsync();
 
                 await leavePolicyConfiguration.CommitTransactionAsync();
 
@@ -934,9 +935,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region  SubsequentAsynce Leave Check
 
-        public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
+        public async Task<SubsequentWithRestrictionVM> SubsequentAsynceWithRestriction(int employeeId, DateTime fromDate, DateTime toDate)
         {
 
+
+            if (employeeId == 0 || fromDate == null || toDate == null)
+            {
+                return new SubsequentWithRestrictionVM();
+            }
             var normalizedFrom = fromDate.Date;
             var normalizedTo = toDate.Date;
             if (normalizedTo < normalizedFrom)
@@ -980,43 +986,175 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             if (isWeenedHoliday.IsWeekendCountedAsLeave)
             {
-                // fromDate and toDate are DateTime variables passed to the method
                 var allWeekendDays = await weekedays.AllActive()
                     .Include(x => x.WeekendSetting)
                     .ToListAsync();
 
-                //var uniqueDates = new HashSet<DateTime>();
 
-                // Loop through date range
                 for (var date = fromDate; date <= toDate; date = date.AddDays(1))
                 {
-                    int dayNumber = (int)date.DayOfWeek; // Sunday = 0, Monday = 1, ..., Saturday = 6
+                    int dayNumber = (int)date.DayOfWeek;
 
-                    // Check if this dayNumber exists in the WeekendDays table
                     if (allWeekendDays.Any(w => w.WeekdayNumber == dayNumber))
                     {
-                        uniqueDates.Add(date); // Add the date to the result if it's a weekend
+                        uniqueDates.Add(date);
                     }
                 }
 
             }
 
-            return new SubsequentVM
+            var policy = await leavePolicyConfiguration.AllActive()
+                                                            .Select(x => new
+                                                            {
+                                                                x.IsAllowRequestForPastDates,
+                                                                x.IsAllowRequestForFutureDays,
+                                                                x.AllowRequestForFutureDays,
+                                                                x.IsMaximumleaveDaysPerAplication,
+                                                                x.MaximumleaveDaysPerAplication,
+                                                                x.IsMaximumGapDaysBetweenAplications,
+                                                                x.MaximumGapDaysBetweenAplications
+                                                            }).FirstOrDefaultAsync();
+            if (policy == null)
+                return null;
+
+            var maxDaysMassage = "";
+            if (policy.IsMaximumleaveDaysPerAplication == true && policy.MaximumleaveDaysPerAplication.HasValue)
+            {
+                if (totalDays > policy.MaximumleaveDaysPerAplication.Value)
+                {
+                    maxDaysMassage = $"Maximum {policy.MaximumleaveDaysPerAplication} days allowed.";
+                }
+            }
+
+            string MaxGapdaysMessage = "";
+            int appliableYear = DateTime.Now.Year;
+            DateOnly fromDateOnly = DateOnly.FromDateTime(fromDate);
+            var lastAcceptedLeaveToDate = await leaveRequest.AllActive()
+                .Include(x => x.Status)
+                .Where(x => x.EmployeeID == employeeId
+                    && x.Status.StatusName == "APPROVED"
+                    && x.LeaveApplicableYear == appliableYear
+                    && x.ToDate <= fromDateOnly).OrderByDescending(x => x.ToDate) .Select(x => x.ToDate).FirstOrDefaultAsync();
+
+            if (lastAcceptedLeaveToDate != default
+                && policy.IsMaximumGapDaysBetweenAplications == true
+                && policy.MaximumGapDaysBetweenAplications.HasValue)
+            {
+
+                
+                int allowedGap = policy.MaximumGapDaysBetweenAplications.Value;
+                // Calculate actual gap
+                int gap = (fromDate.Date - lastAcceptedLeaveToDate.ToDateTime(TimeOnly.MinValue)).Days - 1;
+                if (gap < allowedGap)
+                {
+                    // Calculate next valid from date
+                    DateTime nextValidFrom = lastAcceptedLeaveToDate.ToDateTime(TimeOnly.MinValue).AddDays(allowedGap + 1);
+
+                    MaxGapdaysMessage = $"Maximum {allowedGap} days gap is allowed between two applications. " +
+                                        $"You can apply for leave starting from {nextValidFrom:dd/MM/yyyy}.";
+                }
+            }
+            //
+            // Get Leave Balance or Default Leave Days
+            
+
+            //
+            return new SubsequentWithRestrictionVM
             {
                 TotalDays = totalDays,
                 TotalSubsequentDays = uniqueDates.Count,
                 IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
-                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
+                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave,
+                //
+                IsAllowRequestForPastDates = policy.IsAllowRequestForPastDates,
+                IsAllowRequestForFutureDays = policy.IsAllowRequestForFutureDays,
+                AllowRequestForFutureDays = policy.AllowRequestForFutureDays,
+                IsMaximumleaveDaysPerAplication = policy.IsMaximumleaveDaysPerAplication,
+                MaximumleaveDaysPerAplication = policy.MaximumleaveDaysPerAplication,
+                IsMaximumGapDaysBetweenAplications = policy.IsMaximumGapDaysBetweenAplications,
+                MaximumGapDaysBetweenAplications = policy.MaximumGapDaysBetweenAplications,
+                Message = maxDaysMassage,
+                MaxGapdaysMessage= MaxGapdaysMessage,
+               
             };
         }
 
 
 
+        public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
+        {
+
+            var normalizedFrom = fromDate.Date;
+            var normalizedTo = toDate.Date;
+            if (normalizedTo < normalizedFrom)
+                throw new ArgumentException("ToDate must be on or after fromDate");
+
+            int totalDays = (int)(normalizedTo - normalizedFrom).TotalDays + 1;
+
+            var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
+                .Select(x => new
+                {
+                    x.IsHolidayCountedAsLeave,
+                    x.IsWeekendCountedAsLeave
+                }).FirstOrDefaultAsync();
+
+            if (isWeenedHoliday == null)
+                return null;
+
+            // Use HashSet to avoid duplicate dates
+            HashSet<DateTime> uniqueDates = new HashSet<DateTime>();
+
+            if (isWeenedHoliday.IsHolidayCountedAsLeave)
+            {
+                var holidaysInRange = await holidays.AllActive()
+                    .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+                    .ToListAsync();
+
+                foreach (var h in holidaysInRange)
+                {
+                    var start = h.StartDate.GetValueOrDefault();
+                    var end = h.EndDate.GetValueOrDefault();
+
+                    var actualStart = start < fromDate ? fromDate : start;
+                    var actualEnd = end > toDate ? toDate : end;
+
+                    for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
+                    {
+                        uniqueDates.Add(date);
+                    }
+                }
+            }
+
+            if (isWeenedHoliday.IsWeekendCountedAsLeave)
+            {
+                var allWeekendDays = await weekedays.AllActive()
+                    .Include(x => x.WeekendSetting)
+                    .ToListAsync();
+
+
+                for (var date = fromDate; date <= toDate; date = date.AddDays(1))
+                {
+                    int dayNumber = (int)date.DayOfWeek; 
+
+                    if (allWeekendDays.Any(w => w.WeekdayNumber == dayNumber))
+                    {
+                        uniqueDates.Add(date); 
+                    }
+                }
+
+            }
+            
+            return new SubsequentVM
+            {
+                TotalDays = totalDays,
+                TotalSubsequentDays = uniqueDates.Count,
+                IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
+                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave,
+            };
+        }
 
         #endregion
 
-
-        //
 
         #region GetCompanies
         public Task<List<CommonSelectVM>> GetCompanies()
@@ -1104,8 +1242,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
 
-
-
         #region SoftDeleteAsync
         public Task<MultiDropDown> SoftDeleteAsync(DeleteRequestVM model)
         {
@@ -1163,16 +1299,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
         #endregion
 
-
-        //
-
-
         #region Dispaly LeaveDays 
         public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
         {
-            // Get employee ID from user ID
-
-
+            
             // Base query for leave balances
             var baseQuery = from lt in leaveTypes.AllActive()
                             join lb in leaveBalances.AllActive().Where(x => x.EmployeeID == employeeId)
@@ -1196,14 +1326,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             return await baseQuery.ToListAsync();
         }
-
-        // Check server side 
-
-       
-
         #endregion
-
-
-        //
     }
 }

@@ -271,7 +271,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<WeekendSettingVM>>(JsonConvert.SerializeObject(data));
+                //var beforeEntity = JsonConvert.DeserializeObject<List<WeekendSettingVM>>(JsonConvert.SerializeObject(data));
                 var targetIds = data.Select(x => (int?)x.WeekendSettingID).ToList();
 
                 foreach (var item in data)
@@ -284,7 +284,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("WeekendSettings", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+               // await _userInfoService.ActionLogDeleteAsync("WeekendSettings", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

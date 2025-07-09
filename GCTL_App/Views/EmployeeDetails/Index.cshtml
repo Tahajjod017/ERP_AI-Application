@@ -65,9 +65,26 @@
 
         <div class="d-flex my-xl-auto right-content align-items-end flex-wrap ">
             <div class="mb-2">
-                <a class="btn btn-primary d-flex align-items-center" id="btnExport">
+                @*<a class="btn btn-primary d-flex align-items-center" id="btnExport">
                     <i class="fa fa-file-pdf text-white me-2"></i>@Html.SmartLocalize("Export Employee Details Information")
-                </a>
+                </a>*@
+
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-phoenix-secondary dropdown-toggle me-3" data-bs-toggle="dropdown" aria-expanded="false">
+                        @Html.SmartLocalize("Export Employee Details Information") <i class="fa-solid fa-file-export"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" id="btnPreview"><span data-feather="download"></span>Preview</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="btnExport"> <span data-feather="download"></span>Download </a>
+
+                        </li>
+
+                    </ul>
+                </div>
+
             </div>
         </div>
 

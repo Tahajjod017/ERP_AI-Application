@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings
+namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest
 {
-    public class GetLeavePolicyConfigurationVM
+    public class SubsequentWithRestrictionVM
     {
-       
-        public bool IsWeekendCountedAsLeave { get; set; }
         public bool IsHolidayCountedAsLeave { get; set; }
+        public bool IsWeekendCountedAsLeave { get; set; }
+        public int? TotalSubsequentDays { get; set; }
+        public int TotalDays { get; set; }
+        //
         public bool IsAllowRequestForPastDates { get; set; }
 
         public bool? IsAllowRequestForFutureDays { get; set; }
@@ -21,5 +23,8 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 
         public bool? IsMaximumGapDaysBetweenAplications { get; set; }
         public int? MaximumGapDaysBetweenAplications { get; set; }
+        public string? Message { get; set; }
+        public string? MaxGapdaysMessage { get; set; }
+        public int LeaveDays {  get; set; } 
     }
 }

@@ -24,6 +24,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         Task<List<SelectListItem>> GetApprovalTypesAsync();
         Task<List<SelectListItem>> GetEmployeeAsync();
         Task<List<SelectListItem>> GetDesignationAsync();
+        Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationAsync();
 
     }
 }

@@ -380,7 +380,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         #endregion
 
-        #region GetFull Emploffice
+        #region GetFull Emploffice 
 
         public async Task<EmployeeOfficialGetViewModel> GetFullEmployeeOfficalDetails(int id)
         {
@@ -471,7 +471,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             
         }
 
-        public async Task<IEnumerable<EmployeeOfficialGetViewModel>> GetAllEmployeeOfficialDetailsAsync()
+        public async Task<IEnumerable<EmployeeOfficialGetViewModel>> GetAllEmployeeOfficialDetailsByCompanyAsync( int compId)
         {
             try
             {
@@ -488,6 +488,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                     .Include(w => w.HeadOfDepartment)
                     .Include(e => e.EmploymentStatus)
                     .Include(e => e.ProvisionPeriodTtimeType)
+                    .Where(e => e.OrganizationID == compId)
                     .ToListAsync();
 
                 var result = from official in empOfficials

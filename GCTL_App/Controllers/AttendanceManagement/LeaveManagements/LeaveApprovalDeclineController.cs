@@ -95,6 +95,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         {
             try
             {
+                int? employeeId = await GetCurrentEmployeeIdAsync();
                 if (!ModelState.IsValid)
                 {
                     return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });

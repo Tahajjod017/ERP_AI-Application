@@ -43,11 +43,18 @@
     //#endregion
 
     $('#btnExport').on('click', function () {
+        toastr.info("Processing....");
         var id = $('#empPersonalId').val();
-        toastr.info("Generating PDF for Employee ID: " + id);
         GenaratePDF(id);
-        });
-   
+    });
+
+    $('#btnPreview').on('click', function () {
+        toastr.info("Processing....");
+        var id = $('#empPersonalId').val();
+        GenaratePreview(id);
+    });
+
+
    // populateExperienceInfoTable(experienceInfoData);
 
 });
@@ -59,6 +66,8 @@ function GenaratePDF(empId) {
         toastr.warning("Employee ID is required.");
         return;
     }
+
+    toastr.success("Generating PDF for Employee ID: " + empId); // Fixed variable name from id to empId
 
     $.ajax({
         url: '/EmployeeReport/GenerateIndiEmpDetailsPDF', // Backend route
@@ -75,14 +84,45 @@ function GenaratePDF(empId) {
             a.download = `Employee_${empId}.pdf`;
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a); // Clean up the DOM
+            window.URL.revokeObjectURL(url); // Free memory immediately
         },
         error: function (xhr, status, error) {
+            toastr.error("Error generating PDF: " + error);
             console.error("Error generating PDF:", error);
         }
     });
 }
-//#endregion 
+
+function GenaratePreview(empId) {
+    if (!empId) {
+        toastr.warning("Employee ID is required.");
+        return;
+    }
+
+    toastr.success("Generating preview for Employee ID: " + empId);
+
+    $.ajax({
+        url: '/EmployeeReport/GenerateIndiEmpDetailsPDF', // Same backend route as export
+        type: 'POST',
+        data: { id: empId },
+        xhrFields: {
+            responseType: 'blob' // Handle binary response
+        },
+        success: function (response, status, xhr) {
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank'); // Open PDF in new tab
+            setTimeout(() => window.URL.revokeObjectURL(url), 1000); // Free memory after delay
+        },
+        error: function (xhr, status, error) {
+            toastr.error("Error generating PDF preview: " + error);
+            console.error("Error generating PDF preview:", error);
+        }
+    });
+}
+
+//#endregion
 
 //#region all Populate function real
 

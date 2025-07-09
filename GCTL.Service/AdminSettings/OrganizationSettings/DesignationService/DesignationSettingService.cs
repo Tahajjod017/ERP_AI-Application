@@ -169,7 +169,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<DesignationVM>>(JsonConvert.SerializeObject(data));
+                //var beforeEntity = JsonConvert.DeserializeObject<List<DesignationVM>>(JsonConvert.SerializeObject(data));
                 var targetIds = data.Select(x => (int?)x.DesignationID).ToList();
 
                 foreach (var item in data)
@@ -182,7 +182,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Designation", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                //await _userInfoService.ActionLogDeleteAsync("Designation", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

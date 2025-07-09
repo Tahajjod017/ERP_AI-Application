@@ -27,6 +27,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
+
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -313,6 +314,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<ApplicationUser>()
           .HasDiscriminator<string>("Discriminator")
           .HasValue<ApplicationUser>("ApplicationUser");
+          
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employees)
                 .WithMany(e => e.AspNetUsers)
@@ -344,6 +346,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(r => r.TenantInfoId)
                 .IsRequired(false)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
