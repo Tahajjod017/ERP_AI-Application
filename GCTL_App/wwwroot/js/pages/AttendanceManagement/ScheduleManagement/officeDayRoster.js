@@ -238,11 +238,49 @@
             $('#OrganizationID').on('change', function (e) {
                 e.preventDefault();
 
-                var organizationId = $(this).val();  
+                var organizationId = $(this).val(); 
+                loadBranchByOrganization(organizationId);
                 loadDepartmentsByCompany(organizationId);
                 loadEmpByOrg(organizationId);
                 loadShiftByOrg(organizationId);
             });
+            // #endregion
+
+
+
+            // #region
+            function loadBranchByOrganization(organizationId) {
+                $.ajax({
+                    url: '/OfficeDayRoster/GerBranchByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (branch) {
+                        var select = $('#BranchIDs');
+                        select.empty();
+
+                        //select.append('')
+                        $.each(branch, function (index, b) {
+                            console.log(`${b.branchID} ${b.branchName}`)
+                            select.append(
+                                $('<option>').val(b.branchID).text(b.branchName)
+                            );
+                        });
+
+                        // Get the CoreUI multiselect instance
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh the UI
+                        } else {
+                            // Reinitialize if not already initialized (in case it's dynamically added)
+                            new coreui.MultiSelect(select[0]);
+                        }
+                    },
+                    error: function () {
+                        console.error('Failed to load branch!');
+                    }
+                })
+            }
             // #endregion
 
 
@@ -432,7 +470,6 @@
 
             // #region loadEmployeesByFilter
             function loadEmployeesByFilter(organizationId, departmentIds = []) {
-                console.log('departmentIds:', departmentIds);
                 $.ajax({
                     url: '/OfficeDayRoster/GetEmployeeByDepartment',
                     type: 'GET',
@@ -443,6 +480,73 @@
                     },
                     success: function (data) {
                         recreateEmpDD(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
+                    }
+                });
+            }
+            // #endregion
+
+
+
+            // #region
+            document.getElementById('BranchIDs')
+                .addEventListener('changed.coreui.multi-select', function (event) {
+                    const orgId = $('#OrganizationID').val();
+
+                    const selected = event.value || []; // array of {text, value}
+                    const ids = selected.map(x => parseInt(x.value));
+
+                    loadEmployeesByBranch(orgId, ids);
+                });
+            // #endregion
+
+
+
+            // #region loadEmployeesByBranch
+            function loadEmployeesByBranch(orgId, ids = []) {
+                $.ajax({
+                    url: '/OfficeDayRoster/GetEmployeeByBranch',
+                    type: 'GET',
+                    traditional: true,
+                    data: {
+                        orgId: orgId,
+                        ids: ids
+                    },
+                    success: function (datas) {
+                        var select = $('#EmployeeIDs');
+                        select.empty();
+
+                        // Group employees by department
+                        const grouped = {};
+                        datas.forEach(emp => {
+                            if (!grouped[emp.departmentName]) {
+                                grouped[emp.departmentName] = [];
+                            }
+                            grouped[emp.departmentName].push(emp);
+                        });
+
+                        // Append optgroups and options
+                        Object.keys(grouped).forEach(dept => {
+                            const optgroup = $('<optgroup>').attr('label', dept);
+                            grouped[dept].forEach(emp => {
+                                optgroup.append(
+                                    $('<option>').val(emp.employeeID).text(emp.employeeName)
+                                );
+                            });
+                            select.append(optgroup);
+                        });
+
+                        // Get the CoreUI multiselect instance
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh the UI
+                        } else {
+                            // Reinitialize if not already initialized (in case it's dynamically added)
+                            new coreui.MultiSelect(select[0]);
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading employees:', error);
@@ -629,9 +733,7 @@
         }
 
 
-        function loadTableData(
-            sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate
-        ) {
+        function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
             const searchTerm = $("#rosterInOfficeDays-searchInput").val();
 
             $.ajax({
@@ -676,8 +778,8 @@
                     </td>`;
 
                         headers.forEach(h => {
-                            const dateKey = new Date(h.date).toISOString().split('T')[0];
-                            const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
+                            //const dateKey = new Date(h.date).toISOString().split('T')[0];
+                            //const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
                             const hasOverride = shift?.rosterInOfficeDaysOverrideSetupVMs?.length > 0;
 
                             if (shift && !hasOverride) {

@@ -49,6 +49,10 @@ public partial class LeaveApplications
 
     public int? GroupApplicationID { get; set; }
 
+    public int? ApprovalPersonID { get; set; }
+
+    public virtual Employees ApprovalPerson { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

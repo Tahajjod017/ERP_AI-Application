@@ -35,6 +35,18 @@ public partial class LeaveBaseApprovalHistory
 
     public int? DeletedBy { get; set; }
 
+    public bool? IsFullDay { get; set; }
+
+    public DateOnly? FromDate { get; set; }
+
+    public DateOnly? ToDate { get; set; }
+
+    public TimeOnly? PartialFromTime { get; set; }
+
+    public TimeOnly? PartialToTime { get; set; }
+
+    public int? LeaveTypeID { get; set; }
+
     public virtual Employees ApproveByNavigation { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
