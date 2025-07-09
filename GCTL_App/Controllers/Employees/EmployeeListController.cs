@@ -1,4 +1,5 @@
 ﻿
+using System.Linq;
 using System.Web.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmployeeListVM;
@@ -19,6 +20,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -120,6 +122,9 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+
+
+
         public IActionResult Index()
         {
             PopulateDDViewBag();
@@ -131,19 +136,19 @@ namespace GCTL_App.Controllers.Employees
         {
             #region ViewBag
 
-            ViewBag.TotalEmployee = _employeeRepository.All().Count();
-            ViewBag.ActiveEmployee = _employeeRepository.AllActive().Count();
-            ViewBag.InactiveEmployee = ViewBag.TotalEmployee - ViewBag.ActiveEmployee;
+            ViewBag.TotalEmployee = _employeeOfficeRepository.AllActive().Count();
+            ViewBag.ActiveEmployee = _employeeOfficeRepository.AllActive().Where(e => e.EmploymentStatusId == 1007).Count();
+            ViewBag.InactiveEmployee = _employeeOfficeRepository.AllActive().Where(e => e.EmploymentStatusId == 1008).Count();
 
             DateOnly threeMonthsAgo = DateOnly.FromDateTime(DateTime.Now.AddMonths(-3));
-            var newJoinings = _employeeOfficeRepository.All().Where(emp => emp.JoiningDate.HasValue && emp.JoiningDate.Value >= threeMonthsAgo).ToList();
+            var newJoinings = _employeeOfficeRepository.AllActive().Where(emp => emp.JoiningDate.HasValue && emp.JoiningDate.Value >= threeMonthsAgo).ToList();
             ViewBag.NewJoinings = newJoinings.Count();
 
-            ViewBag.CompanyDD = new SelectList(_companyRepository.All().Select(d => new { d.OrganizationID, d.OrganizationName }), "OrganizationID", "OrganizationName");
-            ViewBag.DepartmentDD = new SelectList(_departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }), "DepartmentID", "DepartmentName");
+            ViewBag.CompanyDD = new SelectList(_companyRepository.AllActive().Select(d => new { d.OrganizationID, d.OrganizationName }), "OrganizationID", "OrganizationName");
+            ViewBag.DepartmentDD = new SelectList(_departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }), "DepartmentID", "DepartmentName");
             ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
-            ViewBag.CountryDD = new SelectList(_countryRepository.All(), "CountryID", "CountryName");
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.CountryDD = new SelectList(_countryRepository.AllActive(), "CountryID", "CountryName");
 
 
             ViewBag.HouseRentAllowanceDD = new SelectList(new List<SelectListItem>
@@ -175,11 +180,11 @@ namespace GCTL_App.Controllers.Employees
 
 
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
-            ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.All().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
+            ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.AllActive().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
 
-            ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.All().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
+            ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.AllActive().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
 
             ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
                 {
@@ -240,74 +245,74 @@ namespace GCTL_App.Controllers.Employees
 
 
             ViewBag.EmployeeDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.OrganizationDD = new SelectList(
-                _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+                _organizationRepository.AllActive().Select(o => new { o.OrganizationID, o.OrganizationName }),
                 "OrganizationID",
                 "OrganizationName"
             );
 
             ViewBag.BranchDD = new SelectList(
-                _branchRepository.All().Select(b => new { b.OrganizationBranchID, b.OrganizationBranchName }),
+                _branchRepository.AllActive().Select(b => new { b.OrganizationBranchID, b.OrganizationBranchName }),
                 "OrganizationBranchID",
                 "OrganizationBranchName"
             );
 
             ViewBag.EmployeeTypeDD = new SelectList(
-                _employeeTypeRepository.All().Select(et => new { et.EmployeeTypeID, et.EmployeeTypeName }),
+                _employeeTypeRepository.AllActive().Select(et => new { et.EmployeeTypeID, et.EmployeeTypeName }),
                 "EmployeeTypeID",
                 "EmployeeTypeName"
             );
 
             ViewBag.DepartmentDD = new SelectList(
-                _departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }),
+                _departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }),
                 "DepartmentID",
                 "DepartmentName"
             );
 
             ViewBag.DesignationDD = new SelectList(
-                _designationRepository.All().Select(d => new { d.DesignationID, d.DesignationName }),
+                _designationRepository.AllActive().Select(d => new { d.DesignationID, d.DesignationName }),
                 "DesignationID",
                 "DesignationName"
             );
 
             ViewBag.EmploymentNatureDD = new SelectList(
-                _employmentNatureRepository.All().Select(en => new { en.EmploymentNatureID, en.EmploymentNatureName }),
+                _employmentNatureRepository.AllActive().Select(en => new { en.EmploymentNatureID, en.EmploymentNatureName }),
                 "EmploymentNatureID",
                 "EmploymentNatureName"
             );
 
             ViewBag.SeniorSupervisorDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.ImmediateSupervisorDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.HeadOfDepartmentDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.EmployeeStatusDD = new SelectList(
-                _employeeStatusRepository.All().Select(es => new { es.StatusID, es.StatusName }),
+                _employeeStatusRepository.AllActive().Select(es => new { es.StatusID, es.StatusName }),
                 "StatusID",
                 "StatusName"
             );
 
-            ViewBag.BloodGroupDD = new SelectList(_bloodGroupRepository.All(), "BloodGroupID", "BloodGroupName");
+            ViewBag.BloodGroupDD = new SelectList(_bloodGroupRepository.AllActive(), "BloodGroupID", "BloodGroupName");
 
-            ViewBag.TimeUnitDD = new SelectList(_provisionPeriodTtimeTypesRepository.All().Select(tu => new { tu.ProvisionPeriodTtimeTypeID, tu.ProvisionPeriodTtimeTypeName }), "ProvisionPeriodTtimeTypeID", "ProvisionPeriodTtimeTypeName");
+            ViewBag.TimeUnitDD = new SelectList(_provisionPeriodTtimeTypesRepository.AllActive().Select(tu => new { tu.ProvisionPeriodTtimeTypeID, tu.ProvisionPeriodTtimeTypeName }), "ProvisionPeriodTtimeTypeID", "ProvisionPeriodTtimeTypeName");
 
 
             //ViewBag.TimeUnitDD = new SelectList(new List<object>{
@@ -317,15 +322,15 @@ namespace GCTL_App.Controllers.Employees
             //}, "TimeUnitID", "TimeUnitName");
 
 
-            ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusID", "MaritalStatusName");
-            ViewBag.ReligionDD = new SelectList(_religionRepository.All(), "ReligionID", "ReligionName");
-            ViewBag.GenderDD = new SelectList(_genderRepository.All(), "GenderID", "GenderName");
+            ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.AllActive(), "MaritalStatusID", "MaritalStatusName");
+            ViewBag.ReligionDD = new SelectList(_religionRepository.AllActive(), "ReligionID", "ReligionName");
+            ViewBag.GenderDD = new SelectList(_genderRepository.AllActive(), "GenderID", "GenderName");
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
-            ViewBag.GradeDD = new SelectList(_gradeRepository.All().Select(o => new { o.GradeID, o.GradeName }), "GradeID", "GradeName");
-            ViewBag.CurrencyDD = new SelectList(_currencyRepository.All().Select(o => new { o.CurrencyID, o.CurrencyName }), "CurrencyID", "CurrencyName");
-            ViewBag.PaymenPeriodTypeDD = new SelectList(_paymentPeriodTypeRepository.All().Select(o => new { o.PaymentPeriodTypeID, o.PaymentPeriodTypeName }), "PaymentPeriodTypeID", "PaymentPeriodTypeName");
-            ViewBag.PaymenModeDD = new SelectList(_paymentModeRepository.All().Select(o => new { o.PaymentModeID, o.PaymentModeName }), "PaymentModeID", "PaymentModeName");
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.GradeDD = new SelectList(_gradeRepository.AllActive().Select(o => new { o.GradeID, o.GradeName }), "GradeID", "GradeName");
+            ViewBag.CurrencyDD = new SelectList(_currencyRepository.AllActive().Select(o => new { o.CurrencyID, o.CurrencyName }), "CurrencyID", "CurrencyName");
+            ViewBag.PaymenPeriodTypeDD = new SelectList(_paymentPeriodTypeRepository.AllActive().Select(o => new { o.PaymentPeriodTypeID, o.PaymentPeriodTypeName }), "PaymentPeriodTypeID", "PaymentPeriodTypeName");
+            ViewBag.PaymenModeDD = new SelectList(_paymentModeRepository.AllActive().Select(o => new { o.PaymentModeID, o.PaymentModeName }), "PaymentModeID", "PaymentModeName");
 
             ViewBag.Country = _countryRepository.GetActiveSelectListById(c => c.CountryID, c => c.CountryName);
             ViewBag.TrainingYear = _trainingYearsRepository.GetActiveSelectListById(t => t.TrainingYearID, t => t.TrainingYearName);
@@ -379,27 +384,53 @@ namespace GCTL_App.Controllers.Employees
 
         #region GetEmployee For Table and Board
 
+
         [HttpGet]
-        public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, 
-            [FromQuery] string department = "", [FromQuery] string status = "", [FromQuery] string sort = "", 
-            [FromQuery] string search = "", [FromQuery] string sortColumn = "joiningDate", [FromQuery] string sortDirection = "desc")
+        public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, [FromQuery] string department = "",
+        [FromQuery] string status = "",[FromQuery] string sort = "",[FromQuery] string search = "",[FromQuery] string sortColumn = "joiningDate",
+        [FromQuery] string sortDirection = "desc", [FromQuery] string company = "") // Added company parameter
         {
             try
             {
                 var request = _httpContextAccessor.HttpContext.Request;
                 string url = $"{request.Scheme}://{request.Host}";
-
                 string url1 = GetEmployeePictureURL(true);
 
                 // Build query
                 IQueryable<EmployeeListGetViewModel> query = await _employeeListService.GetEmployees();
 
+
+                if (!string.IsNullOrEmpty(company))
+                {
+                    var companyIds = company.Split(',').Select(id => long.Parse(id.Trim())).ToList();
+                    query = query.Where(e => e.CompanyId.HasValue && companyIds.Contains(e.CompanyId.Value));
+                }
+
+             
+
+                //if (!string.IsNullOrEmpty(company))
+                //{
+                //    var companyIds = company.Split(',').Select(id => Convert.ToInt64(id.Trim())).ToList();
+
+                //    query = query.Where(e => companyIds.Contains(Convert.ToInt64(e.CompanyId)));
+
+                //    //query = query.Where(e => e.CompanyId.ToString() == company); // Adjust based on your EmployeeListGetViewModel
+                //}
+
                 // Filter by department
                 if (!string.IsNullOrEmpty(department))
                 {
-                    var dept = _departmentRepository.All().Where(e => e.DepartmentID == Convert.ToInt64(department)).Select(e=>e.DepartmentName).FirstOrDefault();
-                    query = query.Where(e => e.Department == dept);
+                    var departmentIds = department.Split(',').Select(id => Convert.ToInt64(id.Trim())).ToList();
+
+                    query = query.Where(e => departmentIds.Contains(e.DepartmentId));
+
+
+
+                    //var dept = _departmentRepository.AllActive().Where(e => e.DepartmentID == Convert.ToInt64(department)).Select(e => e.DepartmentName).FirstOrDefault();
+                    //query = query.Where(e => e.Department == dept);
                 }
+
+                
 
                 // Filter by status
                 if (!string.IsNullOrEmpty(status))
@@ -407,22 +438,19 @@ namespace GCTL_App.Controllers.Employees
                     query = query.Where(e => e.Status == status);
                 }
 
+                
+
+                // Filter by company
+                
+
                 // Search by name or email
                 if (!string.IsNullOrEmpty(search))
                 {
-                    //query = query.Where(e =>
-                    //    e.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    //    e.Email.Contains(search, StringComparison.OrdinalIgnoreCase));
-
-                    query = query.Where(e =>
-                        e.Name.ToLower().Contains(search.ToLower()) ||
-                        e.Email.ToLower().Contains(search.ToLower()));
+                    query = query.Where(e => e.Name.ToLower().Contains(search.ToLower()) || e.Email.ToLower().Contains(search.ToLower()));
                 }
 
-
-
+                // Date filter for sort
                 string lowerSort = sort.ToLowerInvariant();
-
                 DateOnly? dateFilter = lowerSort switch
                 {
                     "sort by last 7 days" => DateOnly.FromDateTime(DateTime.Today.AddDays(-7)),
@@ -433,15 +461,12 @@ namespace GCTL_App.Controllers.Employees
                     _ => null
                 };
 
-
-
                 if (dateFilter.HasValue)
                 {
                     query = query.Where(e => e.JoiningDate >= dateFilter.Value);
                 }
 
-                query = query.OrderByDescending(e => e.JoiningDate);
-
+                // Apply sorting
                 query = sortColumn.ToLower() switch
                 {
                     "empid" => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.Id) : query.OrderByDescending(e => e.Id),
@@ -454,7 +479,6 @@ namespace GCTL_App.Controllers.Employees
                     _ => sortDirection.ToLower() == "asc" ? query.OrderBy(e => e.JoiningDate) : query.OrderByDescending(e => e.JoiningDate)
                 };
 
-
                 // Get total count for pagination
                 int total = await query.CountAsync();
 
@@ -464,21 +488,19 @@ namespace GCTL_App.Controllers.Employees
 
                 // Execute query
                 var employees = await query
-                     .Select(e => new
-                     {
-                         id = e.Id,
-                         name = string.IsNullOrEmpty(e.Name) ? "-" : e.Name,
-                         email = string.IsNullOrEmpty(e.Email) ? "-" : e.Email,
-                         phone = string.IsNullOrEmpty(e.Phone) ? "-" : e.Phone,
-                         department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
-                         joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null, // Keeping null for date field
-                         status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
-                         avatar = string.IsNullOrEmpty(e.Avatar) ? null : url1 + e.Avatar,
-                         url = url + "/uploads/employee/"
-                     })
-                     .ToListAsync();
-
-
+                    .Select(e => new
+                    {
+                        id = e.Id,
+                        name = string.IsNullOrEmpty(e.Name) ? "-" : e.Name,
+                        email = string.IsNullOrEmpty(e.Email) ? "-" : e.Email,
+                        phone = string.IsNullOrEmpty(e.Phone) ? "-" : e.Phone,
+                        department = string.IsNullOrEmpty(e.Department) ? "-" : e.Department,
+                        joiningDate = e.JoiningDate.HasValue ? e.JoiningDate : null,
+                        status = string.IsNullOrEmpty(e.Status) ? "-" : e.Status,
+                        avatar = string.IsNullOrEmpty(e.Avatar) ? null : url1 + e.Avatar,
+                        url = url + "/Uploads/employee/"
+                    })
+                    .ToListAsync();
 
                 // Return response
                 return Ok(new
@@ -492,6 +514,89 @@ namespace GCTL_App.Controllers.Employees
                 return StatusCode(500, new { message = "Server error", error = ex.Message });
             }
         }
+
+
+        [HttpGet]
+        public IActionResult GetDepartmentsByOrgId(string organizationId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(organizationId))
+                {
+                    return BadRequest("Organization ID is required");
+                }
+
+                var companyIds = organizationId.Split(',')
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Select(id => long.Parse(id.Trim()))
+                    .ToList();
+
+                if (!companyIds.Any())
+                {
+                    return BadRequest("Valid organization IDs are required");
+                }
+
+                var departments = _departmentRepository.AllActive()
+                    .Where(e => e.OrganizationID.HasValue && companyIds.Contains(e.OrganizationID.Value))
+                    .Select(d => new {
+                        departmentID = d.DepartmentID,
+                        departmentName = d.DepartmentName
+                    })
+                    .OrderBy(d => d.departmentName)
+                    .ToList();
+
+                return Ok(departments);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error in GetDepartmentsByOrgId: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching departments");
+            }
+        }
+
+
+
+        [HttpGet]
+        public IActionResult GetAllDepartments()
+        {
+            try
+            {
+                var departments = _departmentRepository.AllActive()
+                    .Select(d => new {
+                        departmentID = d.DepartmentID,
+                        departmentName = d.DepartmentName
+                    })
+                    .OrderBy(d => d.departmentName)
+                    .ToList();
+
+                return Ok(departments);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error in GetAllDepartments: {ex.Message}");
+                return StatusCode(500, "An error occurred while fetching all departments");
+            }
+        }
+
+
+
+        //[HttpGet]
+        //public IActionResult GetDepartmentsByOrgId(string organizationId)
+        //{
+        //    var companyIds = organizationId.Split(',').Select(id => long.Parse(id.Trim())).ToList();
+
+
+
+        //    var departments = _departmentRepository.AllActive().Where(e => e.OrganizationID.HasValue && companyIds.Contains(e.OrganizationID.Value))
+        //        .Select(d => new {
+        //            departmentID = d.DepartmentID,
+        //            departmentName = d.DepartmentName
+        //        }).ToList();
+
+        //    return Ok(departments);
+        //}
 
         #endregion
     }
