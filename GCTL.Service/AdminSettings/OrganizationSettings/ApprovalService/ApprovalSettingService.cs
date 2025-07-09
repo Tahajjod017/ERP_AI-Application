@@ -479,43 +479,46 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         #endregion
 
         #region GetEmployeeWithApprovalDesignationAsync
-        //public async Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationAsync()
-        //{
-        //    // Fetching Approval Designations first
-        //    var approvalDesignations = await _genericRepositoryApprovalDesignations.All()
-        //        .Where(ad => ad.DeletedAt == null)
-        //        .Select(ad => new SelectListItem
-        //        {
-        //            Value = ad.ApprovalDesignationID.ToString(),
-        //            Text = ad.ApprovalDesignationName
-        //        })
-        //        .ToListAsync();
+        public async Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationAsync()
+        {
+            // Fetch Approval Designations
+            var approvalDesignations = await _genericRepositoryApprovalDesignations.All()
+                .Where(ad => ad.DeletedAt == null)
+                .Select(ad => new SelectListItem
+                {
+                    Value = ad.ApprovalDesignationID.ToString(),
+                    Text = ad.ApprovalDesignationName
+                })
+                .ToListAsync();
 
-        //    // Fetching employees and their designations with ranking, and ensuring ranking is between 1 and 5
-        //    var employeeWithDesignation = await _genericRepositoryEmployeeOfficeInfo.All()
-        //        .Where(e => e.DeletedAt == null)
-        //        .Join(_genericRepositoryDesignations.All()
-        //            .Where(d => d.DeletedAt == null && d.Ranking >= 1 && d.Ranking <= 5),  // Ensure ranking is between 1 and 5
-        //            e => e.DesignationID,  // Join condition on DesignationID
-        //            d => d.DesignationID,  // Join condition on DesignationID
-        //            (e, d) => new SelectListItem
-        //            {
-        //                Value = e.EmployeeID.ToString(),
-        //                Text = $"{e.EmployeeName} - {d.DesignationName} (Rank {d.Ranking})"
-        //            })
-        //        .ToListAsync();
+            // Fetch Employees with Designation and Ranking
+            var employeeWithDesignation = await _genericRepositoryEmployeeOfficeInfo.All()
+                .Where(eoi => eoi.DeletedAt == null)
+                .Join(
+                    _genericRepositoryEmployees.All().Where(emp => emp.DeletedAt == null),
+                    eoi => eoi.EmployeeID,
+                    emp => emp.EmployeeID,
+                    (eoi, emp) => new { eoi, emp }
+                )
+                .Join(
+                    _genericRepositoryDesignations.All().Where(d => d.DeletedAt == null && d.Ranking >= 1 && d.Ranking <= 5),
+                    combined => combined.eoi.DesignationID,
+                    d => d.DesignationID,
+                    (combined, d) => new SelectListItem
+                    {
+                        Value = combined.eoi.EmployeeID.ToString(),
+                        Text = $"{combined.emp.FirstName} {combined.emp.LastName} | {d.DesignationName}"
+                    }
+                )
+                .ToListAsync();
 
-        //    // Combine both lists (first Approval Designations, then Employees with Designation and Ranking)
-        //    var combinedList = new List<SelectListItem>();
+            // Combine both lists
+            var combinedList = new List<SelectListItem>();
+            combinedList.AddRange(approvalDesignations);
+            combinedList.AddRange(employeeWithDesignation);
 
-        //    // Add Approval Designations first
-        //    combinedList.AddRange(approvalDesignations);
-
-        //    // Add Employees with Designation and Ranking after Approval Designations
-        //    combinedList.AddRange(employeeWithDesignation);
-
-        //    return combinedList;
-        //}
+            return combinedList;
+        }
         #endregion
 
 
