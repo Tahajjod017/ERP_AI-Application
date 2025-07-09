@@ -19,6 +19,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         {
             ViewBag.Organizations = await _approvalSettingService.GetOrganizationsAsync();
             ViewBag.ApprovalTypes = await _approvalSettingService.GetApprovalTypesAsync();
+            ViewBag.Employees = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync();
             return View();
         }
 
