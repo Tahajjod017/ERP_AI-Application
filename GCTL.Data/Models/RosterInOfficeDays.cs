@@ -15,9 +15,7 @@ public partial class RosterInOfficeDays
 
     public int? ShiftID { get; set; }
 
-    public DateTime? StartDate { get; set; }
-
-    public DateTime? EndDate { get; set; }
+    public DateTime? DayDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -37,6 +35,8 @@ public partial class RosterInOfficeDays
 
     public int? DepartmentID { get; set; }
 
+    public int? StatusID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -47,9 +47,9 @@ public partial class RosterInOfficeDays
 
     public virtual Organization Organization { get; set; }
 
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverride { get; set; } = new List<RosterInOfficeDaysOverride>();
-
     public virtual Shifts Shift { get; set; }
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

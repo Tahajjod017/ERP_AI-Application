@@ -188,8 +188,8 @@ $(document).ready(function () {
     function toggleTimeDateValidation() {
         if ($('#IsFullDay').is(':checked')) {
             // Enable required for FromDate and ToDate
-            $('#FromDate').attr('required', 'required');
-            $('#ToDate').attr('required', 'required');
+            $('#FromDateEdit').attr('required', 'required');
+            $('#ToDateEdit').attr('required', 'required');
 
             // Disable required for Partial times
             $('#PartialFromTime').removeAttr('required');
@@ -201,8 +201,8 @@ $(document).ready(function () {
             $('#PartialToTime').attr('required', 'required');
             $('#ToDateFromDateCombined').attr('required', 'required');
             // Disable required for full-day fields
-            $('#FromDate').removeAttr('required');
-            $('#ToDate').removeAttr('required');
+            $('#FromDateEdit').removeAttr('required');
+            $('#ToDateEdit').removeAttr('required');
         }
     }
 
@@ -213,31 +213,82 @@ $(document).ready(function () {
     });
     //
 
-    flatpickr("#ToDateFromDateCombined", {
+    flatpickr("#ToDateFromDateCombinedEdit", {
         dateFormat: "Y-m-d", // yyyy-mm-dd
         onChange: function (selectedDates, dateStr) {
             // Set the same date to both FromDate and ToDate
-            $('#FromDate').val(dateStr);
-            $('#ToDate').val(dateStr);
+            $('#FromDateEdit').val(dateStr);
+            $('#ToDateEdit').val(dateStr);
         }
     });
 
     // Also initialize flatpickr for other date fields
     //flatpickr("#FromDate", { dateFormat: "Y-m-d" });
     //flatpickr("#ToDate", { dateFormat: "Y-m-d" });
-    initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined")
-    $(document).on('change', "#FromDate", function () {
-        updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
+    initializeDatepickerDMY("FromDateEdit, ToDateEdit,ToDateFromDateCombinededit")
+    $(document).on('change', "#FromDateEdit", function () {
+        updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
 
     })
+    GetLeavePolicyIsCountAsync();
+    function GetLeavePolicyIsCountAsync() {
+        $.ajax({
+            url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
+            type: 'GET',
+            success: function (data) {
+                if (data.length > 0) {
+                    const policy = data[0];
+                    if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val('');
+                    } else {
+                        $('#SubsequentHolydayDays').val('Not Applicable');
+                    }
 
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    let minDate = null;
+                    let maxDate = null;
+                    // Allow or disallow past dates
+                    if (policy.isAllowRequestForPastDates === true) {
+                        //minDate = today ;
+                        const pastDate = new Date(today);
+                        pastDate.setDate(today.getDate() + 1);
+                        minDate = pastDate;
+                    } else {
+                        minDate = null
+                    }
+
+                    if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
+                        const futureDate = new Date(today);
+                        futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays + 1));
+                        maxDate = futureDate;
+                    }
+                    const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
+                    const maxDateStr = maxDate ? maxDate.toISOString().split('T')[0] : null;
+                    console.log("Today:", today.toISOString().split('T')[0]);
+                    console.log("Past dates allowed:", policy.isAllowRequestForPastDates);
+                    console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
+
+                    initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
+                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDateStr, maxDateStr);
+
+                    window.__minDateStr = minDateStr;
+                    window.__maxDateStr = maxDateStr;
+                    //
+                }
+            },
+            error: function () {
+                toastr.error('Failed to retrieve data.');
+            }
+        });
+    }
     //
 
-    $(document).on('change', '#FromDate, #ToDate', function (e) {
+    $(document).on('change', '#FromDateEdit, #ToDateEdit', function (e) {
         e.preventDefault();
 
-        let fromDate = flatpickrHelper.getDate('FromDate');
-        let toDate = flatpickrHelper.getDate('ToDate');
+        let fromDate = flatpickrHelper.getDate('FromDateEdit');
+        let toDate = flatpickrHelper.getDate('ToDateEdit');
         console.log("SubFromDate", fromDate);
         console.log("SubToDate", toDate);
 
@@ -245,7 +296,7 @@ $(document).ready(function () {
 
         if (new Date(toDate) < new Date(fromDate)) {
             toastr.warning('To Date cannot be earlier than From Date.');
-            $('#ToDate').val(''); // Clear invalid ToDate
+            $('#ToDateEdit').val(''); // Clear invalid ToDate
             $('#TotalAppliedDays').val('');
             $('#SubsequentHolydayDays').val('');
             return;
@@ -280,11 +331,6 @@ $(document).ready(function () {
     });
 
     //
-
-    
-
-
-   
     //
     // Handle form submit
     $(document).on('click', '#ApplyLeaveSubmitButtonApproval', function (e) {
@@ -303,8 +349,8 @@ $(document).ready(function () {
         const isApproved = approvalStatus === "true"; 
         const formdata = {
             LeaveApplicationID: $('#LeaveApplicationID').val(),
-            FromDateEdit: flatpickrHelper.getDate('FromDate'),
-            ToDateEdit: flatpickrHelper.getDate('ToDate'),
+            FromDateEdit: flatpickrHelper.getDate('FromDateEdit'),
+            ToDateEdit: flatpickrHelper.getDate('ToDateEdit'),
             EmployeeIDEdit: choiceManager.getChoiceValue('EmployeeIDEdit'),
             LeaveTypeIDEdit: choiceManager.getChoiceValue('LeaveTypeIDEdit'),
             IsFullDayEdit: isFullDay,
@@ -320,8 +366,8 @@ $(document).ready(function () {
         $.ajax({
             type: 'POST',
             url: '/LeaveApprovalDeclineRoute/UpdateRequestAsync',
-            data: JSON.stringify(formdata), // Send data as JSON string
-            contentType: 'application/json; charset=utf-8', // Tell server it's JSON
+            data: JSON.stringify(formdata), 
+            contentType: 'application/json; charset=utf-8', 
             dataType: 'json',
             success: function (response) {
                 console.log("Response:", response);
@@ -360,14 +406,14 @@ $(document).ready(function () {
 
         // Reset text inputs and textareas
         $('#Reason').val('');
-        $('#FromDate').val('');
-        $('#ToDate').val('');
-        $('#ToDateFromDateCombined').val('');
+        $('#FromDateEdit').val('');
+        $('#ToDateEdit').val('');
+        $('#ToDateFromDateCombinedEdit').val('');
         $('#PartialFromTime').val('');
         $('#PartialToTime').val('');
 
         // Reset validation states
-        $('#ToDateFromDateCombined').removeClass('is-invalid');
+        $('#ToDateFromDateCombinedEdit').removeClass('is-invalid');
         $('#ToDateFromDateCombinedError').hide().text('');
         $('#FromDate').removeClass('is-invalid');
         $('#FromDateError').hide().text('');
@@ -377,7 +423,7 @@ $(document).ready(function () {
         $('#PartialFromTime, #PartialToTime').siblings('.text-danger').text('');
         loadTableData();
         // Reset flatpickr instances
-        ['#FromDate', '#ToDate', '#ToDateFromDateCombined', '#PartialFromTime', '#PartialToTime'].forEach(function (id) {
+        ['#FromDateEdit', '#ToDateEdit', '#ToDateFromDateCombined', '#PartialFromTime', '#PartialToTime'].forEach(function (id) {
             if ($(id)[0] && $(id)[0]._flatpickr) {
                 $(id)[0]._flatpickr.clear();
             }
@@ -440,14 +486,15 @@ $(document).ready(function () {
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
                     $('input[name="LeaveDaysEdit"]').val(data.leaveDaysEdit);
                     $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-                    flatpickrHelper.setDate('FromDate', data.fromDateEdit)
-                    $('input[name="ToDateEdit"]').val(data.toDateEdit);
+                    flatpickrHelper.setDate('FromDateEdit', data.fromDateEdit)
+                    $('#ToDateEdit').val(data.toDateEdit);
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
                     $('#TotalAppliedDays').val(data.period);
-                    $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
-                    $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
-                    $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
-                    $('#AvailableLeaveDays').val(data.availableLeaveDays)
+                    $('#PartialFromTimeEdit').val(data.partialFromTimeEdit);
+                    $('#PartialToTimeEdit').val(data.partialToTimeEdit);
+                    $('#ReasonEdit').val(data.reasonEdit);
+                    $('#AvailableLeaveDays').val(data.availableLeaveDays);
+                    initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");
                     // Optionally toggle the sections based on IsFullDayEdit
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');
@@ -470,7 +517,11 @@ $(document).ready(function () {
                     } else {
                         $('#SubsequentHolydayDays').val("0");
                     }
+                    GetLeavePolicyIsCountAsync();
+                    window.__originalToDate = data.fromDateEdit;
+                    window.__originalFromDate = data.fromDateEdit;
 
+                    //
                 }
             },
 
@@ -481,7 +532,44 @@ $(document).ready(function () {
     })
 
     //
+    $(document).on('change', 'input[name="ApprovalStatus"]', function () {
+        const isApproved = $(this).val() === 'true';
+        const $button = $('#ApplyLeaveSubmitButtonApproval');
 
+        if (isApproved) {
+            $button
+                .removeClass('d-none btn-danger')
+                .addClass('btn-primary')
+                .text('Approve');
+        } else {
+            $button
+                .removeClass('d-none btn-primary')
+                .addClass('btn-danger')
+                .text('Decline');
+        }
+    });
+    $(document).ready(function () {
+        $('#ApplyLeaveSubmitButtonApproval').addClass('d-none');
+    });
+
+
+    //
+    $(document).on('change', '#ToDateEdit', function () {
+        debugger
+        const selectedDate = $(this).val();
+        const originalToDate = window.__originalToDate;
+        const originalFromdate = window.__originalFromDate;
+        if (originalFromdate > selectedDate)
+        {
+            toastr.warning(' originalFromdate > selectedDate value.');
+        }
+        if (selectedDate > originalToDate) {
+            $(this).val(window.__originalToDate); 
+            toastr.warning('You cannot increase the To Date beyond the original value.');
+        }
+    });
+
+    //
 
 });
 
@@ -737,7 +825,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
 
                       
 
-                     <td class="align-middle white-space-nowrap text-end pe-0">
+                     <td class="align-middle white-space-nowrap text-end pe-0 d-none">
                           <div class="d-flex  align-items-center">
                         
                             <a 

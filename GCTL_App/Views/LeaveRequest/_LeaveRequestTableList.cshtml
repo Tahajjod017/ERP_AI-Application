@@ -49,18 +49,6 @@
     }
     
 
-    /* .input-wrapper {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-    }
-
-    .clear-btn {
-        color: #999;
-        font-size: 1rem;
-        padding: 0 5px;
-    } */
-
 </style>
 
 
@@ -139,13 +127,6 @@
                             <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
                             <input type="hidden" id="basic-daterange_toHidden" name="ToDate" />
                         </div>
-                       @*  <div class="input-wrapper position-relative">
-                            <input type="text" id="basic-daterange" class="form-control form-control-sm pr-4" placeholder="d/m/y to d/m/y" readonly>
-                            <span class="clear-btn position-absolute" onclick="clearDateRange()" style="top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer;">&times;</span>
-                        </div>
-
-                        <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
-                        <input type="hidden" id="basic-daterange_toHidden" name="ToDate" /> *@
 
                     </div>
 
@@ -192,7 +173,7 @@
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">From Date</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">To Date</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Period</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveUnitType">Unit Type</th>
+                        @* <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveUnitType">Unit Type</th> *@
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
                         <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
                     </tr>

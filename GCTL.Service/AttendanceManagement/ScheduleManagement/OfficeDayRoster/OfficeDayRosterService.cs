@@ -28,7 +28,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeesRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
         private readonly IGenericRepository<Shifts> _shiftsRepository;
-        private readonly IGenericRepository<RosterInOfficeDaysOverride> _rosterInOfficeDayOverride;
+        //private readonly IGenericRepository<RosterInOfficeDaysOverride> _rosterInOfficeDayOverride;
         private readonly IConfiguration _configuration;
 
         public OfficeDayRosterService(IGenericRepository<RosterInOfficeDays> genericRepository,
@@ -37,7 +37,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             IGenericRepository<Data.Models.Employees> employeesRepository,
             IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo,
             IGenericRepository<Shifts> shiftsRepository,
-            IGenericRepository<RosterInOfficeDaysOverride> rosterInOfficeDayOverride,
+            //IGenericRepository<RosterInOfficeDaysOverride> rosterInOfficeDayOverride,
             IConfiguration configuration) : base(genericRepository)
         {
             _genericRepository = genericRepository;
@@ -46,7 +46,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             _employeesRepository = employeesRepository;
             _employeeOfficeInfo = employeeOfficeInfo;
             _shiftsRepository = shiftsRepository;
-            _rosterInOfficeDayOverride = rosterInOfficeDayOverride;
+            //_rosterInOfficeDayOverride = rosterInOfficeDayOverride;
             _configuration = configuration;
         }
         #endregion
@@ -71,7 +71,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                         //    continue;
 
                         var existingEntity = await _genericRepository.All()
-                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID && x.StartDate == model.StartDate && x.EndDate == model.EndDate).FirstOrDefaultAsync();
+                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID ).FirstOrDefaultAsync();
                         if (existingEntity != null)
                         {
                             existingEntity.ShiftID = model.ShiftID;
@@ -89,8 +89,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                             entity.DepartmentID = employee.DepartmentID;
                             entity.EmployeeID = employee.EmployeeID;
                             entity.ShiftID = model.ShiftID;
-                            entity.StartDate = model.StartDate;
-                            entity.EndDate = model.EndDate;
+                           // entity.StartDate = model.StartDate;
+                           // entity.EndDate = model.EndDate;
                             entity.LIP = model.LIP;
                             entity.LMAC = model.LMAC;
                             entity.CreatedBy = model.CreatedBy;
@@ -228,33 +228,33 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
                 foreach (var item in data)
                 {
-                    var existingOverride = await _rosterInOfficeDayOverride.FirstOrDefaultAsync(x =>
-                        x.RosterInOfficeDayID == model.RosterInOfficeDayID &&
-                        x.OverrideDate == model.OverrideDate);
+                    //var existingOverride = await _rosterInOfficeDayOverride.FirstOrDefaultAsync(x =>
+                    //    x.RosterInOfficeDayID == model.RosterInOfficeDayID &&
+                    //    x.OverrideDate == model.OverrideDate);
 
-                    if (existingOverride != null)
-                    {
-                        existingOverride.ShiftID = model.ShiftID;
-                        existingOverride.UpdatedAt = DateTime.Now;
-                        existingOverride.UpdatedBy = model.CreatedBy ?? null;
+                    //if (existingOverride != null)
+                    //{
+                    //    existingOverride.ShiftID = model.ShiftID;
+                    //    existingOverride.UpdatedAt = DateTime.Now;
+                    //    existingOverride.UpdatedBy = model.CreatedBy ?? null;
 
-                        await _rosterInOfficeDayOverride.UpdateAsync(existingOverride);
-                    }
-                    else
-                    {
-                        var newOverride = new RosterInOfficeDaysOverride
-                        {
-                            RosterInOfficeDayID = item.RosterInOfficeDayID,
-                            OverrideDate = model.OverrideDate,
-                            ShiftID = model.ShiftID,
-                            CreatedAt = DateTime.Now,
-                            CreatedBy = model.CreatedBy ?? null,
-                            LIP = item.LIP,
-                            LMAC = item.LMAC
-                        };
+                    //    await _rosterInOfficeDayOverride.UpdateAsync(existingOverride);
+                    //}
+                    //else
+                    //{
+                        //var newOverride = new RosterInOfficeDaysOverride
+                        //{
+                        //    RosterInOfficeDayID = item.RosterInOfficeDayID,
+                        //    OverrideDate = model.OverrideDate,
+                        //    ShiftID = model.ShiftID,
+                        //    CreatedAt = DateTime.Now,
+                        //    CreatedBy = model.CreatedBy ?? null,
+                        //    LIP = item.LIP,
+                        //    LMAC = item.LMAC
+                        //};
 
-                        await _rosterInOfficeDayOverride.AddAsync(newOverride);
-                    }
+                        //await _rosterInOfficeDayOverride.AddAsync(newOverride);
+                   // }
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -387,71 +387,71 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 .Include(x => x.Shift)
                 .Include(x => x.Organization)
                 .Include(x => x.Department)
-                .Include(x => x.Employee)
-                .Include(x => x.RosterInOfficeDaysOverride)
-                    .ThenInclude(o => o.Shift)
-                .Where(x => x.StartDate <= end && x.EndDate >= start);
+                .Include(x => x.Employee);
+                //.Include(x => x.RosterInOfficeDaysOverride)
+                //    .ThenInclude(o => o.Shift)
+                //.Where(x => x.StartDate <= end && x.EndDate >= start);
 
             // Optional filter
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                query = query.Where(x =>
-                    EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
-            }
+            //if (!string.IsNullOrWhiteSpace(searchTerm))
+            //{
+            //    query = query.Where(x =>
+            //        EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
+            //        EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
+            //        EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
+            //        EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
+            //        EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
+            //        EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
+            //}
 
             var records = await query.ToListAsync();
 
             // Flatten shift records by day
             var flattened = new List<RosterInOfficeDaysSetupVM>();
 
-            foreach (var item in records)
-            {
-                var current = item.StartDate;
-                while (current <= item.EndDate)
-                {
-                    if (current.Value.Date == DateTime.Today)
-                    {
-                        Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
-                    }
+            //foreach (var item in records)
+            //{
+            //    var current = item.StartDate;
+            //    while (current <= item.EndDate)
+            //    {
+            //        if (current.Value.Date == DateTime.Today)
+            //        {
+            //            Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
+            //        }
 
-                    if (current >= start && current <= end)
-                    {
-                        flattened.Add(new RosterInOfficeDaysSetupVM
-                        {
-                            RosterInOfficeDayID = item.RosterInOfficeDayID,
-                            OrganizationID = item.OrganizationID,
-                            OrganizationName = item.Organization?.OrganizationName ?? "-",
-                            DepartmentID = item.DepartmentID,
-                            DepartmentName = item.Department?.DepartmentName ?? "-",
-                            EmployeeID = item.EmployeeID,
-                            EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
-                            ShiftID = item.ShiftID,
-                            ShiftName = item.Shift?.ShiftName ?? "-",
-                            StartDate = current,
-                            EndDate = current,
-                            TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}",
-                            RosterInOfficeDaysOverrideSetupVMs = item.RosterInOfficeDaysOverride?
-                                .Where(o => o.OverrideDate?.Date == current.Value.Date)
-                                .Select(o => new RosterInOfficeDaysOverrideSetupVM
-                                {
-                                    RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
-                                    RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
-                                    OverrideDate = o.OverrideDate,
-                                    ShiftID = o.ShiftID ?? 0,
-                                    ShiftName = o.Shift?.ShiftName ?? "",
-                                    TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
-                                }).ToList()
-                        });
-                    }
+            //        if (current >= start && current <= end)
+            //        {
+            //            flattened.Add(new RosterInOfficeDaysSetupVM
+            //            {
+            //                RosterInOfficeDayID = item.RosterInOfficeDayID,
+            //                OrganizationID = item.OrganizationID,
+            //                OrganizationName = item.Organization?.OrganizationName ?? "-",
+            //                DepartmentID = item.DepartmentID,
+            //                DepartmentName = item.Department?.DepartmentName ?? "-",
+            //                EmployeeID = item.EmployeeID,
+            //                EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
+            //                ShiftID = item.ShiftID,
+            //                ShiftName = item.Shift?.ShiftName ?? "-",
+            //                StartDate = current,
+            //                EndDate = current,
+            //                TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}",
+            //                RosterInOfficeDaysOverrideSetupVMs = item.RosterInOfficeDaysOverride?
+            //                    .Where(o => o.OverrideDate?.Date == current.Value.Date)
+            //                    .Select(o => new RosterInOfficeDaysOverrideSetupVM
+            //                    {
+            //                        RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
+            //                        RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
+            //                        OverrideDate = o.OverrideDate,
+            //                        ShiftID = o.ShiftID ?? 0,
+            //                        ShiftName = o.Shift?.ShiftName ?? "",
+            //                        TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
+            //                    }).ToList()
+            //            });
+            //        }
 
-                    current = current?.AddDays(1);
-                }
-            }
+            //        current = current?.AddDays(1);
+            //    }
+            //}
 
             // Group by Employee
             var grouped = flattened
@@ -498,24 +498,24 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 .Include(x => x.Shift)
                 .Include(x => x.Organization)
                 .Include(x => x.Department)
-                .Include(x => x.Employee)
-                .Include(x => x.RosterInOfficeDaysOverride)
-                    .ThenInclude(o => o.Shift)
-                .Where(x => x.StartDate <= end && x.EndDate >= start); // Filter within selected range
+                .Include(x => x.Employee);
+                //.Include(x => x.RosterInOfficeDaysOverride)
+                //    .ThenInclude(o => o.Shift)
+                //.Where(x => x.StartDate <= end && x.EndDate >= start); // Filter within selected range
 
             // Apply sorting
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                query = sortColumn switch
-                {
-                    "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
-                    "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
-                    "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-                    "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
-                    "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
-                    _ => query.OrderBy(x => x.ShiftID)
-                };
-            }
+            //if (!string.IsNullOrEmpty(sortColumn))
+            //{
+            //    query = sortColumn switch
+            //    {
+            //        "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
+            //        "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
+            //        "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
+            //        "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
+            //        "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
+            //        _ => query.OrderBy(x => x.ShiftID)
+            //    };
+            //}
 
             // Paginate and project to ViewModel
             var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(
@@ -541,20 +541,20 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                     ShiftName = x.Shift.ShiftName ?? "-",
                     ShiftID = x.ShiftID ?? 0,
                     EmployeeID = x.EmployeeID ?? 0,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
+                    //StartDate = x.StartDate,
+                    //EndDate = x.EndDate,
                     TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}",
-                    RosterInOfficeDaysOverrideSetupVMs = x.RosterInOfficeDaysOverride
-                        .Where(o => o.ShiftID != null && o.RosterInOfficeDayID != null && o.OverrideDate != null)
-                        .Select(o => new RosterInOfficeDaysOverrideSetupVM
-                        {
-                            RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
-                            RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
-                            OverrideDate = o.OverrideDate ?? null,
-                            ShiftID = o.ShiftID ?? 0,
-                            ShiftName = o.Shift?.ShiftName ?? "",
-                            TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
-                        }).Distinct().ToList()
+                    //RosterInOfficeDaysOverrideSetupVMs = x.RosterInOfficeDaysOverride
+                        //.Where(o => o.ShiftID != null && o.RosterInOfficeDayID != null && o.OverrideDate != null)
+                        //.Select(o => new RosterInOfficeDaysOverrideSetupVM
+                        //{
+                        //    RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
+                        //    RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
+                        //    OverrideDate = o.OverrideDate ?? null,
+                        //    ShiftID = o.ShiftID ?? 0,
+                        //    ShiftName = o.Shift?.ShiftName ?? "",
+                        //    TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
+                        //}).Distinct().ToList()
                 });
 
             return result;

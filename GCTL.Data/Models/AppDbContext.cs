@@ -27,7 +27,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
-
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -147,8 +146,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<RosterInHolyDays> RosterInHolyDays { get; set; }
 
     public virtual DbSet<RosterInOfficeDays> RosterInOfficeDays { get; set; }
-
-    public virtual DbSet<RosterInOfficeDaysOverride> RosterInOfficeDaysOverride { get; set; }
 
     public virtual DbSet<SMSSettings> SMSSettings { get; set; }
 
@@ -313,40 +310,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-           .HasDiscriminator<string>("Discriminator")
-           .HasValue<ApplicationUser>("ApplicationUser");
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Employees)
-                .WithMany(e => e.AspNetUsers)
-                .HasForeignKey(u => u.EmployeeId)
-                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Organization)
-                .WithMany(o => o.AspNetUsers)
-                .HasForeignKey(u => u.OrganizationID)
-                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.TenantInfo)
-                .WithMany(t => t.AspNetUsers)
-                .HasForeignKey(u => u.TenantInfoId)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        //modelBuilder.Entity<ApplicationRole>()
-        //        .HasDiscriminator<string>("Discriminator")
-        //        .HasValue<ApplicationRole>("ApplicationRole");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.Organization)
-                .WithMany(o => o.AspNetRoles)
-                .HasForeignKey(r => r.OrganizationID)
-                .IsRequired(false)
-                .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
+        .HasOne(u => u.Employees)
+        .WithMany(e => e.AspNetUsers)
+        .HasForeignKey(u => u.EmployeeId)
+        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -1579,6 +1549,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Reason).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
+            entity.HasOne(d => d.ApprovalPerson).WithMany(p => p.LeaveApplicationsApprovalPerson)
+                .HasForeignKey(d => d.ApprovalPersonID)
+                .HasConstraintName("FK_Employees_EmployeeID_LeaveApplications");
+
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeaveApplicationsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__LeaveAppl__Creat__3DB3258D");
@@ -2243,11 +2217,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.RosterInHolyDayID).HasName("PK__RosterIn__1E29F0C268BB10A6");
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DayDate).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CompensationType).WithMany(p => p.RosterInHolyDays)
@@ -2278,6 +2251,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.ShiftID)
                 .HasConstraintName("FK__RosterInH__Shift__7CA47C3F");
 
+            entity.HasOne(d => d.Status).WithMany(p => p.RosterInHolyDays)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK_Statuses_StatusID_RosterInHolyDays");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInHolyDaysUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__RosterInH__Updat__7D98A078");
@@ -2288,11 +2265,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.RosterInOfficeDayID).HasName("PK__RosterIn__88FC23893D160B75");
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.DayDate).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.EndDate).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RosterInOfficeDaysCreatedByNavigation)
@@ -2319,43 +2295,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.ShiftID)
                 .HasConstraintName("FK__RosterInO__Shift__035179CE");
 
+            entity.HasOne(d => d.Status).WithMany(p => p.RosterInOfficeDays)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK_Statuses_StatusID_RosterInOfficeDays");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInOfficeDaysUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__RosterInO__Updat__04459E07");
-        });
-
-        modelBuilder.Entity<RosterInOfficeDaysOverride>(entity =>
-        {
-            entity.HasKey(e => e.RosterInOfficeDaysOverrideID).HasName("PK__RosterIn__210B3B35B0E61901");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.OverrideDate).HasColumnType("datetime");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RosterInOfficeDaysOverrideCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__RosterInO__Creat__74CE504D");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RosterInOfficeDaysOverrideDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__RosterInO__Delet__77AABCF8");
-
-            entity.HasOne(d => d.RosterInOfficeDay).WithMany(p => p.RosterInOfficeDaysOverride)
-                .HasForeignKey(d => d.RosterInOfficeDayID)
-                .HasConstraintName("FK__RosterInO__Roste__72E607DB");
-
-            entity.HasOne(d => d.Shift).WithMany(p => p.RosterInOfficeDaysOverride)
-                .HasForeignKey(d => d.ShiftID)
-                .HasConstraintName("FK__RosterInO__Shift__73DA2C14");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RosterInOfficeDaysOverrideUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__RosterInO__Updat__75C27486");
         });
 
         modelBuilder.Entity<SMSSettings>(entity =>

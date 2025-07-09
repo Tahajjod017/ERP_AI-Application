@@ -58,6 +58,7 @@ function updateDatepickerWithMinDate(dateId, minDate, options = {}) {
         altFormat: "d/m/Y",
         allowInput: true,
         minDate: minDate,
+        maxDate: options.maxDate || null,
         onReady: function (selectedDates, dateStr, instance) {
             instance.input.placeholder = "dd/mm/yyyy";
         }
@@ -106,7 +107,7 @@ function updateDatepickerWithMinDateTotalDays(dateId, minDate, options = {}, dis
     flatpickr(`#${dateId}`, { ...defaultOptions, ...options });
 }
 
-// Date range Global
+// Date range Global   Pair calender 
 
 function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onChangeCallback) {
 
@@ -134,6 +135,8 @@ function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onC
             }
         });
 }
+
+// Date range Global   Pair calender
 
 
 //
