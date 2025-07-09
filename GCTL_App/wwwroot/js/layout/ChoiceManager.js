@@ -40,6 +40,10 @@ const departmentDataDummy = [
 
 //#endregion
 
+
+
+
+
 //#region Unversal Choice Version 3
 
 class UniversalChoices {
@@ -399,7 +403,6 @@ window.addEventListener('DOMContentLoaded', () => {
 window.choiceManager = choiceManager;
 
 //#endregion
-
 
 
 

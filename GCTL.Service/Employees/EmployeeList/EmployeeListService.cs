@@ -46,6 +46,8 @@ namespace GCTL.Service.Employees.EmployeeList
                 join status in _statusRepository.AllActive()
                 on office.EmploymentStatusId equals status.StatusID into empStatus
                 from status in empStatus.DefaultIfEmpty()
+
+                orderby desig.Ranking
                 select new EmployeeListGetViewModel
                 {
 
