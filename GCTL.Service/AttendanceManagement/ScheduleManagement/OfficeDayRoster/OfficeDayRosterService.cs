@@ -39,8 +39,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo,
             IGenericRepository<Shifts> shiftsRepository,
             //IGenericRepository<RosterInOfficeDaysOverride> rosterInOfficeDayOverride,
-            IConfiguration configuration,
-            IGenericRepository<OrganizationBranches> branchRepository) : base(genericRepository)
+
         {
             _genericRepository = genericRepository;
             _organizationRepository = organizationRepository;
@@ -55,13 +54,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
-        #region AddAsync
-        //public async Task<bool> AddAsync(RosterInOfficeDaysSetupVM model)
-        //{
-        //    await _genericRepository.BeginTransactionAsync();
-        //    try
-        //    {
-        //        //var startDate = DateTime.ParseExact(model.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
         //        if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
         //        {
@@ -218,47 +210,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region UpdateAsync
-        //public async Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
-        //{
-        //    await _genericRepository.BeginTransactionAsync();
-        //    try
-        //    {
-        //        var data = await _genericRepository.FindAsync(x => x.RosterInOfficeDayID == model.RosterInOfficeDayID);
-        //        if (data == null || data.Count == 0)
-        //        {
-        //            return false;
-        //        }
 
-        //        foreach (var item in data)
-        //        {
-        //            var existingOverride = await _rosterInOfficeDayOverride.FirstOrDefaultAsync(x =>
-        //                x.RosterInOfficeDayID == model.RosterInOfficeDayID &&
-        //                x.OverrideDate == model.OverrideDate);
-
-        //            if (existingOverride != null)
-        //            {
-        //                existingOverride.ShiftID = model.ShiftID;
-        //                existingOverride.UpdatedAt = DateTime.Now;
-        //                existingOverride.UpdatedBy = model.CreatedBy ?? null;
-
-        //                await _rosterInOfficeDayOverride.UpdateAsync(existingOverride);
-        //            }
-        //            else
-        //            {
-        //                var newOverride = new RosterInOfficeDaysOverride
-        //                {
-        //                    RosterInOfficeDayID = item.RosterInOfficeDayID,
-        //                    OverrideDate = model.OverrideDate,
-        //                    ShiftID = model.ShiftID,
-        //                    CreatedAt = DateTime.Now,
-        //                    CreatedBy = model.CreatedBy ?? null,
-        //                    LIP = item.LIP,
-        //                    LMAC = item.LMAC
-        //                };
-
-        //                await _rosterInOfficeDayOverride.AddAsync(newOverride);
-        //            }
-        //        }
+   
 
         //        await _genericRepository.CommitTransactionAsync();
         //        return true;
@@ -373,6 +326,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
 
+
         //public async Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
         //int pageNumber = 1,
         //int pageSize = 5,
@@ -407,7 +361,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //            EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
         //    }
 
+
         //    var records = await query.ToListAsync();
+
 
         //    // Flatten shift records by day
         //    var flattened = new List<RosterInOfficeDaysSetupVM>();
@@ -421,6 +377,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //            {
         //                Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
         //            }
+
 
         //            if (current >= start && current <= end)
         //            {
@@ -492,6 +449,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region GetAllAsync
+
         //public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
         //{
         //    var start = startDate ?? DateTime.Today;
@@ -519,6 +477,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //            _ => query.OrderBy(x => x.ShiftID)
         //        };
         //    }
+
 
         //    // Paginate and project to ViewModel
         //    var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(

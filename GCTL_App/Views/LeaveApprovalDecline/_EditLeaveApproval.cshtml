@@ -50,7 +50,7 @@
                         <div class="mb-3 flatpickr-input-container">
                             <label class="form-label req">From</label>
                             <div class="input-icon-end position-relative flatpickr">
-                                <input type="text" asp-for="FromDateEdit" id="FromDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                <input type="text" asp-for="FromDateEdit" id="FromDateEdit"  class="form-control datetimepicker" required placeholder="dd/mm/yyyy" disabled>
                                 <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                 <span asp-validation-for="FromDateEdit" class="text-danger small"></span>
                             </div>
@@ -62,7 +62,7 @@
                         <div class="mb-3">
                             <label class="form-label req">To</label>
                             <div class="input-icon-end position-relative">
-                                <input type="text" asp-for="ToDateEdit" id="ToDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                <input type="text" asp-for="ToDateEdit" id="ToDateEdit" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
                                 <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                 <span asp-validation-for="ToDateEdit" class="text-danger small"></span>
                             </div>
@@ -137,26 +137,9 @@
         </div>
 
     </div>
-
- 
-
-   @*  <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
-        <div class="mb-2 col-4">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="ApprovalStatus" id="approveRadio" value="true">
-                <label class="form-check-label" for="approveRadio">Approve</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="ApprovalStatus" id="declineRadio" value="false">
-                <label class="form-check-label" for="declineRadio">Decline</label>
-            </div>
-        </div>
-        <button id="ApplyLeaveSubmitButtonApproval" class="btn btn-primary">Approved</button>
-    </div> *@
-
-    <div class="d-flex justify-content-end align-items-center gap-3 mt-1 mb-2 me-3">
+    <div class="d-flex justify-content-end align-items-center gap-3 mt-1 mb-4 me-3">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="ApprovalStatus" id="approveRadio" value="true">
+            <input class="form-check-input" type="radio" name="ApprovalStatus" id="approveRadio"  value="true">
             <label class="form-check-label" for="approveRadio">Approve</label>
         </div>
         <div class="form-check form-check-inline">

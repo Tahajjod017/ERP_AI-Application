@@ -11,11 +11,11 @@ namespace GCTL.Core.ViewModels
         public bool Success { get; set; }
         public string Message { get; set; }
         public object Data { get; set; }
-        public List<string> Errors { get; set; } // A list of error messages, if any
+        public List<string> Errors { get; set; } 
 
         public CommonReturnViewModel()
         {
-            Errors = new List<string>(); // Initialize the Errors list to avoid null reference 
+            Errors = new List<string>(); 
         }
     }
 }
