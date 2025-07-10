@@ -352,8 +352,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
         {
 
-       
-
             if (entityVM == null)
             {
                 return new CommonReturnViewModel
@@ -513,9 +511,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 // LeaveBaseApprovalHistory
                 var leaveBase = new LeaveBaseApprovalHistory
                 {
+                
                     LeaveApplicationID = entityVM.LeaveApplicationID,
                     StatusID = statusId,
                     ApproverNote = entityVM.ApprovalNote,
+                    LeaveTypeID=entityVM.LeaveTypeIDEdit,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
@@ -525,6 +525,27 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
 
                 };
+                //
+                if (entityVM.IsFullDayEdit)
+                {
+                    leaveBase.FromDate = entityVM.FromDateEdit ?? default;
+                    leaveBase.ToDate = entityVM.ToDateEdit ?? default;
+                    leaveBase.PartialFromTime = null;
+                    leaveBase.PartialToTime = null;
+                }
+                else
+                {
+                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                    {
+                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                        leaveBase.FromDate = dateOnly;
+                        leaveBase.ToDate = dateOnly;
+                    }
+
+                    leaveBase.PartialFromTime = entityVM.PartialFromTimeEdit;
+                    leaveBase.PartialToTime = entityVM.PartialToTimeEdit;
+                }
+                //
                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
                 //
                 //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
