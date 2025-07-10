@@ -98,7 +98,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return Json(employees);
         }
 
-  
+        [HttpGet]
         public async Task<IActionResult> GetDesignation(int organizationId)
         {
             var designations = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync(organizationId);

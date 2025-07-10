@@ -54,6 +54,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             // Pass the current time to the view  
             ViewData["CurrentTime"] = serverTime;
 
+
+
             return View();
         }
         #region table
