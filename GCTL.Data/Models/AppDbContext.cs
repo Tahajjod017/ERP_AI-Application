@@ -180,6 +180,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -310,8 +311,22 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
- .HasDiscriminator<string>("Discriminator")
- .HasValue<ApplicationUser>("ApplicationUser");
+
+          .HasDiscriminator<string>("Discriminator")
+          .HasValue<ApplicationUser>("ApplicationUser");
+          
+        modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Employees)
+                .WithMany(e => e.AspNetUsers)
+                .HasForeignKey(u => u.EmployeeId)
+                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+        modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Organization)
+                .WithMany(o => o.AspNetUsers)
+                .HasForeignKey(u => u.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
+
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)

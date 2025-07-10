@@ -31,6 +31,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             SetSmartPageCode(203100);
 
             ViewBag.OrganizationDD = new SelectList(await _assignDefaultShiftService.GetCompanies(), "Id", "Name");
+            ViewBag.BrnchDD = new SelectList(await _assignDefaultShiftService.GetBrnach(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await _assignDefaultShiftService.GetDepartments(), "Id", "Name");
             ViewBag.ShiftDD = new SelectList(await _assignDefaultShiftService.GetShift(), "Id", "Name");
             ViewBag.EmployeeList = await _assignDefaultShiftService.GetGroupedEmployees();
@@ -41,51 +42,51 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        [Permission("Create", "OfficeDayRoster")]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> Create(RosterInOfficeDaysSetupVM model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    if (model.OrganizationID == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Please choose an Organization!" });
-                    }
+        //[Permission("Create", "OfficeDayRoster")]
+        //[ValidateAntiForgeryToken]
+        //[HttpPost]
+        //public async Task<IActionResult> Create(RosterInOfficeDaysSetupVM model)
+        //{
+        //    try
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            if (model.OrganizationID == null)
+        //            {
+        //                return Json(new { isSuccess = false, message = "Please choose an Organization!" });
+        //            }
 
-                    if (model.ShiftID == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Please choose a shift!" });
-                    }
+        //            if (model.ShiftID == null)
+        //            {
+        //                return Json(new { isSuccess = false, message = "Please choose a shift!" });
+        //            }
 
-                    if(model.StartDate == null && model.EndDate == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Please select start date & end date!" });
-                    }
+        //            if(model.StartDate == null && model.EndDate == null)
+        //            {
+        //                return Json(new { isSuccess = false, message = "Please select start date & end date!" });
+        //            }
 
-                    //var hasData = 
+        //            //var hasData = 
 
-                    //// userInfoService.SetUserInfo(model, User, HttpContext);
-                    //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
-                    //if (!uniqueName)
-                    //{
-                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
-                    //}
+        //            //// userInfoService.SetUserInfo(model, User, HttpContext);
+        //            //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
+        //            //if (!uniqueName)
+        //            //{
+        //            //    return Json(new { isSuccess = false, message = "This name already exists!" });
+        //            //}
 
-                    await _assignDefaultShiftService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
-                }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+        //            await _assignDefaultShiftService.AddAsync(model);
+        //            return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
+        //        }
+        //        var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
-                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
+        //        return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
         #endregion
 
 
@@ -148,54 +149,54 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         //}
 
 
-        public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
-        {
-            var (data, pagination) = await _assignDefaultShiftService.GetAllGroupedAsync(
-                pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
+        //public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        //{
+        //    var (data, pagination) = await _assignDefaultShiftService.GetAllGroupedAsync(
+        //        pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
 
-            var headers = Enumerable.Range(0, daysToShow)
-                .Select(i => (startDate ?? DateTime.Today).AddDays(i))
-                .Select(date => new { day = date.ToString("ddd"), date = date.ToString("dd MMM yyyy") })
-                .ToList();
+        //    var headers = Enumerable.Range(0, daysToShow)
+        //        .Select(i => (startDate ?? DateTime.Today).AddDays(i))
+        //        .Select(date => new { day = date.ToString("ddd"), date = date.ToString("dd MMM yyyy") })
+        //        .ToList();
 
-            return Json(new
-            {
-                result = data,
-                paginationInfo = pagination,
-                headers = headers
-            });
-        }
+        //    return Json(new
+        //    {
+        //        result = data,
+        //        paginationInfo = pagination,
+        //        headers = headers
+        //    });
+        //}
         #endregion
 
 
         #region UpdateEmpShiftAsync
         //[Permission("Edit", "OfficeDayRoster")]
-        [ValidateAntiForgeryToken]
-        [Route("OfficeDayRosterRoute/UpdateEmpShiftAsync")]
-        [HttpPost]
-        public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
-        {
-            try
-            {
-                if(model.RosterInOfficeDayID == null || model.RosterInOfficeDayID == 0)
-                {
-                    return Json(new { isSuccess = false, message = "Something went wrong!" });
-                }
+        //[ValidateAntiForgeryToken]
+        //[Route("OfficeDayRosterRoute/UpdateEmpShiftAsync")]
+        //[HttpPost]
+        //public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
+        //{
+        //    try
+        //    {
+        //        if(model.RosterInOfficeDayID == null || model.RosterInOfficeDayID == 0)
+        //        {
+        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
+        //        }
 
-                var result = await _assignDefaultShiftService.UpdateEmpShiftAsync(model);
+        //        var result = await _assignDefaultShiftService.UpdateEmpShiftAsync(model);
 
-                if(result == false)
-                {
-                    return Json(new { isSuccess = false, message = "Something went wrong!" });
-                }
+        //        if(result == false)
+        //        {
+        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
+        //        }
 
-                return Json(new { isSuccess = true, message = "Updated Successfully." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { isSuccess = false, message = ex.Message });
-            }
-        }
+        //        return Json(new { isSuccess = true, message = "Updated Successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
         #endregion
 
 
@@ -221,6 +222,16 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         //        return Json(new { isSuccess = false, message = ex.Message });
         //    }
         //}
+        #endregion
+
+
+        #region 
+        [HttpGet]
+        public async Task<IActionResult> GerBranchByOrganization(int? id)
+        {
+            var result = await _assignDefaultShiftService.GetBranchByOrganization(id);
+            return Json(result);
+        }
         #endregion
 
 
@@ -257,7 +268,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             var result = await _assignDefaultShiftService.GetEmployeeByDepartment(orgId, depIds);
             return Json(result);
         }
+        #endregion
 
+
+        #region `
+        public async Task<IActionResult> GetEmployeeByBranch(int? orgId, [FromQuery] List<int?> ids)
+        {
+            var result = await _assignDefaultShiftService.GetEmployeeByBranch(orgId, ids);
+            return Json(result);
+        }
         #endregion
     }
 }

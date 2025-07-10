@@ -4,7 +4,9 @@
 
     let urle = '';
 
-    const ITEMS_PER_PAGE = 3;
+    //const ITEMS_PER_PAGE = 3;
+
+    const $pageSize = $('#pageSize');
 
     //#region  Page Load
 
@@ -13,6 +15,7 @@
     const $listView = $('#listView');
     const $employeeListTbody = $('#employeeListTbody'); // Target tbody specifically
     const $departmentFilter = $('#departmentFilter');
+    const $companyFilter = $('#companyFilter');
     const $statusFilter = $('#statusFilter');
     const $sortFilter = $('#sortFilter');
     const $pageSizeData = $('#pageSize');
@@ -31,30 +34,31 @@
         sort: '',
         search: '',
         sortColumn: 'joiningDate', // Default sort column
-        sortDirection: 'desc' // Default sort direction
+        sortDirection: 'desc', // Default sort direction
+        company : ''
     };
 
     //#endregion
 
     //#region Fetch employee data
+
     function fetchEmployees(page = 1, filters = currentFilters) {
 
-        test = $('#pageSize').val();
-
-        //console.log('test', test)
+       // console.log(filters)
 
         return $.ajax({
             url: API_BASE_URL,
             method: 'GET',
             data: {
                 page: page,
-                limit:  ITEMS_PER_PAGE,
+                limit: $pageSize.val() || 3, // Use page size from selector
                 department: filters.department,
                 status: filters.status,
                 sort: filters.sort,
                 search: filters.search,
                 sortColumn: filters.sortColumn,
-                sortDirection: filters.sortDirection
+                sortDirection: filters.sortDirection,
+                company: filters.company
             },
             dataType: 'json'
         }).catch(function (error) {
@@ -62,6 +66,32 @@
             return { employees: [], total: 0 };
         });
     }
+
+    //function fetchEmployees(page = 1, filters = currentFilters) {
+
+    //    test = $('#pageSize').val();
+
+    //    //console.log('test', test)
+
+    //    return $.ajax({
+    //        url: API_BASE_URL,
+    //        method: 'GET',
+    //        data: {
+    //            page: page,
+    //            limit:  ITEMS_PER_PAGE,
+    //            department: filters.department,
+    //            status: filters.status,
+    //            sort: filters.sort,
+    //            search: filters.search,
+    //            sortColumn: filters.sortColumn,
+    //            sortDirection: filters.sortDirection
+    //        },
+    //        dataType: 'json'
+    //    }).catch(function (error) {
+    //        console.error('Error fetching employees:', error);
+    //        return { employees: [], total: 0 };
+    //    });
+    //}
 
     //#endregion
 
@@ -89,56 +119,137 @@
     //#endregion
 
     //#region Render board view
+
+
     function renderBoardView(employees) {
         $boardView.empty();
         $.each(employees, function (index, employee) {
+
             const avatarHtml = getAvatarHtml(employee);
             const dateFileter = GetdateFileter(employee.joiningDate)
             const card = `
-                <div class="col">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="row align-items-center g-3">
-                                <div class="col-12 col-sm-auto flex-1">
-                                    <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
-                                        <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
-                                            <div class="avatar avatar-xl me-3">
-                                                ${avatarHtml}
-                                            </div>
-                                            <div>
-                                                <h5>${employee.name}</h5>
-                                                <span class="badge badge-phoenix badge-phoenix-${employee.status === 'Active' ? 'success' : 'danger'} me-2">${employee.status}</span>
-                                            </div>
+          <a href="/EmployeeDetails/Index/${employee.id}">
+            <div class="col">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center g-3">
+                            <div class="col-12 col-sm-auto flex-1">
+                                <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
+                                  
+                                    <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
+                                        <div class="avatar avatar-xl me-3">
+                                            ${avatarHtml}
                                         </div>
-                                        <div class="d-flex align-items-center mt-2">
-                                            <p class="mb-0 fw-bold fs-9">
-                                                Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.department}</span>
-                                            </p>
-                                        </div>
-                                        <div class="d-flex align-items-center mt-2">
-                                            <p class="mb-0 fw-bold fs-9">
-                                                Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${dateFileter}</span>
-                                            </p>
-                                        </div>
-                                        <div class="d-flex align-items-center mt-2">
-                                            <p class="mb-0 fw-bold fs-9">
-                                                Email: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.email}</span>
-                                            </p>
-                                        </div>
-                                        <div class="d-flex align-items-center mt-2">
-                                            <p class="mb-0 fw-bold fs-9">
-                                                Phone: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.phone}</span>
-                                            </p>
+                                        <div>
+                                            <h5>${employee.name}</h5>
+                                            <span class="badge badge-phoenix badge-phoenix-${employee.status === 'Active' ? 'success' : 'danger'} me-2">${employee.status}</span>
                                         </div>
                                     </div>
+                                   
+                                    <div >
+
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.department}</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${dateFileter}</span>
+                                        </p>
+                                    </div>
+                                  </div>
+
+                                  <div >
+
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Email: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.email}</span>
+                                        </p>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <p class="mb-0 fw-bold fs-9">
+                                            Phone: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.phone}</span>
+                                        </p>
+                                    </div>
+
+                                     </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>`;
+                </div>
+            </div>
+              </a>
+          `;
             $boardView.append(card);
         });
     }
+
+
+    //function renderBoardView(employees) {
+    //    $boardView.empty();
+    //    $.each(employees, function (index, employee) {
+
+    //        const avatarHtml = getAvatarHtml(employee);
+    //        const dateFileter = GetdateFileter(employee.joiningDate)
+    //        const card = `
+    //          <a href="/EmployeeDetails/Index/${employee.id}">
+    //            <div class="col">
+    //                <div class="card mb-3">
+    //                    <div class="card-body">
+    //                        <div class="row align-items-center g-3">
+    //                            <div class="col-12 col-sm-auto flex-1">
+    //                                <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-5">
+
+
+    //                                    <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
+    //                                        <div class="avatar avatar-xl me-3">
+    //                                            ${avatarHtml}
+    //                                        </div>
+    //                                        <div>
+    //                                            <h5>${employee.name}</h5>
+    //                                            <span class="badge badge-phoenix badge-phoenix-${employee.status === 'Active' ? 'success' : 'danger'} me-2">${employee.status}</span>
+    //                                        </div>
+    //                                    </div>
+
+
+
+    //                                    <div class="d-flex align-items-center mt-2">
+    //                                        <p class="mb-0 fw-bold fs-9">
+    //                                            Designation: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.department}</span>
+    //                                        </p>
+    //                                    </div>
+    //                                    <div class="d-flex align-items-center mt-2">
+    //                                        <p class="mb-0 fw-bold fs-9">
+    //                                            Joining Date: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${dateFileter}</span>
+    //                                        </p>
+    //                                    </div>
+    //                                    <div class="d-flex align-items-center mt-2">
+    //                                        <p class="mb-0 fw-bold fs-9">
+    //                                            Email: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.email}</span>
+    //                                        </p>
+    //                                    </div>
+    //                                    <div class="d-flex align-items-center mt-2">
+    //                                        <p class="mb-0 fw-bold fs-9">
+    //                                            Phone: <span class="fw-semibold text-body-tertiary text-opactity-85 ms-1">${employee.phone}</span>
+    //                                        </p>
+    //                                    </div>
+    //                                </div>
+    //                            </div>
+    //                        </div>
+    //                    </div>
+    //                </div>
+    //            </div>
+    //              </a>
+    //          `;
+    //        $boardView.append(card);
+    //    });
+    //}
+
+
+
     //#endregion
 
     //#region Render table view
@@ -205,7 +316,7 @@
     //#region  pagination
 
     function renderTablePagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(totalItems / ($pageSize.val() || 3));
         $tablePaginationContainer.empty();
 
         let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
@@ -223,14 +334,37 @@
         paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
 
         $tablePaginationContainer.append(paginationHtml);
+        updateResultCount(totalItems, currentTablePage, $pageSize.val() || 3);
     }
+
+    //function renderTablePagination(totalItems) {
+    //    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    //    $tablePaginationContainer.empty();
+
+    //    let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
+
+    //    const startPage = Math.max(1, currentTablePage - 2);
+    //    const endPage = Math.min(totalPages, startPage + 4);
+
+    //    for (let i = startPage; i <= endPage; i++) {
+    //        paginationHtml += `
+    //        <li class="page-item ${i === currentTablePage ? 'active' : ''}">
+    //            <button class="page-link" data-page="${i}">${i}</button>
+    //        </li>`;
+    //    }
+
+    //    paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
+
+    //    $tablePaginationContainer.append(paginationHtml);
+    //}
 
     //#endregion
 
     //#region Render pagination for board view
 
+
     function renderBoardPagination(totalItems) {
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(totalItems / ($pageSize.val() || 3));
         $boardPaginationContainer.empty();
 
         let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
@@ -248,7 +382,29 @@
         paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
 
         $boardPaginationContainer.append(paginationHtml);
+        updateResultCount(totalItems, currentBoardPage, $pageSize.val() || 3);
     }
+
+    //function renderBoardPagination(totalItems) {
+    //    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    //    $boardPaginationContainer.empty();
+
+    //    let paginationHtml = '<li class="page-item"><button class="page-link" data-page="1">« First</button></li>';
+
+    //    const startPage = Math.max(1, currentBoardPage - 2);
+    //    const endPage = Math.min(totalPages, startPage + 4);
+
+    //    for (let i = startPage; i <= endPage; i++) {
+    //        paginationHtml += `
+    //        <li class="page-item ${i === currentBoardPage ? 'active' : ''}">
+    //            <button class="page-link" data-page="${i}">${i}</button>
+    //        </li>`;
+    //    }
+
+    //    paginationHtml += `<li class="page-item"><button class="page-link" data-page="${totalPages}">Last »</button></li>`;
+
+    //    $boardPaginationContainer.append(paginationHtml);
+    //}
 
    
 
@@ -275,6 +431,17 @@
             renderBoardPagination(data.total);
             updateViewVisibility();
         });
+    }
+
+    //#endregion
+
+
+    //#region Updaet updateResultCount
+
+    function updateResultCount(totalItems, page, itemsPerPage) {
+        const start = (page - 1) * itemsPerPage + 1;
+        const end = Math.min(page * itemsPerPage, totalItems);
+        $('.result-count').text(`Showing ${start} to ${end} of ${totalItems} results`);
     }
 
     //#endregion
@@ -313,8 +480,13 @@
     //#endregion
 
     //#region Event handlers
-    $departmentFilter.on('change', function () {
-        currentFilters.department = $(this).val();
+
+
+   
+
+
+
+    $pageSize.on('change', function () {
         loadTableData(1);
         loadBoardData(1);
     });
@@ -357,9 +529,254 @@
         loadBoardData(currentBoardPage);
     });
 
+
+    
+
+
+
+    const departmentIds = document.getElementById('departmentFilter')
+    departmentIds.addEventListener('changed.coreui.multi-select', event => {
+        toastr.success('work')
+        const selected = event.value
+        const commaSeparatedValues = selected.map(item => item.value).join(",");
+        toastr.success(commaSeparatedValues);
+        currentFilters.department = commaSeparatedValues;
+        loadTableData(1);
+        loadBoardData(1);
+    });
+
+    const companyIds = document.getElementById('companyFilter')
+    companyIds.addEventListener('changed.coreui.multi-select', event => {
+        const selected = event.value
+        const commaSeparatedValues = selected.map(item => item.value).join(",");
+        currentFilters.company = commaSeparatedValues;
+
+        // Clear department filter when company changes
+        currentFilters.department = "";
+
+        loadTableData(1);
+        loadBoardData(1);
+
+        if (commaSeparatedValues) {
+            populateDepartmentFilter('/EmployeeList/GetDepartmentsByOrgId', commaSeparatedValues);
+        } else {
+            // If no company selected, load all departments
+            loadAllDepartments();
+        }
+    });
+
+    //#endregion
+
+    //#region Load Core UI
+
+    function loadAllDepartments() {
+        $.ajax({
+            url: '/EmployeeList/GetAllDepartments', // You need to create this endpoint
+            type: 'GET',
+            success: function (departments) {
+               // console.log('All departments loaded:', departments);
+                recreateDepartmentDropdown(departments);
+            },
+            error: function (xhr, status, error) {
+                console.error('Failed to load all departments:', error);
+                clearDepartmentFilter();
+            }
+        });
+    }
+
+    function clearDepartmentFilter() {
+        const container = document.querySelector('.dropdown.department') || document.querySelector('.department');
+        const originalSelect = document.getElementById('departmentFilter');
+
+        if (!container || !originalSelect) {
+            return;
+        }
+
+        // Dispose existing MultiSelect instance
+        const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
+        if (existingInstance) {
+            existingInstance.dispose();
+        }
+
+        // Store original attributes
+        const originalAttributes = {
+            id: originalSelect.id,
+            name: originalSelect.name,
+            className: originalSelect.className,
+            multiple: originalSelect.multiple
+        };
+
+        // Recreate empty select element
+        container.innerHTML = `
+        <select class="${originalAttributes.className}" 
+                id="${originalAttributes.id}" 
+                name="${originalAttributes.name}" 
+                multiple 
+                data-coreui-multiple="true" 
+                data-coreui-selection-type="counter" 
+                data-coreui-search="true"
+                data-coreui-placeholder="Select Department...">
+            <option disabled>Select Company First</option>
+        </select>
+    `;
+
+        const newSelect = container.querySelector('select');
+
+        // Initialize MultiSelect
+        new coreui.MultiSelect(newSelect, {
+            multiple: true,
+            search: true,
+            selectionType: 'counter',
+            placeholder: 'Select Department...'
+        });
+    }
+
+    function populateDepartmentFilter(apiUrl, organizationId) {
+        const select = document.getElementById('departmentFilter');
+        const container = select.closest('.dropdown');
+
+        // Add loading class to prevent blink
+        if (container) {
+            container.classList.add('loading');
+        }
+
+        // Show loading state without disposing MultiSelect yet
+        const existingInstance = coreui.MultiSelect.getInstance(select);
+        if (existingInstance) {
+            // Just update the options without recreating
+            select.innerHTML = '<option disabled>Loading departments...</option>';
+        }
+
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            data: { organizationId: organizationId },
+            success: function (departments) {
+               // console.log('Departments received:', departments);
+                recreateDepartmentDropdown(departments);
+
+                // Remove loading class
+                if (container) {
+                    container.classList.remove('loading');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Failed to load departments:', error);
+                console.error('Response:', xhr.responseText);
+
+                // Clear and show error
+                select.innerHTML = '<option disabled>Error loading departments</option>';
+
+                // Reinitialize MultiSelect for error state
+                const existingInstance = coreui.MultiSelect.getInstance(select);
+                if (existingInstance) {
+                    existingInstance.dispose();
+                }
+
+                new coreui.MultiSelect(select, {
+                    multiple: true,
+                    search: true,
+                    selectionType: 'counter'
+                });
+
+                // Remove loading class
+                if (container) {
+                    container.classList.remove('loading');
+                }
+            }
+        });
+    }
+
+    function recreateDepartmentDropdown(departments) {
+        const container = document.querySelector('.dropdown.department') || document.querySelector('.department');
+        const originalSelect = document.getElementById('departmentFilter');
+
+        if (!container || !originalSelect) {
+            console.error('Department container or select element not found');
+            return;
+        }
+
+        // Dispose existing MultiSelect instance
+        const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
+        if (existingInstance) {
+            existingInstance.dispose();
+        }
+
+        // Store original attributes
+        const originalAttributes = {
+            id: originalSelect.id,
+            name: originalSelect.name,
+            className: originalSelect.className,
+            multiple: originalSelect.multiple
+        };
+
+        // Recreate the select element with proper structure
+        container.innerHTML = `
+        <select class="${originalAttributes.className}" 
+                id="${originalAttributes.id}" 
+                name="${originalAttributes.name}" 
+                multiple 
+                data-coreui-multiple="true" 
+                data-coreui-selection-type="counter" 
+                data-coreui-search="true"
+                data-coreui-placeholder="Select Department...">
+        </select>
+    `;
+
+        const newSelect = container.querySelector('select');
+
+        // Populate options
+        if (!departments || departments.length === 0) {
+            const option = new Option('No departments found', '', false, false);
+            option.disabled = true;
+            newSelect.appendChild(option);
+        } else {
+            // Add department options
+            departments.forEach(dep => {
+                const option = new Option(dep.departmentName, dep.departmentID, false, false);
+                newSelect.appendChild(option);
+            });
+        }
+
+        // Initialize MultiSelect with proper configuration
+        const multiSelectInstance = new coreui.MultiSelect(newSelect, {
+            multiple: true,
+            search: true,
+            selectionType: 'counter',
+            placeholder: 'Select Department...'
+        });
+
+        // Attach event listener to the new select element
+        newSelect.addEventListener('changed.coreui.multi-select', function (event) {
+          //  console.log('Department selection changed:', event.value);
+
+            const selected = event.value || [];
+            const commaSeparatedValues = selected.map(item => item.value).join(",");
+
+            // Update current filters
+            currentFilters.department = commaSeparatedValues;
+
+            // Load data with new filters
+            loadTableData(1);
+            loadBoardData(1);
+
+            // Optional: Show success message
+            if (commaSeparatedValues) {
+               // toastr.info('Department filter updated');
+            }
+        });
+
+      //  console.log('Department dropdown recreated successfully');
+    }
+
+
+    
+
+
     //#endregion
 
     //#region Pagination for table view
+
     $tablePaginationContainer.on('click', '.page-link', function (e) {
         e.preventDefault();
         const page = $(this).data('page');
@@ -389,6 +806,7 @@
     //#endregion
 
     //#region Column sorting
+
     $('#employeeListTable th.sort').on('click', function () {
         const column = $(this).data('sort');
         if (column) {
@@ -2688,10 +3106,34 @@
 
     $('#btnExportXL').on('click', function () {
         
-        toastr.info("Generating Excel");
-        GenarateXL();
+        toastr.info("Processing");
+        const filterData = {
+            department: currentFilters.department,
+            status: currentFilters.status,
+            sort: currentFilters.sort,
+            search: currentFilters.search,
+            sortColumn: currentFilters.sortColumn,
+            sortDirection: currentFilters.sortDirection,
+            company: currentFilters.company
+        };
+
+        console.log('sssss',filterData)
+        GenarateXL(filterData);
     });
 
+    ////#region test
+    //$('#enable').click(function () {
+    //    toastr.info('Enable button clicked!');
+    //  //  choiceManager.enableService.enableChoice('sortFilter');
+    //    choiceManager.enableChoice('sortFilter');
+    //});
+
+    //$('#disable').click(function () {
+    //    toastr.info('Disable button clicked!');
+    //    choiceManager.disableChoice('sortFilter');
+    //});
+
+    ////#endregion
 
 
 });
@@ -2699,12 +3141,27 @@
 
 //#region XL
 
-function GenarateXL() {
+
+function GenarateXL(filterData) {
+    toastr.info("Generating Excel");
+
+    const formData = new FormData();
+    formData.append("Department", filterData.department || "");
+    formData.append("Status", filterData.dtatus || "");
+    formData.append("Sort", filterData.sort || "");
+    formData.append("Search", filterData.search || "");
+    formData.append("SortColumn", filterData.sortColumn || "");
+    formData.append("SortDirection", filterData.sortDirection || "");
+    formData.append("Company", filterData.company || "");
+
     $.ajax({
         url: '/EmployeeReport/GenerateAllEmployeeExcel',
         type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
         xhrFields: {
-            responseType: 'blob' // Important for handling binary files
+            responseType: 'blob'
         },
         success: function (response, status, xhr) {
             const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -2715,12 +3172,37 @@ function GenarateXL() {
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
+            toastr.success("Excel file downloaded successfully");
         },
         error: function (xhr, status, error) {
             console.error("Error generating Excel:", error);
+            toastr.error("Failed to generate Excel file");
         }
     });
 }
+
+//function GenarateXL() {
+//    $.ajax({
+//        url: '/EmployeeReport/GenerateAllEmployeeExcel',
+//        type: 'POST',
+//        xhrFields: {
+//            responseType: 'blob' // Important for handling binary files
+//        },
+//        success: function (response, status, xhr) {
+//            const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+//            const url = window.URL.createObjectURL(blob);
+//            const a = document.createElement('a');
+//            a.href = url;
+//            a.download = 'AllEmployeesReport.xlsx';
+//            document.body.appendChild(a);
+//            a.click();
+//            window.URL.revokeObjectURL(url);
+//        },
+//        error: function (xhr, status, error) {
+//            console.error("Error generating Excel:", error);
+//        }
+//    });
+//}
 
 
 //#endregion 

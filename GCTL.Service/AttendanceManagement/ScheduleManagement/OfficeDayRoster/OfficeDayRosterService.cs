@@ -30,6 +30,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         private readonly IGenericRepository<Shifts> _shiftsRepository;
         //private readonly IGenericRepository<RosterInOfficeDaysOverride> _rosterInOfficeDayOverride;
         private readonly IConfiguration _configuration;
+        private readonly IGenericRepository<OrganizationBranches> _branchRepository;
 
         public OfficeDayRosterService(IGenericRepository<RosterInOfficeDays> genericRepository,
             IGenericRepository<Organization> organizationRepository,
@@ -38,7 +39,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo,
             IGenericRepository<Shifts> shiftsRepository,
             //IGenericRepository<RosterInOfficeDaysOverride> rosterInOfficeDayOverride,
-            IConfiguration configuration) : base(genericRepository)
+
         {
             _genericRepository = genericRepository;
             _organizationRepository = organizationRepository;
@@ -48,139 +49,133 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             _shiftsRepository = shiftsRepository;
             //_rosterInOfficeDayOverride = rosterInOfficeDayOverride;
             _configuration = configuration;
+            _branchRepository = branchRepository;
         }
         #endregion
 
 
-        #region AddAsync
-        public async Task<bool> AddAsync(RosterInOfficeDaysSetupVM model)
-        {
-            await _genericRepository.BeginTransactionAsync();
-            try
-            {
-                //var startDate = DateTime.ParseExact(model.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
-                if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
-                {
-                    var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
-                    //if (employees == null || !employees.Any())
-                    //    continue;
-                    foreach (var employee in employees)
-                    {
-                        //if (model.ExcludedEmployeeIDs != null && model.ExcludedEmployeeIDs.Contains(employee.EmployeeID ?? 0))
-                        //    continue;
+        //        if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
+        //        {
+        //            var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
+        //            //if (employees == null || !employees.Any())
+        //            //    continue;
+        //            foreach (var employee in employees)
+        //            {
+        //                //if (model.ExcludedEmployeeIDs != null && model.ExcludedEmployeeIDs.Contains(employee.EmployeeID ?? 0))
+        //                //    continue;
 
-                        var existingEntity = await _genericRepository.All()
-                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID ).FirstOrDefaultAsync();
-                        if (existingEntity != null)
-                        {
-                            existingEntity.ShiftID = model.ShiftID;
-                            existingEntity.LIP = model.LIP;
-                            existingEntity.LMAC = model.LMAC;
-                            existingEntity.CreatedBy = model.CreatedBy;
-                            existingEntity.CreatedAt = DateTime.Now;
+        //                var existingEntity = await _genericRepository.All()
+        //                    .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID && x.StartDate == model.StartDate && x.EndDate == model.EndDate).FirstOrDefaultAsync();
+        //                if (existingEntity != null)
+        //                {
+        //                    existingEntity.ShiftID = model.ShiftID;
+        //                    existingEntity.LIP = model.LIP;
+        //                    existingEntity.LMAC = model.LMAC;
+        //                    existingEntity.CreatedBy = model.CreatedBy;
+        //                    existingEntity.CreatedAt = DateTime.Now;
 
-                            await _genericRepository.UpdateAsync(existingEntity);
-                        }
-                        else
-                        {
-                            RosterInOfficeDays entity = new RosterInOfficeDays();
-                            entity.OrganizationID = employee.OrganizationID;
-                            entity.DepartmentID = employee.DepartmentID;
-                            entity.EmployeeID = employee.EmployeeID;
-                            entity.ShiftID = model.ShiftID;
-                           // entity.StartDate = model.StartDate;
-                           // entity.EndDate = model.EndDate;
-                            entity.LIP = model.LIP;
-                            entity.LMAC = model.LMAC;
-                            entity.CreatedBy = model.CreatedBy;
-                            entity.CreatedAt = DateTime.Now;
-                            await _genericRepository.AddAsync(entity);
-                        }
-                    }
-                }
-                else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
-                {
-                    foreach (var depId in model.DepartmentIDs)
-                    {
-                        var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
-                        if (employees == null || !employees.Any())
-                            continue;
-                        foreach (var employee in employees)
-                        {
-                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
-                            if (existingEntity != null)
-                            {
-                                existingEntity.ShiftID = model.ShiftID;
-                                existingEntity.LIP = model.LIP;
-                                existingEntity.LMAC = model.LMAC;
-                                existingEntity.CreatedBy = model.CreatedBy;
-                                existingEntity.CreatedAt = DateTime.Now;
+        //                    await _genericRepository.UpdateAsync(existingEntity);
+        //                }
+        //                else
+        //                {
+        //                    RosterInOfficeDays entity = new RosterInOfficeDays();
+        //                    entity.OrganizationID = employee.OrganizationID;
+        //                    entity.DepartmentID = employee.DepartmentID;
+        //                    entity.EmployeeID = employee.EmployeeID;
+        //                    entity.ShiftID = model.ShiftID;
+        //                    entity.StartDate = model.StartDate;
+        //                    entity.EndDate = model.EndDate;
+        //                    entity.LIP = model.LIP;
+        //                    entity.LMAC = model.LMAC;
+        //                    entity.CreatedBy = model.CreatedBy;
+        //                    entity.CreatedAt = DateTime.Now;
+        //                    await _genericRepository.AddAsync(entity);
+        //                }
+        //            }
+        //        }
+        //        else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
+        //        {
+        //            foreach (var depId in model.DepartmentIDs)
+        //            {
+        //                var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
+        //                if (employees == null || !employees.Any())
+        //                    continue;
+        //                foreach (var employee in employees)
+        //                {
+        //                    var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+        //                    if (existingEntity != null)
+        //                    {
+        //                        existingEntity.ShiftID = model.ShiftID;
+        //                        existingEntity.LIP = model.LIP;
+        //                        existingEntity.LMAC = model.LMAC;
+        //                        existingEntity.CreatedBy = model.CreatedBy;
+        //                        existingEntity.CreatedAt = DateTime.Now;
 
-                                await _genericRepository.UpdateAsync(existingEntity);
-                            }
-                            else
-                            {
-                                RosterInOfficeDays entity = new RosterInOfficeDays();
-                                entity.ShiftID = model.ShiftID;
-                                entity.OrganizationID = employee.OrganizationID;
-                                entity.DepartmentID = employee.DepartmentID;
-                                entity.EmployeeID = employee.EmployeeID;
-                                entity.LIP = model.LIP;
-                                entity.LMAC = model.LMAC;
-                                entity.CreatedBy = model.CreatedBy;
-                                entity.CreatedAt = DateTime.Now;
-                                await _genericRepository.AddAsync(entity);
-                            }
-                        }
-                    }
-                }
-                else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
-                {
-                    foreach (var empId in model.EmployeeIDs)
-                    {
-                        var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
+        //                        await _genericRepository.UpdateAsync(existingEntity);
+        //                    }
+        //                    else
+        //                    {
+        //                        RosterInOfficeDays entity = new RosterInOfficeDays();
+        //                        entity.ShiftID = model.ShiftID;
+        //                        entity.OrganizationID = employee.OrganizationID;
+        //                        entity.DepartmentID = employee.DepartmentID;
+        //                        entity.EmployeeID = employee.EmployeeID;
+        //                        entity.LIP = model.LIP;
+        //                        entity.LMAC = model.LMAC;
+        //                        entity.CreatedBy = model.CreatedBy;
+        //                        entity.CreatedAt = DateTime.Now;
+        //                        await _genericRepository.AddAsync(entity);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
+        //        {
+        //            foreach (var empId in model.EmployeeIDs)
+        //            {
+        //                var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
 
-                        if (employee == null || employee.DepartmentID == null) continue;
+        //                if (employee == null || employee.DepartmentID == null) continue;
 
-                        var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
-                        if (existingEntity != null)
-                        {
-                            existingEntity.ShiftID = model.ShiftID;
-                            existingEntity.LIP = model.LIP;
-                            existingEntity.LMAC = model.LMAC;
-                            existingEntity.CreatedBy = model.CreatedBy;
-                            existingEntity.CreatedAt = DateTime.Now;
+        //                var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+        //                if (existingEntity != null)
+        //                {
+        //                    existingEntity.ShiftID = model.ShiftID;
+        //                    existingEntity.LIP = model.LIP;
+        //                    existingEntity.LMAC = model.LMAC;
+        //                    existingEntity.CreatedBy = model.CreatedBy;
+        //                    existingEntity.CreatedAt = DateTime.Now;
 
-                            await _genericRepository.UpdateAsync(existingEntity);
-                        }
-                        else
-                        {
-                            RosterInOfficeDays entity = new RosterInOfficeDays();
-                            entity.OrganizationID = employee.OrganizationID;
-                            entity.DepartmentID = employee.DepartmentID;
-                            entity.EmployeeID = empId;
-                            entity.ShiftID = model.ShiftID;
+        //                    await _genericRepository.UpdateAsync(existingEntity);
+        //                }
+        //                else
+        //                {
+        //                    RosterInOfficeDays entity = new RosterInOfficeDays();
+        //                    entity.OrganizationID = employee.OrganizationID;
+        //                    entity.DepartmentID = employee.DepartmentID;
+        //                    entity.EmployeeID = empId;
+        //                    entity.ShiftID = model.ShiftID;
 
-                            entity.LIP = model.LIP;
-                            entity.LMAC = model.LMAC;
-                            entity.CreatedBy = model.CreatedBy;
-                            entity.CreatedAt = DateTime.Now;
+        //                    entity.LIP = model.LIP;
+        //                    entity.LMAC = model.LMAC;
+        //                    entity.CreatedBy = model.CreatedBy;
+        //                    entity.CreatedAt = DateTime.Now;
 
-                            await _genericRepository.AddAsync(entity);
-                        }
-                    }
-                }
+        //                    await _genericRepository.AddAsync(entity);
+        //                }
+        //            }
+        //        }
 
-                await _genericRepository.CommitTransactionAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                await _genericRepository.RollbackTransactionAsync();
-                return false;
-            }
-        }
+        //        await _genericRepository.CommitTransactionAsync();
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await _genericRepository.RollbackTransactionAsync();
+        //        return false;
+        //    }
+        //}
         #endregion
 
 
@@ -215,57 +210,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region UpdateAsync
-        public async Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
-        {
-            await _genericRepository.BeginTransactionAsync();
-            try
-            {
-                var data = await _genericRepository.FindAsync(x => x.RosterInOfficeDayID == model.RosterInOfficeDayID);
-                if (data == null || data.Count == 0)
-                {
-                    return false;
-                }
 
-                foreach (var item in data)
-                {
-                    //var existingOverride = await _rosterInOfficeDayOverride.FirstOrDefaultAsync(x =>
-                    //    x.RosterInOfficeDayID == model.RosterInOfficeDayID &&
-                    //    x.OverrideDate == model.OverrideDate);
+   
 
-                    //if (existingOverride != null)
-                    //{
-                    //    existingOverride.ShiftID = model.ShiftID;
-                    //    existingOverride.UpdatedAt = DateTime.Now;
-                    //    existingOverride.UpdatedBy = model.CreatedBy ?? null;
-
-                    //    await _rosterInOfficeDayOverride.UpdateAsync(existingOverride);
-                    //}
-                    //else
-                    //{
-                        //var newOverride = new RosterInOfficeDaysOverride
-                        //{
-                        //    RosterInOfficeDayID = item.RosterInOfficeDayID,
-                        //    OverrideDate = model.OverrideDate,
-                        //    ShiftID = model.ShiftID,
-                        //    CreatedAt = DateTime.Now,
-                        //    CreatedBy = model.CreatedBy ?? null,
-                        //    LIP = item.LIP,
-                        //    LMAC = item.LMAC
-                        //};
-
-                        //await _rosterInOfficeDayOverride.AddAsync(newOverride);
-                   // }
-                }
-
-                await _genericRepository.CommitTransactionAsync();
-                return true;
-            }
-            catch
-            {
-                await _genericRepository.RollbackTransactionAsync();
-                return false;
-            }
-        }
+        //        await _genericRepository.CommitTransactionAsync();
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        await _genericRepository.RollbackTransactionAsync();
+        //        return false;
+        //    }
+        //}
 
 
         //public async Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
@@ -370,195 +326,201 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
 
-        public async Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
-        int pageNumber = 1,
-        int pageSize = 5,
-        string searchTerm = "",
-        string sortColumn = "RosterInOfficeDayID",
-        string sortOrder = "desc",
-        int daysToShow = 7,
-        DateTime? startDate = null)
-        {
-            var start = startDate ?? DateTime.Today;
-            var end = start.AddDays(daysToShow - 1);
 
-            // Fetch from DB
-            var query = _genericRepository.AllActive().AsNoTracking()
-                .Include(x => x.Shift)
-                .Include(x => x.Organization)
-                .Include(x => x.Department)
-                .Include(x => x.Employee);
-                //.Include(x => x.RosterInOfficeDaysOverride)
-                //    .ThenInclude(o => o.Shift)
-                //.Where(x => x.StartDate <= end && x.EndDate >= start);
+        //public async Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
+        //int pageNumber = 1,
+        //int pageSize = 5,
+        //string searchTerm = "",
+        //string sortColumn = "RosterInOfficeDayID",
+        //string sortOrder = "desc",
+        //int daysToShow = 7,
+        //DateTime? startDate = null)
+        //{
+        //    var start = startDate ?? DateTime.Today;
+        //    var end = start.AddDays(daysToShow - 1);
 
-            // Optional filter
-            //if (!string.IsNullOrWhiteSpace(searchTerm))
-            //{
-            //    query = query.Where(x =>
-            //        EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
-            //        EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
-            //        EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
-            //        EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
-            //        EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
-            //        EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
-            //}
+        //    // Fetch from DB
+        //    var query = _genericRepository.AllActive().AsNoTracking()
+        //        .Include(x => x.Shift)
+        //        .Include(x => x.Organization)
+        //        .Include(x => x.Department)
+        //        .Include(x => x.Employee)
+        //        .Include(x => x.RosterInOfficeDaysOverride)
+        //            .ThenInclude(o => o.Shift)
+        //        .Where(x => x.StartDate <= end && x.EndDate >= start);
 
-            var records = await query.ToListAsync();
+        //    // Optional filter
+        //    if (!string.IsNullOrWhiteSpace(searchTerm))
+        //    {
+        //        query = query.Where(x =>
+        //            EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
+        //    }
 
-            // Flatten shift records by day
-            var flattened = new List<RosterInOfficeDaysSetupVM>();
 
-            //foreach (var item in records)
-            //{
-            //    var current = item.StartDate;
-            //    while (current <= item.EndDate)
-            //    {
-            //        if (current.Value.Date == DateTime.Today)
-            //        {
-            //            Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
-            //        }
+        //    var records = await query.ToListAsync();
 
-            //        if (current >= start && current <= end)
-            //        {
-            //            flattened.Add(new RosterInOfficeDaysSetupVM
-            //            {
-            //                RosterInOfficeDayID = item.RosterInOfficeDayID,
-            //                OrganizationID = item.OrganizationID,
-            //                OrganizationName = item.Organization?.OrganizationName ?? "-",
-            //                DepartmentID = item.DepartmentID,
-            //                DepartmentName = item.Department?.DepartmentName ?? "-",
-            //                EmployeeID = item.EmployeeID,
-            //                EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
-            //                ShiftID = item.ShiftID,
-            //                ShiftName = item.Shift?.ShiftName ?? "-",
-            //                StartDate = current,
-            //                EndDate = current,
-            //                TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}",
-            //                RosterInOfficeDaysOverrideSetupVMs = item.RosterInOfficeDaysOverride?
-            //                    .Where(o => o.OverrideDate?.Date == current.Value.Date)
-            //                    .Select(o => new RosterInOfficeDaysOverrideSetupVM
-            //                    {
-            //                        RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
-            //                        RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
-            //                        OverrideDate = o.OverrideDate,
-            //                        ShiftID = o.ShiftID ?? 0,
-            //                        ShiftName = o.Shift?.ShiftName ?? "",
-            //                        TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
-            //                    }).ToList()
-            //            });
-            //        }
 
-            //        current = current?.AddDays(1);
-            //    }
-            //}
+        //    // Flatten shift records by day
+        //    var flattened = new List<RosterInOfficeDaysSetupVM>();
 
-            // Group by Employee
-            var grouped = flattened
-                .GroupBy(x => x.EmployeeID)
-                .Select(g => new RosterEmployeeGroupedVM
-                {
-                    EmployeeID = g.Key ?? 0,
-                    EmployeeName = g.First().EmployeeName,
-                    DepartmentName = g.First().DepartmentName,
-                    OrganizationName = g.First().OrganizationName,
-                    ShiftCells = g.ToList()
-                })
-                .ToList();
+        //    foreach (var item in records)
+        //    {
+        //        var current = item.StartDate;
+        //        while (current <= item.EndDate)
+        //        {
+        //            if (current.Value.Date == DateTime.Today)
+        //            {
+        //                Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
+        //            }
 
-            var totalItems = grouped.Count;
-            var pagedGroups = grouped
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
 
-            var pagination = new PaginationInfo2
-            {
-                TotalItems = totalItems,
-                CurrentPage = pageNumber,
-                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
-                StartItem = (pageNumber - 1) * pageSize + 1,
-                EndItem = Math.Min(pageNumber * pageSize, totalItems),
-                PageNumbers = Enumerable.Range(1, (int)Math.Ceiling((double)totalItems / pageSize)).ToList()
-            };
+        //            if (current >= start && current <= end)
+        //            {
+        //                flattened.Add(new RosterInOfficeDaysSetupVM
+        //                {
+        //                    RosterInOfficeDayID = item.RosterInOfficeDayID,
+        //                    OrganizationID = item.OrganizationID,
+        //                    OrganizationName = item.Organization?.OrganizationName ?? "-",
+        //                    DepartmentID = item.DepartmentID,
+        //                    DepartmentName = item.Department?.DepartmentName ?? "-",
+        //                    EmployeeID = item.EmployeeID,
+        //                    EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
+        //                    ShiftID = item.ShiftID,
+        //                    ShiftName = item.Shift?.ShiftName ?? "-",
+        //                    StartDate = current,
+        //                    EndDate = current,
+        //                    TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}",
+        //                    RosterInOfficeDaysOverrideSetupVMs = item.RosterInOfficeDaysOverride?
+        //                        .Where(o => o.OverrideDate?.Date == current.Value.Date)
+        //                        .Select(o => new RosterInOfficeDaysOverrideSetupVM
+        //                        {
+        //                            RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
+        //                            RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
+        //                            OverrideDate = o.OverrideDate,
+        //                            ShiftID = o.ShiftID ?? 0,
+        //                            ShiftName = o.Shift?.ShiftName ?? "",
+        //                            TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
+        //                        }).ToList()
+        //                });
+        //            }
 
-            return (pagedGroups, pagination);
-        }
+        //            current = current?.AddDays(1);
+        //        }
+        //    }
+
+        //    // Group by Employee
+        //    var grouped = flattened
+        //        .GroupBy(x => x.EmployeeID)
+        //        .Select(g => new RosterEmployeeGroupedVM
+        //        {
+        //            EmployeeID = g.Key ?? 0,
+        //            EmployeeName = g.First().EmployeeName,
+        //            DepartmentName = g.First().DepartmentName,
+        //            OrganizationName = g.First().OrganizationName,
+        //            ShiftCells = g.ToList()
+        //        })
+        //        .ToList();
+
+        //    var totalItems = grouped.Count;
+        //    var pagedGroups = grouped
+        //        .Skip((pageNumber - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .ToList();
+
+        //    var pagination = new PaginationInfo2
+        //    {
+        //        TotalItems = totalItems,
+        //        CurrentPage = pageNumber,
+        //        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+        //        StartItem = (pageNumber - 1) * pageSize + 1,
+        //        EndItem = Math.Min(pageNumber * pageSize, totalItems),
+        //        PageNumbers = Enumerable.Range(1, (int)Math.Ceiling((double)totalItems / pageSize)).ToList()
+        //    };
+
+        //    return (pagedGroups, pagination);
+        //}
 
 
 
 
         #region GetAllAsync
-        public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
-        {
-            var start = startDate ?? DateTime.Today;
-            var end = start.AddDays(daysToShow - 1);
 
-            var query = _genericRepository.AllActive().AsNoTracking()
-                .Include(x => x.Shift)
-                .Include(x => x.Organization)
-                .Include(x => x.Department)
-                .Include(x => x.Employee);
-                //.Include(x => x.RosterInOfficeDaysOverride)
-                //    .ThenInclude(o => o.Shift)
-                //.Where(x => x.StartDate <= end && x.EndDate >= start); // Filter within selected range
+        //public async Task<PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.PaginationResult<RosterInOfficeDaysSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        //{
+        //    var start = startDate ?? DateTime.Today;
+        //    var end = start.AddDays(daysToShow - 1);
 
-            // Apply sorting
-            //if (!string.IsNullOrEmpty(sortColumn))
-            //{
-            //    query = sortColumn switch
-            //    {
-            //        "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
-            //        "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
-            //        "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-            //        "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
-            //        "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
-            //        _ => query.OrderBy(x => x.ShiftID)
-            //    };
-            //}
+        //    var query = _genericRepository.AllActive().AsNoTracking()
+        //        .Include(x => x.Shift)
+        //        .Include(x => x.Organization)
+        //        .Include(x => x.Department)
+        //        .Include(x => x.Employee)
+        //        .Include(x => x.RosterInOfficeDaysOverride)
+        //            .ThenInclude(o => o.Shift)
+        //        .Where(x => x.StartDate <= end && x.EndDate >= start); // Filter within selected range
 
-            // Paginate and project to ViewModel
-            var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(
-                query,
-                pageNumber,
-                pageSize,
-                searchTerm,
-                sortColumn,
-                sortOrder,
-                term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%")
-                          || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%")
-                          || EF.Functions.Like(x.Employee.FirstName, $"%{term}%")
-                          || EF.Functions.Like(x.Employee.LastName, $"%{term}%")
-                          || EF.Functions.Like(x.Employee.EmployeeCode, $"%{term}%")
-                          || EF.Functions.Like(x.Department.DepartmentName, $"%{term}%"),
-                x => new RosterInOfficeDaysSetupVM
-                {
-                    RosterInOfficeDayID = x.RosterInOfficeDayID,
-                    OrganizationID = x.OrganizationID,
-                    OrganizationName = x.Organization.OrganizationName ?? "-",
-                    DepartmentName = x.Department.DepartmentName ?? "-",
-                    EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
-                    ShiftName = x.Shift.ShiftName ?? "-",
-                    ShiftID = x.ShiftID ?? 0,
-                    EmployeeID = x.EmployeeID ?? 0,
-                    //StartDate = x.StartDate,
-                    //EndDate = x.EndDate,
-                    TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}",
-                    //RosterInOfficeDaysOverrideSetupVMs = x.RosterInOfficeDaysOverride
-                        //.Where(o => o.ShiftID != null && o.RosterInOfficeDayID != null && o.OverrideDate != null)
-                        //.Select(o => new RosterInOfficeDaysOverrideSetupVM
-                        //{
-                        //    RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
-                        //    RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
-                        //    OverrideDate = o.OverrideDate ?? null,
-                        //    ShiftID = o.ShiftID ?? 0,
-                        //    ShiftName = o.Shift?.ShiftName ?? "",
-                        //    TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
-                        //}).Distinct().ToList()
-                });
+        //    // Apply sorting
+        //    if (!string.IsNullOrEmpty(sortColumn))
+        //    {
+        //        query = sortColumn switch
+        //        {
+        //            "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
+        //            "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
+        //            "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
+        //            "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
+        //            "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
+        //            _ => query.OrderBy(x => x.ShiftID)
+        //        };
+        //    }
 
-            return result;
-        }
+
+        //    // Paginate and project to ViewModel
+        //    var result = await PaginationService<RosterInOfficeDays, RosterInOfficeDaysSetupVM>.GetPaginatedData(
+        //        query,
+        //        pageNumber,
+        //        pageSize,
+        //        searchTerm,
+        //        sortColumn,
+        //        sortOrder,
+        //        term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%")
+        //                  || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%")
+        //                  || EF.Functions.Like(x.Employee.FirstName, $"%{term}%")
+        //                  || EF.Functions.Like(x.Employee.LastName, $"%{term}%")
+        //                  || EF.Functions.Like(x.Employee.EmployeeCode, $"%{term}%")
+        //                  || EF.Functions.Like(x.Department.DepartmentName, $"%{term}%"),
+        //        x => new RosterInOfficeDaysSetupVM
+        //        {
+        //            RosterInOfficeDayID = x.RosterInOfficeDayID,
+        //            OrganizationID = x.OrganizationID,
+        //            OrganizationName = x.Organization.OrganizationName ?? "-",
+        //            DepartmentName = x.Department.DepartmentName ?? "-",
+        //            EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
+        //            ShiftName = x.Shift.ShiftName ?? "-",
+        //            ShiftID = x.ShiftID ?? 0,
+        //            EmployeeID = x.EmployeeID ?? 0,
+        //            StartDate = x.StartDate,
+        //            EndDate = x.EndDate,
+        //            TimeRange = $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}",
+        //            RosterInOfficeDaysOverrideSetupVMs = x.RosterInOfficeDaysOverride
+        //                .Where(o => o.ShiftID != null && o.RosterInOfficeDayID != null && o.OverrideDate != null)
+        //                .Select(o => new RosterInOfficeDaysOverrideSetupVM
+        //                {
+        //                    RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
+        //                    RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
+        //                    OverrideDate = o.OverrideDate ?? null,
+        //                    ShiftID = o.ShiftID ?? 0,
+        //                    ShiftName = o.Shift?.ShiftName ?? "",
+        //                    TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
+        //                }).Distinct().ToList()
+        //        });
+
+        //    return result;
+        //}
         #endregion
 
 
@@ -591,6 +553,20 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 {
                     Id = x.OrganizationID,
                     Name = x.OrganizationName
+                }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetBrnach
+        public Task<List<CommonSelectVM>> GetBrnach()
+        {
+            var data = _branchRepository.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.OrganizationBranchID,
+                    Name = x.OrganizationBranchName
                 }).ToListAsync();
             return data;
         }
@@ -636,7 +612,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
-        #region GetFilteredEmployees
+        #region GetEmployeeByDepartment
         public async Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(int? orgId, List<int>? departmentIds)
         {
             var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
@@ -741,6 +717,33 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
+        #region GetBranchByOrganization
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetBranchByOrganization(int? id)
+        {
+            var query = from org in _organizationRepository.AllActive().AsNoTracking()
+
+                        join bra in _branchRepository.AllActive().AsNoTracking() on org.OrganizationID equals bra.OrganizationID into braGroup
+                        from bra in braGroup.DefaultIfEmpty()
+
+                        select new { org, bra };
+
+            if (id.HasValue && id.Value != 0)
+            {
+                query = query.Where(x => x.org.OrganizationID == id.Value);
+            }
+
+            var result = await query
+                .Select(x => new RosterInOfficeDaysSetupVM
+                {
+                    BranchID = x.bra != null ? x.bra.OrganizationBranchID : 0,
+                    BranchName = x.bra != null ? x.bra.OrganizationBranchName : ""
+                }).Distinct().AsNoTracking().ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
         #region GetDepartmentByOrganization
         public async Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByOrganization(int? id)
         {
@@ -766,6 +769,46 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             return result;
         }
 
+        #endregion
+
+
+        #region GetEmployeeByBranch
+        public async Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByBranch(int? orgId, List<int?> ids)
+        {
+            var query = from eoi in _employeeOfficeInfo.AllActive().AsNoTracking()
+
+                        join emp in _employeesRepository.AllActive().AsNoTracking() on eoi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
+
+                        join bra in _branchRepository.AllActive().AsNoTracking() on eoi.OrganizationBranchID equals bra.OrganizationBranchID into braGroup
+                        from bra in braGroup.DefaultIfEmpty()
+
+                        join dep in _departmentRepository.AllActive().AsNoTracking() on eoi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+
+                        select new 
+                        { 
+                            eoi.OrganizationID,
+                            eoi.EmployeeID,
+                            emp.FirstName,
+                            emp.LastName, 
+                            emp.EmployeeCode, 
+                            bra.OrganizationBranchID,
+                            bra.OrganizationBranchName,
+                            eoi.DepartmentID,
+                            dep.DepartmentName
+                        };
+
+            if (ids?.Any() == true)
+                query = query.Where(x => x.OrganizationID == orgId && ids.Contains(x.OrganizationBranchID));
+
+            return await query.Select(x => new RosterInOfficeDaysSetupVM
+            {
+                EmployeeID = x.EmployeeID,
+                EmployeeName = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                DepartmentName = x.DepartmentName
+            }).AsNoTracking().ToListAsync();
+        }
         #endregion
 
 
