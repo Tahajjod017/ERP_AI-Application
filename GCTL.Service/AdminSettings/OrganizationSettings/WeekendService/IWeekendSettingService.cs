@@ -19,7 +19,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
         Task<PaginationService<WeekendSettings, WeekendSettingVM>.PaginationResult<WeekendSettingVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<WeekendSettingVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<bool> IsNameUniqueAsync(string name);
+        Task<bool> IsNameUniqueAsync(int organizationId,int organizationBranchId);
         Task<List<SelectListItem>> GetOrganizationsAsync();
         Task<List<SelectListItem>> GetBranchesByOrganizationIdAsync(int organizationId);
 
