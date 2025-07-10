@@ -3102,7 +3102,7 @@
     // Ensure table header is visible
     $('#employeeListTable').find('thead').show();
 
-
+    //#region BTnExcelClick
 
     $('#btnExportXL').on('click', function () {
         
@@ -3121,7 +3121,11 @@
         GenarateXL(filterData);
     });
 
-    ////#region test
+
+    //#endregion
+
+    //#region test
+
     //$('#enable').click(function () {
     //    toastr.info('Enable button clicked!');
     //  //  choiceManager.enableService.enableChoice('sortFilter');
@@ -3133,7 +3137,7 @@
     //    choiceManager.disableChoice('sortFilter');
     //});
 
-    ////#endregion
+    //#endregion
 
 
 });

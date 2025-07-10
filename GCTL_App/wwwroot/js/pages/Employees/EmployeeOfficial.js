@@ -451,6 +451,41 @@
 
     });
 
+
+    // Enhanced employee change handler with better dropdown population
+    $("#OrganizationID").change(function () {
+        var selectedId = $(this).val();
+        var empID = choiceManager.getChoiceValue('EmployeePersonalId')
+        populateSuperVisorDDbyComp(selectedId, empID);
+    });
+
+
+    function populateSuperVisorDDbyComp(selectedId, empID) {
+
+        if (selectedId && empID) {
+            $.ajax({
+                url: "/EmployeeOfficial/GetEmployeeSupDDbyComp",
+                type: "GET",
+                data: { id: selectedId, empID: empID },
+                success: function (response) {
+                    console.log("Response received:", response);
+
+
+                    choiceManager.populateDropdown('ImmediateSupervisorId', response);
+                    choiceManager.populateDropdown('SeniorSupervisorId', response);
+
+                    console.log("Employee data loaded successfully");
+                },
+                error: function (xhr, status, error) {
+                    $(".form-control").prop('disabled', false);
+                    console.error("Error loading employee data:", error);
+                    console.error("Response:", xhr.responseText);
+                    alert("Error loading employee data. Please try again.");
+                }
+            });
+        }
+    };
+
     function populateSuperVisorDD(selectedId) {
 
         if (selectedId) {
