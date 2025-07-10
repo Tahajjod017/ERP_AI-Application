@@ -852,6 +852,21 @@ function updateSortingIndicator() {
 
 
 
+//function getBadgeClass(status) {
+//    if (!status || status.trim() === '') return 'text-bg-success';
+
+//    switch (status.trim().toUpperCase()) {
+//        case 'DECLINEED':
+//            return 'badge-phoenix badge-phoenix-danger';
+//        case 'APPROVED':
+//            return 'badge-phoenix badge-phoenix-success';
+//        case 'PENDING':
+//            return 'badge-phoenix-warning';
+//        default:
+//            return 'text-bg-success';
+//    }
+//}
+
 function getBadgeClass(status) {
     if (!status || status.trim() === '') return 'text-bg-success';
 
@@ -861,12 +876,32 @@ function getBadgeClass(status) {
         case 'APPROVED':
             return 'badge-phoenix badge-phoenix-success';
         case 'PENDING':
-            return 'badge-phoenix-warning';
+            return 'badge-phoenix badge-phoenix-warning';
+        case 'WAITING FOR APPROVAL':
+            return 'badge-phoenix badge-phoenix-warning';
         default:
-            return 'text-bg-success';
+            return 'text-bg-success'; // for "NEW" or fallback
     }
 }
 
+function getStatusText(item) {
+    const rawStatus = item.statusName?.trim().toUpperCase();
+
+    const isNewStatus = !rawStatus || rawStatus === 'NEW';
+
+    if (isNewStatus && item.applicationDate) {
+        const applicationDate = new Date(item.applicationDate);
+        const now = new Date();
+        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
+
+        if (hoursPassed >= 24) {
+            return "Waiting for Approval";
+        }
+    }
+
+    return item.statusName || "New";
+}
+// ${item.statusName || 'NEW'}
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
@@ -897,11 +932,7 @@ initializeGlobalDateRangePicker(
     }
 );
 
-//
-//
 
-
-//
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
@@ -915,7 +946,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     console.log("From: " + fromDate + " | To: " + toDate);
 
     $.ajax({
-        url: '/LeaveRequestRoute/GetAllTableListAsync',
+        url: '/LeaveRequestRoute/GetAllTableListAsync', 
         method: 'GET',
         traditional: true,
         data: {
@@ -934,7 +965,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
         },
         success: function (response) {
 
-
+   
+            
             console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
@@ -1001,7 +1033,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
+                          <span class="badge ${getBadgeClass(item.statusName)}">${getStatusText(item)} </span>      
                         </td>
                         
                      <td class="align-middle white-space-nowrap text-end pe-0">

@@ -518,10 +518,13 @@ $(document).ready(function () {
                         $('#SubsequentHolydayDays').val("0");
                     }
                     GetLeavePolicyIsCountAsync();
-                    window.__originalToDate = data.fromDateEdit;
+                    // Set original From/To dates globally
                     window.__originalFromDate = data.fromDateEdit;
-
-                    //
+                    window.__originalToDate = data.toDateEdit;
+                    debugger
+                    // Store original dates globally
+                    
+                
                 }
             },
 
@@ -532,6 +535,12 @@ $(document).ready(function () {
     })
 
     //
+    
+
+
+
+    //
+    //
     $(document).on('change', 'input[name="ApprovalStatus"]', function () {
         const isApproved = $(this).val() === 'true';
         const $button = $('#ApplyLeaveSubmitButtonApproval');
@@ -540,12 +549,12 @@ $(document).ready(function () {
             $button
                 .removeClass('d-none btn-danger')
                 .addClass('btn-primary')
-                .text('Approve');
+                .text('APPROVE');
         } else {
             $button
                 .removeClass('d-none btn-primary')
                 .addClass('btn-danger')
-                .text('Decline');
+                .text('DECLINE');
         }
     });
     $(document).ready(function () {
@@ -553,7 +562,7 @@ $(document).ready(function () {
     });
 
 
-    //
+    
     $(document).on('change', '#ToDateEdit', function () {
         debugger
         const selectedDate = $(this).val();
@@ -564,10 +573,14 @@ $(document).ready(function () {
             toastr.warning(' originalFromdate > selectedDate value.');
         }
         if (selectedDate > originalToDate) {
-            $(this).val(window.__originalToDate); 
+            $(this).val(window.__originalToDate);
             toastr.warning('You cannot increase the To Date beyond the original value.');
         }
     });
+
+
+    //
+   
 
     //
 

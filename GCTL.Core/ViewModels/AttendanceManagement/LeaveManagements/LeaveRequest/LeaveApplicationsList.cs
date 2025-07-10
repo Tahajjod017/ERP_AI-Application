@@ -24,7 +24,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
 
         public decimal AvailableLeaveDays { get; set; }
     
-
+        public DateTime? ApplicationDate { get; set; }
     }
 }
 
