@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -194,7 +195,7 @@ namespace GCTL_App.Controllers.Employees
             );
 
             ViewBag.EmployeeStatusDD = new SelectList(
-                _employeeStatusRepository.All().Select(es => new { es.StatusID, es.StatusName }),
+                _employeeStatusRepository.All().Where(e=>e.StatusType.ToLower() == "Active/Inactive".ToLower()).Select(es => new { es.StatusID, es.StatusName }),
                 "StatusID",
                 "StatusName"
             );
@@ -366,6 +367,37 @@ namespace GCTL_App.Controllers.Employees
             var a = _employeeRepository.All().Where(e=>e.EmployeeID != id).Select(e => new { id =  e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
                 
             return Ok(a);
+        }
+
+        [HttpGet]
+        public IActionResult GetEmployeeSupDDbyComp(int id, int empID)
+        {
+            //var result = _employeeRepository.All()
+            //    .Where(e => e.EmployeeID != empID && e.EmployeeOfficeInfoEmployee.OrganizationId == id)
+            //    .Include(e => e.EmployeeOfficeInfoEmployee)
+            //    .Select(e => new
+            //    {
+            //        id = e.EmployeeID,
+            //        FullName = $"{e.FirstName} {e.LastName}"
+            //    })
+            //    .ToList();
+
+            //return Ok(result);
+
+
+            var employeeList = (from emp in _employeeRepository.AllActive()
+                                join office in _employeeOfficialRepository.AllActive()
+                                    on emp.EmployeeID equals office.EmployeeID into officeJoin
+                                from official in officeJoin.DefaultIfEmpty()
+                                where emp.EmployeeID != empID
+                                      && (official == null || official.OrganizationID == id)
+                                select new
+                                {
+                                    id = emp.EmployeeID,
+                                    FullName = emp.FirstName + " " + emp.LastName,
+                                    
+                                }).ToList();
+            return Ok(employeeList);
         }
 
         [HttpGet]
