@@ -226,72 +226,65 @@ $(document).ready(function () {
     //flatpickr("#FromDate", { dateFormat: "Y-m-d" });
     //flatpickr("#ToDate", { dateFormat: "Y-m-d" });
     initializeDatepickerDMY("FromDateEdit, ToDateEdit,ToDateFromDateCombinededit")
-    $(document).on('change', "#FromDateEdit", function () {
-        updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
+    //$(document).on('change', "#FromDateEdit", function () {
+    //    updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
 
-    })
-    GetLeavePolicyIsCountAsync();
-    function GetLeavePolicyIsCountAsync() {
-        $.ajax({
-            url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
-            type: 'GET',
-            success: function (data) {
-                if (data.length > 0) {
-                    const policy = data[0];
-                    if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
-                        $('#SubsequentHolydayDays').val('');
-                    } else {
-                        $('#SubsequentHolydayDays').val('Not Applicable');
-                    }
+    //})
+    //GetLeavePolicyIsCountAsync();
+    //function GetLeavePolicyIsCountAsync() {
+    //    $.ajax({
+    //        url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
+    //        type: 'GET',
+    //        success: function (data) {
+    //            if (data.length > 0) {
+    //                const policy = data[0];
+    //                if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
+    //                    $('#SubsequentHolydayDays').val('');
+    //                } else {
+    //                    $('#SubsequentHolydayDays').val('Not Applicable');
+    //                }
 
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    let minDate = null;
-                    let maxDate = null;
-                    // Allow or disallow past dates
-                    if (policy.isAllowRequestForPastDates === true) {
-                        //minDate = today ;
-                        const pastDate = new Date(today);
-                        pastDate.setDate(today.getDate() + 1);
-                        minDate = pastDate;
-                    } else {
-                        minDate = null
-                    }
+    //                const today = new Date();
+    //                today.setHours(0, 0, 0, 0);
+    //                let minDate = null;
+    //                let maxDate = null;
+    //                // Allow or disallow past dates
+    //                if (policy.isAllowRequestForPastDates === true) {
+    //                    //minDate = today ;
+    //                    const pastDate = new Date(today);
+    //                    pastDate.setDate(today.getDate() + 1);
+    //                    minDate = pastDate;
+    //                } else {
+    //                    minDate = null
+    //                }
 
-                    if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
-                        const futureDate = new Date(today);
-                        futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays + 1));
-                        maxDate = futureDate;
-                    }
-                    const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
-                    const maxDateStr = maxDate ? maxDate.toISOString().split('T')[0] : null;
-                    console.log("Today:", today.toISOString().split('T')[0]);
-                    console.log("Past dates allowed:", policy.isAllowRequestForPastDates);
-                    console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
+    //                if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
+    //                    const futureDate = new Date(today);
+    //                    futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays + 1));
+    //                    maxDate = futureDate;
+    //                }
+    //                const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
+    //                const maxDateStr = maxDate ? maxDate.toISOString().split('T')[0] : null;
+    //                console.log("Today:", today.toISOString().split('T')[0]);
+    //                console.log("Past dates allowed:", policy.isAllowRequestForPastDates);
+    //                console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
 
-                    initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
-                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDateStr, maxDateStr);
+    //                initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
+    //                initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDateStr, maxDateStr);
 
-                    window.__minDateStr = minDateStr;
-                    window.__maxDateStr = maxDateStr;
-                    //
-                }
-            },
-            error: function () {
-                toastr.error('Failed to retrieve data.');
-            }
-        });
-    }
+    //                window.__minDateStr = minDateStr;
+    //                window.__maxDateStr = maxDateStr;
+    //                //
+    //            }
+    //        },
+    //        error: function () {
+    //            toastr.error('Failed to retrieve data.');
+    //        }
+    //    });
+    //}
     //
 
-    $(document).on('change', '#FromDateEdit, #ToDateEdit', function (e) {
-        e.preventDefault();
-
-        let fromDate = flatpickrHelper.getDate('FromDateEdit');
-        let toDate = flatpickrHelper.getDate('ToDateEdit');
-        console.log("SubFromDate", fromDate);
-        console.log("SubToDate", toDate);
-
+    function TotalDaysCount(fromDate, toDate) {
         if (!fromDate || !toDate) return;
 
         if (new Date(toDate) < new Date(fromDate)) {
@@ -319,7 +312,7 @@ $(document).ready(function () {
                 }
                 if (typeof data.totalDays !== 'undefined') {
                     $('#TotalAppliedDays').val(data.totalDays);
-                  
+
 
                 }
             }
@@ -328,6 +321,17 @@ $(document).ready(function () {
                 toastr.error('Failed to fetch subsequent.');
             }
         });
+    }
+
+    $(document).on('change', '#FromDateEdit, #ToDateEdit', function (e) {
+        e.preventDefault();
+
+        let fromDate = flatpickrHelper.getDate('FromDateEdit');
+        let toDate = flatpickrHelper.getDate('ToDateEdit');
+        console.log("SubFromDate", fromDate);
+        console.log("SubToDate", toDate);
+        TotalDaysCount(fromDate, toDate)
+        
     });
 
     //
@@ -517,14 +521,13 @@ $(document).ready(function () {
                     } else {
                         $('#SubsequentHolydayDays').val("0");
                     }
-                    GetLeavePolicyIsCountAsync();
+                   // GetLeavePolicyIsCountAsync();
                     // Set original From/To dates globally
                     window.__originalFromDate = data.fromDateEdit;
                     window.__originalToDate = data.toDateEdit;
-                    debugger
-                    // Store original dates globally
-                    
-                
+                    updateDatepickerWithMinDate('FromDateEdit', data.fromDateEdit, data.toDateEdit);
+                    updateDatepickerWithMinDate('ToDateEdit', data.fromDateEdit, data.toDateEdit);
+                    TotalDaysCount(data.fromDateEdit, data.toDateEdit);
                 }
             },
 
@@ -536,8 +539,24 @@ $(document).ready(function () {
 
     //
     
+    function updateDatepickerWithMinDate(dateId, fromDate, toDate) {
+        const input = document.getElementById(dateId);
+        if (input && input._flatpickr) {
+            input._flatpickr.destroy();
+        }
 
-
+        flatpickr(`#${dateId}`, {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            allowInput: true,
+            minDate: fromDate,
+            maxDate: toDate,
+            onReady: function (selectedDates, dateStr, instance) {
+                instance.input.placeholder = "dd/mm/yyyy";
+            }
+        });
+    }
 
     //
     //
@@ -563,20 +582,20 @@ $(document).ready(function () {
 
 
     
-    $(document).on('change', '#ToDateEdit', function () {
-        debugger
-        const selectedDate = $(this).val();
-        const originalToDate = window.__originalToDate;
-        const originalFromdate = window.__originalFromDate;
-        if (originalFromdate > selectedDate)
-        {
-            toastr.warning(' originalFromdate > selectedDate value.');
-        }
-        if (selectedDate > originalToDate) {
-            $(this).val(window.__originalToDate);
-            toastr.warning('You cannot increase the To Date beyond the original value.');
-        }
-    });
+    //$(document).on('change', '#ToDateEdit', function () {
+    //    debugger
+    //    const selectedDate = $(this).val();
+    //    const originalToDate = window.__originalToDate;
+    //    const originalFromdate = window.__originalFromDate;
+    //    if (originalFromdate > selectedDate)
+    //    {
+    //        toastr.warning(' originalFromdate > selectedDate value.');
+    //    }
+    //    if (selectedDate > originalToDate) {
+    //        $(this).val(window.__originalToDate);
+    //        toastr.warning('You cannot increase the To Date beyond the original value.');
+    //    }
+    //});
 
 
     //

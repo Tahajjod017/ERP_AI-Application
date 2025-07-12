@@ -852,21 +852,58 @@ function updateSortingIndicator() {
 
 
 
-//function getBadgeClass(status) {
-//    if (!status || status.trim() === '') return 'text-bg-success';
 
-//    switch (status.trim().toUpperCase()) {
-//        case 'DECLINEED':
-//            return 'badge-phoenix badge-phoenix-danger';
-//        case 'APPROVED':
-//            return 'badge-phoenix badge-phoenix-success';
-//        case 'PENDING':
-//            return 'badge-phoenix-warning';
-//        default:
-//            return 'text-bg-success';
-//    }
-//}
+//
+let hideTooltipTimer; // ✅ Declare globally
 
+$(document).on('mouseenter', '.custom-tooltip-container', function () {
+    const $container = $(this);
+    const $button = $container.find('.info-button');
+    const $tooltip = $container.find('.custom-tooltip-box');
+    const leaveApplicationID = $button.data('id');
+  
+    clearTimeout(hideTooltipTimer); // ✅ Safe to use now
+
+    // Hide all other tooltips
+    $('.custom-tooltip-box').fadeOut();
+    
+    $.ajax({
+        url: '/LeaveRequest/GetByPersonLeaveStepVM',
+        type: 'GET',
+        data: { leaveApplicationID: leaveApplicationID },
+        dataType: 'json',
+        success: function (data) {
+            console.log("LeaveStep", data);
+            if (data && Object.keys(data).length > 0) {
+                let html = `<div style="width: 200px;">
+            <strong>Step:</strong> ${data.approverStep ?? ''}<br/>
+            <strong>Note:</strong> ${data.approvarNote ?? ''} <br/>
+             <strong>Satatus:</strong> ${data.statusName ?? ''} <br/>
+            <strong>Approved By:</strong> ${data.approvarPerson ?? ''}    
+            </div>`;
+
+                $tooltip.html(html).fadeIn(200);
+               
+            } else {
+                $tooltip.html('').fadeIn(200);
+            }
+        },
+        error: function () {
+            $tooltip.html('<div class="text-danger me-4" style="height: 138px; width: 170px;">No data found</div>').fadeIn(200);
+        }
+    });
+});
+
+$(document).on('mouseleave', '.custom-tooltip-container', function () {
+    const $tooltip = $(this).find('.custom-tooltip-box');
+
+    hideTooltipTimer = setTimeout(() => {
+        $tooltip.fadeOut();
+    }, 300);
+});
+
+
+// For Table 
 function getBadgeClass(status) {
     if (!status || status.trim() === '') return 'text-bg-success';
 
@@ -878,30 +915,45 @@ function getBadgeClass(status) {
         case 'PENDING':
             return 'badge-phoenix badge-phoenix-warning';
         case 'WAITING FOR APPROVAL':
-            return 'badge-phoenix badge-phoenix-warning';
+            return 'badge-phoenix badge-phoenix-warning'; 
+        case 'NEW':
+            return 'badge-phoenix text-bg-success';
+        case 'ONGOING': // ✅ Add this case
+            return 'badge-phoenix badge-phoenix-primary';
         default:
-            return 'text-bg-success'; // for "NEW" or fallback
+            return 'text-bg-success';
     }
 }
 
-function getStatusText(item) {
+
+function getStatusText(item)
+{
     const rawStatus = item.statusName?.trim().toUpperCase();
-
     const isNewStatus = !rawStatus || rawStatus === 'NEW';
-
-    if (isNewStatus && item.applicationDate) {
+    if (item.approverStep === 1) {
+        return 'OnGoing';
+    }
+    if (isNewStatus && item.applicationDate)
+    {
         const applicationDate = new Date(item.applicationDate);
         const now = new Date();
         const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
 
-        if (hoursPassed >= 24) {
-            return "Waiting for Approval";
-        }
-    }
+        if (hoursPassed >= 24)
+        {
 
-    return item.statusName || "New";
+            return 'Waiting for Approval';
+        }
+        return 'New';
+    }
+    return item.statusName || '<i class="text-success"></i> New';
 }
-// ${item.statusName || 'NEW'}
+
+function shouldShowInfoIcon(item) {
+    const status = getStatusText(item)?.trim().toUpperCase();
+    return !(status === 'NEW' || status === 'WAITING FOR APPROVAL');
+}
+
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
@@ -1033,9 +1085,18 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                          <span class="badge ${getBadgeClass(item.statusName)}">${getStatusText(item)} </span>      
+                          <span class="badge ${getBadgeClass(getStatusText(item))}">${getStatusText(item)} </span>
+
+                     
+                           ${shouldShowInfoIcon(item) ? `
+        <div class="custom-tooltip-container position-relative d-inline-block">
+            <i class="fa-solid fa-circle-info info-button"
+               data-id="${item.leaveApplicationID}"
+               style="cursor: pointer; font-size: 14px; color: #007bff;"></i>
+            <div class="custom-tooltip-box" style="width: 250px; height: 150px;"></div>
+        </div>` : ''}
                         </td>
-                        
+
                      <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a

@@ -1,4 +1,57 @@
 ﻿ @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
+<style>
+    .custom-tooltip-container {
+        position: relative;
+    }
+
+  /*   .info-button {
+        background-color: #007bff;
+        border: none;
+        color: #fff;
+        padding: 10px 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+    } */
+
+    .custom-tooltip-box {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 50%;
+        z-index: 1050; 
+        transform: translateX(-50%);
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 8px;
+        min-width: 250px;
+        max-width: 400px;
+        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
+        font-size: 12px;
+        white-space: nowrap;
+      
+    }
+
+
+
+        .custom-tooltip-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .custom-tooltip-box th,
+        .custom-tooltip-box td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .custom-tooltip-box th {
+            background-color: #f5f5f5;
+        }
+</style>
 
 <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
     <div class="modal-body pb-0">
@@ -168,7 +221,7 @@
 
 
 
-
+  
 <script>
 
 
