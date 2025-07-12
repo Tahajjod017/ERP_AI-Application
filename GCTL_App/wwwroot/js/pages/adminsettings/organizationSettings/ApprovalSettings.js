@@ -118,6 +118,31 @@ $(document).ready(function () {
             populateOptions(select, designationsUrl, newOrgId);
         });
     });
+
+    // =========================
+    // Self Approval Checkbox Logic (your requested condition)
+    // =========================
+
+    function handleSelfApprovalDisplay() {
+        if ($('#chkSelfApproval').is(':checked')) {
+            // When checked → hide dropdown & remove required
+            $('#selSelfApproval').closest('.mt-3').hide();
+            $('#selSelfApproval').removeAttr('required');
+        } else {
+            // When unchecked → show dropdown & make required
+            $('#selSelfApproval').closest('.mt-3').show();
+            $('#selSelfApproval').attr('required', 'required');
+        }
+    }
+
+    // Initial state check
+    handleSelfApprovalDisplay();
+
+    // On checkbox change
+    $('#chkSelfApproval').on('change', function () {
+        handleSelfApprovalDisplay();
+    });
+
 });
 
 
