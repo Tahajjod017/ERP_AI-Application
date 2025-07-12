@@ -41,6 +41,10 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? ThirdApprovalID { get; set; }
         public string? ThirdApprovalName { get; set; }
 
-       
+
+        public string? AllowSelfApproval { get; set; }
+
+        public string? SelfExceptionApprovalID { get; set; }
+
     }
 }

@@ -81,6 +81,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                 var (firstApprovalId, isFirstDesignation) = ParseApprovalId(model.FirstApprovalID);
                 var (secondApprovalId, isSecondDesignation) = ParseApprovalId(model.SecondApprovalID);
                 var (thirdApprovalId, isThirdDesignation) = ParseApprovalId(model.ThirdApprovalID);
+                var (selfApprovalId, isSelfId) = ParseApprovalId(model.SelfExceptionApprovalID);
+
 
                 if (existingEntity != null)
                 {
@@ -101,6 +103,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval == "on";
                     existingEntity.ThirdApprovalID = thirdApprovalId;
                     existingEntity.IsDesignationOrEmpThirdApprovalID = isThirdDesignation;
+                    existingEntity.AllowSelfApproval = model.AllowSelfApproval == "on";
+                    existingEntity.SelfExceptionApprovalID = isSelfId ? selfApprovalId : null;
 
                     existingEntity.UpdatedAt = DateTime.Now;
                     existingEntity.UpdatedBy = model.UpdatedBy ?? model.CreatedBy;
