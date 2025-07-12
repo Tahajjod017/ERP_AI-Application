@@ -79,6 +79,7 @@ using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
+using GCTL.Service.CommonService;
 
 
 
@@ -112,6 +113,8 @@ namespace GCTL_App.Extensions
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IMenuTabsService, MenuTabsService>();
             //services.AddScoped<IPaginationService, PaginationService>();
+            services.AddScoped<ICommonService, CommonService>();
+
 
             #region Added by Md. Rakib Hasan
             services.AddScoped<IActionTakenService, ActionTakenService>();

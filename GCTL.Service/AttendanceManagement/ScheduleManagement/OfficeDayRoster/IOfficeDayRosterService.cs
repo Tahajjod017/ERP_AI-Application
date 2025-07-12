@@ -42,20 +42,5 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
     //int daysToShow = 7,
     //DateTime? startDate = null);
         #endregion
-
-
-        #region Others
-        Task<List<CommonSelectVM>> GetCompanies();
-        Task<List<CommonSelectVM>> GetBrnach();
-        Task<List<CommonSelectVM>> GetDepartments();
-        Task<List<RosterInOfficeDaysSetupVM>> GetGroupedEmployees();
-        Task<List<CommonSelectVM>> GetShift();
-        Task<List<RosterInOfficeDaysSetupVM>> GetBranchByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetShiftByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByBranch(int? orgId, List<int?> ids);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(int? orgId, List<int>? departmentIds);
-        #endregion
     }
 }

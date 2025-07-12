@@ -1,0 +1,258 @@
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
+using GCTL.Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GCTL.Service.CommonService
+{
+    public class CommonService : ICommonService
+    {
+        #region Repositories
+        private readonly IGenericRepository<Organization> _organization;
+        private readonly IGenericRepository<OrganizationBranches> _organizationBranches;
+        private readonly IGenericRepository<Departments> _departments;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
+        private readonly IGenericRepository<Shifts> _shifts;
+
+        public CommonService(
+            IGenericRepository<Organization> organization, 
+            IGenericRepository<OrganizationBranches> organizationBranches, 
+            IGenericRepository<Departments> departments, 
+            IGenericRepository<Data.Models.Employees> employees, 
+            IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo, 
+            IGenericRepository<Shifts> shifts)
+        {
+            _organization = organization;
+            _organizationBranches = organizationBranches;
+            _departments = departments;
+            _employees = employees;
+            _employeeOfficeInfo = employeeOfficeInfo;
+            _shifts = shifts;
+        }
+        #endregion
+
+
+        #region GetOrganizations
+        public async Task<List<CommonSelectVM>> GetOrganizations()
+        {
+            var result = await _organization.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.OrganizationID,
+                Name = x.OrganizationName
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetBranches
+        public async Task<List<CommonSelectVM>> GetBranches()
+        {
+            var result = await _organizationBranches.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.OrganizationBranchID,
+                Name = x.OrganizationBranchName
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetDepartments
+        public async Task<List<CommonSelectVM>> GetDepartments()
+        {
+            var result = await _departments.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.DepartmentID,
+                Name = x.DepartmentName
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetEmployeesGroupedByDepartment
+        public async Task<List<CommonSelectVM>> GetEmpGroupedByDep()
+        {
+            var data = await (from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+
+                              join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              select new CommonSelectVM
+                              {
+                                  Id = empOi.EmployeeID ?? 0,
+                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  GroupName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetShifts
+        public async Task<List<CommonSelectVM>> GetShifts()
+        {
+            var result = await _shifts.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.ShiftID,
+                Name = $"{x.ShiftName} ({x.StartTime} - {x.EndTime})"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetBranches
+        public async Task<List<CommonSelectVM>> GetBranchesByOrgId(int? orgId)
+        {
+            var query = _organizationBranches.AllActive().AsNoTracking();
+
+            if(orgId.HasValue && orgId.Value != 0)
+                query = query.Where(b => b.OrganizationID == orgId.Value);
+
+            var result = await query.Select(b => new CommonSelectVM
+            {
+                Id = b.OrganizationBranchID,
+                Name = b.OrganizationBranchName
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetDepartments
+        public async Task<List<CommonSelectVM>> GetDepartmentsByOrgId(int? orgId)
+        {
+            var query = _departments.AllActive().AsNoTracking();
+
+            if (orgId.HasValue && orgId.Value != 0)
+                query = query.Where(d => d.OrganizationID == orgId.Value);
+
+            var result = await query.Select(d => new CommonSelectVM
+            {
+                Id = d.DepartmentID,
+                Name = d.DepartmentName
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetEmployeesByOrgId
+        public async Task<List<CommonSelectVM>> GetEmployeesByOrgId(int? orgId)
+        {
+            var data = await (from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+
+                              join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                              from emp in empGroup.DefaultIfEmpty()
+
+                              join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                              from dep in depGroup.DefaultIfEmpty()
+
+                              where empOi.OrganizationID == orgId
+
+                              select new CommonSelectVM
+                              {
+                                  Id = empOi.EmployeeID ?? 0,
+                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                                  GroupName = dep.DepartmentName
+                              }).ToListAsync();
+            return data;
+        }
+        #endregion
+
+
+        #region GetEmployeesByOrgBraId
+        public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraId(int? orgId, List<int>? branchIds)
+        {
+            if (!orgId.HasValue || orgId == 0)
+                return new List<CommonSelectVM>(); 
+
+            var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+
+                        join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
+
+                        join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+
+                        where empOi.OrganizationID == orgId.Value
+                              && (branchIds == null || branchIds.Contains(empOi.OrganizationBranchID ?? 0))
+
+                        select new CommonSelectVM
+                        {
+                            Id = empOi.EmployeeID ?? 0,
+                            Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                            GroupName = dep.DepartmentName ?? "No Department"
+                        };
+
+            return await query.ToListAsync();
+        }
+        #endregion
+
+
+        #region GetShiftsByOrgId
+        public async Task<List<CommonSelectVM>> GetShiftsByOrgId(int? orgId)
+        {
+            var query = _shifts.AllActive().AsNoTracking();
+
+            if (orgId.HasValue && orgId.Value != 0)
+                query = query.Where(s => s.OrganizationID == orgId.Value);
+
+            var result = await query.Select(s => new CommonSelectVM
+            {
+                Id = s.ShiftID,
+                Name = $"{s.ShiftName} ({s.StartTime} - {s.EndTime})"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetEmployeesByOrgBraDepId
+        public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds)
+        {
+            if (!orgId.HasValue || orgId == 0)
+                return new List<CommonSelectVM>();
+
+            var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+
+                        join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        from emp in empGroup.DefaultIfEmpty()
+
+                        join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+
+                        where empOi.OrganizationID == orgId.Value
+                      && (branchIds == null || branchIds.Count == 0 || branchIds.Contains(empOi.OrganizationBranchID ?? 0))
+                      && (deptIds == null || deptIds.Count == 0 || deptIds.Contains(empOi.DepartmentID ?? 0))
+
+                        select new CommonSelectVM
+                        {
+                            Id = empOi.EmployeeID ?? 0,
+                            Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
+                            GroupName = dep.DepartmentName ?? "No Department"
+                        };
+
+            return await query.ToListAsync();
+        }
+        #endregion
+    }
+}
