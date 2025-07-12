@@ -1,5 +1,4 @@
-﻿
-$(document).ready(function () {
+﻿$(document).ready(function () {
     const designationsUrl = '/ApprovalSettings/GetDesignation';
 
     const approvers = [
@@ -8,13 +7,40 @@ $(document).ready(function () {
         { checkboxId: "chkThird", selectId: "selThird" }
     ];
 
-    let cachedRoles = {}; // per organization cache
+    let cachedRoles = {};
+    let selectedFirst = null;
+    let selectedSecond = null;
 
-    // Utility to fetch and exclude values
-    function populateOptions(selectEl, url, organId, excludedValues = []) {
+    // ===== Self Approval Logic =====
+    function handleSelfApprovalDisplay() {
+        const selfCheckbox = $('#chkSelfApproval');
+        const selfSelect = $('#selSelfApproval');
+        const selfWrapper = selfSelect.closest('.mt-3');
+
+        if (selfCheckbox.is(':checked')) {
+            selfWrapper.hide();
+            selfSelect.prop('disabled', true);
+            selfSelect.removeAttr('required');
+        } else {
+            selfWrapper.show();
+            selfSelect.prop('disabled', false);
+            selfSelect.attr('required', 'required');
+        }
+    }
+
+    function setDefaultIfAvailable(selectEl) {
+        const defaultValue = selectEl.data('default');
+        if (defaultValue) {
+            selectEl.val(defaultValue).trigger('change');
+        }
+    }
+
+    function populateOptions(selectEl, url, organId, excludedValues = [], callback = null) {
         if (cachedRoles[organId]) {
             const filtered = cachedRoles[organId].filter(role => !excludedValues.includes(role.value));
             choiceManager.populateDropdown(selectEl.attr('id'), filtered);
+            setDefaultIfAvailable(selectEl);
+            if (callback) callback();
             return;
         }
 
@@ -31,6 +57,8 @@ $(document).ready(function () {
                 cachedRoles[organId] = simplified;
                 const filtered = simplified.filter(role => !excludedValues.includes(role.value));
                 choiceManager.populateDropdown(selectEl.attr('id'), filtered);
+                setDefaultIfAvailable(selectEl);
+                if (callback) callback();
             },
             error: function (xhr, status, error) {
                 console.error('Error loading options:', error);
@@ -38,63 +66,56 @@ $(document).ready(function () {
         });
     }
 
-    // Track current selections
-    let selectedFirst = null;
-    let selectedSecond = null;
-
-    // Initial setup
+    // ===== Approver Setup =====
     approvers.forEach(ap => {
-        const checkbox = $("#" + ap.checkboxId);
-        const select = $("#" + ap.selectId);
+        const checkbox = $('#' + ap.checkboxId);
+        const select = $('#' + ap.selectId);
+        const orgId = $('#OrganizationID').val();
 
         select.prop('disabled', true);
+        select.removeAttr('required');
         choiceManager.disableChoice(ap.selectId);
-
-        const orgId = $('#OrganizationID').val();
         populateOptions(select, designationsUrl, orgId);
 
         checkbox.on('change', function () {
             const isChecked = this.checked;
             const currentOrgId = $('#OrganizationID').val();
 
-            select.prop('disabled', !isChecked);
-
             if (isChecked) {
+                select.prop('disabled', false);
+                select.attr('required', 'required');
                 choiceManager.enableChoice(ap.selectId);
 
                 let exclude = [];
-                if (ap.selectId === "selSecond" && selectedFirst) {
-                    exclude = [selectedFirst];
-                }
-                if (ap.selectId === "selThird") {
-                    exclude = [selectedFirst, selectedSecond].filter(Boolean);
-                }
-
+                if (ap.selectId === 'selSecond' && selectedFirst) exclude = [selectedFirst];
+                if (ap.selectId === 'selThird') exclude = [selectedFirst, selectedSecond].filter(Boolean);
                 populateOptions(select, designationsUrl, currentOrgId, exclude);
             } else {
+                select.prop('disabled', true);
+                select.removeAttr('required');
                 choiceManager.disableChoice(ap.selectId);
             }
 
-            // Dependency logic
-            if (ap.checkboxId === "chkFirst") {
-                $("#chkSecond, #selSecond").prop('disabled', !isChecked);
+            if (ap.checkboxId === 'chkFirst') {
+                $('#chkSecond, #selSecond').prop('disabled', !isChecked);
+                $('#selSecond').prop('required', isChecked);
             }
-            if (ap.checkboxId === "chkSecond") {
-                $("#chkThird, #selThird").prop('disabled', !isChecked);
+            if (ap.checkboxId === 'chkSecond') {
+                $('#chkThird, #selThird').prop('disabled', !isChecked);
+                $('#selThird').prop('required', isChecked);
             }
         });
     });
 
-    // Listen to selection changes and update downstream exclusions
     $('#selFirst').on('change', function () {
         selectedFirst = $(this).val();
         const orgId = $('#OrganizationID').val();
 
-        if (!$("#selSecond").prop('disabled')) {
-            populateOptions($("#selSecond"), designationsUrl, orgId, [selectedFirst]);
+        if (!$('#selSecond').prop('disabled')) {
+            populateOptions($('#selSecond'), designationsUrl, orgId, [selectedFirst]);
         }
-        if (!$("#selThird").prop('disabled')) {
-            populateOptions($("#selThird"), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+        if (!$('#selThird').prop('disabled')) {
+            populateOptions($('#selThird'), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
         }
     });
 
@@ -102,48 +123,44 @@ $(document).ready(function () {
         selectedSecond = $(this).val();
         const orgId = $('#OrganizationID').val();
 
-        if (!$("#selThird").prop('disabled')) {
-            populateOptions($("#selThird"), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+        if (!$('#selThird').prop('disabled')) {
+            populateOptions($('#selThird'), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
         }
     });
 
-    // Organization change resets all dropdowns
     $('#OrganizationID').on('change', function () {
         const newOrgId = $(this).val();
         selectedFirst = null;
         selectedSecond = null;
 
         approvers.forEach(ap => {
-            const select = $("#" + ap.selectId);
+            const select = $('#' + ap.selectId);
+            select.prop('disabled', true);
+            select.removeAttr('required');
             populateOptions(select, designationsUrl, newOrgId);
+        });
+
+        populateOptions($('#selSelfApproval'), designationsUrl, newOrgId, [], function () {
+            handleSelfApprovalDisplay();
         });
     });
 
-    // =========================
-    // Self Approval Checkbox Logic (your requested condition)
-    // =========================
-
-    function handleSelfApprovalDisplay() {
-        if ($('#chkSelfApproval').is(':checked')) {
-            // When checked → hide dropdown & remove required
-            $('#selSelfApproval').closest('.mt-3').hide();
-            $('#selSelfApproval').removeAttr('required');
-        } else {
-            // When unchecked → show dropdown & make required
-            $('#selSelfApproval').closest('.mt-3').show();
-            $('#selSelfApproval').attr('required', 'required');
-        }
-    }
-
-    // Initial state check
-    handleSelfApprovalDisplay();
-
-    // On checkbox change
     $('#chkSelfApproval').on('change', function () {
         handleSelfApprovalDisplay();
     });
 
+    const orgId = $('#OrganizationID').val();
+    populateOptions($('#selSelfApproval'), designationsUrl, orgId, [], function () {
+        handleSelfApprovalDisplay();
+    });
+
+    // Safe cleanup before form submit to avoid focus errors
+    $('#aprovalSettingsForm').on('submit', function () {
+        $(':input:disabled').removeAttr('required');
+    });
 });
+
+
 
 
 
