@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster.OfficeDayRosterService;
+//using static GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster.OfficeDayRosterService;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 {
@@ -33,14 +33,14 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //    DateTime? startDate = null
         //);
 
-        Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
-    int pageNumber = 1,
-    int pageSize = 5,
-    string searchTerm = "",
-    string sortColumn = "RosterInOfficeDayID",
-    string sortOrder = "desc",
-    int daysToShow = 7,
-    DateTime? startDate = null);
+    //    Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
+    //int pageNumber = 1,
+    //int pageSize = 5,
+    //string searchTerm = "",
+    //string sortColumn = "RosterInOfficeDayID",
+    //string sortOrder = "desc",
+    //int daysToShow = 7,
+    //DateTime? startDate = null);
         #endregion
 
 

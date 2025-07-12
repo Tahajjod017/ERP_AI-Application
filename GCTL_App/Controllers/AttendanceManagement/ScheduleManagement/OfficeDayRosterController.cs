@@ -148,23 +148,23 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         //}
 
 
-        public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
-        {
-            var (data, pagination) = await _assignDefaultShiftService.GetAllGroupedAsync(
-                pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
+        //public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        //{
+        //    var (data, pagination) = await _assignDefaultShiftService.GetAllGroupedAsync(
+        //        pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
 
-            var headers = Enumerable.Range(0, daysToShow)
-                .Select(i => (startDate ?? DateTime.Today).AddDays(i))
-                .Select(date => new { day = date.ToString("ddd"), date = date.ToString("dd MMM yyyy") })
-                .ToList();
+        //    var headers = Enumerable.Range(0, daysToShow)
+        //        .Select(i => (startDate ?? DateTime.Today).AddDays(i))
+        //        .Select(date => new { day = date.ToString("ddd"), date = date.ToString("dd MMM yyyy") })
+        //        .ToList();
 
-            return Json(new
-            {
-                result = data,
-                paginationInfo = pagination,
-                headers = headers
-            });
-        }
+        //    return Json(new
+        //    {
+        //        result = data,
+        //        paginationInfo = pagination,
+        //        headers = headers
+        //    });
+        //}
         #endregion
 
 

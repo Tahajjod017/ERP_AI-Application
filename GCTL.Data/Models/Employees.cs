@@ -89,6 +89,8 @@ public partial class Employees
 
     public virtual ICollection<ApprovalSettings> ApprovalSettingsDeletedByNavigation { get; set; } = new List<ApprovalSettings>();
 
+    public virtual ICollection<ApprovalSettings> ApprovalSettingsSelfExceptionApproval { get; set; } = new List<ApprovalSettings>();
+
     public virtual ICollection<ApprovalSettings> ApprovalSettingsUpdatedByNavigation { get; set; } = new List<ApprovalSettings>();
 
     public virtual ICollection<ApprovalTypes> ApprovalTypesCreatedByNavigation { get; set; } = new List<ApprovalTypes>();
@@ -319,6 +321,8 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<LeaveApplications> LeaveApplicationsApprovalPerson { get; set; } = new List<LeaveApplications>();
+
     public virtual ICollection<LeaveApplications> LeaveApplicationsCreatedByNavigation { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveApplications> LeaveApplicationsDeletedByNavigation { get; set; } = new List<LeaveApplications>();
@@ -456,12 +460,6 @@ public partial class Employees
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysDeletedByNavigation { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysEmployee { get; set; } = new List<RosterInOfficeDays>();
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideCreatedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideDeletedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
-
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverrideUpdatedByNavigation { get; set; } = new List<RosterInOfficeDaysOverride>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysUpdatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
 

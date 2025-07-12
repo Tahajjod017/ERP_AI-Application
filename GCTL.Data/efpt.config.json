@@ -303,10 +303,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[RosterInOfficeDaysOverride]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[ServiceYears]",
          "ObjectType": 0
       },

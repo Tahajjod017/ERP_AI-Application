@@ -17,9 +17,7 @@ public partial class RosterInHolyDays
 
     public int? ShiftID { get; set; }
 
-    public DateTime? StartDate { get; set; }
-
-    public DateTime? EndDate { get; set; }
+    public DateTime? DayDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -39,6 +37,8 @@ public partial class RosterInHolyDays
 
     public int? DepartmentID { get; set; }
 
+    public int? StatusID { get; set; }
+
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchanges { get; set; } = new List<CompensationDayExchanges>();
 
     public virtual CompensationTypes CompensationType { get; set; }
@@ -54,6 +54,8 @@ public partial class RosterInHolyDays
     public virtual Organization Organization { get; set; }
 
     public virtual Shifts Shift { get; set; }
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

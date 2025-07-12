@@ -71,8 +71,6 @@ public partial class Shifts
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
-    public virtual ICollection<RosterInOfficeDaysOverride> RosterInOfficeDaysOverride { get; set; } = new List<RosterInOfficeDaysOverride>();
-
     public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
 
     public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetails { get; set; } = new List<SpiralWeeklyPatternDetails>();

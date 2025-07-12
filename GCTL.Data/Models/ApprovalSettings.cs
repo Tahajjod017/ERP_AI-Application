@@ -51,6 +51,10 @@ public partial class ApprovalSettings
 
     public bool IsDesignationOrEmpThirdApprovalID { get; set; }
 
+    public bool? AllowSelfApproval { get; set; }
+
+    public int? SelfExceptionApprovalID { get; set; }
+
     public virtual ApprovalTypes ApprovalType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
@@ -60,6 +64,8 @@ public partial class ApprovalSettings
     public virtual Organization Organization { get; set; }
 
     public virtual OrganizationBranches OrganizationBranch { get; set; }
+
+    public virtual Employees SelfExceptionApproval { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

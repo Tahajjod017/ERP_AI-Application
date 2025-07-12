@@ -143,7 +143,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             services.AddScoped<IAddShiftService, AddShiftService>();
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
-            services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
+            //services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
             #endregion
 
 
