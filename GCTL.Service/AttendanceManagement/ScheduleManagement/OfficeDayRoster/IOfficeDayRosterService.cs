@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using static GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster.OfficeDayRosterService;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 {

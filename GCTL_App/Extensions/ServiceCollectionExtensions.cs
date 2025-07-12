@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿#region References
+using System.Data;
 using System;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,7 @@ using GCTL.Service.MasterSetup.ActionTakens;
 using Microsoft.Data.SqlClient;
 using GCTL.Service.Language;
 using GCTL.Service.ActionLogAudit;
-
 using GCTL.Service.VisitingPath;
-
 using GCTL.Service.MasterSetup.BloodGroups;
 using GCTL.Service.MasterSetup.Countries;
 using GCTL.Service.MasterSetup.Currency;
@@ -50,9 +49,7 @@ using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.RolePermissions;
-
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings;
-
 using GCTL.Service.Employees.EmployeeContact;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.Employees.EmployeeList;
@@ -62,38 +59,27 @@ using GCTL.Service.ElementPermission;
 using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
-
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
-
 using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
-
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Employees.EmployeeReport;
-
 using GCTL.Service.FileHandler;
-
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.CommonService;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
-
-
-
-
-
-
-
-
+#endregion
 
 namespace GCTL_App.Extensions
 {
     public static class ServiceCollectionExtensions
     {
+        #region Connection
         public static void ConfigureContext(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDbContext>(options =>
@@ -106,15 +92,16 @@ namespace GCTL_App.Extensions
             services.AddScoped<IDbConnection>(sp =>
                 new SqlConnection(configuration.GetConnectionString("connection")));
         }
+        #endregion
 
         public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Main Settings Start
+            #region Main Settings Start
             services.Configure<ApplicationSettings>(configuration.GetSection("ApplicationSettings"));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IMenuTabsService, MenuTabsService>();
-            //services.AddScoped<IPaginationService, PaginationService>();
             services.AddScoped<ICommonService, CommonService>();
+            #endregion
 
 
             #region Added by Md. Rakib Hasan
@@ -146,7 +133,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             services.AddScoped<IAddShiftService, AddShiftService>();
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
-            //services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
+            services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
             #endregion
 
 
