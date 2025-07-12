@@ -1,7 +1,7 @@
 ﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDaysSetupVM
 
 @{
-    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDaysSetupVM>;
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
 <style>
@@ -60,12 +60,12 @@
                     data-coreui-selection-type="counter"
                     data-coreui-search="true"
                     data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
-                @foreach (var group in employees.GroupBy(e => e.DepartmentName))
+                @foreach (var group in employees.GroupBy(e => e.GroupName))
                 {
                     <optgroup label="@group.Key">
                         @foreach (var emp in group)
                         {
-                            <option value="@emp.EmployeeID">@emp.EmployeeName</option>
+                            <option value="@emp.Id">@emp.Name</option>
                         }
                     </optgroup>
                 }
