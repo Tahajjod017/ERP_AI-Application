@@ -49,7 +49,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<WeekendDays> weekedays;
         private readonly IGenericRepository<LeaveBalances> leaveBalances;
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation) : base(leaveRequest)
+        private readonly IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -68,6 +69,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.approvalSettingsRepository = approvalSettingsRepository;
             this.approvalTypesRepository = approvalTypesRepository;
             this.approvaldesignation = approvaldesignation;
+            this.leaveBaseApprovalHistory = leaveBaseApprovalHistory;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -88,6 +90,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                 // 🔹 Step 3: Base query with includes
                 var query = leaveRequest.AllActive()
+                    .Include(x=>x.LeaveBaseApprovalHistory)
                     .Include(x => x.Employee)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)
@@ -175,10 +178,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
-
+                        ApproverStep = null // temporarily null
 
                     });
 
+                foreach (var item in result.Data)
+                {
+                    item.ApproverStep = await leaveBaseApprovalHistory.AllActive()
+                        .Where(x => x.LeaveApplicationID == item.LeaveApplicationID).Select(x => x.ApprovalStep).FirstOrDefaultAsync();
+                }
 
                 return result;
 
@@ -1436,6 +1444,38 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
 
             return await baseQuery.ToListAsync();
+        }
+        #endregion
+
+        #region Person Leave Step  
+
+        public async Task<PersonLeaveStepVM> GetByPersonLeaveStepVM(int leaveApplicationID)
+        {
+            try
+            {
+                var entity = await (
+                    from lb in leaveBaseApprovalHistory.AllActive()
+                        .Where(x => x.LeaveApplicationID == leaveApplicationID)
+                        .AsNoTracking() join statusName in leaveStatuses.AllActive().Select(x=>new {x.StatusID, x.StatusName}) on lb.StatusID equals statusName.StatusID
+                  
+                    join e in employee.AllActive()
+                        .Select(x => new { x.EmployeeID, x.FirstName, x.LastName })
+                    on lb.ApproveBy equals e.EmployeeID
+                    select new PersonLeaveStepVM
+                    {
+                        ApprovarNote = lb.ApproverNote,
+                        ApproverStep = lb.ApprovalStep,
+                        ApprovarPerson = e.FirstName + " " + e.LastName,
+                        StatusName=statusName.StatusName,
+                    }
+                ).FirstOrDefaultAsync();
+
+                return entity;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
     }

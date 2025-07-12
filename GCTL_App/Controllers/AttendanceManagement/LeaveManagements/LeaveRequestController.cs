@@ -271,10 +271,35 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             }
 
         }
+        #endregion
 
 
+        #region Display Leave banlance
+
+        [Route("LeaveRequest/GetByPersonLeaveStepVM")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetByPersonLeaveStepVM(int leaveApplicationID)
+        {
+
+            try
+            {
 
 
+                if (leaveApplicationID == 0)
+                    return BadRequest("LeaveApplicationId not found in claims.");
+
+
+                var data = await leaveRequestService.GetByPersonLeaveStepVM(leaveApplicationID);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+        }
         #endregion
     }
 }

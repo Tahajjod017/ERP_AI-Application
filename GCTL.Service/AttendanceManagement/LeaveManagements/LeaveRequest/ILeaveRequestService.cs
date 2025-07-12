@@ -52,10 +52,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId);
 
         // Server side past dates allow or not 
-      
+
         #endregion
+
+        #region Leave Step 
+        Task<PersonLeaveStepVM> GetByPersonLeaveStepVM(int leaveApplicationID);
+        #endregion
+
+
     }
 
-    
-    
+
+
 }
