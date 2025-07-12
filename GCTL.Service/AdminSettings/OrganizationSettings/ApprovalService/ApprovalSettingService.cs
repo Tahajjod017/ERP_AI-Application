@@ -437,6 +437,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     Text = o.OrganizationName
                 })
                 .ToListAsync();
+            // Set first item as selected by default if any exist
+            if (organizations.Any())
+            {
+                organizations[0].Selected = true;
+            }
+
+
 
             return organizations;
         }
@@ -491,48 +498,6 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         #endregion
 
         #region GetEmployeeWithApprovalDesignationAsync
-        //public async Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationAsync()
-        //{
-        //    // Fetch Approval Designations
-        //    var approvalDesignations = await _genericRepositoryApprovalDesignations.All()
-        //        .Where(ad => ad.DeletedAt == null)
-        //        .Select(ad => new SelectListItem
-        //        {
-        //            Value = ad.ApprovalDesignationID.ToString() + "_ad",
-        //            Text = ad.ApprovalDesignationName
-        //        })
-        //        .ToListAsync();
-
-        //    // Fetch Employees with Designation and Ranking, ordered by rank 1 to 5
-        //    var employeeWithDesignation = await _genericRepositoryEmployeeOfficeInfo.All()
-        //        .Where(eoi => eoi.DeletedAt == null)
-        //        .Join(
-        //            _genericRepositoryEmployees.All().Where(emp => emp.DeletedAt == null),
-        //            eoi => eoi.EmployeeID,
-        //            emp => emp.EmployeeID,
-        //            (eoi, emp) => new { eoi, emp }
-        //        )
-        //        .Join(
-        //            _genericRepositoryDesignations.All().Where(d => d.DeletedAt == null && d.Ranking >= 1 && d.Ranking <= 5),
-        //            combined => combined.eoi.DesignationID,
-        //            d => d.DesignationID,
-        //            (combined, d) => new { combined, d }
-        //        )
-        //        .OrderBy(x => x.d.Ranking) // Order employees by their designation rank
-        //        .Select(x => new SelectListItem
-        //        {
-        //            Value = x.combined.eoi.EmployeeID.ToString(),
-        //            Text = $"{x.combined.emp.FirstName} {x.combined.emp.LastName} | {x.d.DesignationName}"
-        //        })
-        //        .ToListAsync();
-
-        //    // Combine both lists
-        //    var combinedList = new List<SelectListItem>();
-        //    combinedList.AddRange(approvalDesignations);
-        //    combinedList.AddRange(employeeWithDesignation);
-
-        //    return combinedList;
-        //}
         public async Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationAsync(int organizationId)
         {
             // Fetch Approval Designations

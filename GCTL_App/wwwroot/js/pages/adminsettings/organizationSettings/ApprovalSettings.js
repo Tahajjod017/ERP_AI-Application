@@ -8,24 +8,29 @@ $(document).ready(function () {
         { checkboxId: "chkThird", selectId: "selThird" }
     ];
 
-    // Function to fetch data and populate dropdown using jQuery's $.ajax()
-    function populateOptions(selectEl, url, organId) {
-        let defaultOptionText = 'Select Designation';
+    let cachedRoles = {}; // per organization cache
+
+    // Utility to fetch and exclude values
+    function populateOptions(selectEl, url, organId, excludedValues = []) {
+        if (cachedRoles[organId]) {
+            const filtered = cachedRoles[organId].filter(role => !excludedValues.includes(role.value));
+            choiceManager.populateDropdown(selectEl.attr('id'), filtered);
+            return;
+        }
+
         $.ajax({
             url: url,
             type: 'GET',
             dataType: 'json',
             data: { organizationId: organId },
             success: function (data) {
-                console.log('Fetched data:', data);
-
-                const simplifiedRoles = data.map(role => ({
+                const simplified = data.map(role => ({
                     value: role.value,
                     label: role.text
                 }));
-
-                // Use choiceManager to populate dropdown
-                choiceManager.populateDropdown(selectEl.attr('id'), simplifiedRoles);
+                cachedRoles[organId] = simplified;
+                const filtered = simplified.filter(role => !excludedValues.includes(role.value));
+                choiceManager.populateDropdown(selectEl.attr('id'), filtered);
             },
             error: function (xhr, status, error) {
                 console.error('Error loading options:', error);
@@ -33,60 +38,84 @@ $(document).ready(function () {
         });
     }
 
-    // Initial population on page load
-    var organizationId = $('#OrganizationID').val();
+    // Track current selections
+    let selectedFirst = null;
+    let selectedSecond = null;
 
+    // Initial setup
     approvers.forEach(ap => {
         const checkbox = $("#" + ap.checkboxId);
         const select = $("#" + ap.selectId);
 
-        // Initially disable all select dropdowns
         select.prop('disabled', true);
         choiceManager.disableChoice(ap.selectId);
 
-        // Populate options for the dropdown
-        populateOptions(select, designationsUrl, organizationId);
+        const orgId = $('#OrganizationID').val();
+        populateOptions(select, designationsUrl, orgId);
 
-        // Enable/Disable select dropdown based on checkbox change
         checkbox.on('change', function () {
             const isChecked = this.checked;
+            const currentOrgId = $('#OrganizationID').val();
 
-            // Enable/Disable the select dropdown based on checkbox state
             select.prop('disabled', !isChecked);
 
             if (isChecked) {
-                // Enable dropdown using Choices.js
                 choiceManager.enableChoice(ap.selectId);
-                populateOptions(select, designationsUrl, organizationId); // Re-populate options when enabled
+
+                let exclude = [];
+                if (ap.selectId === "selSecond" && selectedFirst) {
+                    exclude = [selectedFirst];
+                }
+                if (ap.selectId === "selThird") {
+                    exclude = [selectedFirst, selectedSecond].filter(Boolean);
+                }
+
+                populateOptions(select, designationsUrl, currentOrgId, exclude);
             } else {
-                // Disable dropdown using Choices.js
                 choiceManager.disableChoice(ap.selectId);
             }
 
-            // Handle dependent checkboxes if needed (e.g., disabling second or third checkboxes)
-            if (ap.checkboxId === "chkFirst" && !isChecked) {
-                $("#chkSecond").prop('disabled', true);
-                $("#selSecond").prop('disabled', true);
-            } else if (ap.checkboxId === "chkFirst" && isChecked) {
-                $("#chkSecond").prop('disabled', false);
+            // Dependency logic
+            if (ap.checkboxId === "chkFirst") {
+                $("#chkSecond, #selSecond").prop('disabled', !isChecked);
             }
-
-            if (ap.checkboxId === "chkSecond" && !isChecked) {
-                $("#chkThird").prop('disabled', true);
-                $("#selThird").prop('disabled', true);
-            } else if (ap.checkboxId === "chkSecond" && isChecked) {
-                $("#chkThird").prop('disabled', false);
+            if (ap.checkboxId === "chkSecond") {
+                $("#chkThird, #selThird").prop('disabled', !isChecked);
             }
         });
     });
 
-    // Repopulate dropdowns when organization changes
+    // Listen to selection changes and update downstream exclusions
+    $('#selFirst').on('change', function () {
+        selectedFirst = $(this).val();
+        const orgId = $('#OrganizationID').val();
+
+        if (!$("#selSecond").prop('disabled')) {
+            populateOptions($("#selSecond"), designationsUrl, orgId, [selectedFirst]);
+        }
+        if (!$("#selThird").prop('disabled')) {
+            populateOptions($("#selThird"), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+        }
+    });
+
+    $('#selSecond').on('change', function () {
+        selectedSecond = $(this).val();
+        const orgId = $('#OrganizationID').val();
+
+        if (!$("#selThird").prop('disabled')) {
+            populateOptions($("#selThird"), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+        }
+    });
+
+    // Organization change resets all dropdowns
     $('#OrganizationID').on('change', function () {
-        var organizationId = $(this).val();
+        const newOrgId = $(this).val();
+        selectedFirst = null;
+        selectedSecond = null;
 
         approvers.forEach(ap => {
             const select = $("#" + ap.selectId);
-            populateOptions(select, designationsUrl, organizationId);
+            populateOptions(select, designationsUrl, newOrgId);
         });
     });
 });
