@@ -181,28 +181,43 @@ namespace GCTL.Service.CommonService
         #region GetEmployeesByOrgBraId
         public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraId(int? orgId, List<int>? branchIds)
         {
-            if (!orgId.HasValue || orgId == 0)
-                return new List<CommonSelectVM>(); 
-
             var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
 
-                        join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
                         from emp in empGroup.DefaultIfEmpty()
 
-                        join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                         from dep in depGroup.DefaultIfEmpty()
 
-                        where empOi.OrganizationID == orgId.Value
-                              && (branchIds == null || branchIds.Contains(empOi.OrganizationBranchID ?? 0))
-
-                        select new CommonSelectVM
+                        select new
                         {
-                            Id = empOi.EmployeeID ?? 0,
-                            Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
-                            GroupName = dep.DepartmentName ?? "No Department"
+                            empOi.OrganizationID,
+                            empOi.OrganizationBranchID,
+                            empOi.EmployeeID,
+                            emp.FirstName,
+                            emp.LastName,
+                            emp.EmployeeCode,
+                            DepartmentName = dep.DepartmentName ?? "No Department"
                         };
 
-            return await query.ToListAsync();
+            if (orgId.HasValue && orgId.Value != 0)
+            {
+                query = query.Where(x => x.OrganizationID == orgId.Value);
+            }
+
+            if (branchIds != null && branchIds.Any())
+            {
+                query = query.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
+            }
+
+            var data = await query.Select(x => new CommonSelectVM
+            {
+                Id = x.EmployeeID ?? 0,
+                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                GroupName = x.DepartmentName
+            }).ToListAsync();
+
+            return data;
         }
         #endregion
 
@@ -229,29 +244,49 @@ namespace GCTL.Service.CommonService
         #region GetEmployeesByOrgBraDepId
         public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds)
         {
-            if (!orgId.HasValue || orgId == 0)
-                return new List<CommonSelectVM>();
-
             var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
 
-                        join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                        join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
                         from emp in empGroup.DefaultIfEmpty()
-
-                        join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                        
+                        join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                         from dep in depGroup.DefaultIfEmpty()
-
-                        where empOi.OrganizationID == orgId.Value
-                      && (branchIds == null || branchIds.Count == 0 || branchIds.Contains(empOi.OrganizationBranchID ?? 0))
-                      && (deptIds == null || deptIds.Count == 0 || deptIds.Contains(empOi.DepartmentID ?? 0))
-
-                        select new CommonSelectVM
+                        
+                        select new
                         {
-                            Id = empOi.EmployeeID ?? 0,
-                            Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
-                            GroupName = dep.DepartmentName ?? "No Department"
+                            empOi.OrganizationID,
+                            empOi.OrganizationBranchID,
+                            empOi.DepartmentID,
+                            empOi.EmployeeID,
+                            emp.FirstName,
+                            emp.LastName,
+                            emp.EmployeeCode,
+                            DepartmentName = dep.DepartmentName ?? "No Department"
                         };
 
-            return await query.ToListAsync();
+            if (orgId.HasValue && orgId.Value != 0)
+            {
+                query = query.Where(x => x.OrganizationID == orgId.Value);
+            }
+
+            if (branchIds != null && branchIds.Any())
+            {
+                query = query.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
+            }
+
+            if (deptIds != null && deptIds.Any())
+            {
+                query = query.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
+            }
+
+            var result = await query.Select(x => new CommonSelectVM
+            {
+                Id = x.EmployeeID ?? 0,
+                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                GroupName = x.DepartmentName
+            }).ToListAsync();
+
+            return result;
         }
         #endregion
     }
