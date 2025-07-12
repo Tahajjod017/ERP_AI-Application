@@ -39,6 +39,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
 
                 ViewData["ProductionTime"] = getEmployeeTotalHoursRelated.ProductionTime;
+                ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                 ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
                 //ViewBag.ProductionTime = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["Overtime"] = getEmployeeTotalHoursRelated.Overtime;
@@ -52,6 +53,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             
             // Pass the current time to the view  
             ViewData["CurrentTime"] = serverTime;
+
+
 
             return View();
         }

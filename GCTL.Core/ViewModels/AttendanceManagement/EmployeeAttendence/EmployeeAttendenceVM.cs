@@ -40,6 +40,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
 
         // Add the following fields:
         public string? ProductionTime { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
+        public string? ProductionTimeMinute { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
         public string? Overtime { get; set; }        // Calculated overtime if the production time exceeds working hours
     }
 }

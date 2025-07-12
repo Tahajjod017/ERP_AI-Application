@@ -1,0 +1,45 @@
+﻿using GCTL.Core.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GCTL.Service.CommonService
+{
+    public interface ICommonService
+    {
+        #region Load All
+        Task<List<CommonSelectVM>> GetOrganizations();
+
+        Task<List<CommonSelectVM>> GetBranches();
+
+        Task<List<CommonSelectVM>> GetDepartments();
+
+        Task<List<CommonSelectVM>> GetEmpGroupedByDep();
+
+        Task<List<CommonSelectVM>> GetShifts();
+        #endregion
+
+
+        #region Load by OrganizationId
+        Task<List<CommonSelectVM>> GetBranchesByOrgId(int? orgId);
+
+        Task<List<CommonSelectVM>> GetDepartmentsByOrgId(int? orgId);
+
+        Task<List<CommonSelectVM>> GetEmployeesByOrgId(int? orgId);
+
+        Task<List<CommonSelectVM>> GetShiftsByOrgId(int? orgId);
+        #endregion
+
+
+        #region Load by OrganizationId, BranchId
+        Task<List<CommonSelectVM>> GetEmployeesByOrgBraId(int? orgId, List<int>? branchIds);
+        #endregion
+
+
+        #region Load by OrganizationId, BranchId, DepartmentId
+        Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds);
+        #endregion
+    }
+}

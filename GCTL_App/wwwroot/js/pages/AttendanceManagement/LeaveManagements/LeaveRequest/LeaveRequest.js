@@ -249,17 +249,7 @@ $(document).ready(function () {
     //
 
 
-     /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
-
-    $(document).on('change', "#FromDate", function () {
-        updateDatepickerWithMinDate("ToDate", $("#FromDate").val());
-
-    })
-
-    $(document).on('change', "#FromDateEdit", function () {
-        updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
-
-    })
+   
     //
     //Get Employee according to LoginID
     GetAllEmpoyee();
@@ -325,7 +315,10 @@ $(document).ready(function () {
                     console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
 
                     initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
+                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDateStr, maxDateStr);
 
+                    window.__minDateStr = minDateStr;
+                    window.__maxDateStr = maxDateStr;
                     //
                 }
             },
@@ -335,7 +328,32 @@ $(document).ready(function () {
         });
     }
 
+    // Restriuction FromDate less than ToDate
+    /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
+    $("#ToDate").prop("disabled", true);
+    $(document).on('change', "#FromDate", function () {
+        const fromDate = $(this).val();
+        if (fromDate) {
+            $("#ToDate").prop("disabled", false); // ✅ enable
+            updateDatepickerWithMinDate("ToDate", fromDate, {
+                maxDate: window.__maxDateStr // ✅ reuse global maxDate
+            });
+        }
+        
+    });
 
+
+    $(document).on('change', '#FromDateEdit', function () {
+        const fromDate = $(this).val();
+        if (fromDate) {
+           
+            updateDatepickerWithMinDate("ToDateEdit", fromDate, {
+                maxDate: window.__maxDateStr
+            });
+        }
+    });
+
+ 
 
     function GetleaveDaysOrAvailble(employeeId, leaveTypeID) {
         if (leaveTypeID && employeeId) {
@@ -493,7 +511,7 @@ $(document).ready(function () {
         });
     }
 
-
+    // LeaveDays Count according to employeeid 
     $(document).on('change', '#EmployeeID,#FromDate, #ToDate', function (e) {
         e.preventDefault();
 
@@ -702,6 +720,9 @@ $(document).ready(function () {
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
 
+                    const maxDate = window.__maxDateStr || null;
+                    const minDate = window.__minDateStr || null;
+
                     // Set hidden ID
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
@@ -718,7 +739,8 @@ $(document).ready(function () {
                     $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
                     $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
                     $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
-
+                    initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");  // for format dd/MM/yyyy
+                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDate, maxDate);   // for Restrict date
                     // Optionally toggle the sections based on IsFullDayEdit
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');
@@ -727,8 +749,6 @@ $(document).ready(function () {
                         $('#FullDayDivEdit').addClass('d-none');
                         $('#PartialDayDivEdit').removeClass('d-none');
                     }
-
-
                     if (data.totalSubsequentDays > 0) {
                         $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
                     } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
@@ -739,7 +759,8 @@ $(document).ready(function () {
                 }
             },
 
-            error: function () {
+            error: function ()
+            {
                 toastr.error("Error leave request get by Id.");
             }
         })
@@ -831,6 +852,21 @@ function updateSortingIndicator() {
 
 
 
+//function getBadgeClass(status) {
+//    if (!status || status.trim() === '') return 'text-bg-success';
+
+//    switch (status.trim().toUpperCase()) {
+//        case 'DECLINEED':
+//            return 'badge-phoenix badge-phoenix-danger';
+//        case 'APPROVED':
+//            return 'badge-phoenix badge-phoenix-success';
+//        case 'PENDING':
+//            return 'badge-phoenix-warning';
+//        default:
+//            return 'text-bg-success';
+//    }
+//}
+
 function getBadgeClass(status) {
     if (!status || status.trim() === '') return 'text-bg-success';
 
@@ -840,12 +876,32 @@ function getBadgeClass(status) {
         case 'APPROVED':
             return 'badge-phoenix badge-phoenix-success';
         case 'PENDING':
-            return 'badge-phoenix-warning';
+            return 'badge-phoenix badge-phoenix-warning';
+        case 'WAITING FOR APPROVAL':
+            return 'badge-phoenix badge-phoenix-warning';
         default:
-            return 'text-bg-success';
+            return 'text-bg-success'; // for "NEW" or fallback
     }
 }
 
+function getStatusText(item) {
+    const rawStatus = item.statusName?.trim().toUpperCase();
+
+    const isNewStatus = !rawStatus || rawStatus === 'NEW';
+
+    if (isNewStatus && item.applicationDate) {
+        const applicationDate = new Date(item.applicationDate);
+        const now = new Date();
+        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
+
+        if (hoursPassed >= 24) {
+            return "Waiting for Approval";
+        }
+    }
+
+    return item.statusName || "New";
+}
+// ${item.statusName || 'NEW'}
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
@@ -876,11 +932,7 @@ initializeGlobalDateRangePicker(
     }
 );
 
-//
-//
 
-
-//
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
@@ -894,7 +946,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     console.log("From: " + fromDate + " | To: " + toDate);
 
     $.ajax({
-        url: '/LeaveRequestRoute/GetAllTableListAsync',
+        url: '/LeaveRequestRoute/GetAllTableListAsync', 
         method: 'GET',
         traditional: true,
         data: {
@@ -913,7 +965,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
         },
         success: function (response) {
 
-
+   
+            
             console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
@@ -978,11 +1031,9 @@ function loadTableData(currentSortColumn, currentSortOrder) {
 
                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromDate}</td>
                         <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toDate}</td>
-                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period}</td>
-                       <td class="leaveTotal align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">  ${unitLabel}</td>
-                        
+                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
+                          <span class="badge ${getBadgeClass(item.statusName)}">${getStatusText(item)} </span>      
                         </td>
                         
                      <td class="align-middle white-space-nowrap text-end pe-0">

@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -53,7 +54,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
 
         #region Create
-        //[Permission("Create", "HolidaySettings")]
+        [Permission("Create", "WeekendSettings")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(WeekendSettingVM model)
@@ -62,7 +63,11 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                   
+                    var uniqueName = await _weekendSettingService.IsNameUniqueAsync(model.OrganizationID ?? 0, model.OrganizationBranchID ?? 0);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = "This Organization and Branch already exists!" });
+                    }
                     await _weekendSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.WeekendSettingID });
                 }

@@ -19,7 +19,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         {
             ViewBag.Organizations = await _approvalSettingService.GetOrganizationsAsync();
             ViewBag.ApprovalTypes = await _approvalSettingService.GetApprovalTypesAsync();
-            ViewBag.Employees = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync();
+            //ViewBag.Employees = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync();
             return View();
         }
 
@@ -35,7 +35,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     var uniqueName = await _approvalSettingService.IsNameUniqueAsync(model.ApprovalTypeID ?? 0, model.OrganizationID ?? 0);
                     if (!uniqueName)
                     {
-                        return Json(new { isSuccess = false, message = "This approvalType already exists!" });
+                        return Json(new { isSuccess = false, message = "This Organization and ApprovalType already exists!" });
                     }
                     await _approvalSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ApprovalTypeName });
@@ -98,12 +98,13 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return Json(employees);
         }
 
-  
-        public async Task<IActionResult> GetDesignation()
+        [HttpGet]
+        public async Task<IActionResult> GetDesignation(int organizationId)
         {
-            var designations = await _approvalSettingService.GetDesignationAsync();
+            var designations = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync(organizationId);
             return Json(designations);
         }
+        
 
 
     }

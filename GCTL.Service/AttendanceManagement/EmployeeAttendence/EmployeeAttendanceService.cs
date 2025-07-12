@@ -182,6 +182,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 TotalWorkingHours = totalWorkingTime.GetValueOrDefault().TotalHours.ToString("F2"),
                 CurrentTime = currentTimeString,
                 ProductionTime = formattedProductionTime,
+                ProductionTimeMinute = (productionTime.TotalMinutes).ToString("F2"), // Convert to minutes
                 Overtime = formattedOvertime
             };
         }
@@ -283,7 +284,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     totalWorkingHours += dailyWorkingHours;
                 }
             }
-
+            
             return totalWorkingHours;
         }
 

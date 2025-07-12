@@ -247,6 +247,36 @@ class UniversalChoices {
             }
         });
     }
+
+    disableChoice(id) {
+        const instance = this.instances[id];
+        if (instance) {
+            instance.disable();
+            // Manually add 'is-disabled' class if you need extra customization
+            const container = document.querySelector(`#${id}`);
+            if (container) {
+                container.classList.add('is-disabled');
+            }
+            console.debug(`Disabled choice for ID: ${id}`);
+        } else {
+            console.warn(`No Choices instance found for ID: ${id} during disableChoice`);
+        }
+    }
+
+    enableChoice(id) {
+        const instance = this.instances[id];
+        if (instance) {
+            instance.enable();
+            // Remove 'is-disabled' class if it was added
+            const container = document.querySelector(`#${id}`);
+            if (container) {
+                container.classList.remove('is-disabled');
+            }
+            console.debug(`Enabled choice for ID: ${id}`);
+        } else {
+            console.warn(`No Choices instance found for ID: ${id} during enableChoice`);
+        }
+    }
 }
 
 class ChoicePopulator {

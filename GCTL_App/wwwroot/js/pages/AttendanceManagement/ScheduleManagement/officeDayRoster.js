@@ -76,7 +76,7 @@
 
 
 
-            // #region Save
+            // #region Edit
             $(settings.editShiftSaveBtn).on('click', function (e) {
                 e.preventDefault();
                 const $modal = $(settings.editShiftModal);
@@ -238,8 +238,9 @@
             $('#OrganizationID').on('change', function (e) {
                 e.preventDefault();
 
-                var organizationId = $(this).val();  
-                loadDepartmentsByCompany(organizationId);
+                var organizationId = $(this).val(); 
+                loadBranchByOrganization(organizationId);
+                loadDepartmentsByOrganization(organizationId);
                 loadEmpByOrg(organizationId);
                 loadShiftByOrg(organizationId);
             });
@@ -247,14 +248,80 @@
 
 
 
-            // #region loadDepartmentsByCompany
-            function loadDepartmentsByCompany(organizationId) {
+            // #region loadBranchByOrganization
+            function loadBranchByOrganization(organizationId) {
+                $.ajax({
+                    url: '/OfficeDayRoster/GerBranchByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (branch) {
+                        var select = $('#BranchIDs');
+                        select.empty();
+
+                        //select.append('')
+                        $.each(branch, function (index, b) {
+                            console.log(`${b.id} ${b.name}`)
+                            select.append(
+                                $('<option>').val(b.id).text(b.name)
+                            );
+                        });
+
+                        // Get the CoreUI multiselect instance
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh the UI
+                        } else {
+                            // Reinitialize if not already initialized (in case it's dynamically added)
+                            new coreui.MultiSelect(select[0]);
+                        }
+                    },
+                    error: function () {
+                        console.error('Failed to load branch!');
+                    }
+                })
+            }
+            // #endregion
+
+
+
+            // #region loadDepartmentsByOrganization
+            function loadDepartmentsByOrganization(organizationId) {
                 $.ajax({
                     url: '/OfficeDayRoster/GetDepartmentByOrganization',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (departments) {
-                        recreateDepartmentDropdown(departments);
+                        var select = $('#DepartmentIDs');
+                        select.empty();
+
+                        //select.append('')
+                        $.each(departments, function (index, d) {
+                            console.log(`${d.id} ${d.name}`)
+                            select.append(
+                                $('<option>').val(d.id).text(d.name)
+                            );
+                        });
+
+                        // Get the CoreUI multiselect instance
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh the UI
+                        } else {
+                            // Reinitialize if not already initialized (in case it's dynamically added)
+                            new coreui.MultiSelect(select[0]);
+                        }
+
+                        //document.getElementById('DepartmentIDs')
+                        //    .addEventListener('changed.coreui.multi-select', function (event) {
+                        //        const orgId = $('#OrganizationID').val();
+
+                        //        const selected = event.value || []; // array of {text, value}
+                        //        const departmentIds = selected.map(x => parseInt(x.value));
+
+                        //        loadEmployeesByFilter(orgId, departmentIds);
+                        //    });
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading departments:', error);
@@ -271,8 +338,39 @@
                     url: '/OfficeDayRoster/GetEmployeeByOrganization',
                     type: 'GET',
                     data: { id: organizationId },
-                    success: function (emp) {
-                        recreateEmpDD(emp);
+                    success: function (employees) {
+                        const select = $('#EmployeeIDs');
+                        select.empty();
+
+                        const grouped = {};
+
+                        // Group employees by GroupName (DepartmentName)
+                        employees.forEach(emp => {
+                            const group = emp.groupName || 'No Department';
+                            if (!grouped[group]) {
+                                grouped[group] = [];
+                            }
+                            grouped[group].push(emp);
+                        });
+
+                        // Build <optgroup> structure
+                        Object.keys(grouped).forEach(group => {
+                            const optgroup = $('<optgroup>').attr('label', group);
+                            grouped[group].forEach(emp => {
+                                optgroup.append(
+                                    $('<option>').val(emp.id).text(emp.name)
+                                );
+                            });
+                            select.append(optgroup);
+                        });
+
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh UI
+                        } else {
+                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading employees: ', error);
@@ -294,9 +392,9 @@
                             if (!shiftDD) return resolve();
 
                             const shiftChoices = shifts.map(shift => ({
-                                value: shift.shiftID.toString(),
-                                label: shift.shiftName,
-                                selected: shift.shiftID.toString() === selectedShiftId?.toString()
+                                value: shift.id.toString(),
+                                label: shift.name,
+                                selected: shift.id.toString() === selectedShiftId?.toString()
                             }));
 
                             shiftDD.setChoices([
@@ -311,6 +409,142 @@
                             reject(error);
                         }
                     });
+                });
+            }
+            // #endregion
+
+
+
+            // #region BranchID on change
+            document.getElementById('BranchIDs')
+                .addEventListener('changed.coreui.multi-select', function (event) {
+                    const orgId = $('#OrganizationID').val();
+
+                    const selected = event.value || []; // array of {text, value}
+                    const branchIds = selected.map(x => parseInt(x.value));
+
+                    loadEmpByOrgBranchId(orgId, branchIds);
+                });
+            // #endregion
+
+
+
+            // #region loadEmpByOrgBranchId/GetEmployeeByBranch
+            function loadEmpByOrgBranchId(organizationId, branchIds = []) {
+                $.ajax({
+                    url: '/OfficeDayRoster/GetEmployeeByBranch',
+                    type: 'GET',
+                    traditional: true,
+                    data: {
+                        orgId: organizationId,
+                        ids: branchIds
+                    },
+                    success: function (employees) {
+                        const select = $('#EmployeeIDs');
+                        select.empty();
+
+                        const grouped = {};
+
+                        // Group employees by GroupName (DepartmentName)
+                        employees.forEach(emp => {
+                            const group = emp.groupName || 'No Department';
+                            if (!grouped[group]) {
+                                grouped[group] = [];
+                            }
+                            grouped[group].push(emp);
+                        });
+
+                        // Build <optgroup> structure
+                        Object.keys(grouped).forEach(group => {
+                            const optgroup = $('<optgroup>').attr('label', group);
+                            grouped[group].forEach(emp => {
+                                optgroup.append(
+                                    $('<option>').val(emp.id).text(emp.name)
+                                );
+                            });
+                            select.append(optgroup);
+                        });
+
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh UI
+                        } else {
+                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
+                    }
+                });
+            }
+            // #endregion
+
+
+
+            // #region DepartmentIDs on change
+            document.getElementById('DepartmentIDs')
+                .addEventListener('changed.coreui.multi-select', function (event) {
+                    const orgId = $('#OrganizationID').val();
+                    const branchIds = $('#BranchIDs').val();
+
+                    const selected = event.value || []; // array of {text, value}
+                    const ids = selected.map(x => parseInt(x.value));
+
+                    loadEmployeesByBranch(orgId, branchIds, ids);
+                });
+            // #endregion
+
+
+
+            // #region loadEmployeesByBranch/GetEmployeeByDepartment
+            function loadEmployeesByBranch(orgId, branchIds = [], ids = []) {
+                $.ajax({
+                    url: '/OfficeDayRoster/GetEmployeeByDepartment',
+                    type: 'GET',
+                    traditional: true,
+                    data: {
+                        orgId: orgId,
+                        branchIds: branchIds,
+                        depIds: ids
+                    },
+                    success: function (employees) {
+                        const select = $('#EmployeeIDs');
+                        select.empty();
+
+                        const grouped = {};
+
+                        // Group employees by GroupName (DepartmentName)
+                        employees.forEach(emp => {
+                            const group = emp.groupName || 'No Department';
+                            if (!grouped[group]) {
+                                grouped[group] = [];
+                            }
+                            grouped[group].push(emp);
+                        });
+
+                        // Build <optgroup> structure
+                        Object.keys(grouped).forEach(group => {
+                            const optgroup = $('<optgroup>').attr('label', group);
+                            grouped[group].forEach(emp => {
+                                optgroup.append(
+                                    $('<option>').val(emp.id).text(emp.name)
+                                );
+                            });
+                            select.append(optgroup);
+                        });
+
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh UI
+                        } else {
+                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
+                    }
                 });
             }
             // #endregion
@@ -359,175 +593,8 @@
             });
             // #endregion
 
-
-
-            // #region recreateDepartmentDropdown
-            function recreateDepartmentDropdown(departments) {
-                const container = document.querySelector('.department'); // The div with class "two"
-                const originalSelect = document.getElementById('DepartmentIDs');
-
-                // Dispose existing MultiSelect instance
-                const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
-                if (existingInstance) {
-                    existingInstance.dispose();
-                }
-
-                // Store original attributes
-                const originalAttributes = {
-                    id: originalSelect.id,
-                    name: originalSelect.name,
-                    className: originalSelect.className,
-                    multiple: originalSelect.multiple
-                };
-
-                // Remove the entire content and recreate
-                container.innerHTML = `
-                    <label class="form-label" asp-for="DepartmentIDs">Department Name</label>
-                    <select class="form-multi-select" 
-                            id="${originalAttributes.id}" 
-                            name="${originalAttributes.name}" 
-                            multiple 
-                            data-coreui-multiple="true" 
-                            data-coreui-selection-type="counter" 
-                            data-coreui-search="true"
-                            data-coreui-placeholder="Select Department...">
-                    </select>
-                `;
-
-                // Get the new select element and populate it
-                const newSelect = container.querySelector('select');
-
-                if (!departments || departments.length === 0) {
-                    const option = new Option('No departments found', '', false, false);
-                    option.disabled = true;
-                    newSelect.appendChild(option);
-                } else {
-                    departments.forEach(dep => {
-                        const option = new Option(dep.departmentName, dep.departmentID, false, false);
-                        newSelect.appendChild(option);
-                    });
-                }
-
-                new coreui.MultiSelect(newSelect, {
-                    multiple: true,
-                    search: true,
-                    selectionType: 'counter'
-                });
-
-
-                
-                document.getElementById('DepartmentIDs')
-                    .addEventListener('changed.coreui.multi-select', function (event) {
-                        const orgId = $('#OrganizationID').val();
-
-                        const selected = event.value || []; // array of {text, value}
-                        const departmentIds = selected.map(x => parseInt(x.value));
-
-                        loadEmployeesByFilter(orgId, departmentIds);
-                    });
-            }
-            // #endregion
-
-
-
-            // #region loadEmployeesByFilter
-            function loadEmployeesByFilter(organizationId, departmentIds = []) {
-                console.log('departmentIds:', departmentIds);
-                $.ajax({
-                    url: '/OfficeDayRoster/GetEmployeeByDepartment',
-                    type: 'GET',
-                    traditional: true, 
-                    data: {
-                        orgId: organizationId,
-                        depIds: departmentIds
-                    },
-                    success: function (data) {
-                        recreateEmpDD(data);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees:', error);
-                    }
-                });
-            }
-            // #endregion
-
-
-
-            // #region recreateEmpDD
-            function recreateEmpDD(data, employeeIDs = []) {
-                const container = document.querySelector('.employee');
-                const originalSelect = document.getElementById('EmployeeIDs');
-
-                const existing = coreui.MultiSelect.getInstance(originalSelect);
-                if (existing) {
-                    existing.dispose();
-                }
-
-                // Store original attributes
-                const originalAttributes = {
-                    id: originalSelect.id,
-                    name: originalSelect.name,
-                    className: originalSelect.className,
-                    multiple: originalSelect.multiple
-                };
-
-                // Replace container HTML with a new label + select
-                container.innerHTML = `
-                    <label class="form-label" asp-for="EmployeeIDs">${container.querySelector('label').textContent}</label>
-                    <select class="${originalAttributes.className}" 
-                            id="${originalAttributes.id}" 
-                            name="${originalAttributes.name}" 
-                            multiple 
-                            data-coreui-multiple="true" 
-                            data-coreui-selection-type="counter" 
-                            data-coreui-search="true"
-                            data-coreui-placeholder="Select Employee...">
-                    </select>
-                `;
-
-                // Get the new select element
-                const newSelect = container.querySelector('select');
-
-                // Group and populate employees
-                if (!Array.isArray(data) || data.length === 0) {
-                    const opt = new Option('No employees found', '', false, false);
-                    opt.disabled = true;
-                    newSelect.appendChild(opt);
-                } else {
-                    const grouped = {};
-
-                    data.forEach(emp => {
-                        const dept = emp.departmentName || 'No Department';
-                        if (!grouped[dept]) grouped[dept] = [];
-                        grouped[dept].push(emp);
-                    });
-
-                    Object.entries(grouped).forEach(([dept, employees]) => {
-                        const optgroup = document.createElement('optgroup');
-                        optgroup.label = dept;
-
-                        employees.forEach(emp => {
-                            const option = new Option(emp.employeeName, emp.employeeID, false, false);
-                            if (employeeIDs.includes(emp.employeeID.toString())) {
-                                option.selected = true;
-                            }
-                            optgroup.appendChild(option);
-                        });
-
-                        newSelect.appendChild(optgroup);
-                    });
-                }
-
-                new coreui.MultiSelect(newSelect, {
-                    multiple: true,
-                    search: true,
-                    selectionType: 'counter'
-                });
-            }
-            // #endregion
-
-
-
+                                   
+            
             // #region For Range Date
             //$(document).ready(function () {
             //    $('#basic-daterange').dateRangePicker({
@@ -629,9 +696,7 @@
         }
 
 
-        function loadTableData(
-            sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate
-        ) {
+        function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
             const searchTerm = $("#rosterInOfficeDays-searchInput").val();
 
             $.ajax({
@@ -676,8 +741,8 @@
                     </td>`;
 
                         headers.forEach(h => {
-                            const dateKey = new Date(h.date).toISOString().split('T')[0];
-                            const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
+                            //const dateKey = new Date(h.date).toISOString().split('T')[0];
+                            //const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
                             const hasOverride = shift?.rosterInOfficeDaysOverrideSetupVMs?.length > 0;
 
                             if (shift && !hasOverride) {

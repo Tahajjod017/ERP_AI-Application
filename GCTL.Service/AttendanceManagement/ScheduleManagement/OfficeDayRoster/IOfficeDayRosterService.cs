@@ -15,9 +15,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
     public interface IOfficeDayRosterService
     {
         #region CRUD
-        Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
-        Task<bool> UpdateAsync(RosterInOfficeDaysSetupVM model);
-        Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model);
+        //Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
+        //Task<bool> UpdateAsync(RosterInOfficeDaysSetupVM model);
+        //Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model);
         //Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);
         Task<RosterInOfficeDaysSetupVM> GetByIdAsync(int id);
         Task<List<RosterInOfficeDaysSetupVM>> GetAllFromSPAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder, int daysToShow);
@@ -41,18 +41,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
     //string sortOrder = "desc",
     //int daysToShow = 7,
     //DateTime? startDate = null);
-        #endregion
-
-
-        #region Others
-        Task<List<CommonSelectVM>> GetCompanies();
-        Task<List<CommonSelectVM>> GetDepartments();
-        Task<List<RosterInOfficeDaysSetupVM>> GetGroupedEmployees();
-        Task<List<CommonSelectVM>> GetShift();
-        Task<List<RosterInOfficeDaysSetupVM>> GetDepartmentByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetShiftByOrganization(int? id);
-        Task<List<RosterInOfficeDaysSetupVM>> GetEmployeeByDepartment(int? orgId, List<int>? departmentIds);
         #endregion
     }
 }
