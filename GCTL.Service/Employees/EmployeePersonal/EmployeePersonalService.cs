@@ -22,14 +22,26 @@ namespace GCTL.Service.Employees.EmployeePersonal
     public class EmployeePersonalService : IEmployeePersonalService
     {
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeePersonalRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.EmployeeOfficeInfo> _employeeOfficialRepository;
+        private readonly IGenericRepository<Genders> _genderRepository;
+        private readonly IGenericRepository<Religions> _religionRepository;
+        private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
+        private readonly IGenericRepository<BloodGroup> _natioanlityRepository;
+        private readonly IGenericRepository<MaritalStatus> _maritalSatausRepository;
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IImageFileHandlerService _imageFileHandlerService;
 
-        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService)
+        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<BloodGroup> natioanlityRepository, IGenericRepository<MaritalStatus> maritalSatausRepository)
         {
             _employeePersonalRepository = employeePersonalRepository;
             _countryRepository = countryRepository;
             _imageFileHandlerService = imageFileHandlerService;
+            _employeeOfficialRepository = employeeOfficialRepository;
+            _genderRepository = genderRepository;
+            _religionRepository = religionRepository;
+            _bloodGroupRepository = bloodGroupRepository;
+            _natioanlityRepository = natioanlityRepository;
+            _maritalSatausRepository = maritalSatausRepository;
         }
 
         #region Save Method
@@ -422,67 +434,78 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
         #endregion
 
-        #region Get All Employee Personal Info
+        #region Get All Employee Personal Info by company
 
 
-        public async Task<IEnumerable<EmployeePersonalGetViewModel>> GetAllEmployeePersonalAsync()
+        public async Task<IEnumerable<EmployeePersonalGetViewModel>> GetAllEmployeePersonalByCompanyAsync(int compId)
         {
             try
             {
+                // Fetch all active employee personal records
                 var employees = await _employeePersonalRepository.AllActive()
                     .Include(e => e.Country)
-                    .Include(t => t.Gender)
-                    .Include(r => r.Religion)
-                    .Include(q => q.BloodGroup)
-                    .Include(n => n.Nationality)
-                    .Include(m => m.MaritalStatus)
-                    .Select(e => new EmployeePersonalGetViewModel
-                    {
-                        FirstName = e.FirstName,
-                        LastName = e.LastName,
-                        MobileNumber = e.MobileNumber,
-                        Email = e.Email,
-                        FatherName = e.FatherName,
-                        MotherName = e.MotherName,
-                        GenderID = e.GenderID,
-                        GenderName = e.Gender.GenderName,
-                        TIN = e.TIN,
-                        ReligionID = e.ReligionID,
-                        ReligionName = e.Religion.ReligionName,
-                        DateOfBirth = e.DateOfBirth,
-                        BirthCertificateNo = e.BirthCertificateNo,
-                        BloodGroupID = e.BloodGroupID,
-                        BloodGroupName = e.BloodGroup.BloodGroupName,
-                        NationalityID = e.NationalityID,
-                        NationalityName = e.Nationality.CountryName,
-                        Nationality = e.Country.CountryName,
-                        NID = e.NID,
-                        MaritalStatusID = e.MaritalStatusID,
-                        MaritalStatusName = e.MaritalStatus.MaritalStatusName,
-                        AboutEmployee = e.AboutEmployee,
-                        CountryID = e.CountryID,
-                        CountryName = e.Country.CountryName,
-                        State = e.State,
-                        City = e.City,
-                        HouseNo = e.HouseNo,
-                        RoadNo = e.RoadNo,
-                        PostalCode = e.PostalCode,
-                        EmployeeID = e.EmployeeID,
-                        EmployeeImageFileName = e.EmployeeImageFileName,
-                        EmployeeSignatureFileName = e.EmployeeSignatureFileName,
-                        HasUser = e.HasUser,
-                        EmployeeCode = e.EmployeeCode,
-                    })
+                    .Include(e => e.Gender)
+                    .Include(e => e.Religion)
+                    .Include(e => e.BloodGroup)
+                    .Include(e => e.Nationality)
+                    .Include(e => e.MaritalStatus)
                     .ToListAsync();
 
-                return employees;
+                // Fetch all active employee office info records
+                var officeInfos = await _employeeOfficialRepository.AllActive().ToListAsync();
+
+                // Perform the join
+                var result = from e in employees
+                             join o in officeInfos on e.EmployeeID equals o.EmployeeID into joined
+                             from office in joined.DefaultIfEmpty()
+                             where office != null && office.OrganizationID == compId
+                             select new EmployeePersonalGetViewModel
+                             {
+                                 FirstName = e.FirstName,
+                                 LastName = e.LastName,
+                                 MobileNumber = e.MobileNumber,
+                                 Email = e.Email,
+                                 FatherName = e.FatherName,
+                                 MotherName = e.MotherName,
+                                 GenderID = e.GenderID,
+                                 GenderName = e.Gender?.GenderName,
+                                 TIN = e.TIN,
+                                 ReligionID = e.ReligionID,
+                                 ReligionName = e.Religion?.ReligionName,
+                                 DateOfBirth = e.DateOfBirth,
+                                 BirthCertificateNo = e.BirthCertificateNo,
+                                 BloodGroupID = e.BloodGroupID,
+                                 BloodGroupName = e.BloodGroup?.BloodGroupName,
+                                 NationalityID = e.NationalityID,
+                                 NationalityName = e.Nationality?.CountryName,
+                                 Nationality = e.Country?.CountryName,
+                                 NID = e.NID,
+                                 MaritalStatusID = e.MaritalStatusID,
+                                 MaritalStatusName = e.MaritalStatus?.MaritalStatusName,
+                                 AboutEmployee = e.AboutEmployee,
+                                 CountryID = e.CountryID,
+                                 CountryName = e.Country?.CountryName,
+                                 State = e.State,
+                                 City = e.City,
+                                 HouseNo = e.HouseNo,
+                                 RoadNo = e.RoadNo,
+                                 PostalCode = e.PostalCode,
+                                 EmployeeID = e.EmployeeID,
+                                 EmployeeImageFileName = e.EmployeeImageFileName,
+                                 EmployeeSignatureFileName = e.EmployeeSignatureFileName,
+                                 HasUser = e.HasUser,
+                                 EmployeeCode = e.EmployeeCode,
+
+                                 
+                             };
+
+                return result.ToList();
             }
             catch (Exception)
             {
                 throw;
             }
         }
-
         #endregion
 
 

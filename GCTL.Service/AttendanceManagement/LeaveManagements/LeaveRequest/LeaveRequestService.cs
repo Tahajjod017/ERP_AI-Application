@@ -23,6 +23,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Razor.Generator;
+using static Dapper.SqlMapper;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -35,12 +37,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<Statuses> leaveStatuses;
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
-        //
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
-       
-     
-        //
+        private readonly IGenericRepository<ApprovalSettings> approvalSettingsRepository;
+        private readonly IGenericRepository<ApprovalTypes> approvalTypesRepository;
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
@@ -48,7 +48,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<WeekendSettings> weenkendsettings;
         private readonly IGenericRepository<WeekendDays> weekedays;
         private readonly IGenericRepository<LeaveBalances> leaveBalances;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository , IGenericRepository<Departments> departmentRepository ) : base(leaveRequest)
+        private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -64,11 +65,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.leaveBalances = leaveBalances;
             _organizationRepository = organizationRepository;
             _departmentRepository = departmentRepository;
+            this.approvalSettingsRepository = approvalSettingsRepository;
+            this.approvalTypesRepository = approvalTypesRepository;
+            this.approvaldesignation = approvaldesignation;
         }
 
         #region  Get Data All  Leave  Requyest
-
-
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
     List<int> departmentIds = null,
     List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
@@ -157,12 +159,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     currentSortColumn,
                     currentSortOrder,
 
-                    term => b => EF.Functions.Like(b.LeaveApplicationID.ToString(), $"%{term}%")
-                                 ,
-
+                    term => b => EF.Functions.Like(b.LeaveApplicationID.ToString(), $"%{term}%"),
 
                     b => new LeaveApplicationsList
                     {
+                        ApplicationDate=b.CreatedAt,
                         //UserType = b.ActionLogID,
                         LeaveApplicationID = b.LeaveApplicationID,
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
@@ -173,13 +174,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
-                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault()
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
+
 
                     });
 
 
                 return result;
-
 
             }
             catch (Exception ex)
@@ -193,9 +194,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
-
-
-
         #endregion
 
         #region Get Data By LeaveRequestID
@@ -375,6 +373,207 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     Message = "You already have leave on selected dates"
                 };
             }
+            
+            // STEP 1: Get Employee Office Info
+            var offf = await empoffi.AllActive()
+                .Where(x => x.EmployeeID == entityVM.EmployeeID)
+                .Select(x => new {
+                    x.EmployeeID,
+                    x.OrganizationID,
+                    x.OrganizationBranchID,
+                    x.SeniorSupervisorId,
+                    x.ImmediateSupervisorId,
+                    x.HeadOfDepartmentId
+                }).FirstOrDefaultAsync();
+
+            if (offf == null)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Employee office info not found."
+                };
+            }
+
+            // STEP 2: Get Approval Settings
+            var approvalSettings = await approvalSettingsRepository.AllActive()
+                .Include(x => x.ApprovalType)
+                .Where(x =>
+                    x.OrganizationID == offf.OrganizationID &&
+                    (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
+                    x.ApprovalType.ApprovalTypeName == "Leave Request Approval")
+                .Select(x => new {
+                    x.FirstApprovalID,
+                    x.IsDesignationOrEmpFirstApprovalID,
+                    x.SecondApprovalID,
+                    x.IsDesignationOrEmpSecondApprovalID,
+                    x.IsEnableSecondApproval,
+                    x.ThirdApprovalID,
+                    x.IsDesignationOrEmpThirdApprovalID,
+                    x.IsEnableThirdApproval
+                }).FirstOrDefaultAsync();
+
+            if (approvalSettings == null)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "No active Leave Request Approval settings found for your organization."
+                };
+            }
+
+
+            ////
+            //int? approvalPersonId = null;
+
+            //// Try First Approval
+            //if (approvalSettings.FirstApprovalID.HasValue)
+            //{
+            //    if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
+            //    {
+            //        var designationCode = await approvaldesignation.AllActive()
+            //            .Where(x => x.ApprovalDesignationID == approvalSettings.FirstApprovalID)
+            //            .Select(x => x.Code)
+            //            .FirstOrDefaultAsync();
+
+            //        approvalPersonId = designationCode switch
+            //        {
+            //            1 => offf.ImmediateSupervisorId,
+            //            2 => offf.SeniorSupervisorId,
+            //            3 => offf.HeadOfDepartmentId,
+            //            _ => null
+            //        };
+            //    }
+            //    else
+            //    {
+            //        approvalPersonId = approvalSettings.FirstApprovalID;
+            //    }
+            //}
+
+            //// Try Second Approval
+            //if (approvalPersonId == null && approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
+            //{
+            //    if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
+            //    {
+            //        var designationCode = await approvaldesignation.AllActive()
+            //            .Where(x => x.ApprovalDesignationID == approvalSettings.SecondApprovalID)
+            //            .Select(x => x.Code)
+            //            .FirstOrDefaultAsync();
+
+            //        approvalPersonId = designationCode switch
+            //        {
+            //            1 => offf.ImmediateSupervisorId,
+            //            2 => offf.SeniorSupervisorId,
+            //            3 => offf.HeadOfDepartmentId,
+            //            _ => null
+            //        };
+            //    }
+            //    else
+            //    {
+            //        approvalPersonId = approvalSettings.SecondApprovalID;
+            //    }
+            //}
+
+            //// Try Third Approval
+            //if (approvalPersonId == null && approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
+            //{
+            //    if (approvalSettings.IsDesignationOrEmpThirdApprovalID)
+            //    {
+            //        var designationCode = await approvaldesignation.AllActive()
+            //            .Where(x => x.ApprovalDesignationID == approvalSettings.ThirdApprovalID)
+            //            .Select(x => x.Code)
+            //            .FirstOrDefaultAsync();
+
+            //        approvalPersonId = designationCode switch
+            //        {
+            //            1 => offf.ImmediateSupervisorId,
+            //            2 => offf.SeniorSupervisorId,
+            //            3 => offf.HeadOfDepartmentId,
+            //            _ => null
+            //        };
+            //    }
+            //    else
+            //    {
+            //        approvalPersonId = approvalSettings.ThirdApprovalID;
+            //    }
+            //}
+
+            //// Validate approver
+            //if (approvalPersonId == null)
+            //{
+            //    return new CommonReturnViewModel
+            //    {
+            //        Success = false,
+            //        Message = "No valid approver found. Please contact HR or Admin."
+            //    };
+            //}
+
+            //
+
+            int? approvalPersonId = null;
+
+            // Try Second Approval
+            if (approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
+            {
+                if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
+                {
+                    var secondCode = await approvaldesignation.AllActive()
+                        .Where(x => x.ApprovalDesignationID == approvalSettings.SecondApprovalID)
+                        .Select(x => x.Code)
+                        .FirstOrDefaultAsync();
+
+                    approvalPersonId = secondCode switch
+                    {
+                        1 => offf.ImmediateSupervisorId,
+                        2 => offf.SeniorSupervisorId,
+                        3 => offf.HeadOfDepartmentId,
+                        _ => null
+                    };
+                }
+                else
+                {
+                    approvalPersonId = approvalSettings.SecondApprovalID;
+                }
+
+                // 🚫 Prevent self-approval
+                if (approvalPersonId == entityVM.EmployeeID)
+                {
+                    approvalPersonId = null;
+                }
+            }
+
+            // Fallback to Third Approval if Second is self or missing
+            if (approvalPersonId == null && approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
+            {
+                if (approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                {
+                    var thirdCode = await approvaldesignation.AllActive()
+                        .Where(x => x.ApprovalDesignationID == approvalSettings.ThirdApprovalID)
+                        .Select(x => x.Code)
+                        .FirstOrDefaultAsync();
+
+                    approvalPersonId = thirdCode switch
+                    {
+                        1 => offf.ImmediateSupervisorId,
+                        2 => offf.SeniorSupervisorId,
+                        3 => offf.HeadOfDepartmentId,
+                        _ => null
+                    };
+                }
+                else
+                {
+                    approvalPersonId = approvalSettings.ThirdApprovalID;
+                }
+
+                // 🚫 Again prevent self-approval
+                if (approvalPersonId == entityVM.EmployeeID)
+                {
+                    approvalPersonId = null;
+                }
+            }
+
+
+            //
 
             await leaveRequest.BeginTransactionAsync();
 
@@ -423,10 +622,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         Message = $"{originalLeaveTypeName} cannot be adjusted from other leave types."
                     };
                 }
-
                 //
                 int sequence = 0;
-
                 // Save primary leave
                 if (usedDaysFromCurrentType > 0)
                 {
@@ -445,6 +642,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         LeaveTypeID = entityVM.LeaveTypeID,
                         IsGroupApplication = entityVM.IsGroupApplication,
                         Reason = entityVM.Reason,
+                        ApprovalPersonID=approvalPersonId,
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC
                     };
@@ -454,94 +652,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 }
-
-
-                //
-                //if (remainingDays > 0)
-                //{
-                //    var currentStartDate = fromDate.AddDays(usedDaysFromCurrentType);
-
-                //    // Step 1: Try prioritized leave types first
-                //    var prioritizedLeaves = await leaveTypes.AllActive()
-                //        .Where(x => x.IsActive &&
-                //                    x.LeavePriorityId != null &&
-                //                    x.LeaveTypeID != entityVM.LeaveTypeID &&
-                //                    x.LeaveTypeID != annualLeaveType &&
-                //                    x.LeaveTypeID != lWP)
-                //        .OrderBy(x => x.LeavePriorityId)
-                //        .Select(x => new { x.LeaveTypeID, x.LeaveTypeName })
-                //        .ToListAsync();
-
-                //    foreach (var leaveType in prioritizedLeaves)
-                //    {
-                //        if (remainingDays <= 0) break;
-
-                //        var fallbackInfo = await GetLeaveTypeTotaldays2(entityVM.EmployeeID, leaveType.LeaveTypeID);
-                //        decimal availableFallback = fallbackInfo?.LeaveDays ?? 0;
-                //        int usedFallback = (int)Math.Min(remainingDays, availableFallback);
-
-                //        if (usedFallback > 0)
-                //        {
-                //            var partialLeave = new LeaveApplications
-                //            {
-                //                EmployeeID = entityVM.EmployeeID,
-                //                IsFullDay = entityVM.IsFullDay,
-                //                FromDate = currentStartDate,
-                //                ToDate = currentStartDate.AddDays(usedFallback - 1),
-                //                PartialFromTime = entityVM.PartialFromTime,
-                //                PartialToTime = entityVM.PartialToTime,
-                //                StatusID = entityVM.StatusID,
-                //                LeaveApplicableYear = DateTime.Now.Year,
-                //                CreatedAt = DateTime.Now,
-                //                CreatedBy = entityVM.CreatedBy,
-                //                LeaveTypeID = leaveType.LeaveTypeID,
-                //                Reason = $"Exceeded original leave – adjusted using prioritized leave type ({leaveType.LeaveTypeName})",
-                //                LIP = entityVM.LIP,
-                //                LMAC = entityVM.LMAC,
-                //                GroupApplicationID = sequence > 0 ? sequence : null
-                //            };
-
-                //            await leaveRequest.AddAsync(partialLeave);
-                //            await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, partialLeave, partialLeave.LeaveApplicationID, entityVM);
-
-                //            remainingDays -= usedFallback;
-                //            currentStartDate = currentStartDate.AddDays(usedFallback);
-                //        }
-                //    }
-
-
-                //    // Step 2: Deduct from LWP only if policy allows
-                //    if (remainingDays > 0 && await ShouldDeductFromLWPAsync())
-                //    {
-                //        var lwpLeaveTypeName = await leaveTypes.AllActive()
-                //            .Where(x => x.LeaveTypeID == lWP)
-                //            .Select(x => x.LeaveTypeName)
-                //            .FirstOrDefaultAsync();
-
-                //        var lwpEntity = new LeaveApplications
-                //        {
-                //            EmployeeID = entityVM.EmployeeID,
-                //            IsFullDay = entityVM.IsFullDay,
-                //            FromDate = currentStartDate,
-                //            ToDate = currentStartDate.AddDays(remainingDays - 1),
-                //            PartialFromTime = entityVM.PartialFromTime,
-                //            PartialToTime = entityVM.PartialToTime,
-                //            StatusID = entityVM.StatusID,
-                //            LeaveApplicableYear = DateTime.Now.Year,
-                //            CreatedAt = DateTime.Now,
-                //            CreatedBy = entityVM.CreatedBy,
-                //            LeaveTypeID = lWP,
-                //            Reason = $"Exceeded leave days – fallback to LWP ({lwpLeaveTypeName})",
-                //            LIP = entityVM.LIP,
-                //            LMAC = entityVM.LMAC,
-                //            GroupApplicationID = sequence > 0 ? sequence : null
-                //        };
-
-                //        await leaveRequest.AddAsync(lwpEntity);
-                //        await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
-                //    }
-                //}
-
                 //
                 if (remainingDays > 0)
                 {
@@ -586,6 +696,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                     Reason = $"Exceeded original leave – adjusted using prioritized leave type ({leaveType.LeaveTypeName})",
                                     LIP = entityVM.LIP,
                                     LMAC = entityVM.LMAC,
+                                    ApprovalPersonID=approvalPersonId,
                                     GroupApplicationID = sequence > 0 ? sequence : 0 // null
                                 };
 
@@ -622,7 +733,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                             Reason = $"Exceeded leave days – fallback to LWP ({lwpLeaveTypeName})",
                             LIP = entityVM.LIP,
                             LMAC = entityVM.LMAC,
-                            GroupApplicationID = sequence > 0 ? sequence : 0 // null
+                            GroupApplicationID = sequence > 0 ? sequence : 0 ,
+                            ApprovalPersonID=approvalPersonId,
+                            
                         };
 
                         await leaveRequest.AddAsync(lwpEntity);
@@ -636,7 +749,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Saved Successfully."
+                    Message = "Saved Successfully." 
                 };
             }
             catch (Exception ex)
@@ -915,8 +1028,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                         IsMaximumGapDaysBetweenAplications = x.IsMaximumGapDaysBetweenAplications,
                         MaximumGapDaysBetweenAplications = x.MaximumGapDaysBetweenAplications
-                    })
-                    .ToListAsync();
+                    }).ToListAsync();
 
                 await leavePolicyConfiguration.CommitTransactionAsync();
 
@@ -934,9 +1046,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region  SubsequentAsynce Leave Check
 
-        public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
+        public async Task<SubsequentWithRestrictionVM> SubsequentAsynceWithRestriction(int employeeId, DateTime fromDate, DateTime toDate)
         {
 
+
+            if (employeeId == 0 || fromDate == null || toDate == null)
+            {
+                return new SubsequentWithRestrictionVM();
+            }
             var normalizedFrom = fromDate.Date;
             var normalizedTo = toDate.Date;
             if (normalizedTo < normalizedFrom)
@@ -980,43 +1097,175 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             if (isWeenedHoliday.IsWeekendCountedAsLeave)
             {
-                // fromDate and toDate are DateTime variables passed to the method
                 var allWeekendDays = await weekedays.AllActive()
                     .Include(x => x.WeekendSetting)
                     .ToListAsync();
 
-                //var uniqueDates = new HashSet<DateTime>();
 
-                // Loop through date range
                 for (var date = fromDate; date <= toDate; date = date.AddDays(1))
                 {
-                    int dayNumber = (int)date.DayOfWeek; // Sunday = 0, Monday = 1, ..., Saturday = 6
+                    int dayNumber = (int)date.DayOfWeek;
 
-                    // Check if this dayNumber exists in the WeekendDays table
                     if (allWeekendDays.Any(w => w.WeekdayNumber == dayNumber))
                     {
-                        uniqueDates.Add(date); // Add the date to the result if it's a weekend
+                        uniqueDates.Add(date);
                     }
                 }
 
             }
 
-            return new SubsequentVM
+            var policy = await leavePolicyConfiguration.AllActive()
+                                                            .Select(x => new
+                                                            {
+                                                                x.IsAllowRequestForPastDates,
+                                                                x.IsAllowRequestForFutureDays,
+                                                                x.AllowRequestForFutureDays,
+                                                                x.IsMaximumleaveDaysPerAplication,
+                                                                x.MaximumleaveDaysPerAplication,
+                                                                x.IsMaximumGapDaysBetweenAplications,
+                                                                x.MaximumGapDaysBetweenAplications
+                                                            }).FirstOrDefaultAsync();
+            if (policy == null)
+                return null;
+
+            var maxDaysMassage = "";
+            if (policy.IsMaximumleaveDaysPerAplication == true && policy.MaximumleaveDaysPerAplication.HasValue)
+            {
+                if (totalDays > policy.MaximumleaveDaysPerAplication.Value)
+                {
+                    maxDaysMassage = $"Maximum {policy.MaximumleaveDaysPerAplication} days allowed.";
+                }
+            }
+
+            string MaxGapdaysMessage = "";
+            int appliableYear = DateTime.Now.Year;
+            DateOnly fromDateOnly = DateOnly.FromDateTime(fromDate);
+            var lastAcceptedLeaveToDate = await leaveRequest.AllActive()
+                .Include(x => x.Status)
+                .Where(x => x.EmployeeID == employeeId
+                    && x.Status.StatusName == "APPROVED"
+                    && x.LeaveApplicableYear == appliableYear
+                    && x.ToDate <= fromDateOnly).OrderByDescending(x => x.ToDate) .Select(x => x.ToDate).FirstOrDefaultAsync();
+
+            if (lastAcceptedLeaveToDate != default
+                && policy.IsMaximumGapDaysBetweenAplications == true
+                && policy.MaximumGapDaysBetweenAplications.HasValue)
+            {
+
+                
+                int allowedGap = policy.MaximumGapDaysBetweenAplications.Value;
+                // Calculate actual gap
+                int gap = (fromDate.Date - lastAcceptedLeaveToDate.ToDateTime(TimeOnly.MinValue)).Days - 1;
+                if (gap < allowedGap)
+                {
+                    // Calculate next valid from date
+                    DateTime nextValidFrom = lastAcceptedLeaveToDate.ToDateTime(TimeOnly.MinValue).AddDays(allowedGap + 1);
+
+                    MaxGapdaysMessage = $"Maximum {allowedGap} days gap is allowed between two applications. " +
+                                        $"You can apply for leave starting from {nextValidFrom:dd/MM/yyyy}.";
+                }
+            }
+            //
+            // Get Leave Balance or Default Leave Days
+            
+
+            //
+            return new SubsequentWithRestrictionVM
             {
                 TotalDays = totalDays,
                 TotalSubsequentDays = uniqueDates.Count,
                 IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
-                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave
+                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave,
+                //
+                IsAllowRequestForPastDates = policy.IsAllowRequestForPastDates,
+                IsAllowRequestForFutureDays = policy.IsAllowRequestForFutureDays,
+                AllowRequestForFutureDays = policy.AllowRequestForFutureDays,
+                IsMaximumleaveDaysPerAplication = policy.IsMaximumleaveDaysPerAplication,
+                MaximumleaveDaysPerAplication = policy.MaximumleaveDaysPerAplication,
+                IsMaximumGapDaysBetweenAplications = policy.IsMaximumGapDaysBetweenAplications,
+                MaximumGapDaysBetweenAplications = policy.MaximumGapDaysBetweenAplications,
+                Message = maxDaysMassage,
+                MaxGapdaysMessage= MaxGapdaysMessage,
+               
             };
         }
 
 
 
+        public async Task<SubsequentVM> SubsequentAsynce(DateTime fromDate, DateTime toDate)
+        {
+
+            var normalizedFrom = fromDate.Date;
+            var normalizedTo = toDate.Date;
+            if (normalizedTo < normalizedFrom)
+                throw new ArgumentException("ToDate must be on or after fromDate");
+
+            int totalDays = (int)(normalizedTo - normalizedFrom).TotalDays + 1;
+
+            var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
+                .Select(x => new
+                {
+                    x.IsHolidayCountedAsLeave,
+                    x.IsWeekendCountedAsLeave
+                }).FirstOrDefaultAsync();
+
+            if (isWeenedHoliday == null)
+                return null;
+
+            // Use HashSet to avoid duplicate dates
+            HashSet<DateTime> uniqueDates = new HashSet<DateTime>();
+
+            if (isWeenedHoliday.IsHolidayCountedAsLeave)
+            {
+                var holidaysInRange = await holidays.AllActive()
+                    .Where(x => x.StartDate <= toDate && x.EndDate >= fromDate)
+                    .ToListAsync();
+
+                foreach (var h in holidaysInRange)
+                {
+                    var start = h.StartDate.GetValueOrDefault();
+                    var end = h.EndDate.GetValueOrDefault();
+
+                    var actualStart = start < fromDate ? fromDate : start;
+                    var actualEnd = end > toDate ? toDate : end;
+
+                    for (var date = actualStart; date <= actualEnd; date = date.AddDays(1))
+                    {
+                        uniqueDates.Add(date);
+                    }
+                }
+            }
+
+            if (isWeenedHoliday.IsWeekendCountedAsLeave)
+            {
+                var allWeekendDays = await weekedays.AllActive()
+                    .Include(x => x.WeekendSetting)
+                    .ToListAsync();
+
+
+                for (var date = fromDate; date <= toDate; date = date.AddDays(1))
+                {
+                    int dayNumber = (int)date.DayOfWeek; 
+
+                    if (allWeekendDays.Any(w => w.WeekdayNumber == dayNumber))
+                    {
+                        uniqueDates.Add(date); 
+                    }
+                }
+
+            }
+            
+            return new SubsequentVM
+            {
+                TotalDays = totalDays,
+                TotalSubsequentDays = uniqueDates.Count,
+                IsHolidayCountedAsLeave = isWeenedHoliday.IsHolidayCountedAsLeave,
+                IsWeekendCountedAsLeave = isWeenedHoliday.IsWeekendCountedAsLeave,
+            };
+        }
 
         #endregion
 
-
-        //
 
         #region GetCompanies
         public Task<List<CommonSelectVM>> GetCompanies()
@@ -1104,8 +1353,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
 
-
-
         #region SoftDeleteAsync
         public Task<MultiDropDown> SoftDeleteAsync(DeleteRequestVM model)
         {
@@ -1163,16 +1410,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
         #endregion
 
-
-        //
-
-
         #region Dispaly LeaveDays 
         public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
         {
-            // Get employee ID from user ID
-
-
+            
             // Base query for leave balances
             var baseQuery = from lt in leaveTypes.AllActive()
                             join lb in leaveBalances.AllActive().Where(x => x.EmployeeID == employeeId)
@@ -1196,14 +1437,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             return await baseQuery.ToListAsync();
         }
-
-        // Check server side 
-
-       
-
         #endregion
-
-
-        //
     }
 }

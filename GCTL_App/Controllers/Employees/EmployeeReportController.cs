@@ -1,4 +1,5 @@
-﻿using GCTL.Service.Employees.EmployeeReport;
+﻿using GCTL.Core.ViewModels.Employee.EmployeeListVM;
+using GCTL.Service.Employees.EmployeeReport;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -22,21 +23,42 @@ namespace GCTL_App.Controllers.Employees
             return File(pdfBytes, "application/pdf", $"Employee_{id}.pdf");
         }
 
+        //[HttpPost]
+        //public async Task<IActionResult> GenerateAllEmployeeExcel()
+        //{
+
+
         [HttpPost]
-        public async Task<IActionResult> GenerateAllEmployeeExcel()
+        public async Task<IActionResult> GenerateAllEmployeeExcel( EmployeeFilterModel filters)
         {
             try
             {
-                var excelBytes = await _employeeReportService.GenerateEmployeeExcelReportAsync();
+                var excelBytes = await _employeeReportService.GenerateEmployeeExcelReportAsync(filters);
                 var fileName = $"Employee_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-
+                // return Ok();
             }
             catch (Exception ex)
             {
-                // Log the exception (e.g., using ILogger)
                 return StatusCode(500, "Error generating Excel report: " + ex.Message);
             }
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> GenerateAllEmployeeExcel([FromBody] EmployeeFilterModel filters)
+        //{
+        //    try
+        //    {
+        //        var excelBytes = await _employeeReportService.GenerateEmployeeExcelReportAsync();
+        //        var fileName = $"Employee_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+        //        return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception (e.g., using ILogger)
+        //        return StatusCode(500, "Error generating Excel report: " + ex.Message);
+        //    }
+        //}
     }
 }

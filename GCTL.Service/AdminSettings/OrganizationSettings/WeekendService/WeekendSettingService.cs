@@ -242,28 +242,38 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
 
 
         #region IsNameUniqueAsync
-        public async Task<bool> IsNameUniqueAsync(string name)
+        public async Task<bool> IsNameUniqueAsync(int organizationId, int organizationBranchId)
         {
-            // This is only meaningful if you later add a WeekendTitle or similar
+            
             var existingList = await _genericRepository.FindAsync(b =>
-                b.DeletedAt == null && b.WeekendSettingID != null);
+                                    b.DeletedAt == null &&   
+                                    b.WeekendSettingID != null);
 
-            var nameList = existingList.Select(b => b.WeekendSettingID.ToString()); // placeholder
+           
+            var nameList = existingList.Select(b => new
+            {
+                b.OrganizationID,
+                b.OrganizationBranchID,
+            }).ToList();
 
-            return !DuplicateChecker.IsDuplicate(name, nameList);
+            
+            return !nameList.Any(x => x.OrganizationID == organizationId &&  x.OrganizationBranchID == organizationBranchId);
+
         }
 
         #endregion
 
 
         #region Soft Delete
+
         public async Task<WeekendSettingVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.WeekendSettingID));
-                if (data == null || data.Count == 0)
+                // Step 1: Find WeekendSettings to soft delete
+                var settings = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.WeekendSettingID));
+                if (settings == null || settings.Count == 0)
                 {
                     return new WeekendSettingVM
                     {
@@ -271,26 +281,37 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<WeekendSettingVM>>(JsonConvert.SerializeObject(data));
-                var targetIds = data.Select(x => (int?)x.WeekendSettingID).ToList();
+                // Step 2: Find all related WeekendDays for these settings
+                var settingIds = settings.Select(s => s.WeekendSettingID).ToList();
+                var weekendDays = await genericRepositoryWeekdays.FindAsync(wd => settingIds.Contains(wd.WeekendSettingID.Value) && wd.DeletedAt == null);
 
-                foreach (var item in data)
+                // Step 3: Mark all as soft deleted
+                var now = DateTime.Now;
+                foreach (var setting in settings)
                 {
-                    item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = requestVM.DeletedBy;
-                    //item.LIP = requestVM.LIP;
-                    //item.LMAC = requestVM.LMAC;
+                    setting.DeletedAt = now;
+                    setting.DeletedBy = requestVM.DeletedBy;
+                    // setting.LIP = requestVM.LIP;
+                    // setting.LMAC = requestVM.LMAC;
+                }
+                foreach (var day in weekendDays)
+                {
+                    day.DeletedAt = now;
+                    day.DeletedBy = requestVM.DeletedBy;
+                    // day.LIP = requestVM.LIP;
+                    // day.LMAC = requestVM.LMAC;
                 }
 
-                await _genericRepository.UpdateRangeAsync(data);
+                // Step 4: Update both tables
+                await _genericRepository.UpdateRangeAsync(settings);
+                await genericRepositoryWeekdays.UpdateRangeAsync(weekendDays);
 
-                await _userInfoService.ActionLogDeleteAsync("WeekendSettings", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
-
+                // Step 5: Commit Transaction
                 await _genericRepository.CommitTransactionAsync();
 
                 return new WeekendSettingVM
                 {
-                    Message = $"{data.Count} data(s) deleted successfully."
+                    Message = $"{settings.Count} WeekendSetting(s) and {weekendDays.Count} related WeekendDay(s) soft deleted successfully."
                 };
             }
             catch (Exception ex)
@@ -299,49 +320,50 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
                 throw new Exception("Error occurred during the deletion of data.", ex);
             }
         }
-
-
-        public async Task<PaginationService<WeekendDays, WeekendSettingVM>.PaginationResult<WeekendSettingVM>> GetAllAsync(
-                             int pageNumber = 1,
-                             int pageSize = 5,
-                             string searchTerm = "",
-                             string sortColumn = "OrganizationID",
-                             string sortOrder = "desc",
-                             int? organizationID = null)
+        #endregion
+        #region
+        public async Task<PaginationService<WeekendSettings, WeekendSettingVM>.PaginationResult<WeekendSettingVM>> GetAllAsync(
+                    int pageNumber = 1,
+                    int pageSize = 5,
+                    string searchTerm = "",
+                    string sortColumn = "OrganizationID",
+                    string sortOrder = "desc",
+                    int? organizationID = null)
         {
-            var query = genericRepositoryWeekdays.All()
+            var query = _genericRepository.All()
                 .AsNoTracking()
-                .Include(x => x.WeekendSetting)
-                .ThenInclude(x => x.Organization)
-                .Include(x => x.WeekendSetting)
-                .ThenInclude(x => x.OrganizationBranch)
+                .Include(x => x.Organization)
+                .Include(x => x.OrganizationBranch)
+                .Include(x => x.WeekendDays)
                 .Where(x => x.DeletedAt == null);
 
             if (organizationID.HasValue && organizationID.Value > 0)
             {
-                query = query.Where(x => x.WeekendSetting.Organization.OrganizationID == organizationID.Value);
+                query = query.Where(x => x.Organization.OrganizationID == organizationID.Value);
             }
 
-            var result = await PaginationService<WeekendDays, WeekendSettingVM>.GetPaginatedData(
+            var result = await PaginationService<WeekendSettings, WeekendSettingVM>.GetPaginatedData(
                 query,
                 pageNumber,
                 pageSize,
                 searchTerm,
                 sortColumn,
                 sortOrder,
-                term => x => EF.Functions.Like(x.WeekendSetting.Organization.OrganizationName, $"%{term}%")
-                          || EF.Functions.Like(x.WeekendSetting.OrganizationBranch.OrganizationBranchName, $"%{term}%"),
+                term => x => EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%")
+                          || EF.Functions.Like(x.OrganizationBranch.OrganizationBranchName, $"%{term}%"),
                 x => new WeekendSettingVM
                 {
-                    WeekendDayID = x.WeekendDayID,
-                    WeekendSettingID = x.WeekendSetting.WeekendSettingID,
-                    OrganizationID = x.WeekendSetting.Organization.OrganizationID,
-                    OrganizationBranchID = x.WeekendSetting.OrganizationBranch.OrganizationBranchID,
-                    OrganizationName = x.WeekendSetting.Organization != null ? x.WeekendSetting.Organization.OrganizationName : "_",
-                    OrganizationBranchName = x.WeekendSetting.OrganizationBranch != null ? x.WeekendSetting.OrganizationBranch.OrganizationBranchName : "_",
+                    WeekendDayID = x.WeekendDays?.Select(wd => wd.WeekendDayID).FirstOrDefault(),
+                    WeekendSettingID = x.WeekendSettingID,
+                    OrganizationID = x.Organization?.OrganizationID,
+                    OrganizationBranchID = x.OrganizationBranch?.OrganizationBranchID,
+                    OrganizationName = x.Organization != null ? x.Organization?.OrganizationName : "_",
+                    OrganizationBranchName = x.OrganizationBranch != null ? x.OrganizationBranch?.OrganizationBranchName : "_",
 
-                    // Map weekday numbers to names
-                    WeekendTitle = x.WeekdayNumber.HasValue ? GetDayName(x.WeekdayNumber) : "_",
+                    // Aggregate weekday names into a single string
+                    WeekendTitle = string.Join(", ", x.WeekendDays
+                        .Select(wd => GetDayName(wd.WeekdayNumber))
+                        .Distinct()),  // Optionally use Distinct to avoid duplicates
 
                     CreatedBy = x.CreatedBy,
                     UpdatedBy = x.UpdatedBy
@@ -349,11 +371,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
 
             return result;
         }
+
         private static string GetDayName(int? weekdayNumber)
         {
-            return Enum.GetName(typeof(DayOfWeek), weekdayNumber)
-                   ?? $"Day {weekdayNumber}";
+            // Adjust the weekday mapping if your data does not match the DayOfWeek enum (e.g., 1 for Monday, etc.)
+            return Enum.GetName(typeof(DayOfWeek), (DayOfWeek)(weekdayNumber ?? 0)) ?? $"Day {weekdayNumber}";
         }
+
 
         #endregion
 

@@ -8,12 +8,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 {
     public class GetLeavePolicyConfigurationVM
     {
-        //public bool IsWeekendCountedAsLeave { get; set; }
-
-        //public bool IsHolidayCountedAsLeave { get; set; }
-
-        //public bool IsAllowRequestForPastDates { get; set; }
-
+       
         public bool IsWeekendCountedAsLeave { get; set; }
         public bool IsHolidayCountedAsLeave { get; set; }
         public bool IsAllowRequestForPastDates { get; set; }

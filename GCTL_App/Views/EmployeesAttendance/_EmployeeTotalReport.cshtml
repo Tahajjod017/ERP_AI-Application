@@ -17,10 +17,22 @@
 				</div>
 			</div>
 			<div class="text-center">
-				<div class="badge text-bg-danger mb-3 px-5 py-2">Production :  3.45 hrs</div>
+				<div class="badge text-bg-danger mb-3 px-5 py-2">
+					@if (ViewData["CheckInTime"] == null)
+					{
+						<text>Absent</text>
+					}
+					else
+					{
+						<text>Production: @ViewData["ProductionTime"] hrs</text>  <!-- Access the first element of the array -->
+					}
+				</div>
 				<h6 class="fw-medium d-flex align-items-center justify-content-center mb-3">
 					<i class="ti ti-fingerprint text-primary me-1"></i>
-					Punch In at  10.00 AM
+					@if (ViewData["CheckInTime"] != null)
+                    {
+						<text> Punch In at @ViewData["CheckInTime"]</text>
+                    }
 				</h6>
 				<a href="#" class="btn btn-dark w-100">Punch Out</a>
 			</div>
@@ -35,7 +47,7 @@
 				<div class="card-body">
 					<div class="border-bottom mb-2 pb-2">
 						<span class="avatar avatar-sm mb-2"><i class="ti ti-clock-stop"></i></span>
-						<h2 class="mb-2">8.36 / <span class="fs-20 text-gray-5"> 9</span></h2>
+						<h2 class="mb-2">@ViewData["ProductionTime"] / <span class="fs-20 text-gray-5"> @ViewData["TotalWorkingHours"]</span></h2>
 						<p class="fw-medium text-truncate">Total Hours Today</p>
 					</div>
 					<div>
@@ -53,7 +65,7 @@
 				<div class="card-body">
 					<div class="border-bottom mb-2 pb-2">
 						<span class="avatar avatar-sm  mb-2"><i class="ti ti-clock-up"></i></span>
-						<h2 class="mb-2">10 / <span class="fs-20 text-gray-5"> 40</span></h2>
+						<h2 class="mb-2">@ViewData["TotalHoursWeek"] / <span class="fs-20 text-gray-5"> 49 </span></h2>
 						<p class="fw-medium text-truncate">Total Hours Week</p>
 					</div>
 					<div>

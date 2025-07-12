@@ -3,7 +3,124 @@
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
-<div class="mb-4">
+<div class="card mb-2">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Attendance Status")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body py-0 scrollbar to-do-list-body">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="attendanceStatus-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                                <option class="dropdown-item" value="0">@Html.SmartLocalize("All")</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="attendanceStatus-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="attendanceStatus-delSel">@Html.SmartLocalize("Delete")</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="attendanceStatus-searchBox">
+                            <form class="position-relative" id="attendanceStatus-searchForm">
+                                <input class="form-control search-input search" id="bloodGroup-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                        <div class="dropdown me-3">
+                            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">Select Status</option>
+                                <option>Presen</option>
+                                <option>Absent</option>
+                            </select>
+                        </div>
+                        <div class="dropdown me-3">
+                            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">Sort by: Last 7 days</option>
+                                <option>Recently Added</option>
+                                <option>Ascending</option>
+                                <option>Desending</option>
+                                <option>Last Month</option>
+                                <option>Last 7 days</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                @* <table class="table fs-9 mb-0 border-top border-translucent">
+                    <thead>
+                        <tr>
+                            
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Date")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;>@Html.SmartLocalize("Check In")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Check Out")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Break")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Late")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Overtime")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Production Hours")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Status")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceStatus-tBody">
+                    </tbody>
+                </table> *@
+                <table class="table fs-9 mb-0 border-top border-translucent" style="table-layout: fixed; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Date")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Check In")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Check Out")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Break")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Late")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Overtime")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Production Hours")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Shift Name")</th>
+                            <th class="white-space-nowrap align-middle ps-0">@Html.SmartLocalize("Status")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceStatus-tBody">
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="attendanceStatus-paginationInfo"></p>
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="attendanceStatus-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="attendanceStatus-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="attendanceStatus-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* <div class="mb-4">
 
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
@@ -245,5 +362,5 @@
 
     </div>
 
-</div>
+</div> *@
 

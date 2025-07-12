@@ -1,6 +1,8 @@
-﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -52,7 +54,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
 
         #region Create
-        //[Permission("Create", "HolidaySettings")]
+        [Permission("Create", "WeekendSettings")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(WeekendSettingVM model)
@@ -61,7 +63,11 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                   
+                    var uniqueName = await _weekendSettingService.IsNameUniqueAsync(model.OrganizationID ?? 0, model.OrganizationBranchID ?? 0);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = "This Organization and Branch already exists!" });
+                    }
                     await _weekendSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.WeekendSettingID });
                 }
@@ -85,6 +91,33 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         }
         #endregion
+
+        #region delete 
+
+        [HttpPost]
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No id selected to delete." });
+                }
+                var result = await _weekendSettingService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No id found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
 
 
 

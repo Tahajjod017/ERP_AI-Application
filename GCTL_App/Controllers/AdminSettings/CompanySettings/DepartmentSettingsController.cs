@@ -112,27 +112,32 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
         }
         #endregion
-        #region SoftDelete
-       // [HttpPost]
-       // [ValidateAntiForgeryToken]
-        //public async Task<IActionResult> SoftDelete(int id)
-        //{
-        //    try
-        //    {
-        //        var requestVM = new DeleteRequestVM { Id = id };
-        //        var deletedDepartment = await _departmentSettingService.SoftDeleteAsync(requestVM);
-        //        if (deletedDepartment == null)
-        //        {
-        //            return Json(new { isSuccess = false, message = "Department not found." });
-        //        }
-        //        return Json(new { isSuccess = true, message = "Deleted Successfully.", data = deletedDepartment });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { isSuccess = false, message = ex.Message });
-        //    }
-        //}
+        #region delete 
+
+        [HttpPost]
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No id selected to delete." });
+                }
+                var result = await _departmentSettingService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No id found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
         #endregion
 
-    }  
+
+    }
 }

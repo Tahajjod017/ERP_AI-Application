@@ -80,6 +80,7 @@ using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.CommonService;
+using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 
 
 
@@ -145,7 +146,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IYearlyEndBonusTypeService, YearlyEndBonusTypeService>();
             services.AddScoped<IAddShiftService, AddShiftService>();
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
-            services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
+            //services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
             #endregion
 
 
@@ -170,6 +171,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IDesignationSettingService, GCTL.Service.AdminSettings.OrganizationSettings.DesignationService.DesignationSettingService>();
             services.AddScoped<IDepartmentSettingService, DepartmentSettingService>();
             services.AddScoped<IProbationSettingService, ProbationSettingService>();
+            services.AddScoped<IEmployeeAttendanceReport, EmployeeAttendanceService>();
             #endregion
 
 

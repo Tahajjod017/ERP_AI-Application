@@ -17,5 +17,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeListVM
         public DateOnly? JoiningDate { get; set; }
         public string Status { get; set; }
         public string? Avatar { get; set; }
+        public int? CompanyId { get; set; }
+        public int DepartmentId { get; set; }
     }
 }

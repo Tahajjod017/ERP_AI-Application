@@ -23,6 +23,42 @@ $('#designationSettingsForm').on('submit', function (e) {
     });
 });
 
+$(document).on('click', '#addDesignationSetting-singleDelBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/DesignationSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
+
+
 //table
 
 var currentPage = 1;
@@ -138,7 +174,7 @@ function loadTableData(sortColumn, sortOrder) {
                             <a 
                               href="#" title="Delete"  data-id="${item.designationID}"
                               class="btn btn-outline-light btn-icon"  
-                              id="leaveRequestDelete-singleDelBtn" >
+                              id="addDesignationSetting-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
                           </div>

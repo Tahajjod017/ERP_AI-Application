@@ -1,83 +1,36 @@
-﻿$(document).ready(function () {
-    // Get references to the elements
-    const employeesUrl = '/ApprovalSettings/GetEmployee';  
-    const designationsUrl = '/ApprovalSettings/GetDesignation'; 
+﻿
+$(document).ready(function () {
+    const designationsUrl = '/ApprovalSettings/GetDesignation';
 
     const approvers = [
-        { checkboxId: "chkFirst", selectId: "selFirst", toggleId: "toggleFirst" },
-        { checkboxId: "chkSecond", selectId: "selSecond", toggleId: "toggleSecond" },
-        { checkboxId: "chkThird", selectId: "selThird", toggleId: "toggleThird" }
+        { checkboxId: "chkFirst", selectId: "selFirst" },
+        { checkboxId: "chkSecond", selectId: "selSecond" },
+        { checkboxId: "chkThird", selectId: "selThird" }
     ];
 
-    approvers.forEach(ap => {
-        const checkbox = $("#" + ap.checkboxId);
-        const select = $("#" + ap.selectId);
-        const toggle = $("#" + ap.toggleId);
+    let cachedRoles = {}; // per organization cache
 
-        // Enable/Disable select dropdown based on checkbox
-        checkbox.on('change', function () {
-            select.prop('disabled', !this.checked);
-            toggle.prop('disabled', !this.checked);
-        });
-
-        // Toggle between employees and designations
-        toggle.on('change', function () {
-            const url = this.checked ? employeesUrl : designationsUrl;
-            populateOptions(select, url);
-        });
-
-        // Initialize with designations (default)
-        select.prop('disabled', true);
-        toggle.prop('disabled', true);
-        populateOptions(select, designationsUrl); // Default to designations
-
-
-    });
-    //$(document).ready(function () {
-    //    // Get the checkbox element by ID
-    //    const checkbox = document.getElementById('chkThird');
-
-    //    // Function to check if the checkbox is checked
-    //    function checkCheckbox() {
-    //        const isChecked = checkbox.checked; // true if checked, false if unchecked
-    //        alert('Checkbox checked: ' + isChecked); // Show value in alert
-    //    }
-
-    //    // Call this function to check the checkbox state
-    //    checkCheckbox();
-
-    //    // Optionally, add an event listener to trigger the check when the checkbox changes
-    //    checkbox.addEventListener('change', function () {
-    //        alert('Checkbox checked: ' + checkbox.checked); // Show value in alert on change
-    //    });
-
-    //});
-
-
-    // Function to fetch data and populate dropdown using jQuery's $.ajax()
-    function populateOptions(selectEl, url) {
-        let defaultOptionText = '';
-
-        // Determine the default text based on the URL (employees or designations)
-        if (url === employeesUrl) {
-            defaultOptionText = 'Select Employee';
-        } else if (url === designationsUrl) {
-            defaultOptionText = 'Select Designation';
+    // Utility to fetch and exclude values
+    function populateOptions(selectEl, url, organId, excludedValues = []) {
+        if (cachedRoles[organId]) {
+            const filtered = cachedRoles[organId].filter(role => !excludedValues.includes(role.value));
+            choiceManager.populateDropdown(selectEl.attr('id'), filtered);
+            return;
         }
 
         $.ajax({
             url: url,
             type: 'GET',
             dataType: 'json',
+            data: { organizationId: organId },
             success: function (data) {
-                selectEl.empty();  // Clear existing options
-                selectEl.append('<option value="">' + defaultOptionText + '</option>');  // Set dynamic default option
-
-                // Append options from the response data
-                $.each(data, function (index, item) {
-                    const option = $('<option></option>').val(item.value).text(item.text);  // Adjust item properties based on your API response
-                    selectEl.append(option);
-                });
+                const simplified = data.map(role => ({
+                    value: role.value,
+                    label: role.text
+                }));
+                cachedRoles[organId] = simplified;
+                const filtered = simplified.filter(role => !excludedValues.includes(role.value));
+                choiceManager.populateDropdown(selectEl.attr('id'), filtered);
             },
             error: function (xhr, status, error) {
                 console.error('Error loading options:', error);
@@ -85,7 +38,123 @@
         });
     }
 
+    // Track current selections
+    let selectedFirst = null;
+    let selectedSecond = null;
+
+    // Initial setup
+    approvers.forEach(ap => {
+        const checkbox = $("#" + ap.checkboxId);
+        const select = $("#" + ap.selectId);
+
+        select.prop('disabled', true);
+        choiceManager.disableChoice(ap.selectId);
+
+        const orgId = $('#OrganizationID').val();
+        populateOptions(select, designationsUrl, orgId);
+
+        checkbox.on('change', function () {
+            const isChecked = this.checked;
+            const currentOrgId = $('#OrganizationID').val();
+
+            select.prop('disabled', !isChecked);
+
+            if (isChecked) {
+                choiceManager.enableChoice(ap.selectId);
+
+                let exclude = [];
+                if (ap.selectId === "selSecond" && selectedFirst) {
+                    exclude = [selectedFirst];
+                }
+                if (ap.selectId === "selThird") {
+                    exclude = [selectedFirst, selectedSecond].filter(Boolean);
+                }
+
+                populateOptions(select, designationsUrl, currentOrgId, exclude);
+            } else {
+                choiceManager.disableChoice(ap.selectId);
+            }
+
+            // Dependency logic
+            if (ap.checkboxId === "chkFirst") {
+                $("#chkSecond, #selSecond").prop('disabled', !isChecked);
+            }
+            if (ap.checkboxId === "chkSecond") {
+                $("#chkThird, #selThird").prop('disabled', !isChecked);
+            }
+        });
+    });
+
+    // Listen to selection changes and update downstream exclusions
+    $('#selFirst').on('change', function () {
+        selectedFirst = $(this).val();
+        const orgId = $('#OrganizationID').val();
+
+        if (!$("#selSecond").prop('disabled')) {
+            populateOptions($("#selSecond"), designationsUrl, orgId, [selectedFirst]);
+        }
+        if (!$("#selThird").prop('disabled')) {
+            populateOptions($("#selThird"), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+        }
+    });
+
+    $('#selSecond').on('change', function () {
+        selectedSecond = $(this).val();
+        const orgId = $('#OrganizationID').val();
+
+        if (!$("#selThird").prop('disabled')) {
+            populateOptions($("#selThird"), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+        }
+    });
+
+    // Organization change resets all dropdowns
+    $('#OrganizationID').on('change', function () {
+        const newOrgId = $(this).val();
+        selectedFirst = null;
+        selectedSecond = null;
+
+        approvers.forEach(ap => {
+            const select = $("#" + ap.selectId);
+            populateOptions(select, designationsUrl, newOrgId);
+        });
+    });
+
+    // =========================
+    // Self Approval Checkbox Logic (your requested condition)
+    // =========================
+
+    function handleSelfApprovalDisplay() {
+        if ($('#chkSelfApproval').is(':checked')) {
+            // When checked → hide dropdown & remove required
+            $('#selSelfApproval').closest('.mt-3').hide();
+            $('#selSelfApproval').removeAttr('required');
+        } else {
+            // When unchecked → show dropdown & make required
+            $('#selSelfApproval').closest('.mt-3').show();
+            $('#selSelfApproval').attr('required', 'required');
+        }
+    }
+
+    // Initial state check
+    handleSelfApprovalDisplay();
+
+    // On checkbox change
+    $('#chkSelfApproval').on('change', function () {
+        handleSelfApprovalDisplay();
+    });
+
 });
+
+
+
+
+
+
+
+
+
+
+
 
 // Function to handle form submission
 
@@ -118,13 +187,81 @@ $(document).ready(function () {
 });
 
 
+// delete 
+$(document).on('click', '#approvalSettingsDelete-singleDelBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/ApprovalSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
+//$(document).on('click', '#approvalSettingsDelete-single-delete', function () {
 
+//    var id = $(this).data('id');
+//    alert(id)
+//    if (id) {
+//        showDeleteModal(function () {
+//            $.ajax({
+//                url: '/ApprovalSettings/SoftDelete',
+//                method: 'POST',
+//                data: { ids: [id] },
+//                success: function (response) {
+//                    if (response.isSuccess) {
+//                        toastr.success(response.message);
+//                        $("#approvalSettings-check-all").prop('checked', false);
+//                        clear();
+//                    } else {
+//                        toastr.error(response.message);
+//                    }
+//                },
+//                error: function () {
+//                    toastr.error("Error occurred while deleting.");
+//                }
+//            });
+//        });
+//    } else {
+//        toastr.error("Invalid action.");
+//    }
+//});
+
+//edit
+$(document).on('click', '#edit_approval_settingBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#edit_approval_setting').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 var currentPage = 1;
 var pageSize = 5;
 
-$('#addHolidayConfig-pageSizeSelect').on('change', function () {
+$('#approvalSettings-pageSizeSelect').on('change', function () {
     var selectedSize = $(this).val();
 
     if (selectedSize) {
@@ -298,16 +435,3 @@ $(document).on('click', '.page-btn', function () {
     loadTableData();
 });
 
-// delete 
-$(document).on('click', '#approvalSettingsDelete-singleDelBtn', function () {
-    var approvalSettingID = $(this).data('id');
-    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
-    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
-});
-
-//edit
-$(document).on('click', '#edit_approval_settingBtn', function () {
-    var approvalSettingID = $(this).data('id');
-    $('#edit_approval_setting').modal('show'); // Show the delete confirmation modal
-    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
-});

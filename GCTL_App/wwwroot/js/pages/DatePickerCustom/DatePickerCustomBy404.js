@@ -25,7 +25,8 @@ function initializeDatepickerDMY(dateIds) {
     });
 }
 
-function initializeDatepickerDMY2(dateIds, minDate = null) {
+function initializeDatepickerDMY2(dateIds, minDate = null, maxDate = null) {
+   
     dateIds.split(',').forEach(function (id) {
         const trimmedId = id.trim();
         flatpickr(`#${trimmedId}`, {
@@ -33,7 +34,8 @@ function initializeDatepickerDMY2(dateIds, minDate = null) {
             altInput: true,
             altFormat: "d/m/Y",
             allowInput: true,
-            minDate: minDate, // dynamically set
+            minDate: minDate || undefined,
+            maxDate: maxDate || undefined,
             onReady: function (selectedDates, dateStr, instance) {
                 instance.input.placeholder = "dd/mm/yyyy";
             }
@@ -56,6 +58,7 @@ function updateDatepickerWithMinDate(dateId, minDate, options = {}) {
         altFormat: "d/m/Y",
         allowInput: true,
         minDate: minDate,
+        maxDate: options.maxDate || null,
         onReady: function (selectedDates, dateStr, instance) {
             instance.input.placeholder = "dd/mm/yyyy";
         }
@@ -104,7 +107,7 @@ function updateDatepickerWithMinDateTotalDays(dateId, minDate, options = {}, dis
     flatpickr(`#${dateId}`, { ...defaultOptions, ...options });
 }
 
-// Date range Global
+// Date range Global   Pair calender 
 
 function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onChangeCallback) {
 
@@ -132,6 +135,8 @@ function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onC
             }
         });
 }
+
+// Date range Global   Pair calender
 
 
 //

@@ -1,16 +1,23 @@
 ﻿$('#OrganizationID').on('change', function () {
     var orgId = $(this).val();
+
     if (orgId) {
         $.ajax({
             url: '/WeekendSettings/GetBranches',
             type: 'GET',
             data: { organizationId: orgId },
             success: function (branches) {
-                var $branchSelect = $('#OrganizationBranchID');
-                $branchSelect.empty().append('<option value="">-- Select Branch --</option>');
-                $.each(branches, function (i, branch) {
-                    $branchSelect.append(`<option value="${branch.value}">${branch.text}</option>`);
-                });
+                //var $branchSelect = $('#OrganizationBranchID');
+                //$branchSelect.empty().append('<option value="">-- Select Branch --</option>');
+                //$.each(branches, function (i, branch) {
+                //    $branchSelect.append(`<option value="${branch.value}">${branch.text}</option>`);
+                //});
+                const simplifiedRoles = branches.map(role => ({
+                    id: role.value,
+                    name: role.text
+                }));
+
+                choiceManager.populateDropdown('OrganizationBranchID',simplifiedRoles);
             }
         });
     } else {
@@ -47,6 +54,42 @@ $(document).ready(function () {
         });
     });
 });
+
+$(document).on('click', '#weekendSettings-singleDelBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', approvalSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/WeekendSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
+
 
 
 //////////////////////////////Data Table Initialization//////////////////////////////
@@ -140,7 +183,7 @@ function loadTableData(sortColumn, sortOrder) {
                     tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.weekendDayID}" />
+                                <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.weekendSettingID}" />
                             </td>
                             <td class="align-middle text-center white-space-nowrap pe-10">${rowIndex}</td>
                             
@@ -154,7 +197,7 @@ function loadTableData(sortColumn, sortOrder) {
                                            href="#"
                                            title="Edit"
                                            id="LeaveRequestEditButton"
-                                           data-id="${item.weekendDayID}"
+                                           data-id="${item.weekendSettingID}"
                                            class="btn btn-outline-light btn-icon me-1 " 
                                            data-bs-toggle="" 
                                            data-bs-target=""
@@ -162,9 +205,9 @@ function loadTableData(sortColumn, sortOrder) {
                                            <i class="fas fa-edit text-black"></i>
                                     </a>
                                         <a 
-                                          href="#" title="Delete"  data-id="${item.weekendDayID}"
+                                          href="#" title="Delete"  data-id="${item.weekendSettingID}"
                                           class="btn btn-outline-light btn-icon"  
-                                          id="" >
+                                          id="weekendSettings-singleDelBtn" >
                                           <i class="far fa-trash-alt text-black"></i>
                                         </a>
                            </div>

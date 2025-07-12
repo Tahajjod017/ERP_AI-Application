@@ -27,6 +27,10 @@ public partial class ApprovalDesignation
 
     public int? DeletedBy { get; set; }
 
+    public int ? Code { get; set; }
+
+    public string CodeComment { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
