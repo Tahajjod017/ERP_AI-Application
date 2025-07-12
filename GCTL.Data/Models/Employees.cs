@@ -89,6 +89,8 @@ public partial class Employees
 
     public virtual ICollection<ApprovalSettings> ApprovalSettingsDeletedByNavigation { get; set; } = new List<ApprovalSettings>();
 
+    public virtual ICollection<ApprovalSettings> ApprovalSettingsSelfExceptionApproval { get; set; } = new List<ApprovalSettings>();
+
     public virtual ICollection<ApprovalSettings> ApprovalSettingsUpdatedByNavigation { get; set; } = new List<ApprovalSettings>();
 
     public virtual ICollection<ApprovalTypes> ApprovalTypesCreatedByNavigation { get; set; } = new List<ApprovalTypes>();

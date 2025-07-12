@@ -216,6 +216,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.ApprovalDesignationID).HasName("PK__Approval__E36CFBB82226728B");
 
             entity.Property(e => e.ApprovalDesignationName).HasMaxLength(200);
+            entity.Property(e => e.CodeComment).HasMaxLength(200);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -270,6 +271,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Organization).WithMany(p => p.ApprovalSettings)
                 .HasForeignKey(d => d.OrganizationID)
                 .HasConstraintName("FK__ApprovalS__Organ__27F8EE98");
+
+            entity.HasOne(d => d.SelfExceptionApproval).WithMany(p => p.ApprovalSettingsSelfExceptionApproval)
+                .HasForeignKey(d => d.SelfExceptionApprovalID)
+                .HasConstraintName("FK_Employees_EmployeeID_SelfExceptionApprovalID");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ApprovalSettingsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
