@@ -20,51 +20,13 @@
 
 <div id="toastr-data" data-message="@TempData["ToastrMessage"]" data-type="@TempData["ToastrType"]" style="display:none;"></div>
 
-<div class="mb-9">
-    <div class="row align-items-center justify-content-between g-3 ">
-        <div class="col-auto">
-        </div>
-    </div>
+<div class="mbs-9">
+   
 
-    <div class="px-3 mb-5">
+    <div class="px-3 mbs-5">
         <div class="row">
             <div class="col-12">
-                <!--
-                <div class="search-box me-3 mb-3">
-                    <form class="position-relative">
-                        <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / UserEmail")" aria-label="Search" />
-                        <span class="fas fa-search search-box-icon"></span>
-                    </form>
-                </div>
-                -->
-
-
-                <div class="row g-2 align-items-center">
-
-
-                    <div class="col-md-3 mb-2">
-                        <div class="position-relative">
-                            <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
-                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3"></div>
-
-                    <!--
-                    <div class="col-md-2">
-                        <input type="text" class="form-control" placeholder="Department" />
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" class="form-control" placeholder="Designation" />
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" class="form-control" placeholder="Location" />
-                    </div>
-
-                    -->
-
-                </div>
+                
 
                 <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
 
@@ -73,44 +35,7 @@
 
                             @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
 
-                          <!--  
-                             <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
-                                    <a class="nav-link active" href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo"> <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
-                                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
-                                    <a class="nav-link" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo"> <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
-                                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
-                                    <a class="nav-link" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
-                                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
-                                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")</a>
-                                </li>
-
-                                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
-                                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
-                                </li>
-
-                            </ul>
-
-							  -->
+                          
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
 
@@ -123,14 +48,14 @@
                                                 <p class="border-bottom">@Html.SmartLocalize("Basic Information")</p>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="EmployeeCode" id="employeeCode" type="text" placeholder="@Html.SmartLocalize("Enter Employee Code")" required />
                                                         <label asp-for="EmployeeCode" for="employeeCode">@Html.SmartLocalize("Employee Code")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="FirstName" id="firstName" type="text" placeholder="@Html.SmartLocalize("Enter First Name")" required />
                                                         <label asp-for="FirstName" for="firstName">@Html.SmartLocalize("First Name")</label>
 
@@ -139,15 +64,15 @@
 
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="LastName" id="lastName" type="text" placeholder="@Html.SmartLocalize("Enter Last Name")" />
                                                         <label asp-for="LastName" for="lastName">@Html.SmartLocalize("Last Name")</label>
                                                     </div>
                                                 </div>
-                                                
+
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                    <div class="form-floating form-floating-advance-select mbs-2">
                                                         <label asp-for="Gender">Choose Gender</label>
                                                         <select class="form-select" asp-for="Gender" asp-items="@ViewBag.GenderDD as SelectList">
                                                             <option value="">Select Gender</option>
@@ -158,40 +83,40 @@
 
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="PersonalMobile" id="personalMobile" type="text" placeholder="@Html.SmartLocalize("Personal Mobile No.")" />
                                                         <label asp-for="PersonalMobile" for="personalMobile">@Html.SmartLocalize("Personal Mobile No.")</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="PersonalEmail" id="personalEmail" type="text" placeholder="@Html.SmartLocalize("Personal UserEmail")" />
                                                         <label asp-for="PersonalEmail" for="personalEmail">@Html.SmartLocalize("Personal UserEmail")</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="TinNo" id="tinNo" type="text" placeholder="@Html.SmartLocalize("TIN No")" />
                                                         <label asp-for="TinNo" for="tinNo">@Html.SmartLocalize("TIN No")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="FatherName" id="fatherName" type="text" placeholder="@Html.SmartLocalize("Enter Father's Name")" />
                                                         <label asp-for="FatherName" for="fatherName">@Html.SmartLocalize("Father's Name")</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="MotherName" id="motherName" type="text" placeholder="@Html.SmartLocalize("Enter Mother's Name")" />
                                                         <label asp-for="MotherName" for="motherName">@Html.SmartLocalize("Mother's Name")</label>
                                                     </div>
                                                 </div>
-                                               
+
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                    <div class="form-floating form-floating-advance-select mbs-2">
                                                         <label asp-for="Religion">Choose Religion</label>
                                                         <select class="form-select" asp-for="Religion" asp-items="@ViewBag.ReligionDD as SelectList">
                                                             <option value="">Select Relogion </option>
@@ -201,7 +126,7 @@
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="flatpickr-input-container mb-4">
+                                                    <div class="flatpickr-input-container mbs-4">
                                                         <div class="form-floating">
                                                             <input class="form-control datetimepicker" asp-for="DateOfBirth" id="floatingInputReportDate" type="text" placeholder="@Html.SmartLocalize("Enter Date of Birth")" data-options='{"disableMobile":true}' />
                                                             <label asp-for="DateOfBirth" class="ps-6" for="floatingInputReportDate">@Html.SmartLocalize("Date of Birth")</label><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
@@ -209,7 +134,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="BirthCertificateNo" id="birthCertificate" type="text" placeholder="@Html.SmartLocalize("Birth Certificate No")" />
                                                         <label asp-for="BirthCertificateNo" for="birthCertificate">@Html.SmartLocalize("Birth Certificate No")</label>
                                                     </div>
@@ -217,7 +142,7 @@
 
                                                 <div class="col-sm-12 col-md-4">
 
-                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                    <div class="form-floating form-floating-advance-select mbs-2">
                                                         <label asp-for="BloodGroup">@Html.SmartLocalize("Blood Group")</label>
                                                         <select class="form-select choiceDD" asp-for="BloodGroup" asp-items="@ViewBag.BloodGroupDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Blood Group")</option>
@@ -225,18 +150,18 @@
 
                                                     </div>
 
-                                                    
+
                                                 </div>
                                                 <div class="col-sm-12 col-md-4">
 
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input type="text" asp-for="Nationality" id="nationalitySearch" class="form-control" placeholder="@Html.SmartLocalize("Search Nationality...")">
                                                         <label asp-for="Nationality" for="floatingSelectLitigation">@Html.SmartLocalize("Nationality")</label>
                                                         <!--
-                                                        <button class="btn btn-outline-danger" type="button" id="removeNationalityBtn" style="display: none;">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                        -->
+                                            <button class="btn btn-outline-danger" type="button" id="removeNationalityBtn" style="display: none;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            -->
                                                     </div>
 
                                                     <div class="search-results card" id="searchResults">
@@ -252,15 +177,15 @@
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mbs-4">
                                                         <input class="form-control" asp-for="NationalId" id="nationalId" type="text" placeholder="@Html.SmartLocalize("Enter National ID")" />
                                                         <label asp-for="NationalId" for="nationalId">@Html.SmartLocalize("National ID")</label>
                                                     </div>
                                                 </div>
 
-                                                
+
                                                 <div class="col-sm-12 col-md-4">
-                                                    <div class="form-floating form-floating-advance-select mb-2">
+                                                    <div class="form-floating form-floating-advance-select mbs-2">
                                                         <label asp-for="MaritalStatus">@Html.SmartLocalize("Choose Marrital Status")</label>
                                                         <select class="form-select" asp-for="MaritalStatus" asp-items="@ViewBag.MaritalStatusDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Marital Status")</option>
@@ -269,26 +194,26 @@
                                                     </div>
                                                 </div>
 
-                                                
 
 
-                                               
+
+
 
 
 
                                                 <div class="col-sm-12 col-md-12">
-                                                    <div class="form-floating mb-4">
+                                                    <div class="form-floating mb-3">
                                                         <textarea class="form-control" asp-for="AboutEmployee" id="floatingProjectOverview" placeholder="@Html.SmartLocalize("About Employee")" style="height: 120px"></textarea>
                                                         <label asp-for="AboutEmployee" for="floatingProjectOverview">@Html.SmartLocalize("About Employee")</label>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-sm-12 col-md-12 row flex ">
+                                                <div class="col-sm-12 col-md-12 g-3 row flex ">
                                                     <p class="border-bottom">@Html.SmartLocalize("Address Information")</p>
                                                     <div class="col-sm-12 col-md-4">
-                                                        
 
-                                                        <div class="form-floating form-floating-advance-select mb-2">
+
+                                                        <div class="form-floating form-floating-advance-select mbs-2">
                                                             <label asp-for="Country">@Html.SmartLocalize("Country")</label>
                                                             <select class="form-select choiceDD" id="country" asp-for="Country" asp-items="@ViewBag.CountryDD as SelectList">
                                                                 <option value="">@Html.SmartLocalize("Select Country")</option>
@@ -300,35 +225,35 @@
                                                     </div>
 
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
+                                                        <div class="form-floating mbs-4">
                                                             <input class="form-control" asp-for="State" id="state" type="text" placeholder="@Html.SmartLocalize("Enter State")" />
                                                             <label asp-for="State" for="state">@Html.SmartLocalize("State")</label>
                                                         </div>
                                                     </div>
 
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
+                                                        <div class="form-floating mbs-4">
                                                             <input class="form-control" asp-for="City" id="city" type="text" placeholder="@Html.SmartLocalize("Enter City")" />
                                                             <label asp-for="City" for="city">@Html.SmartLocalize("City")</label>
                                                         </div>
                                                     </div>
 
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
+                                                        <div class="form-floating mbs-4">
                                                             <input class="form-control" asp-for="HouseNo" id="houseNo" type="text" placeholder="@Html.SmartLocalize("Enter House No.")" />
                                                             <label asp-for="HouseNo" for="houseNo">@Html.SmartLocalize("House No.")</label>
                                                         </div>
                                                     </div>
 
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
+                                                        <div class="form-floating mbs-4">
                                                             <input class="form-control" asp-for="RoadNo" id="roadNo" type="text" placeholder="@Html.SmartLocalize("Enter Road No.")" />
                                                             <label asp-for="RoadNo" for="roadNo">@Html.SmartLocalize("Road No.")</label>
                                                         </div>
                                                     </div>
 
                                                     <div class="col-sm-12 col-md-4">
-                                                        <div class="form-floating mb-4">
+                                                        <div class="form-floating mbs-4">
                                                             <input class="form-control" asp-for="PostalCode" id="postalCode" type="text" placeholder="@Html.SmartLocalize("Enter Postal Code")" />
                                                             <label asp-for="PostalCode" for="postalCode">@Html.SmartLocalize("Postal Code")</label>
                                                         </div>
@@ -363,7 +288,7 @@
 
                                                 <div class="col-12">
                                                     <div class="row g-3 justify-content-end">
-                                                        
+
                                                         <div class="col-auto">
                                                             <button class="btn btn-phoenix-primary px-5">@Html.SmartLocalize("Cancel")</button>
                                                         </div>
@@ -414,7 +339,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
+                <div class="mbs-3">
                     <label for="newNationalityName" class="form-label">Nationality Name</label>
                     <input type="text" class="form-control" id="newNationalityName" placeholder="যেমন: বাংলাদেশী টাকা">
                 </div>

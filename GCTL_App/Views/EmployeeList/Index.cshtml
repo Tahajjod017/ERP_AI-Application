@@ -39,6 +39,40 @@
         border-bottom: none !important;
     }
 
+
+    .avatar-wrapper {
+        width: 40px;
+        height: 40px;
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        background-color: #007bff; /* Bootstrap primary */
+        border-radius: 50%;
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+    }
+
+    .avatar-fallback {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+        width: 100%;
+        height: 100%;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+    }
+
 </style>
 
 
@@ -54,15 +88,7 @@
 
         <div class="row">
             <div class="col-12">
-                <!--
-                <div class="search-box me-3 mb-3">
-                    <form class="position-relative">
-                        <input class="form-control search-input search" type="search" placeholder="Employee Name / Phone / Email" aria-label="Search" />
-                        <span class="fas fa-search search-box-icon"></span>
-
-                    </form>
-                </div>
-                 -->
+                
                 <div class="mx-n4 mx-lg-n6 px-lg-6  bg-body-emphasis pb-4">
 
                     <form action="">
@@ -2065,7 +2091,10 @@
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <a class="dropdown-item" id="btnExportXL"><span data-feather="download"></span>PDF</a>
+                            <a class="dropdown-item" id="btnExportPDFpreview"><span data-feather="download"></span>Preview</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" id="btnExportPDFdownload"><span data-feather="download"></span>PDF</a>
                         </li>
                         <li>
                             <a class="dropdown-item" id="btnExportXL"> <span data-feather="download"></span>Excel </a>
@@ -2097,12 +2126,7 @@
 
 
             <div class="dropdown me-3">
-                @*<select class="form-select choiceDD" id="pageSize" data-choices="data-choices" size="1" required="required" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="5">Show</option>
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>*@
+                
                 <select id="pageSize" class="form-select choiceDD" style="width: auto;">
                     <option value="4">4</option>
                     <option value="12">12</option>
@@ -2211,49 +2235,11 @@
             </div>
         </div>
 
-        @*<div id="boardView"  class="view-content row row-cols-1 row-cols-sm-2 row-cols-xl-4 row-cols-xxl-4 g-3 mb-4 p-3 visible">
-
-            <div>
-
-            </div>
-            <div class="row align-items-center justify-content-between pe-0 fs-9">
-
-
-                <div class="col-auto d-flex">
-
-                    <ul class="mb-0 pagination justify-content-end paginationBoard"></ul>
-
-                </div>
-            </div>
-
-        </div>*@
+       
 
     <style>
         
-/*@@media (min-width: 750px) and (max-width: 1199px) {
-    #boardView {
-        grid-template-columns: 1fr !important;
-    }
 
-    #boardView .col {
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-    }
-}*/
-
-
-/* 768px to 1024px range - Force single column */
-/*@@media (min-width: 768px) and (max-width: 1024px) {
-    #boardView.row > .col {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        background-color : rebeccapurple
-    }
-
-    #boardView.row {
-        --bs-columns: 1 !important;
-    }
-}*/
 
 
         @@media (min-width: 750px) and (max-width: 1199px) {

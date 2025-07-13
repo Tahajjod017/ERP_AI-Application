@@ -32,6 +32,8 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using GCTL.Core.ViewModels.Employee.EmployeeListVM;
+using GCTL.Core.ViewModels.Employee.EmployeeReport;
 
 
 namespace GCTL.Service.Employees.EmployeeReport
@@ -114,7 +116,16 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                             page.Header().Element(header =>
                             {
-                                _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
+                                if (company != null)
+                                {
+                                    if (company.OrganizationID > 0)
+                                    {
+                                        _pdfFileHandlerService.ComposeHeader(header, (int)company.OrganizationID, true);
+
+                                    }
+                                }
+
+                                
                             });
 
 
@@ -148,10 +159,10 @@ namespace GCTL.Service.Employees.EmployeeReport
                                                     table.Cell().Text(value ?? " ").AlignLeft();
                                                 }
 
-                                                AddInfoRow("Department", official.DepartmentName.ToString());
-                                                AddInfoRow("Employee’s ID", personal.EmployeeCode);
-                                                AddInfoRow("Designation", official.DesignationName.ToString());
-                                                AddInfoRow("Date of Hire", official.JoiningDate?.ToString("dd/MM/yyyy"));
+                                                AddInfoRow("Department", official?.DepartmentName.ToString() ?? "-");
+                                                AddInfoRow("Employee’s ID", personal?.EmployeeCode ?? "-");
+                                                AddInfoRow("Designation", official?.DesignationName.ToString() ?? "-");
+                                                AddInfoRow("Date of Hire", official?.JoiningDate?.ToString("dd/MM/yyyy") ?? "-");
                                             });
                                         });
 
@@ -248,18 +259,18 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
-                                        AddInfoRow("Place Of Birth", additional?.PasportPlaceOfIssue);
-                                        AddInfoRow("Nationality ID", personal?.NID);
+                                        AddInfoRow("Place Of Birth", additional?.PasportPlaceOfIssue ?? "-");
+                                        AddInfoRow("Nationality ID", personal?.NID ?? "-");
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
                                        
-                                        AddInfoRow("Personal Mail ID", personal?.Email);
+                                        AddInfoRow("Personal Mail ID", personal?.Email ?? "-");
                                         AddEmptyRow();
                                         AddEmptyRow();
                                        
-                                        AddInfoRow("Expiry Date", additional?.PasportExpireDate?.ToString("dd/MM/yyyy"));
-                                        AddInfoRow("Expiry Date", additional?.DrivingLicenceExpireDate?.ToString("dd/MM/yyyy"));
+                                        AddInfoRow("Expiry Date", additional?.PasportExpireDate?.ToString("dd/MM/yyyy") ?? "-");
+                                        AddInfoRow("Expiry Date", additional?.DrivingLicenceExpireDate?.ToString("dd/MM/yyyy") ?? "-");
                                     });
 
                                  
@@ -348,8 +359,8 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Work Permit No.", additional?.WorkPermaitNumber);
-                                        AddInfoRow("Work Permit Type", additional?.WorkPermitType);
+                                        AddInfoRow("Work Permit No.", additional?.WorkPermaitNumber ?? "-");
+                                        AddInfoRow("Work Permit Type", additional?.WorkPermitType ?? "-");
                                     });
 
                                     table.Cell().Table(rightTable =>
@@ -368,8 +379,8 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             rightTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("WP Effective Date", additional?.WorkPermitEffectiveDate?.ToString("dd/MM/yyyy"));
-                                        AddInfoRow("WP Expire Date", additional?.WorkPermitExpireDate?.ToString("dd/MM/yyyy"));
+                                        AddInfoRow("WP Effective Date", additional?.WorkPermitEffectiveDate?.ToString("dd/MM/yyyy") ?? "-");
+                                        AddInfoRow("WP Expire Date", additional?.WorkPermitExpireDate?.ToString("dd/MM/yyyy") ?? "-");
                                     });
                                 });
 
@@ -404,9 +415,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Name", contact1?.ContactName);
-                                        AddInfoRow("Phone", contact1?.ContactNumber);
-                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
+                                        AddInfoRow("Name", contact1?.ContactName ?? "-");
+                                        AddInfoRow("Phone", contact1?.ContactNumber ?? "-");
+                                        AddInfoRow("Present Address", $"{personal?.HouseNo ?? "-"}, {personal?.RoadNo ?? "-"}, {personal?.City ?? "-"}, {personal?.State ?? "-"}, {personal?.PostalCode ?? "-"}");
                                       
                                         
                                     });
@@ -434,9 +445,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             rightTable.Cell().Text(" ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Relationship", contact1?.Relationship);
-                                        AddInfoRow("Personal Phone", contact1?.PersonalPhone);
-                                        AddInfoRow("E-mail", contact1?.ContactEmail);
+                                        AddInfoRow("Relationship", contact1?.Relationship ?? "-");
+                                        AddInfoRow("Personal Phone", contact1?.PersonalPhone ?? "-");
+                                        AddInfoRow("E-mail", contact1?.ContactEmail ?? "-");
                                         
                                     });
                                 });
@@ -468,9 +479,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Name", contact2?.ContactName);
-                                        AddInfoRow("Phone", contact2?.ContactNumber);
-                                        AddInfoRow("Present Address", $"{personal?.HouseNo}, {personal?.RoadNo}, {personal?.City}, {personal?.State}, {personal?.PostalCode}");
+                                        AddInfoRow("Name", contact2?.ContactName ?? "-");
+                                        AddInfoRow("Phone", contact2?.ContactNumber ?? "-");
+                                        AddInfoRow("Present Address", $"{personal?.HouseNo ?? "-"}, {personal?.RoadNo ?? "-"}, {personal?.City ?? "-"}, {personal?.State ?? "-"}, {personal?.PostalCode ?? "-"}");
                                       
                                     });
 
@@ -498,9 +509,9 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         }
 
                                       
-                                        AddInfoRow("Relationship", contact2?.Relationship);
-                                        AddInfoRow("Personal Phone", contact2?.PersonalPhone);
-                                        AddInfoRow("E-mail", contact2?.ContactEmail);
+                                        AddInfoRow("Relationship", contact2?.Relationship ?? "-");
+                                        AddInfoRow("Personal Phone", contact2?.PersonalPhone ?? "-");
+                                        AddInfoRow("E-mail", contact2?.ContactEmail ?? "-");
                                     });
                                 });
 
@@ -536,20 +547,21 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(value ?? " ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Organization", official?.OrganizationName.ToString());
-                                        AddInfoRow("Branch", official?.OrganizationBranchName.ToString());
-                                        AddInfoRow("Department", official?.DepartmentName.ToString());
-                                        AddInfoRow("Designation", official?.DesignationName.ToString());
-                                        AddInfoRow("Employee Type", official?.EmployeeTypeName.ToString());
-                                        AddInfoRow("Employment Nature", official?.EmploymentNatureName.ToString());
-                                        AddInfoRow("Grade No", salary?.GradeID.ToString());
-                                        AddInfoRow("Gross Salary", salary?.Salary?.ToString("N0"));
-                                        AddInfoRow("Immediate Supervisor", official?.ImmediateSupervisorName.ToString());
-                                        AddInfoRow("Official Phone", official?.OfficePhone);
-                                        AddInfoRow("Appointment Date", official?.AppointmentLetterIssueDate?.ToString("dd/MM/yyyy"));
-                                        AddInfoRow("Probation Period", official?.ProvisionPeriod.ToString());
-                                       
-                                        AddInfoRow("Contract End Date", official?.ContractEndDate?.ToString("dd/MM/yyyy"));
+                                        
+
+                                        AddInfoRow("Organization", official?.OrganizationName?.ToString() ?? "-");
+                                        AddInfoRow("Branch", official?.OrganizationBranchName?.ToString() ?? "-");
+                                        AddInfoRow("Department", official?.DepartmentName?.ToString() ?? "-");
+                                        AddInfoRow("Designation", official?.DesignationName?.ToString() ?? "-");
+                                        AddInfoRow("Employee Type", official?.EmployeeTypeName?.ToString() ?? "-");
+                                        AddInfoRow("Employment Nature", official?.EmploymentNatureName?.ToString() ?? "-");
+                                        AddInfoRow("Grade No", salary?.GradeID?.ToString() ?? "-");
+                                        AddInfoRow("Gross Salary", salary?.Salary?.ToString("N0") ?? "-");
+                                        AddInfoRow("Immediate Supervisor", official?.ImmediateSupervisorName?.ToString() ?? "-");
+                                        AddInfoRow("Official Phone", official?.OfficePhone ?? "-");
+                                        AddInfoRow("Appointment Date", official?.AppointmentLetterIssueDate?.ToString("dd/MM/yyyy") ?? "-");
+                                        AddInfoRow("Probation Period", official?.ProvisionPeriod?.ToString() ?? "-");
+                                        AddInfoRow("Contract End Date", official?.ContractEndDate?.ToString("dd/MM/yyyy") ?? "-");
                                     });
 
                                     table.Cell().Table(rightTable =>
@@ -584,17 +596,15 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         AddEmptyRow();
                                         AddEmptyRow();
                                       
-                                       
-                                        AddInfoRow("Mode of Payment", salary?.PrimaryPaymentModeId.ToString());
                                       
-                                        AddInfoRow("Head of Department", official?.HeadOfDepartmentId.ToString());
-                                        AddInfoRow("Official Email", official?.OfficeEmail);
-                                        AddInfoRow("Joining Date", official?.JoiningDate?.ToString("dd/MM/yyyy"));
-                                        AddInfoRow("Probation Start Date", official?.ProvisionPeriodStartDate?.ToString("dd/MM/yyyy"));
-                                       
-                                      
-                                    
-                                        AddInfoRow("Confirmation Date", official?.ConfirmationDate?.ToString("dd/MM/yyyy"));
+
+                                        AddInfoRow("Mode of Payment", salary?.PrimaryPaymentModeId?.ToString() ?? "-");
+                                        AddInfoRow("Head of Department", official?.HeadOfDepartmentId?.ToString() ?? "-");
+                                        AddInfoRow("Official Email", official?.OfficeEmail ?? "-");
+                                        AddInfoRow("Joining Date", official?.JoiningDate?.ToString("dd/MM/yyyy") ?? "-");
+                                        AddInfoRow("Probation Start Date", official?.ProvisionPeriodStartDate?.ToString("dd/MM/yyyy") ?? "-");
+                                        AddInfoRow("Confirmation Date", official?.ConfirmationDate?.ToString("dd/MM/yyyy") ?? "-");
+
                                     });
                                 });
 
@@ -852,7 +862,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             leftTable.Cell().Text(" ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Access Card No", official?.AttendanceId);
+                                        AddInfoRow("Access Card No", official?.AttendanceId ?? "-");
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
@@ -885,7 +895,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                                             rightTable.Cell().Text(" ").AlignLeft();
                                         }
 
-                                        AddInfoRow("Personal Mail ID", personal?.Email);
+                                        AddInfoRow("Personal Mail ID", personal?.Email ?? "-");
                                         AddEmptyRow();
                                         AddEmptyRow();
                                         AddEmptyRow();
@@ -929,7 +939,7 @@ namespace GCTL.Service.Employees.EmployeeReport
 
 
 
-        public async Task<byte[]> GenerateEmployeeExcelReportAsync(Core.ViewModels.Employee.EmployeeListVM.EmployeeFilterModel filters)
+        public async Task<byte[]> GenerateEmployeeExcelReportAsync(EmployeeFilterModel filters)
         {
             ExcelPackage.License.SetNonCommercialOrganization("GCTL");
 
@@ -1164,7 +1174,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                 .ToList();
         }
 
-        private IEnumerable<T> ApplySorting<T>(List<T> employees, Core.ViewModels.Employee.EmployeeListVM.EmployeeFilterModel filters)
+        private IEnumerable<T> ApplySorting<T>(List<T> employees, EmployeeFilterModel filters)
         {
             if (string.IsNullOrEmpty(filters.SortColumn))
                 return employees.OrderBy(e => ((dynamic)e).DepartmentName).ThenBy(e => ((dynamic)e).DesignationName);
@@ -1212,7 +1222,7 @@ namespace GCTL.Service.Employees.EmployeeReport
             }
         }
 
-        private string BuildFilterInfo(Core.ViewModels.Employee.EmployeeListVM.EmployeeFilterModel filters)
+        private string BuildFilterInfo(EmployeeFilterModel filters)
         {
             var filterParts = new List<string>();
 
@@ -1232,142 +1242,267 @@ namespace GCTL.Service.Employees.EmployeeReport
         }
 
 
+        public async Task<byte[]> GenerateEmployeePdfPreviewAsync(EmployeeFilterModel filters)
+        {
+            try
+            {
+                // Parse filter parameters
+                var departmentFilter = ParseCommaSeparatedValues(filters.Department);
+                var companyFilter = ParseCommaSeparatedValues(filters.Company);
+
+                // Determine filter priority: Department first, then Company, then all
+                bool filterByDepartment = departmentFilter.Any();
+                bool filterByCompany = companyFilter.Any();
+
+                List<int> targetCompanyIds = new List<int>();
+
+                if (filterByCompany)
+                {
+                    var companies = await _organizationRepository.AllActive()
+                        .Where(o => companyFilter.Contains(o.OrganizationName) || companyFilter.Contains(o.OrganizationID.ToString()))
+                        .ToListAsync();
+                    targetCompanyIds = companies.Select(c => c.OrganizationID).ToList();
+                }
+                else
+                {
+                    var allCompanies = await _organizationRepository.AllActive().ToListAsync();
+                    targetCompanyIds = allCompanies.Select(c => c.OrganizationID).ToList();
+                }
+
+                if (!targetCompanyIds.Any())
+                {
+                    throw new Exception("No companies found matching the filter criteria.");
+                }
+
+                // **SOLUTION: Pre-fetch all data before creating the PDF document**
+                var companyDataList = new List<CompanyData>();
+
+                foreach (var companyId in targetCompanyIds)
+                {
+                    var company = await _organizationRepository.AllActive()
+                        .Where(e => e.OrganizationID == companyId)
+                        .FirstOrDefaultAsync();
+
+                    if (company == null) continue;
+
+                    var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsByCompanyAsync(companyId);
+                    var personalData = await _employeePersonalService.GetAllEmployeePersonalByCompanyAsync(companyId);
+                    var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryByComapnyAsync(companyId);
+
+                    // Apply department filter if specified
+                    if (filterByDepartment)
+                    {
+                        officialData = officialData.Where(o =>
+                            departmentFilter.Contains(o.DepartmentID.ToString()) ||
+                            departmentFilter.Any(d => string.Equals(d, o.DepartmentName, StringComparison.OrdinalIgnoreCase))
+                        ).ToList();
+                    }
+
+                    // Apply search filter if specified
+                    if (!string.IsNullOrEmpty(filters.Search))
+                    {
+                        var searchTerm = filters.Search.ToLower();
+                        officialData = officialData.Where(o =>
+                            (o.DepartmentName?.ToLower().Contains(searchTerm) ?? false) ||
+                            (o.DesignationName?.ToLower().Contains(searchTerm) ?? false) ||
+                            (personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.FirstName?.ToLower().Contains(searchTerm) ?? false) ||
+                            (personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.LastName?.ToLower().Contains(searchTerm) ?? false) ||
+                            (personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.Email?.ToLower().Contains(searchTerm) ?? false) ||
+                            (personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.EmployeeCode?.ToLower().Contains(searchTerm) ?? false)
+                        ).ToList();
+                    }
+
+                    var employees = officialData.Select(o => new EmployeeInfo
+                    {
+                        EmployeeID = o.EmployeePersonalId,
+                        DepartmentName = o.DepartmentName ?? "Unknown",
+                        DesignationName = o.DesignationName ?? "",
+                        JoiningDate = o.JoiningDate,
+                        FullName = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId) is var person && person != null ? $"{person.FirstName} {person.LastName}".Trim() : string.Empty,
+                        Email = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.Email ?? "",
+                        GrossSalary = salaryData.FirstOrDefault(s => s.EmployeePersonalId == o.EmployeePersonalId)?.Salary ?? 0,
+                        EmployeeCode = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.EmployeeCode ?? "",
+                        DateOfBirth = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.DateOfBirth,
+                        Gender = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.GenderName ?? ""
+                    }).ToList();
+
+                    // Apply sorting
+                    employees = ApplySorting(employees, filters).ToList();
+
+                    // Group by department and sort by designation within each department
+                    var departmentGroups = employees
+                        .GroupBy(e => e.DepartmentName)
+                        .Select(g => new DepartmentGroup
+                        {
+                            Department = g.Key,
+                            Employees = g.OrderBy(e => e.DesignationName).ToList()
+                        })
+                        .OrderBy(g => g.Department)
+                        .ToList();
+
+                    if (departmentGroups.Any())
+                    {
+                        companyDataList.Add(new CompanyData
+                        {
+                            Company = new CompanyInfo
+                            {
+                                OrganizationName = company.OrganizationName,
+                                Address = company.Address
+                            },
+                            DepartmentGroups = departmentGroups
+                        });
+                    }
+                }
+
+                if (!companyDataList.Any())
+                {
+                    throw new Exception("No employee data found matching the filter criteria.");
+                }
+
+                // Create PDF document using pre-fetched data
+                var document = Document.Create(container =>
+                {
+                    foreach (var companyData in companyDataList)
+                    {
+                        container.Page(page =>
+                        {
+                            page.Size(PageSizes.A4);
+                            page.Margin(0.8f, Unit.Centimetre);
+                            page.PageColor(Colors.White);
+                            page.DefaultTextStyle(x => x.FontSize(9.5f).FontFamily(Fonts.TimesNewRoman));
+
+                            // Header
+                            page.Header().Column(column =>
+                            {
+                                column.Item().AlignCenter().Text(companyData.Company.OrganizationName ?? "").FontSize(14).Bold();
+                                column.Item().AlignCenter().Text(companyData.Company.Address ?? "").FontSize(12);
+                                column.Item().AlignCenter().Text($"Report Generated: {DateTime.Now:dd/MM/yyyy HH:mm:ss}").FontSize(10);
+                                var filterInfo = BuildFilterInfo(filters);
+                                if (!string.IsNullOrEmpty(filterInfo))
+                                {
+                                    column.Item().AlignCenter().Text(filterInfo).FontSize(10).Italic();
+                                }
+                                column.Item().PaddingVertical(10);
+                            });
+
+                            // Content
+                            page.Content().Column(column =>
+                            {
+                                foreach (var departmentGroup in companyData.DepartmentGroups)
+                                {
+                                    // Department Header
+                                    column.Item()
+                                        .Background(Colors.LightBlue.Lighten2)
+                                        .Padding(5)
+                                        .Text($"Department: {departmentGroup.Department}")
+                                        .FontSize(12).Bold();
+
+                                    // Table
+                                    column.Item().Table(table =>
+                                    {
+                                        table.ColumnsDefinition(columns =>
+                                        {
 
 
+                                            columns.ConstantColumn(40);  // Employee Code
+                                         
+                                            columns.RelativeColumn(2.8f);  // name
 
-        //public async Task<byte[]> GenerateEmployeeExcelReportAsync(Core.ViewModels.Employee.EmployeeListVM.EmployeeFilterModel filters)
-        //{
+                                            columns.RelativeColumn(3.2f);  // Designation
+                                            columns.ConstantColumn(52);  // Joining Date
+                                            columns.ConstantColumn(35);  // Gross Salary
+                                          
+                                            columns.RelativeColumn(4.4f);  // email
 
-        //    ExcelPackage.License.SetNonCommercialOrganization("GCTL");
-
-        //    int compId = 1; 
-
-        //    // Fetch data
-        //    var officialData = await _employeeOfficialService.GetAllEmployeeOfficialDetailsByCompanyAsync(compId);
-        //    var personalData = await _employeePersonalService.GetAllEmployeePersonalByCompanyAsync(compId);
-        //    var salaryData = await _employeeSalaryService.GetAllEmployeeSalaryByComapnyAsync(compId);
-
-        //    var company = await _organizationRepository.AllActive().Where(e=>e.OrganizationID == compId).FirstOrDefaultAsync();
+                                            columns.ConstantColumn(55);  // Date of Birth
+                                            columns.ConstantColumn(37);  // Gender
 
 
-        //    using (var package = new ExcelPackage())
-        //    {
-        //        var worksheet = package.Workbook.Worksheets.Add("Employee Report");
+                                            //columns.RelativeColumn(1);  // Employee Code
+                                            //columns.RelativeColumn(3);  // name
+                                            //columns.RelativeColumn(2);  // Designation
+                                            //columns.RelativeColumn(2);  // Joining Date
+                                            //columns.RelativeColumn(2);  // Gross Salary
+                                            //columns.RelativeColumn(4);  // email
+                                            //columns.RelativeColumn(2);  // Date of Birth
+                                            //columns.RelativeColumn(1);  // Gender
+                                        });
 
-        //        // Title
-        //        worksheet.Cells[1, 1, 1, 9].Merge = true;
-        //        worksheet.Cells[1, 1].Value = company.OrganizationName ?? "";
-        //        worksheet.Cells[1, 1].Style.Font.Size = 14;
-        //        worksheet.Cells[1, 1].Style.Font.Bold = true;
-        //        worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                        // Table Header
+                                        table.Header(header =>
+                                        {
+                                            // header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Employee ID").Bold();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Emp Code").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Name").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Designation").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Joining Date").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Gross Salary").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Email").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Date of Birth").Bold().AlignCenter();
+                                            header.Cell().Background(Colors.Grey.Lighten2).Padding(2).Text("Gender").Bold().AlignCenter();
+                                        });
 
-        //        worksheet.Cells[2, 1, 2, 9].Merge = true;
-        //        worksheet.Cells[2, 1].Value = company.Address ?? ""; ;
-        //        worksheet.Cells[2, 1].Style.Font.Size = 12;
-        //        worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                        // Table Data
+                                        foreach (var employee in departmentGroup.Employees)
+                                        {
+                                            // table.Cell().Border(0.5f).Padding(2).Text(employee.EmployeeID.ToString());
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.EmployeeCode);
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.FullName);
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.DesignationName);
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.JoiningDate?.ToString("dd/MM/yyyy") ?? "");
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.GrossSalary.ToString("#,##0"));
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.Email);
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.DateOfBirth?.ToString("dd/MM/yyyy") ?? "");
+                                            table.Cell().Border(0.5f).Padding(2).Text(employee.Gender);
+                                        }
+                                    });
 
-        //        worksheet.Cells[3, 1, 3, 9].Merge = true;
-        //        worksheet.Cells[3, 1].Value = $"Report Generated: {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
-        //        worksheet.Cells[3, 1].Style.Font.Size = 10;
-        //        worksheet.Cells[3, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                                    // Department Summary
+                                    column.Item()
+                                        .AlignRight()
+                                        .PaddingVertical(5)
+                                        .Text($"Total Employees in {departmentGroup.Department}: {departmentGroup.Employees.Count}")
+                                        .Bold();
 
+                                    column.Item().PaddingVertical(10);
+                                }
 
+                                // Company Summary
+                                var totalEmployees = companyData.DepartmentGroups.Sum(d => d.Employees.Count);
+                                column.Item()
+                                    .Background(Colors.Yellow.Lighten4)
+                                    .Padding(5)
+                                    .AlignRight()
+                                    .Text($"Total Employees in Company: {totalEmployees}")
+                                    .FontSize(12).Bold();
+                            });
 
-        //        var employees = officialData.Select(o => new
-        //        {
-        //            EmployeeID = o.EmployeePersonalId,
-        //            DepartmentName = o.DepartmentName ?? "Unknown",
-        //            DesignationName = o.DesignationName ?? "",
-        //            JoiningDate = o.JoiningDate,
-        //            FullName = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId) is var person && person != null ? $"{person.FirstName} {person.LastName}".Trim() : string.Empty,
-        //            Email = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.Email ?? "",
-        //            GrossSalary = salaryData.FirstOrDefault(s => s.EmployeePersonalId == o.EmployeePersonalId)?.Salary ?? 0,
-        //            EmployeeCode = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.EmployeeCode ?? "",
-        //            DateOfBirth = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.DateOfBirth,
-        //            Gender = personalData.FirstOrDefault(p => p.EmployeeID == o.EmployeePersonalId)?.GenderName ?? ""
-        //        }).OrderBy(e => e.DepartmentName).ToList();
+                            // Footer
+                            page.Footer()
+                                .AlignCenter()
+                                .Text(x =>
+                                {
+                                    x.Span("Page ");
+                                    x.CurrentPageNumber();
+                                    x.Span(" of ");
+                                    x.TotalPages();
+                                });
+                        });
+                    }
+                });
 
-        //        var departmentGroups = employees.GroupBy(e => e.DepartmentName).ToList();
+                using (var stream = new MemoryStream())
+                {
+                    document.GeneratePdf(stream);
+                    return stream.ToArray();
+                }
+            }
+            catch (Exception)
+            {
 
-        //        if (!departmentGroups.Any())
-        //        {
-        //            throw new Exception("No employee data found.");
-        //        }
-
-        //        int currentRow = 5;
-
-        //        foreach (var department in departmentGroups)
-        //        {
-        //            // Department Header
-        //            worksheet.Cells[currentRow, 1, currentRow, 9].Merge = true;
-        //            worksheet.Cells[currentRow, 1].Value = $"Department: {department.Key}";
-        //            worksheet.Cells[currentRow, 1].Style.Font.Size = 12;
-        //            worksheet.Cells[currentRow, 1].Style.Font.Bold = true;
-        //            worksheet.Cells[currentRow, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-        //            worksheet.Cells[currentRow, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
-        //            currentRow++;
-
-        //            // Table Header
-        //            worksheet.Cells[currentRow, 1].Value = "Employee ID";
-        //            worksheet.Cells[currentRow, 2].Value = "Employee Code";
-        //            worksheet.Cells[currentRow, 3].Value = "Name";
-        //            worksheet.Cells[currentRow, 4].Value = "Designation";
-        //            worksheet.Cells[currentRow, 5].Value = "Joining Date";
-        //            worksheet.Cells[currentRow, 6].Value = "Gross Salary";
-        //            worksheet.Cells[currentRow, 7].Value = "Email";
-        //            worksheet.Cells[currentRow, 8].Value = "Date of Birth";
-        //            worksheet.Cells[currentRow, 9].Value = "Gender";
-
-        //            using (var range = worksheet.Cells[currentRow, 1, currentRow, 9])
-        //            {
-        //                range.Style.Font.Bold = true;
-        //                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-        //                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-        //                range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
-        //            }
-        //            currentRow++;
-
-        //            // Employee Data
-        //            foreach (var employee in department)
-        //            {
-        //                worksheet.Cells[currentRow, 1].Value = employee.EmployeeID;
-        //                worksheet.Cells[currentRow, 2].Value = employee.EmployeeCode;
-        //                worksheet.Cells[currentRow, 3].Value = employee.FullName;
-        //                worksheet.Cells[currentRow, 4].Value = employee.DesignationName;
-        //                worksheet.Cells[currentRow, 5].Value = employee.JoiningDate?.ToString("dd/MM/yyyy") ?? "";
-        //                worksheet.Cells[currentRow, 6].Value = employee.GrossSalary;
-        //                worksheet.Cells[currentRow, 6].Style.Numberformat.Format = "#,##0";
-        //                worksheet.Cells[currentRow, 7].Value = employee.Email;
-        //                worksheet.Cells[currentRow, 8].Value = employee.DateOfBirth?.ToString("dd/MM/yyyy") ?? "";
-        //                worksheet.Cells[currentRow, 9].Value = employee.Gender;
-
-        //                using (var range = worksheet.Cells[currentRow, 1, currentRow, 9])
-        //                {
-        //                    range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
-        //                }
-        //                currentRow++;
-        //            }
-
-        //            // Total Employees
-        //            worksheet.Cells[currentRow, 1, currentRow, 9].Merge = true;
-        //            worksheet.Cells[currentRow, 1].Value = $"Total Employees: {department.Count()}";
-        //            worksheet.Cells[currentRow, 1].Style.Font.Bold = true;
-        //            worksheet.Cells[currentRow, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
-        //            currentRow += 2; // Add spacing between departments
-        //        }
-
-        //        worksheet.Cells[1, 1, currentRow - 1, 9].AutoFitColumns();
-
-        //        using (var stream = new MemoryStream())
-        //        {
-        //            package.SaveAs(stream);
-        //            return stream.ToArray();
-        //        }
-        //    }
-
-
-
-        //}
-
+                throw;
+            }
+            
+        }
     }
 }
