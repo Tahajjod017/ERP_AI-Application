@@ -15,7 +15,7 @@ namespace GCTL_App.Controllers.Employees
         }
 
 
-        //[Route("EmployeeReports/GenerateIndiEmpDetailsPDF")]
+        
         [HttpPost]
         public async Task<IActionResult> GenerateIndiEmpDetailsPDF(int id)
         {
@@ -23,9 +23,7 @@ namespace GCTL_App.Controllers.Employees
             return File(pdfBytes, "application/pdf", $"Employee_{id}.pdf");
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> GenerateAllEmployeeExcel()
-        //{
+       
 
 
         [HttpPost]
@@ -44,21 +42,22 @@ namespace GCTL_App.Controllers.Employees
             }
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> GenerateAllEmployeeExcel([FromBody] EmployeeFilterModel filters)
-        //{
-        //    try
-        //    {
-        //        var excelBytes = await _employeeReportService.GenerateEmployeeExcelReportAsync();
-        //        var fileName = $"Employee_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
-        //        return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception (e.g., using ILogger)
-        //        return StatusCode(500, "Error generating Excel report: " + ex.Message);
-        //    }
-        //}
+        [HttpPost]
+        public async Task<IActionResult> GenerateEmployeePdfPreview(EmployeeFilterModel filters)
+        {
+            try
+            {
+                var pdfBytes = await _employeeReportService.GenerateEmployeePdfPreviewAsync(filters);
+                var fileName = $"Employee_Preview_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error generating PDF preview: " + ex.Message);
+            }
+        }
+
+
     }
 }

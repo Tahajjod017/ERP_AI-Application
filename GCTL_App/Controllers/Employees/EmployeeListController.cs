@@ -386,7 +386,7 @@ namespace GCTL_App.Controllers.Employees
 
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 3, [FromQuery] string department = "",
+        public async Task<IActionResult> GetEmployees([FromQuery] int page = 1, [FromQuery] int limit = 4, [FromQuery] string department = "",
         [FromQuery] string status = "",[FromQuery] string sort = "",[FromQuery] string search = "",[FromQuery] string sortColumn = "joiningDate",
         [FromQuery] string sortDirection = "desc", [FromQuery] string company = "") // Added company parameter
         {

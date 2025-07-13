@@ -59,14 +59,14 @@ namespace GCTL.Service.Employees.EmployeeFamily
                                   {
                                       EmployeeFamilyInfoID = ef.EmployeeFamilyInfoID,
                                       EmployeePersonalId = (int)ef.EmployeeID,
-                                      FullName = ef.FullName,
-                                      RelationToEmployee = ef.RelationToEmployee,
-                                      Occupation = ef.Occupation,
-                                      ContactNumber = ef.ContactNumber,
-                                      Email = ef.Email,
-                                      Address = ef.Address,
-                                      PersonalEmail = emp.Email ?? "N/A",
-                                      PersonalPhone = emp.MobileNumber ?? "N/A",
+                                      FullName = ef.FullName ?? "-",
+                                      RelationToEmployee = ef.RelationToEmployee ?? "-",
+                                      Occupation = ef.Occupation ?? "-",
+                                      ContactNumber = ef.ContactNumber ?? "-",
+                                      Email = ef.Email ?? "-",
+                                      Address = ef.Address ?? "-",
+                                      PersonalEmail = emp.Email ?? "-",
+                                      PersonalPhone = emp.MobileNumber ?? "-",
                                       IsActive = true
                                   }).ToListAsync();
 

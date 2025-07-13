@@ -101,46 +101,23 @@
     </div>
 
 
-    <button id="btnExport">export</button>
+    <div id="test" style="display : none">
+        <button id="btnExport">export</button>
+        <button id="btnExportPDFpreview">preview</button>
+    </div>
+
+
+
 
 </main>
 
-
-<script src="~/lib/jquery/dist/jquery.js"></script>
-<script>
-    $('#btnExport').on('click', function () {
-
-        GenaratePDF(8);
-    });
-
-    function GenaratePDF(empId) {
-        if (!empId) {
-            toastr.warning("Employee ID is required.");
-            return;
-        }
-
-        $.ajax({
-            url: '/EmployeeReport/GenerateIndiEmpDetailsPDF', // Backend route
-            type: 'POST',
-            data: { id: empId },
-            xhrFields: {
-                responseType: 'blob' // Important for handling binary files
-            },
-            success: function (response, status, xhr) {
-                const blob = new Blob([response], { type: 'application/pdf' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Employee_${empId}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error generating PDF:", error);
-            }
-        });
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+   
 
-
-</script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/js/pages/Employees/test.js"></script>
+}

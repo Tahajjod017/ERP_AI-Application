@@ -51,7 +51,7 @@
             method: 'GET',
             data: {
                 page: page,
-                limit: $pageSize.val() || 3, // Use page size from selector
+                limit: $pageSize.val() || 4, // Use page size from selector
                 department: filters.department,
                 status: filters.status,
                 sort: filters.sort,
@@ -96,16 +96,33 @@
     //#endregion
 
     //#region Generate avatar HTML (image or initial-based) And format date
+
+
     function getAvatarHtml(employee) {
         if (employee.avatar && employee.avatar !== '') {
             urle = employee.url;
-            const initial2 = employee.name.charAt(0).toUpperCase();
-            return `<img class="rounded-circle" src="${employee.avatar}" alt="${initial2}" />`;
+            //const initial2 = employee.name.charAt(0).toUpperCase();
+            const initial2 = getInitials(employee.name); 
+           
+          //  return `<img class="rounded-circle" src="${employee.avatar}" alt="${initial2}" />`;
+            return `<div class="avatar-wrapper rounded-circle">
+                      <img src="${employee.avatar}" alt="${initial2}" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="position: relative;z-index: 10;" />
+                      <div class="avatar-fallback">${initial2}</div>
+                    </div>`;
         } else {
             const initial = employee.name.charAt(0).toUpperCase();
             return `<div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="height: 100%;">${initial}</div>`;
         }
     }
+
+    function getInitials(name) {
+        const parts = name.trim().split(/\s+/); // Split on one or more whitespace
+        const firstInitial = parts[0]?.charAt(0).toUpperCase() || '';
+        const secondInitial = parts[1]?.charAt(0).toUpperCase() || '';
+        return firstInitial + '' + secondInitial;
+    }
+
+    
 
     function GetdateFileter(dateString) {
         if (!dateString) return '-';
@@ -3102,27 +3119,6 @@
     // Ensure table header is visible
     $('#employeeListTable').find('thead').show();
 
-    //#region BTnExcelClick
-
-    $('#btnExportXL').on('click', function () {
-        
-        toastr.info("Processing");
-        const filterData = {
-            department: currentFilters.department,
-            status: currentFilters.status,
-            sort: currentFilters.sort,
-            search: currentFilters.search,
-            sortColumn: currentFilters.sortColumn,
-            sortDirection: currentFilters.sortDirection,
-            company: currentFilters.company
-        };
-
-        console.log('sssss',filterData)
-        GenarateXL(filterData);
-    });
-
-
-    //#endregion
 
     //#region test
 
@@ -3139,11 +3135,117 @@
 
     //#endregion
 
+    //#region BTnExcelClick
+
+    $('#btnExportXL').on('click', function () {
+        
+        toastr.info("Processing");
+        const filterData = {
+            department: currentFilters.department,
+            status: currentFilters.status,
+            sort: currentFilters.sort,
+            search: currentFilters.search,
+            sortColumn: currentFilters.sortColumn,
+            sortDirection: currentFilters.sortDirection,
+            company: currentFilters.company
+        };
+
+        
+        GenarateXL(filterData);
+    });
+
+    $('#btnExportPDFdownload').on('click', function () {
+        
+        toastr.info("Processing to download PDF");
+        const filterData = {
+            department: currentFilters.department,
+            status: currentFilters.status,
+            sort: currentFilters.sort,
+            search: currentFilters.search,
+            sortColumn: currentFilters.sortColumn,
+            sortDirection: currentFilters.sortDirection,
+            company: currentFilters.company
+        };
+
+        
+        GenaratePDFdownload(filterData);
+    });
+
+    $('#btnExportPDFpreview').on('click', function () {
+        
+        toastr.info("Processing to preview PDF");
+        const filterData = {
+            department: currentFilters.department,
+            status: currentFilters.status,
+            sort: currentFilters.sort,
+            search: currentFilters.search,
+            sortColumn: currentFilters.sortColumn,
+            sortDirection: currentFilters.sortDirection,
+            company: currentFilters.company
+        };
+
+        
+        GenaratePDFpreview(filterData);
+    });
+
+
+    //#endregion
 
 });
 
 
-//#region XL
+//#region FILE
+
+
+function GenaratePDFdownload(filterData) {
+    toastr.info("Generating PDF for download");
+    console.log(filterData);
+}
+
+
+//#region PDF Preview
+
+function GenaratePDFpreview(filterData) {
+    toastr.info("Generating PDF for preview");
+    console.log(filterData);
+
+    const formData = new FormData();
+    formData.append("Department", filterData.department || "");
+    formData.append("Status", filterData.status || "");
+    formData.append("Sort", filterData.sort || "");
+    formData.append("Search", filterData.search || "");
+    formData.append("SortColumn", filterData.sortColumn || "");
+    formData.append("SortDirection", filterData.sortDirection || "");
+    formData.append("Company", filterData.company || "");
+
+    $.ajax({
+        url: '/EmployeeReport/GenerateEmployeePdfPreview',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        xhrFields: {
+            responseType: 'blob'
+        },
+        success: function (response, status, xhr) {
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+
+            // Open PDF in a new tab for preview
+            window.open(url, '_blank');
+
+            toastr.success("PDF preview generated successfully");
+        },
+        error: function (xhr, status, error) {
+            console.error("Error generating PDF preview:", error);
+            toastr.error("Failed to generate PDF preview");
+        }
+    });
+}
+
+//#endregion
+
+//#region Genarate XL 
 
 
 function GenarateXL(filterData) {
@@ -3185,28 +3287,8 @@ function GenarateXL(filterData) {
     });
 }
 
-//function GenarateXL() {
-//    $.ajax({
-//        url: '/EmployeeReport/GenerateAllEmployeeExcel',
-//        type: 'POST',
-//        xhrFields: {
-//            responseType: 'blob' // Important for handling binary files
-//        },
-//        success: function (response, status, xhr) {
-//            const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-//            const url = window.URL.createObjectURL(blob);
-//            const a = document.createElement('a');
-//            a.href = url;
-//            a.download = 'AllEmployeesReport.xlsx';
-//            document.body.appendChild(a);
-//            a.click();
-//            window.URL.revokeObjectURL(url);
-//        },
-//        error: function (xhr, status, error) {
-//            console.error("Error generating Excel:", error);
-//        }
-//    });
-//}
+//#endregion 
+
 
 
 //#endregion 

@@ -7,6 +7,7 @@ using GCTL.Service.ActionLogAudit;
 using GCTL.Service.VisitingPath;
 using GCTL.Service.RolePermissions;
 using GCTL_App.EmailServicesMethod;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,6 +76,8 @@ builder.Services.AddControllersWithViews(options =>
 //end
 //builder.Services.AddHttpContextAccessor();
 #endregion
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 
 var app = builder.Build();
