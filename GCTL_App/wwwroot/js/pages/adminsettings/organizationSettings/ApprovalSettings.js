@@ -1,4 +1,153 @@
-﻿$(document).ready(function () {
+﻿//$(document).ready(function () {
+//    const designationsUrl = '/ApprovalSettings/GetDesignation';
+
+//    const approvers = [
+//        { checkboxId: "chkFirst", selectId: "selFirst" },
+//        { checkboxId: "chkSecond", selectId: "selSecond" },
+//        { checkboxId: "chkThird", selectId: "selThird" }
+//    ];
+
+//    let cachedRoles = {};
+//    let selectedFirst = null;
+//    let selectedSecond = null;
+
+//    // ===== Self Approval Logic =====
+//    function handleSelfApprovalDisplay() {
+//        const selfCheckbox = $('#chkSelfApproval');
+//        const selfSelect = $('#selSelfApproval');
+//        const selfWrapper = selfSelect.closest('.mt-3');
+
+//        if (selfCheckbox.is(':checked')) {
+//            selfWrapper.hide();
+//            selfSelect.prop('disabled', true);
+//            selfSelect.removeAttr('required');
+//        } else {
+//            selfWrapper.show();
+//            selfSelect.prop('disabled', false);
+//            selfSelect.attr('required', 'required');
+//        }
+//    }
+
+//    // Function to toggle self approval section visibility based on approval type
+//    function toggleSelfApprovalSection() {
+//        const approvalType = $('#ApprovalTypeID').val();
+
+//        if (approvalType == "2") {
+//            $('#selfApprovalSection').show();  // Show the section if value is 2
+//        } else {
+//            $('#selfApprovalSection').hide();  // Hide the section otherwise
+//            $('#chkSelfApproval').prop('checked', false);  // Uncheck self approval if hidden
+//            handleSelfApprovalDisplay();  // Hide the select dropdown and disable it
+//        }
+//    }
+
+//    // Listen for changes in Approval Type and toggle visibility accordingly
+//    $('#ApprovalTypeID').on('change', function () {
+//        toggleSelfApprovalSection();
+//    });
+
+//    // Initialize visibility on page load (in case the form is pre-selected with value 2)
+//    toggleSelfApprovalSection();
+
+//    // ===== Approver Setup =====
+//    approvers.forEach(ap => {
+//        const checkbox = $('#' + ap.checkboxId);
+//        const select = $('#' + ap.selectId);
+//        const orgId = $('#OrganizationID').val();
+
+//        select.prop('disabled', true);
+//        select.removeAttr('required');
+//        choiceManager.disableChoice(ap.selectId);
+//        populateOptions(select, designationsUrl, orgId);
+
+//        checkbox.on('change', function () {
+//            const isChecked = this.checked;
+//            const currentOrgId = $('#OrganizationID').val();
+
+//            if (isChecked) {
+//                select.prop('disabled', false);
+//                select.attr('required', 'required');
+//                choiceManager.enableChoice(ap.selectId);
+
+//                let exclude = [];
+//                if (ap.selectId === 'selSecond' && selectedFirst) exclude = [selectedFirst];
+//                if (ap.selectId === 'selThird') exclude = [selectedFirst, selectedSecond].filter(Boolean);
+//                populateOptions(select, designationsUrl, currentOrgId, exclude);
+//            } else {
+//                select.prop('disabled', true);
+//                select.removeAttr('required');
+//                choiceManager.disableChoice(ap.selectId);
+//            }
+
+//            if (ap.checkboxId === 'chkFirst') {
+//                $('#chkSecond, #selSecond').prop('disabled', !isChecked);
+//                $('#selSecond').prop('required', isChecked);
+//            }
+//            if (ap.checkboxId === 'chkSecond') {
+//                $('#chkThird, #selThird').prop('disabled', !isChecked);
+//                $('#selThird').prop('required', isChecked);
+//            }
+//        });
+//    });
+
+//    $('#selFirst').on('change', function () {
+//        selectedFirst = $(this).val();
+//        const orgId = $('#OrganizationID').val();
+
+//        if (!$('#selSecond').prop('disabled')) {
+//            populateOptions($('#selSecond'), designationsUrl, orgId, [selectedFirst]);
+//        }
+//        if (!$('#selThird').prop('disabled')) {
+//            populateOptions($('#selThird'), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+//        }
+//    });
+
+//    $('#selSecond').on('change', function () {
+//        selectedSecond = $(this).val();
+//        const orgId = $('#OrganizationID').val();
+
+//        if (!$('#selThird').prop('disabled')) {
+//            populateOptions($('#selThird'), designationsUrl, orgId, [selectedFirst, selectedSecond].filter(Boolean));
+//        }
+//    });
+
+//    $('#OrganizationID').on('change', function () {
+//        const newOrgId = $(this).val();
+//        selectedFirst = null;
+//        selectedSecond = null;
+
+//        approvers.forEach(ap => {
+//            const select = $('#' + ap.selectId);
+//            select.prop('disabled', true);
+//            select.removeAttr('required');
+//            populateOptions(select, designationsUrl, newOrgId);
+//        });
+
+//        populateOptions($('#selSelfApproval'), designationsUrl, newOrgId, [], function () {
+//            handleSelfApprovalDisplay();
+//        });
+//    });
+
+//    $('#chkSelfApproval').on('change', function () {
+//        handleSelfApprovalDisplay();
+//    });
+
+//    const orgId = $('#OrganizationID').val();
+//    populateOptions($('#selSelfApproval'), designationsUrl, orgId, [], function () {
+//        handleSelfApprovalDisplay();
+//    });
+
+//    // Safe cleanup before form submit to avoid focus errors
+//    $('#aprovalSettingsForm').on('submit', function () {
+//        $(':input:disabled').removeAttr('required');
+//    });
+//});
+
+
+
+
+
+$(document).ready(function () {
     const designationsUrl = '/ApprovalSettings/GetDesignation';
 
     const approvers = [
@@ -81,6 +230,16 @@
             const isChecked = this.checked;
             const currentOrgId = $('#OrganizationID').val();
 
+            // Enforce hierarchy rules
+            if (ap.checkboxId === 'chkSecond' && !$('#chkFirst').is(':checked')) {
+                this.checked = false;
+                //return alert('Please check First Approver before enabling Second Approver.');
+            }
+            if (ap.checkboxId === 'chkThird' && !$('#chkSecond').is(':checked')) {
+                this.checked = false;
+                //return alert('Please check Second Approver before enabling Third Approver.');
+            }
+
             if (isChecked) {
                 select.prop('disabled', false);
                 select.attr('required', 'required');
@@ -96,15 +255,25 @@
                 choiceManager.disableChoice(ap.selectId);
             }
 
-            if (ap.checkboxId === 'chkFirst') {
-                $('#chkSecond, #selSecond').prop('disabled', !isChecked);
-                $('#selSecond').prop('required', isChecked);
+            // Also disable subsequent checkboxes/selects if current is unchecked
+            if (ap.checkboxId === 'chkFirst' && !isChecked) {
+                $('#chkSecond, #chkThird').prop('checked', false).prop('disabled', true);
+                $('#selSecond, #selThird').prop('disabled', true).removeAttr('required');
+                choiceManager.disableChoice('selSecond');
+                choiceManager.disableChoice('selThird');
+            } else if (ap.checkboxId === 'chkFirst' && isChecked) {
+                $('#chkSecond').prop('disabled', false);
             }
-            if (ap.checkboxId === 'chkSecond') {
-                $('#chkThird, #selThird').prop('disabled', !isChecked);
-                $('#selThird').prop('required', isChecked);
+
+            if (ap.checkboxId === 'chkSecond' && !isChecked) {
+                $('#chkThird').prop('checked', false).prop('disabled', true);
+                $('#selThird').prop('disabled', true).removeAttr('required');
+                choiceManager.disableChoice('selThird');
+            } else if (ap.checkboxId === 'chkSecond' && isChecked) {
+                $('#chkThird').prop('disabled', false);
             }
         });
+
     });
 
     $('#selFirst').on('change', function () {

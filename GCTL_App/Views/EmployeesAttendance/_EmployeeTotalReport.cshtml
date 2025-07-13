@@ -120,45 +120,38 @@
 						<div class="col-xl-3">
 							<div class="mb-3">
 								<p class="d-flex align-items-center mb-1"><i class="ti ti-point-filled text-dark-transparent me-1"></i>Total Working hours</p>
-								<h3>12h 36m</h3>
+								<h3 id="totalWorkingHours">12h 36m</h3>
 							</div>
 						</div>
 						<div class="col-xl-3">
 							<div class="mb-3">
 								<p class="d-flex align-items-center mb-1"><i class="ti ti-point-filled text-success me-1"></i>Productive Hours</p>
-								<h3>08h 36m</h3>
+								<h3 id="productiveHours">08h 36m</h3>
 							</div>
 						</div>
 						<div class="col-xl-3">
 							<div class="mb-3">
 								<p class="d-flex align-items-center mb-1"><i class="ti ti-point-filled text-warning me-1"></i>Break hours</p>
-								<h3>22m 15s</h3>
+								<h3 id="breakHours">22m 15s</h3>
 							</div>
 						</div>
 						<div class="col-xl-3">
 							<div class="mb-3">
 								<p class="d-flex align-items-center mb-1"><i class="ti ti-point-filled text-info me-1"></i>Overtime</p>
-								<h3>02h 15m</h3>
+								<h3 id="overtime">02h 15m</h3>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-12">
 							<div class="progress bg-transparent-dark mb-3" style="height: 24px;">
-								<div class="progress-bar bg-white rounded" role="progressbar" style="width: 18%;"></div>
-								<div class="progress-bar bg-success rounded me-2" role="progressbar" style="width: 18%;"></div>
-								<div class="progress-bar bg-warning rounded me-2" role="progressbar" style="width: 5%;"></div>
-								<div class="progress-bar bg-success rounded me-2" role="progressbar" style="width: 28%;"></div>
-								<div class="progress-bar bg-warning rounded me-2" role="progressbar" style="width: 17%;"></div>
-								<div class="progress-bar bg-success rounded me-2" role="progressbar" style="width: 22%;"></div>
-								<div class="progress-bar bg-warning rounded me-2" role="progressbar" style="width: 5%;"></div>
-								<div class="progress-bar bg-info rounded me-2" role="progressbar" style="width: 3%;"></div>
-								<div class="progress-bar bg-info rounded" role="progressbar" style="width: 2%;"></div>
-								<div class="progress-bar bg-white rounded" role="progressbar" style="width: 18%;"></div>
+								<div class="progress-bar bg-white rounded" id="progressTotal" role="progressbar" style="width: 18%;"></div>
+								<div class="progress-bar bg-success rounded me-2" id="progressProductive" role="progressbar" style="width: 18%;"></div>
+								<div class="progress-bar bg-warning rounded me-2" id="progressBreak" role="progressbar" style="width: 5%;"></div>
+								<div class="progress-bar bg-info rounded me-2" id="progressOvertime" role="progressbar" style="width: 3%;"></div>
 							</div>
-
 						</div>
-						<div class="co-md-12">
+						<div class="col-md-12">
 							<div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2">
 								<span class="fs-10">06:00</span>
 								<span class="fs-10">07:00</span>
@@ -184,5 +177,8 @@
 				</div>
 			</div>
 		</div>
+
+
+
 	</div>
 </div>
