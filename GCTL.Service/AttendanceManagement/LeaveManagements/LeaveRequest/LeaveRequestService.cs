@@ -7,6 +7,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDe
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
+using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
@@ -285,8 +286,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region  Save Leave Reqest
 
-        //Duplicate applying date check
-        //private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int ? appliacbleYear)
+       // Duplicate applying date check
+        //private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int? appliacbleYear)
         //{
         //    var leaveStatusRejected = await leaveStatuses.AllActive()
         //        .Where(x => x.StatusName == "DECLINEED")
@@ -294,8 +295,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //        .ToListAsync();
 
         //    var retult = await leaveRequest.AllActive().AnyAsync(x =>
-        //        x.EmployeeID == employeeId && 
-        //        !leaveStatusRejected.Contains(x.Status.StatusID) && x.LeaveApplicableYear == appliacbleYear && 
+        //        x.EmployeeID == employeeId &&
+        //        !leaveStatusRejected.Contains(x.Status.StatusID) && x.LeaveApplicableYear == appliacbleYear &&
         //        (
         //            (from >= x.FromDate && from <= x.ToDate) ||
         //            (to >= x.FromDate && to <= x.ToDate) ||
@@ -362,7 +363,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //    // STEP 1: Get Employee Office Info
         //    var offf = await empoffi.AllActive()
         //        .Where(x => x.EmployeeID == entityVM.EmployeeID)
-        //        .Select(x => new {
+        //        .Select(x => new
+        //        {
         //            x.EmployeeID,
         //            x.OrganizationID,
         //            x.OrganizationBranchID,
@@ -387,7 +389,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //            x.OrganizationID == offf.OrganizationID &&
         //            (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
         //            x.ApprovalType.ApprovalTypeName == "Leave Request Approval")
-        //        .Select(x => new {
+        //        .Select(x => new
+        //        {
         //            x.FirstApprovalID,
         //            x.IsDesignationOrEmpFirstApprovalID,
         //            x.SecondApprovalID,
@@ -539,7 +542,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //                LeaveTypeID = entityVM.LeaveTypeID,
         //                IsGroupApplication = entityVM.IsGroupApplication,
         //                Reason = entityVM.Reason,
-        //                ApprovalPersonID=approvalPersonId,
+        //                ApprovalPersonID = approvalPersonId,
         //                LIP = entityVM.LIP,
         //                LMAC = entityVM.LMAC
         //            };
@@ -593,7 +596,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //                            Reason = $"Exceeded original leave – adjusted using prioritized leave type ({leaveType.LeaveTypeName})",
         //                            LIP = entityVM.LIP,
         //                            LMAC = entityVM.LMAC,
-        //                            ApprovalPersonID=approvalPersonId,
+        //                            ApprovalPersonID = approvalPersonId,
         //                            GroupApplicationID = sequence > 0 ? sequence : 0 // null
         //                        };
 
@@ -630,8 +633,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //                    Reason = $"Exceeded leave days – fallback to LWP ({lwpLeaveTypeName})",
         //                    LIP = entityVM.LIP,
         //                    LMAC = entityVM.LMAC,
-        //                    GroupApplicationID = sequence > 0 ? sequence : 0 ,
-        //                    ApprovalPersonID=approvalPersonId,
+        //                    GroupApplicationID = sequence > 0 ? sequence : 0,
+        //                    ApprovalPersonID = approvalPersonId,
 
         //                };
 
@@ -646,7 +649,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //        return new CommonReturnViewModel
         //        {
         //            Success = true,
-        //            Message = "Saved Successfully." 
+        //            Message = "Saved Successfully."
         //        };
         //    }
         //    catch (Exception ex)
@@ -662,7 +665,115 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //}
 
 
-        //
+        //Today Taskk
+        private async Task<int?> GetIdByNameAsync(string name)
+        {
+            var data = await leaveStatuses.AllActive().Where(x => EF.Functions.Like(x.StatusName.ToLower(), name.ToLower())).Select(x => (int?)x.StatusID).FirstOrDefaultAsync();
+
+            return data;
+        }
+
+        private async Task HandleSelfApprovalAsync(LeaveApplicationsRequestVM entityVM, int? approvalPersonId, ApprovalSettings approvalSettings, int sequence, dynamic offf,
+    List<(int? id, bool isDesignation)> approvalFlow)
+        {
+            //
+            int selfStep = 0;
+            for (int i = 0; i < approvalFlow.Count; i++)
+            {
+                var (id, isDesignation) = approvalFlow[i];
+                var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+                if (resolvedId == entityVM.CreatedBy)
+                {
+                    selfStep = i + 1; // 1-based step (First=1, Second=2, etc.)
+                    break;
+                }
+            }
+            //
+            var fromDate = entityVM.FromDate ?? DateOnly.FromDateTime(DateTime.Today);
+            var toDate = entityVM.ToDate ?? DateOnly.FromDateTime(DateTime.Today);
+            int TotalAppliedDays = (toDate.DayNumber - fromDate.DayNumber) + 1;
+            if (approvalSettings.AllowSelfApproval != true || approvalPersonId != entityVM.EmployeeID) return;
+
+            int? approvedStatusId = await GetIdByNameAsync("APPROVED");
+            if (approvedStatusId == null) return;
+
+            var leaveDaysFromConfig = await leaveTypes.AllActive()
+                .Where(x => x.LeaveTypeID == entityVM.LeaveTypeID)
+                .Select(x => new { x.LeaveDays, x.ApplicableYear })
+                .FirstOrDefaultAsync();
+
+            if (leaveDaysFromConfig == null) return;
+
+            // Update or create leave balance
+            var existingBalance = await leaveBalances.AllActive()
+                .FirstOrDefaultAsync(x =>
+                    x.EmployeeID == entityVM.EmployeeID &&
+                    x.LeaveTypeID == entityVM.LeaveTypeID);
+
+            if (existingBalance != null)
+            {
+                existingBalance.Taken = (existingBalance.Taken ?? 0) + TotalAppliedDays;
+                existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
+                existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
+                existingBalance.LIP = entityVM.LIP;
+                existingBalance.LMAC = entityVM.LMAC;
+                existingBalance.UpdatedAt = DateTime.Now;
+                existingBalance.UpdatedBy = entityVM.UpdatedBy;
+
+                await leaveBalances.UpdateAsync(existingBalance);
+            }
+            else
+            {
+                var newBalance = new LeaveBalances
+                {
+                    EmployeeID = entityVM.EmployeeID,
+                    LeaveTypeID = entityVM.LeaveTypeID,
+                    Taken = TotalAppliedDays,
+                    TotalLeave = leaveDaysFromConfig.LeaveDays,
+                    ApplicableYear = leaveDaysFromConfig.ApplicableYear,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = entityVM.CreatedBy,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC
+                };
+
+                await leaveBalances.AddAsync(newBalance);
+            }
+
+            // Add approval history
+            var leaveBase = new LeaveBaseApprovalHistory
+            {
+                LeaveApplicationID = sequence,  // leaveApplicationID from LeaveApplication Table 
+                StatusID = approvedStatusId.Value,
+                ApproverNote = "Self Approved",
+                LeaveTypeID = entityVM.LeaveTypeID,
+                CreatedAt = DateTime.Now,
+                CreatedBy = entityVM.CreatedBy,
+                LIP = entityVM.LIP,
+                LMAC = entityVM.LMAC,
+                ApproveBy = entityVM.CreatedBy,
+                ApprovalStep = selfStep
+            };
+
+            if (entityVM.IsFullDay)
+            {
+                leaveBase.FromDate = entityVM.FromDate ?? default;
+                leaveBase.ToDate = entityVM.ToDate ?? default;
+            }
+            else if (entityVM.ToDateFromDateCombined.HasValue)
+            {
+                // var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombined.Value);
+                var dateOnly = entityVM.ToDateFromDateCombined.Value;
+                leaveBase.FromDate = dateOnly;
+                leaveBase.ToDate = dateOnly;
+                leaveBase.PartialFromTime = entityVM.PartialFromTime;
+                leaveBase.PartialToTime = entityVM.PartialToTime;
+            }
+
+            await leaveBaseApprovalHistory.AddAsync(leaveBase);
+        }
+
+     
 
         private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int? applicableYear)
         {
@@ -768,12 +879,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
 
             int? approvalPersonId = null;
-            var approvalFlow = new[]
-            {
-        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-    };
+            //    var approvalFlow = new[]
+            //    {
+            //(approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+            //(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+            //(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+            //};
+            var approvalFlow = new List<(int? id, bool isDesignation)>
+{
+    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+};
 
             foreach (var (id, isDesignation) in approvalFlow)
             {
@@ -788,6 +905,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             if (approvalPersonId == null)
                 return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
+
+          
 
             await leaveRequest.BeginTransactionAsync();
 
@@ -842,6 +961,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 }
 
+                if(approvalSettings.AllowSelfApproval==true)
+                {
+                    await HandleSelfApprovalAsync(entityVM, approvalPersonId, approvalSettings, sequence, offf, approvalFlow); // if Self approvar
+                }
+               
                 var currentStart = fromDate.AddDays(usedDays);
 
                 if (remainingDays > 0 && allowFallback)
