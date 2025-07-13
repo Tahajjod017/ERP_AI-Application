@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using System;
@@ -23,8 +24,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         private readonly IGenericRepository<WeekendSettings> _genericWeekSettings;
         private readonly IGenericRepository<Holidays> _genericHolidays;
         private readonly IGenericRepository<EmployeeOfficeInfo> _genericEmployeeOfficeInfo;
+        private readonly IGenericRepository<AttendanceLog> _genericAttendanceLog;
 
-        public EmployeeAttendanceService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<Shifts> genericRepositoryShift, IGenericRepository<Holidays> genericHolidays, IGenericRepository<WeekendDays> genericWeekdays, IGenericRepository<WeekendSettings> genericWeekSettings, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo) : base(genericRepository)
+        public EmployeeAttendanceService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<Shifts> genericRepositoryShift, IGenericRepository<Holidays> genericHolidays, IGenericRepository<WeekendDays> genericWeekdays, IGenericRepository<WeekendSettings> genericWeekSettings, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, IGenericRepository<AttendanceLog> genericAttendanceLog) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -33,6 +35,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             _genericWeekdays = genericWeekdays;
             _genericWeekSettings = genericWeekSettings;
             _genericEmployeeOfficeInfo = genericEmployeeOfficeInfo;
+            _genericAttendanceLog = genericAttendanceLog;
         }
 
         public async Task<PaginationService<Attendance, EmployeeAttendenceVM>.PaginationResult<EmployeeAttendenceVM>> GetAllAsync(
@@ -149,16 +152,16 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             // Convert 'TimeOnly?' to 'TimeSpan?' before applying the null-coalescing operator
             var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
-            var totalWorkingTime = shiftEndTime - shiftStartTime - mealBreakTime;
+            var actualTotalWorkingTime = shiftEndTime - shiftStartTime - mealBreakTime;
 
             // Limit the production time to the shift working hours (excluding break time)
-            if (productionTime > totalWorkingTime.GetValueOrDefault())
+            if (productionTime > actualTotalWorkingTime.GetValueOrDefault())
             {
-                productionTime = totalWorkingTime.GetValueOrDefault();
+                productionTime = actualTotalWorkingTime.GetValueOrDefault();
             }
 
             // Handle overtime if the production time exceeds the shift's total working hours
-            var overtime = productionTime > totalWorkingTime ? productionTime - totalWorkingTime : TimeSpan.Zero;
+            var overtime = productionTime > actualTotalWorkingTime ? productionTime - actualTotalWorkingTime : TimeSpan.Zero;
 
             // Format the production and overtime times
             var formattedProductionTime = productionTime.ToString(@"hh\.mm");
@@ -166,23 +169,53 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             // Fix for CS1503: The issue is that `overtime.HasValue.ToString(@"hh\:mm")` is incorrect because `HasValue` is a boolean, not a TimeSpan.  
             var formattedOvertime = overtime.HasValue ? overtime.Value.ToString(@"hh\.mm") : "00:00";
 
+            var totalWorkingHourMnt = actualTotalWorkingTime.GetValueOrDefault() + overtime + mealBreakTime;
+
+            //var manualOvertime = attendanceData.OvertimeHour?.ToString("F2"); ;
+
+            // Fix for CS1503: Correctly convert manualOvertime from string to TimeSpan before formatting  
+            var manualOvertime = attendanceData.OvertimeHour.HasValue
+                ? TimeSpan.FromHours((double)attendanceData.OvertimeHour.Value)
+                : TimeSpan.Zero;
+
             return new EmployeeAttendenceVM
             {
                 EmployeeID = attendanceData.EmployeeID,
                 EmployeeName = $"{attendanceData.Employee?.FirstName} {attendanceData.Employee?.LastName}",
                 AttendanceDate = attendanceData.AttendanceDate.ToString("yyyy-MM-dd"),
                 CheckInTime = attendanceData.CheckInTime?.ToString("HH:mm"),
+                CheckInShiftTime = shiftStartTime?.ToString("HH:mm"), // Assuming this is the same as CheckInTime
                 CheckOutTime = attendanceData.CheckOutTime?.ToString("HH:mm"),
+                CheckOutShiftTime = shiftEndTime?.ToString("HH:mm"), // Assuming this is the same as CheckOutTime
                 RegularHour = attendanceData.RegularHour?.ToString(),
                 OvertimeHour = attendanceData.OvertimeHour?.ToString(),
                 LateHour = attendanceData.LateHour?.ToString(),
                 EarlyHour = attendanceData.EarlyHour?.ToString(),
-                TotalWorkingHours = totalWorkingTime.GetValueOrDefault().TotalHours.ToString("F2"),
+                TotalWorkingHours = FormatTimeSpanHHMM(totalWorkingHourMnt.GetValueOrDefault()),
+                ActualWorkingHrsMnt = FormatTimeSpanHHMM(actualTotalWorkingTime.GetValueOrDefault()), // Convert to minutes
                 CurrentTime = currentTimeString,
-                ProductionTime = formattedProductionTime,
+                ProductionTime = FormatTimeSpanHHMM(productionTime),
                 ProductionTimeMinute = (productionTime.TotalMinutes).ToString("F2"), // Convert to minutes
-                Overtime = formattedOvertime
+                Overtime = FormatTimeSpanHHMM(manualOvertime),//formattedOvertime,
+                Break = FormatTimeSpanHHMM(mealBreakTime) // Format meal break time
             };
+        }
+        private string FormatTimeSpanHHMM(TimeSpan timeSpan)
+        {
+            return $"{(int)timeSpan.TotalHours:D2}h {timeSpan.Minutes:D2}m";
+        }
+
+        public async Task<IActionResult> GetEmployeePunchTimeline(int userId)
+        {
+            var punches = await _genericAttendanceLog.All()
+                .Where(x => x.DeletedAt == null &&
+                            x.Attendance.EmployeeID == userId &&
+                            x.PunchTime.Date == DateTime.Today)
+                .OrderBy(x => x.PunchTime)
+                .Select(x => x.PunchTime.ToString("HH:mm"))
+                .ToListAsync();
+
+            return new JsonResult(new { punches }); // Replace 'Json' with 'JsonResult'
         }
 
         //public async Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int userId)
