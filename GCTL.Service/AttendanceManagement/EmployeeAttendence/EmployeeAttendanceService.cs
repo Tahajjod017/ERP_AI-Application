@@ -101,8 +101,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
         public async Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int userId)
         {
-            var currentTime = DateTime.Now; // Get current time
-            var currentTimeString = currentTime.ToString("HH:mm"); // Format for display
+            var currentTime = DateTime.Now;
+            var currentTimeString = currentTime.ToString("HH:mm");
 
             // Get the most recent attendance record for the user
             var attendanceData = await _genericRepository.All()
@@ -110,14 +110,15 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 .OrderByDescending(a => a.AttendanceDate)
                 .FirstOrDefaultAsync();
 
+            // If no attendance data or the attendance data is not for today
             if (attendanceData == null || attendanceData.AttendanceDate != DateOnly.FromDateTime(currentTime))
             {
                 return new EmployeeAttendenceVM
                 {
                     CurrentTime = currentTimeString,
                     CheckInTime = null,
-                    ProductionTime = "0.00",//hrs
-                    Overtime = "0.00",//hrs
+                    ProductionTime = "0.00", //hrs
+                    Overtime = "0.00", //hrs
                     TotalWorkingHours = "0" //hrs
                 };
             }
@@ -132,7 +133,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 return new EmployeeAttendenceVM
                 {
                     CurrentTime = currentTimeString,
-                    ProductionTime = "0.00",//hrs
+                    ProductionTime = "0.00", //hrs
                     Overtime = "0.00",
                     TotalWorkingHours = "0"
                 };
@@ -161,9 +162,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             // Format the production and overtime times
             var formattedProductionTime = productionTime.ToString(@"hh\.mm");
-            // Fix for CS1503: The issue is that `overtime.HasValue.ToString(@"hh\:mm")` is incorrect because `HasValue` is a boolean, not a TimeSpan.  
-            // Correcting the code to use `overtime` directly if it has a value, and format it properly.  
 
+            // Fix for CS1503: The issue is that `overtime.HasValue.ToString(@"hh\:mm")` is incorrect because `HasValue` is a boolean, not a TimeSpan.  
             var formattedOvertime = overtime.HasValue ? overtime.Value.ToString(@"hh\.mm") : "00:00";
 
             return new EmployeeAttendenceVM
@@ -177,8 +177,6 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 OvertimeHour = attendanceData.OvertimeHour?.ToString(),
                 LateHour = attendanceData.LateHour?.ToString(),
                 EarlyHour = attendanceData.EarlyHour?.ToString(),
-                //Break = attendanceData.Break?.ToString(),
-                //WorkingHours = attendanceData.WorkingHours?.ToString(),
                 TotalWorkingHours = totalWorkingTime.GetValueOrDefault().TotalHours.ToString("F2"),
                 CurrentTime = currentTimeString,
                 ProductionTime = formattedProductionTime,
@@ -187,6 +185,94 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             };
         }
 
+        //public async Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int userId)
+        //{
+        //    var currentTime = DateTime.Now; // Get current time
+        //    var currentTimeString = currentTime.ToString("HH:mm"); // Format for display
+
+        //    // Get the most recent attendance record for the user
+        //    var attendanceData = await _genericRepository.All()
+        //        .Where(a => a.EmployeeID == userId && a.DeletedAt == null)
+        //        .OrderByDescending(a => a.AttendanceDate)
+        //        .FirstOrDefaultAsync();
+
+        //    if (attendanceData == null || attendanceData.AttendanceDate != DateOnly.FromDateTime(currentTime))
+        //    {
+        //        return new EmployeeAttendenceVM
+        //        {
+        //            CurrentTime = currentTimeString,
+        //            CheckInTime = null,
+        //            ProductionTime = "0.00",//hrs
+        //            Overtime = "0.00",//hrs
+        //            TotalWorkingHours = "0" //hrs
+        //        };
+        //    }
+
+        //    // Get the corresponding shift details for the employee's attendance
+        //    var shift = await _genericRepositoryShift.All()
+        //        .Where(s => s.ShiftID == attendanceData.ShiftID)
+        //        .FirstOrDefaultAsync();
+
+        //    if (shift == null)
+        //    {
+        //        return new EmployeeAttendenceVM
+        //        {
+        //            CurrentTime = currentTimeString,
+        //            ProductionTime = "0.00",//hrs
+        //            Overtime = "0.00",
+        //            TotalWorkingHours = "0"
+        //        };
+        //    }
+
+        //    // Get the CheckInTime and calculate the total working time
+        //    var checkInTime = attendanceData.CheckInTime ?? DateTime.Now;
+        //    var shiftStartTime = shift.StartTime;
+        //    var shiftEndTime = shift.EndTime;
+
+        //    // Calculate production time as the difference between current time and CheckInTime
+        //    var productionTime = currentTime - checkInTime;
+
+        //    // Convert 'TimeOnly?' to 'TimeSpan?' before applying the null-coalescing operator
+        //    var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+        //    var totalWorkingTime = shiftEndTime - shiftStartTime - mealBreakTime;
+
+        //    // Limit the production time to the shift working hours (excluding break time)
+        //    if (productionTime > totalWorkingTime.GetValueOrDefault())
+        //    {
+        //        productionTime = totalWorkingTime.GetValueOrDefault();
+        //    }
+
+        //    // Handle overtime if the production time exceeds the shift's total working hours
+        //    var overtime = productionTime > totalWorkingTime ? productionTime - totalWorkingTime : TimeSpan.Zero;
+
+        //    // Format the production and overtime times
+        //    var formattedProductionTime = productionTime.ToString(@"hh\.mm");
+        //    // Fix for CS1503: The issue is that `overtime.HasValue.ToString(@"hh\:mm")` is incorrect because `HasValue` is a boolean, not a TimeSpan.  
+        //    // Correcting the code to use `overtime` directly if it has a value, and format it properly.  
+
+        //    var formattedOvertime = overtime.HasValue ? overtime.Value.ToString(@"hh\.mm") : "00:00";
+
+        //    return new EmployeeAttendenceVM
+        //    {
+        //        EmployeeID = attendanceData.EmployeeID,
+        //        EmployeeName = $"{attendanceData.Employee?.FirstName} {attendanceData.Employee?.LastName}",
+        //        AttendanceDate = attendanceData.AttendanceDate.ToString("yyyy-MM-dd"),
+        //        CheckInTime = attendanceData.CheckInTime?.ToString("HH:mm"),
+        //        CheckOutTime = attendanceData.CheckOutTime?.ToString("HH:mm"),
+        //        RegularHour = attendanceData.RegularHour?.ToString(),
+        //        OvertimeHour = attendanceData.OvertimeHour?.ToString(),
+        //        LateHour = attendanceData.LateHour?.ToString(),
+        //        EarlyHour = attendanceData.EarlyHour?.ToString(),
+        //        //Break = attendanceData.Break?.ToString(),
+        //        //WorkingHours = attendanceData.WorkingHours?.ToString(),
+        //        TotalWorkingHours = totalWorkingTime.GetValueOrDefault().TotalHours.ToString("F2"),
+        //        CurrentTime = currentTimeString,
+        //        ProductionTime = formattedProductionTime,
+        //        ProductionTimeMinute = (productionTime.TotalMinutes).ToString("F2"), // Convert to minutes
+        //        Overtime = formattedOvertime
+        //    };
+        //}
+
         public async Task<double> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
         {
             DateTime currentDate = DateTime.Now;
@@ -194,12 +280,12 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             DateOnly startOfWeek = currentDateOnly.AddDays(-7); // Get the start of the week (7 days ago)
 
             var attendanceData = await _genericRepository.All()
-.Where(a => a.EmployeeID == employeeId
-    && a.AttendanceDate >= startOfWeek
-    && a.AttendanceDate <= currentDateOnly
-    && a.DeletedAt == null
-   )
-.ToListAsync();
+                                .Where(a => a.EmployeeID == employeeId
+                                    && a.AttendanceDate >= startOfWeek
+                                    && a.AttendanceDate <= currentDateOnly
+                                    && a.DeletedAt == null
+                                   )
+                                .ToListAsync();
 
             // Get employee attendance for the past 7 days, excluding weekends and holidays, and match the organizationId and organizationBranchId
             //        var attendanceData = await _genericRepository.All()

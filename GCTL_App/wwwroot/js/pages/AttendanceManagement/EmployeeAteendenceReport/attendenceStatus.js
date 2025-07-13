@@ -1,4 +1,33 @@
-﻿var currentPage = 1;
+﻿$(document).ready(function () {
+    // Fetch attendance data for a specific employee (e.g., user ID 1)
+    $.ajax({
+        url: '/EmployeesAttendance/GetEmployeeAttendanceData',  // Adjust URL based on your backend route
+        type: 'GET',
+        data: { userId: 1 },  // Pass the userId dynamically if needed
+        dataType: 'json',
+        success: function (data) {
+            // Populate the data into the HTML elements
+            $('#totalWorkingHours').text(data.totalWorkingHours); // Example: "12h 36m"
+            $('#productiveHours').text(data.productiveHours); // Example: "08h 36m"
+            $('#breakHours').text(data.breakHours); // Example: "22m 15s"
+            $('#overtime').text(data.overtime); // Example: "02h 15m"
+
+            // Update progress bars based on data (percentage values)
+            $('#progressTotal').css('width', data.totalProgress + '%');
+            $('#progressProductive').css('width', data.productiveProgress + '%');
+            $('#progressBreak').css('width', data.breakProgress + '%');
+            $('#progressOvertime').css('width', data.overtimeProgress + '%');
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+});
+
+
+
+
+var currentPage = 1;
 var pageSize = 5;
 
 $('#attendanceStatus-pageSizeSelect').on('change', function () {

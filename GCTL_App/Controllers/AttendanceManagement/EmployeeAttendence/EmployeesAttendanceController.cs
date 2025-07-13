@@ -68,6 +68,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             return Json(result);
 
         }
+
         #endregion
+        public async Task<IActionResult> GetEmployeeAttendanceData(int userId)
+        {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+
+            // Fix for CS1503: Ensure the nullable int is converted to a non-nullable int before passing it to the method  
+            if (currentEmployeeId.HasValue)
+            {
+                var attendanceData = await _employeeAttendanceReport.GetAttendanceDetailsAsync(currentEmployeeId.Value);
+                return Json(attendanceData);
+            }
+            else
+            {
+                // Handle the case where currentEmployeeId is null  
+                return Json(null);
+            }
+        }
+
     }
 }
