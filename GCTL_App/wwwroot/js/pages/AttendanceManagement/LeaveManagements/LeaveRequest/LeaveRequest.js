@@ -634,8 +634,6 @@ $(document).ready(function () {
         });
     }
 
-
-
     //
     // Reset button click
     $('#ResetButton').on('click', function () {
@@ -878,7 +876,7 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                 let html = `<div style="width: 200px;">
             <strong>Step:</strong> ${data.approverStep ?? ''}<br/>
             <strong>Note:</strong> ${data.approvarNote ?? ''} <br/>
-             <strong>Satatus:</strong> ${data.statusName ?? ''} <br/>
+            <strong>Status:</strong> ${data.statusName ?? ''} <br/>
             <strong>Approved By:</strong> ${data.approvarPerson ?? ''}    
             </div>`;
 
@@ -1093,7 +1091,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             <i class="fa-solid fa-circle-info info-button"
                data-id="${item.leaveApplicationID}"
                style="cursor: pointer; font-size: 14px; color: #007bff;"></i>
-            <div class="custom-tooltip-box" style="width: 250px; height: 150px;"></div>
+            <div class="custom-tooltip-box" style="width: 250px; height: 150px; background-color: rgb(255, 247, 209)"></div>
         </div>` : ''}
                         </td>
 
