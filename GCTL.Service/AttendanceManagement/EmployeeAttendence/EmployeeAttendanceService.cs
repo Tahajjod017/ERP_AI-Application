@@ -217,6 +217,80 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             return new JsonResult(new { punches }); // Replace 'Json' with 'JsonResult'
         }
+        public async Task<IActionResult> CalculateWorkingHours(int attendanceId)
+        {
+            var currentDate = DateTime.Today;
+
+            var punches = await _genericAttendanceLog.All()
+                .Where(x => x.AttendanceID == 5 && x.DeletedAt == null && x.PunchTime.Date == currentDate)
+                .OrderBy(x => x.PunchTime)
+                .ToListAsync();
+
+            if (punches.Count < 2)
+                return new JsonResult(new { message = "Not enough punches for calculation." });
+
+            var sessions = new List<string>();
+            double totalWorkingMinutes = 0;
+            double totalBreakMinutes = 0;
+
+            for (int i = 0; i < punches.Count - 1; i += 2)
+            {
+                var start = punches[i].PunchTime;
+                var end = punches[i + 1].PunchTime;
+
+                double minutes = (end - start).TotalMinutes;
+
+                if ((i / 2) % 2 == 0) // work session
+                {
+                    sessions.Add($"Worked {FormatTimeFromMinutes(minutes)}");
+                    totalWorkingMinutes += minutes;
+                }
+                else // break session
+                {
+                    sessions.Add($"Break {FormatTimeFromMinutes(minutes)}");
+                    totalBreakMinutes += minutes;
+                }
+            }
+
+            // Handle odd count (e.g., last punch without pair)
+            if (punches.Count % 2 != 0)
+            {
+                var lastWorkStart = punches[^1].PunchTime;
+                var now = DateTime.Now;
+                double minutes = (now - lastWorkStart).TotalMinutes;
+                sessions.Add($"Worked {FormatTimeFromMinutes(minutes)} (till now)");
+                totalWorkingMinutes += minutes;
+            }
+
+            double productiveMinutes = totalWorkingMinutes;
+            double overtimeMinutes = productiveMinutes > 480 ? productiveMinutes - 480 : 0;
+
+            var result = new
+            {
+                sessionTimeline = sessions,
+                totalWorkingHours = FormatTimeFromMinutes(totalWorkingMinutes),
+                breakHours = FormatTimeFromMinutes(totalBreakMinutes),
+                productiveHours = FormatTimeFromMinutes(productiveMinutes),
+                overtime = FormatTimeFromMinutes(overtimeMinutes)
+            };
+
+            return new JsonResult(result);
+        }
+
+        private string FormatTimeFromMinutes(double minutes)
+        {
+            int hrs = (int)(minutes / 60);
+            int mins = (int)(minutes % 60);
+            return $"{hrs}h {mins}m";
+        }
+
+
+       
+
+
+        
+
+
 
         //public async Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int userId)
         //{
