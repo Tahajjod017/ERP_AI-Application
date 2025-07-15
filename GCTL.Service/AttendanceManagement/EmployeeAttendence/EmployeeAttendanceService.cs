@@ -219,8 +219,29 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         }
         public async Task<IActionResult> CalculateWorkingHours(int attendanceId)
         {
-            var currentDate = DateTime.Today;
+            var currentDate = DateTime.Today.AddDays(-1); // Yesterday’s date
 
+            var attendanceData = await _genericRepository.All()
+                .Where(a => a.AttendanceID==5 && a.DeletedAt == null)
+                .OrderByDescending(a => a.AttendanceDate)
+                .FirstOrDefaultAsync();
+
+            // Fetch shift data for the given attendance entry
+            var shift = await _genericRepositoryShift.All()
+                .Where(s => s.ShiftID == attendanceData.ShiftID)
+                .FirstOrDefaultAsync();
+
+            if (shift == null)
+            {
+                return new JsonResult(new { message = "Shift data not found." });
+            }
+
+            var shiftStartTime = shift.StartTime; // Shift start time
+            var shiftStartDateTime = currentDate.Add(shiftStartTime.HasValue ? shiftStartTime.Value.ToTimeSpan() : TimeSpan.Zero); // Shift start time  
+            var shiftEndTime = shift.EndTime; // Shift end time
+            var shiftEndDateTime = currentDate.Add(shiftEndTime.HasValue ? shiftEndTime.Value.ToTimeSpan() : TimeSpan.Zero); // Shift end time
+
+            // Fetch all punches for the current employee on the given day
             var punches = await _genericAttendanceLog.All()
                 .Where(x => x.AttendanceID == 5 && x.DeletedAt == null && x.PunchTime.Date == currentDate)
                 .OrderBy(x => x.PunchTime)
@@ -229,25 +250,43 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             if (punches.Count < 2)
                 return new JsonResult(new { message = "Not enough punches for calculation." });
 
-            var sessions = new List<string>();
+            var sessions = new List<object>();
             double totalWorkingMinutes = 0;
             double totalBreakMinutes = 0;
 
+            // Loop through the punches to calculate sessions
             for (int i = 0; i < punches.Count - 1; i += 2)
             {
                 var start = punches[i].PunchTime;
                 var end = punches[i + 1].PunchTime;
-
                 double minutes = (end - start).TotalMinutes;
 
-                if ((i / 2) % 2 == 0) // work session
+                // If it's a work session
+                if ((i / 2) % 2 == 0)
                 {
-                    sessions.Add($"Worked {FormatTimeFromMinutes(minutes)}");
+                    // Early Entry (if punch-in time is before shift start time)
+                    if (start < shiftStartDateTime)
+                    {
+                        double earlyEntryMinutes = (shiftStartDateTime - start).TotalMinutes;
+                        sessions.Add(new { type = "Early Entry", duration = FormatTimeFromMinutes(earlyEntryMinutes) });
+                        totalWorkingMinutes += earlyEntryMinutes; // Add early entry time to working minutes
+                    }
+
+                    // Late Entry (if punch-out time is after shift end time)
+                    if (end > shiftEndDateTime)
+                    {
+                        double lateEntryMinutes = (end - shiftEndDateTime).TotalMinutes;
+                        sessions.Add(new { type = "Late Entry", duration = FormatTimeFromMinutes(lateEntryMinutes) });
+                        totalWorkingMinutes += lateEntryMinutes; // Add late entry time to working minutes
+                    }
+
+                    // Add regular work session
+                    sessions.Add(new { type = "Worked", duration = FormatTimeFromMinutes(minutes) });
                     totalWorkingMinutes += minutes;
                 }
-                else // break session
+                else // Break session
                 {
-                    sessions.Add($"Break {FormatTimeFromMinutes(minutes)}");
+                    sessions.Add(new { type = "Break", duration = FormatTimeFromMinutes(minutes) });
                     totalBreakMinutes += minutes;
                 }
             }
@@ -258,13 +297,22 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 var lastWorkStart = punches[^1].PunchTime;
                 var now = DateTime.Now;
                 double minutes = (now - lastWorkStart).TotalMinutes;
-                sessions.Add($"Worked {FormatTimeFromMinutes(minutes)} (till now)");
+                sessions.Add(new { type = "Worked", duration = $"{FormatTimeFromMinutes(minutes)} (till now)" });
                 totalWorkingMinutes += minutes;
+
+                // Check if the last punch is after the shift end time (late entry)
+                if (now > shiftEndDateTime)
+                {
+                    double lateEntryMinutes = (now - shiftEndDateTime).TotalMinutes;
+                    sessions.Add(new { type = "Late Entry", duration = FormatTimeFromMinutes(lateEntryMinutes) });
+                    totalWorkingMinutes += lateEntryMinutes; // Add late entry time to working minutes
+                }
             }
 
             double productiveMinutes = totalWorkingMinutes;
             double overtimeMinutes = productiveMinutes > 480 ? productiveMinutes - 480 : 0;
 
+            // Prepare the result
             var result = new
             {
                 sessionTimeline = sessions,
@@ -277,18 +325,20 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             return new JsonResult(result);
         }
 
+        // Helper function to format time from minutes to "Xh Ym"
         private string FormatTimeFromMinutes(double minutes)
         {
-            int hrs = (int)(minutes / 60);
+            int hours = (int)(minutes / 60);
             int mins = (int)(minutes % 60);
-            return $"{hrs}h {mins}m";
+            return $"{hours}h {mins}m";
         }
 
 
-       
 
 
-        
+
+
+
 
 
 
