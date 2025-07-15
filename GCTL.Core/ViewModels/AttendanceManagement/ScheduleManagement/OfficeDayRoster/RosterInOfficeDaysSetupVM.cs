@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
     {
         public int RosterInOfficeDayID { get; set; }
 
+        [Required(ErrorMessage = "Organization is required!")]
         public int? OrganizationID { get; set; }
         public string? OrganizationName { get; set; }
 
@@ -25,11 +27,14 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public List<int>? EmployeeIDs { get; set; }
         public string? EmployeeName { get; set; }
 
+        [Required(ErrorMessage = "Shift is required!")]
         public int? ShiftID { get; set; }
         public string? ShiftName { get; set; }
 
+        [Required(ErrorMessage = "Start date is required!")]
         public DateTime? StartDate { get; set; }
 
+        [Required(ErrorMessage = "End date is required!")]
         public DateTime? EndDate { get; set; }
 
         public string? TimeRange { get; set; }

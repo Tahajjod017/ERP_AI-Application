@@ -32,6 +32,7 @@
             //        minDate: "today",    // Optional: disable past dates
             //    });
             //});
+                      
 
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
@@ -59,6 +60,12 @@
                     type: 'POST',
                     data: formData,
                     success: function (response) {
+                        const allFields = ["OrganizationID", "ShiftID", "StartDate", "EndDate"];
+
+                        allFields.forEach(function (fieldId) {
+                            validateField(fieldId, response);
+                        });
+
                         if (response.isSuccess) {
                             toastr.success(response.message);
                             loadTableData();
@@ -75,7 +82,7 @@
             // #endregion
 
 
-
+                        
             // #region Edit
             $(settings.editShiftSaveBtn).on('click', function (e) {
                 e.preventDefault();
@@ -173,8 +180,16 @@
                 $('#rosterInOfficeDays-form')[0].reset();
                 //$('#BankID').val('').trigger('change');
 
+                const branchSelect = document.getElementById('BranchIDs');
                 const deptSelect = document.getElementById('DepartmentIDs');
+
                 const deptInstance = coreui.MultiSelect.getInstance(deptSelect);
+                const branchInstance = coreui.MultiSelect.getInstance(branchSelect);
+
+                if (branchInstance) {
+                    branchInstance.deselectAll();
+                }
+
                 if (deptInstance) {
                     deptInstance.deselectAll();
                 }
@@ -193,6 +208,12 @@
                 if (shiftDD) {
                     shiftDD.destroy();
                 }
+
+                ['OrganizationID', 'ShiftID', 'StartDate', 'EndDate'].forEach(function (fieldId) {
+                    $('#' + fieldId).removeClass('is-valid is-invalid');
+                    $('#' + fieldId + 'Error').hide().text('');
+                    $('#' + fieldId).val('');
+                });
 
                 initOrganizationDD();
                 initShiftDD();
