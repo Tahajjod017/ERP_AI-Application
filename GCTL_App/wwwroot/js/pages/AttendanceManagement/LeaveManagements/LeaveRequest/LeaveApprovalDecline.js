@@ -106,7 +106,7 @@ $(document).ready(function () {
             success: function (data) {
 
                 choiceManager.populateDropdown('EmployeeID', data);
-                choiceManager.populateDropdown('EmployeeIDEdit', data);
+                //choiceManager.populateDropdown('EmployeeIDEdit', data);
 
                 if (data.length === 1) {
                     var firstData = data[0];
@@ -484,7 +484,7 @@ $(document).ready(function () {
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
 
                     // EmployeeIDEdit
-             
+            
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);

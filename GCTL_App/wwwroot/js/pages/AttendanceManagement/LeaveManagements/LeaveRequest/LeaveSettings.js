@@ -141,13 +141,7 @@
     }
     
     loadLeaveTypeCard();
-    //
-    //<a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0"
-    //    href="#!"
-    //    id="leaveDelete-singleDelBtn"
-    //    data-id="${item.leaveTypeID}">
-    //    <span class="fas fa-trash"></span>
-    //</a>
+ 
     function loadLeaveTypeCard() {
         $.ajax({
             url: '/LeaveSettingsRoute/GetAllLeaveTypesAsync',
@@ -270,18 +264,6 @@
         e.preventDefault();
         
         const leaveData = {
-            //LeaveTypeID: $('#LeaveTypeID').val(),
-            //LeaveTypeName: $('#LeaveTypeName').val(),
-            ////OrganizationID: $('#OrganizationID').val(),
-            //IsPaid: $('input[name="IsPaid"]:checked').val() === 'true',
-            //IsActive: $('input[name="IsActive"]:checked').val() === 'true',
-            //LeaveDays: $('#LeaveDays').val(),
-            //Code: $('#Code').val(),
-            //EffectiveFrom: $('#EffectiveFrom').val(),
-            //EffectiveFromMonthYear: $('#EffectiveFromMonthYear').val(),
-            //EffectiveAfter: $('#EffectiveAfter').val(),
-            //MinimumDaysRequiredEncashement: $('#minEncash').val(),
-            //MaximumDaysAllowedEncashement: $('#maxEncash').val()
 
             LeaveTypeID: $('#LeaveTypeIDEdit').val(),
             LeaveTypeName: $('#LeaveTypeNameEdit').val(),

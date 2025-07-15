@@ -95,8 +95,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     .Include(x => x.Employee)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)
-                    .OrderByDescending(x => x.LeaveApplicationID)
-                    .AsQueryable();
+                    .OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
+                if (query == null)
+                {
+                    throw new InvalidOperationException("query source is null.");
+                }
                 if (statusID != null)
                 {
                     query = query.Where(x => x.StatusID == statusID);
@@ -112,12 +115,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
 
 
-                if (query == null)
-                {
-                    throw new InvalidOperationException("ActionLogs query source is null.");
-                }
                 // 🔹 Step 4: Filter if not SuperAdmin
-                if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(roleName) || !string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
                 {
                     query = query.Where(x => x.EmployeeID == employeeId);
                 }
@@ -665,7 +664,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //}
 
 
-        //Today Taskk
+        //Today Taskk  
         private async Task<int?> GetIdByNameAsync(string name)
         {
             var data = await leaveStatuses.AllActive().Where(x => EF.Functions.Like(x.StatusName.ToLower(), name.ToLower())).Select(x => (int?)x.StatusID).FirstOrDefaultAsync();
@@ -674,7 +673,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
 
         private async Task HandleSelfApprovalAsync(LeaveApplicationsRequestVM entityVM, int? approvalPersonId, ApprovalSettings approvalSettings, int sequence, dynamic offf,
-    List<(int? id, bool isDesignation)> approvalFlow)
+         List<(int? id, bool isDesignation)> approvalFlow)
         {
             //
             int selfStep = 0;
@@ -745,7 +744,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             {
                 LeaveApplicationID = sequence,  // leaveApplicationID from LeaveApplication Table 
                 StatusID = approvedStatusId.Value,
-                ApproverNote = "Self Approved",
+                ApproverNote = "SELF APPROVED",
                 LeaveTypeID = entityVM.LeaveTypeID,
                 CreatedAt = DateTime.Now,
                 CreatedBy = entityVM.CreatedBy,
@@ -879,12 +878,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
 
             int? approvalPersonId = null;
-            //    var approvalFlow = new[]
-            //    {
-            //(approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-            //(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-            //(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-            //};
+          
             var approvalFlow = new List<(int? id, bool isDesignation)>
 {
     (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
@@ -1738,20 +1732,25 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 var entity = await (
                     from lb in leaveBaseApprovalHistory.AllActive()
                         .Where(x => x.LeaveApplicationID == leaveApplicationID)
-                        .AsNoTracking() join statusName in leaveStatuses.AllActive().Select(x=>new {x.StatusID, x.StatusName}) on lb.StatusID equals statusName.StatusID
-                  
+                        .AsNoTracking() join statusName in leaveStatuses.AllActive().Select(x => new { x.StatusID, x.StatusName }) on lb.StatusID equals statusName.StatusID
+
                     join e in employee.AllActive()
                         .Select(x => new { x.EmployeeID, x.FirstName, x.LastName })
                     on lb.ApproveBy equals e.EmployeeID
+                    join leaveReq in leaveRequest.AllActive()
+                    on lb.LeaveApplicationID equals leaveReq.EmployeeID
                     select new PersonLeaveStepVM
                     {
                         ApprovarNote = lb.ApproverNote,
                         ApproverStep = lb.ApprovalStep,
                         ApprovarPerson = e.FirstName + " " + e.LastName,
-                        StatusName=statusName.StatusName,
-                    }
-                ).FirstOrDefaultAsync();
+                        StatusName = statusName.StatusName,
 
+                    }).FirstOrDefaultAsync();
+                if (entity == null)
+                {
+                    return new PersonLeaveStepVM();
+                }
                 return entity;
             }
             catch (Exception)

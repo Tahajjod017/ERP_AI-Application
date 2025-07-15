@@ -38,5 +38,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 
         public bool EnableLeaveBalanceResetDate { get; set; }
         public bool IsAllowCrossLeave { get; set; }
+        public decimal? WorkingHour { get; set; }
+        public int? ShortLeaveMaxInADay { get; set; }
     }
 }

@@ -9,6 +9,7 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveApproval;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Security.Claims;
 
@@ -20,17 +21,19 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private readonly IGenericRepository<LeaveTypes> leaveType;
         private readonly IGenericRepository<Statuses> status;
         private ILeaveRequestService leaveRequestService;
-        public LeaveApprovalDeclineController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveApprovalService leaveApprovalService, IGenericRepository<LeaveTypes> leaveType , IGenericRepository<Statuses> status , ILeaveRequestService leaveRequestService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
+        public LeaveApprovalDeclineController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveApprovalService leaveApprovalService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, IGenericRepository<GCTL.Data.Models.Employees> employee) : base(translateService, userProfileService)
         {
             this.leaveApprovalService = leaveApprovalService;
             this.leaveType = leaveType;
             this.status = status;
             this.leaveRequestService = leaveRequestService;
+            this.employee = employee;
         }
 
 
 
-        public IActionResult Index()
+        public async Task< IActionResult> Index()
         {
             LeaveApprovalPageVM model = new LeaveApprovalPageVM
             {
@@ -40,6 +43,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
          
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
+            var employees =await  employee.AllActive()
+                                   .Select(e => new  {  e.EmployeeID, FullName = e.FirstName + " " + e.LastName  }).ToListAsync();
+
+            ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName");
+
             return View(model);
         }
 

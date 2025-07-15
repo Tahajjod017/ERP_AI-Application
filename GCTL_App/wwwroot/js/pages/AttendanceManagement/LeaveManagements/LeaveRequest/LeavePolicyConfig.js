@@ -16,10 +16,9 @@
         $('#IsMaximumGapDaysBetweenAplications').prop('checked', false);
 
         // Clear textboxes
-        $('#AllowRequestForFutureDays, #MaxLeavePerApplication, #MaxGapBetweenApplications').val('');
+        $('#AllowRequestForFutureDays, #MaxLeavePerApplication, #MaxGapBetweenApplications,#WorkingHour,#ShortLeaveMaxInADay').val('');
         choiceManager.clearChoice('RoundOffHour');
         $('#LeavePolicyConfigurationID').val('');
-
         $('#EnableLeaveBalanceResetDate').prop('checked', false);
         $('#LeaveBalanceResetDate').val('').trigger('change');
         $('input[type=radio][name=IsAllowCrossLeave][value=true]').prop('checked', true);
@@ -35,11 +34,16 @@
 
 
 
+
     //Update Leave Data
 
     $('#AddLeavePolicyBtn').on('click', function (e) {
         e.preventDefault();
         // if (!validateLeaveForm()) return;
+        if ($('#WorkingHour').val() === '') {
+            alert('Please enter a value for Working Hour.');
+            return;
+        }
 
         const leaveData = {
 
@@ -78,12 +82,15 @@
             LeaveBalanceResetDate: $('#LeaveBalanceResetDate').val() || null,
 
             IsAllowCrossLeave: $('input[name="IsAllowCrossLeave"]:checked').val() === 'true',
-
+        
             //
+            WorkingHour: (function () { const val = $('input[name="WorkingHour"]').val(); return val === '' ? null : parseFloat(val); })(),
 
+            ShortLeaveMaxInADay: (function () { const v = parseInt($('#ShortLeaveMaxInADay').val()); return isNaN(v) ? null : v; })(),
 
+            
         };
-
+    
        
         $.ajax({
             url: '/LeaveSettings/LeavePolicyConfig', // Replace with your controller name
@@ -153,7 +160,8 @@
 
                     $('input[name="IsAllowCrossLeave"][value="' + config.isAllowCrossLeave + '"]').prop('checked', true);
 
-
+                    $('#WorkingHour').val(config.workingHour);
+                    $('#ShortLeaveMaxInADay').val(config.shortLeaveMaxInADay);
                 }
             },
             error: function () {
