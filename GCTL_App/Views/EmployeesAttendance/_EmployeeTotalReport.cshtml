@@ -2,17 +2,9 @@
 	var fullName = ViewData["FullName"] as string;
 	var profilePicturePath = ViewData["ProfilePicturePath"] as string;
 }
-<style>
-	.progress {
-    position: relative;
-}
-.progress-bar {
-    position: absolute;
-    height: 100%;
-    top: 0;
-}
 
-</style>
+
+
 <div class="col-xl-3 col-lg-4 d-flex">
 	<div class="card flex-fill">
 		<div class="card-body">
@@ -156,17 +148,14 @@
 					<!-- Progress Bars -->
 					<div class="row">
 						<div class="col-md-12">
-							<div class="progress bg-transparent-dark mb-3 position-relative" style="height: 24px;">
-								<div class="progress-bar bg-white rounded" id="progressTotal" role="progressbar" style="width: 100%; position: absolute;"></div>
-								<div class="progress-bar bg-success rounded" id="progressProductive"></div>
-								<div class="progress-bar bg-warning rounded" id="progressBreak"></div>
-								<div class="progress-bar bg-info rounded" id="progressOvertime"></div>
+							<div class="progress bg-transparent-dark mb-3 position-relative" style="height: 24px;" id="progressBars">
+								
 							</div>
 						</div>
 
 						<!-- Timeline Labels -->
 						<div class="col-md-12">
-							<div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2" id="sessionTimeline">
+							<div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2" id="timelineLabels">
 								<!-- JS will dynamically insert <span class="fs-10">HH:MM</span> here -->
 							</div>
 						</div>
@@ -175,8 +164,12 @@
 			</div>
 		</div>
 
-		
 
+		
+		@* <div class="progress-bar bg-white rounded" id="progressTotal" role="progressbar" style="width: 100%; position: absolute;"></div>
+								<div class="progress-bar bg-success rounded" id="progressProductive"></div>
+								<div class="progress-bar bg-warning rounded" id="progressBreak"></div>
+								<div class="progress-bar bg-info rounded" id="progressOvertime"></div> *@
 
 
 	</div>

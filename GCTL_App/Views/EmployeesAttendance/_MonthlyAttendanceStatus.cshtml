@@ -7,7 +7,6 @@
     <div class="col-12 col-lg-12 col-md-12 flex-column">
         <div class="row g-3 row-deck">
 
-
             <div class="col-12 col-xl-4 col-md-4">
                 <div class="card">
                     <div class="card-header py-3">
@@ -15,146 +14,28 @@
                     </div>
                     <div class="card-body">
                         <div id="employee-attendance-status-piechart" style="position: relative; height: 20rem; overflow: hidden;"></div>
-                        <script>
-                            var dom = document.getElementById('employee-attendance-status-piechart');
-                            var myChart = echarts.init(dom, null, {
-                              renderer: 'canvas',
-                              useDirtyRect: false
-                            });
-                            var app = {};
-
-                            var option;
-
-                            option = {
-                              tooltip: {
-                                trigger: 'item'
-                              },
-                              legend: {
-                                top: '5%',
-                                left: 'center'
-                              },
-                              series: [
-                                {
-                                  name: 'Monthly Report',
-                                  type: 'pie',
-                                  radius: ['40%', '70%'],
-                                  center: ['50%', '70%'],
-                                  // adjust the start and end angle
-                                  startAngle: 180,
-                                  endAngle: 360,
-                                  data: [
-                                    { value: '75', name: 'Present' },
-                                    { value: '10', name: 'Absent' },
-                                    { value: '2', name: 'Leave' },
-                                    { value: '5', name: 'Late' },
-                                    { value: '8', name: 'Early Leave' }
-                                  ]
-                                }
-                              ]
-                            };
-
-
-                            if (option && typeof option === 'object') {
-                              myChart.setOption(option);
-                            }
-
-                            window.addEventListener('resize', myChart.resize);
-                        </script>
                     </div>
                 </div>
             </div>
 
+
+        
+            
+            
             <div class="col-12 col-xl-2 col-md-2">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="card-title mb-1">
                             <h3 class="text-body-emphasis">Recent Activity</h3>
                         </div>
-                        <div class="timeline-vertical timeline-with-details">
-                            <div class="timeline-item position-relative">
-                                <div class="row g-md-3">
-                                    <div class="col-12 col-md-auto d-flex">
-
-                                        <div class="timeline-item-bar position-md-relative me-3 me-md-0">
-                                            <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle"><span class="fa-solid fa-chess text-primary-dark fs-10"></span></div><span class="timeline-bar border-end border-dashed"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="timeline-item-content ps-6 ps-md-3">
-                                            <h5 class="fs-9 lh-sm">Punch In at</h5>
-                                            <p class="fs-9"> <i class="fa fa-clock-o" aria-hidden="true"></i> 10 Am</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item position-relative">
-                                <div class="row g-md-3">
-                                    <div class="col-12 col-md-auto d-flex">
-
-                                        <div class="timeline-item-bar position-md-relative me-3 me-md-0">
-                                            <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle"><span class="fa-solid fa-chess text-primary-dark fs-10"></span></div><span class="timeline-bar border-end border-dashed"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="timeline-item-content ps-6 ps-md-3">
-                                            <h5 class="fs-9 lh-sm">Punch Out at</h5>
-                                            <p class="fs-9"> <i class="fa fa-clock-o" aria-hidden="true"></i> 11.30 Am</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item position-relative">
-                                <div class="row g-md-3">
-                                    <div class="col-12 col-md-auto d-flex">
-
-                                        <div class="timeline-item-bar position-md-relative me-3 me-md-0">
-                                            <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle"><span class="fa-solid fa-chess text-primary-dark fs-10"></span></div><span class="timeline-bar border-end border-dashed"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="timeline-item-content ps-6 ps-md-3">
-                                            <h5 class="fs-9 lh-sm">Break Time</h5>
-                                            <p class="fs-9"> <i class="fa fa-clock-o" aria-hidden="true"></i> 1.00 Pm to 2.00 Pm</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item position-relative">
-                                <div class="row g-md-3">
-                                    <div class="col-12 col-md-auto d-flex">
-
-                                        <div class="timeline-item-bar position-md-relative me-3 me-md-0">
-                                            <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle"><span class="fa-solid fa-chess text-primary-dark fs-10"></span></div><span class="timeline-bar border-end border-dashed"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="timeline-item-content ps-6 ps-md-3">
-                                            <h5 class="fs-9 lh-sm">Punch IN at</h5>
-                                            <p class="fs-9"> <i class="fa fa-clock-o" aria-hidden="true"></i> 2:10 Pm</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item position-relative">
-                                <div class="row g-md-3">
-                                    <div class="col-12 col-md-auto d-flex">
-
-                                        <div class="timeline-item-bar position-md-relative me-3 me-md-0">
-                                            <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle"><span class="fa-solid fa-dungeon text-primary-dark fs-10"></span></div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="timeline-item-content ps-6 ps-md-3">
-                                            <h5 class="fs-9 lh-sm">Punch Out at</h5>
-                                            <p class="fs-9"> <i class="fa fa-clock-o" aria-hidden="true"></i>7:30 Pm</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="timeline-vertical timeline-with-details" id="timelineContainer">
+                            <!-- Timeline items will be inserted here dynamically -->
                         </div>
                     </div>
                 </div>
             </div>
+
+ 
 
             <div class="col-12 col-xl-6 col-md-6">
                 <div class="card h-100">
