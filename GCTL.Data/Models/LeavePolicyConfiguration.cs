@@ -55,6 +55,10 @@ public partial class LeavePolicyConfiguration
 
     public bool IsAllowCrossLeave { get; set; }
 
+    public decimal? WorkingHour { get; set; }
+
+    public int? ShortLeaveMaxInADay { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

@@ -167,9 +167,6 @@ $(document).ready(function () {
             loadTableData();
         }
     });
-
-
-
     function recreateDepartmentDropdown(departments) {
         const container = document.querySelector('.two'); // The div with class "two"
         const originalSelect = document.getElementById('DepartmentIDs');
@@ -244,12 +241,7 @@ $(document).ready(function () {
             }
         });
     }
-
-
     //
-
-
-   
     //
     //Get Employee according to LoginID
     GetAllEmpoyee();
@@ -268,7 +260,8 @@ $(document).ready(function () {
                 }
 
             },
-            error: function () {
+            error: function ()
+            {
                 toastr.error('Failed to retrieve employee data.');
             }
         });
@@ -353,7 +346,6 @@ $(document).ready(function () {
         }
     });
 
- 
 
     function GetleaveDaysOrAvailble(employeeId, leaveTypeID) {
         if (leaveTypeID && employeeId) {
@@ -387,10 +379,6 @@ $(document).ready(function () {
     }
 
     //
-
-
-
-    
     function handleLeaveChange(employeeIdField, leaveTypeIdField) {
         var leaveTypeID = $(leaveTypeIdField).val();
         var employeeId = choiceManager.getChoiceValue(employeeIdField);
@@ -448,11 +436,6 @@ $(document).ready(function () {
         toggleTimeDateValidation();
     });
     //
-
-
-    //
-
-
 
 
 
@@ -551,10 +534,6 @@ $(document).ready(function () {
         if (applied > available && !exceedConfirmed) {
             const message = `You have ${available} day(s) available, but you tried to apply for ${applied} day(s).
         So, your exceed leave will be deducted from Annual Leave. `;
-
-
-            // toastr.error(message);
-
             //  $('#exceedAnnualLeaveModal').find('.modal-body').text(message);
             $('#DisplayContainer').text(message);
             var modal = new bootstrap.Modal(document.getElementById('exceedAnnualLeaveModal'));
@@ -765,18 +744,10 @@ $(document).ready(function () {
     })
 
 
-    //
-
-
-
-
-
-    //
-
-
 });
 
 
+// Data Table for Peresona
 
 
 var currentPage = 1;
@@ -852,19 +823,67 @@ function updateSortingIndicator() {
 
 
 //
-let hideTooltipTimer; // ✅ Declare globally
+//let hideTooltipTimer; // ✅ Declare globally
+
+//$(document).on('mouseenter', '.custom-tooltip-container', function () {
+//    const $container = $(this);
+//    const $button = $container.find('.info-button');
+//    const $tooltip = $container.find('.custom-tooltip-box');
+//    const leaveApplicationID = $button.data('id');
+
+//    clearTimeout(hideTooltipTimer); // ✅ Safe to use now
+
+//    // Hide all other tooltips
+//    $('.custom-tooltip-box').fadeOut();
+
+//    $.ajax({
+//        url: '/LeaveRequest/GetByPersonLeaveStepVM',
+//        type: 'GET',
+//        data: { leaveApplicationID: leaveApplicationID },
+//        dataType: 'json',
+//        success: function (data) {
+//            console.log("LeaveStep", data);
+//            if (data && Object.keys(data).length > 0) {
+//                let html = `<div style="width: 200px;">
+//            <strong>Step:</strong> ${data.approverStep ?? ''}<br/>
+//            <strong>Note:</strong> ${data.approvarNote ?? ''} <br/>
+//            <strong>Status:</strong> ${data.statusName ?? ''} <br/>
+//            <strong>Approved By:</strong> ${data.approvarPerson ?? ''}
+//            </div>`;
+
+//                $tooltip.html(html).fadeIn(200);
+
+//            } else {
+//                $tooltip.html('').fadeIn(200);
+//            }
+//        },
+//        error: function () {
+//            $tooltip.html('<div class="text-danger me-4" style="height: 138px; width: 170px;">No data found</div>').fadeIn(200);
+//        }
+//    });
+
+
+//});
+
+
+
+//
+let hideTooltipTimer;
 
 $(document).on('mouseenter', '.custom-tooltip-container', function () {
     const $container = $(this);
     const $button = $container.find('.info-button');
     const $tooltip = $container.find('.custom-tooltip-box');
     const leaveApplicationID = $button.data('id');
-  
-    clearTimeout(hideTooltipTimer); // ✅ Safe to use now
 
-    // Hide all other tooltips
-    $('.custom-tooltip-box').fadeOut();
-    
+    clearTimeout(hideTooltipTimer);
+
+    $('.custom-tooltip-box').each(function () {
+        if (!$(this).is($tooltip)) {
+            $(this).fadeOut();
+        }
+    });
+
     $.ajax({
         url: '/LeaveRequest/GetByPersonLeaveStepVM',
         type: 'GET',
@@ -872,25 +891,59 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
         dataType: 'json',
         success: function (data) {
             console.log("LeaveStep", data);
-            if (data && Object.keys(data).length > 0) {
-                let html = `<div style="width: 200px;">
-            <strong>Step:</strong> ${data.approverStep ?? ''}<br/>
-            <strong>Note:</strong> ${data.approvarNote ?? ''} <br/>
-            <strong>Status:</strong> ${data.statusName ?? ''} <br/>
-            <strong>Approved By:</strong> ${data.approvarPerson ?? ''}    
-            </div>`;
 
-                $tooltip.html(html).fadeIn(200);
-               
+            const steps = Array.isArray(data) ? data : [data];
+            let html = `<div style="width: 320px; max-height: 300px; overflow-y: auto;">`;
+
+            if (steps.length > 0) {
+                steps.forEach((item, index) => {
+                    debugger
+                    const approverStep = item.approverStep ?? ''; // Or item.date if available
+                    const statusName = item.statusName ?? '';
+                    const author = item.approvarPerson ?? '';
+                    const statusDescription = item.approvarNote ?? '';
+
+                    html += `
+                        <div class="timeline-item position-relative">
+                            <div class="row g-md-3">
+                                <div class="col-12 col-md-auto d-flex">
+                                    <div class="timeline-item-date order-1 order-md-0 me-md-4">
+                                        <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
+                                            ${approverStep}
+                                        </p>
+                                    </div>
+                                    <div class="timeline-item-bar position-md-relative me-3 me-md-0">
+                                        <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle">
+                                            <span class="fa-solid far fa-file-alt text-primary-dark fs-10"></span>
+                                        </div>
+                                        <span class="timeline-bar border-end border-dashed"></span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="timeline-item-content ps-6 ps-md-3">
+                                        <h5 class="fs-9 lh-sm">${statusName}</h5>
+                                        <p class="fs-9">by <a class="fw-semibold" href="#!">${author}</a></p>
+                                        <p class="fs-9 text-body-secondary mb-5">${statusDescription}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
             } else {
-                $tooltip.html('').fadeIn(200);
+                html += '<div class="text-muted">No approval steps found</div>';
             }
+
+            html += `</div>`;
+            $tooltip.html(html).fadeIn(200);
         },
         error: function () {
             $tooltip.html('<div class="text-danger me-4" style="height: 138px; width: 170px;">No data found</div>').fadeIn(200);
         }
     });
 });
+
+//
 
 $(document).on('mouseleave', '.custom-tooltip-container', function () {
     const $tooltip = $(this).find('.custom-tooltip-box');

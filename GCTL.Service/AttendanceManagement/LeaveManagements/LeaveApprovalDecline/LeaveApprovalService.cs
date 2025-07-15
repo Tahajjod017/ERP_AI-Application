@@ -72,14 +72,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                                       where user.Id == userId
                                       select role.Name).FirstOrDefaultAsync();
 
+                bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
+                var a = await leaveRequest.AllActive().ToListAsync();
                 var query = leaveRequest.AllActive()
-                    .Where(x => x.StatusID == null)
+                    //.Where(x => x.StatusID == null)
                     .Include(x => x.Employee)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)
                     .OrderByDescending(x => x.LeaveApplicationID)
                     .AsQueryable();
-
+                Console.WriteLine("Data"+query);
                 if (statusID != null)
                 {
                     query = query.Where(x => x.StatusID == statusID);
@@ -93,11 +95,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
                     query = query.Where(x => x.FromDate >= fromDate.Value && x.ToDate <= toDate.Value);
                 }
-                if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                if (!isSuperAdmin)
                 {
-                    query = query.Where(x => x.EmployeeID == employeeId);
+                    query = query.Where(x=>x.ApprovalPersonID == employeeId);
                 }
-
+                if (!isSuperAdmin) 
+                {
+                    a.Where(x => x.ApprovalPersonID == employeeId);
+                    a.Count();
+                    Console.WriteLine(a);
+                }
                 var leaveBalances = await leaveBalance.AllActive().ToListAsync();
                 var leaveTypes = await leaveTypesRepository.AllActive().ToListAsync();
                 var employeeDepartments = await empoffi.AllActive()
@@ -117,7 +124,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     {
                         var balance = leaveBalances.FirstOrDefault(lb =>
                             lb.EmployeeID == b.EmployeeID &&
-                            lb.LeaveTypeID == b.LeaveTypeID ||
+                            lb.LeaveTypeID == b.LeaveTypeID &&
                             lb.ApplicableYear == b.FromDate.Year);
 
                         var defaultLeaveDays = leaveTypes.FirstOrDefault(x => x.LeaveTypeID == b.LeaveTypeID)?.LeaveDays ?? 0;
@@ -148,7 +155,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         };
                     });
 
-                return result;
+                return result;  //result;
             }
             catch (Exception ex)
             {
@@ -292,10 +299,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                      subsequent = await leaveRequestService.SubsequentAsynce(fromDateTime, toDateTime);
 
-
-
-                //
-
                 // avilable days 
                 int applicableYear = data.FromDate.Year;
 
@@ -349,29 +352,34 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
             return data;
         }
+
+        //
+
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
         {
-
             if (entityVM == null)
             {
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "Data Can not be null"
+                    Message = "Data cannot be null"
                 };
             }
-            var employeeId = entityVM.CreatedBy;
 
             await leaveRequest.BeginTransactionAsync();
 
             try
             {
-
                 var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
                 if (entity == null)
                     return null;
-                //
-                var offf=await empoffi.AllActive().Where(x=>x.EmployeeID==entityVM.CreatedBy).Select(x=> new {x.EmployeeID,x.OrganizationID,x.OrganizationBranchID,x.DepartmentID,x.DesignationID}).FirstOrDefaultAsync();
+
+                // Get employee office info
+                var offf = await empoffi.AllActive()
+                    .Where(x => x.EmployeeID == entityVM.CreatedBy)
+                    .Select(x => new { x.EmployeeID, x.OrganizationID, x.OrganizationBranchID, x.DepartmentID, x.DesignationID })
+                    .FirstOrDefaultAsync();
+
                 if (offf == null)
                 {
                     return new CommonReturnViewModel
@@ -380,21 +388,31 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "Employee office info not found."
                     };
                 }
-                var approvalTypes = await approvalTypesRepository.AllActive().Where(x=>x.OrganizationID==offf.OrganizationID || x.OrganizationBranchID==offf.OrganizationBranchID).Select(x => new {x.ApprovalTypeID,x.ApprovalTypeName }).FirstOrDefaultAsync();
-                if (approvalTypes == null)
-                {
-                    return null;
-                }
-                var approvalSettings = await approvalSettingsRepository.AllActive().FirstOrDefaultAsync(x =>
-                       x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID
-                       && x.ApprovalTypeID == approvalTypes.ApprovalTypeID);
 
+                // Get approval type
+                var approvalTypes = await approvalTypesRepository.AllActive()
+                    .Where(x => x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID)
+                    .Select(x => new { x.ApprovalTypeID, x.ApprovalTypeName })
+                    .FirstOrDefaultAsync();
+
+                if (approvalTypes == null)
+                    return null;
+
+                // Get approval settings
+                var approvalSettings = await approvalSettingsRepository.AllActive()
+                    .FirstOrDefaultAsync(x =>
+                        (x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID) &&
+                        x.ApprovalTypeID == approvalTypes.ApprovalTypeID);
+
+                // Determine approver level
                 bool isFirstApprover = approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
                 bool isSecondApprover = approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
                 bool isThirdApprover = approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
-                //
-                int ? leavStatusApproved = await GetIdByNameAsync("APPROVED");                               
-                int ? leavStatusDecline = await GetIdByNameAsync("DECLINEED"); 
+
+                // Get status IDs
+                int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
+                int? leavStatusDecline = await GetIdByNameAsync("DECLINEED");
+
                 int? statusId = entityVM.Approved ? leavStatusApproved : entityVM.Declined ? leavStatusDecline : 0;
                 if (statusId == 0)
                 {
@@ -405,7 +423,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     };
                 }
 
-                //
+                // 🔹 Authorization check
                 if (!isFirstApprover && !isSecondApprover && !isThirdApprover)
                 {
                     return new CommonReturnViewModel
@@ -415,25 +433,28 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     };
                 }
 
+                // 🔹 Approval step and status decision (NEW)
+                int approvalStep = isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : 0;
+                bool isFinalApproval = false;
+
                 if (isFirstApprover && approvalSettings.IsEnableSecondApproval)
                 {
-                    // Mark as pending second approval
-                    entity.StatusID = await GetIdByNameAsync("Pending Second Approval");
+                    entity.StatusID = await GetIdByNameAsync("Pending Second Approval"); // NEW
+                    entity.ApprovalPersonID = approvalSettings.SecondApprovalID; //
                 }
                 else if (isSecondApprover && approvalSettings.IsEnableThirdApproval)
                 {
-                    // Mark as pending third approval
-                    entity.StatusID = await GetIdByNameAsync("Pending Third Approval");
+                    entity.StatusID = await GetIdByNameAsync("Pending Third Approval"); // NEW
+                    entity.ApprovalPersonID = approvalSettings.ThirdApprovalID; 
                 }
                 else
                 {
-                    // Final Approval or Decline
-                    entity.StatusID = statusId;
+                    entity.StatusID = statusId; // Final Approval or Decline
+                    isFinalApproval = statusId == leavStatusApproved; // NEW
+                    entity.ApprovalPersonID = null; // 🔹 No next approver
                 }
-                //
-                var leaveBalanceSave = await leaveBalance.AllActive().Select(x => new { x.LeaveTypeID, x.EmployeeID, x.TotalLeave, x.Taken, x.ApplicableYear }).ToListAsync();
-                //
-                // Update full-day or partial-day fields
+
+                // 🔹 Update full-day or partial-day
                 entity.IsFullDay = entityVM.IsFullDayEdit;
                 if (entityVM.IsFullDayEdit)
                 {
@@ -442,23 +463,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     entity.PartialFromTime = null;
                     entity.PartialToTime = null;
                 }
-                else
+                else if (entityVM.ToDateFromDateCombinedEdit.HasValue)
                 {
-                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
-                    {
-                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
-                        entity.FromDate = dateOnly;
-                        entity.ToDate = dateOnly;
-                    }
-
+                    var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                    entity.FromDate = dateOnly;
+                    entity.ToDate = dateOnly;
                     entity.PartialFromTime = entityVM.PartialFromTimeEdit;
                     entity.PartialToTime = entityVM.PartialToTimeEdit;
                 }
 
-                
-                entity.StatusID = statusId;
-                // If approved, update or insert leave balance
-                if (statusId == leavStatusApproved)
+                // 🔹 Update leave balance only if final approval (CHANGED)
+                if (isFinalApproval)
                 {
                     var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
                         .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
@@ -501,66 +516,55 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     }
                 }
 
-                // Common metadata update
+                // 🔹 Metadata update
+                //entity.ApprovalPersonID = 6;
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = entityVM.UpdatedBy;
+
                 await leaveRequest.UpdateAsync(entity);
-                //
-                // LeaveBaseApprovalHistory
+
+                // 🔹 Always save approval history
                 var leaveBase = new LeaveBaseApprovalHistory
                 {
-                
                     LeaveApplicationID = entityVM.LeaveApplicationID,
                     StatusID = statusId,
                     ApproverNote = entityVM.ApprovalNote,
-                    LeaveTypeID=entityVM.LeaveTypeIDEdit,
+                    LeaveTypeID = entityVM.LeaveTypeIDEdit,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
-                   ApproveBy=entityVM.CreatedBy,
-                   ApprovalStep= isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : 0
-
-
+                    ApproveBy = entityVM.CreatedBy,
+                    ApprovalStep = approvalStep
                 };
-                //
+
                 if (entityVM.IsFullDayEdit)
                 {
                     leaveBase.FromDate = entityVM.FromDateEdit ?? default;
                     leaveBase.ToDate = entityVM.ToDateEdit ?? default;
-                    leaveBase.PartialFromTime = null;
-                    leaveBase.PartialToTime = null;
                 }
-                else
+                else if (entityVM.ToDateFromDateCombinedEdit.HasValue)
                 {
-                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
-                    {
-                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
-                        leaveBase.FromDate = dateOnly;
-                        leaveBase.ToDate = dateOnly;
-                    }
-
+                    var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+                    leaveBase.FromDate = dateOnly;
+                    leaveBase.ToDate = dateOnly;
                     leaveBase.PartialFromTime = entityVM.PartialFromTimeEdit;
                     leaveBase.PartialToTime = entityVM.PartialToTimeEdit;
                 }
-                //
+
                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
-                //
-                //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 await leaveRequest.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
                 {
                     Success = true,
                     Message = "Updated Successfully."
-
                 };
             }
             catch (Exception ex)
             {
-
                 await leaveRequest.RollbackTransactionAsync();
                 Console.WriteLine(ex.Message);
                 return new CommonReturnViewModel
@@ -570,6 +574,231 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 };
             }
         }
+
+        //
+
+
+        //public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
+        //{
+
+        //    if (entityVM == null)
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "Data Can not be null"
+        //        };
+        //    }
+        //    var employeeId = entityVM.CreatedBy;
+
+        //    await leaveRequest.BeginTransactionAsync();
+
+        //    try
+        //    {
+
+        //        var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
+        //        if (entity == null)
+        //            return null;
+        //        //
+        //        var offf=await empoffi.AllActive().Where(x=>x.EmployeeID==entityVM.CreatedBy).Select(x=> new {x.EmployeeID,x.OrganizationID,x.OrganizationBranchID,x.DepartmentID,x.DesignationID}).FirstOrDefaultAsync();
+        //        if (offf == null)
+        //        {
+        //            return new CommonReturnViewModel
+        //            {
+        //                Success = false,
+        //                Message = "Employee office info not found."
+        //            };
+        //        }
+        //        var approvalTypes = await approvalTypesRepository.AllActive().Where(x=>x.OrganizationID==offf.OrganizationID || x.OrganizationBranchID==offf.OrganizationBranchID).Select(x => new {x.ApprovalTypeID,x.ApprovalTypeName }).FirstOrDefaultAsync();
+        //        if (approvalTypes == null)
+        //        {
+        //            return null;
+        //        }
+        //        var approvalSettings = await approvalSettingsRepository.AllActive().FirstOrDefaultAsync(x =>
+        //               x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID
+        //               && x.ApprovalTypeID == approvalTypes.ApprovalTypeID);
+
+        //        bool isFirstApprover = approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
+        //        bool isSecondApprover = approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
+        //        bool isThirdApprover = approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
+        //        //
+        //        int ? leavStatusApproved = await GetIdByNameAsync("APPROVED");                               
+        //        int ? leavStatusDecline = await GetIdByNameAsync("DECLINEED"); 
+        //        int? statusId = entityVM.Approved ? leavStatusApproved : entityVM.Declined ? leavStatusDecline : 0;
+        //        if (statusId == 0)
+        //        {
+        //            return new CommonReturnViewModel
+        //            {
+        //                Success = false,
+        //                Message = "Approval or Decline must be selected."
+        //            };
+        //        }
+
+        //        //
+        //        if (!isFirstApprover && !isSecondApprover && !isThirdApprover)
+        //        {
+        //            return new CommonReturnViewModel
+        //            {
+        //                Success = false,
+        //                Message = "You are not authorized to approve this leave request."
+        //            };
+        //        }
+
+        //        if (isFirstApprover && approvalSettings.IsEnableSecondApproval)
+        //        {
+        //            // Mark as pending second approval
+        //            entity.StatusID = await GetIdByNameAsync("Pending Second Approval");
+        //        }
+        //        else if (isSecondApprover && approvalSettings.IsEnableThirdApproval)
+        //        {
+        //            // Mark as pending third approval
+        //            entity.StatusID = await GetIdByNameAsync("Pending Third Approval");
+        //        }
+        //        else
+        //        {
+        //            // Final Approval or Decline
+        //            entity.StatusID = statusId;
+        //        }
+        //        //
+        //        var leaveBalanceSave = await leaveBalance.AllActive().Select(x => new { x.LeaveTypeID, x.EmployeeID, x.TotalLeave, x.Taken, x.ApplicableYear }).ToListAsync();
+        //        //
+        //        // Update full-day or partial-day fields
+        //        entity.IsFullDay = entityVM.IsFullDayEdit;
+        //        if (entityVM.IsFullDayEdit)
+        //        {
+        //            entity.FromDate = entityVM.FromDateEdit ?? default;
+        //            entity.ToDate = entityVM.ToDateEdit ?? default;
+        //            entity.PartialFromTime = null;
+        //            entity.PartialToTime = null;
+        //        }
+        //        else
+        //        {
+        //            if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+        //            {
+        //                var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+        //                entity.FromDate = dateOnly;
+        //                entity.ToDate = dateOnly;
+        //            }
+
+        //            entity.PartialFromTime = entityVM.PartialFromTimeEdit;
+        //            entity.PartialToTime = entityVM.PartialToTimeEdit;
+        //        }
+
+
+        //        entity.StatusID = statusId;
+        //        // If approved, update or insert leave balance
+        //        if (statusId == leavStatusApproved)
+        //        {
+        //            var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
+        //                .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
+        //                .Select(x => new { x.LeaveDays, x.ApplicableYear })
+        //                .FirstOrDefaultAsync();
+
+        //            var existingBalance = await leaveBalance.AllActive()
+        //                .FirstOrDefaultAsync(x =>
+        //                    x.EmployeeID == entityVM.EmployeeIDEdit &&
+        //                    x.LeaveTypeID == entityVM.LeaveTypeIDEdit);
+
+        //            if (existingBalance != null)
+        //            {
+        //                existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
+        //                existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
+        //                existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
+        //                existingBalance.LIP = entityVM.LIP;
+        //                existingBalance.LMAC = entityVM.LMAC;
+        //                existingBalance.UpdatedAt = DateTime.Now;
+        //                existingBalance.UpdatedBy = entityVM.UpdatedBy;
+
+        //                await leaveBalance.UpdateAsync(existingBalance);
+        //            }
+        //            else
+        //            {
+        //                var newBalance = new LeaveBalances
+        //                {
+        //                    EmployeeID = entityVM.EmployeeIDEdit,
+        //                    LeaveTypeID = entityVM.LeaveTypeIDEdit,
+        //                    Taken = entityVM.TotalAppliedDays,
+        //                    TotalLeave = leaveDaysFromConfig.LeaveDays,
+        //                    ApplicableYear = leaveDaysFromConfig.ApplicableYear,
+        //                    CreatedAt = DateTime.Now,
+        //                    CreatedBy = entityVM.CreatedBy,
+        //                    LIP = entityVM.LIP,
+        //                    LMAC = entityVM.LMAC
+        //                };
+
+        //                await leaveBalance.AddAsync(newBalance);
+        //            }
+        //        }
+
+        //        // Common metadata update
+        //        entity.LIP = entityVM.LIP;
+        //        entity.LMAC = entityVM.LMAC;
+        //        entity.UpdatedAt = DateTime.Now;
+        //        entity.UpdatedBy = entityVM.UpdatedBy;
+        //        await leaveRequest.UpdateAsync(entity);
+        //        //
+        //        // LeaveBaseApprovalHistory
+        //        var leaveBase = new LeaveBaseApprovalHistory
+        //        {
+
+        //            LeaveApplicationID = entityVM.LeaveApplicationID,
+        //            StatusID = statusId,
+        //            ApproverNote = entityVM.ApprovalNote,
+        //            LeaveTypeID=entityVM.LeaveTypeIDEdit,
+        //            CreatedAt = DateTime.Now,
+        //            CreatedBy = entityVM.CreatedBy,
+        //            LIP = entityVM.LIP,
+        //            LMAC = entityVM.LMAC,
+        //           ApproveBy=entityVM.CreatedBy,
+        //           ApprovalStep= isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : 0
+
+
+        //        };
+        //        //
+        //        if (entityVM.IsFullDayEdit)
+        //        {
+        //            leaveBase.FromDate = entityVM.FromDateEdit ?? default;
+        //            leaveBase.ToDate = entityVM.ToDateEdit ?? default;
+        //            leaveBase.PartialFromTime = null;
+        //            leaveBase.PartialToTime = null;
+        //        }
+        //        else
+        //        {
+        //            if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+        //            {
+        //                var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+        //                leaveBase.FromDate = dateOnly;
+        //                leaveBase.ToDate = dateOnly;
+        //            }
+
+        //            leaveBase.PartialFromTime = entityVM.PartialFromTimeEdit;
+        //            leaveBase.PartialToTime = entityVM.PartialToTimeEdit;
+        //        }
+        //        //
+        //        await leaveBaseAprovalHistory.AddAsync(leaveBase);
+        //        //
+        //        //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
+        //        await leaveRequest.CommitTransactionAsync();
+
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = true,
+        //            Message = "Updated Successfully."
+
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        await leaveRequest.RollbackTransactionAsync();
+        //        Console.WriteLine(ex.Message);
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "An error occurred while saving the leave request Update."
+        //        };
+        //    }
+        //}
 
         #endregion
 

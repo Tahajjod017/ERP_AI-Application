@@ -9,7 +9,7 @@
                 <div class="mb-3">
 
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required disabled>
+                    <select class="form-select choiceDD" asp-for="EmployeeIDEdit" required asp-items="@ViewBag.EmployeesDD as SelectList" disabled>
                         <option value="">Select Employee</option>
                     </select>
                     <span asp-validation-for="EmployeeIDEdit" class="text-danger small"></span>
