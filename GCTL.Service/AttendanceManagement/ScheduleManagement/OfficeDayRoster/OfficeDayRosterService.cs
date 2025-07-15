@@ -56,134 +56,129 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region AddAsync
-        //public async Task<bool> AddAsync(RosterInOfficeDaysSetupVM model)
-        //{
-        //    await _genericRepository.BeginTransactionAsync();
-        //    try
-        //    {
-        //        //var startDate = DateTime.ParseExact(model.StartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+        public async Task<bool> AddAsync(RosterInOfficeDaysSetupVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
+                {
+                    var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
 
-        //        if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
-        //        {
-        //            var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
-        //            //if (employees == null || !employees.Any())
-        //            //    continue;
-        //            foreach (var employee in employees)
-        //            {
-        //                //if (model.ExcludedEmployeeIDs != null && model.ExcludedEmployeeIDs.Contains(employee.EmployeeID ?? 0))
-        //                //    continue;
+                    //for (var date = model.StartDate; date <= model.EndDate; date = date.AddDays(1))
+                    //{
+                        foreach (var employee in employees)
+                        {
+                            var existingEntity = await _genericRepository.All()
+                                .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            if (existingEntity != null)
+                            {
+                                existingEntity.ShiftID = model.ShiftID;
+                                existingEntity.LIP = model.LIP;
+                                existingEntity.LMAC = model.LMAC;
+                                existingEntity.CreatedBy = model.CreatedBy;
+                                existingEntity.CreatedAt = DateTime.Now;
 
-        //                var existingEntity = await _genericRepository.All()
-        //                    .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID && x.StartDate == model.StartDate && x.EndDate == model.EndDate).FirstOrDefaultAsync();
-        //                if (existingEntity != null)
-        //                {
-        //                    existingEntity.ShiftID = model.ShiftID;
-        //                    existingEntity.LIP = model.LIP;
-        //                    existingEntity.LMAC = model.LMAC;
-        //                    existingEntity.CreatedBy = model.CreatedBy;
-        //                    existingEntity.CreatedAt = DateTime.Now;
+                                await _genericRepository.UpdateAsync(existingEntity);
+                            }
+                            else
+                            {
+                                RosterInOfficeDays entity = new RosterInOfficeDays();
+                                entity.OrganizationID = employee.OrganizationID;
+                                entity.DepartmentID = employee.DepartmentID;
+                                entity.EmployeeID = employee.EmployeeID;
+                                entity.ShiftID = model.ShiftID;
+                                entity.LIP = model.LIP;
+                                entity.LMAC = model.LMAC;
+                                entity.CreatedBy = model.CreatedBy;
+                                entity.CreatedAt = DateTime.Now;
+                                await _genericRepository.AddAsync(entity);
+                            }
+                        }
+                    //}
+                }
+                else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
+                {
+                    foreach (var depId in model.DepartmentIDs)
+                    {
+                        var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
+                        if (employees == null || !employees.Any())
+                            continue;
+                        foreach (var employee in employees)
+                        {
+                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            if (existingEntity != null)
+                            {
+                                existingEntity.ShiftID = model.ShiftID;
+                                existingEntity.LIP = model.LIP;
+                                existingEntity.LMAC = model.LMAC;
+                                existingEntity.CreatedBy = model.CreatedBy;
+                                existingEntity.CreatedAt = DateTime.Now;
 
-        //                    await _genericRepository.UpdateAsync(existingEntity);
-        //                }
-        //                else
-        //                {
-        //                    RosterInOfficeDays entity = new RosterInOfficeDays();
-        //                    entity.OrganizationID = employee.OrganizationID;
-        //                    entity.DepartmentID = employee.DepartmentID;
-        //                    entity.EmployeeID = employee.EmployeeID;
-        //                    entity.ShiftID = model.ShiftID;
-        //                    entity.StartDate = model.StartDate;
-        //                    entity.EndDate = model.EndDate;
-        //                    entity.LIP = model.LIP;
-        //                    entity.LMAC = model.LMAC;
-        //                    entity.CreatedBy = model.CreatedBy;
-        //                    entity.CreatedAt = DateTime.Now;
-        //                    await _genericRepository.AddAsync(entity);
-        //                }
-        //            }
-        //        }
-        //        else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
-        //        {
-        //            foreach (var depId in model.DepartmentIDs)
-        //            {
-        //                var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
-        //                if (employees == null || !employees.Any())
-        //                    continue;
-        //                foreach (var employee in employees)
-        //                {
-        //                    var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
-        //                    if (existingEntity != null)
-        //                    {
-        //                        existingEntity.ShiftID = model.ShiftID;
-        //                        existingEntity.LIP = model.LIP;
-        //                        existingEntity.LMAC = model.LMAC;
-        //                        existingEntity.CreatedBy = model.CreatedBy;
-        //                        existingEntity.CreatedAt = DateTime.Now;
+                                await _genericRepository.UpdateAsync(existingEntity);
+                            }
+                            else
+                            {
+                                RosterInOfficeDays entity = new RosterInOfficeDays();
+                                entity.ShiftID = model.ShiftID;
+                                entity.OrganizationID = employee.OrganizationID;
+                                entity.DepartmentID = employee.DepartmentID;
+                                entity.EmployeeID = employee.EmployeeID;
+                                entity.LIP = model.LIP;
+                                entity.LMAC = model.LMAC;
+                                entity.CreatedBy = model.CreatedBy;
+                                entity.CreatedAt = DateTime.Now;
+                                await _genericRepository.AddAsync(entity);
+                            }
+                        }
+                    }
+                }
+                else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
+                {
+                    foreach (var empId in model.EmployeeIDs)
+                    {
+                        var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
 
-        //                        await _genericRepository.UpdateAsync(existingEntity);
-        //                    }
-        //                    else
-        //                    {
-        //                        RosterInOfficeDays entity = new RosterInOfficeDays();
-        //                        entity.ShiftID = model.ShiftID;
-        //                        entity.OrganizationID = employee.OrganizationID;
-        //                        entity.DepartmentID = employee.DepartmentID;
-        //                        entity.EmployeeID = employee.EmployeeID;
-        //                        entity.LIP = model.LIP;
-        //                        entity.LMAC = model.LMAC;
-        //                        entity.CreatedBy = model.CreatedBy;
-        //                        entity.CreatedAt = DateTime.Now;
-        //                        await _genericRepository.AddAsync(entity);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
-        //        {
-        //            foreach (var empId in model.EmployeeIDs)
-        //            {
-        //                var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
+                        if (employee == null || employee.DepartmentID == null) continue;
 
-        //                if (employee == null || employee.DepartmentID == null) continue;
+                        var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                        if (existingEntity != null)
+                        {
+                            existingEntity.ShiftID = model.ShiftID;
+                            existingEntity.LIP = model.LIP;
+                            existingEntity.LMAC = model.LMAC;
+                            existingEntity.CreatedBy = model.CreatedBy;
+                            existingEntity.CreatedAt = DateTime.Now;
 
-        //                var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
-        //                if (existingEntity != null)
-        //                {
-        //                    existingEntity.ShiftID = model.ShiftID;
-        //                    existingEntity.LIP = model.LIP;
-        //                    existingEntity.LMAC = model.LMAC;
-        //                    existingEntity.CreatedBy = model.CreatedBy;
-        //                    existingEntity.CreatedAt = DateTime.Now;
+                            await _genericRepository.UpdateAsync(existingEntity);
+                        }
+                        else
+                        {
+                            RosterInOfficeDays entity = new RosterInOfficeDays();
+                            entity.OrganizationID = employee.OrganizationID;
+                            entity.DepartmentID = employee.DepartmentID;
+                            entity.EmployeeID = empId;
+                            entity.ShiftID = model.ShiftID;
 
-        //                    await _genericRepository.UpdateAsync(existingEntity);
-        //                }
-        //                else
-        //                {
-        //                    RosterInOfficeDays entity = new RosterInOfficeDays();
-        //                    entity.OrganizationID = employee.OrganizationID;
-        //                    entity.DepartmentID = employee.DepartmentID;
-        //                    entity.EmployeeID = empId;
-        //                    entity.ShiftID = model.ShiftID;
+                            entity.LIP = model.LIP;
+                            entity.LMAC = model.LMAC;
+                            entity.CreatedBy = model.CreatedBy;
+                            entity.CreatedAt = DateTime.Now;
 
-        //                    entity.LIP = model.LIP;
-        //                    entity.LMAC = model.LMAC;
-        //                    entity.CreatedBy = model.CreatedBy;
-        //                    entity.CreatedAt = DateTime.Now;
+                            await _genericRepository.AddAsync(entity);
+                        }
+                    }
+                }
 
-        //                    await _genericRepository.AddAsync(entity);
-        //                }
-        //            }
-        //        }
-
-        //        await _genericRepository.CommitTransactionAsync();
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await _genericRepository.RollbackTransactionAsync();
-        //        return false;
-        //    }
-        //}
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
         #endregion
 
 

@@ -4,28 +4,31 @@
     var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
-<style>
-    element.style {
-        top: 276.25px;
-        left: 1378.03px;
-        user-select: none;
-    }
+@section Styles{
+    <style>
+        element.style {
+            top: 276.25px;
+            left: 1378.03px;
+            user-select: none;
+        }
 
-    .date-picker-wrapper {
-        margin-left: 1.2vw !important;
-    }
-</style>
+        .date-picker-wrapper {
+            margin-left: 1.2vw !important;
+        }
+    </style>
+}
 
-<form asp-controller="OfficeDayRoster" asp-action="Create" id="rosterInOfficeDays-form" enctype="multipart/form-data">
+<form asp-controller="OfficeDayRoster" asp-action="Create" method="post" id="rosterInOfficeDays-form" enctype="multipart/form-data">
     <div class="row g-3 mb-3">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="RosterInOfficeDayID" />
 
         <div class="col-md">
-            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")</label>
+            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
             <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                 <option value="">@Html.SmartLocalize("Select Organization")...</option>
             </select>
+            <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
         </div>
 
         <div class="col-md branch">
@@ -75,20 +78,23 @@
 
     <div class="row g-3 mb-3">
         <div class="col-md">
-            <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Shift Name")</label>
+            <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Shift Name")<span style="color:red;">&nbsp;*</span></label>
             <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
                 <option value="">@Html.SmartLocalize("Select Shift")...</option>
             </select>
+            <span id="ShiftIDError" class="text-danger" style="display:none;"></span>
         </div>
 
         <div class="col-md">
-            <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")</label>
+            <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")<span style="color:red;">&nbsp;*</span></label>
             <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "monthSelectorType": "dropdown", "disableMobile": true}' />
+            <span id="StartDateError" class="text-danger" style="display:none;"></span>
         </div>
 
         <div class="col-md">
-            <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")</label>
+            <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")<span style="color:red;">&nbsp;*</span></label>
             <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "monthSelectorType": "dropdown", "disableMobile": true}' />
+            <span id="EndDateError" class="text-danger" style="display:none;"></span>
         </div>
 
         @* <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>

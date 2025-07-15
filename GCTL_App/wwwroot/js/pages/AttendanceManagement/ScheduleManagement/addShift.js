@@ -293,6 +293,10 @@
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#addShift-check-all").prop('checked', false);
                 $('.addShift-selectItem').prop('checked', false);
+                $('.coreUiDD').css({
+                    'border': '1px solid #ccc',
+                    'border-radius': '7px'
+                });
                 loadTableData();
                 toggleBulkActions();
             }
@@ -324,9 +328,9 @@
                         'border-radius': '7px'
                     });
                 } else {
-                    $('coreUiDD').css({
+                    $('.coreUiDD').css({
                         'border': '1px solid #ccc',
-                        'border-radius': ''
+                        'border-radius': '7px'
                     })
                 }
             }

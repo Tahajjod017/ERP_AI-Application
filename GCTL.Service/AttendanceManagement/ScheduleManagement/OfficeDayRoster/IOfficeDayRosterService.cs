@@ -14,7 +14,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
     public interface IOfficeDayRosterService
     {
         #region CRUD
-        //Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
+        Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
         //Task<bool> UpdateAsync(RosterInOfficeDaysSetupVM model);
         //Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model);
         //Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);

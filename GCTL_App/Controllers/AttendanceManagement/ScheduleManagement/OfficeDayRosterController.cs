@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
@@ -45,51 +46,45 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        //[Permission("Create", "OfficeDayRoster")]
-        //[ValidateAntiForgeryToken]
-        //[HttpPost]
-        //public async Task<IActionResult> Create(RosterInOfficeDaysSetupVM model)
-        //{
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            if (model.OrganizationID == null)
-        //            {
-        //                return Json(new { isSuccess = false, message = "Please choose an Organization!" });
-        //            }
+        [Permission("Create", "OfficeDayRoster")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Create(RosterInOfficeDaysSetupVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //// userInfoService.SetUserInfo(model, User, HttpContext);
+                    //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
 
-        //            if (model.ShiftID == null)
-        //            {
-        //                return Json(new { isSuccess = false, message = "Please choose a shift!" });
-        //            }
+                    await _assignDefaultShiftService.AddAsync(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                }
 
-        //            if(model.StartDate == null && model.EndDate == null)
-        //            {
-        //                return Json(new { isSuccess = false, message = "Please select start date & end date!" });
-        //            }
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "OrganizationID", "ShiftID", "StartDate", "EndDate" };
 
-        //            //var hasData = 
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
 
-        //            //// userInfoService.SetUserInfo(model, User, HttpContext);
-        //            //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
-        //            //if (!uniqueName)
-        //            //{
-        //            //    return Json(new { isSuccess = false, message = "This name already exists!" });
-        //            //}
-
-        //            await _assignDefaultShiftService.AddAsync(model);
-        //            return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
-        //        }
-        //        var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-
-        //        return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { isSuccess = false, message = ex.Message });
-        //    }
-        //}
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
         #endregion
 
 

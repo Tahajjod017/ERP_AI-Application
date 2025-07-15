@@ -92,60 +92,6 @@ function hideLoadingBaseIndicator() {
 
 //#endregion
 
-//#region Show Loading on page Load
-
-//var loadingTimer;
-//var loadingShown = false; // flag to ensure only one modal show
-//var loadingTimeout; // for auto-hide
-
-//function triggerLoadingModal(message) {
-//    if (!loadingShown) {
-//        loadingTimer = setTimeout(function () {
-//            showLoadingBaseIndicator(message);
-//            loadingShown = true;
-
-//            // Auto-hide modal after 10 seconds
-//            loadingTimeout = setTimeout(function () {
-//                hideLoadingBaseIndicator(); // make sure this exists
-//                loadingShown = false;
-//            }, 100);
-//        }, 2000); // delay before showing modal
-//    }
-//}
-
-//window.addEventListener('beforeunload', function () {
-//    triggerLoadingModal('Loading, please wait...');
-//});
-
-//document.addEventListener('DOMContentLoaded', function () {
-//    // Intercept anchor clicks (real page navigations only)
-//    document.querySelectorAll('a[href]').forEach(function (anchor) {
-//        anchor.addEventListener('click', function (e) {
-//            var href = anchor.getAttribute('href');
-
-//            // Skip links that are empty, hashes, or same-page
-//            if (
-//                !href ||
-//                href.trim() === '' ||
-//                href.trim() === '#' ||
-//                href.startsWith('#') ||
-//                e.ctrlKey || e.shiftKey || e.altKey || e.metaKey
-//            ) return;
-
-//            triggerLoadingModal('Loading, please wait...');
-//        });
-//    });
-
-//    // Intercept form submissions
-//    document.querySelectorAll('form').forEach(function (form) {
-//        form.addEventListener('submit', function () {
-//            triggerLoadingModal('Processing, please wait...');
-//        });
-//    });
-//});
-
-//#endregion
-
 
 
 
@@ -171,31 +117,71 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 // #region For flatpicker datepicker
-document.addEventListener("DOMContentLoaded", function () {
-    flatpickr(".datetimepicker", {
-        onDayCreate: function (dObj, dStr, fp, dayElem) {
-            const dayNumber = parseInt(dayElem.textContent);
-            const year = fp.currentYear;
-            const month = fp.currentMonth;
+//document.addEventListener("DOMContentLoaded", function () {
+//    flatpickr(".datetimepicker", {
+//        onDayCreate: function (dObj, dStr, fp, dayElem) {
+//            const dayNumber = parseInt(dayElem.textContent);
+//            const year = fp.currentYear;
+//            const month = fp.currentMonth;
 
-            // Check if the day is part of the currently displayed month
-            if (
-                !isNaN(dayNumber) &&
-                !dayElem.classList.contains("prevMonthDay") &&
-                !dayElem.classList.contains("nextMonthDay")
-            ) {
-                const date = new Date(year, month, dayNumber);
-                const dayOfWeek = date.getDay(); // 5 = Friday, 6 = Saturday
+//            // Check if the day is part of the currently displayed month
+//            if (
+//                !isNaN(dayNumber) &&
+//                !dayElem.classList.contains("prevMonthDay") &&
+//                !dayElem.classList.contains("nextMonthDay")
+//            ) {
+//                const date = new Date(year, month, dayNumber);
+//                const dayOfWeek = date.getDay(); // 5 = Friday, 6 = Saturday
 
-                if (dayOfWeek === 5 || dayOfWeek === 6) {
-                    dayElem.style.backgroundColor = "#FFA500"; // #FFA500 = Orange, gray = #e8eaec
-                    dayElem.style.color = "#ffffff";
-                    dayElem.style.borderRadius = "50%";
-                }
-            }
+//                if (dayOfWeek === 5 || dayOfWeek === 6) {
+//                    dayElem.style.backgroundColor = "#FFA500"; // #FFA500 = Orange, gray = #e8eaec
+//                    dayElem.style.color = "#ffffff";
+//                    dayElem.style.borderRadius = "50%";
+//                }
+//            }
+//        }
+//    });
+//});
+// #endregion
+
+
+
+// #region Validation
+function validateField(fieldId, response) {
+    const $field = $('#' + fieldId);
+    const $errorSpan = $('#' + fieldId + 'Error');
+    const hasError = response.field === fieldId;
+    const hasValue = $field.val();
+
+    // Check if it's a Choices.js-enhanced field
+    const isChoices = $field.closest('.choices').length > 0;
+
+    if (isChoices) {
+        const $choicesInner = $field.closest('.choices').find('.choices__inner');
+        // Clear previous styles
+        $choicesInner.removeClass('border-danger border-success');
+        $errorSpan.hide().text('');
+
+        // Apply validation
+        if (hasError) {
+            $choicesInner.addClass('border-danger');
+            $errorSpan.text(response.message).show();
+        } else if (hasValue) {
+            $choicesInner.addClass('border-success');
         }
-    });
-});
+    } else {
+        // Normal input/select field
+        $field.removeClass('is-invalid is-valid');
+        $errorSpan.hide().text('');
+
+        if (hasError) {
+            $field.addClass('is-invalid');
+            $errorSpan.text(response.message).show();
+        } else if (hasValue) {
+            $field.addClass('is-valid');
+        }
+    }
+}
 // #endregion
 
 //
