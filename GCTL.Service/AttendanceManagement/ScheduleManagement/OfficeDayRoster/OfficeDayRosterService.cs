@@ -31,6 +31,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //private readonly IGenericRepository<RosterInOfficeDaysOverride> _rosterInOfficeDayOverride;
         private readonly IConfiguration _configuration;
         private readonly IGenericRepository<OrganizationBranches> _branchRepository;
+        private readonly IDbConnection _dbCon;
 
         public OfficeDayRosterService(IGenericRepository<RosterInOfficeDays> genericRepository,
             IGenericRepository<Organization> organizationRepository,
@@ -40,7 +41,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             IGenericRepository<Shifts> shiftsRepository,
             //IGenericRepository<RosterInOfficeDaysOverride> rosterInOfficeDayOverride,
             IConfiguration configuration,
-            IGenericRepository<OrganizationBranches> branchRepository) : base(genericRepository)
+            IGenericRepository<OrganizationBranches> branchRepository,
+            IDbConnection dbCon) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _organizationRepository = organizationRepository;
@@ -51,6 +53,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             //_rosterInOfficeDayOverride = rosterInOfficeDayOverride;
             _configuration = configuration;
             _branchRepository = branchRepository;
+            _dbCon = new SqlConnection(configuration.GetConnectionString("connection"));
         }
         #endregion
 
@@ -65,12 +68,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 {
                     var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
 
-                    //for (var date = model.StartDate; date <= model.EndDate; date = date.AddDays(1))
-                    //{
+                    for (var date = model.StartDate.Value; date <= model.EndDate.Value; date = date.AddDays(1))
+                    {
                         foreach (var employee in employees)
                         {
                             var existingEntity = await _genericRepository.All()
-                                .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                                .Where(x => x.OrganizationID == employee.OrganizationID 
+                                && x.DepartmentID == employee.DepartmentID 
+                                && x.EmployeeID == employee.EmployeeID
+                                && x.DayDate == date)
+                                .FirstOrDefaultAsync();
                             if (existingEntity != null)
                             {
                                 existingEntity.ShiftID = model.ShiftID;
@@ -88,6 +95,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                                 entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = employee.EmployeeID;
                                 entity.ShiftID = model.ShiftID;
+                                entity.DayDate = date;
                                 entity.LIP = model.LIP;
                                 entity.LMAC = model.LMAC;
                                 entity.CreatedBy = model.CreatedBy;
@@ -95,7 +103,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                                 await _genericRepository.AddAsync(entity);
                             }
                         }
-                    //}
+                    }
                 }
                 else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
                 {
@@ -368,120 +376,141 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
 
-        //public async Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
-        //int pageNumber = 1,
-        //int pageSize = 5,
-        //string searchTerm = "",
-        //string sortColumn = "RosterInOfficeDayID",
-        //string sortOrder = "desc",
-        //int daysToShow = 7,
-        //DateTime? startDate = null)
-        //{
-        //    var start = startDate ?? DateTime.Today;
-        //    var end = start.AddDays(daysToShow - 1);
+        public async Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
+        int pageNumber = 1,
+        int pageSize = 5,
+        string searchTerm = "",
+        string sortColumn = "RosterInOfficeDayID",
+        string sortOrder = "desc",
+        int daysToShow = 7,
+        DateTime? startDate = null)
+        {
+            var start = startDate ?? DateTime.Today;
+            var end = start.AddDays(daysToShow - 1);
 
-        //    // Fetch from DB
-        //    var query = _genericRepository.AllActive().AsNoTracking()
-        //        .Include(x => x.Shift)
-        //        .Include(x => x.Organization)
-        //        .Include(x => x.Department)
-        //        .Include(x => x.Employee)
-        //        .Include(x => x.RosterInOfficeDaysOverride)
-        //            .ThenInclude(o => o.Shift)
-        //        .Where(x => x.StartDate <= end && x.EndDate >= start);
+            // Fetch from DB
+            var query = _genericRepository.AllActive().AsNoTracking()
+                .Include(x => x.Shift)
+                .Include(x => x.Organization)
+                .Include(x => x.Department)
+                .Include(x => x.Employee)
+                .Where(x => x.DayDate <= end && x.DayDate >= start);
 
-        //    // Optional filter
-        //    if (!string.IsNullOrWhiteSpace(searchTerm))
-        //    {
-        //        query = query.Where(x =>
-        //            EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
-        //            EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
-        //            EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
-        //            EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
-        //            EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
-        //            EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
-        //    }
+            // Optional filter
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(x =>
+                    EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
+            }
 
-        //    var records = await query.ToListAsync();
+            var records = await query.ToListAsync();
 
-        //    // Flatten shift records by day
-        //    var flattened = new List<RosterInOfficeDaysSetupVM>();
+            // Flatten shift records by day
+            var flattened = new List<RosterInOfficeDaysSetupVM>();
 
-        //    foreach (var item in records)
-        //    {
-        //        var current = item.StartDate;
-        //        while (current <= item.EndDate)
-        //        {
-        //            if (current.Value.Date == DateTime.Today)
-        //            {
-        //                Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
-        //            }
+            foreach (var item in records)
+            {
+                var current = item.DayDate;
+                while (current <= item.DayDate)
+                {
+                    if (current.Value.Date == DateTime.Today)
+                    {
+                        Console.WriteLine("✅ Including current date: " + current.Value.ToShortDateString());
+                    }
 
-        //            if (current >= start && current <= end)
-        //            {
-        //                flattened.Add(new RosterInOfficeDaysSetupVM
-        //                {
-        //                    RosterInOfficeDayID = item.RosterInOfficeDayID,
-        //                    OrganizationID = item.OrganizationID,
-        //                    OrganizationName = item.Organization?.OrganizationName ?? "-",
-        //                    DepartmentID = item.DepartmentID,
-        //                    DepartmentName = item.Department?.DepartmentName ?? "-",
-        //                    EmployeeID = item.EmployeeID,
-        //                    EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
-        //                    ShiftID = item.ShiftID,
-        //                    ShiftName = item.Shift?.ShiftName ?? "-",
-        //                    StartDate = current,
-        //                    EndDate = current,
-        //                    TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}",
-        //                    RosterInOfficeDaysOverrideSetupVMs = item.RosterInOfficeDaysOverride?
-        //                        .Where(o => o.OverrideDate?.Date == current.Value.Date)
-        //                        .Select(o => new RosterInOfficeDaysOverrideSetupVM
-        //                        {
-        //                            RosterInOfficeDaysOverrideID = o.RosterInOfficeDaysOverrideID,
-        //                            RosterInOfficeDayID = o.RosterInOfficeDayID ?? 0,
-        //                            OverrideDate = o.OverrideDate,
-        //                            ShiftID = o.ShiftID ?? 0,
-        //                            ShiftName = o.Shift?.ShiftName ?? "",
-        //                            TimeRange = $"{o.Shift?.StartTime:hh\\:mm} - {o.Shift?.EndTime:hh\\:mm}"
-        //                        }).ToList()
-        //                });
-        //            }
+                    if (current >= start && current <= end)
+                    {
+                        flattened.Add(new RosterInOfficeDaysSetupVM
+                        {
+                            RosterInOfficeDayID = item.RosterInOfficeDayID,
+                            OrganizationID = item.OrganizationID,
+                            OrganizationName = item.Organization?.OrganizationName ?? "-",
+                            DepartmentID = item.DepartmentID,
+                            DepartmentName = item.Department?.DepartmentName ?? "-",
+                            EmployeeID = item.EmployeeID,
+                            EmployeeName = $"{item.Employee?.FirstName} {item.Employee?.LastName} ({item.Employee?.EmployeeCode})",
+                            ShiftID = item.ShiftID,
+                            ShiftName = item.Shift?.ShiftName ?? "-",
+                            StartDate = current,
+                            EndDate = current,
+                            TimeRange = $"{item.Shift?.StartTime:hh\\:mm} - {item.Shift?.EndTime:hh\\:mm}"
+                        });
+                    }
 
-        //            current = current?.AddDays(1);
-        //        }
-        //    }
+                    current = current?.AddDays(1);
+                }
+            }
 
-        //    // Group by Employee
-        //    var grouped = flattened
-        //        .GroupBy(x => x.EmployeeID)
-        //        .Select(g => new RosterEmployeeGroupedVM
-        //        {
-        //            EmployeeID = g.Key ?? 0,
-        //            EmployeeName = g.First().EmployeeName,
-        //            DepartmentName = g.First().DepartmentName,
-        //            OrganizationName = g.First().OrganizationName,
-        //            ShiftCells = g.ToList()
-        //        })
-        //        .ToList();
+            // Group by Employee
+            var grouped = flattened
+                .GroupBy(x => x.EmployeeID)
+                .Select(g => new RosterEmployeeGroupedVM
+                {
+                    EmployeeID = g.Key ?? 0,
+                    EmployeeName = g.First().EmployeeName,
+                    DepartmentName = g.First().DepartmentName,
+                    OrganizationName = g.First().OrganizationName,
+                    ShiftCells = g.ToList()
+                })
+                .ToList();
 
-        //    var totalItems = grouped.Count;
-        //    var pagedGroups = grouped
-        //        .Skip((pageNumber - 1) * pageSize)
-        //        .Take(pageSize)
-        //        .ToList();
+            var totalItems = grouped.Count;
+            var pagedGroups = grouped
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-        //    var pagination = new PaginationInfo2
-        //    {
-        //        TotalItems = totalItems,
-        //        CurrentPage = pageNumber,
-        //        TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
-        //        StartItem = (pageNumber - 1) * pageSize + 1,
-        //        EndItem = Math.Min(pageNumber * pageSize, totalItems),
-        //        PageNumbers = Enumerable.Range(1, (int)Math.Ceiling((double)totalItems / pageSize)).ToList()
-        //    };
+            var pagination = new PaginationInfo2
+            {
+                TotalItems = totalItems,
+                CurrentPage = pageNumber,
+                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+                StartItem = (pageNumber - 1) * pageSize + 1,
+                EndItem = Math.Min(pageNumber * pageSize, totalItems),
+                PageNumbers = Enumerable.Range(1, (int)Math.Ceiling((double)totalItems / pageSize)).ToList()
+            };
 
-        //    return (pagedGroups, pagination);
-        //}
+            return (pagedGroups, pagination);
+        }
+
+
+
+
+
+        public async Task<PaginationResult2<RosterInOfficeDaysListVM>> GetPagedEmployeesAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder)
+        {
+            try
+            {
+                var result = new PaginationResult2<RosterInOfficeDaysListVM>();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@PageNumber", pageNumber);
+                parameters.Add("@PageSize", pageSize);
+                parameters.Add("@SearchTerm", searchTerm);
+                parameters.Add("@SortColumn", sortColumn);
+                parameters.Add("@SortOrder", sortOrder);
+
+                using var multi = await _dbCon.QueryMultipleAsync("Prc_GetEmployeesPaged", parameters, commandType: CommandType.StoredProcedure);
+                result.Data = (await multi.ReadAsync<RosterInOfficeDaysListVM>()).ToList();
+                result.TotalCount = await multi.ReadFirstAsync<int>();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Return an empty PaginationResult2 object in case of an exception
+                return new PaginationResult2<RosterInOfficeDaysListVM>
+                {
+                    Data = new List<RosterInOfficeDaysListVM>(),
+                    TotalCount = 0
+                };
+            }
+        }
 
 
 

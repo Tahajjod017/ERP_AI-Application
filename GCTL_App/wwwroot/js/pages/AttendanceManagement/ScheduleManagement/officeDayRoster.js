@@ -717,11 +717,256 @@
         }
 
 
-        function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
-            const searchTerm = $("#rosterInOfficeDays-searchInput").val();
+        //function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
+        //    const searchTerm = $("#rosterInOfficeDays-searchInput").val();
 
+        //    $.ajax({
+        //        url: settings.baseUrl + '/GetGrouped',
+        //        method: 'GET',
+        //        data: {
+        //            pageNumber: currentPage,
+        //            pageSize: pageSize,
+        //            searchTerm: searchTerm,
+        //            sortColumn: sortColumn,
+        //            sortOrder: sortOrder,
+        //            daysToShow: daysToShow,
+        //            startDate: startDate.toISOString()
+        //        },
+        //        success: function (response) {
+        //            const headers = response.headers;
+        //            const data = response.result; // 👈 grouped employee list
+        //            const paginationInfo = response.paginationInfo;
+
+        //            // ✅ Build table headers
+        //            let headerRow = `<th class="align-middle text-uppercase text-nowrap sticky-col sticky-header bg-white z-index-sticky">Employee Name</th>`;
+        //            headers.forEach(h => {
+        //                headerRow += `
+        //        <th class="align-middle px-3 text-uppercase text-nowrap">
+        //            <p class="weekDay">${h.day}</p>
+        //            <p class="date">${h.date}</p>
+        //        </th>`;
+        //            });
+        //            $('table thead tr').html(headerRow);
+
+        //            // ✅ Build tbody from grouped data
+        //            let bodyHtml = '';
+        //            data.forEach(emp => {
+        //                bodyHtml += `
+        //        <tr>
+        //            <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
+        //                <div class="d-inline-flex flex-column align-items-center justify-content-center">
+        //                    <h5>${emp.employeeName}</h5>
+        //                    <p class="fs-9 mb-0">${emp.departmentName}</p>
+        //                    <p class="fs-9 mb-0">${emp.organizationName}</p>
+        //                </div>
+        //            </td>`;
+
+        //                headers.forEach(h => {
+        //                    //const dateKey = new Date(h.date).toISOString().split('T')[0];
+        //                    //const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
+        //                    const hasOverride = shift?.rosterInOfficeDaysOverrideSetupVMs?.length > 0;
+
+        //                    if (shift && !hasOverride) {
+        //                        bodyHtml += `
+        //                <td class="startTime">
+        //                    <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
+        //                        <p class="fs-10">${shift.timeRange}</p>
+        //                        <p class="fs-10">${shift.shiftName}</p>
+        //                        <div class="add-shift-btn2 position-absolute">
+        //                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
+        //                                data-id="${shift.rosterInOfficeDayID}" 
+        //                                data-date="${h.date}" 
+        //                                data-shift-id="${shift.shiftID}"
+        //                                data-organization-id="${shift.organizationID}" 
+        //                                data-bs-target="#rosterInOfficeDays-editShiftModal">
+        //                                <i class="fas fa-edit text-primary"></i>
+        //                            </a>
+        //                        </div>
+        //                    </div>
+        //                </td>`;
+        //                    } else if (!shift) {
+        //                        bodyHtml += `
+        //                <td class="shift-cell">
+        //                    <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
+        //                        <i class="fa fa-plus" aria-hidden="true"></i>
+        //                    </button>
+        //                </td>`;
+        //                    } else {
+        //                        const override = shift.rosterInOfficeDaysOverrideSetupVMs.find(ov =>
+        //                            new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
+        //                        );
+        //                        const overrideShiftName = override?.shiftName || '-';
+        //                        const overrideTimeRange = override?.timeRange || '-';
+        //                        const overrideShiftID = override?.shiftID || '-';
+
+        //                        bodyHtml += `
+        //                <td class="overrideTime">
+        //                    <div class="badge badge-phoenix-success override-block px-4 position-relative">
+        //                        <p class="fs-10">${overrideTimeRange}</p>
+        //                        <p class="fs-10">${overrideShiftName}</p>
+        //                        <div class="add-shift-btn2 position-absolute">
+        //                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
+        //                                data-id="${shift.rosterInOfficeDayID}" 
+        //                                data-date="${h.date}" 
+        //                                data-shift-id="${overrideShiftID}"
+        //                                data-organization-id="${shift.organizationID}" 
+        //                                data-bs-target="#rosterInOfficeDays-editShiftModal">
+        //                                <i class="fas fa-edit text-success"></i>
+        //                            </a>
+        //                        </div>
+        //                    </div>
+        //                </td>`;
+        //                    }
+        //                });
+
+        //                bodyHtml += `</tr>`;
+        //            });
+
+        //            $('table tbody').html(bodyHtml);
+
+        //            // ✅ Update pagination info
+        //            $("#startItem").text(paginationInfo.startItem);
+        //            $("#endItem").text(paginationInfo.endItem);
+        //            $("#totalItems").text(paginationInfo.totalItems);
+        //            currentPage = paginationInfo.currentPage;
+
+        //            updatePagination(paginationInfo.pageNumbers, currentPage, paginationInfo.totalPages);
+
+        //            const firstDate = headers[0].date;
+        //            const lastDate = headers[headers.length - 1].date;
+        //            $(".date-range-label").text(`${firstDate} - ${lastDate}`);
+        //        },
+        //        error: function (err) {
+        //            console.error("Error loading data:", err);
+        //        }
+        //    });
+        //}
+
+
+
+        function generateDateHeaders(daysCount = 7) {
+            const headers = [];
+            const today = new Date();
+            for (let i = 0; i < daysCount; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                headers.push({
+                    day: date.toLocaleDateString(undefined, { weekday: 'short' }),
+                    date: date.toISOString().split('T')[0]
+                });
+            }
+            return headers;
+        }
+
+        //function renderEmployeeTable(employees) {
+        //    const headers = generateDateHeaders(7);  // Number of days for columns
+
+        //    // Render header (except first column, which is static)
+        //    let headerHtml = `<th class="align-middle text-uppercase text-nowrap">Employee Name</th>`;
+        //    headers.forEach(h => {
+        //        headerHtml += `<th class="text-center">${h.day}<br>${h.date}</th>`;
+        //    });
+        //    $('table.leads-table thead tr').html(headerHtml);
+
+        //    // Render tbody rows
+        //    let bodyHtml = '';
+        //    employees.forEach(emp => {
+        //        bodyHtml += '<tr>';
+
+        //        // First column: EmployeeName from SP result
+        //        bodyHtml += `
+        //        <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
+        //            <div class="d-inline-flex flex-column align-items-center justify-content-center">
+        //                <h5>${emp.employeeName}</h5>
+        //                <p class="fs-9 mb-0">${emp.departmentName}</p>
+        //                <p class="fs-9 mb-0">${emp.organizationName}</p>
+        //            </div>
+        //        </td>`;
+
+        //        // Empty date columns
+        //        headers.forEach(() => {
+        //            bodyHtml += `<td>-</td>`;
+        //        });
+
+        //        bodyHtml += '</tr>';
+        //    });
+
+        //    $('table.leads-table tbody').html(bodyHtml);
+        //}
+        function renderEmployeeTable(employees) {
+            const headers = generateDateHeaders(7);  // Number of days for columns
+
+            // Render header
+            let headerHtml = `<th class="align-middle text-uppercase text-nowrap">Employee Name</th>`;
+            headers.forEach(h => {
+                headerHtml += `<th class="text-center">${h.day}<br>${h.date}</th>`;
+            });
+            $('table.leads-table thead tr').html(headerHtml);
+
+            // Render rows
+            let bodyHtml = '';
+            employees.forEach(emp => {
+                bodyHtml += '<tr>';
+
+                // Employee info column
+                bodyHtml += `
+        <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
+            <div class="d-inline-flex flex-column align-items-center justify-content-center">
+                <h5>${emp.employeeName}</h5>
+                <p class="fs-9 mb-0">${emp.departmentName}</p>
+                <p class="fs-9 mb-0">${emp.organizationName}</p>
+            </div>
+        </td>`;
+
+                // Parse and show shifts
+                const shiftMap = parseShiftSchedule(emp.assignedDates);
+                headers.forEach(h => {
+                    const shift = shiftMap[h.date];
+                    if (shift) {
+                        bodyHtml += `
+                        <td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary shift-block px-4 py-2">
+                                <p class="fs-10 mb-1">${shift.timeRange}</p>
+                                <p class="fs-10 mb-1">${shift.shiftName}</p>
+                                <a href="#" class="nav-item mx-2 add-shift-btn" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
+                                        data-id="${shift.rosterInOfficeDayId}" 
+                                        data-date="${h.date}" 
+                                        data-shift-id="${shift.shiftID}"
+                                        data-organization-id="${shift.organizationID}" 
+                                        data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                        <i class="fas fa-pen text-secondary"></i>
+                                    </a>
+                            </div>
+                        </td>`;
+                    } else {
+                        bodyHtml += `<td>-</td>`;
+                    }
+                });
+
+                bodyHtml += '</tr>';
+            });
+
+            $('table.leads-table tbody').html(bodyHtml);
+        }
+
+
+        function parseShiftSchedule(assignedDatesStr) {
+            const shiftMap = {};
+            if (!assignedDatesStr) return shiftMap;
+
+            assignedDatesStr.split(',').forEach(entry => {
+                const [date, shiftName, timeRange] = entry.trim().split('|');
+                if (date && shiftName && timeRange) {
+                    shiftMap[date] = { shiftName, timeRange };
+                }
+            });
+            return shiftMap;
+        }
+
+
+        function loadTableData(currentPage, pageSize, searchTerm, sortColumn, sortOrder) {
             $.ajax({
-                url: settings.baseUrl + '/GetGrouped',
+                url: settings.baseUrl + '/GetEmployeesPaged',
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
@@ -729,118 +974,17 @@
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
                     sortOrder: sortOrder,
-                    daysToShow: daysToShow,
-                    startDate: startDate.toISOString()
                 },
                 success: function (response) {
-                    const headers = response.headers;
-                    const data = response.result; // 👈 grouped employee list
-                    const paginationInfo = response.paginationInfo;
-
-                    // ✅ Build table headers
-                    let headerRow = `<th class="align-middle text-uppercase text-nowrap sticky-col sticky-header bg-white z-index-sticky">Employee Name</th>`;
-                    headers.forEach(h => {
-                        headerRow += `
-                <th class="align-middle px-3 text-uppercase text-nowrap">
-                    <p class="weekDay">${h.day}</p>
-                    <p class="date">${h.date}</p>
-                </th>`;
-                    });
-                    $('table thead tr').html(headerRow);
-
-                    // ✅ Build tbody from grouped data
-                    let bodyHtml = '';
-                    data.forEach(emp => {
-                        bodyHtml += `
-                <tr>
-                    <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
-                        <div class="d-inline-flex flex-column align-items-center justify-content-center">
-                            <h5>${emp.employeeName}</h5>
-                            <p class="fs-9 mb-0">${emp.departmentName}</p>
-                            <p class="fs-9 mb-0">${emp.organizationName}</p>
-                        </div>
-                    </td>`;
-
-                        headers.forEach(h => {
-                            //const dateKey = new Date(h.date).toISOString().split('T')[0];
-                            //const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
-                            const hasOverride = shift?.rosterInOfficeDaysOverrideSetupVMs?.length > 0;
-
-                            if (shift && !hasOverride) {
-                                bodyHtml += `
-                        <td class="startTime">
-                            <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
-                                <p class="fs-10">${shift.timeRange}</p>
-                                <p class="fs-10">${shift.shiftName}</p>
-                                <div class="add-shift-btn2 position-absolute">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-                                        data-id="${shift.rosterInOfficeDayID}" 
-                                        data-date="${h.date}" 
-                                        data-shift-id="${shift.shiftID}"
-                                        data-organization-id="${shift.organizationID}" 
-                                        data-bs-target="#rosterInOfficeDays-editShiftModal">
-                                        <i class="fas fa-edit text-primary"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </td>`;
-                            } else if (!shift) {
-                                bodyHtml += `
-                        <td class="shift-cell">
-                            <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                        </td>`;
-                            } else {
-                                const override = shift.rosterInOfficeDaysOverrideSetupVMs.find(ov =>
-                                    new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
-                                );
-                                const overrideShiftName = override?.shiftName || '-';
-                                const overrideTimeRange = override?.timeRange || '-';
-                                const overrideShiftID = override?.shiftID || '-';
-
-                                bodyHtml += `
-                        <td class="overrideTime">
-                            <div class="badge badge-phoenix-success override-block px-4 position-relative">
-                                <p class="fs-10">${overrideTimeRange}</p>
-                                <p class="fs-10">${overrideShiftName}</p>
-                                <div class="add-shift-btn2 position-absolute">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-                                        data-id="${shift.rosterInOfficeDayID}" 
-                                        data-date="${h.date}" 
-                                        data-shift-id="${overrideShiftID}"
-                                        data-organization-id="${shift.organizationID}" 
-                                        data-bs-target="#rosterInOfficeDays-editShiftModal">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </td>`;
-                            }
-                        });
-
-                        bodyHtml += `</tr>`;
-                    });
-
-                    $('table tbody').html(bodyHtml);
-
-                    // ✅ Update pagination info
-                    $("#startItem").text(paginationInfo.startItem);
-                    $("#endItem").text(paginationInfo.endItem);
-                    $("#totalItems").text(paginationInfo.totalItems);
-                    currentPage = paginationInfo.currentPage;
-
-                    updatePagination(paginationInfo.pageNumbers, currentPage, paginationInfo.totalPages);
-
-                    const firstDate = headers[0].date;
-                    const lastDate = headers[headers.length - 1].date;
-                    $(".date-range-label").text(`${firstDate} - ${lastDate}`);
+                    const employees = response.data;  // Your controller returns JSON { data = ..., totalCount = ... }
+                    renderEmployeeTable(employees);
                 },
-                error: function (err) {
-                    console.error("Error loading data:", err);
+                error: function (xhr, status, error) {
+                    console.error('Error loading employee data:', error);
                 }
             });
         }
+
 
 
 

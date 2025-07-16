@@ -40,8 +40,15 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public string? TimeRange { get; set; }
 
         public List<int>? ExcludedEmployeeIDs { get; set; }
+    }
 
-        public virtual ICollection<RosterInOfficeDaysOverrideSetupVM>? RosterInOfficeDaysOverrideSetupVMs { get; set; } = new List<RosterInOfficeDaysOverrideSetupVM>();
+
+    public class ShiftVM : BaseViewModel
+    {
+        public int? ShiftID { get; set; }
+        public string? ShiftName { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
     }
 
 

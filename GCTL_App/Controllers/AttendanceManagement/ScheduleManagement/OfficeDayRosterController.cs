@@ -276,5 +276,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             return Json(result);
         }
         #endregion
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationName", string sortOrder = "DESC")
+        {
+            var result = await _assignDefaultShiftService.GetPagedEmployeesAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+
+            return Json(new
+            {
+                data = result.Data,
+                totalCount = result.TotalCount,
+                result = result
+            });
+        }
     }
 }
