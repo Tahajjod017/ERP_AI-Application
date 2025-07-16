@@ -7,6 +7,7 @@ using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -73,10 +74,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                                       select role.Name).FirstOrDefaultAsync();
 
                 bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
-                var a = await leaveRequest.AllActive().ToListAsync();
+               
                 var query = leaveRequest.AllActive()
-                    //.Where(x => x.StatusID == null)
+                    .Where(x => !x.LeaveBaseApprovalHistory.Any(h => h.ApproveBy == employeeId))
                     .Include(x => x.Employee)
+                    .Include(x=>x.LeaveBaseApprovalHistory)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)
                     .OrderByDescending(x => x.LeaveApplicationID)
@@ -99,12 +101,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
                     query = query.Where(x=>x.ApprovalPersonID == employeeId);
                 }
-                if (!isSuperAdmin) 
-                {
-                    a.Where(x => x.ApprovalPersonID == employeeId);
-                    a.Count();
-                    Console.WriteLine(a);
-                }
+               
                 var leaveBalances = await leaveBalance.AllActive().ToListAsync();
                 var leaveTypes = await leaveTypesRepository.AllActive().ToListAsync();
                 var employeeDepartments = await empoffi.AllActive()
@@ -183,19 +180,20 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                                       join role in appDb.Roles on userRole.RoleId equals role.Id
                                       where user.Id == userId  select role.Name) .FirstOrDefaultAsync();
 
-
-                //
-               
-
-                //
+                bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
                 // 🔹 Step 3: Base query with includes
-                var query = leaveRequest.AllActive().Where(x=>x.StatusID !=null)
+                var query = leaveRequest.AllActive() .Where(x=>x.StatusID !=null)
                     .Include(x => x.Employee)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)
+                    .Include(x=>x.LeaveBaseApprovalHistory)
                     .OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
                 //
 
+                var a = leaveRequest.AllActive();
+
+                var b=a.Count();
+                Console.WriteLine(b);
              
                 if (statusID != null)
                 {
@@ -216,11 +214,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     throw new InvalidOperationException("ActionLogs query source is null.");
                 }
                 // 🔹 Step 4: Filter if not SuperAdmin
-                if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                if (!isSuperAdmin)
                 {
-                    query = query.Where(x => x.EmployeeID == employeeId);
+                    query = query.Where(x => x.LeaveBaseApprovalHistory.Any(h =>h.ApproveBy == employeeId));
                 }
-                //
 
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
 
@@ -353,6 +350,31 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             return data;
         }
 
+        // Server side Validation DateRange 
+
+        private bool ValidateLeaveDates(LeaveApplicationApprovalModifyVM model, LeaveApplications entity, out List<string> errors)
+        {
+            errors = new List<string>();
+
+            var minDate = entity.FromDate;
+            var maxDate = entity.ToDate;
+
+            if (!(minDate <= model.FromDateEdit && model.FromDateEdit <= maxDate))
+                errors.Add("From Date must be within the allowed range.");
+
+            if (!(minDate <= model.ToDateEdit && model.ToDateEdit <= maxDate))
+                errors.Add("To Date must be within the allowed range.");
+
+            if (model.ToDateEdit < model.FromDateEdit)
+                errors.Add("To Date must be on or after From Date.");
+
+            if (model.TotalAppliedDays > model.AvailableLeaveDays)
+                errors.Add("Applied days exceed available leave.");
+
+            return !errors.Any();
+        }
+
+
         //
 
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
@@ -365,15 +387,29 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     Message = "Data cannot be null"
                 };
             }
-
+         
             await leaveRequest.BeginTransactionAsync();
 
             try
+
             {
                 var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
                 if (entity == null)
                     return null;
 
+                // Sever side Validation For Date range 
+                if (!ValidateLeaveDates(entityVM, entity, out var errors))
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = string.Join(" ", errors) 
+                    };
+                }
+
+
+
+                //
                 // Get employee office info
                 var offf = await empoffi.AllActive()
                     .Where(x => x.EmployeeID == entityVM.CreatedBy)
@@ -403,7 +439,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     .FirstOrDefaultAsync(x =>
                         (x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID) &&
                         x.ApprovalTypeID == approvalTypes.ApprovalTypeID);
-
+                if(approvalSettings == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Your Company Does not Exists in Approver Settings."
+                    };
+                }
                 // Determine approver level
                 bool isFirstApprover = approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
                 bool isSecondApprover = approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
@@ -411,7 +454,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 // Get status IDs
                 int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
-                int? leavStatusDecline = await GetIdByNameAsync("DECLINEED");
+                int? leavStatusDecline = await GetIdByNameAsync("DECLINED");
 
                 int? statusId = entityVM.Approved ? leavStatusApproved : entityVM.Declined ? leavStatusDecline : 0;
                 if (statusId == 0)
@@ -439,19 +482,21 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 if (isFirstApprover && approvalSettings.IsEnableSecondApproval)
                 {
-                    entity.StatusID = await GetIdByNameAsync("Pending Second Approval"); // NEW
+                    entity.StatusID = await GetIdByNameAsync("APPROVED"); 
                     entity.ApprovalPersonID = approvalSettings.SecondApprovalID; //
                 }
                 else if (isSecondApprover && approvalSettings.IsEnableThirdApproval)
                 {
-                    entity.StatusID = await GetIdByNameAsync("Pending Third Approval"); // NEW
+                    entity.StatusID = await GetIdByNameAsync("APPROVED"); 
                     entity.ApprovalPersonID = approvalSettings.ThirdApprovalID; 
                 }
                 else
                 {
-                    entity.StatusID = statusId; // Final Approval or Decline
-                    isFinalApproval = statusId == leavStatusApproved; // NEW
-                    entity.ApprovalPersonID = null; // 🔹 No next approver
+                    
+                    entity.StatusID = statusId; // Final Approval or Decline 
+                    entity.ApprovalPersonID = approvalSettings.ThirdApprovalID;    //entityVM.UpdatedBy; // 🔹 No next approver
+
+
                 }
 
                 // 🔹 Update full-day or partial-day
@@ -623,7 +668,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         //        bool isThirdApprover = approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
         //        //
         //        int ? leavStatusApproved = await GetIdByNameAsync("APPROVED");                               
-        //        int ? leavStatusDecline = await GetIdByNameAsync("DECLINEED"); 
+        //        int ? leavStatusDecline = await GetIdByNameAsync("DECLINED"); 
         //        int? statusId = entityVM.Approved ? leavStatusApproved : entityVM.Declined ? leavStatusDecline : 0;
         //        if (statusId == 0)
         //        {
