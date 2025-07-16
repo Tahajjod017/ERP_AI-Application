@@ -32,14 +32,23 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //    DateTime? startDate = null
         //);
 
-    //    Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
-    //int pageNumber = 1,
-    //int pageSize = 5,
-    //string searchTerm = "",
-    //string sortColumn = "RosterInOfficeDayID",
-    //string sortOrder = "desc",
-    //int daysToShow = 7,
-    //DateTime? startDate = null);
+        //    Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
+        //int pageNumber = 1,
+        //int pageSize = 5,
+        //string searchTerm = "",
+        //string sortColumn = "RosterInOfficeDayID",
+        //string sortOrder = "desc",
+        //int daysToShow = 7,
+        //DateTime? startDate = null);
         #endregion
+
+
+        Task<PaginationResult2<RosterInOfficeDaysListVM>> GetPagedEmployeesAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder);
+    }
+
+    public class PaginationResult2<T>
+    {
+        public List<T> Data { get; set; }
+        public int TotalCount { get; set; }
     }
 }
