@@ -289,7 +289,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         //private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int? appliacbleYear)
         //{
         //    var leaveStatusRejected = await leaveStatuses.AllActive()
-        //        .Where(x => x.StatusName == "DECLINEED")
+        //        .Where(x => x.StatusName == "DECLINED")
         //        .Select(x => x.StatusID)
         //        .ToListAsync();
 
@@ -777,7 +777,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int? applicableYear)
         {
             var rejectedStatuses = await leaveStatuses.AllActive()
-                .Where(x => x.StatusName == "DECLINEED")
+                .Where(x => x.StatusName == "DECLINED")
                 .Select(x => x.StatusID)
                 .ToListAsync();
 
@@ -1103,6 +1103,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     entity.PartialToTime = entityVM.PartialToTimeEdit;
                 }
                 entity.Reason = entityVM.ReasonEdit ?? string.Empty;
+                entity.UpdatedAt = DateTime.Now;
+                entity.UpdatedBy = entityVM.UpdatedBy;
+                entity.LIP = entityVM.LIP;
+                entity.LMAC= entityVM.LMAC;
                 await leaveRequest.UpdateAsync(entity);
               //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 await leaveRequest.CommitTransactionAsync();

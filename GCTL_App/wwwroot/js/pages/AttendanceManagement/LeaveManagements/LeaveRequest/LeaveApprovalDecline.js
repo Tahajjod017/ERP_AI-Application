@@ -387,6 +387,7 @@ $(document).ready(function () {
                         toastr.error(response.message);
                     }
                 }
+                
             },
             error: function () {
                 toastr.error("An unexpected error occurred.");
@@ -432,7 +433,7 @@ $(document).ready(function () {
                 $(id)[0]._flatpickr.clear();
             }
         });
-
+        //loadAttendanceTable(); // Reset for Below Table
     }
 
     // Delete Soft Leave Request
@@ -789,7 +790,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
 
                     //
                     let status = item.statusName; // Assuming this is your status value
-                    let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINEED');
+                    let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINED');
                     //
                     const isFullDay = item.isFullDay;
                     // pick the right label and pluralize
@@ -1007,7 +1008,7 @@ $(document).ready(function () {
         if (!status || status.trim() === '') return 'text-bg-success';
 
         switch (status.trim().toUpperCase()) {
-            case 'DECLINEED':
+            case 'DECLINED':
                 return 'badge-phoenix badge-phoenix-danger';
             case 'APPROVED':
                 return 'badge-phoenix badge-phoenix-success';

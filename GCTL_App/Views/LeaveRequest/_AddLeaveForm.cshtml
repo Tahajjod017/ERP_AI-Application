@@ -1,57 +1,4 @@
 ﻿ @model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.LeaveApplicationsRequestVM
-<style>
-    .custom-tooltip-container {
-        position: relative;
-    }
-
-
-    .custom-tooltip-box {
-        display: none;
-        position: absolute;
-        top: 110%;
-        left: 50%;
-        z-index: 1050; 
-        transform: translateX(-50%);
-        background: #fff;
-        border: 1px solid #ccc;
-        padding: 8px;
-        min-width: 250px;
-        max-width: 400px;
-        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
-        font-size: 12px;
-        white-space: normal;
-        word-break: break-word;
-        overflow-x: hidden; /* already set, keep it */
-        overflow-y: auto; /* allow vertical scroll if needed */
-        box-sizing: border-box;
-      
-    }
-
-
-
-        .custom-tooltip-box table {
-            width: 100%;
-            table-layout: fixed;
-            border-collapse: collapse;
-        }
-
-        .custom-tooltip-box th,
-        .custom-tooltip-box td {
-            border: 1px solid #ddd;
-            padding: 6px;
-            text-align: center;
-            font-size: 13px;
-            word-break: break-word;
-        }
-
-        .custom-tooltip-box th {
-            background-color: #f5f5f5;
-        }
-
-
-
-</style>
-
 <form asp-action="SaveLeaveRequest" asp-controller="LeaveRequest" method="post" id="LeaveRequestForm">
     <div class="modal-body pb-0">
         <div class="row">
@@ -121,7 +68,7 @@
                             <div class="mb-3">
                                 <label class="form-label req">To</label>
                                 <div class="input-icon-end position-relative">
-                                    <input type="text" asp-for="ToDate" id="ToDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                    <input type="text" asp-for="ToDate" id="ToDate" class="form-control datetimepicker"  readonly required placeholder="dd/mm/yyyy">
                                     <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                     <span asp-validation-for="ToDate" class="text-danger small"></span>
                                 </div>
@@ -153,10 +100,10 @@
             <div id="PartialDayDiv" class="mt-4 d-none">
                 <div class="row">
                     <div class=" col-md-4">
-                        <div class="mb-3">
+                        <div class="mb-3 flatpickr-input-container">
                             <label class="form-label req">Date </label>
-                            <div class="input-icon-end position-relative">
-                                <input type="text" class="form-control datetimepicker" id="ToDateFromDateCombined" asp-for="ToDateFromDateCombined" required placeholder="dd/mm/yyyy">
+                            <div class="input-icon-end position-relative flatpickr">
+                                <input type="text" class="form-control datetimepicker" id="ToDateFromDateCombined" asp-for="ToDateFromDateCombined" required readonly placeholder="dd/mm/yyyy">
                                 <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                 <span asp-validation-for="ToDateFromDateCombined" class="text-danger small"></span>
                             </div>

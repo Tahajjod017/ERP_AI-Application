@@ -25,6 +25,14 @@ function initializeDatepickerDMY(dateIds) {
     });
 }
 
+// OnlyTOday  Selected
+
+
+  
+
+
+
+//
 function initializeDatepickerDMY2(dateIds, minDate = null, maxDate = null) {
    
     dateIds.split(',').forEach(function (id) {
