@@ -184,14 +184,15 @@ const data = {
         ]
     }
 };
+//function updateAttendanceUI(data) {
+//    const sessionTimeline = data.value.sessionTimeline;
 
-// Function to convert time from "xh ym" to minutes
-//function convertToMinutes(duration) {
-//    const parts = duration.split(' ');
-//    const hours = parseInt(parts[0].replace('h', ''));
-//    const minutes = parts[1] ? parseInt(parts[1].replace('m', '')) : 0;
-//    return (hours * 60) + minutes;
+//    // Call the functions to update the UI with the fetched data
+//    updateSessionHours(sessionTimeline);
+//    updateProgressBars(sessionTimeline);
 //}
+
+// Convert duration from string (e.g., "2h 0m") to total minutes
 function convertToMinutes(duration) {
     if (!duration || typeof duration !== "string") return 0;
 
@@ -209,7 +210,49 @@ function convertToMinutes(duration) {
     return (hours * 60) + minutes;
 }
 
-// Function to calculate the total time spent on each category and update the progress bars
+// Function to format time (convert minutes to HH:MM format)
+function formatTime(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+}
+
+// Function to calculate total working hours, productive hours, break hours, and overtime
+function updateSessionHours() {
+    let totalWorkingHours = 0;
+    let productiveHours = 0;
+    let breakHours = 0;
+    let overtimeHours = 0;
+
+    // Loop through each session entry and accumulate time for each type
+    data.value.sessionTimeline.forEach(session => {
+        const durationInMinutes = convertToMinutes(session.duration);
+
+        // Accumulate total time
+        totalWorkingHours += durationInMinutes;
+
+        // Accumulate time based on session type
+        switch (session.type) {
+            case "Worked":
+                productiveHours += durationInMinutes;
+                break;
+            case "Break":
+                breakHours += durationInMinutes;
+                break;
+            case "Ovvertime":
+                overtimeHours += durationInMinutes;
+                break;
+        }
+    });
+
+    // Update the HTML with the calculated values
+    $('#totalWorkingHours').text(formatTime(totalWorkingHours));
+    $('#productiveHours').text(formatTime(productiveHours));
+    $('#breakHours').text(formatTime(breakHours));
+    $('#overtime').text(formatTime(overtimeHours));
+}
+
+// Function to update progress bars and session details
 function updateProgressBars() {
     let totalTime = 0;
     let sessionPercentages = [];
@@ -227,12 +270,10 @@ function updateProgressBars() {
 
         // Push session type, duration, and formatted percentage to array
         sessionPercentages.push({
-            type: session.type, 
+            type: session.type,
             duration: session.duration,
             percentage: sessionPercentage.toFixed(2) + "%"  // format percentage to 2 decimal places
         });
-
-        console.log(sessionPercentages)
     });
 
     // Display the progress bars and the session details
@@ -241,7 +282,7 @@ function updateProgressBars() {
         progressBarsHtml += `
             <div class="progress-bar ${getProgressBarColor(session.type)} rounded me-1" role="progressbar"
                 style="width: ${session.percentage}">
-                ${session.percentage}
+                ${session.duration}
             </div>
         `;
     });
@@ -277,19 +318,25 @@ function getProgressBarColor(type) {
     }
 }
 
-// Function to format time (convert minutes to HH:MM format)
-function formatTime(minutes) {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
-}
-
 // Use jQuery's ready function to ensure the DOM is fully loaded
 $(document).ready(function () {
+    updateSessionHours();
     updateProgressBars();
 });
 
+// Use jQuery's ready function to ensure the DOM is fully loaded
+//$(document).ready(function () {
+//    // Dynamically fetch data from the server
+//    const userId = 123; // Replace with your actual user ID or another dynamic value
+//    $.get(`/EmployeesAttendance/GetEmployeeAttendanceData2?userId=${userId}`, function (data) {
+//        // Check if data is returned and then update the UI
+//        if (data) {
+//            console.log(data)
+//            updateAttendanceUI(data);  // Process the data and update the UI
 
+//        }
+//    }, 'json');
+//});
 
 ///punch ativity
 
@@ -297,7 +344,7 @@ $(document).ready(function () {
 const timelineData = [
     { "type": "Punch In", "time": "10:00 AM", "description": "Punch In " },
     { "type": "Punch Out", "time": "11:30 AM", "description": "Punch Out " },
-    { "type": "Break", "time": "1:00 PM - 2:00 PM", "description": "Break Time" },
+    /*{ "type": "Break", "time": "1:00 PM - 2:00 PM", "description": "Break Time" },*/
     { "type": "Punch In", "time": "2:10 PM", "description": "Punch In " },
     { "type": "Punch Out", "time": "7:30 PM", "description": "Punch Out " }
 ];
@@ -326,7 +373,7 @@ function generateTimeline() {
         iconItem.classList.add('icon-item', 'icon-item-sm', 'rounded-7', 'shadow-none', 'bg-primary-subtle');
 
         const icon = document.createElement('span');
-        icon.classList.add('fa-solid', 'fa-chess', 'text-primary-dark', 'fs-10');  // Default icon for now
+        icon.classList.add('fa-solid', 'fa-mobile-retro', 'text-primary-dark', 'fs-10');  // Default icon for now
         iconItem.appendChild(icon);
         timelineItemBar.appendChild(iconItem);
 
@@ -352,7 +399,7 @@ function generateTimeline() {
 
         const timeParagraph = document.createElement('p');
         timeParagraph.classList.add('fs-9');
-        timeParagraph.innerHTML = `<i class="fa fa-clock-o" aria-hidden="true"></i> ${item.time}`;
+        timeParagraph.innerHTML = `<i class="" aria-hidden="true"></i> ${item.time}`;
         content.appendChild(timeParagraph);
 
         contentCol.appendChild(content);
@@ -400,7 +447,12 @@ function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
                     { value: present, name: 'Present' },
                     { value: absent, name: 'Absent' },
                     { value: leave, name: 'Leave' },
-                    { value: late, name: 'Late' },
+                    {
+                        value: late, name: 'Late',
+                        itemStyle: {
+                            color: 'red'  // Set color 
+                        }
+                    },
                     { value: earlyLeave, name: 'Early Leave' }
                 ]
             }
@@ -432,14 +484,14 @@ function renderAttendanceCompareChart(data) {
 
     var option = {
         title: {
-            text: 'You vs Best_Emp',
+            text: 'You vs Emp benchmark',
             subtext: 'Previous Month'
         },
         tooltip: {
             trigger: 'axis'
         },
         legend: {
-            data: ['You', 'Best_Emp']
+            data: ['You', 'Emp benchmark']
         },
         toolbox: {
             show: true,
@@ -471,7 +523,7 @@ function renderAttendanceCompareChart(data) {
                 },
             },
             {
-                name: 'Best_Emp',
+                name: 'Emp benchmark',
                 type: 'bar',
                 data: data.bestEmp,
                 itemStyle: {
@@ -491,111 +543,11 @@ function renderAttendanceCompareChart(data) {
 // Example of passing dynamic data as a JSON object
 var jsonData = {
     "you": [16, 3, 3, 2],      // Data for "You"
-    "bestEmp": [20, 2, 1, 1]   // Data for "Best_Emp"
+    "bestEmp": [20, 2, 1, 1]   // Data for ""
 };
 
 // Call the function with the dynamic data (this can be done on the fly)
 renderAttendanceCompareChart(jsonData);
-
-//linechart 
-// Function to render the "Yearly Attendance Status" line chart with dynamic JSON data
-function renderAttendanceLineChart(data) {
-    var dom = document.getElementById('yearly-employee-attendance-status-linechart');
-    var myChart = echarts.init(dom, null, {
-        renderer: 'canvas',
-        useDirtyRect: false
-    });
-
-    var option = {
-        title: {
-            text: 'Attendance Status',
-            subtext: 'Previous Year'
-        },
-        tooltip: {
-            trigger: 'axis'
-        },
-        legend: {
-            data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave']
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '4%',
-            containLabel: true
-        },
-        toolbox: {
-            feature: {
-                saveAsImage: {}
-            }
-        },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: data.months // Data for the months
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [
-            {
-                name: 'Casual Leave',
-                type: 'line',
-                stack: 'Total',
-                data: data.casualLeave
-            },
-            {
-                name: 'Medical Leave',
-                type: 'line',
-                stack: 'Total',
-                data: data.medicalLeave
-            },
-            {
-                name: 'Early Leave',
-                type: 'line',
-                stack: 'Total',
-                data: data.earlyLeave
-            },
-            {
-                name: 'Late Entry',
-                type: 'line',
-                stack: 'Total',
-                data: data.lateEntry
-            },
-            {
-                name: 'Absent',
-                type: 'line',
-                stack: 'Total',
-                data: data.absent
-            },
-            {
-                name: 'Present',
-                type: 'line',
-                stack: 'Total',
-                data: data.present
-            }
-        ]
-    };
-
-    // Set the chart options
-    myChart.setOption(option);
-
-    // Resize the chart on window resize
-    window.addEventListener('resize', myChart.resize);
-}
-
-// Example of passing dynamic data as a JSON object
-var jsonData = {
-    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    "casualLeave": [1, 2, 0, 2, 1, 1, 1, 0, 2, 0, 1, 1],
-    "medicalLeave": [1, 1, 0, 2, 0, 1, 0, 0, 1, 4, 0, 1],
-    "earlyLeave": [4, 2, 1, 3, 2, 3, 2, 3, 2, 3, 2, 1],
-    "lateEntry": [2, 2, 2, 2, 2, 1, 1, 1, 2, 3, 1, 1],
-    "absent": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
-    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21]
-};
-
-// Call the function with the dynamic data (this can be done on the fly)
-renderAttendanceLineChart(jsonData);
 
 // linechart1
 
@@ -704,6 +656,9 @@ function renderAttendanceBarChart(data) {
                 name: 'Late Entry',
                 type: 'bar',
                 label: labelOption,
+                itemStyle: {
+                    color: 'red'  // Set color 
+                },
                 emphasis: { focus: 'series' },
                 data: data.lateEntry // Dynamic data for "Late Entry"
             },
@@ -752,7 +707,105 @@ var jsonData = {
 // Call the function with the dynamic data (this can be done on the fly)
 renderAttendanceBarChart(jsonData);
 
+//linechart
+// Function to render the "Yearly Attendance Status" line chart with dynamic JSON data
+function renderAttendanceLineChart(data) {
+    var dom = document.getElementById('yearly-employee-attendance-status-linechart');
+    var myChart = echarts.init(dom, null, {
+        renderer: 'canvas',
+        useDirtyRect: false
+    });
 
+    var option = {
+        title: {
+            text: 'Attendance Status',
+            subtext: 'Previous Year'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '4%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: data.months // Data for the months
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'Casual Leave',
+                type: 'line',
+                stack: 'Total',
+                data: data.casualLeave
+            },
+            {
+                name: 'Medical Leave',
+                type: 'line',
+                stack: 'Total',
+                data: data.medicalLeave
+            },
+            {
+                name: 'Early Leave',
+                type: 'line',
+                stack: 'Total',
+                data: data.earlyLeave
+            },
+            {
+                name: 'Late Entry',
+                type: 'line',
+                stack: 'Total',
+                data: data.lateEntry
+            },
+            {
+                name: 'Absent',
+                type: 'line',
+                stack: 'Total',
+                data: data.absent
+            },
+            {
+                name: 'Present',
+                type: 'line',
+                stack: 'Total',
+                data: data.present
+            }
+        ]
+    };
+
+    // Set the chart options
+    myChart.setOption(option);
+
+    // Resize the chart on window resize
+    window.addEventListener('resize', myChart.resize);
+}
+
+// Example of passing dynamic data as a JSON object
+var jsonData = {
+    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    "casualLeave": [1, 2, 0, 2, 1, 1, 1, 0, 2, 0, 1, 1],
+    "medicalLeave": [1, 1, 0, 2, 0, 1, 0, 0, 1, 4, 0, 1],
+    "earlyLeave": [4, 2, 1, 3, 2, 3, 2, 3, 2, 3, 2, 1],
+    "lateEntry": [2, 2, 2, 2, 2, 1, 1, 1, 2, 3, 1, 1],
+    "absent": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
+    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21]
+};
+
+// Call the function with the dynamic data (this can be done on the fly)
+renderAttendanceLineChart(jsonData);
 
 
 var currentPage = 1;
