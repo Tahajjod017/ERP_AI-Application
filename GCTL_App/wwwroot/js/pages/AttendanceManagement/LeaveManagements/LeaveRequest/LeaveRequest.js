@@ -323,6 +323,39 @@ $(document).ready(function () {
 
     // Restriuction FromDate less than ToDate
     /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
+
+    // OnlyTOday  Selected
+    initializeDatepickerDMYOnlyToday("ToDateFromDateCombined");
+
+
+
+    function initializeDatepickerDMYOnlyToday(dateIds) {
+        const today = new Date();
+
+        dateIds.split(',').forEach(function (id) {
+            const trimmedId = id.trim();
+            const inputElement = document.getElementById(trimmedId);
+
+            if (!inputElement) return;
+
+            flatpickr(`#${trimmedId}`, {
+                dateFormat: "Y-m-d",        
+                altInput: true,             
+                altFormat: "d/m/Y",         
+                allowInput: false,          
+                clickOpens: false,          
+                minDate: today,             
+                maxDate: today,
+                defaultDate: today,         
+                onReady: function (selectedDates, dateStr, instance) {
+                    instance.input.placeholder = "dd/mm/yyyy";
+                }
+            });
+        });
+    }
+
+
+
     $("#ToDate").prop("disabled", true);
     $(document).on('change', "#FromDate", function () {
         const fromDate = $(this).val();
@@ -693,18 +726,16 @@ $(document).ready(function () {
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-
+                
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
-
                     const maxDate = window.__maxDateStr || null;
                     const minDate = window.__minDateStr || null;
-
                     // Set hidden ID
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
-                    flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
+                    /*flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);*/
                     $('#TotalAppliedDaysTT').val(data.period);
                     $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
                     $('#LeaveDaysEdit').val(data.leaveDaysEdit);
@@ -712,12 +743,18 @@ $(document).ready(function () {
                     $('input[name="FromDateEdit"]').val(data.fromDateEdit);
                     $('input[name="ToDateEdit"]').val(data.toDateEdit);
                     $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
-                    $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
-                    $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
-                    $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
+                    if (!data.isFullDay)
+                    {
+                        $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
+                        $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
+                        $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
+                        flatpickrHelper.setDate('FromDateEdit', data.fromDateEdit);
+                        flatpickrHelper.setDate('ToDateEdit', data.toDateEdit);
+                    }
+                
                     $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
-                    initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");  // for format dd/MM/yyyy
-                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDate, maxDate);   // for Restrict date
+                    initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");  
+                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDate, maxDate);
                     // Optionally toggle the sections based on IsFullDayEdit
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');
@@ -734,6 +771,7 @@ $(document).ready(function () {
                         $('#SubsequentHolydayDays').val("0");
                     }
                 }
+                initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
             },
 
             error: function ()
@@ -742,6 +780,83 @@ $(document).ready(function () {
             }
         })
     })
+
+
+    //
+    $(document).on('click', '#ApplyLeaveSubmitButtonUpdate', function (e) {
+        e.preventDefault();
+
+        var model = {
+            LeaveApplicationID: $('#LeaveApplicationID').val(),
+            EmployeeIDEdit: $('#EmployeeIDEdit').val(),
+            LeaveTypeIDEdit: $('#LeaveTypeIDEdit').val(),
+            IsFullDayEdit: $('input[name="IsFullDayEdit"]:checked').val() === "true",
+            FromDateEdit: $('#FromDateEdit').val(),
+            ToDateEdit: $('#ToDateEdit').val(),
+            ToDateFromDateCombinedEdit: $('#ToDateFromDateCombinedEdit').val(),
+            PartialFromTimeEdit: $('#PartialFromTimeEdit').val(),
+            PartialToTimeEdit: $('#PartialToTimeEdit').val(),
+            ReasonEdit: $('textarea[name="ReasonEdit"]').val(),
+            Period: $('#TotalAppliedDaysTT').val(),
+         
+            
+        };
+      
+        $.ajax({
+            url: '/LeaveRequestUpdatedRoute/UpdateLeaveRequest', 
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message || "Updated successfully.");
+                    resetLeaveRequestFormEdit();
+                } else {
+                    toastr.error(response.message || "Update failed.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Update Error:", error);
+                toastr.error("An unexpected error occurred while updating the leave request.");
+            }
+        });
+    });
+    //
+
+
+    function resetLeaveRequestFormEdit() {
+        debugger
+        $('#LeaveRequestForm')[0].reset();
+        $('#LeaveApplicationID').val('');
+        choiceManager.clearChoice('EmployeeIDEdit');
+        choiceManager.clearChoice('LeaveTypeIDEdit');
+        // Clear readonly fields
+        $('#LeaveDaysEdit').val('');
+        $('#TotalAppliedDaysTT').val('');
+        ['FromDateEdit', 'ToDateEdit', 'ToDateFromDateCombinedEdit'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+                if (input._flatpickr) {
+                    input._flatpickr.clear();
+                }
+            }
+        });
+
+        // Clear partial time pickers
+        $('#PartialFromTimeEdit').val('');
+        $('#PartialToTimeEdit').val('');
+
+        // Clear textarea
+        $('textarea[name="ReasonEdit"]').val('');
+
+        // Reset radio buttons and show Full Day section
+        $('input[name="IsFullDayEdit"][value="true"]').prop('checked', true);
+        $('#FullDayDivEdit').removeClass('d-none');
+        $('#PartialDayDivEdit').addClass('d-none');
+    }
+
+    //
 
 
 });
@@ -820,69 +935,44 @@ function updateSortingIndicator() {
 }
 
 
-
-
 //
-//let hideTooltipTimer; // ✅ Declare globally
 
-//$(document).on('mouseenter', '.custom-tooltip-container', function () {
-//    const $container = $(this);
-//    const $button = $container.find('.info-button');
-//    const $tooltip = $container.find('.custom-tooltip-box');
-//    const leaveApplicationID = $button.data('id');
-
-//    clearTimeout(hideTooltipTimer); // ✅ Safe to use now
-
-//    // Hide all other tooltips
-//    $('.custom-tooltip-box').fadeOut();
-
-//    $.ajax({
-//        url: '/LeaveRequest/GetByPersonLeaveStepVM',
-//        type: 'GET',
-//        data: { leaveApplicationID: leaveApplicationID },
-//        dataType: 'json',
-//        success: function (data) {
-//            console.log("LeaveStep", data);
-//            if (data && Object.keys(data).length > 0) {
-//                let html = `<div style="width: 200px;">
-//            <strong>Step:</strong> ${data.approverStep ?? ''}<br/>
-//            <strong>Note:</strong> ${data.approvarNote ?? ''} <br/>
-//            <strong>Status:</strong> ${data.statusName ?? ''} <br/>
-//            <strong>Approved By:</strong> ${data.approvarPerson ?? ''}
-//            </div>`;
-
-//                $tooltip.html(html).fadeIn(200);
-
-//            } else {
-//                $tooltip.html('').fadeIn(200);
-//            }
-//        },
-//        error: function () {
-//            $tooltip.html('<div class="text-danger me-4" style="height: 138px; width: 170px;">No data found</div>').fadeIn(200);
-//        }
-//    });
-
-
-//});
-
-
-
-//
 let hideTooltipTimer;
 
+// 1. Create the tooltip only once and append to <body>
+let $tooltip = $('<div class="custom-tooltip-box"></div>').css({
+    position: 'fixed',
+    top: '0px',
+    left: '2000px',
+    zIndex: 9999999,
+    backgroundColor: 'rgb(255 247 209)',
+    border: '1px solid #ccc',
+    padding: '10px',
+    minWidth: '250px',
+    maxWidth: '400px',
+    maxHeight: '300px',
+    overflowY: 'auto',
+    boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+    display: 'none',
+    fontSize: '13px',
+    borderRadius: '4px' 
+});
+$('body').append($tooltip);
+
+// 2. Show tooltip on hover
 $(document).on('mouseenter', '.custom-tooltip-container', function () {
     const $container = $(this);
     const $button = $container.find('.info-button');
-    const $tooltip = $container.find('.custom-tooltip-box');
     const leaveApplicationID = $button.data('id');
+    const offset = $button.offset();
 
     clearTimeout(hideTooltipTimer);
 
-    $('.custom-tooltip-box').each(function () {
-        if (!$(this).is($tooltip)) {
-            $(this).fadeOut();
-        }
-    });
+    // Show loading state
+    $tooltip.html('<div style="text-align: center; color: #666;">Loading...</div>').css({
+        top: offset.top + 25,
+        left: offset.left + 10
+    }).fadeIn(200);
 
     $.ajax({
         url: '/LeaveRequest/GetByPersonLeaveStepVM',
@@ -890,68 +980,92 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
         data: { leaveApplicationID: leaveApplicationID },
         dataType: 'json',
         success: function (data) {
-            console.log("LeaveStep", data);
-
             const steps = Array.isArray(data) ? data : [data];
-            let html = `<div style="width: 320px; max-height: 300px; overflow-y: auto;">`;
+            let html = '';
 
             if (steps.length > 0) {
                 steps.forEach((item, index) => {
-                    debugger
-                    const approverStep = item.approverStep ?? ''; // Or item.date if available
-                    const statusName = item.statusName ?? '';
-                    const author = item.approvarPerson ?? '';
-                    const statusDescription = item.approvarNote ?? '';
+                    const approverStep = item.approverStep ?? 'N/A';
+                    const statusName = item.statusName ?? 'N/A';
+                    const author = item.approvarPerson ?? 'N/A';
+                    const statusDescription = item.approvarNote ?? 'N/A';
 
                     html += `
-                        <div class="timeline-item position-relative">
-                            <div class="row g-md-3">
-                                <div class="col-12 col-md-auto d-flex">
-                                    <div class="timeline-item-date order-1 order-md-0 me-md-4">
-                                        <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
-                                            ${approverStep}
-                                        </p>
-                                    </div>
-                                    <div class="timeline-item-bar position-md-relative me-3 me-md-0">
-                                        <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle">
-                                            <span class="fa-solid far fa-file-alt text-primary-dark fs-10"></span>
-                                        </div>
-                                        <span class="timeline-bar border-end border-dashed"></span>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="timeline-item-content ps-6 ps-md-3">
-                                        <h5 class="fs-9 lh-sm">${statusName}</h5>
-                                        <p class="fs-9">by <a class="fw-semibold" href="#!">${author}</a></p>
-                                        <p class="fs-9 text-body-secondary mb-5">${statusDescription}</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="timeline-item" style="margin-bottom: 10px;">
+                            <div style="font-weight: bold; color: #333;">${approverStep}</div>
+                            <div style="margin: 3px 0;">${statusName} by <strong>${author}</strong></div>
+                            <div style="color: #555; font-size: 12px;">${statusDescription}</div>
                         </div>
                     `;
+
+                    // Add separator except for last item
+                    if (index < steps.length - 1) {
+                        html += '<hr style="margin: 8px 0; border: none; border-top: 1px solid #ddd;"/>';
+                    }
                 });
             } else {
-                html += '<div class="text-muted">No approval steps found</div>';
+                html = '<div class="text-muted" style="color: #999;">No approval steps found</div>';
             }
 
-            html += `</div>`;
-            $tooltip.html(html).fadeIn(200);
+            $tooltip.html(html);
         },
         error: function () {
-            $tooltip.html('<div class="text-danger me-4" style="height: 138px; width: 170px;">No data found</div>').fadeIn(200);
+            $tooltip.html('<div class="text-danger" style="color: #d32f2f;">Error loading data</div>');
         }
     });
 });
 
-//
-
+// 3. Hide tooltip on mouse leave from container
 $(document).on('mouseleave', '.custom-tooltip-container', function () {
-    const $tooltip = $(this).find('.custom-tooltip-box');
-
     hideTooltipTimer = setTimeout(() => {
-        $tooltip.fadeOut();
+        $tooltip.fadeOut(200);
     }, 300);
 });
+
+// 4. Handle tooltip hover to prevent hiding when mouse moves to tooltip
+$tooltip.on('mouseenter', function () {
+    clearTimeout(hideTooltipTimer);
+}).on('mouseleave', function () {
+    hideTooltipTimer = setTimeout(() => {
+        $tooltip.fadeOut(200);
+    }, 300);
+});
+
+// 5. Optional: Hide tooltip when clicking elsewhere
+$(document).on('click', function (e) {
+    if (!$(e.target).closest('.custom-tooltip-container, .custom-tooltip-box').length) {
+        clearTimeout(hideTooltipTimer);
+        $tooltip.fadeOut(200);
+    }
+});
+
+// 6. Optional: Position tooltip to stay within viewport
+function positionTooltip($button) {
+    const offset = $button.offset();
+    const windowWidth = $(window).width();
+    const windowHeight = $(window).height();
+    const tooltipWidth = $tooltip.outerWidth();
+    const tooltipHeight = $tooltip.outerHeight();
+
+    let top = offset.top + 25;
+    let left = offset.left + 10;
+
+    // Adjust if tooltip goes off right edge
+    if (left + tooltipWidth > windowWidth) {
+        left = offset.left - tooltipWidth - 10;
+    }
+
+    // Adjust if tooltip goes off bottom edge
+    if (top + tooltipHeight > windowHeight) {
+        top = offset.top - tooltipHeight - 10;
+    }
+
+    // Ensure tooltip doesn't go off top or left edges
+    top = Math.max(10, top);
+    left = Math.max(10, left);
+
+    $tooltip.css({ top: top, left: left });
+}
 
 
 // For Table 
@@ -959,7 +1073,7 @@ function getBadgeClass(status) {
     if (!status || status.trim() === '') return 'text-bg-success';
 
     switch (status.trim().toUpperCase()) {
-        case 'DECLINEED':
+        case 'DECLINED':
             return 'badge-phoenix badge-phoenix-danger';
         case 'APPROVED':
             return 'badge-phoenix badge-phoenix-success';
@@ -1087,7 +1201,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
 
                     //
                     let status = item.statusName; // Assuming this is your status value
-                    let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINEED');
+                    let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINED');
                     //
                     const isFullDay = item.isFullDay;
                     // pick the right label and pluralize
@@ -1144,7 +1258,6 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             <i class="fa-solid fa-circle-info info-button"
                data-id="${item.leaveApplicationID}"
                style="cursor: pointer; font-size: 14px; color: #007bff;"></i>
-            <div class="custom-tooltip-box" style="width: 250px; height: 150px; background-color: rgb(255, 247, 209)"></div>
         </div>` : ''}
                         </td>
 

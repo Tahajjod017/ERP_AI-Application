@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
@@ -82,7 +83,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         #endregion
 
-        #region  Save Data 
+        #region  Save/Update Data 
 
         [HttpPost]
         public async Task<IActionResult> SaveLeaveRequest(LeaveApplicationsRequestVM model)
@@ -98,11 +99,25 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                     Errors = errorMessages
                 });
             }
+           
             var data = await leaveRequestService.SaveLeaveRequestAsync(model);
             return Ok(data);
 
 
         }
+        [Route("LeaveRequestUpdatedRoute/UpdateLeaveRequest")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateLeaveRequest([FromBody] LeaveApplicationEditVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, message = "Invalid data." });
+            }
+            var data = await leaveRequestService.UpdateLeaveRequestAsynce(model);
+            // your update logic here
+            return Ok(data);
+        }
+
         #endregion
 
         #region Get All Data List
