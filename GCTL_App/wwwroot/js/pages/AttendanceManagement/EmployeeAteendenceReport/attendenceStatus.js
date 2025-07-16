@@ -421,7 +421,336 @@ updateAttendancePieChart(65, 20, 2, 5, 8);
 // You can call this function again with new data to update the chart dynamically
 // updateAttendancePieChart(newPresent, newAbsent, newLeave, newLate, newEarlyLeave);
 
+//bar compare
+// Function to render the "You vs Best_Emp" bar chart using dynamic JSON data
+function renderAttendanceCompareChart(data) {
+    var dom = document.getElementById('employee-attendance-status-compare-barchart');
+    var myChart = echarts.init(dom, null, {
+        renderer: 'canvas',
+        useDirtyRect: false
+    });
 
+    var option = {
+        title: {
+            text: 'You vs Best_Emp',
+            subtext: 'Previous Month'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['You', 'Best_Emp']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                magicType: { show: true, type: ['line', 'bar'] },
+                restore: { show: true },
+                saveAsImage: { show: true }
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                data: ['Present', 'Absent', 'Early Leave', 'Late Leave']
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'You',
+                type: 'bar',
+                data: data.you,
+                itemStyle: {
+                    color: '#ef5c08',
+                },
+            },
+            {
+                name: 'Best_Emp',
+                type: 'bar',
+                data: data.bestEmp,
+                itemStyle: {
+                    color: '#48cd00',
+                },
+            }
+        ]
+    };
+
+    // Set the chart options
+    myChart.setOption(option);
+
+    // Resize the chart on window resize
+    window.addEventListener('resize', myChart.resize);
+}
+
+// Example of passing dynamic data as a JSON object
+var jsonData = {
+    "you": [16, 3, 3, 2],      // Data for "You"
+    "bestEmp": [20, 2, 1, 1]   // Data for "Best_Emp"
+};
+
+// Call the function with the dynamic data (this can be done on the fly)
+renderAttendanceCompareChart(jsonData);
+
+//linechart 
+// Function to render the "Yearly Attendance Status" line chart with dynamic JSON data
+function renderAttendanceLineChart(data) {
+    var dom = document.getElementById('yearly-employee-attendance-status-linechart');
+    var myChart = echarts.init(dom, null, {
+        renderer: 'canvas',
+        useDirtyRect: false
+    });
+
+    var option = {
+        title: {
+            text: 'Attendance Status',
+            subtext: 'Previous Year'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '4%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: data.months // Data for the months
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'Casual Leave',
+                type: 'line',
+                stack: 'Total',
+                data: data.casualLeave
+            },
+            {
+                name: 'Medical Leave',
+                type: 'line',
+                stack: 'Total',
+                data: data.medicalLeave
+            },
+            {
+                name: 'Early Leave',
+                type: 'line',
+                stack: 'Total',
+                data: data.earlyLeave
+            },
+            {
+                name: 'Late Entry',
+                type: 'line',
+                stack: 'Total',
+                data: data.lateEntry
+            },
+            {
+                name: 'Absent',
+                type: 'line',
+                stack: 'Total',
+                data: data.absent
+            },
+            {
+                name: 'Present',
+                type: 'line',
+                stack: 'Total',
+                data: data.present
+            }
+        ]
+    };
+
+    // Set the chart options
+    myChart.setOption(option);
+
+    // Resize the chart on window resize
+    window.addEventListener('resize', myChart.resize);
+}
+
+// Example of passing dynamic data as a JSON object
+var jsonData = {
+    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    "casualLeave": [1, 2, 0, 2, 1, 1, 1, 0, 2, 0, 1, 1],
+    "medicalLeave": [1, 1, 0, 2, 0, 1, 0, 0, 1, 4, 0, 1],
+    "earlyLeave": [4, 2, 1, 3, 2, 3, 2, 3, 2, 3, 2, 1],
+    "lateEntry": [2, 2, 2, 2, 2, 1, 1, 1, 2, 3, 1, 1],
+    "absent": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
+    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21]
+};
+
+// Call the function with the dynamic data (this can be done on the fly)
+renderAttendanceLineChart(jsonData);
+
+// linechart1
+
+// Function to render the "Yearly Attendance Status" bar chart with dynamic JSON data
+function renderAttendanceBarChart(data) {
+    var dom = document.getElementById('yearly-employee-attendance-status-linechart1');
+    var myChart = echarts.init(dom, null, {
+        renderer: 'canvas',
+        useDirtyRect: false
+    });
+
+    const posList = [
+        'left', 'right', 'top', 'bottom', 'inside', 'insideTop', 'insideLeft', 'insideRight',
+        'insideBottom', 'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+    ];
+
+    const app = {
+        configParameters: {
+            rotate: { min: -90, max: 90 },
+            align: { options: { left: 'left', center: 'center', right: 'right' } },
+            verticalAlign: { options: { top: 'top', middle: 'middle', bottom: 'bottom' } },
+            position: posList.reduce((map, pos) => { map[pos] = pos; return map; }, {}),
+            distance: { min: 0, max: 100 }
+        },
+        config: {
+            rotate: 90,
+            align: 'left',
+            verticalAlign: 'middle',
+            position: 'insideBottom',
+            distance: 15,
+            onChange: function () {
+                const labelOption = {
+                    rotate: app.config.rotate,
+                    align: app.config.align,
+                    verticalAlign: app.config.verticalAlign,
+                    position: app.config.position,
+                    distance: app.config.distance
+                };
+                myChart.setOption({
+                    series: [
+                        { label: labelOption },
+                        { label: labelOption },
+                        { label: labelOption },
+                        { label: labelOption }
+                    ]
+                });
+            }
+        }
+    };
+
+    const labelOption = {
+        show: true,
+        position: app.config.position,
+        distance: app.config.distance,
+        align: app.config.align,
+        verticalAlign: app.config.verticalAlign,
+        rotate: app.config.rotate,
+        formatter: '{c}',
+        fontSize: 7,
+        rich: { name: {} }
+    };
+
+    const option = {
+        title: { text: 'Attendance Status', subtext: 'Previous Year' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
+        legend: { data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave'] },
+        toolbox: {
+            show: true,
+            orient: 'vertical',
+            left: 'right',
+            top: 'center',
+            feature: {
+                mark: { show: true },
+                dataView: { show: true, readOnly: false },
+                magicType: { show: true, type: ['line', 'bar', 'stack'] },
+                restore: { show: true },
+                saveAsImage: { show: true }
+            }
+        },
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: { show: false },
+                data: data.months // Dynamic months data from JSON
+            }
+        ],
+        yAxis: [{ type: 'value' }],
+        series: [
+            {
+                name: 'Present',
+                type: 'bar',
+                barGap: 0,
+                label: labelOption,
+                emphasis: { focus: 'series' },
+                data: data.present // Dynamic data for "Present"
+            },
+            {
+                name: 'Absent',
+                type: 'bar',
+                label: labelOption,
+                emphasis: { focus: 'series' },
+                data: data.absent // Dynamic data for "Absent"
+            },
+            {
+                name: 'Late Entry',
+                type: 'bar',
+                label: labelOption,
+                emphasis: { focus: 'series' },
+                data: data.lateEntry // Dynamic data for "Late Entry"
+            },
+            {
+                name: 'Early Leave',
+                type: 'bar',
+                label: labelOption,
+                emphasis: { focus: 'series' },
+                data: data.earlyLeave // Dynamic data for "Early Leave"
+            },
+            {
+                name: 'Casual Leave',
+                type: 'bar',
+                label: labelOption,
+                emphasis: { focus: 'series' },
+                data: data.casualLeave // Dynamic data for "Casual Leave"
+            },
+            {
+                name: 'Medical Leave',
+                type: 'bar',
+                label: labelOption,
+                emphasis: { focus: 'series' },
+                data: data.medicalLeave // Dynamic data for "Medical Leave"
+            }
+        ]
+    };
+
+    // Set the chart options
+    myChart.setOption(option);
+
+    // Resize the chart on window resize
+    window.addEventListener('resize', myChart.resize);
+}
+
+// Example of passing dynamic data as a JSON object
+var jsonData = {
+    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21],
+    "absent": [3, 2, 1, 3, 2, 1, 1, 1, 2, 3, 1, 1],
+    "lateEntry": [2, 1, 2, 1, 3, 1, 2, 2, 1, 2, 1, 2],
+    "earlyLeave": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
+    "casualLeave": [1, 0, 1, 1, 1, 1, 0, 1, 2, 1, 2, 1],
+    "medicalLeave": [0, 0, 1, 3, 0, 1, 0, 0, 2, 0, 2, 1]
+};
+
+// Call the function with the dynamic data (this can be done on the fly)
+renderAttendanceBarChart(jsonData);
 
 
 
