@@ -1,1 +1,259 @@
-﻿<p>Leave History  </p>
+﻿
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="my-auto mb-2">
+            <h2 class="mb-1">Leave History</h2>
+           @*  <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="../../dashboard/atms.html"><i class="ti ti-smart-home"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        Employee
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Leaves</li>
+                </ol>
+            </nav> *@
+        </div>
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
+            <div class="me-2 mb-2">
+                <div class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                        <i class="ti ti-file-export me-1"></i>Export
+                    </a>
+                    <ul class="dropdown-menu  dropdown-menu-end p-3">
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>Export as PDF</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>Export as Excel </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+          @*   <div class="mb-2">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#apply_leave" class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Apply Manual Leave</a>
+            </div> *@
+            <div class="head-icons ms-2">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1 p-3 border-top">
+        <h4 class="mb-1">Employee Leave History</h4>
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+            <div class="me-3">
+                <div class="input-icon-end position-relative">
+
+                    <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text"
+                           placeholder="d/m/y to d/m/y"
+                           data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}"
+                           readonly="readonly">
+
+                </div>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required"
+                        name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Leave Type</option>
+                    <option>Medical Leave</option>
+                    <option>Casual Leave</option>
+                    <option>Annual Leave</option>
+                    <option>Compensation Leave</option>
+                </select>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required"
+                        name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select department</option>
+                    <option>Developer</option>
+                    <option>Finance</option>
+                    <option>Marketing</option>
+                    <option>IT Support</option>
+                </select>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-select" id="organizerSingle" data-choices="data-choices"
+                        data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Employee...</option>
+                    <option>Galib</option>
+                    <option>Korim</option>
+                    <option>Nozib</option>
+                    <option>Hasan</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="border-translucent p-3">
+        <div id="employeeLeaveListTable3"
+             data-list='{"valueNames":["approveByEmployee","leaveType","leaveFrom","leaveTo","leaveTotalDay","status"],"page":10,"pagination":true}'>
+
+            <div class="table-responsive scrollbar mx-n1 px-1">
+                <table class="table table-sm fs-9 leads-table">
+                    <thead>
+                        <tr>
+                            <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                <div class="form-check mb-0 fs-8">
+                                    <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"employeeLeaveListTable3"}' />
+                                </div>
+                            </th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"
+                                data-sort="approveByEmployee">Employee Name</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveType">Leave Type</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">From Date</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">To Date</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Period</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Unit Type</th>
+                        </tr>
+                    </thead>
+                    <tbody class="list" id="employeeLeaveListTable3">
+                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                            <td class="fs-9 align-middle py-0">
+                                <div class="form-check mb-0 fs-8">
+                                    <input class="form-check-input" type="checkbox"
+                                           data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
+                                </div>
+                            </td>
+
+
+                            <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">
+                                                Nazmul
+                                                Hasan
+                                            </a>
+                                        </h6>
+                                        <span class="fs-12 fw-normal ">Developer</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <div class="d-flex align-items-center">
+                                    <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
+                                    <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                                          data-bs-title="I am currently experiencing a fever and design & Development">
+                                        <i class="ti ti-info-circle text-info"></i>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                            <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                            <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">2</td>
+                            <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Day</td>
+
+
+                        </tr>
+
+                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                            <td class="fs-9 align-middle py-0">
+                                <div class="form-check mb-0 fs-8">
+                                    <input class="form-check-input" type="checkbox"
+                                           data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
+                                </div>
+                            </td>
+
+
+                            <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold"><a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">Hasan Mahmud</a> </h6>
+                                        <span class="fs-12 fw-normal ">Finance Officer</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <div class="d-flex align-items-center">
+                                    <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
+                                    <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                                          data-bs-title="I am currently experiencing a fever and design & Development">
+                                        <i class="ti ti-info-circle text-info"></i>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                            <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                            <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1</td>
+                            <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Day</td>
+
+                        </tr>
+                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                            <td class="fs-9 align-middle py-0">
+                                <div class="form-check mb-0 fs-8">
+                                    <input class="form-check-input" type="checkbox"
+                                           data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
+                                </div>
+                            </td>
+
+
+                            <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold"><a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">Md. Hasan</a> </h6>
+                                        <span class="fs-12 fw-normal ">Developer</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <div class="d-flex align-items-center">
+                                    <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
+                                    <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
+                                          data-bs-title="I am currently experiencing a fever and design & Development">
+                                        <i class="ti ti-info-circle text-info"></i>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                            <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
+                            <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1</td>
+                            <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Day</td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row align-items-center justify-content-between pe-0 fs-9">
+                <div class="col-auto d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">
+                        View all<span class="fas fa-angle-right ms-1"
+                                      data-fa-transform="down-1"></span>
+                    </a><a class="fw-semibold d-none" href="#!" data-list-view="less">
+                        View
+                        Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span>
+                    </a>
+                </div>
+                <div class="col-auto d-flex">
+                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+
+        </div>
+    </div>

@@ -8,10 +8,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
 {
     public class PersonLeaveStepVM
     {
-        public int LeaveApplicationId { get; set; }
+        public DateTime? ApprovedDate { get; set; }
 
         public int? ApproverStep {  get; set; }
-
         public string? ApprovarNote { get; set; }
         public string? ApprovarPerson { get; set; }
         public string? StatusName { get; set; }

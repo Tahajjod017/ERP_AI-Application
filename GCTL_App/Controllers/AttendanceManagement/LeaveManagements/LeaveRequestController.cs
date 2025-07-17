@@ -107,12 +107,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         [Route("LeaveRequestUpdatedRoute/UpdateLeaveRequest")]
         [HttpPost]
-        public async Task<IActionResult> UpdateLeaveRequest([FromBody] LeaveApplicationEditVM model)
+        public async Task<IActionResult> UpdateLeaveRequest(LeaveApplicationEditVM model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { success = false, message = "Invalid data." });
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(new { success = false, message = "Invalid data." });
+            //}
             var data = await leaveRequestService.UpdateLeaveRequestAsynce(model);
             // your update logic here
             return Ok(data);

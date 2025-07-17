@@ -358,18 +358,22 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
             var minDate = entity.FromDate;
             var maxDate = entity.ToDate;
+            if (model.IsFullDayEdit)
+            {
+                if (!(minDate <= model.FromDateEdit && model.FromDateEdit <= maxDate))
+                    errors.Add("From Date must be within the allowed range.");
 
-            if (!(minDate <= model.FromDateEdit && model.FromDateEdit <= maxDate))
-                errors.Add("From Date must be within the allowed range.");
+                if (!(minDate <= model.ToDateEdit && model.ToDateEdit <= maxDate))
+                    errors.Add("To Date must be within the allowed range.");
 
-            if (!(minDate <= model.ToDateEdit && model.ToDateEdit <= maxDate))
-                errors.Add("To Date must be within the allowed range.");
+                if (model.ToDateEdit < model.FromDateEdit)
+                    errors.Add("To Date must be on or after From Date.");
 
-            if (model.ToDateEdit < model.FromDateEdit)
-                errors.Add("To Date must be on or after From Date.");
+                if (model.TotalAppliedDays > model.AvailableLeaveDays)
+                    errors.Add("Applied days exceed available leave.");
+            }
 
-            if (model.TotalAppliedDays > model.AvailableLeaveDays)
-                errors.Add("Applied days exceed available leave.");
+       
 
             return !errors.Any();
         }
@@ -406,9 +410,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = string.Join(" ", errors) 
                     };
                 }
-
-
-
                 //
                 // Get employee office info
                 var offf = await empoffi.AllActive()
@@ -494,8 +495,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
                     
                     entity.StatusID = statusId; // Final Approval or Decline 
-                    entity.ApprovalPersonID = approvalSettings.ThirdApprovalID;    //entityVM.UpdatedBy; // 🔹 No next approver
-
+                    entity.ApprovalPersonID = entityVM.CreatedBy;        //approvalSettings.ThirdApprovalID;    //entityVM.UpdatedBy; // 🔹 No next approver
+                    isFinalApproval = true;
 
                 }
 
@@ -529,10 +530,28 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         .FirstOrDefaultAsync(x =>
                             x.EmployeeID == entityVM.EmployeeIDEdit &&
                             x.LeaveTypeID == entityVM.LeaveTypeIDEdit);
-
+                   
                     if (existingBalance != null)
                     {
-                        existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
+                        //Count partialDay
+                        if (!entity.IsFullDay)
+                        {
+                            var fromPartialTime = entityVM.PartialFromTimeEdit ?? default;
+                            var toPartialTime = entityVM.PartialToTimeEdit ?? default;
+                            var totalHour = Math.Round((toPartialTime - fromPartialTime).TotalHours, 2);
+
+                            var fullDayWorkingHours = 8.0;
+                            var partialLeaveAsDay = Math.Round(totalHour / fullDayWorkingHours, 2); //( 4+4 hour)
+
+                            existingBalance.Taken = (existingBalance.Taken ?? 0) +(decimal)partialLeaveAsDay;
+                        }
+                        else
+                        {
+                            existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
+                        }
+
+                        //
+                        
                         existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                         existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                         existingBalance.LIP = entityVM.LIP;
