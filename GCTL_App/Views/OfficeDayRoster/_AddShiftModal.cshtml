@@ -1,5 +1,5 @@
 ﻿<!-- Modal  for add shift  used-->
-<div class="modal fade" id="addShiftModal" tabindex="-1" aria-labelledby="addShiftModalLabel" aria-hidden="true">
+<div class="modal fade" id="addShiftModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addShiftModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -10,7 +10,7 @@
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <div class="col-md">
-                            <label class="form-label" id="AddShiftModal-ShiftID">Shift Name</label>
+                            <label class="form-label" for="AddShiftModal-ShiftID">Shift Name</label>
                             <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" id="AddShiftModal-ShiftID">
                                 <option value="">Select Shift...</option>
                             </select>

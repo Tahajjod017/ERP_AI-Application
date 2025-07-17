@@ -73,8 +73,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                         foreach (var employee in employees)
                         {
                             var existingEntity = await _genericRepository.All()
-                                .Where(x => x.OrganizationID == employee.OrganizationID 
-                                && x.DepartmentID == employee.DepartmentID 
+                                .Where(x => x.OrganizationID == employee.OrganizationID
+                                && x.DepartmentID == employee.DepartmentID
                                 && x.EmployeeID == employee.EmployeeID
                                 && x.DayDate == date)
                                 .FirstOrDefaultAsync();
