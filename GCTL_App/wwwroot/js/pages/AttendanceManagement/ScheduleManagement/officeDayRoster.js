@@ -9,6 +9,7 @@
             delBtn: '#rosterInOfficeDays-deleteBtn',
             delModal: '#rosterInOfficeDays-delModal',
             modalDelBtn: '#rosterInOfficeDays-delModal-delBtn',
+            addShiftModal: '#addShiftModal',
             editShiftModal: '#rosterInOfficeDays-editShiftModal',
             editShiftSaveBtn: '#EditShiftModal-saveShift',
         }, options);
@@ -573,6 +574,42 @@
 
 
             // #region Load shift by opening edit shift modal
+            $(settings.addShiftModal).on('show.bs.modal', function (e) {
+                var btn = $(e.relatedTarget);
+                var organizationId = btn.data('organization-id');
+
+                $.ajax({
+                    url: '/OfficeDayRoster/GetShiftByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (shifts) {
+                        const $shiftSelect = $('#AddShiftModal-ShiftID');
+
+                        $shiftSelect.empty();
+
+                        // Add default placeholder
+                        $shiftSelect.append(`<option value="">Select Shift...</option>`);
+
+                        // Populate shift options
+                        shifts.forEach(shift => {
+                            const isSelected = shift.id;
+                            $shiftSelect.append(
+                                `<option value="${shift.id}" ${isSelected ? 'selected' : ''}>
+                                    ${shift.name}
+                                </option>`
+                            );
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading shifts:', error);
+                    }
+                });
+            });
+            // #endregion
+
+
+
+            // #region Load shift by opening edit shift modal
             $(settings.editShiftModal).on('show.bs.modal', function (e) {
                 var btn = $(e.relatedTarget);
                 var shiftId = btn.data('shift-id');
@@ -592,17 +629,17 @@
                         const $shiftSelect = $('#EditShiftModal-ShiftID');
                         const selectedShiftId = $shiftSelect.data('selected');
 
-                        $shiftSelect.empty(); // Clear existing options
+                        $shiftSelect.empty();
 
                         // Add default placeholder
                         $shiftSelect.append(`<option value="">Select Shift...</option>`);
 
                         // Populate shift options
                         shifts.forEach(shift => {
-                            const isSelected = shift.shiftID.toString() === shiftId?.toString();
+                            const isSelected = shift.id;
                             $shiftSelect.append(
-                                `<option value="${shift.shiftID}" ${isSelected ? 'selected' : ''}>
-                                    ${shift.shiftName}
+                                `<option value="${shift.id}" ${isSelected ? 'selected' : ''}>
+                                    ${shift.name}
                                 </option>`
                             );
                         });
@@ -858,41 +895,7 @@
             return headers;
         }
 
-        //function renderEmployeeTable(employees) {
-        //    const headers = generateDateHeaders(7);  // Number of days for columns
 
-        //    // Render header (except first column, which is static)
-        //    let headerHtml = `<th class="align-middle text-uppercase text-nowrap">Employee Name</th>`;
-        //    headers.forEach(h => {
-        //        headerHtml += `<th class="text-center">${h.day}<br>${h.date}</th>`;
-        //    });
-        //    $('table.leads-table thead tr').html(headerHtml);
-
-        //    // Render tbody rows
-        //    let bodyHtml = '';
-        //    employees.forEach(emp => {
-        //        bodyHtml += '<tr>';
-
-        //        // First column: EmployeeName from SP result
-        //        bodyHtml += `
-        //        <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
-        //            <div class="d-inline-flex flex-column align-items-center justify-content-center">
-        //                <h5>${emp.employeeName}</h5>
-        //                <p class="fs-9 mb-0">${emp.departmentName}</p>
-        //                <p class="fs-9 mb-0">${emp.organizationName}</p>
-        //            </div>
-        //        </td>`;
-
-        //        // Empty date columns
-        //        headers.forEach(() => {
-        //            bodyHtml += `<td>-</td>`;
-        //        });
-
-        //        bodyHtml += '</tr>';
-        //    });
-
-        //    $('table.leads-table tbody').html(bodyHtml);
-        //}
         function renderEmployeeTable(employees) {
             const headers = generateDateHeaders(7);  // Number of days for columns
 
@@ -910,13 +913,13 @@
 
                 // Employee info column
                 bodyHtml += `
-        <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
-            <div class="d-inline-flex flex-column align-items-center justify-content-center">
-                <h5>${emp.employeeName}</h5>
-                <p class="fs-9 mb-0">${emp.departmentName}</p>
-                <p class="fs-9 mb-0">${emp.organizationName}</p>
-            </div>
-        </td>`;
+                <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
+                    <div class="d-inline-flex flex-column align-items-center justify-content-center">
+                        <h5>${emp.employeeName}</h5>
+                        <p class="fs-9 mb-0">${emp.departmentName}</p>
+                        <p class="fs-9 mb-0">${emp.organizationName}</p>
+                    </div>
+                </td>`;
 
                 // Parse and show shifts
                 const shiftMap = parseShiftSchedule(emp.assignedDates);
@@ -928,18 +931,24 @@
                             <div class="position-relative badge badge-phoenix-primary shift-block px-4 py-2">
                                 <p class="fs-10 mb-1">${shift.timeRange}</p>
                                 <p class="fs-10 mb-1">${shift.shiftName}</p>
-                                <a href="#" class="nav-item mx-2 add-shift-btn" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-                                        data-id="${shift.rosterInOfficeDayId}" 
-                                        data-date="${h.date}" 
-                                        data-shift-id="${shift.shiftID}"
-                                        data-organization-id="${shift.organizationID}" 
-                                        data-bs-target="#rosterInOfficeDays-editShiftModal">
-                                        <i class="fas fa-pen text-secondary"></i>
-                                    </a>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
+                                    data-id="${shift.rosterInOfficeDayId}" 
+                                    data-date="${h.date}" 
+                                    data-shift-id="${shift.shiftID}"
+                                    data-organization-id="${emp.organizationID}" 
+                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                    <i class="fas fa-pen"></i>
+                                </a>
                             </div>
                         </td>`;
                     } else {
-                        bodyHtml += `<td>-</td>`;
+                        bodyHtml += `
+                        <td class="shift-cell align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal"
+                                data-organization-id="${emp.organizationID}">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </td>`;
                     }
                 });
 
