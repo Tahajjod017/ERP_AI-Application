@@ -26,11 +26,30 @@ function initializeDatepickerDMY(dateIds) {
 }
 
 // OnlyTOday  Selected
+function initializeDatepickerDMYOnlyToday(dateIds) {
+    const today = new Date();
 
+    dateIds.split(',').forEach(function (id) {
+        const trimmedId = id.trim();
+        const inputElement = document.getElementById(trimmedId);
 
-  
+        if (!inputElement) return;
 
-
+        flatpickr(`#${trimmedId}`, {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            allowInput: false,
+            clickOpens: false,
+            minDate: today,
+            maxDate: today,
+            defaultDate: today,
+            onReady: function (selectedDates, dateStr, instance) {
+                instance.input.placeholder = "dd/mm/yyyy";
+            }
+        });
+    });
+}
 
 //
 function initializeDatepickerDMY2(dateIds, minDate = null, maxDate = null) {
@@ -144,8 +163,55 @@ function initializeGlobalDateRangePicker(pickerId, fromHiddenId, toHiddenId, onC
         });
 }
 
-// Date range Global   Pair calender
+// Date range Global   Pair calender  end
 
+// Time Picker
+
+function initializeTimePickerById(elementClassList) {
+    const classes = elementClassList.split(',');
+    classes.forEach(className => {
+        flatpickr(`.${className.trim()}`, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            disableMobile: true,
+            allowInput: true,
+            clickOpens: true,
+            defaultDate: null
+        });
+    });
+}
+
+
+//
+//$(".timepicker-12hr,.timepicker-12hrEdit").flatpickr({
+//    enableTime: true,       // ✅ Enables time selection (hours & minutes)
+//    noCalendar: true,       // ✅ Hides the calendar view, showing only the time picker
+//    dateFormat: "H:i",      // h = 12-hour, H = 24-hour, i = minutes, K = AM/PM
+//    time_24hr: true,        // ✅ Uses 24-hour time format (00:00–23:59 instead of 12-hour AM/PM)
+//    disableMobile: true,    // ✅ Prevents the native mobile date/time picker
+//    allowInput: true,        // optional: lets user leave it blank
+//    clickOpens: true,        // opens on click only
+//    defaultDate: null,       // explicitly prevents pre-filling
+//    //// ✅ Sets the default time to show when the picker opens
+//    //defaultHour: 9,         // default hour (0–23)
+//    //defaultMinute: 30,      // default minute (0–59)
+//    //minuteIncrement: 5,
+//    //minTime: "09:00",       // ✅ Restricts the minimum allowed time
+//    //maxTime: "18:00",       // ✅ Restricts the maximum allowed time
+//    //enableSeconds: true,    // ✅ Whether seconds can be selected (you’ll also need to update dateFormat)
+//    //allowInput: false,      // ✅ Disables manual typing into the input field
+//    //// ✅ Disables the entire picker
+//    //// Can be used to toggle state from JS: instance.set('disable', true/false)
+//    //disable: [function (date) {
+//    //    return false; // no disable by default
+//    //}],
+//    //// ✅ Hook that runs when a date/time is selected
+//    //onChange: function (selectedDates, dateStr, instance) {
+//    //    console.log("Time selected:", dateStr);
+//    //}
+//});
 
 //
 

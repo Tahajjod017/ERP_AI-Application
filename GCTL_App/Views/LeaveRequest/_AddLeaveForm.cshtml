@@ -113,14 +113,16 @@
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">Start Time</label>
-                            <input class="form-control datetimepicker" asp-for="PartialFromTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
+                            <input class="form-control datetimepicker timepicker-12hr" asp-for="PartialFromTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                            @* <input class="form-control datetimepicker" asp-for="PartialFromTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
                             <span asp-validation-for="PartialFromTime" class="text-danger small"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">End Time</label>
-                            <input class="form-control datetimepicker" asp-for="PartialToTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
+                            <input class="form-control datetimepicker timepicker-12hr" asp-for="PartialToTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                           @*  <input class="form-control datetimepicker" asp-for="PartialToTime" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
                             <span asp-validation-for="PartialToTime" class="text-danger small"></span>
                         </div>
                     </div>

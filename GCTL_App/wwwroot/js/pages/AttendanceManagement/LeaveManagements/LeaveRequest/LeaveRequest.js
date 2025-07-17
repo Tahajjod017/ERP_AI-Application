@@ -1,9 +1,5 @@
 ﻿
-
 $(document).ready(function () {
-
-
-    //
 
     $('.one').on('changed.coreui.multi-select', function (event) {
         const target = event.target;
@@ -22,7 +18,6 @@ $(document).ready(function () {
         }
     });
 
-
     function loadDepartmentsByCompany(organizationId) {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -41,7 +36,6 @@ $(document).ready(function () {
             });
         });
     }
-
     function loadDepartmentsByCompany(organizationId) {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -60,7 +54,6 @@ $(document).ready(function () {
             });
         });
     }
-
     function loadEmplooyeesByCompany(organizationId) {
         $.ajax({
             url: '/LeaveRequest/GetEmployeeByCompany',
@@ -326,36 +319,6 @@ $(document).ready(function () {
 
     // OnlyTOday  Selected
     initializeDatepickerDMYOnlyToday("ToDateFromDateCombined");
-
-
-
-    function initializeDatepickerDMYOnlyToday(dateIds) {
-        const today = new Date();
-
-        dateIds.split(',').forEach(function (id) {
-            const trimmedId = id.trim();
-            const inputElement = document.getElementById(trimmedId);
-
-            if (!inputElement) return;
-
-            flatpickr(`#${trimmedId}`, {
-                dateFormat: "Y-m-d",        
-                altInput: true,             
-                altFormat: "d/m/Y",         
-                allowInput: false,          
-                clickOpens: false,          
-                minDate: today,             
-                maxDate: today,
-                defaultDate: today,         
-                onReady: function (selectedDates, dateStr, instance) {
-                    instance.input.placeholder = "dd/mm/yyyy";
-                }
-            });
-        });
-    }
-
-
-
     $("#ToDate").prop("disabled", true);
     $(document).on('change', "#FromDate", function () {
         const fromDate = $(this).val();
@@ -427,6 +390,10 @@ $(document).ready(function () {
         handleLeaveChange('EmployeeIDedit', '#LeaveTypeIDEdit')
     );
 
+    // Time Picker
+    initializeTimePickerById('timepicker-12hr,timepicker-12hrEdit');
+    //
+
 
     toggleTimeDateValidation();
 
@@ -440,7 +407,8 @@ $(document).ready(function () {
         }
     });
 
-
+   
+    //
 
     function toggleTimeDateValidation() {
         if ($('#IsFullDay').is(':checked')) {
@@ -549,7 +517,7 @@ $(document).ready(function () {
 
     });
 
-    //
+    // Save Data Start
     let exceedConfirmed = false; // state flag
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
@@ -623,7 +591,148 @@ $(document).ready(function () {
         $('#LeaveRequestForm').submit();
     });
 
+    /// Edit Data
 
+
+    // Get By data leaveRequest
+    $(document).on('click', '#LeaveRequestEditButton', function () {
+        var leaveApplicationID = $(this).data('id');
+      
+        $.ajax({
+            url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
+            type: 'GET',
+            data: { leaveApplicationID: leaveApplicationID },
+            success: function (data) {
+
+                console.log("Data GetBy LeaveRequest", data);
+                if (data && Object.keys(data).length > 0) {
+                    const maxDate = window.__maxDateStr || null;
+                    const minDate = window.__minDateStr || null;
+                    // Set hidden ID
+                    $('#LeaveApplicationID').val(data.leaveApplicationID);
+                    choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
+                    choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
+                    /*flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);*/
+                    $('#TotalAppliedDaysTT').val(data.period);
+                    $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
+                    $('#LeaveDaysEdit').val(data.leaveDaysEdit);
+                    $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
+                    $('input[name="FromDateEdit"]').val(data.fromDateEdit);
+                    $('input[name="ToDateEdit"]').val(data.toDateEdit);
+                    $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
+                    if (!data.isFullDay) {
+                        $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
+                        $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
+                        $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
+                        flatpickrHelper.setDate('FromDateEdit', data.fromDateEdit);
+                        flatpickrHelper.setDate('ToDateEdit', data.toDateEdit);
+                    }
+
+                    $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
+                    initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");
+                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDate, maxDate);
+                    // Optionally toggle the sections based on IsFullDayEdit
+                    if (data.isFullDayEdit === true) {
+                        $('#FullDayDivEdit').removeClass('d-none');
+                        $('#PartialDayDivEdit').addClass('d-none');
+                    } else {
+                        $('#FullDayDivEdit').addClass('d-none');
+                        $('#PartialDayDivEdit').removeClass('d-none');
+                    }
+                    if (data.totalSubsequentDays > 0) {
+                        $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
+                    } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
+                        $('#SubsequentHolydayDays').val("Not Applicable");
+                    } else {
+                        $('#SubsequentHolydayDays').val("0");
+                    }
+                }
+                initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
+            },
+
+            error: function () {
+                toastr.error("Error leave request get by Id.");
+            }
+        })
+    })
+
+
+    //
+    $(document).on('click', '#ApplyLeaveSubmitButtonUpdate', function (e) {
+        e.preventDefault();
+     
+        var model = {
+            LeaveApplicationID: parseInt($('#LeaveApplicationID').val()) || 0,
+            EmployeeIDEdit: $('#EmployeeIDEdit').val(),
+            LeaveTypeIDEdit: parseInt($('#LeaveTypeIDEdit').val()) || 0,
+            IsFullDayEdit: $('input[name="IsFullDayEdit"]:checked').val() === "true",
+            FromDateEdit: $('#FromDateEdit').val(),
+            FromDateEdit: new Date(),
+            ToDateEdit: $('#ToDateEdit').val(),
+            ToDateFromDateCombinedEdit: $('#ToDateFromDateCombinedEdit').val(),
+            PartialFromTimeEdit: $('#PartialFromTimeEdit').val(),
+            PartialToTimeEdit: $('#PartialToTimeEdit').val(),
+            ReasonEdit: $('textarea[name="ReasonEdit"]').val(),
+            Period: parseFloat($('#TotalAppliedDaysTT').val()) || 0,
+
+
+        };
+        console.log("Model For update" + model);
+    
+        $.ajax({
+            url: '/LeaveRequestUpdatedRoute/UpdateLeaveRequest',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: 'application/json',
+            success: function (response) {
+                
+                if (response.success) {
+                    toastr.success(response.message || "Updated successfully.");
+                    resetLeaveRequestFormEdit();
+                } else {
+                    toastr.error(response.message || "Update failed.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Update Error:", error);
+                toastr.error("An unexpected error occurred while updating the leave request.");
+            }
+        });
+    });
+    //
+
+    function resetLeaveRequestFormEdit() {
+     
+        $('#LeaveRequestForm')[0].reset();
+        $('#LeaveApplicationID').val('');
+        choiceManager.clearChoice('EmployeeIDEdit');
+        choiceManager.clearChoice('LeaveTypeIDEdit');
+        // Clear readonly fields
+        $('#LeaveDaysEdit').val('');
+        $('#TotalAppliedDaysTT').val('');
+        ['FromDateEdit', 'ToDateEdit', 'ToDateFromDateCombinedEdit'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+                if (input._flatpickr) {
+                    input._flatpickr.clear();
+                }
+            }
+        });
+
+        // Clear partial time pickers
+        $('#PartialFromTimeEdit').val('');
+        $('#PartialToTimeEdit').val('');
+
+        // Clear textarea
+        $('textarea[name="ReasonEdit"]').val('');
+
+        // Reset radio buttons and show Full Day section
+        $('input[name="IsFullDayEdit"][value="true"]').prop('checked', true);
+        $('#FullDayDivEdit').removeClass('d-none');
+        $('#PartialDayDivEdit').addClass('d-none');
+    }
+    //
 
     function DisplayLeave(employeeId) {
 
@@ -717,154 +826,11 @@ $(document).ready(function () {
     });
     //
 
-    // Get By data leaveRequest
-    $(document).on('click', '#LeaveRequestEditButton', function () {
-        var leaveApplicationID = $(this).data('id');
-
-        $.ajax({
-            url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
-            type: 'GET',
-            data: { leaveApplicationID: leaveApplicationID },
-            success: function (data) {
-                
-                console.log("Data GetBy LeaveRequest", data);
-                if (data && Object.keys(data).length > 0) {
-                    const maxDate = window.__maxDateStr || null;
-                    const minDate = window.__minDateStr || null;
-                    // Set hidden ID
-                    $('#LeaveApplicationID').val(data.leaveApplicationID);
-                    choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
-                    choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
-                    /*flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);*/
-                    $('#TotalAppliedDaysTT').val(data.period);
-                    $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
-                    $('#LeaveDaysEdit').val(data.leaveDaysEdit);
-                    $('input[name="IsFullDayEdit"][value="' + data.isFullDayEdit + '"]').prop('checked', true).trigger('change');
-                    $('input[name="FromDateEdit"]').val(data.fromDateEdit);
-                    $('input[name="ToDateEdit"]').val(data.toDateEdit);
-                    $('#ToDateFromDateCombinedEdit').val(data.fromDateEdit);
-                    if (!data.isFullDay)
-                    {
-                        $('input[name="ToDateFromDateCombinedEdit"]').val(data.toDateEdit);
-                        $('input[name="PartialFromTimeEdit"]').val(data.partialFromTimeEdit);
-                        $('input[name="PartialToTimeEdit"]').val(data.partialToTimeEdit);
-                        flatpickrHelper.setDate('FromDateEdit', data.fromDateEdit);
-                        flatpickrHelper.setDate('ToDateEdit', data.toDateEdit);
-                    }
-                
-                    $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
-                    initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");  
-                    initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDate, maxDate);
-                    // Optionally toggle the sections based on IsFullDayEdit
-                    if (data.isFullDayEdit === true) {
-                        $('#FullDayDivEdit').removeClass('d-none');
-                        $('#PartialDayDivEdit').addClass('d-none');
-                    } else {
-                        $('#FullDayDivEdit').addClass('d-none');
-                        $('#PartialDayDivEdit').removeClass('d-none');
-                    }
-                    if (data.totalSubsequentDays > 0) {
-                        $('#SubsequentHolydayDays').val(data.totalSubsequentDays);
-                    } else if (!data.isHolidayCountedAsLeave && !data.isWeekendCountedAsLeave) {
-                        $('#SubsequentHolydayDays').val("Not Applicable");
-                    } else {
-                        $('#SubsequentHolydayDays').val("0");
-                    }
-                }
-                initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
-            },
-
-            error: function ()
-            {
-                toastr.error("Error leave request get by Id.");
-            }
-        })
-    })
-
-
-    //
-    $(document).on('click', '#ApplyLeaveSubmitButtonUpdate', function (e) {
-        e.preventDefault();
-
-        var model = {
-            LeaveApplicationID: $('#LeaveApplicationID').val(),
-            EmployeeIDEdit: $('#EmployeeIDEdit').val(),
-            LeaveTypeIDEdit: $('#LeaveTypeIDEdit').val(),
-            IsFullDayEdit: $('input[name="IsFullDayEdit"]:checked').val() === "true",
-            FromDateEdit: $('#FromDateEdit').val(),
-            ToDateEdit: $('#ToDateEdit').val(),
-            ToDateFromDateCombinedEdit: $('#ToDateFromDateCombinedEdit').val(),
-            PartialFromTimeEdit: $('#PartialFromTimeEdit').val(),
-            PartialToTimeEdit: $('#PartialToTimeEdit').val(),
-            ReasonEdit: $('textarea[name="ReasonEdit"]').val(),
-            Period: $('#TotalAppliedDaysTT').val(),
-         
-            
-        };
-      
-        $.ajax({
-            url: '/LeaveRequestUpdatedRoute/UpdateLeaveRequest', 
-            type: 'POST',
-            data: JSON.stringify(model),
-            contentType: 'application/json; charset=utf-8',
-            success: function (response) {
-                if (response.success) {
-                    toastr.success(response.message || "Updated successfully.");
-                    resetLeaveRequestFormEdit();
-                } else {
-                    toastr.error(response.message || "Update failed.");
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("Update Error:", error);
-                toastr.error("An unexpected error occurred while updating the leave request.");
-            }
-        });
-    });
-    //
-
-
-    function resetLeaveRequestFormEdit() {
-        debugger
-        $('#LeaveRequestForm')[0].reset();
-        $('#LeaveApplicationID').val('');
-        choiceManager.clearChoice('EmployeeIDEdit');
-        choiceManager.clearChoice('LeaveTypeIDEdit');
-        // Clear readonly fields
-        $('#LeaveDaysEdit').val('');
-        $('#TotalAppliedDaysTT').val('');
-        ['FromDateEdit', 'ToDateEdit', 'ToDateFromDateCombinedEdit'].forEach(id => {
-            const input = document.getElementById(id);
-            if (input) {
-                input.value = '';
-                if (input._flatpickr) {
-                    input._flatpickr.clear();
-                }
-            }
-        });
-
-        // Clear partial time pickers
-        $('#PartialFromTimeEdit').val('');
-        $('#PartialToTimeEdit').val('');
-
-        // Clear textarea
-        $('textarea[name="ReasonEdit"]').val('');
-
-        // Reset radio buttons and show Full Day section
-        $('input[name="IsFullDayEdit"][value="true"]').prop('checked', true);
-        $('#FullDayDivEdit').removeClass('d-none');
-        $('#PartialDayDivEdit').addClass('d-none');
-    }
-
-    //
-
-
+   
 });
 
 
 // Data Table for Peresona
-
-
 var currentPage = 1;
 var pageSize = 5;
 
@@ -877,7 +843,6 @@ $('#leaveRequest-pageSizeSelect').on('change', function () {
         loadTableData();
     }
 });
-
 
 $(document).ready(function () {
     loadTableData();
@@ -936,14 +901,12 @@ function updateSortingIndicator() {
 
 
 //
-
 let hideTooltipTimer;
-
 // 1. Create the tooltip only once and append to <body>
 let $tooltip = $('<div class="custom-tooltip-box"></div>').css({
     position: 'fixed',
     top: '0px',
-    left: '2000px',
+    left: '1258px',
     zIndex: 9999999,
     backgroundColor: 'rgb(255 247 209)',
     border: '1px solid #ccc',
@@ -963,7 +926,7 @@ $('body').append($tooltip);
 $(document).on('mouseenter', '.custom-tooltip-container', function () {
     const $container = $(this);
     const $button = $container.find('.info-button');
-    const leaveApplicationID = $button.data('id');
+    const leaveApplicationID = $button.data('id2');
     const offset = $button.offset();
 
     clearTimeout(hideTooltipTimer);
@@ -971,9 +934,9 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
     // Show loading state
     $tooltip.html('<div style="text-align: center; color: #666;">Loading...</div>').css({
         top: offset.top + 25,
-        left: offset.left + 10
+        left: offset.left -100
     }).fadeIn(200);
-
+    
     $.ajax({
         url: '/LeaveRequest/GetByPersonLeaveStepVM',
         type: 'GET',
@@ -991,24 +954,39 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                     const statusDescription = item.approvarNote ?? 'N/A';
 
                     html += `
-                        <div class="timeline-item" style="margin-bottom: 10px;">
-                            <div style="font-weight: bold; color: #333;">${approverStep}</div>
-                            <div style="margin: 3px 0;">${statusName} by <strong>${author}</strong></div>
-                            <div style="color: #555; font-size: 12px;">${statusDescription}</div>
+                <div class="timeline-item" style="margin-bottom:1px>
+                    <div class="timeline-item position-relative">
+                        <div class="row g-md-3">
+                            <div class="col-12 col-md-auto d-flex">
+                                <div class="timeline-item-date order-1 order-md-0 me-md-4">
+                                    <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
+                                        ${approverStep} 
+                                    </p>
+                                </div>
+                                <div class="timeline-item-bar position-md-relative me-3 me-md-0">
+                                    <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle">
+                                        <span class="fa-solid far fa-file-alt text-primary-dark fs-10"></span>
+                                    </div>
+                                    <span class="timeline-bar border-end border-dashed"></span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="timeline-item-content ps-6 ps-md-3">
+                                    <h5 class="fs-9 lh-sm">${statusName}</h5>
+                                    <p class="fs-9 mb-0">by <a class="fw-semibold" href="#!">${author}</a></p>
+                                    <p class="fs-9 text-body-secondary">${statusDescription}</p>
+                                </div>
+                            </div>
                         </div>
-                    `;
-
-                    // Add separator except for last item
-                    if (index < steps.length - 1) {
-                        html += '<hr style="margin: 8px 0; border: none; border-top: 1px solid #ddd;"/>';
-                    }
-                });
+                    </div>
+                </div> `; });
             } else {
                 html = '<div class="text-muted" style="color: #999;">No approval steps found</div>';
             }
 
             $tooltip.html(html);
-        },
+        }
+,
         error: function () {
             $tooltip.html('<div class="text-danger" style="color: #d32f2f;">Error loading data</div>');
         }
@@ -1039,37 +1017,11 @@ $(document).on('click', function (e) {
     }
 });
 
-// 6. Optional: Position tooltip to stay within viewport
-function positionTooltip($button) {
-    const offset = $button.offset();
-    const windowWidth = $(window).width();
-    const windowHeight = $(window).height();
-    const tooltipWidth = $tooltip.outerWidth();
-    const tooltipHeight = $tooltip.outerHeight();
-
-    let top = offset.top + 25;
-    let left = offset.left + 10;
-
-    // Adjust if tooltip goes off right edge
-    if (left + tooltipWidth > windowWidth) {
-        left = offset.left - tooltipWidth - 10;
-    }
-
-    // Adjust if tooltip goes off bottom edge
-    if (top + tooltipHeight > windowHeight) {
-        top = offset.top - tooltipHeight - 10;
-    }
-
-    // Ensure tooltip doesn't go off top or left edges
-    top = Math.max(10, top);
-    left = Math.max(10, left);
-
-    $tooltip.css({ top: top, left: left });
-}
 
 
 // For Table 
 function getBadgeClass(status) {
+
     if (!status || status.trim() === '') return 'text-bg-success';
 
     switch (status.trim().toUpperCase()) {
@@ -1256,7 +1208,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                            ${shouldShowInfoIcon(item) ? `
         <div class="custom-tooltip-container position-relative d-inline-block">
             <i class="fa-solid fa-circle-info info-button"
-               data-id="${item.leaveApplicationID}"
+               data-id2="${item.leaveApplicationID}"
                style="cursor: pointer; font-size: 14px; color: #007bff;"></i>
         </div>` : ''}
                         </td>

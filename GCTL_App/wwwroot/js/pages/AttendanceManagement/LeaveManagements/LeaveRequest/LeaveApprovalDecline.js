@@ -225,7 +225,8 @@ $(document).ready(function () {
     // Also initialize flatpickr for other date fields
     //flatpickr("#FromDate", { dateFormat: "Y-m-d" });
     //flatpickr("#ToDate", { dateFormat: "Y-m-d" });
-    initializeDatepickerDMY("FromDateEdit, ToDateEdit,ToDateFromDateCombinededit")
+    initializeDatepickerDMY("FromDateEdit, ToDateEdit,ToDateFromDateCombinedEdit")
+    initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
     //$(document).on('change', "#FromDateEdit", function () {
     //    updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
 
@@ -347,7 +348,7 @@ $(document).ready(function () {
             toastr.error(`You only have ${available} day(s) available, but you tried to apply for ${applied}.`);
             return false;
         }
-
+    
         const isFullDay = $('input[name="IsFullDayEdit"]:checked').val() === "true";
         const approvalStatus = $('input[name="ApprovalStatus"]:checked').val();
         const isApproved = approvalStatus === "true"; 
@@ -355,6 +356,7 @@ $(document).ready(function () {
             LeaveApplicationID: $('#LeaveApplicationID').val(),
             FromDateEdit: flatpickrHelper.getDate('FromDateEdit'),
             ToDateEdit: flatpickrHelper.getDate('ToDateEdit'),
+            ToDateFromDateCombinedEdit: flatpickrHelper.getDate('ToDateFromDateCombinedEdit'),
             EmployeeIDEdit: choiceManager.getChoiceValue('EmployeeIDEdit'),
             LeaveTypeIDEdit: choiceManager.getChoiceValue('LeaveTypeIDEdit'),
             IsFullDayEdit: isFullDay,

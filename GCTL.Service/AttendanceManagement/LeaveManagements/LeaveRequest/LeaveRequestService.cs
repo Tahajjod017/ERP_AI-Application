@@ -1054,82 +1054,305 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region  Update Method
+
+        //
+        private async Task<bool> HasOverlappingLeaveUpdated(int? employeeId, DateOnly? from, DateOnly? to, int? applicableYear,int leaveApplicationID)
+        {
+            var rejectedStatuses = await leaveStatuses.AllActive()
+                .Where(x => x.StatusName == "DECLINED")
+                .Select(x => x.StatusID)
+                .ToListAsync();
+
+            return await leaveRequest.AllActive().AnyAsync(x =>
+                x.EmployeeID == employeeId && x.LeaveApplicationID== leaveApplicationID &&
+                !rejectedStatuses.Contains((int)x.StatusID) &&
+                x.LeaveApplicableYear == applicableYear &&
+                (
+                    (from >= x.FromDate && from <= x.ToDate) ||
+                    (to >= x.FromDate && to <= x.ToDate) ||
+                    (from <= x.FromDate && to >= x.ToDate)
+                )
+            );
+        }
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationEditVM entityVM)
         {
             if (entityVM == null)
+                return new CommonReturnViewModel { Success = false, Message = "Data cannot be null" };
+
+            var existing = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
+
+            if (existing == null)
+                return new CommonReturnViewModel { Success = false, Message = "Leave application not found" };
+
+            int? applicableYear = DateTime.Now.Year;
+
+            if (await HasOverlappingLeaveUpdated(entityVM.EmployeeIDEdit, entityVM.FromDateEdit, entityVM.ToDateEdit, applicableYear, entityVM.LeaveApplicationID))
+                return new CommonReturnViewModel { Success = false, Message = "You already have leave on selected dates" };
+
+            var offf = await empoffi.AllActive()
+                .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                .Select(x => new {
+                    x.EmployeeID,
+                    x.OrganizationID,
+                    x.OrganizationBranchID,
+                    x.SeniorSupervisorId,
+                    x.ImmediateSupervisorId,
+                    x.HeadOfDepartmentId
+                }).FirstOrDefaultAsync();
+
+            if (offf == null)
+                return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
+
+            var approvalSettings = await approvalSettingsRepository.AllActive()
+                .Include(x => x.ApprovalType)
+                .Where(x =>
+                    x.OrganizationID == offf.OrganizationID &&
+                    (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
+                    x.ApprovalType.ApprovalTypeName == "Leave Request Approval")
+                .FirstOrDefaultAsync();
+
+            if (approvalSettings == null)
+                return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
+
+            int? approvalPersonId = null;
+
+            var approvalFlow = new List<(int? id, bool isDesignation)>
+    {
+        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+    };
+
+            foreach (var (id, isDesignation) in approvalFlow)
             {
-                return new CommonReturnViewModel
+                if (approvalPersonId != null) break;
+
+                var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+                if (!IsSelfApprovalBlocked(entityVM.EmployeeIDEdit, resolvedId, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
                 {
-                    Success = false,
-                    Message = "Data Can not be null"
-                };
+                    approvalPersonId = resolvedId;
+                }
             }
-           
+
+            if (approvalPersonId == null)
+                return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
+
             await leaveRequest.BeginTransactionAsync();
 
             try
             {
+                var (allowFallback, allowLWP) = await GetLeaveAdjustmentPolicyAsync();
+
+                var lWP = await leaveTypes.AllActive().Where(x => x.LeaveTypeName == "LWP").Select(x => x.LeaveTypeID).FirstOrDefaultAsync();
+                var annualLeaveType = await leaveTypes.AllActive().Where(x => x.LeaveTypeName == "Annual Leave").Select(x => x.LeaveTypeID).FirstOrDefaultAsync();
+
+                var fromDate = entityVM.FromDateEdit ?? DateOnly.FromDateTime(DateTime.Today);
+                var toDate = entityVM.ToDateEdit ?? DateOnly.FromDateTime(DateTime.Today);
+                int totalRequestedDays = (toDate.DayNumber - fromDate.DayNumber) + 1;
+
+                var leaveInfo = await GetLeaveTypeTotaldays2(entityVM.EmployeeIDEdit, entityVM.LeaveTypeIDEdit);
+                decimal availableDays = leaveInfo?.LeaveDays ?? 0;
+                int usedDays = (int)Math.Min(totalRequestedDays, availableDays);
+                int remainingDays = totalRequestedDays - usedDays;
+
+                var leaveTypeName = await leaveTypes.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
+                var strictLeaveTypes = new List<string> { "Maternity Leave", "Paternity Leave" };
+
+                if (remainingDays > 0 && strictLeaveTypes.Contains(leaveTypeName))
+                    return new CommonReturnViewModel { Success = false, Message = $"{leaveTypeName} cannot be adjusted from other leave types." };
+
+                // === 1. Update main leave record ===
+                existing.IsFullDay = entityVM.IsFullDayEdit;
+                existing.FromDate = fromDate;
+                existing.ToDate = fromDate.AddDays(usedDays - 1);
+                existing.PartialFromTime = entityVM.PartialFromTimeEdit;
+                existing.PartialToTime = entityVM.PartialToTimeEdit;
+               // existing.StatusID = entityVM.;
+                existing.LeaveTypeID = entityVM.LeaveTypeIDEdit;
+               // existing.IsGroupApplication = entityVM.IsGroupApplicationEdit;
+                existing.Reason = entityVM.ReasonEdit;
+                existing.ApprovalPersonID = approvalPersonId;
+                existing.LIP = entityVM.LIP;
+                existing.LMAC = entityVM.LMAC;
+                existing.UpdatedAt = DateTime.Now;
+                existing.UpdatedBy = entityVM.CreatedBy;
+
+              await leaveRequest.UpdateAsync(existing);
+
                
 
-                var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
-                if (entity == null)
-                    return null;
-
-                entity.EmployeeID = entityVM.EmployeeIDEdit;
-                entity.LeaveTypeID = entityVM.LeaveTypeIDEdit;
-               // entity.LeaveDays = entityVM.LeaveDaysEdit; // Add this property in your model if it exists
-
-                entity.IsFullDay = entityVM.IsFullDayEdit;
-
-                if (entityVM.IsFullDayEdit)
+                // === 2. Delete old fallback/LWP records if any ===
+                var partialLeaves = await leaveRequest.All().Where(x => x.GroupApplicationID == entityVM.LeaveApplicationID).ToListAsync();
+                foreach (var pl in partialLeaves)
                 {
-                    entity.FromDate = entityVM.FromDateEdit ?? default;
-                    entity.ToDate = entityVM.ToDateEdit ?? default;
-
-                    // Clear partial day data
-                    entity.PartialFromTime = null;
-                    entity.PartialToTime = null;
+                  await  leaveRequest.DeleteAsync(pl);
                 }
-                else
+
+                // === 3. Re-insert fallback/LWP records as needed ===
+                var currentStart = fromDate.AddDays(usedDays);
+                if (remainingDays > 0 && allowFallback)
                 {
-                    if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+                    var fallbackTypes = await leaveTypes.AllActive()
+                        .Where(x => x.IsActive && x.LeavePriorityId != null && x.LeaveTypeID != entityVM.LeaveTypeIDEdit && x.LeaveTypeID != annualLeaveType && x.LeaveTypeID != lWP)
+                        .OrderBy(x => x.LeavePriorityId)
+                        .Select(x => new { x.LeaveTypeID, x.LeaveTypeName })
+                        .ToListAsync();
+
+                    foreach (var fallback in fallbackTypes)
                     {
-                        var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
-                        entity.FromDate = dateOnly;
-                        entity.ToDate = dateOnly;
-                    }
+                        if (remainingDays <= 0) break;
 
-                    entity.PartialFromTime = entityVM.PartialFromTimeEdit;
-                    entity.PartialToTime = entityVM.PartialToTimeEdit;
+                        var fallbackInfo = await GetLeaveTypeTotaldays2(entityVM.EmployeeIDEdit, fallback.LeaveTypeID);
+                        int usedFallback = (int)Math.Min(remainingDays, fallbackInfo?.LeaveDays ?? 0);
+
+                        if (usedFallback > 0)
+                        {
+                            var partial = new LeaveApplications
+                            {
+                                EmployeeID = entityVM.EmployeeIDEdit,
+                                IsFullDay = entityVM.IsFullDayEdit,
+                                FromDate = currentStart,
+                                ToDate = currentStart.AddDays(usedFallback - 1),
+                                PartialFromTime = entityVM.PartialFromTimeEdit,
+                                PartialToTime = entityVM.PartialToTimeEdit,
+                               // StatusID = entityVM.StatusID,
+                                LeaveApplicableYear = DateTime.Now.Year,
+                                CreatedAt = DateTime.Now,
+                                CreatedBy = entityVM.CreatedBy,
+                                LeaveTypeID = fallback.LeaveTypeID,
+                                Reason = $"Exceeded original leave – adjusted using prioritized leave type ({fallback.LeaveTypeName})",
+                                LIP = entityVM.LIP,
+                                LMAC = entityVM.LMAC,
+                                GroupApplicationID = existing.LeaveApplicationID,
+                                ApprovalPersonID = approvalPersonId
+                            };
+
+                            await leaveRequest.AddAsync(partial);
+                            await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, partial, partial.LeaveApplicationID, entityVM);
+
+                            remainingDays -= usedFallback;
+                            currentStart = currentStart.AddDays(usedFallback);
+                        }
+                    }
                 }
-                entity.Reason = entityVM.ReasonEdit ?? string.Empty;
-                entity.UpdatedAt = DateTime.Now;
-                entity.UpdatedBy = entityVM.UpdatedBy;
-                entity.LIP = entityVM.LIP;
-                entity.LMAC= entityVM.LMAC;
-                await leaveRequest.UpdateAsync(entity);
-              //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
+
+                if (remainingDays > 0 && allowLWP)
+                {
+                    var lwpName = await leaveTypes.AllActive().Where(x => x.LeaveTypeID == lWP).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
+
+                    var lwpEntity = new LeaveApplications
+                    {
+                        EmployeeID = entityVM.EmployeeIDEdit,
+                        IsFullDay = entityVM.IsFullDayEdit,
+                        FromDate = currentStart,
+                        ToDate = currentStart.AddDays(remainingDays - 1),
+                        PartialFromTime = entityVM.PartialFromTimeEdit,
+                        PartialToTime = entityVM.PartialToTimeEdit,
+                       // StatusID = entityVM.StatusID,
+                        LeaveApplicableYear = DateTime.Now.Year,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = entityVM.CreatedBy,
+                        LeaveTypeID = lWP,
+                        Reason = $"Exceeded leave days – fallback to LWP ({lwpName})",
+                        LIP = entityVM.LIP,
+                        LMAC = entityVM.LMAC,
+                        GroupApplicationID = existing.LeaveApplicationID,
+                        ApprovalPersonID = approvalPersonId
+                    };
+
+                    await leaveRequest.AddAsync(lwpEntity);
+                    await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
+                }
+
                 await leaveRequest.CommitTransactionAsync();
 
-                return new CommonReturnViewModel
-                {
-                    Success = true,
-                    Message = "Updated Successfully."
-
-                };
+                return new CommonReturnViewModel { Success = true, Message = "Updated Successfully." };
             }
             catch (Exception ex)
             {
-
                 await leaveRequest.RollbackTransactionAsync();
-                Console.WriteLine(ex.Message);
-                return new CommonReturnViewModel
-                {
-                    Success = false,
-                    Message = "An error occurred while saving the leave request Update."
-                };
+                Console.WriteLine(ex);
+                return new CommonReturnViewModel { Success = false, Message = "An error occurred while updating the leave request." };
             }
         }
+
+        //
+        //public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce2(LeaveApplicationEditVM entityVM)
+        //{
+        //    if (entityVM == null)
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "Data Can not be null"
+        //        };
+        //    }
+           
+        //    await leaveRequest.BeginTransactionAsync();
+
+        //    try
+        //    {
+               
+
+        //        var entity = await leaveRequest.GetByIdAsync(entityVM.LeaveApplicationID);
+        //        if (entity == null)
+        //            return null;
+
+        //        entity.EmployeeID = entityVM.EmployeeIDEdit;
+        //        entity.LeaveTypeID = entityVM.LeaveTypeIDEdit;
+        //       // entity.LeaveDays = entityVM.LeaveDaysEdit; // Add this property in your model if it exists
+
+        //        entity.IsFullDay = entityVM.IsFullDayEdit;
+
+        //        if (entityVM.IsFullDayEdit)
+        //        {
+        //            entity.FromDate = entityVM.FromDateEdit ?? default;
+        //            entity.ToDate = entityVM.ToDateEdit ?? default;
+
+        //            // Clear partial day data
+        //            entity.PartialFromTime = null;
+        //            entity.PartialToTime = null;
+        //        }
+        //        else
+        //        {
+        //            if (entityVM.ToDateFromDateCombinedEdit.HasValue)
+        //            {
+        //                var dateOnly = DateOnly.FromDateTime(entityVM.ToDateFromDateCombinedEdit.Value);
+        //                entity.FromDate = dateOnly;
+        //                entity.ToDate = dateOnly;
+        //            }
+
+        //            entity.PartialFromTime = entityVM.PartialFromTimeEdit;
+        //            entity.PartialToTime = entityVM.PartialToTimeEdit;
+        //        }
+        //        entity.Reason = entityVM.ReasonEdit ?? string.Empty;
+        //        entity.UpdatedAt = DateTime.Now;
+        //        entity.UpdatedBy = entityVM.UpdatedBy;
+        //        entity.LIP = entityVM.LIP;
+        //        entity.LMAC= entityVM.LMAC;
+        //        await leaveRequest.UpdateAsync(entity);
+        //      //  await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
+        //        await leaveRequest.CommitTransactionAsync();
+
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = true,
+        //            Message = "Updated Successfully."
+
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        await leaveRequest.RollbackTransactionAsync();
+        //        Console.WriteLine(ex.Message);
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "An error occurred while saving the leave request Update."
+        //        };
+        //    }
+        //}
 
         #endregion
 
@@ -1487,7 +1710,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             var normalizedTo = toDate.Date;
             if (normalizedTo < normalizedFrom)
                 throw new ArgumentException("ToDate must be on or after fromDate");
-
+           // var leaveapp=await leaveRequest.all
             int totalDays = (int)(normalizedTo - normalizedFrom).TotalDays + 1;
 
             var isWeenedHoliday = await leavePolicyConfiguration.AllActive()
@@ -1729,39 +1952,42 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region Person Leave Step  
 
-        public async Task<PersonLeaveStepVM> GetByPersonLeaveStepVM(int leaveApplicationID)
+        public async Task<List<PersonLeaveStepVM>> GetByPersonLeaveStepVM(int leaveApplicationID)
         {
             try
             {
-                var entity = await (
+                var result = await (
                     from lb in leaveBaseApprovalHistory.AllActive()
                         .Where(x => x.LeaveApplicationID == leaveApplicationID)
-                        .AsNoTracking() join statusName in leaveStatuses.AllActive().Select(x => new { x.StatusID, x.StatusName }) on lb.StatusID equals statusName.StatusID
-
+                        .AsNoTracking()
+                    join statusName in leaveStatuses.AllActive()
+                        .Select(x => new { x.StatusID, x.StatusName })
+                        on lb.StatusID equals statusName.StatusID
                     join e in employee.AllActive()
                         .Select(x => new { x.EmployeeID, x.FirstName, x.LastName })
-                    on lb.ApproveBy equals e.EmployeeID
+                        on lb.ApproveBy equals e.EmployeeID
                     join leaveReq in leaveRequest.AllActive()
-                    on lb.LeaveApplicationID equals leaveReq.EmployeeID
+                        on lb.LeaveApplicationID equals leaveReq.LeaveApplicationID
                     select new PersonLeaveStepVM
                     {
                         ApprovarNote = lb.ApproverNote,
                         ApproverStep = lb.ApprovalStep,
                         ApprovarPerson = e.FirstName + " " + e.LastName,
                         StatusName = statusName.StatusName,
+                        //ApprovedDate=lb.CreatedAt,
+                       
 
-                    }).FirstOrDefaultAsync();
-                if (entity == null)
-                {
-                    return new PersonLeaveStepVM();
-                }
-                return entity;
+
+                    }).OrderBy(X=>X.ApproverStep).ToListAsync();
+
+                return result ?? new List<PersonLeaveStepVM>();
             }
             catch (Exception)
             {
                 throw;
             }
         }
+
         #endregion
     }
 }
