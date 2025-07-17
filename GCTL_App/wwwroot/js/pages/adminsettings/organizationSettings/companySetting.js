@@ -410,86 +410,171 @@ $(document).on('click', '.page-btn', function () {
 //    });
 //}
 
+//let map;
+//let marker;
+
+//// Initialize the map with the user's current location
+//function initMap() {
+//    // Default coordinates (San Francisco, will be overwritten by user's current location)
+//    const defaultLat = 37.7749;
+//    const defaultLng = -122.4194;
+
+//    // Try to get the user's current location
+//    if (navigator.geolocation) {
+//        navigator.geolocation.getCurrentPosition(function (position) {
+//            const userLat = position.coords.latitude;
+//            const userLng = position.coords.longitude;
+
+//            // Show an alert when GPS is successfully enabled and location is fetched
+//            //alert("GPS is enabled. Current location: Latitude " + userLat + ", Longitude " + userLng);
+
+//            // Initialize the map with the user's location
+//            const mapOptions = {
+//                center: { lat: userLat, lng: userLng },
+//                zoom: 12,
+//            };
+
+//            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+//            // Place a marker at the current location
+//            marker = new google.maps.Marker({
+//                position: map.getCenter(),
+//                map: map,
+//                draggable: true,  // Allow the user to drag the marker
+//            });
+
+//            // Update the Latitude and Longitude fields with the user's current position
+//            updateCoordinates(userLat, userLng);
+
+//            // Listen for marker drag and update latitude and longitude fields
+//            google.maps.event.addListener(marker, 'dragend', function (event) {
+//                const lat = event.latLng.lat();
+//                const lng = event.latLng.lng();
+//                updateCoordinates(lat, lng);
+//            });
+//        }, function () {
+//            //alert("Geolocation service failed. Using default location.");
+//            // Fallback to default location if geolocation is not available
+//            const mapOptions = {
+//                center: { lat: defaultLat, lng: defaultLng },
+//                zoom: 12,
+//            };
+//            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+//            // Place a marker at the default location
+//            marker = new google.maps.Marker({
+//                position: map.getCenter(),
+//                map: map,
+//                draggable: true,
+//            });
+
+//            updateCoordinates(defaultLat, defaultLng);
+//        });
+//    } else {
+//        //alert("Geolocation is not supported by this browser.");
+//        // Fallback to default location if geolocation is not supported
+//        const mapOptions = {
+//            center: { lat: defaultLat, lng: defaultLng },
+//            zoom: 12,
+//        };
+//        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+//        // Place a marker at the default location
+//        marker = new google.maps.Marker({
+//            position: map.getCenter(),
+//            map: map,
+//            draggable: true,
+//        });
+
+//        updateCoordinates(defaultLat, defaultLng);
+//    }
+
+//    // Listen for changes in the Latitude and Longitude input fields
+//    const latInput = document.getElementById("Latitude");
+//    const lngInput = document.getElementById("Longitude");
+
+//    latInput.addEventListener('input', function () {
+//        const lat = parseFloat(latInput.value);
+//        const lng = parseFloat(lngInput.value);
+//        if (!isNaN(lat) && !isNaN(lng)) {
+//            const newLocation = new google.maps.LatLng(lat, lng);
+//            marker.setPosition(newLocation);  // Update the marker position
+//            map.setCenter(newLocation);  // Recenter the map
+//        }
+//    });
+
+//    lngInput.addEventListener('input', function () {
+//        const lat = parseFloat(latInput.value);
+//        const lng = parseFloat(lngInput.value);
+//        if (!isNaN(lat) && !isNaN(lng)) {
+//            const newLocation = new google.maps.LatLng(lat, lng);
+//            marker.setPosition(newLocation);  // Update the marker position
+//            map.setCenter(newLocation);  // Recenter the map
+//        }
+//    });
+//}
+
+//// Update the Latitude and Longitude input fields
+//function updateCoordinates(lat, lng) {
+//    document.getElementById("Latitude").value = lat;
+//    document.getElementById("Longitude").value = lng;
+//}
+
+//// Call initMap when the script is loaded
+//window.initMap = initMap;
+
 let map;
 let marker;
+let autocomplete;
 
-// Initialize the map with the user's current location
+// Initialize the map with a default location
 function initMap() {
-    // Default coordinates (San Francisco, will be overwritten by user's current location)
     const defaultLat = 37.7749;
     const defaultLng = -122.4194;
 
-    // Try to get the user's current location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
+    // Create map options
+    const mapOptions = {
+        center: { lat: defaultLat, lng: defaultLng },
+        zoom: 12,
+    };
 
-            // Show an alert when GPS is successfully enabled and location is fetched
-            //alert("GPS is enabled. Current location: Latitude " + userLat + ", Longitude " + userLng);
+    map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-            // Initialize the map with the user's location
-            const mapOptions = {
-                center: { lat: userLat, lng: userLng },
-                zoom: 12,
-            };
+    // Add a marker at the center (default location)
+    marker = new google.maps.Marker({
+        position: map.getCenter(),
+        map: map,
+        draggable: true,
+    });
 
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+    // Set up the address autocomplete
+    const input = document.getElementById('FullAddress');
+    autocomplete = new google.maps.places.Autocomplete(input);
 
-            // Place a marker at the current location
-            marker = new google.maps.Marker({
-                position: map.getCenter(),
-                map: map,
-                draggable: true,  // Allow the user to drag the marker
-            });
+    // Bind the autocomplete to the map and fields
+    autocomplete.bindTo('bounds', map);
 
-            // Update the Latitude and Longitude fields with the user's current position
-            updateCoordinates(userLat, userLng);
+    // Listen for place selection and update fields
+    autocomplete.addListener('place_changed', function () {
+        const place = autocomplete.getPlace();
 
-            // Listen for marker drag and update latitude and longitude fields
-            google.maps.event.addListener(marker, 'dragend', function (event) {
-                const lat = event.latLng.lat();
-                const lng = event.latLng.lng();
-                updateCoordinates(lat, lng);
-            });
-        }, function () {
-            //alert("Geolocation service failed. Using default location.");
-            // Fallback to default location if geolocation is not available
-            const mapOptions = {
-                center: { lat: defaultLat, lng: defaultLng },
-                zoom: 12,
-            };
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        if (!place.geometry) {
+            alert("Place details not found");
+            return;
+        }
 
-            // Place a marker at the default location
-            marker = new google.maps.Marker({
-                position: map.getCenter(),
-                map: map,
-                draggable: true,
-            });
+        // Set map center to the selected place's location
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
 
-            updateCoordinates(defaultLat, defaultLng);
-        });
-    } else {
-        //alert("Geolocation is not supported by this browser.");
-        // Fallback to default location if geolocation is not supported
-        const mapOptions = {
-            center: { lat: defaultLat, lng: defaultLng },
-            zoom: 12,
-        };
-        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        // Place a marker at the selected location
+        marker.setPosition(place.geometry.location);
 
-        // Place a marker at the default location
-        marker = new google.maps.Marker({
-            position: map.getCenter(),
-            map: map,
-            draggable: true,
-        });
+        // Fill in the address fields based on selected place
+        updateAddressFields(place);
+    });
 
-        updateCoordinates(defaultLat, defaultLng);
-    }
-
-    // Listen for changes in the Latitude and Longitude input fields
+    // Listen for changes in Latitude and Longitude input fields
     const latInput = document.getElementById("Latitude");
     const lngInput = document.getElementById("Longitude");
 
@@ -498,8 +583,8 @@ function initMap() {
         const lng = parseFloat(lngInput.value);
         if (!isNaN(lat) && !isNaN(lng)) {
             const newLocation = new google.maps.LatLng(lat, lng);
-            marker.setPosition(newLocation);  // Update the marker position
-            map.setCenter(newLocation);  // Recenter the map
+            marker.setPosition(newLocation);
+            map.setCenter(newLocation);
         }
     });
 
@@ -508,20 +593,53 @@ function initMap() {
         const lng = parseFloat(lngInput.value);
         if (!isNaN(lat) && !isNaN(lng)) {
             const newLocation = new google.maps.LatLng(lat, lng);
-            marker.setPosition(newLocation);  // Update the marker position
-            map.setCenter(newLocation);  // Recenter the map
+            marker.setPosition(newLocation);
+            map.setCenter(newLocation);
         }
     });
 }
 
-// Update the Latitude and Longitude input fields
-function updateCoordinates(lat, lng) {
-    document.getElementById("Latitude").value = lat;
-    document.getElementById("Longitude").value = lng;
+// Update the fields when an address is selected
+function updateAddressFields(place) {
+    const addressField = document.getElementById('Address');
+    const cityField = document.getElementById('City');
+    const streetField = document.getElementById('Street');
+    const postcodeField = document.getElementById('PostCode');
+    const latitudeField = document.getElementById('Latitude');
+    const longitudeField = document.getElementById('Longitude');
+
+    let address = '';
+    let city = '';
+    let street = '';
+    let postalCode = '';
+
+    // Loop through the address components
+    for (let i = 0; i < place.address_components.length; i++) {
+        const component = place.address_components[i];
+        console.log(component)
+        if (component.types.includes("street_number")) {
+            street = component.long_name;
+        }
+        if (component.types.includes("route")) {
+            street += ' ' + component.long_name;
+        }
+        if (component.types.includes("locality")) {
+            city = component.long_name;
+        }
+        if (component.types.includes("postal_code")) {
+            postalCode = component.long_name;
+        }
+    }
+
+    // Set the fields with the address details
+    addressField.value = street;
+    cityField.value = city;
+    streetField.value = street;
+    postcodeField.value = postalCode;
+    latitudeField.value = place.geometry.location.lat();
+    longitudeField.value = place.geometry.location.lng();
 }
 
 // Call initMap when the script is loaded
 window.initMap = initMap;
-
-
 

@@ -312,7 +312,7 @@ function getProgressBarColor(type) {
         case "Break":
             return "bg-warning";  // Yellow for Break
         case "Ovvertime":
-            return "bg-info";  // Blue for Overtime
+            return "style='background-color: #20C997;";  // Blue for Overtime
         default:
             return "bg-secondary";  // Default for any unknown session type
     }
@@ -444,16 +444,32 @@ function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
                 startAngle: 180,
                 endAngle: 360,
                 data: [
-                    { value: present, name: 'Present' },
-                    { value: absent, name: 'Absent' },
-                    { value: leave, name: 'Leave' },
+                    {
+                        value: present, name: 'Present',
+                        itemStyle: {
+                            color: '#4A90E2'  // Set color 
+                        },
+                    },
+                    {
+                        value: absent, name: 'Absent',
+                        itemStyle: {
+                            color: '#B0B0B0'  // Set color 
+                        },
+
+                    },
+                    {
+                        value: leave, name: 'Early Leave',
+                        itemStyle: {
+                            color: '#FFA500'  // Set color 
+                        }
+                    },
                     {
                         value: late, name: 'Late',
                         itemStyle: {
-                            color: 'red'  // Set color 
+                            color: 'red'  // Set color #D9534F
                         }
                     },
-                    { value: earlyLeave, name: 'Early Leave' }
+                   /* { value: earlyLeave, name: 'Early Leave' }*/
                 ]
             }
         ]
@@ -642,6 +658,9 @@ function renderAttendanceBarChart(data) {
                 type: 'bar',
                 barGap: 0,
                 label: labelOption,
+                itemStyle: {
+                    color: '#4A90E2'  // Set color 
+                },
                 emphasis: { focus: 'series' },
                 data: data.present // Dynamic data for "Present"
             },
@@ -649,6 +668,9 @@ function renderAttendanceBarChart(data) {
                 name: 'Absent',
                 type: 'bar',
                 label: labelOption,
+                itemStyle: {
+                    color: 'red'  // Set color #B0B0B0
+                },
                 emphasis: { focus: 'series' },
                 data: data.absent // Dynamic data for "Absent"
             },
@@ -657,7 +679,7 @@ function renderAttendanceBarChart(data) {
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
-                    color: 'red'  // Set color 
+                    color: '#D9534F'  // Set color 
                 },
                 emphasis: { focus: 'series' },
                 data: data.lateEntry // Dynamic data for "Late Entry"
@@ -666,13 +688,19 @@ function renderAttendanceBarChart(data) {
                 name: 'Early Leave',
                 type: 'bar',
                 label: labelOption,
+                itemStyle: {
+                    color: '#FFA500'  // Set color 
+                },
                 emphasis: { focus: 'series' },
                 data: data.earlyLeave // Dynamic data for "Early Leave"
             },
             {
                 name: 'Casual Leave',
-                type: 'bar',
+                type: 'bar', 
                 label: labelOption,
+                itemStyle: {
+                    color: '#17A2B8'  // Set color 
+                },
                 emphasis: { focus: 'series' },
                 data: data.casualLeave // Dynamic data for "Casual Leave"
             },
@@ -680,6 +708,9 @@ function renderAttendanceBarChart(data) {
                 name: 'Medical Leave',
                 type: 'bar',
                 label: labelOption,
+                itemStyle: {
+                    color: '#28A745'  // Set color 
+                },
                 emphasis: { focus: 'series' },
                 data: data.medicalLeave // Dynamic data for "Medical Leave"
             }
@@ -707,105 +738,7 @@ var jsonData = {
 // Call the function with the dynamic data (this can be done on the fly)
 renderAttendanceBarChart(jsonData);
 
-//linechart
-// Function to render the "Yearly Attendance Status" line chart with dynamic JSON data
-function renderAttendanceLineChart(data) {
-    var dom = document.getElementById('yearly-employee-attendance-status-linechart');
-    var myChart = echarts.init(dom, null, {
-        renderer: 'canvas',
-        useDirtyRect: false
-    });
 
-    var option = {
-        title: {
-            text: 'Attendance Status',
-            subtext: 'Previous Year'
-        },
-        tooltip: {
-            trigger: 'axis'
-        },
-        legend: {
-            data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave']
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '4%',
-            containLabel: true
-        },
-        toolbox: {
-            feature: {
-                saveAsImage: {}
-            }
-        },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: data.months // Data for the months
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [
-            {
-                name: 'Casual Leave',
-                type: 'line',
-                stack: 'Total',
-                data: data.casualLeave
-            },
-            {
-                name: 'Medical Leave',
-                type: 'line',
-                stack: 'Total',
-                data: data.medicalLeave
-            },
-            {
-                name: 'Early Leave',
-                type: 'line',
-                stack: 'Total',
-                data: data.earlyLeave
-            },
-            {
-                name: 'Late Entry',
-                type: 'line',
-                stack: 'Total',
-                data: data.lateEntry
-            },
-            {
-                name: 'Absent',
-                type: 'line',
-                stack: 'Total',
-                data: data.absent
-            },
-            {
-                name: 'Present',
-                type: 'line',
-                stack: 'Total',
-                data: data.present
-            }
-        ]
-    };
-
-    // Set the chart options
-    myChart.setOption(option);
-
-    // Resize the chart on window resize
-    window.addEventListener('resize', myChart.resize);
-}
-
-// Example of passing dynamic data as a JSON object
-var jsonData = {
-    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    "casualLeave": [1, 2, 0, 2, 1, 1, 1, 0, 2, 0, 1, 1],
-    "medicalLeave": [1, 1, 0, 2, 0, 1, 0, 0, 1, 4, 0, 1],
-    "earlyLeave": [4, 2, 1, 3, 2, 3, 2, 3, 2, 3, 2, 1],
-    "lateEntry": [2, 2, 2, 2, 2, 1, 1, 1, 2, 3, 1, 1],
-    "absent": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
-    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21]
-};
-
-// Call the function with the dynamic data (this can be done on the fly)
-renderAttendanceLineChart(jsonData);
 
 
 var currentPage = 1;
