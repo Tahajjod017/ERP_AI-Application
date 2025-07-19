@@ -73,6 +73,7 @@ using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.CommonService;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 #endregion
 
 namespace GCTL_App.Extensions
@@ -144,6 +145,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeaveRequestService , LeaveRequestService>();
             services.AddScoped<ILeaveSettingsService , LeaveSettingsService>();
             services.AddScoped<ILeaveApprovalService , LeaveApprovalService>();
+            services.AddScoped<ILeaveHistoryBalancesService, LeaveHistoryBalancesService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
