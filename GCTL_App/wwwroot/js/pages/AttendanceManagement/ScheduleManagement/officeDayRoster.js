@@ -754,139 +754,11 @@
         }
 
 
-        //function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
-        //    const searchTerm = $("#rosterInOfficeDays-searchInput").val();
-
-        //    $.ajax({
-        //        url: settings.baseUrl + '/GetGrouped',
-        //        method: 'GET',
-        //        data: {
-        //            pageNumber: currentPage,
-        //            pageSize: pageSize,
-        //            searchTerm: searchTerm,
-        //            sortColumn: sortColumn,
-        //            sortOrder: sortOrder,
-        //            daysToShow: daysToShow,
-        //            startDate: startDate.toISOString()
-        //        },
-        //        success: function (response) {
-        //            const headers = response.headers;
-        //            const data = response.result; // 👈 grouped employee list
-        //            const paginationInfo = response.paginationInfo;
-
-        //            // ✅ Build table headers
-        //            let headerRow = `<th class="align-middle text-uppercase text-nowrap sticky-col sticky-header bg-white z-index-sticky">Employee Name</th>`;
-        //            headers.forEach(h => {
-        //                headerRow += `
-        //        <th class="align-middle px-3 text-uppercase text-nowrap">
-        //            <p class="weekDay">${h.day}</p>
-        //            <p class="date">${h.date}</p>
-        //        </th>`;
-        //            });
-        //            $('table thead tr').html(headerRow);
-
-        //            // ✅ Build tbody from grouped data
-        //            let bodyHtml = '';
-        //            data.forEach(emp => {
-        //                bodyHtml += `
-        //        <tr>
-        //            <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
-        //                <div class="d-inline-flex flex-column align-items-center justify-content-center">
-        //                    <h5>${emp.employeeName}</h5>
-        //                    <p class="fs-9 mb-0">${emp.departmentName}</p>
-        //                    <p class="fs-9 mb-0">${emp.organizationName}</p>
-        //                </div>
-        //            </td>`;
-
-        //                headers.forEach(h => {
-        //                    //const dateKey = new Date(h.date).toISOString().split('T')[0];
-        //                    //const shift = emp.shiftCells.find(s => new Date(s.startDate).toISOString().split('T')[0] === dateKey);
-        //                    const hasOverride = shift?.rosterInOfficeDaysOverrideSetupVMs?.length > 0;
-
-        //                    if (shift && !hasOverride) {
-        //                        bodyHtml += `
-        //                <td class="startTime">
-        //                    <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
-        //                        <p class="fs-10">${shift.timeRange}</p>
-        //                        <p class="fs-10">${shift.shiftName}</p>
-        //                        <div class="add-shift-btn2 position-absolute">
-        //                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-        //                                data-id="${shift.rosterInOfficeDayID}" 
-        //                                data-date="${h.date}" 
-        //                                data-shift-id="${shift.shiftID}"
-        //                                data-organization-id="${shift.organizationID}" 
-        //                                data-bs-target="#rosterInOfficeDays-editShiftModal">
-        //                                <i class="fas fa-edit text-primary"></i>
-        //                            </a>
-        //                        </div>
-        //                    </div>
-        //                </td>`;
-        //                    } else if (!shift) {
-        //                        bodyHtml += `
-        //                <td class="shift-cell">
-        //                    <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
-        //                        <i class="fa fa-plus" aria-hidden="true"></i>
-        //                    </button>
-        //                </td>`;
-        //                    } else {
-        //                        const override = shift.rosterInOfficeDaysOverrideSetupVMs.find(ov =>
-        //                            new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
-        //                        );
-        //                        const overrideShiftName = override?.shiftName || '-';
-        //                        const overrideTimeRange = override?.timeRange || '-';
-        //                        const overrideShiftID = override?.shiftID || '-';
-
-        //                        bodyHtml += `
-        //                <td class="overrideTime">
-        //                    <div class="badge badge-phoenix-success override-block px-4 position-relative">
-        //                        <p class="fs-10">${overrideTimeRange}</p>
-        //                        <p class="fs-10">${overrideShiftName}</p>
-        //                        <div class="add-shift-btn2 position-absolute">
-        //                            <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-        //                                data-id="${shift.rosterInOfficeDayID}" 
-        //                                data-date="${h.date}" 
-        //                                data-shift-id="${overrideShiftID}"
-        //                                data-organization-id="${shift.organizationID}" 
-        //                                data-bs-target="#rosterInOfficeDays-editShiftModal">
-        //                                <i class="fas fa-edit text-success"></i>
-        //                            </a>
-        //                        </div>
-        //                    </div>
-        //                </td>`;
-        //                    }
-        //                });
-
-        //                bodyHtml += `</tr>`;
-        //            });
-
-        //            $('table tbody').html(bodyHtml);
-
-        //            // ✅ Update pagination info
-        //            $("#startItem").text(paginationInfo.startItem);
-        //            $("#endItem").text(paginationInfo.endItem);
-        //            $("#totalItems").text(paginationInfo.totalItems);
-        //            currentPage = paginationInfo.currentPage;
-
-        //            updatePagination(paginationInfo.pageNumbers, currentPage, paginationInfo.totalPages);
-
-        //            const firstDate = headers[0].date;
-        //            const lastDate = headers[headers.length - 1].date;
-        //            $(".date-range-label").text(`${firstDate} - ${lastDate}`);
-        //        },
-        //        error: function (err) {
-        //            console.error("Error loading data:", err);
-        //        }
-        //    });
-        //}
-
-
-
-        function generateDateHeaders(daysCount = 7) {
+        function generateDateHeaders(daysCount = 7, startDate = new Date()) {
             const headers = [];
-            const today = new Date();
             for (let i = 0; i < daysCount; i++) {
-                const date = new Date(today);
-                date.setDate(today.getDate() + i);
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
                 headers.push({
                     day: date.toLocaleDateString(undefined, { weekday: 'short' }),
                     date: date.toISOString().split('T')[0]
@@ -897,12 +769,14 @@
 
 
         function renderEmployeeTable(employees) {
-            const headers = generateDateHeaders(7);  // Number of days for columns
+            const daysToShow = getDaysToShow(); 
+            const headers = generateDateHeaders(daysToShow, currentStartDate);  // Number of days for columns
+            //const paginationInfo = result.paginationInfo;
 
             // Render header
-            let headerHtml = `<th class="align-middle text-uppercase text-nowrap">Employee Name</th>`;
+            let headerHtml = `<th class="align-middle text-center text-uppercase text-nowrap">Employee Name</th>`;
             headers.forEach(h => {
-                headerHtml += `<th class="text-center">${h.day}<br>${h.date}</th>`;
+                headerHtml += `<th class="align-middle text-center text-uppercase text-nowrap">${h.day}<br>${h.date}</th>`;
             });
             $('table.leads-table thead tr').html(headerHtml);
 
@@ -923,12 +797,18 @@
 
                 // Parse and show shifts
                 const shiftMap = parseShiftSchedule(emp.assignedDates);
+                const weekendDays = parseWeekdayNumbers(emp.weekdayNumber);
                 headers.forEach(h => {
+                    const dateObj = new Date(h.date);
+                    const weekdayNumber = dateObj.getDay(); // Sunday = 0, Saturday = 6
                     const shift = shiftMap[h.date];
                     if (shift) {
+                        const isWeekend = weekendDays.includes(weekdayNumber);
+                        const badgeClass = isWeekend ? 'badge-phoenix-danger' : 'badge-phoenix-primary';
+                        const leftColor = isWeekend ? '#FF6F6F' : '#a1f1a1';
                         bodyHtml += `
                         <td class="startTime align-middle text-center">
-                            <div class="position-relative badge badge-phoenix-primary shift-block px-4 py-2">
+                            <div class="position-relative badge ${badgeClass} shift-block px-4 py-2" style="border-left:5px solid ${leftColor};">
                                 <p class="fs-10 mb-1">${shift.timeRange}</p>
                                 <p class="fs-10 mb-1">${shift.shiftName}</p>
                                 <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
@@ -956,6 +836,10 @@
             });
 
             $('table.leads-table tbody').html(bodyHtml);
+
+            const firstDate = headers[0].date;
+            const lastDate = headers[headers.length - 1].date;
+            $(".date-range-label").text(`${firstDate} - ${lastDate}`);
         }
 
 
@@ -973,7 +857,14 @@
         }
 
 
-        function loadTableData(currentPage, pageSize, searchTerm, sortColumn, sortOrder) {
+        function parseWeekdayNumbers(weekdayNumberStr) {
+            if (!weekdayNumberStr) return [];
+            return weekdayNumberStr.split(',').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
+        }
+
+
+        function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
+            var searchTerm = $("#rosterInOfficeDays-searchInput").val();
             $.ajax({
                 url: settings.baseUrl + '/GetEmployeesPaged',
                 method: 'GET',
@@ -983,10 +874,26 @@
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
                     sortOrder: sortOrder,
+                    daysToShow: daysToShow,
+                    startDate: startDate.toISOString()
                 },
                 success: function (response) {
                     const employees = response.data;  // Your controller returns JSON { data = ..., totalCount = ... }
+                    const totalCount = response.totalCount;
                     renderEmployeeTable(employees);
+
+                    // Calculate pagination info
+                    const startItem = (currentPage - 1) * pageSize + 1;
+                    let endItem = currentPage * pageSize;
+                    if (endItem > totalCount) endItem = totalCount;
+
+                    // ✅ Pagination info
+                    $("#startItem").text(startItem);
+                    $("#endItem").text(endItem);
+                    $("#totalItems").text(totalCount);
+
+                     // ✅ Update pagination controls
+                     updatePagination(response.pageNumbers, response.currentPage, response.totalPages);
                 },
                 error: function (xhr, status, error) {
                     console.error('Error loading employee data:', error);
@@ -994,196 +901,6 @@
             });
         }
 
-
-
-
-        //function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
-        //    var searchTerm = $("#rosterInOfficeDays-searchInput").val();
-
-        //    $.ajax({
-        //        url: getAll,
-        //        method: 'GET',
-        //        data: {
-        //            pageNumber: currentPage,
-        //            pageSize: pageSize,
-        //            searchTerm: searchTerm,
-        //            sortColumn: sortColumn,
-        //            sortOrder: sortOrder,
-        //            daysToShow: daysToShow,
-        //            startDate: startDate.toISOString()
-        //        },
-        //        success: function (response) {
-        //            const headers = response.headers;
-        //            const result = response.result;
-        //            const data = result.data;
-        //            const paginationInfo = result.paginationInfo;
-
-        //            // ✅ Build table headers
-        //            let headerRow = `<th class="align-middle text-uppercase text-nowrap sticky-col sticky-header bg-white z-index-sticky">Employee Name</th>`;
-        //            headers.forEach(h => {
-        //                headerRow += `
-        //                <th class="align-middle px-3 text-uppercase text-nowrap">
-        //                    <p class="weekDay">${h.day}</p>
-        //                    <p class="date">${h.date}</p>
-        //                </th>`;
-        //            });
-        //            $('table thead tr').html(headerRow);
-
-        //            // ✅ Group and flatten shift data by employee and day
-        //            const grouped = {};
-        //            data.forEach(item => {
-        //                const empId = item.employeeID;
-        //                if (!grouped[empId]) {
-        //                    grouped[empId] = {
-        //                        name: item.employeeName,
-        //                        designation: item.departmentName,
-        //                        organization: item.organizationName,
-        //                        shifts: {}
-        //                    };
-        //                }
-
-        //                //const start = new Date(item.startDate);
-        //                //const end = new Date(item.endDate);
-        //                //const current = new Date(start);
-
-        //                //while (current <= end) {
-        //                //    const dateKey = current.toISOString().split('T')[0];
-        //                //    grouped[empId].shifts[dateKey] = {
-        //                //        timeRange: item.timeRange,
-        //                //        shiftID: item.shiftID,
-        //                //        shiftName: item.shiftName,
-        //                //        rosterInOfficeDayId: item.rosterInOfficeDayID,
-        //                //        organizationID: item.organizationID,
-        //                //        overrides: item.rosterInOfficeDaysOverrideSetupVMs?.filter(ov =>
-        //                //            ov.overrideDate && new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
-        //                //        ) || []
-        //                //    };
-        //                //    current.setDate(current.getDate() + 1);
-        //                //}
-        //                const start = new Date(item.startDate);
-        //                const end = new Date(item.endDate);
-        //                const current = new Date(start);
-
-        //                // ✅ Get visible header date range (from the first and last headers)
-        //                const headerStart = new Date(headers[0].date);
-        //                const headerEnd = new Date(headers[headers.length - 1].date);
-
-        //                while (current <= end) {
-        //                    // Only push shifts that fall within the currently selected date range
-        //                    if (current >= headerStart && current <= headerEnd) {
-        //                        const dateKey = current.toISOString().split('T')[0];
-
-        //                        grouped[empId].shifts[dateKey] = {
-        //                            timeRange: item.timeRange,
-        //                            shiftID: item.shiftID,
-        //                            shiftName: item.shiftName,
-        //                            rosterInOfficeDayId: item.rosterInOfficeDayID,
-        //                            organizationID: item.organizationID,
-        //                            overrides: item.rosterInOfficeDaysOverrideSetupVMs?.filter(ov =>
-        //                                ov.overrideDate && new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
-        //                            ) || []
-        //                        };
-        //                    }
-
-        //                    current.setDate(current.getDate() + 1);
-        //                }
-        //            });
-
-        //            // ✅ Build tbody
-        //            let bodyHtml = '';
-        //            for (const empId in grouped) {
-        //                const emp = grouped[empId];
-        //                bodyHtml += `
-        //                <tr>
-        //                    <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
-        //                        <div class="d-inline-flex flex-column align-items-center justify-content-center">
-        //                            <h5>${emp.name}</h5>
-        //                            <p class="fs-9 mb-0">${emp.designation}</p>
-        //                            <p class="fs-9 mb-0">${emp.organization}</p>
-        //                        </div>
-        //                    </td>`;
-
-        //                headers.forEach(h => {
-        //                    const dateKey = new Date(h.date).toISOString().split('T')[0];
-        //                    const shift = emp.shifts[dateKey];
-        //                    const hasEditOverride = shift?.overrides?.length > 0;
-
-        //                    if (shift && !hasEditOverride) {
-        //                        bodyHtml += `
-        //                        <td class="startTime">
-        //                            <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
-        //                                <p class="fs-10">${shift.timeRange}</p>
-        //                                <p class="fs-10">${shift.shiftName}</p>
-        //                                <div class="add-shift-btn2 position-absolute">
-        //                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-        //                                    data-id="${shift.rosterInOfficeDayId}" 
-        //                                    data-date="${h.date}" 
-        //                                    data-shift-id="${shift.shiftID}"
-        //                                    data-organization-id="${shift.organizationID}" 
-        //                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
-        //                                        <i class="fas fa-edit text-primary"></i>
-        //                                    </a>
-        //                                </div>
-        //                            </div>
-        //                        </td>`;
-        //                    } else if (!shift) {
-        //                        bodyHtml += `
-        //                        <td class="shift-cell">
-        //                            <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
-        //                                <i class="fa fa-plus" aria-hidden="true"></i>
-        //                            </button>
-        //                        </td>`;
-        //                    } else {
-        //                        const override = shift.overrides.find(ov =>
-        //                            new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
-        //                        );
-
-        //                        const overrideShiftName = override?.shiftName || '-';
-        //                        const overrideTimeRange = override?.timeRange || '-';
-        //                        const overrideShiftID = override?.shiftID || '-';
-
-        //                        bodyHtml += `
-        //                        <td class="overrideTime">
-        //                            <div class="badge badge-phoenix-success override-block px-4 position-relative">
-        //                                <p class="fs-10">${overrideTimeRange}</p>
-        //                                <p class="fs-10">${overrideShiftName}</p>
-        //                                <div class="add-shift-btn2 position-absolute">
-        //                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-        //                                        data-id="${shift.rosterInOfficeDayId}" 
-        //                                        data-date="${h.date}" 
-        //                                        data-shift-id="${overrideShiftID}"
-        //                                        data-organization-id="${shift.organizationID}" 
-        //                                        data-bs-target="#rosterInOfficeDays-editShiftModal">
-        //                                        <i class="fas fa-edit text-success"></i>
-        //                                    </a>
-        //                                </div>
-        //                            </div>
-        //                        </td>`;
-        //                    }
-        //                });
-
-        //                bodyHtml += `</tr>`;
-        //            }
-
-        //            $('table tbody').html(bodyHtml);
-
-        //            // ✅ Pagination info
-        //            $("#startItem").text(paginationInfo.startItem);
-        //            $("#endItem").text(paginationInfo.endItem);
-        //            $("#totalItems").text(paginationInfo.totalItems);
-
-        //            // ✅ Update pagination controls
-        //            updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
-
-        //            const firstDate = headers[0].date;
-        //            const lastDate = headers[headers.length - 1].date;
-        //            $(".date-range-label").text(`${firstDate} - ${lastDate}`);
-        //        },
-        //        error: function (err) {
-        //            console.error("Error loading data:", err);
-        //        }
-        //    });
-        //}
 
 
         $("#chevron-left").on("click", function () {
@@ -1236,132 +953,6 @@
             currentPage = page;
             loadTableData(currentSortColumn, currentSortOrder);
         });
-        // #endregion
-
-
-        // #region With delete logic
-        //function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = 7) {
-        //    var searchTerm = $("#rosterInOfficeDays-searchInput").val();
-
-        //    $.ajax({
-        //        url: getAll,
-        //        method: 'GET',
-        //        data: {
-        //            pageNumber: currentPage,
-        //            pageSize: pageSize,
-        //            searchTerm: searchTerm,
-        //            sortColumn: sortColumn,
-        //            sortOrder: sortOrder,
-        //            daysToShow: daysToShow
-        //        },
-        //        success: function (response) {
-        //            const headers = response.headers;
-        //            const result = response.result;
-        //            const data = result.data;
-        //            const paginationInfo = result.paginationInfo;
-
-        //            // ✅ Build table headers
-        //            let headerRow = `<th class="align-middle text-uppercase text-nowrap">Employee Name</th>`;
-        //            headers.forEach(h => {
-        //                headerRow += `
-        //                <th class="align-middle px-3 text-uppercase text-nowrap">
-        //                    <p class="weekDay">${h.day}</p>
-        //                    <p class="date">${h.date}</p>
-        //                </th>`;
-        //            });
-        //            $('table thead tr').html(headerRow);
-
-        //            // ✅ Group and flatten shift data by employee and day
-        //            const grouped = {};
-        //            data.forEach(item => {
-        //                const empId = item.employeeID;
-        //                if (!grouped[empId]) {
-        //                    grouped[empId] = {
-        //                        name: item.employeeName,
-        //                        designation: item.departmentName,
-        //                        organization: item.organizationName,
-        //                        shifts: {}
-        //                    };
-        //                }
-
-        //                const start = new Date(item.startDate);
-        //                const end = new Date(item.endDate);
-        //                const current = new Date(start);
-
-        //                while (current <= end) {
-        //                    const dateKey = current.toISOString().split('T')[0];
-        //                    grouped[empId].shifts[dateKey] = {
-        //                        timeRange: item.timeRange,
-        //                        shiftName: item.shiftName,
-        //                        rosterInOfficeDayId: item.rosterInOfficeDayID,
-        //                        overrides: item.rosterInOfficeDaysOverrideSetupVMs?.filter(ov =>
-        //                            ov.overrideDate && new Date(ov.overrideDate).toISOString().split('T')[0] === dateKey
-        //                        ) || []
-        //                    };
-        //                    current.setDate(current.getDate() + 1);
-        //                }
-        //            });
-
-        //            // ✅ Build tbody
-        //            let bodyHtml = '';
-        //            for (const empId in grouped) {
-        //                const emp = grouped[empId];
-        //                bodyHtml += `
-        //                <tr>
-        //                    <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
-        //                        <div class="d-inline-flex flex-column align-items-center justify-content-center">
-        //                            <h5>${emp.name}</h5>
-        //                            <p class="fs-9 mb-0">${emp.designation}</p>
-        //                            <p class="fs-9 mb-0">${emp.organization}</p>
-        //                        </div>
-        //                    </td>`;
-
-        //                headers.forEach(h => {
-        //                    const dateKey = new Date(h.date).toISOString().split('T')[0];
-        //                    const shift = emp.shifts[dateKey];
-        //                    const hasDeletedOverride = shift?.overrides?.length > 0;
-
-        //                    if (shift && !hasDeletedOverride) {
-        //                        bodyHtml += `
-        //                        <td class="startTime">
-        //                            <div class="badge badge-phoenix-primary shift-block px-4 position-relative">
-        //                                <p class="fs-10">${shift.timeRange}</p>
-        //                                <p class="fs-10">${shift.shiftName}</p>
-        //                                <div class="add-shift-btn2 position-absolute">
-        //                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn" data-id="${shift.rosterInOfficeDayId}" data-date="${h.date}" data-bs-target="#rosterInOfficeDays-editShiftModal">
-        //                                        <i class="fas fa-edit text-success"></i>
-        //                                    </a>
-        //                                </div>
-        //                            </div>
-        //                        </td>`;
-        //                    } else {
-        //                        bodyHtml += `
-        //                        <td class="shift-cell">
-        //                            <button class="btn add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal">
-        //                                <i class="fa fa-plus" aria-hidden="true"></i>
-        //                            </button>
-        //                        </td>`;
-        //                    }
-        //                });
-
-        //                bodyHtml += `</tr>`;
-        //            }
-
-        //            $('table tbody').html(bodyHtml);
-
-        //            // ✅ Pagination info
-        //            $("#startItem").text(paginationInfo.startItem);
-        //            $("#endItem").text(paginationInfo.endItem);
-        //            $("#totalItems").text(paginationInfo.totalItems);
-
-        //            // ✅ Update pagination controls
-        //            updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
-        //        },
-        //        error: function (err) {
-        //            console.error("Error loading data:", err);
-        //        }
-        //    });
-        //}
         // #endregion
     }
 }(jQuery));
