@@ -56,6 +56,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
         #region  Get Data All  Leave  Requyest above table 
 
+        public static double GetDecimalHours(TimeOnly from, TimeOnly to)
+        {
+            var duration = to.ToTimeSpan() - from.ToTimeSpan();
+
+            if (duration.TotalMinutes < 0)
+                return 0; // or throw exception
+
+            return Math.Round(duration.TotalMinutes / 60.0, 2); // e.g., 1.33 for 1h 20m
+        }
+
+
+
 
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>>
     GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate = null, DateOnly? toDate = null)
@@ -132,7 +144,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                         var department = employeeDepartments.FirstOrDefault(e => e.EmployeeID == b.EmployeeID)?.DepartmentName ?? "";
 
-                        return new LeaveApplicationsList
+                        var result= new LeaveApplicationsList
                         {
                             LeaveApplicationID = b.LeaveApplicationID,
                             StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
@@ -143,13 +155,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                             Period = b.IsFullDay
                                 ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
                                 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
+                                    ? GetDecimalHours(b.PartialFromTime.Value, b.PartialToTime.Value)
                                     : 0,
                             EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                             EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                             EmployeeDepartment = department,
                             AvailableLeaveDays = availableLeaveDays
                         };
+                        return result;
                     });
 
                 return result;  //result;
@@ -379,7 +392,21 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         }
 
 
-        //
+        // Time Hour Min
+        public static decimal CalculatePartialHours(TimeOnly? from, TimeOnly? to)
+        {
+            if (!from.HasValue || !to.HasValue)
+                return 0;
+
+            var duration = to.Value.ToTimeSpan() - from.Value.ToTimeSpan();
+
+            if (duration.TotalMinutes <= 0)
+                return 0;
+            var result= Math.Round((decimal)duration.TotalMinutes / 60, 2); // e.g., 1.67
+            return result;
+        }
+
+
 
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
         {
@@ -484,7 +511,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 if (isFirstApprover && approvalSettings.IsEnableSecondApproval)
                 {
                     entity.StatusID = await GetIdByNameAsync("APPROVED"); 
-                    entity.ApprovalPersonID = approvalSettings.SecondApprovalID; //
+                    entity.ApprovalPersonID = approvalSettings.SecondApprovalID; 
                 }
                 else if (isSecondApprover && approvalSettings.IsEnableThirdApproval)
                 {
@@ -495,7 +522,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
                     
                     entity.StatusID = statusId; // Final Approval or Decline 
-                    entity.ApprovalPersonID = entityVM.CreatedBy;        //approvalSettings.ThirdApprovalID;    //entityVM.UpdatedBy; // 🔹 No next approver
+                    entity.ApprovalPersonID = entityVM.CreatedBy;   //entityVM.UpdatedBy; // 🔹 No next approver
                     isFinalApproval = true;
 
                 }
@@ -533,32 +560,21 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                    
                     if (existingBalance != null)
                     {
-                        //Count partialDay
-                        if (!entity.IsFullDay)
-                        {
-                            var fromPartialTime = entityVM.PartialFromTimeEdit ?? default;
-                            var toPartialTime = entityVM.PartialToTimeEdit ?? default;
-                            var totalHour = Math.Round((toPartialTime - fromPartialTime).TotalHours, 2);
-
-                            var fullDayWorkingHours = 8.0;
-                            var partialLeaveAsDay = Math.Round(totalHour / fullDayWorkingHours, 2); //( 4+4 hour)
-
-                            existingBalance.Taken = (existingBalance.Taken ?? 0) +(decimal)partialLeaveAsDay;
-                        }
-                        else
+                        if (entityVM.IsFullDayEdit)
                         {
                             existingBalance.Taken = (existingBalance.Taken ?? 0) + entityVM.TotalAppliedDays;
                         }
-
-                        //
-                        
+                        else
+                        {
+                            var newPartial = CalculatePartialHours(entityVM.PartialFromTimeEdit, entityVM.PartialToTimeEdit);
+                            existingBalance.TakenPartialHours = (existingBalance.TakenPartialHours ?? 0) + newPartial;
+                        }
                         existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                         existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.UpdatedAt = DateTime.Now;
                         existingBalance.UpdatedBy = entityVM.UpdatedBy;
-
                         await leaveBalance.UpdateAsync(existingBalance);
                     }
                     else
@@ -567,7 +583,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         {
                             EmployeeID = entityVM.EmployeeIDEdit,
                             LeaveTypeID = entityVM.LeaveTypeIDEdit,
-                            Taken = entityVM.TotalAppliedDays,
+                            //IsFullDay=entityVM.IsFullDayEdit,
+                            Taken = entityVM.IsFullDayEdit ? entityVM.TotalAppliedDays : 0,
+                            TakenPartialHours = entityVM.IsFullDayEdit ? 0 : CalculatePartialHours(entityVM.PartialFromTimeEdit, entityVM.PartialToTimeEdit),
                             TotalLeave = leaveDaysFromConfig.LeaveDays,
                             ApplicableYear = leaveDaysFromConfig.ApplicableYear,
                             CreatedAt = DateTime.Now,
@@ -617,10 +635,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     leaveBase.PartialFromTime = entityVM.PartialFromTimeEdit;
                     leaveBase.PartialToTime = entityVM.PartialToTimeEdit;
                 }
-
                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
                 await leaveRequest.CommitTransactionAsync();
-
                 return new CommonReturnViewModel
                 {
                     Success = true,
