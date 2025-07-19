@@ -1,0 +1,27 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model string
+<div class="col-12 col-md-12 col-lg-12">
+    <ul class="nav nav-underline fs-9 mt-3" id="dailyReportTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link @(Model == "MonthlyReportForAlls" ? "active" : "")"
+               href="@Url.Action("Index", "MonthlyReportForAll")"
+               role="tab"
+               aria-controls="tab-monthlyReport"
+               aria-selected="@(Model == "MonthlyReport" ? "true" : "false")">
+                Monthly Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(Model == "MonthlyReportForIndividual" ? "active" : "")"
+               href="@Url.Action("Index", "MonthlyIndividualReport")"
+               role="tab"
+               aria-controls="tab-monthlyReport"
+               aria-selected="@(Model == "MonthlyReport" ? "true" : "false")">
+                Monthly Report
+            </a>
+        </li>
+    </ul>
+</div>
