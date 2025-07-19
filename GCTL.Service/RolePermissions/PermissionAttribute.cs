@@ -57,9 +57,20 @@ namespace GCTL.Service.RolePermissions
             }
 
             var module = await db.MenuTab.FirstOrDefaultAsync(m => m.ControllerName == _controllerName);
+            //if (module == null)
+            //{
+            //    context.Result = new NotFoundResult();
+            //    context.Result = new JsonResult(new { success = false, message = "Method not found in menutab Table" }) { StatusCode = 404 };
+            //    return;
+            //}
+
             if (module == null)
             {
-                context.Result = new NotFoundResult();
+                // Return 404 status code with a JSON message in the body
+                context.Result = new JsonResult(new { success = false, message = "Method not found in MenuTab Table" })
+                {
+                    StatusCode = 404 // Set the 404 status code here
+                };
                 return;
             }
 

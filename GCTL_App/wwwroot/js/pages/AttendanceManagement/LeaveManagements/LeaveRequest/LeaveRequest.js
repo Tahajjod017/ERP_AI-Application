@@ -221,7 +221,7 @@ $(document).ready(function () {
         if (!Array.isArray(deptIds)) deptIds = [deptIds];
 
         $.ajax({
-            url: '/AssignDefaultShift/GetEmployeeByDepartment',
+            url: '/LeaveRequest/GetEmployeeByDepartment',
             type: 'GET',
             data: {
                 departmentIds: deptIds.join(',')

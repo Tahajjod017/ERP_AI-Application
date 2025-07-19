@@ -32,5 +32,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public string? TimeRange { get; set; }
 
         public string? AssignedDates { get; set; }
+
+        public string? WeekdayNumber { get; set; }
     }
 }

@@ -3,3 +3,11 @@
 *@
 @{
 }
+
+@{
+    var mainTab = "MonthlyReport";
+    var subTab = "IndividualReport";
+}
+
+<partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
+<partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReport.cshtml" model="subTab" />

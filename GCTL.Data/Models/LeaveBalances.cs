@@ -35,6 +35,10 @@ public partial class LeaveBalances
 
     public int? DeletedBy { get; set; }
 
+    public decimal? TakenPartialHours { get; set; }
+
+    public bool? IsFullDay { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

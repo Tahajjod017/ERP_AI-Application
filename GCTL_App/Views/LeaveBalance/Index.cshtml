@@ -1,309 +1,223 @@
-﻿
-    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
-        <div class="my-auto mb-2">
-            <h2 class="mb-1">Leaves Balance</h2>
-           @*  <nav>
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item">
-                        <a href="../../dashboard/atms.html"><i class="ti ti-smart-home"></i></a>
+﻿@{
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.MultiDropDown>;
+}
+
+<style>
+    #leaveRequest-searchForm {
+        position: relative;
+    }
+
+    #leaveRequest-searchInput {
+        padding-right: 2.25rem; /* Leave space for the icon inside */
+        height: calc(1.5em + 0.75rem + 2px); /* Same as .form-select */
+    }
+
+    .search-box-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+    }
+
+
+    .date-input {
+        width: 108%;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+    .date-picker-wrapper .footer {
+        display: none !important;
+    }
+
+
+    .date-picker-wrapper {
+        margin-left: 8.2vw !important;
+    }
+</style>
+
+<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb">
+    <div class="my-auto mb-2">
+        <h2 class="mb-1">Leave Balance</h2>
+        
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
+        <div class="me-2 mb-2">
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                    <i class="ti ti-file-export me-1"></i>Export
+                </a>
+                <ul class="dropdown-menu  dropdown-menu-end p-3">
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>Export as PDF</a>
                     </li>
-                    <li class="breadcrumb-item">
-                        Employee
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>Export as Excel </a>
                     </li>
-                    <li class="breadcrumb-item active" aria-current="page">Leaves</li>
-                </ol>
-            </nav> *@
+                </ul>
+            </div>
         </div>
-        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
-            <div class="me-2 mb-2">
+     
+    </div>
+</div>
+
+<div class="card-body py-0  to-do-list-body">
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-2 border-y">
+
+        <div class="row g-3 align-items-end mb-4" style="margin-right:1%">
+            <!-- Company -->
+            <div class="col-md-4 one">
+                <label class="form-label">@Html.SmartLocalize("Organizer")</label>
                 <div class="dropdown">
-                    <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
-                        <i class="ti ti-file-export me-1"></i>Export
-                    </a>
-                    <ul class="dropdown-menu  dropdown-menu-end p-3">
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>Export as PDF</a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>Export as Excel </a>
-                        </li>
-                    </ul>
+                    <select class="form-multi-select" id="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" data-coreui-multiple="false" data-coreui-search="true">
+                        <option value="">@Html.SmartLocalize("Select Company")</option>
+                    </select>
                 </div>
             </div>
-       @*      <div class="mb-2">
-                <a href="#" data-bs-toggle="modal" data-bs-target="#apply_leave" class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Apply Manual Leave</a>
-            </div> *@
-            <div class="head-icons ms-2">
+
+            <!-- Department -->
+            <div class="col-md-4 two">
+                <label class="form-label">@Html.SmartLocalize("Department")</label>
+                <div class="dropdown">
+                    <select class="form-multi-select" id="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+                    </select>
+                </div>
+            </div>
+
+            <!-- Employee -->
+            <div class="col-md-4">
+                <label class="form-label">@Html.SmartLocalize("Employee")</label>
+                <div class="dropdown">
+                    <select class="form-multi-select" id="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+                        @foreach (var group in employees.GroupBy(e => e.DepartmentName))
+                        {
+                            <optgroup label="@group.Key">
+                                @foreach (var emp in group)
+                                {
+                                    <option value="@emp.EmployeeID">@emp.EmployeeName</option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- /Breadcrumb -->
-    <div class="mb-4">
 
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
-                <h4 class="mb-1">Leave List</h4>
-                <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-                    <div class="dropdown me-3">
-                        <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required"
-                                name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                            <option value="">Select department</option>
-                            <option>Developer</option>
-                            <option>Finance</option>
-                            <option>Marketing</option>
-                            <option>IT Support</option>
+
+        <div class="row g-3 justify-content-between align-items-end mb-4">
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center me-3" style="width: auto;">
+                    <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                    <div style="width: 100%;">
+                        <select id="leaveRequest-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                            <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                            <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                            <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                            <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
                         </select>
                     </div>
+                </div>
+            </div>
 
-                    <div class="dropdown me-3">
-                        <select class="form-select" id="organizerSingle" data-choices="data-choices"
-                                data-options='{"removeItemButton":true,"placeholder":true}'>
-                            <option value="">Select Employee...</option>
-                            <option>Galib</option>
-                            <option>Korim</option>
-                            <option>Nozib</option>
-                            <option>Hasan</option>
-                        </select>
-                    </div>
-                    <div class="dropdown me-3">
-                        <div class="input-icon-end position-relative">
-
-                            <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
-
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="d-none me-3" id="leaveRequest-bulkSelectActions">
+                        <div class="position-relative">
+                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="leaveRequest-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
                         </div>
                     </div>
 
-                    <div class="dropdown me-3">
-                        <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                            <option value="">Leave Type</option>
-                            <option>Medical Leave</option>
-                            <option>Casual Leave</option>
-                            <option>Annual Leave</option>
-                            <option>Compensation Leave</option>
-                        </select>
-                    </div>
+                    <div class="me-5">
+                        <div class="position-relative">
+                            <input type="text" id="basic-daterange" class="date-input form-control-sm" placeholder="d/m/y to d/m/y" readonly>
 
+                            <input type="hidden" id="basic-daterange_fromHidden" name="FromDate" />
+                            <input type="hidden" id="basic-daterange_toHidden" name="ToDate" />
+                        </div>
+
+                    </div>
                     <div class="dropdown me-3">
-                        <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <select class="form-select" data-choices="data-choices" size="1" id="StatusIDFilterDD" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
                             <option value="">Select Status</option>
-                            <option>Approved</option>
-                            <option>Declined</option>
-                            <option>New</option>
+
                         </select>
                     </div>
 
-                </div>
-            </div>
-
-            <div class="border-translucent p-3">
-                <div id="employeeLeaveListTable1" data-list='{"valueNames":["approveByEmployee","leaveType","leaveFrom","leaveTo","leaveTotalDay","status"],"page":10,"pagination":true}'>
-
-                    <div class="table-responsive scrollbar mx-n1 px-1">
-                        <table class="table table-sm fs-9 leads-table">
-                            <thead>
-                                <tr>
-                                    <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers1-sellers-body"}' />
-                                        </div>
-                                    </th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approveByEmployee">Employee Name</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveType">Anual Leave</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">Casual Leave</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">Medical Leave</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Maternity Leave</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Paternity Leave</th>
-                                    <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="list" id="purchasers1-sellers-body">
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
-                                        </div>
-                                    </td>
-
-
-                                    <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold"><a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">Faruk Hasan</a> </h6>
-                                                <span class="fs-12 fw-normal ">Finance officer</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 5</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 8</b></p>
-                                        </div>
-                                    </td>
-
-                                    <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 4</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 11</b></p>
-                                        </div>
-                                    </td>
-                                    <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 6</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 7</b></p>
-                                        </div>
-                                    </td>
-                                    <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: -</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> -</b></p>
-                                        </div>
-                                    </td>
-
-                                    <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: -</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> -</b></p>
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
-                                        </div>
-                                    </td>
-
-
-                                    <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold"><a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">Minhazul Islam</a> </h6>
-                                                <span class="fs-12 fw-normal ">IT Support</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 7</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 7</b></p>
-                                        </div>
-                                    </td>
-
-                                    <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 6</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 8</b></p>
-                                        </div>
-                                    </td>
-                                    <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 8</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 5</b></p>
-                                        </div>
-                                    </td>
-                                    <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: -</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> -</b></p>
-                                        </div>
-                                    </td>
-
-                                    <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: -</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> -</b></p>
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
-                                        </div>
-                                    </td>
-
-
-                                    <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold"><a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">Jueal Rana</a> </h6>
-                                                <span class="fs-12 fw-normal ">Marketing officer</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 8</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 5</b></p>
-                                        </div>
-                                    </td>
-
-                                    <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 6</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 9</b></p>
-                                        </div>
-                                    </td>
-                                    <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 5</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 8</b></p>
-                                        </div>
-                                    </td>
-                                    <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: -</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> -</b></p>
-                                        </div>
-                                    </td>
-
-                                    <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <div class="ms-1">
-                                            <h6 class="fs-14 fw-medium d-flex align-items-center mb-0">Taken: 5</h6>
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Remaining: <b class="ms-1"> 0</b></p>
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-                        </table>
+                    <div class="dropdown me-3" id="leaveRequest-searchBox">
+                        <form class="position-relative" id="leaveRequest-searchForm">
+                            <input class="form-control search-input" id="leaveRequest-searchInput" type="search"
+                                   placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon"></span>
+                        </form>
                     </div>
 
-                    <div class="row align-items-center justify-content-between pe-0 fs-9">
-                        <div class="col-auto d-flex">
-                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                        </div>
-                        <div class="col-auto d-flex">
-                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                            <ul class="mb-0 pagination"></ul>
-                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
-                        </div>
-                    </div>
+
 
                 </div>
             </div>
-
         </div>
 
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent">
+
+                <thead>
+                    <tr>
+                        <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                            <div class="form-check mb-0 fs-8">
+                                <input class="form-check-input" type="checkbox" />
+                            </div>
+                        </th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approveByEmployee">Employee Name</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveType">Anual Leave</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveFrom">Casual Leave</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTo">Medical Leave</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leaveTotalDay">Maternity Leave</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Paternity Leave</th>
+                      
+                    </tr>
+                </thead>
+                <tbody id="leaveBalances-tBody">
+                   
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="leaveRequest-paginationInfo"></p>
+
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+            </div>
+            <div class="d-flex">
+                <button class="page-link" data-list-pagination="prev" id="leaveRequest-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="leaveRequest-paginationLinks"></ul>
+                <button class="page-link pe-0" data-list-pagination="next" id="leaveRequest-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
     </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/attendancemanagement/leavemanagements/leavehistorybalances/leavebalances.js"></script>
+
+}
 
