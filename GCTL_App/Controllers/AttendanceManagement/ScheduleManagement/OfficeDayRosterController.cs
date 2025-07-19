@@ -88,42 +88,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetAllFromStoredProc
-        [HttpGet]
-        public async Task<IActionResult> GetAllFromStoredProc(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7)
-        {
-            var result = await _assignDefaultShiftService.GetAllFromSPAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
-
-            // Generate date headers (same as before)
-            var startDate = DateTime.Today;
-            var dateList = Enumerable.Range(0, daysToShow).Select(offset => startDate.AddDays(offset)).ToList();
-
-
-            return Json(new
-            {
-                result = new
-                {
-                    data = result,
-                    paginationInfo = new
-                    {
-                        currentPage = pageNumber,
-                        pageSize,
-                        totalItems = result.Count, // Update if your SP returns total count separately
-                        totalPages = (int)Math.Ceiling((double)result.Count / pageSize),
-                        startItem = (pageNumber - 1) * pageSize + 1,
-                        endItem = Math.Min(pageNumber * pageSize, result.Count)
-                    }
-                },
-                headers = dateList.Select(date => new
-                {
-                    day = date.ToString("ddd"),
-                    date = date.ToString("yyyy-MM-dd")
-                })
-            });
-        }
-        #endregion
-
-
         #region GetAll
         //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
         //{
@@ -278,16 +242,28 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationName", string sortOrder = "DESC")
+        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationName", string sortOrder = "DESC", int daysToShow = 7, DateTime? startDate = null)
         {
             var result = await _assignDefaultShiftService.GetPagedEmployeesAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+
+            int totalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
 
             return Json(new
             {
                 data = result.Data,
                 totalCount = result.TotalCount,
-                result = result
+                pageNumber,
+                pageSize,
+                totalPages,
+                currentPage = pageNumber,
+                pageNumbers = Enumerable.Range(1, totalPages).ToList()
             });
+            //return Json(new
+            //{
+            //    data = result.Data,
+            //    totalCount = result.TotalCount,
+            //    result = result
+            //});
         }
     }
 }
