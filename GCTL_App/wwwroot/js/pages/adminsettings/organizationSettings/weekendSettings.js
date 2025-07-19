@@ -49,7 +49,11 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error("Unexpected error: " + error, 'Server Error');
+                if (xhr.status === 403 && xhr.responseJSON) {
+                    toastr.error(xhr.responseJSON.message || "Access denied.", 'Permission Denied');
+                } else {
+                    toastr.error("Unexpected error: " + error, 'Server Error');
+                }
             }
         });
     });

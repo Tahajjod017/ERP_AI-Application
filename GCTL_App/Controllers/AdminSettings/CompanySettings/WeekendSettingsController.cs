@@ -54,7 +54,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
 
         #region Create
-        [Permission("Create", "WeekendSettings")]
+       // [Permission("Create", "WeekendSettings")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(WeekendSettingVM model)

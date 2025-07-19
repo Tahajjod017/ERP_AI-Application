@@ -340,7 +340,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
         {
             var holidayStatuses = await genericRepositoryStatus
                 .All() // Assuming `Status` is the entity mapped to [Statuses]
-                .Where(s => s.DeletedAt == null && s.StatusType == "Holidays")
+                .Where(s => s.DeletedAt == null && s.StatusType == "Active/Inactive")
                 .Select(s => new SelectListItem
                 {
                     Value = s.StatusID.ToString(),
