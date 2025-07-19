@@ -15,7 +15,7 @@
         <li class="nav-item">
             <a class="nav-link @(Model == "MonthlyReport" ? "active" : "")"
                id="roster-tab"
-               href="@Url.Action("Index", "MonthlyReport")"
+               href="@Url.Action("Index", "MonthlyReportForAll")"
                role="tab"
                aria-controls="tab-profile"
                aria-selected="@(Model == "MonthlyReport" ? "true" : "false")">
@@ -35,7 +35,7 @@
         <li class="nav-item">
             <a class="nav-link @(Model == "MovementReport" ? "active" : "")"
                id="movement-tab"
-               href="@Url.Action("Index", "MovementReport")"
+               href="@Url.Action("Index", "MovementForAllReport")"
                role="tab"
                aria-controls="tab-profile"
                aria-selected="@(Model == "MovementReport" ? "true" : "false")">
