@@ -73,6 +73,7 @@ using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.CommonService;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
+using GCTL.Service.AttendanceManagement.ManualAttendence;
 #endregion
 
 namespace GCTL_App.Extensions
@@ -170,7 +171,6 @@ namespace GCTL_App.Extensions
 
             #endregion
 
-
             #region Employee Services
 
             services.AddScoped<IEmployeePersonalService, EmployeePersonalService>();
@@ -192,6 +192,11 @@ namespace GCTL_App.Extensions
 
             #endregion
 
+            #region Attendance Management Services
+
+            services.AddScoped<IManualAttendenceService, ManualAttendenceService>();
+
+            #endregion
 
             #region File Handler
 
