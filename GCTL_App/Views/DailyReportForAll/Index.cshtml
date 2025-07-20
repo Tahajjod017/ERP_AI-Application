@@ -10,3 +10,132 @@
 <partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReport.cshtml" model="subTab" />
 
 
+<div class="card border-0 mt-4">
+
+    <div class="card border-0">
+        <div class="card-body">
+            <!-- Header Information -->
+            <div class="row align-items-center mb-4">
+                <div class="col-md-5">
+                    <div class="mb-3 mb-md-0">
+                        <h4 class="mb-1">Attendance Details Today</h4>
+                        <p>Data from the 80+ total no of employees</p>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <h5>Total Absenties today</h5>
+                        <div class="avatar-list-stacked avatar-group-sm ms-4">
+                            <div class="avatar-group mb-4">
+                                <div class="avatar avatar-s ">
+                                    <img class="rounded-circle " src="../../assets/img/team/30.webp" alt="" />
+
+                                </div>
+                                <div class="avatar avatar-s ">
+                                    <img class="rounded-circle " src="../../assets/img/team/57.webp" alt="" />
+
+                                </div>
+                                <div class="avatar avatar-s ">
+                                    <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
+
+                                </div>
+                                <div class="avatar avatar-s ">
+                                    <img class="rounded-circle " src="../../assets/img/team/8.webp" alt="" />
+
+                                </div>
+                                <div class="avatar avatar-s ">
+                                    <img class="rounded-circle " src="../../assets/img/team/58.webp" alt="" />
+
+                                </div>
+                                <div class="avatar avatar-s ">
+                                    <div class="avatar-name rounded-circle "><span>+3</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vital dashboard Information -->
+            <div class="border rounded">
+                <div class="row gx-0">
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Present</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>300</h5>
+                                <span class="badge badge-phoenix badge-phoenix-success">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    75 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Late Present</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>50</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    12 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Leave</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>20</h5>
+                                <span class="badge badge-phoenix badge-phoenix-warning">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    03 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Site Visit</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>25</h5>
+                                <span class="badge badge-phoenix badge-phoenix-success">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    06 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md col-sm-4">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Absent</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>10</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    03 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <partial name="_reportForAllAttendence" />
+   
+
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/attendancemanagement/employeereportall/dailyreportall.js"></script>
+}
+

@@ -11,3 +11,288 @@
 
 <partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReport.cshtml" model="subTab" />
+
+<div class="card border-0 mt-4">
+    <!-- Data searching -->
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+        <h4 class="mb-1">Employee Name(ID)</h4>
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+            <div class="dropdown me-2">
+                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Company...</option>
+                    <option>CSL</option>
+                    <option>GCTL</option>
+                </select>
+            </div>
+
+            <div class="dropdown me-2">
+                <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                    <option value="">Select Department</option>
+                    <option>Developer</option>
+                    <option>Designer</option>
+                    <option>Finance</option>
+                </select>
+            </div>
+
+            <div class="dropdown me-2">
+                <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                    <optgroup label="Developer">
+                        <option value="2">Alam (id)</option>
+                        <option value="3">Momin (id)</option>
+                    </optgroup>
+                    <optgroup label="Designer">
+                        <option value="4">Name (id)</option>
+                        <option value="5">Name (id)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+
+            <div class="dropdown me-3">
+                <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
+            </div>
+
+
+
+        </div>
+
+        <div class="card-body">
+            <p>The table below presents all the information about when Mr. Hasan came to the office and when he left the office this month.</p>
+
+
+            <div class="border rounded">
+                <div class="row gx-0">
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Total Days</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>14 Days</h5>
+                                <span class="badge badge-phoenix badge-phoenix-success">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    56%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Late Attendance</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>3 Days</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    10%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Absent</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>2 days</h5>
+                                <span class="badge badge-phoenix badge-phoenix-warning">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    6 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Leave</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>1 Day</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    3%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md col-sm-4">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Day Off</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>4 Day</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    12%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- individual Employee daily attendance Table-->
+    <div class="border-translucent p-3">
+        <div id="individualEmployeeListTable" data-list='{"valueNames":["empAttDate","attStatus","checkIn","checkOut","break","late","pHour"],"page":10,"pagination":true}'>
+
+            <div class="table-responsive scrollbar mx-n1 px-1">
+                <table class="table table-lg fs-9 leads-table">
+                    <thead>
+                        <tr>
+                            <th class="py-2 ps-5">Date</th>
+                            <th class="py-2 ps-5">Check In</th>
+                            <th class="py-2 ps-5">Check Out</th>
+                            <th class="py-2 ps-5">Break</th>
+                            <th class="py-2 ps-5">Late</th>
+                            <th class="py-2 ps-5">Overtime</th>
+                            <th class="py-2 ps-5">Production Hours</th>
+                            <th class="py-2 ps-5">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="list" id="individualEmployeeListTable">
+                        <tr>
+                            <td class="py-2 ps-5">14 Jan 2024</td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">06:45 PM</td>
+                            <td class="py-2 ps-5">25 Min</td>
+                            <td class="py-2 ps-5">32 Min</td>
+                            <td class="py-2 ps-5">20 Min</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>8.55 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-success">
+                                    <i class="ti ti-point-filled me-1"></i>Present
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 ps-5">
+                                15 Jan 2024
+                            </td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">06:12 PM</td>
+                            <td class="py-2 ps-5">20 Min</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">45 Min</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>7.54 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-success">
+                                    <i class="ti ti-point-filled me-1"></i>Present
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 ps-5">16 Jan 2024</td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">06:13 PM</td>
+                            <td class="py-2 ps-5">50 Min</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">33 Min</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>8.45 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-danger">
+                                    <i class="ti ti-point-filled me-1"></i>Absent
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="py-2 ps-5">17 Jan 2024</td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">06:23 PM</td>
+                            <td class="py-2 ps-5">41 Min</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">50 Min</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>8.35 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-success">
+                                    <i class="ti ti-point-filled me-1"></i>Present
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 ps-5">18 Jan 2024</td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">06:43 PM</td>
+                            <td class="py-2 ps-5">23 Min</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">12 Min</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>8.22 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-success">
+                                    <i class="ti ti-point-filled me-1"></i>Present
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 ps-5">19 Jan 2024</td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">07:15 PM</td>
+                            <td class="py-2 ps-5">03 Min</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>8.32 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-success">
+                                    <i class="ti ti-point-filled me-1"></i>Present
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 ps-5">20 Jan 2024</td>
+                            <td class="py-2 ps-5">09:00 AM</td>
+                            <td class="py-2 ps-5">07:13 PM</td>
+                            <td class="py-2 ps-5">32 Min</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">-</td>
+                            <td class="py-2 ps-5">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
+                                    <i class="ti ti-clock-hour-11 me-1"></i>9.15 Hrs
+                                </span>
+                            </td>
+                            <td class="py-2 ps-5">
+                                <span class="badge text-bg-success">
+                                    <i class="ti ti-point-filled me-1"></i>Present
+                                </span>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row align-items-center justify-content-between pe-0 fs-9">
+                <div class="col-auto d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                </div>
+                <div class="col-auto d-flex">
+                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

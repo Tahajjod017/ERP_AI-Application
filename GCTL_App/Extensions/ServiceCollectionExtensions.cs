@@ -77,6 +77,7 @@ using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 using GCTL.Service.AttendanceManagement.ManualAttendence;
 
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
+using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 
 #endregion
 
@@ -165,6 +166,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IDepartmentSettingService, DepartmentSettingService>();
             services.AddScoped<IProbationSettingService, ProbationSettingService>();
             services.AddScoped<IEmployeeAttendanceReport, EmployeeAttendanceService>();
+            services.AddScoped<IDailyReportService, DailyReportService>();
             #endregion
 
 
