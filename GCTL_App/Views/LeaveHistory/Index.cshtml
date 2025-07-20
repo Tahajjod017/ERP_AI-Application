@@ -151,6 +151,13 @@
                         </div>
 
                     </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1" id="LeaveTypeIDFilterDD" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Leave Type</option>
+
+                        </select>
+                    </div>
                     <div class="dropdown me-3">
                         <select class="form-select" data-choices="data-choices" size="1" id="StatusIDFilterDD" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
                             <option value="">Select Status</option>
@@ -192,45 +199,8 @@
 
                     </tr>
                 </thead>
-                <tbody id="leaveBalances-tBody">
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                        <td class="fs-9 align-middle py-0">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox"
-                                       data-bulk-select-row='{"approveByEmployee":"Hasan Ali","leaveType":"Casual Leave","leaveFrom":"01 Jan 2024","leaveTo":"01 Jan 2024","leaveTotalDay":"1 day"}' />
-                            </div>
-                        </td>
-
-
-                        <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                            <div class="d-flex align-items-center file-name-icon">
-                                <div class="avatar avatar-m avatar-bordered me-4">
-                                    <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                                </div>
-                                <div class="ms-1">
-                                    <h6 class="fw-bold"><a href="#" data-bs-toggle="modal" data-bs-target="#view_emp_leave_details">Md. Hasan</a> </h6>
-                                    <span class="fs-12 fw-normal ">Developer</span>
-                                </div>
-                            </div>
-                        </td>
-
-                        <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <div class="d-flex align-items-center">
-                                <p class="fs-14 fw-medium d-flex align-items-center mb-0">Casual Leave</p>
-                                <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
-                                      data-bs-title="I am currently experiencing a fever and design & Development">
-                                    <i class="ti ti-info-circle text-info"></i>
-                                </span>
-                            </div>
-                        </td>
-
-                        <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
-                        <td class="leaveTo align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
-                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">1</td>
-                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">Day</td>
-
-                    </tr>
+                <tbody id="leaveHistory-tBody">
+                    
                 </tbody>
             </table>
         </div>

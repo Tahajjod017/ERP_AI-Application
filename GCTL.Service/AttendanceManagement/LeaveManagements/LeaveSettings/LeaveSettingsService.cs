@@ -198,7 +198,55 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             }
         }
 
+        // Update Only IsActive 
 
+        public async Task<CommonReturnViewModel> UpdateLeaveIsActiveAsynce(LeaveTypeStatusUpdateIsActiveVM entityVM)
+        {
+            await leaveType.BeginTransactionAsync();
+            try
+            {
+                // Fetch existing leave type from DB
+                var existingLeave = await leaveType.GetByIdAsync(entityVM.LeaveTypeID);
+
+                if (existingLeave == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Leave type not found."
+                    };
+                }
+                var beforeEntity = JsonConvert.DeserializeObject<LeaveTypeStatusUpdateIsActiveVM>(JsonConvert.SerializeObject(existingLeave, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+
+                // Map values from view model to entity
+                existingLeave.IsActive=entityVM.IsActive;
+                existingLeave.LIP = entityVM.LIP;
+                existingLeave.LMAC = entityVM.LMAC;
+                existingLeave.UpdatedAt = DateTime.Now;
+                existingLeave.UpdatedBy = entityVM.UpdatedBy;
+                // Save changes
+                await leaveType.UpdateAsync(existingLeave);
+                var afterEntity = JsonConvert.DeserializeObject<LeaveTypeStatusUpdateIsActiveVM>(JsonConvert.SerializeObject(existingLeave, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+                await userInfoService.ActionLogAsync("Leave Settings", ActionName.DataUpdated, beforeEntity, afterEntity, existingLeave.LeaveTypeID, entityVM);
+                await leaveType.CommitTransactionAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "IsActive Updated Successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while updating leave type."
+                };
+            }
+        }
+
+        //
         #endregion
         #region SoftDeleteAsync
         public async Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)

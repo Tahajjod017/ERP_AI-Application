@@ -12,9 +12,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
 {
     public interface ILeaveHistoryBalancesService
     {
-        Task<PaginationService<LeaveBalances, LeaveBalancesGetVM>.PaginationResult<LeaveBalancesGetVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<PaginationService<LeaveBalances, LeaveBalancesGetVM>.PaginationResult<LeaveBalancesGetVM>> GetAllTableBalancesAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
       string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
   List<int> departmentIds = null,
   List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null);
+
+        Task<PaginationService<LeaveApplications, LeaveHistoryGetVM>.PaginationResult<LeaveHistoryGetVM>> GetAllTableHistoryAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+ string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
+List<int> departmentIds = null,
+List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null);
+
     }
 }

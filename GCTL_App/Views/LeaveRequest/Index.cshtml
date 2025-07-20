@@ -10,17 +10,18 @@
         color: #dc3545;
         font-size: 0.875em;
     }
+
 </style>
 
 <div class="modal fade" id="apply_leave" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered modal-xl" >
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Add Leave</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-           
-            @await Html.PartialAsync("_AddLeaveForm",Model.SetupForm)
+
+            @await Html.PartialAsync("_AddLeaveForm", Model.SetupForm)
         </div>
     </div>
 </div>
@@ -35,22 +36,19 @@
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             @await Html.PartialAsync("_EditLeaveForm", Model.SetupFormEdit)
-          
+
         </div>
     </div>
 </div>
-<!-- /Edit Leaves -->
 <!-- Breadcrumb -->
-<partial name="_BreadCrumLeaveReq"/>
+<partial name="_BreadCrumLeaveReq" />
 <!-- /Breadcrumb -->
+<div class="row" style="">
+    <!-- Leaves Info Dispaly-->
+    <partial name="_LeaveStatusDisplay" />
 
-@* <partial name="_LeaveStatusDisplay" /> *@
-
+</div>
 <partial name="_LeaveRequestTableList" />
-
-
-
-
 <partial name="_ConfirmDelete" />
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 @section Scripts {
@@ -59,5 +57,5 @@
     }
 
     <script src="~/js/pages/attendancemanagement/leavemanagements/leaverequest/leaverequest.js"></script>
-   
+
 }

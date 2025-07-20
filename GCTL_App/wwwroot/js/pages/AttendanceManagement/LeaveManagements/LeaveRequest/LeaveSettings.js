@@ -173,7 +173,7 @@
                                     <div class="d-flex align-items-center">
                                         <div class="form-check form-check-md form-switch me-1">
                                             <label class="form-check-label">
-                                              <input class="form-check-input" type="checkbox" role="switch" ${item.isActive ? 'checked' : ''}>
+                                              <input class="form-check-input" type="checkbox" id="IsActiveUpdate" data-id="${item.leaveTypeID}" role="switch" ${item.isActive ? 'checked' : ''}>
 
                                             </label>
                                         </div>
@@ -301,6 +301,42 @@
             }
         });
     });
+    //
+
+    // Update Only IsActive 
+    $(document).on('click', '#IsActiveUpdate', function () {
+        var leaveTypeID = $(this).data('id');
+        var isActive = $(this).is(':checked');
+        const data = {
+            leaveTypeID: leaveTypeID,
+            isActive: isActive
+        }
+        $.ajax({
+            url: '/LeaveSettings/UpdateLeaveIsActiveAsynce', 
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    resetLeaveForm();
+                    loadLeaveTypeCard();
+                   
+                } else {
+                    toastr.error(response.message);
+                    if (response.errors) {
+                        response.errors.forEach(error => toastr.warning(error));
+                    }
+                }
+            },
+            error: function () {
+                toastr.error("An error occurred while sending data.");
+            }
+        });
+    });
+
+
+
     //
 
     function resetLeaveForm() {

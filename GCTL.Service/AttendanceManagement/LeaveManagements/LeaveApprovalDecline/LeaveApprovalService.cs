@@ -379,11 +379,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 if (!(minDate <= model.ToDateEdit && model.ToDateEdit <= maxDate))
                     errors.Add("To Date must be within the allowed range.");
 
-                if (model.ToDateEdit < model.FromDateEdit)
-                    errors.Add("To Date must be on or after From Date.");
+                //if (model.ToDateEdit < model.FromDateEdit)
+                //    errors.Add("To Date must be on or after From Date.");
 
-                if (model.TotalAppliedDays > model.AvailableLeaveDays)
-                    errors.Add("Applied days exceed available leave.");
+                //if (model.TotalAppliedDays > model.AvailableLeaveDays)
+                //    errors.Add("Applied days exceed available leave.");
             }
 
        

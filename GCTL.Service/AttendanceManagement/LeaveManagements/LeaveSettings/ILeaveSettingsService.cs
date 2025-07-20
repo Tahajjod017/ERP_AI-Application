@@ -15,6 +15,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
     {
         Task<CommonReturnViewModel> SaveAddNewLeaveAsync(AddNewLeaveSave entityVM);
         Task<CommonReturnViewModel> UpdateLeaveAsynce(UpdateLeaveVM entityVM);
+        Task<CommonReturnViewModel> UpdateLeaveIsActiveAsynce(LeaveTypeStatusUpdateIsActiveVM entityVM);
         Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<GetLeaveTypesByIdVM> GetLeaveTypesByIdAsync(int leaveTypeID);
         Task<List<GetLeaveTypesListVM>> GetAllLeaveTypesAsync();
