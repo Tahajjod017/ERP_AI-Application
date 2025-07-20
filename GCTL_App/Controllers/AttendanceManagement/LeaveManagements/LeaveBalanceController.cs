@@ -48,7 +48,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             {
                 string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data = await leaveHistoryBalancesService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID, organizationId, departmentIds, employeeIds, fromDate, toDate);
+                var data = await leaveHistoryBalancesService.GetAllTableBalancesAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID, organizationId, departmentIds, employeeIds, fromDate, toDate);
                 return Json(data);
             }
             catch (Exception ex)

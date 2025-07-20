@@ -51,21 +51,68 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         public async Task<IActionResult> UpdateLeave([FromBody] UpdateLeaveVM entityVM)
         {
-            if (!ModelState.IsValid)
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+
+                    var errorMessages = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    return Ok(new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Validation failed.",
+                        Errors = errorMessages
+                    });
+                }
+                var data = await leaveSettingsService.UpdateLeaveAsynce(entityVM);
+                return Json(data);
+            }
+            catch (Exception ex)
             {
 
-                var errorMessages = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 return Ok(new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "Validation failed.",
-                    Errors = errorMessages
+                    Message = "An error occurred while processing your request.",
+                    Errors = new List<string> { ex.Message }
                 });
             }
-            var data = await leaveSettingsService.UpdateLeaveAsynce(entityVM);
-            return Json(data);
+            
         }
 
+        //Update For Only IsActive
+        [Route("LeaveSettings/UpdateLeaveIsActiveAsynce")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateLeaveIsActiveAsynce([FromBody] LeaveTypeStatusUpdateIsActiveVM entityVM)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+
+                    var errorMessages = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    return Ok(new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Validation failed.",
+                        Errors = errorMessages
+                    });
+                }
+                var data = await leaveSettingsService.UpdateLeaveIsActiveAsynce(entityVM);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while processing your request.",
+                    Errors = new List<string> { ex.Message }
+                });
+            }
+          
+        }
+        //
         #endregion
 
         #region  Detele Data Leave 

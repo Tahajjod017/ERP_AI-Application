@@ -27,6 +27,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         public async Task<IActionResult> Index()
         {
+            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive().Where(x => x.StatusName == "DECLINED" || x.StatusName == "APPROVED"), "StatusID", "StatusName");
             ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
@@ -36,7 +37,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         #region Get All Data List
 
-        [Route("LeaveBalanceRoute/GetAllTableListAsync")]
+        [Route("LeaveHistoryRoute/GetAllTableHistoryAsync")]
 
         [HttpGet]
         public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
@@ -47,7 +48,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             {
                 string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data = await leaveHistoryBalancesService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID, organizationId, departmentIds, employeeIds, fromDate, toDate);
+                var data = await leaveHistoryBalancesService.GetAllTableHistoryAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, leaveTypeID, statusID, organizationId, departmentIds, employeeIds, fromDate, toDate);
                 return Json(data);
             }
             catch (Exception ex)

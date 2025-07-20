@@ -34,11 +34,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
             this.leavePolicyConfigurationRepository = leavePolicyConfigurationRepository;
         }
 
+        #region Leave Balances Table 
 
-        public async Task<PaginationService<LeaveBalances, LeaveBalancesGetVM>.PaginationResult<LeaveBalancesGetVM>> GetAllTableAsync(
-    int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "",
-    string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
-    List<int> departmentIds = null, List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
+        public async Task<PaginationService<LeaveBalances, LeaveBalancesGetVM>.PaginationResult<LeaveBalancesGetVM>> GetAllTableBalancesAsync(
+  int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "",
+  string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
+  List<int> departmentIds = null, List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
@@ -115,7 +116,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
 
                     foreach (var lt in leaveTypes)
                     {
-               
+
                         //
                         var matchingLeave = leaveData.FirstOrDefault(l => l.EmployeeID == employee.EmployeeID && l.LeaveTypeID == lt.LeaveTypeID);
 
@@ -131,15 +132,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
 
                         if (matchingLeave?.TakenPartialHours > 0)
                         {
-                            totalFullDaysFromPartial = Math.Floor(matchingLeave.TakenPartialHours.Value / companyPolicyHour.Value); 
-                            remainingPartialHours =matchingLeave.TakenPartialHours.Value % companyPolicyHour.Value; // Remainder hours
+                            totalFullDaysFromPartial = Math.Floor(matchingLeave.TakenPartialHours.Value / companyPolicyHour.Value);
+                            remainingPartialHours = matchingLeave.TakenPartialHours.Value % companyPolicyHour.Value; 
                         }
 
-                        var taken = (matchingLeave?.Taken ?? 0) + totalFullDaysFromPartial;
-                        var takenPartial = remainingPartialHours;
+                        var totalLeave = matchingLeave?.TotalLeave ?? lt.LeaveDays ?? 0;
+                        var fullDayTaken = (matchingLeave?.Taken ?? 0) + totalFullDaysFromPartial;
+                        var partialTakenInDays = remainingPartialHours / (companyPolicyHour.HasValue ? (decimal)companyPolicyHour.Value : 1);
 
-                        var total = matchingLeave?.TotalLeave ?? lt.LeaveDays ?? 0;
-                        var remaining = total - (taken + (takenPartial / companyPolicyHour.Value)); // Optional: normalize remaining
+                        var taken = fullDayTaken + partialTakenInDays;
+                        var remaining = totalLeave - taken;
 
                         //
                         switch (lt.LeaveTypeName)
@@ -222,7 +224,132 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
 
         }
 
-        //
+        #endregion
+
+
+        #region Leave History Table List
+        public async Task<PaginationService<LeaveApplications, LeaveHistoryGetVM>.PaginationResult<LeaveHistoryGetVM>> GetAllTableHistoryAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
+ List<int> departmentIds = null,
+ List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
+        {
+            try
+            {
+
+                var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+                var roleName = await (from user in appDb.Users
+                                      join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                      join role in appDb.Roles on userRole.RoleId equals role.Id
+                                      where user.Id == userId
+                                      select role.Name)
+                                     .FirstOrDefaultAsync();
+
+                // 🔹 Step 3: Base query with includes
+                var query = leaveRequest.AllActive()
+                    .Include(x => x.Employee)
+                    .Include(x => x.Status)
+                    .Include(x => x.LeaveType)
+                    .OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
+                if (query == null)
+                {
+                    throw new InvalidOperationException("query source is null.");
+                }
+                if (statusID != null)
+                {
+                    query = query.Where(x => x.StatusID == statusID);
+                }
+
+                if (leaveTypeID != null)
+                {
+                    query = query.Where(x => x.LeaveTypeID == leaveTypeID);
+                }
+                if (fromDate.HasValue && toDate.HasValue)
+                {
+                    query = query.Where(x => x.FromDate >= fromDate.Value && x.ToDate <= toDate.Value);
+                }
+
+
+                // 🔹 Step 4: Filter if not SuperAdmin
+                if (string.IsNullOrEmpty(roleName) || !string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => x.EmployeeID == employeeId);
+                }
+                //
+                //
+                // Get all EmployeeOfficeInfo for filtering
+                var officeInfoQuery = empoffi.AllActive().AsQueryable();
+
+                if (organizationId.HasValue)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => x.OrganizationID == organizationId)
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (departmentIds?.Any() == true)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => departmentIds.Contains(x.DepartmentID ?? 0))
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (employeeIds?.Any() == true)
+                {
+                    query = query.Where(x => employeeIds.Contains((int)x.EmployeeID));
+                }
+
+                //
+                var result = await PaginationService<LeaveApplications, LeaveHistoryGetVM>.GetPaginatedData(
+
+
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+
+                    currentSortColumn,
+                    currentSortOrder,
+
+                    term => b => EF.Functions.Like(b.LeaveApplicationID.ToString(), $"%{term}%"),
+
+                    b => new LeaveHistoryGetVM
+                    {
+                        
+                        LeaveApplicationID = b.LeaveApplicationID,
+                        IsFullDay = b.IsFullDay,
+                        LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
+                        FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
+                        ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
+                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
+                        EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
+                        EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
+                     
+
+                    });
+
+               
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error : {ex.Message}");
+
+                return new PaginationService<LeaveApplications, LeaveHistoryGetVM>.PaginationResult<LeaveHistoryGetVM>
+                {
+                    Data = new List<LeaveHistoryGetVM>(),
+                    TotalCount = 0
+                };
+            }
+        }
+        #endregion
 
     }
 }

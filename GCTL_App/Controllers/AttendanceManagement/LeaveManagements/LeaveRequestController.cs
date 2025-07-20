@@ -43,7 +43,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             };
 
 
-            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive(), "LeaveTypeID", "LeaveTypeName");
+            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
             ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");

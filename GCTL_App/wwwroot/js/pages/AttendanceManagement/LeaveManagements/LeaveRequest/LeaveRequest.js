@@ -313,7 +313,101 @@ $(document).ready(function () {
             }
         });
     }
+    // Display  Leave Balance
 
+    $(document).ready(function () {
+        $.ajax({
+            url: '/LeaveApprovalDeclineRoute/GetLeaveTypeBalancesForEmployeeDisplay',
+            type: 'GET',
+            success: function (data) {
+                //debugger
+                if (data && data.length > 0) {
+                    let container = $('#leaveCardsContainer');
+                    container.empty(); // clear previous content if any
+                    console.log(data.length);
+                    data.forEach(function (item, index) {
+                        console.log(index);
+                        // Set background color based on leave type (optional logic)
+                        let bgColor = "bg-secondary"; // default
+                        let iconClass = "ti ti-calendar-event"; // default
+
+                        switch (item.leaveTypeName) {
+                            case "Annual Leaves":
+                                bgColor = "bg-black-le";
+                                iconClass = "ti ti-calendar-event";
+                                break;
+                            case "Medical Leaves":
+                                bgColor = "bg-blue-le";
+                                iconClass = "ti ti-vaccine";
+                                break;
+                            case "Casual Leaves":
+                                bgColor = "bg-purple-le";
+                                iconClass = "ti ti-hexagon-letter-c";
+                                break;
+                            default:
+                                bgColor = "bg-pink-le";
+                                iconClass = "ti ti-hexagonal-prism-plus";
+                                break;
+                        }
+
+                        // Build the card HTML
+                        let card = `
+                       <div class="col-xl-2 col-md-6 mb-2" style="padding-right: 4px; padding-left: 4px;">
+                            <div class="card ${bgColor}">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="text-start">
+                                            <p class="mb-1">${item.leaveTypeName}</p>
+                                            <h4>${item.totalLeave ?? 0}</h4>
+                                        </div>
+                                       
+                                    </div>
+                                    
+                                    <span class="badge badge-phoenix badge-phoenix-success">
+                                        Remaining Leaves : ${item.remainingDays ?? 0}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                        console.log(data.length);
+                        if (data.length - 1 == index) {
+                            container.append(
+                                `
+                       <div class="col-xl-2 col-md-6 mb-2" style="padding-right: 0px; padding-left: 4px;">
+                            <div class="card ${bgColor}">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="text-start">
+                                            <p class="mb-1">${item.leaveTypeName}</p>
+                                            <h4>${item.totalLeave ?? 0}</h4>
+                                        </div>
+                                       
+                                    </div>
+                                    
+                                    <span class="badge badge-phoenix badge-phoenix-success">
+                                        Remaining Leaves : ${item.remainingDays ?? 0}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                            );
+                        } else {
+                            container.append(card);
+                        }
+                    });
+                } else {
+                    toastr.error('No leave balance data available.');
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load leave balance data.');
+            }
+        });
+    });
+
+    //
     // Restriuction FromDate less than ToDate
     /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
 
@@ -963,12 +1057,15 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                                         ${approverStep} 
                                     </p>
                                 </div>
+
                                 <div class="timeline-item-bar position-md-relative me-3 me-md-0">
                                     <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle">
                                         <span class="fa-solid far fa-file-alt text-primary-dark fs-10"></span>
                                     </div>
                                     <span class="timeline-bar border-end border-dashed"></span>
                                 </div>
+
+
                             </div>
                             <div class="col">
                                 <div class="timeline-item-content ps-6 ps-md-3">
@@ -1043,28 +1140,33 @@ function getBadgeClass(status) {
 }
 
 
-function getStatusText(item)
-{
+function getStatusText(item) {
     const rawStatus = item.statusName?.trim().toUpperCase();
     const isNewStatus = !rawStatus || rawStatus === 'NEW';
-    if (item.approverStep === 1) {
+
+    // Prioritize ApproverStep logic
+    if (item.approverStep === 1 || item.approverStep === 2) {
         return 'OnGoing';
+    } else if (item.approverStep === 3) {
+        return 'APPROVED';
     }
-    if (isNewStatus && item.applicationDate)
-    {
+
+    // Handle NEW status logic based on time passed
+    if (isNewStatus && item.applicationDate) {
         const applicationDate = new Date(item.applicationDate);
         const now = new Date();
         const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
 
-        if (hoursPassed >= 24)
-        {
-
+        if (hoursPassed >= 24) {
             return 'Waiting for Approval';
         }
         return 'New';
     }
-    return item.statusName || '<i class="text-success"></i> New';
+
+    // Fallback: return existing status name or default markup
+    return rawStatus || '<i class="text-success"></i> New';
 }
+
 
 function shouldShowInfoIcon(item) {
     const status = getStatusText(item)?.trim().toUpperCase();
@@ -1149,12 +1251,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     } else {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
-                    //
-
-                    //
                     let status = item.statusName; // Assuming this is your status value
                     let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINED');
-                    //
                     const isFullDay = item.isFullDay;
                     // pick the right label and pluralize
                     const unitLabel = isFullDay
@@ -1203,8 +1301,6 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.period} ${unitLabel}</td>
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
                           <span class="badge ${getBadgeClass(getStatusText(item))}">${getStatusText(item)} </span>
-
-                     
                            ${shouldShowInfoIcon(item) ? `
         <div class="custom-tooltip-container position-relative d-inline-block">
             <i class="fa-solid fa-circle-info info-button"
