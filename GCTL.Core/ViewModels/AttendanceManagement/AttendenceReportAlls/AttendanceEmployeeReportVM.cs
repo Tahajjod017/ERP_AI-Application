@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
+namespace GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls
 {
-    public class EmployeeAttendenceVM :BaseViewModel
+    public class AttendanceEmployeeReportVM:BaseViewModel
     {
+
         public int AttendanceID { get; set; }
 
         public int? EmployeeID { get; set; }
         public string? EmployeeName { get; set; }
-
+        public string? JobTitle { get; set; }
         public string? AttendanceDate { get; set; }
 
         public int? StatusID { get; set; }
@@ -43,7 +45,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? ActualWorkingHrsMnt { get; set; }
         public string? TodayWorkHm { get; set; }
         public string? CurrentTime { get; set; }
-        public string? JobTitle { get; set; } // Added JobTitle field
+
         // Add the following fields:
         public string? ProductionTime { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
         public string? ProductionTimeMinute { get; set; }  // Calculated production time (CheckInTime to CurrentTime)

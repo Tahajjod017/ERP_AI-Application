@@ -1,0 +1,145 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<!-- Search Information -->
+<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+
+    <h4 class="mb-1">Employees List</h4>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+        <div class="dropdown me-3">
+            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                <option value="">Select Company</option>
+               
+            </select>
+        </div>
+        <div class="dropdown me-2">
+            <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                <option value="">Select Department</option>
+                
+            </select>
+        </div>
+
+        <div class="dropdown me-2">
+            <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+               
+            </select>
+        </div>
+
+    </div>
+</div>
+
+<!-- All Employee Daily Attendance Report -->
+<div class="border-translucent p-3">
+    <div id="allEmployeeDailyAttendanceTable" >
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                    <tr>
+                        
+                        <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Sl. No")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="EmployeeName">@Html.SmartLocalize("Employee Name")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Status">@Html.SmartLocalize("Status")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="CheckIn">@Html.SmartLocalize("Check In")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="CheckOut">@Html.SmartLocalize("Check Out")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Brake">@Html.SmartLocalize("Brake")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Late">@Html.SmartLocalize("Late")</th>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Production">@Html.SmartLocalize("Production")</th>
+
+                    </tr>
+                </thead>
+                <tbody id="empAttendencAll-tBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="empAttendencAll-paginationInfo"></p>
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+            </div>
+            <div class="d-flex">
+                <button class="page-link" data-list-pagination="prev" id="empAttendencAll-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="empAttendencAll-paginationLinks"></ul>
+                <button class="page-link pe-0" data-list-pagination="next" id="empAttendencAll-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@* <div class="card mt-2">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("All Employee Attendence List")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body py-0 scrollbar to-do-list-body">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+            <div class="row g-3 justify-content-between align-items-end mb-4">
+                <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                    
+
+                </div>
+
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="empAttendencAll-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="empAttendencAll-delSel">@Html.SmartLocalize("Delete")</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="empAttendencAll-searchBox">
+                            <form class="position-relative" id="empAttendencAll-searchForm">
+                                <input class="form-control search-input search" id="bloodGroup-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive ms-n1 ps-1 scrollbar">
+                <table class="table fs-9 mb-0 border-top border-translucent">
+                    <thead>
+                        <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="empAttendencAll-check-all" />
+                            </th>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Sl. No")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="EmployeeName">@Html.SmartLocalize("Employee Name")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Status">@Html.SmartLocalize("Status")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="CheckIn">@Html.SmartLocalize("Check In")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="CheckOut">@Html.SmartLocalize("Check Out")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Brake">@Html.SmartLocalize("Brake")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Late">@Html.SmartLocalize("Late")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Production">@Html.SmartLocalize("Production")</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody id="empAttendencAll-tBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="empAttendencAll-paginationInfo"></p>
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="empAttendencAll-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="empAttendencAll-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="empAttendencAll-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ *@
