@@ -8,6 +8,26 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveHistor
 {
     public class LeaveBalancesGetVM
     {
+        public string? EmployeeName { get; set; }
+        public string? EmployeeDesignation { get; set; }
 
+        public string? EmployeeImage { get; set; }
+        public string? LeaveType { get; set; }
+        public string? EmployeeDepartment { get; set; }
+
+        public decimal? AnnualTaken { get; set; }
+        public decimal? AnnualRemaining { get; set; }
+
+        public decimal? CasualTaken { get; set; }
+        public decimal? CasualRemaining { get; set; }
+
+        public decimal? MedicalTaken { get; set; }
+        public decimal? MedicalRemaining { get; set; }
+
+        public decimal? MaternityTaken { get; set; }
+        public decimal? MaternityRemaining { get; set; }
+
+        public decimal? PaternityTaken { get; set; }
+        public decimal? PaternityRemaining { get; set; }
     }
 }

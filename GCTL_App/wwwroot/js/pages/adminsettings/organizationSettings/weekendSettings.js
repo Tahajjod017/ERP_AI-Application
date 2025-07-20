@@ -49,12 +49,21 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr, status, error) {
-                if (xhr.status === 403 && xhr.responseJSON) {
-                    toastr.error(xhr.responseJSON.message || "Access denied.", 'Permission Denied');
-                } else {
+                // Handle Access Denied error (403)
+                if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+                    // Redirect to AccessDenied page
+                    window.location.href = '/Account/AccessDenied'; // Change URL to your actual AccessDenied page
+                }
+                // Handle Not Found error (404)
+                else if (xhr.status === 404 && xhr.responseJSON && xhr.responseJSON.message) {
+                    // Display the message from the JSON response
+                    toastr.error(xhr.responseJSON.message, 'Not Found');
+                }
+                else {
                     toastr.error("Unexpected error: " + error, 'Server Error');
                 }
             }
+
         });
     });
 });

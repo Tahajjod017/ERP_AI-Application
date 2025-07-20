@@ -672,6 +672,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return data;
         }
 
+        //public static decimal ConvertHoursToDecimal(int hours, int minutes)
+        //{
+        //    decimal totalDecimal = hours + (minutes / 60m);
+        //    return Math.Round(totalDecimal, 2); 
+        //}
+
+        public static decimal CalculatePartialHours(TimeOnly? from, TimeOnly? to)
+        {
+            if (!from.HasValue || !to.HasValue)
+                return 0;
+
+            var duration = to.Value.ToTimeSpan() - from.Value.ToTimeSpan();
+
+            if (duration.TotalMinutes <= 0)
+                return 0;
+            var result = Math.Round((decimal)duration.TotalMinutes / 60, 2); // e.g., 1.67
+            return result;
+        }
         private async Task HandleSelfApprovalAsync(LeaveApplicationsRequestVM entityVM, int? approvalPersonId, ApprovalSettings approvalSettings, int sequence, dynamic offf,
          List<(int? id, bool isDesignation)> approvalFlow)
         {
@@ -683,7 +701,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
                 if (resolvedId == entityVM.CreatedBy)
                 {
-                    selfStep = i + 1; // 1-based step (First=1, Second=2, etc.)
+                    selfStep = i + 1; 
                     break;
                 }
             }
@@ -711,7 +729,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             if (existingBalance != null)
             {
-                existingBalance.Taken = (existingBalance.Taken ?? 0) + TotalAppliedDays;
+                
+                if (entityVM.IsFullDay)
+                {
+                    existingBalance.Taken = (existingBalance.Taken ?? 0) + TotalAppliedDays;
+                }
+                else
+                {
+                    var newPartial = CalculatePartialHours(entityVM.PartialFromTime, entityVM.PartialToTime);
+                    existingBalance.TakenPartialHours = (existingBalance.TakenPartialHours ?? 0) + newPartial;
+                }
+                //
                 existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                 existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                 existingBalance.LIP = entityVM.LIP;
@@ -727,7 +755,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 {
                     EmployeeID = entityVM.EmployeeID,
                     LeaveTypeID = entityVM.LeaveTypeID,
-                    Taken = TotalAppliedDays,
+                    //Taken = TotalAppliedDays,
+                    Taken = entityVM.IsFullDay ? TotalAppliedDays : 0,
+                    TakenPartialHours = entityVM.IsFullDay ? 0 : CalculatePartialHours(entityVM.PartialFromTime, entityVM.PartialToTime),
                     TotalLeave = leaveDaysFromConfig.LeaveDays,
                     ApplicableYear = leaveDaysFromConfig.ApplicableYear,
                     CreatedAt = DateTime.Now,
@@ -742,7 +772,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             // Add approval history
             var leaveBase = new LeaveBaseApprovalHistory
             {
-                LeaveApplicationID = sequence,  // leaveApplicationID from LeaveApplication Table 
+                LeaveApplicationID = sequence,  
                 StatusID = approvedStatusId.Value,
                 ApproverNote = "SELF APPROVED",
                 LeaveTypeID = entityVM.LeaveTypeID,
