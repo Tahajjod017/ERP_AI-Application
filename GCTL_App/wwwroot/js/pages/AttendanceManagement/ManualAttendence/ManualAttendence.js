@@ -1,277 +1,389 @@
 ﻿$(document).ready(function () {
     toastr.info("Manual Attendance Page Loaded");
 
+
+    // Example JSON punch data
+    const punchData = [
+        { time: '09:45 AM', label: 'in time', icon: 'fas fa-fingerprint' },
+        { time: '01:00 PM', label: 'break in', icon: 'fas fa-fingerprint' },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
+        { time: '06:10 PM', label: 'out time', icon: 'fas fa-fingerprint' }
+    ];
+
+    function renderTimeline(data) {
+        const container = document.getElementById('timelineContainer');
+        container.innerHTML = ''; // Clear previous
+
+        data.forEach(item => {
+            const iconClass = item.notPunched ? 'timeline-icon not-punched' : 'timeline-icon';
+            const html = `
+                <div class="timeline-item-horizontal">
+                    <div class="${iconClass}">
+                        <i class="${item.icon}"></i>
+                    </div>
+                    <div class="timeline-label">${item.label}</div>
+                    <div class="timeline-time">${item.time || '<span class="text-danger">N/A</span>'}</div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // Call this when modal opens (or data updates)
+  //  renderTimeline(punchData);
+
+
+    $(".timepicker-12hr").flatpickr({
+        enableTime: true,       // ✅ Enables time selection (hours & minutes)
+        noCalendar: true,       // ✅ Hides the calendar view, showing only the time picker
+        dateFormat: "H:i",      // h = 12-hour, H = 24-hour, i = minutes, K = AM/PM
+        time_24hr: true,        // ✅ Uses 24-hour time format (00:00–23:59 instead of 12-hour AM/PM)
+        disableMobile: true,    // ✅ Prevents the native mobile date/time picker
+        allowInput: true,        // optional: lets user leave it blank
+        clickOpens: true,        // opens on click only
+        defaultDate: null,       // explicitly prevents pre-filling
+        //// ✅ Sets the default time to show when the picker opens
+        //defaultHour: 9,         // default hour (0–23)
+        //defaultMinute: 30,      // default minute (0–59)
+        //minuteIncrement: 5,
+        //minTime: "09:00",       // ✅ Restricts the minimum allowed time
+        //maxTime: "18:00",       // ✅ Restricts the maximum allowed time
+        //enableSeconds: true,    // ✅ Whether seconds can be selected (you’ll also need to update dateFormat)
+        //allowInput: false,      // ✅ Disables manual typing into the input field
+        //// ✅ Disables the entire picker
+        //// Can be used to toggle state from JS: instance.set('disable', true/false)
+        //disable: [function (date) {
+        //    return false; // no disable by default
+        //}],
+        //// ✅ Hook that runs when a date/time is selected
+        //onChange: function (selectedDates, dateStr, instance) {
+        //    console.log("Time selected:", dateStr);
+        //}
+    });
+
     const attendanceData = [
         {
             id: 1,
             employeeName: "Faruk Hasan",
             employeeRole: "Admin",
             department: "IT",
-            employeeImage: "../../assets/img/users/user-01.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //01.jpg",
             attendanceDate: "20 Jul 2025",
-            expectedInTime: "09:00 AM",
-            expectedOutTime: "06:00 PM",
+            scheduleTime: "09:00 AM - 06:00 PM",
             actualInTime: "09:45 AM",
             actualOutTime: "Not Punched",
             breakInTime: "01:00 PM",
             breakOutTime: "Not Punched",
-            status: "Missing Break Out",
-            priority: "High",
-            statusClass: "badge text-bg-warning",
-            priorityClass: "badge text-bg-danger"
+            overtime: "No Overtime",
+            biometricHits: 3,
+            possibleReason: "Break In/Out Missing"
         },
         {
             id: 2,
             employeeName: "Aminul Islam",
             employeeRole: "Manager",
             department: "HR",
-            employeeImage: "../../assets/img/users/user-02.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //02.jpg",
             attendanceDate: "19 Jul 2025",
-            expectedInTime: "08:30 AM",
-            expectedOutTime: "05:30 PM",
+            scheduleTime: "08:30 AM - 05:30 PM",
             actualInTime: "Not Punched",
             actualOutTime: "05:30 PM",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "Partial Entry",
-            priority: "Medium",
-            statusClass: "badge text-bg-info",
-            priorityClass: "badge text-bg-warning"
+            overtime: "No Overtime",
+            biometricHits: 1,
+            possibleReason: "In Time Missing"
         },
         {
             id: 3,
             employeeName: "Sarah Ahmed",
             employeeRole: "Developer",
             department: "IT",
-            employeeImage: "../../assets/img/users/user-03.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //03.jpg",
             attendanceDate: "18 Jul 2025",
-            expectedInTime: "09:30 AM",
-            expectedOutTime: "06:30 PM",
+            scheduleTime: "09:30 AM - 06:30 PM",
             actualInTime: "09:30 AM",
             actualOutTime: "Not Punched",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "Missing Entry",
-            priority: "High",
-            statusClass: "badge text-bg-warning",
-            priorityClass: "badge text-bg-danger"
+            overtime: "No Overtime",
+            biometricHits: 1,
+            possibleReason: "Out Time Missing"
         },
         {
             id: 4,
             employeeName: "Rafiq Khan",
             employeeRole: "Designer",
             department: "Marketing",
-            employeeImage: "../../assets/img/users/user-04.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //04.jpg",
             attendanceDate: "17 Jul 2025",
-            expectedInTime: "10:00 AM",
-            expectedOutTime: "07:00 PM",
+            scheduleTime: "10:00 AM - 07:00 PM",
             actualInTime: "10:30 AM",
             actualOutTime: "07:00 PM",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "Missing Break",
-            priority: "Low",
-            statusClass: "badge text-bg-secondary",
-            priorityClass: "badge text-bg-success"
+            overtime: "No Overtime",
+            biometricHits: 3,
+            possibleReason: "Break In/Out Missing"
         },
-        {
-            id: 5,
-            employeeName: "Nasir Uddin",
-            employeeRole: "Accountant",
-            department: "Finance",
-            employeeImage: "../../assets/img/users/user-05.jpg",
-            attendanceDate: "16 Jul 2025",
-            expectedInTime: "09:00 AM",
-            expectedOutTime: "06:00 PM",
-            actualInTime: "09:00 AM",
-            actualOutTime: "04:30 PM",
-            breakInTime: "01:00 PM",
-            breakOutTime: "01:30 PM",
-            status: "Early Exit",
-            priority: "Medium",
-            statusClass: "badge text-bg-primary",
-            priorityClass: "badge text-bg-warning"
-        },
+        //{
+        //    id: 5,
+        //    employeeName: "Nasir Uddin",
+        //    employeeRole: "Accountant",
+        //    department: "Finance",
+        //    employeeImage: "https://placehold.co/300x200?text=Placeholder", //05.jpg",
+        //    attendanceDate: "16 Jul 2025",
+        //    scheduleTime: "09:00 AM - 06:00 PM",
+        //    actualInTime: "09:00 AM",
+        //    actualOutTime: "07:30 PM",
+        //    breakInTime: "01:00 PM",
+        //    breakOutTime: "01:30 PM",
+        //    overtime: "1.5 Hours",
+        //    biometricHits: 4,
+        //    possibleReason: "Complete Record"
+        //},
         {
             id: 6,
             employeeName: "Rashida Khatun",
             employeeRole: "Executive",
             department: "Operations",
-            employeeImage: "../../assets/img/users/user-06.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //06.jpg",
             attendanceDate: "15 Jul 2025",
-            expectedInTime: "08:00 AM",
-            expectedOutTime: "05:00 PM",
+            scheduleTime: "08:00 AM - 05:00 PM",
             actualInTime: "Not Punched",
             actualOutTime: "Not Punched",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "No Entry",
-            priority: "High",
-            statusClass: "badge text-bg-danger",
-            priorityClass: "badge text-bg-danger"
+            overtime: "No Overtime",
+            biometricHits: 4,
+            possibleReason: "Multiple Missing"
         },
         {
             id: 7,
             employeeName: "Tina Rahman",
             employeeRole: "Analyst",
             department: "Finance",
-            employeeImage: "../../assets/img/users/user-07.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //07.jpg",
             attendanceDate: "14 Jul 2025",
-            expectedInTime: "09:00 AM",
-            expectedOutTime: "06:00 PM",
+            scheduleTime: "09:00 AM - 06:00 PM",
             actualInTime: "09:00 AM",
             actualOutTime: "09:10 AM",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "Double Entry",
-            priority: "High",
-            statusClass: "badge text-bg-danger",
-            priorityClass: "badge text-bg-danger"
+            overtime: "No Overtime",
+            biometricHits: 5,
+            possibleReason: "Over Punching"
         },
         {
             id: 8,
             employeeName: "Amir Hossain",
             employeeRole: "Consultant",
             department: "HR",
-            employeeImage: "../../assets/img/users/user-08.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //08.jpg",
             attendanceDate: "13 Jul 2025",
-            expectedInTime: "09:00 AM",
-            expectedOutTime: "06:00 PM",
+            scheduleTime: "09:00 AM - 06:00 PM",
             actualInTime: "Not Punched",
             actualOutTime: "06:30 PM",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "Missing Entry",
-            priority: "Medium",
-            statusClass: "badge text-bg-warning",
-            priorityClass: "badge text-bg-warning"
+            overtime: "0.5 Hours",
+            biometricHits: 1,
+            possibleReason: "In Time Missing"
         },
         {
             id: 9,
             employeeName: "Fatima Begum",
             employeeRole: "Coordinator",
             department: "Operations",
-            employeeImage: "../../assets/img/users/user-09.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //09.jpg",
             attendanceDate: "12 Jul 2025",
-            expectedInTime: "09:00 AM",
-            expectedOutTime: "06:00 PM",
+            scheduleTime: "09:00 AM - 06:00 PM",
             actualInTime: "05:00 PM",
             actualOutTime: "01:00 PM",
             breakInTime: "Not Punched",
             breakOutTime: "Not Punched",
-            status: "Partial Entry",
-            priority: "High",
-            statusClass: "badge text-bg-info",
-            priorityClass: "badge text-bg-danger"
+            overtime: "No Overtime",
+            biometricHits: 2,
+            possibleReason: "Over Punching"
         },
         {
             id: 10,
             employeeName: "Priya Das",
             employeeRole: "Developer",
             department: "IT",
-            employeeImage: "../../assets/img/users/user-10.jpg",
+            employeeImage: "https://placehold.co/300x200?text=Placeholder", //10.jpg",
             attendanceDate: "11 Jul 2025",
-            expectedInTime: "09:00 AM",
-            expectedOutTime: "06:00 PM",
+            scheduleTime: "09:00 AM - 06:00 PM",
             actualInTime: "09:00 AM",
             actualOutTime: "10:00 AM",
             breakInTime: "10:05 AM",
             breakOutTime: "10:15 AM",
-            status: "Over Punching",
-            priority: "High",
-            statusClass: "badge text-bg-danger",
-            priorityClass: "badge text-bg-danger"
+            overtime: "No Overtime",
+            biometricHits: 5,
+            possibleReason: "Over Punching"
         }
     ];
 
     populateAttendanceTable();
     initializeFilters();
-   // initializeEditModal();
 
-    // Function to populate the table
+    // Function to get badge class for possible reason
+    function getPossibleReasonBadgeClass(reason) {
+        switch (reason) {
+            case 'Complete Record':
+                return 'badge-phoenix badge-phoenix-success';
+            case 'In Time Missing':
+            case 'Out Time Missing':
+                return 'badge-phoenix badge-phoenix-warning';
+            case 'Break In Missing':
+            case 'Break Out Missing':
+                return 'badge-phoenix badge-phoenix-info';
+            case 'Multiple Missing':
+            case 'Over Punching':
+                return 'badge-phoenix badge-phoenix-danger';
+            default:
+                return 'badge-phoenix badge-phoenix-secondary';
+        }
+    }
+
+    // Function to get overtime badge class
+    function getOvertimeBadgeClass(overtime) {
+        if (overtime === 'No Overtime') {
+            return 'badge-phoenix badge-phoenix-secondary';
+        } else {
+            return 'badge-phoenix badge-phoenix-success';
+        }
+    }
+
+   
+    //function populateAttendanceTable() {
+    //    const tbody = document.getElementById('attendance-body');
+    //    tbody.innerHTML = '';
+
+    //    attendanceData.forEach(item => {
+    //        const row = `
+    //                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+    //                        <td class="fs-9 align-middle py-0">
+    //                            <div class="form-check mb-0 fs-8">
+    //                                <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
+    //                            </div>
+    //                        </td>
+    //                        <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+    //                            <div class="d-flex align-items-center file-name-icon">
+    //                                <div class="avatar avatar-m avatar-bordered me-4">
+    //                                    <img class="rounded-circle" src="${item.employeeImage}" alt="${item.employeeName}" style="width: 40px; height: 40px;" />
+    //                                </div>
+    //                                <div class="ms-1">
+    //                                    <h6 class="fw-bold mb-0">${item.employeeName}</h6>
+    //                                    <span class="fs-12 fw-normal text-muted">${item.employeeRole}</span>
+    //                                </div>
+    //                            </div>
+    //                        </td>
+    //                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.department}</td>
+    //                        <td class="attendanceDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.attendanceDate}</td>
+    //                        <td class="scheduleTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.scheduleTime}</td>
+    //                        <td class="overtime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+    //                            <span class="${getOvertimeBadgeClass(item.overtime)} fs-9">${item.overtime}</span>
+    //                        </td>
+    //                        <td class="biometricHits align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+    //                            <span class="badge text-bg-primary fs-9">${item.biometricHits}</span>
+    //                        </td>
+    //                        <td class="possibleReason align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+    //                            <span class="${getPossibleReasonBadgeClass(item.possibleReason)} fs-9">${item.possibleReason}</span>
+    //                        </td>
+    //                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+    //                            <div class="btn-reveal-trigger position-static">
+    //                                <a href="#" class="nav-item mx-2 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves" data-id="${item.id}">
+    //                                    <i class="fas fa-info-circle text-success"></i>
+    //                                </a>
+
+    //                            </div>
+    //                        </td>
+    //                    </tr>
+    //                `;
+    //        tbody.innerHTML += row;
+    //    });
+    //}
+
+
+
     function populateAttendanceTable() {
         const tbody = document.getElementById('attendance-body');
         tbody.innerHTML = '';
 
         attendanceData.forEach(item => {
-            const row = `
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle py-0">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
-                            </div>
-                        </td>
-                        <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                            <div class="d-flex align-items-center file-name-icon">
-                                <div class="avatar avatar-m avatar-bordered me-4">
-                                    <img class="rounded-circle" src="${item.employeeImage}" alt="${item.employeeName}" />
-                                </div>
-                                <div class="ms-1">
-                                    <h6 class="fw-bold">${item.employeeName}</h6>
-                                    <span class="fs-12 fw-normal">${item.employeeRole}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.department}</td>
-                        <td class="attendanceDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.attendanceDate}</td>
-                        <td class="expectedInTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.expectedInTime}</td>
-                        <td class="expectedOutTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.expectedOutTime}</td>
-                        <td class="actualTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <div class="fs-12">
-                                <div>In: ${item.actualInTime}</div>
-                                <div>Out: ${item.actualOutTime}</div>
-                                <div>Break In: ${item.breakInTime}</div>
-                                <div>Break Out: ${item.breakOutTime}</div>
-                            </div>
-                        </td>
-                        <td class="status align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <span class="${item.statusClass}">${item.status}</span>
-                        </td>
-                        <td class="priority align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <span class="${item.priorityClass}">${item.priority}</span>
-                        </td>
-                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                            <div class="btn-reveal-trigger position-static">
-                                <a href="#" class="nav-item mx-2 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves" data-id="${item.id}">
-                                    <i class="fas fa-edit text-success"></i>
-                                </a>
-                               
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            tbody.innerHTML += row;
+            const row = document.createElement('tr');
+            row.className = 'hover-actions-trigger btn-reveal-trigger position-static';
+            row.setAttribute('data-id', item.id); // Optional: store ID here
+            row.style.cursor = 'pointer';
+
+            
+            //row.addEventListener('click', () => {
+            //    const modalTrigger = document.querySelector('#edit_leaves');
+            //    const modal = new bootstrap.Modal(modalTrigger);
+            //    modal.show();
+                
+            //});
+
+            row.innerHTML = `
+              <td class="fs-9 align-middle py-0">
+                <div class="form-check mb-0 fs-8">
+                  <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
+                </div>
+              </td>
+              <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                 <a href="#" class="nav-item mx-0 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves" data-id="${item.id}">
+                <div class="d-flex align-items-center file-name-icon">
+                  <div class="avatar avatar-m avatar-bordered me-4 mb-2">
+                    <img class="rounded-circle" src="${item.employeeImage}" alt="${item.employeeName}" style="width: 40px; height: 40px;" />
+                  </div>
+                  <div class="ms-1">
+                    <h6 class="fw-bold mb-0 text-primary">${item.employeeName}</h6>
+                    <span class="fs-12 fw-normal text-muted">${item.employeeRole}</span>
+                  </div>
+                </div>
+                </a>
+              </td>
+              <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.department}</td>
+              <td class="attendanceDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.attendanceDate}</td>
+              <td class="scheduleTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.scheduleTime}</td>
+              <td class="overtime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                <span class="${getOvertimeBadgeClass(item.overtime)} fs-10">${item.overtime}</span>
+              </td>
+              <td class="biometricHits align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                <span class="badge-phoenix badge-phoenix-primary fs-10">${item.biometricHits}</span>
+              </td>
+              <td class="possibleReason align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                <span class="${getPossibleReasonBadgeClass(item.possibleReason)} fs-10">${item.possibleReason}</span>
+              </td>
+
+                
+
+            `;
+
+            tbody.appendChild(row);
         });
     }
 
-    // Initialize table when page loads
-    document.addEventListener('DOMContentLoaded', function () {
-        populateAttendanceTable();
-        initializeFilters();
-        initializeEditModal();
-    });
-
-    // Initialize filter functionality
+    
     function initializeFilters() {
         const departmentFilter = document.getElementById('departmentFilter');
-        const statusFilter = document.getElementById('statusFilter');
-        const priorityFilter = document.getElementById('priorityFilter');
+        const possibleReasonFilter = document.getElementById('possibleReasonFilter');
         const sortFilter = document.getElementById('sortFilter');
-        const dateRangePicker = document.getElementById('dateRangePicker');
 
         // Add event listeners for filters
         departmentFilter.addEventListener('change', applyFilters);
-        statusFilter.addEventListener('change', applyFilters);
-        priorityFilter.addEventListener('change', applyFilters);
+        possibleReasonFilter.addEventListener('change', applyFilters);
         sortFilter.addEventListener('change', applyFilters);
-        dateRangePicker.addEventListener('change', applyFilters);
     }
 
     // Apply filters to the table
     function applyFilters() {
         const departmentValue = document.getElementById('departmentFilter').value;
-        const statusValue = document.getElementById('statusFilter').value;
-        const priorityValue = document.getElementById('priorityFilter').value;
+        const possibleReasonValue = document.getElementById('possibleReasonFilter').value;
         const sortValue = document.getElementById('sortFilter').value;
 
         let filteredData = [...attendanceData];
@@ -281,14 +393,9 @@
             filteredData = filteredData.filter(item => item.department === departmentValue);
         }
 
-        // Apply status filter
-        if (statusValue) {
-            filteredData = filteredData.filter(item => item.status === statusValue);
-        }
-
-        // Apply priority filter
-        if (priorityValue) {
-            filteredData = filteredData.filter(item => item.priority === priorityValue);
+        // Apply possible reason filter
+        if (possibleReasonValue) {
+            filteredData = filteredData.filter(item => item.possibleReason === possibleReasonValue);
         }
 
         // Apply sorting
@@ -306,10 +413,6 @@
                 case 'Department':
                     filteredData.sort((a, b) => a.department.localeCompare(b.department));
                     break;
-                case 'Priority':
-                    const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
-                    filteredData.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
-                    break;
             }
         }
 
@@ -324,108 +427,46 @@
 
         data.forEach(item => {
             const row = `
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle py-0">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
-                            </div>
-                        </td>
-                        <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                            <div class="d-flex align-items-center file-name-icon">
-                                <div class="avatar avatar-m avatar-bordered me-4">
-                                    <img class="rounded-circle" src="${item.employeeImage}" alt="${item.employeeName}" />
+                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                            <td class="fs-9 align-middle py-0">
+                                <div class="form-check mb-0 fs-8">
+                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
                                 </div>
-                                <div class="ms-1">
-                                    <h6 class="fw-bold">${item.employeeName}</h6>
-                                    <span class="fs-12 fw-normal">${item.employeeRole}</span>
+                            </td>
+                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle" src="${item.employeeImage}" alt="${item.employeeName}" style="width: 40px; height: 40px;" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold mb-0">${item.employeeName}</h6>
+                                        <span class="fs-12 fw-normal text-muted">${item.employeeRole}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.department}</td>
-                        <td class="attendanceDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.attendanceDate}</td>
-                        <td class="expectedInTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.expectedInTime}</td>
-                        <td class="expectedOutTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.expectedOutTime}</td>
-                        <td class="actualTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <div class="fs-12">
-                                <div>In: ${item.actualInTime}</div>
-                                <div>Out: ${item.actualOutTime}</div>
-                                <div>Break In: ${item.breakInTime}</div>
-                                <div>Break Out: ${item.breakOutTime}</div>
-                            </div>
-                        </td>
-                        <td class="status align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <span class="${item.statusClass}">${item.status}</span>
-                        </td>
-                        <td class="priority align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <span class="${item.priorityClass}">${item.priority}</span>
-                        </td>
-                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                            <div class="btn-reveal-trigger position-static">
-                                <a href="#" class="nav-item mx-2 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves" data-id="${item.id}">
-                                    <i class="fas fa-edit text-success"></i>
-                                </a>
-                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#approve_attendance" data-id="${item.id}">
-                                    <i class="fas fa-check text-primary"></i>
-                                </a>
-                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal" data-id="${item.id}">
-                                    <i class="fas fa-trash text-danger"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                            <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.department}</td>
+                            <td class="attendanceDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.attendanceDate}</td>
+                            <td class="scheduleTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.scheduleTime}</td>
+                            <td class="overtime align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <span class="${getOvertimeBadgeClass(item.overtime)}">${item.overtime}</span>
+                            </td>
+                            <td class="biometricHits align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <span class="badge-phoenix badge-phoenix-primary">${item.biometricHits}</span>
+                            </td>
+                            <td class="possibleReason align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <span class="${getPossibleReasonBadgeClass(item.possibleReason)}">${item.possibleReason}</span>
+                            </td>
+                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                                <div class="btn-reveal-trigger position-static">
+                                    <a href="#" class="nav-item mx-2 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves" data-id="${item.id}">
+                                        <i class="fas fa-info-circle text-success"></i>
+                                    </a>
+                                   
+                                </div>
+                            </td>
+                        </tr>
+                    `;
             tbody.innerHTML += row;
         });
     }
-
-    // Initialize edit modal functionality
-//    function initializeEditModal() {
-//        $('.edit-attendance').on('click', function () {
-//            const id = $(this).data('id');
-//            const item = attendanceData.find(item => item.id === id);
-
-//            // Populate the edit modal fields
-//            const modal = $('#edit_leaves');
-//            modal.find('input[name="employeeName"]').val(item.employeeName);
-//            modal.find('input[name="attendanceDate"]').val(item.attendanceDate);
-//            modal.find('input[name="actualInTime"]').val(item.actualInTime === "Not Punched" ? "" : item.actualInTime);
-//            modal.find('input[name="actualOutTime"]').val(item.actualOutTime === "Not Punched" ? "" : item.actualOutTime);
-//            modal.find('input[name="breakInTime"]').val(item.breakInTime === "Not Punched" ? "" : item.breakInTime);
-//            modal.find('input[name="breakOutTime"]').val(item.breakOutTime === "Not Punched" ? "" : item.breakOutTime);
-
-//            // Update status based on inputs
-//            modal.find('form').off('submit').on('submit', function (e) {
-//                e.preventDefault();
-
-//                // Update attendance data
-//                item.actualInTime = modal.find('input[name="actualInTime"]').val() || "Not Punched";
-//                item.actualOutTime = modal.find('input[name="actualOutTime"]').val() || "Not Punched";
-//                item.breakInTime = modal.find('input[name="breakInTime"]').val() || "Not Punched";
-//                item.breakOutTime = modal.find('input[name="breakOutTime"]').val() || "Not Punched";
-
-//                // Update status based on punch data
-//                if (item.actualInTime === "Not Punched" && item.actualOutTime === "Not Punched") {
-//                    item.status = "No Entry";
-//                    item.statusClass = "badge text-bg-danger";
-//                } else if (item.actualInTime === "Not Punched" || item.actualOutTime === "Not Punched") {
-//                    item.status = "Partial Entry";
-//                    item.statusClass = "badge text-bg-info";
-//                } else if (item.breakInTime === "Not Punched" || item.breakOutTime === "Not Punched") {
-//                    item.status = "Missing Break";
-//                    item.statusClass = "badge text-bg-warning";
-//                } else {
-//                    item.status = "Complete";
-//                    item.statusClass = "badge text-bg-success";
-//                }
-
-//                // Close modal and refresh table
-//                modal.modal('hide');
-//                populateAttendanceTable();
-//                toastr.success("Attendance updated successfully");
-//            });
-//        });
-    //    }
-
-
-
 });
