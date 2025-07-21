@@ -1,39 +1,328 @@
 ﻿$(document).ready(function () {
-    toastr.info("Manual Attendance Page Loaded");
+    toastr.info("Manual Attendance Page Losssaded");
 
+    $("#Date").flatpickr({
+        defaultDate: new Date(),
+        disableMobile: true
+    });
 
-    // Example JSON punch data
-    const punchData = [
-        { time: '09:45 AM', label: 'in time', icon: 'fas fa-fingerprint' },
-        { time: '01:00 PM', label: 'break in', icon: 'fas fa-fingerprint' },
-        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
-        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
-        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
-        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true },
-        { time: '06:10 PM', label: 'out time', icon: 'fas fa-fingerprint' }
+    //#region TimeLine
+    
+    let punchData = [
+        { time: '09:45 AM', label: 'in time', icon: 'fas fa-fingerprint', deletable: false },
+        { time: '01:00 PM', label: 'break in', icon: 'fas fa-fingerprint', deletable: false },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true, deletable: false },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true, deletable: false },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true, deletable: false },
+        { time: '', label: 'break out', icon: 'fas fa-times', notPunched: true, deletable: false },
+        { time: '06:10 PM', label: 'out time', icon: 'fas fa-fingerprint', deletable: false }
     ];
 
-    function renderTimeline(data) {
-        const container = document.getElementById('timelineContainer');
-        container.innerHTML = ''; // Clear previous
+    // Function to convert time to 24-hour format for sorting
+    function convertTo24Hour(timeStr) {
+        if (!timeStr || typeof timeStr !== 'string' || timeStr.trim() === '') {
+            return '00:00';
+        }
+        if (timeStr.includes('AM') || timeStr.includes('PM')) {
+            const [time, modifier] = timeStr.split(' ');
+            if (!time) return '00:00';
+            let [hours, minutes] = time.split(':');
+            if (!hours || !minutes) return '00:00';
+            hours = parseInt(hours, 10);
+            if (isNaN(hours)) return '00:00';
+            if (hours === 12) {
+                hours = 0;
+            }
+            if (modifier === 'PM') {
+                hours += 12;
+            }
+            return `${hours.toString().padStart(2, '0')}:${minutes}`;
+        } else {
+            const [hours, minutes] = timeStr.split(':');
+            if (!hours || !minutes || isNaN(parseInt(hours)) || isNaN(parseInt(minutes))) {
+                return '00:00';
+            }
+            return `${hours.padStart(2, '0')}:${minutes}`;
+        }
+    }
 
-        data.forEach(item => {
-            const iconClass = item.notPunched ? 'timeline-icon not-punched' : 'timeline-icon';
-            const html = `
-                <div class="timeline-item-horizontal">
-                    <div class="${iconClass}">
-                        <i class="${item.icon}"></i>
-                    </div>
-                    <div class="timeline-label">${item.label}</div>
-                    <div class="timeline-time">${item.time || '<span class="text-danger">N/A</span>'}</div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', html);
+    // Function to format time for display
+    function formatTimeForDisplay(timeStr) {
+        if (!timeStr || typeof timeStr !== 'string' || timeStr.trim() === '') {
+            return '';
+        }
+        if (timeStr.includes('AM') || timeStr.includes('PM')) {
+            return timeStr;
+        }
+        const [hours, minutes] = timeStr.split(':');
+        if (!hours || !minutes) return '';
+        const hour24 = parseInt(hours, 10);
+        if (isNaN(hour24)) return '';
+        if (hour24 === 0) {
+            return `12:${minutes} AM`;
+        } else if (hour24 < 12) {
+            return `${hour24}:${minutes} AM`;
+        } else if (hour24 === 12) {
+            return `12:${minutes} PM`;
+        } else {
+            return `${hour24 - 12}:${minutes} PM`;
+        }
+    }
+
+    // Function to sort punch data by time
+    function sortPunchDataByTime(data) {
+        return data.sort((a, b) => {
+            if (!a.time && !b.time) return 0;
+            if (!a.time) return 1;
+            if (!b.time) return -1;
+            const timeA = convertTo24Hour(a.time);
+            const timeB = convertTo24Hour(b.time);
+            return timeA.localeCompare(timeB);
         });
     }
 
-    // Call this when modal opens (or data updates)
-  //  renderTimeline(punchData);
+    function renderHorizontalTimeline(data, containerId, newIndex = -1, inputRect = null) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        data.forEach((item, index) => {
+            const iconClass = item.notPunched ? 'timeline-icon not-punched' : 'timeline-icon';
+            const timeDisplay = item.time ? formatTimeForDisplay(item.time) : '<span class="text-danger">N/A</span>';
+            const deleteBtn = item.deletable ? `<div class="timeline-delete-btn" data-index="${index}" data-type="horizontal"><i class="fas fa-times"></i></div>` : '';
+            const deletableClass = item.deletable ? 'deletable' : '';
+            const animationClass = index === newIndex ? 'slide-from-input' : '';
+
+            const html = `
+            <div class="timeline-item-horizontal ${deletableClass} ${animationClass}" style="position: relative;">
+                ${deleteBtn}
+                <div class="${iconClass}">
+                    <i class="${item.icon}"></i>
+                </div>
+                <div class="timeline-label">${item.label}</div>
+                <div class="timeline-time">${timeDisplay}</div>
+            </div>
+        `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+
+        // Apply shift animations for existing items
+        if (newIndex !== -1) {
+            const items = container.querySelectorAll('.timeline-item-horizontal');
+            items.forEach((item, idx) => {
+                if (idx < newIndex) {
+                    item.classList.add('shift-left');
+                } else if (idx > newIndex) {
+                    item.classList.add('shift-right');
+                }
+                setTimeout(() => {
+                    item.classList.remove('shift-left', 'shift-right');
+                }, 400);
+            });
+
+            // Set initial position of new item to input field
+            if (newIndex !== -1 && inputRect) {
+                const newItem = items[newIndex];
+                if (newItem) {
+                    const containerRect = container.getBoundingClientRect();
+                    const offsetX = inputRect.left - containerRect.left;
+                    newItem.style.setProperty('--start-x', `${offsetX}px`);
+                }
+            }
+        }
+    }
+
+    function renderVerticalTimeline(data, containerId, newIndex = -1, inputRect = null) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        data.forEach((item, index) => {
+            const iconClass = item.notPunched ? 'timeline-icon not-punched' : 'timeline-icon';
+            const timeDisplay = item.time ? formatTimeForDisplay(item.time) : '<span class="not-punched-text">Not Punched</span>';
+            const deleteBtn = item.deletable ? `<div class="timeline-delete-btn" data-index="${index}" data-type="vertical"><i class="fas fa-times"></i></div>` : '';
+            const deletableClass = item.deletable ? 'deletable' : '';
+            const animationClass = index === newIndex ? 'slide-from-input' : '';
+
+            const html = `
+            <div class="timeline-item ${deletableClass} ${animationClass}" style="position: relative;">
+                ${deleteBtn}
+                <div class="${iconClass}">
+                    <i class="${item.icon}"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-label">${item.label}</div>
+                    <div class="timeline-time">${timeDisplay}</div>
+                </div>
+            </div>
+        `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+
+        // Apply shift animations for existing items
+        if (newIndex !== -1) {
+            const items = container.querySelectorAll('.timeline-item');
+            items.forEach((item, idx) => {
+                if (idx < newIndex) {
+                    item.classList.add('shift-up');
+                } else if (idx > newIndex) {
+                    item.classList.add('shift-down');
+                }
+                setTimeout(() => {
+                    item.classList.remove('shift-up', 'shift-down');
+                }, 400);
+            });
+
+            // Set initial position of new item to input field
+            if (newIndex !== -1 && inputRect) {
+                const newItem = items[newIndex];
+                if (newItem) {
+                    const containerRect = container.getBoundingClientRect();
+                    const offsetY = inputRect.top - containerRect.top;
+                    newItem.style.setProperty('--start-y', `${offsetY}px`);
+                }
+            }
+        }
+    }
+
+    // Function to delete time entry with animation
+    function deleteTimeEntry(index, timelineType = 'both') {
+        
+            const horizontalItems = document.querySelectorAll('.timeline-item-horizontal');
+            const verticalItems = document.querySelectorAll('.timeline-item');
+
+            // Apply fly-out animation to the deleted item
+            if (timelineType === 'both' || timelineType === 'horizontal') {
+                if (horizontalItems[index]) {
+                    horizontalItems[index].classList.add('fly-out');
+                }
+            }
+            if (timelineType === 'both' || timelineType === 'vertical') {
+                if (verticalItems[index]) {
+                    verticalItems[index].classList.add('fly-out');
+                }
+            }
+
+            // Apply smooth shift animations to remaining items
+            setTimeout(() => {
+                punchData.splice(index, 1);
+                if (timelineType === 'both' || timelineType === 'horizontal') {
+                    const horizontalItems = document.querySelectorAll('.timeline-item-horizontal');
+                    horizontalItems.forEach((item, idx) => {
+                        if (idx < index) {
+                            item.classList.add('shift-right');
+                        } else if (idx >= index) {
+                            item.classList.add('shift-left');
+                        }
+                    });
+                    renderHorizontalTimeline(punchData, 'timelineContainer');
+                    initHorizontalScroll('timelineContainer');
+                    setTimeout(() => {
+                        horizontalItems.forEach(item => {
+                            item.classList.remove('shift-left', 'shift-right');
+                        });
+                    }, 600); // Match smooth shift duration
+                }
+                if (timelineType === 'both' || timelineType === 'vertical') {
+                    const verticalItems = document.querySelectorAll('.timeline-item');
+                    verticalItems.forEach((item, idx) => {
+                        if (idx < index) {
+                            item.classList.add('shift-down');
+                        } else if (idx >= index) {
+                            item.classList.add('shift-up');
+                        }
+                    });
+                    renderVerticalTimeline(punchData, 'verticalTimelineContainer');
+                    setTimeout(() => {
+                        verticalItems.forEach(item => {
+                            item.classList.remove('shift-up', 'shift-down');
+                        });
+                    }, 600); // Match smooth shift duration
+                }
+            }, 400); // Match fly-out animation duration
+       
+    }
+
+    // Function to add new time entry with animation
+    function addTimeEntry(timeValue, timelineType = 'both', inputElement = null) {
+        if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
+            alert('Please enter a valid time');
+            return;
+        }
+
+        const newEntry = {
+            time: timeValue,
+            label: 'manual entry',
+            icon: 'fas fa-plus',
+            deletable: true
+        };
+
+        punchData.push(newEntry);
+        punchData = sortPunchDataByTime(punchData);
+        const newIndex = punchData.findIndex(item => item === newEntry);
+        const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
+
+        if (timelineType === 'both' || timelineType === 'horizontal') {
+            renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
+            initHorizontalScroll('timelineContainer');
+        }
+        if (timelineType === 'both' || timelineType === 'vertical') {
+            renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
+        }
+    }
+
+    // Initialize horizontal scroll
+    function initHorizontalScroll(containerId) {
+        const container = document.getElementById(containerId);
+        container.addEventListener('wheel', function (e) {
+            e.preventDefault();
+            container.scrollLeft += e.deltaY;
+        });
+    }
+
+    // Event delegation for delete buttons
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.timeline-delete-btn')) {
+            const deleteBtn = e.target.closest('.timeline-delete-btn');
+            const index = parseInt(deleteBtn.getAttribute('data-index'));
+            const type = deleteBtn.getAttribute('data-type');
+            if (punchData[index] && punchData[index].deletable) {
+                deleteTimeEntry(index, type);
+            }
+        }
+    });
+
+    // Handle + button clicks for horizontal timeline
+    document.getElementById('btnAddTime').addEventListener('click', function () {
+        const timeInput = document.getElementById('time');
+        const timeValue = timeInput.value.trim();
+        if (timeValue) {
+            addTimeEntry(timeValue, 'horizontal', timeInput);
+            timeInput.value = '';
+        } else {
+            alert('Please enter a valid time');
+        }
+    });
+
+    // Handle + button clicks for vertical timeline
+    document.getElementById('btnAddTime2').addEventListener('click', function () {
+        const timeInput = document.getElementById('time2');
+        const timeValue = timeInput.value.trim();
+        if (timeValue) {
+            addTimeEntry(timeValue, 'vertical', timeInput);
+            timeInput.value = '';
+        } else {
+            alert('Please enter a valid time');
+        }
+    });
+
+    // Initial render
+    renderHorizontalTimeline(punchData, 'timelineContainer');
+    renderVerticalTimeline(punchData, 'verticalTimelineContainer');
+    initHorizontalScroll('timelineContainer');
+
+
+    //#endregion TimeLine
+    
+
 
 
     $(".timepicker-12hr").flatpickr({
@@ -335,7 +624,7 @@
                 </div>
               </td>
               <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                 <a href="#" class="nav-item mx-0 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves" data-id="${item.id}">
+                 <a href="#" class="nav-item mx-0 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves_horizontal" data-id="${item.id}">
                 <div class="d-flex align-items-center file-name-icon">
                   <div class="avatar avatar-m avatar-bordered me-4 mb-2">
                     <img class="rounded-circle" src="${item.employeeImage}" alt="${item.employeeName}" style="width: 40px; height: 40px;" />
@@ -357,7 +646,9 @@
                 <span class="badge-phoenix badge-phoenix-primary fs-10">${item.biometricHits}</span>
               </td>
               <td class="possibleReason align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+              <a href="#" class="nav-item mx-0 edit-attendance" data-bs-toggle="modal" data-bs-target="#edit_leaves_vertical" data-id="${item.id}">
                 <span class="${getPossibleReasonBadgeClass(item.possibleReason)} fs-10">${item.possibleReason}</span>
+                </a>
               </td>
 
                 
