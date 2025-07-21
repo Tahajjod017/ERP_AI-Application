@@ -2,3 +2,59 @@
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
+<div class="modal fade" id="edit_weekend_setting">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Weekend Settings</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="weekendFormEdit" asp-controller="WeekendSettings" asp-action="Updates" method="post">
+                <div class=" mb-3">
+
+                    <div class="row">
+
+                        <!-- Organization Dropdown -->
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Organization Name</label>
+                                <select id="OrganizationEditID" name="OrganizationID" class="form-select choiceDD">
+                                    <option value="">-- Select Organization --</option>
+                                    
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Branch Dropdown -->
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Branch Name</label>
+                                <select id="OrganizationBranchEditID" name="OrganizationBranchID" class="form-select choiceDD">
+                                    <option value="">-- Select Branch --</option>
+                                    @* will be filled by JS *@
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Weekend Day</label>
+                                <select id="WeekendDaysEdit" name="WeekendDays" class="form-select choiceDD" multiple>
+                                    <option value="">-- Select Weekend Day --</option>
+                                    
+
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary me-3">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

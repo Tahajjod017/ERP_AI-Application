@@ -96,5 +96,68 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
 
             return result;
         }
+
+        public async Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetIndividualEmployee(int employeeId, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+                      string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
+        {
+            var query = _genericRepository.All()
+                        .AsNoTracking()
+                        .Include(x => x.Employee)
+                        .Include(x => x.Employee.EmployeeOfficeInfoCreatedByNavigation)
+                        .Include(x => x.Status)
+                        .Include(x => x.Shift)
+                        .Where(x => x.DeletedAt == null && x.EmployeeID == employeeId); // Filter by EmployeeID
+
+            var employeeDepartments = await _genericEmployeeOfficeInfo.All()
+                                         .Include(e => e.Department) // Ensure the Department is loaded
+                                         .Where(e => e.DeletedAt == null)
+                                         .Select(e => new
+                                         {
+                                             EmployeeID = e.EmployeeID,
+                                             DepartmentName = e.Department != null && e.Department.DepartmentName != null
+                                                              ? e.Department.DepartmentName
+                                                              : "-"
+                                         })
+                                         .ToListAsync();
+
+
+            var result = await PaginationService<Attendance, AttendanceEmployeeReportVM>.GetPaginatedData(
+                query,
+                pageNumber,
+                pageSize,
+                searchTerm,
+                sortColumn,
+                sortOrder,
+                term => x => EF.Functions.Like(x.Status.StatusName, $"%{term}%"),
+
+                x => new AttendanceEmployeeReportVM
+                {
+                    AttendanceID = x.AttendanceID,
+
+                    EmployeeID = x.EmployeeID,
+                    EmployeeName = x.Employee?.FirstName + " " + x.Employee?.LastName ?? "-",
+                    JobTitle = employeeDepartments.FirstOrDefault(e => e.EmployeeID == x.EmployeeID)?.DepartmentName ?? "-",
+                    ShiftID = x.ShiftID,
+                    ShiftName = x.Shift?.ShiftName ?? "-",
+                    StatusID = x.StatusID,
+                    StatusName = x.Status?.StatusName ?? "-",
+                    AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
+                    CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                                                                                                           //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
+                    LateHour = x.LateHour.HasValue ? (x.LateHour.Value * 60).ToString("0") : "-",
+                    //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
+                    EarlyHour = x.EarlyHour.HasValue ? (x.EarlyHour.Value * 60).ToString("0") : "-",
+                    OvertimeHour = x.OvertimeHour.HasValue ? x.OvertimeHour.Value.ToString("F2") : "-",
+                    WorkingHours = "-",
+                    Break = "-",
+
+                    CreatedBy = x.CreatedBy,
+                    UpdatedBy = x.UpdatedBy
+                });
+
+            return result;
+        }
+
     }
 }

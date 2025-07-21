@@ -196,19 +196,21 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
             }
         }
 
+        #endregion
 
+        #region
         public async Task<WeekendSettingVM> GetByIdAsync(int id)
         {
-            // Step 1: Retrieve WeekendSetting (excluding soft-deleted)  
+            // Step 1: Retrieve WeekendSetting (including soft-deleted records)
             var entityList = await _genericRepository.FindAsync(x =>
-                x.WeekendSettingID == id && x.DeletedAt == null);
+                x.WeekendSettingID == id);  // No check for DeletedAt, assuming you want both active and soft-deleted ones
 
             var entity = entityList.FirstOrDefault();
 
             if (entity == null)
                 return null;
 
-            // Step 2: Retrieve related WeekendDays  
+            // Step 2: Retrieve related WeekendDays (only non-deleted ones)
             var weekdayEntities = await genericRepositoryWeekdays.FindAsync(d =>
                 d.WeekendSettingID == entity.WeekendSettingID && d.DeletedAt == null);
 
@@ -218,25 +220,22 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
                 .Select(d => d.Value) // Convert nullable int to int  
                 .ToList();
 
-            // Step 3: Map to ViewModel  
+            // Step 3: Map to ViewModel
             var model = new WeekendSettingVM
             {
                 WeekendSettingID = entity.WeekendSettingID,
                 OrganizationID = entity.OrganizationID,
                 OrganizationBranchID = entity.OrganizationBranchID,
-                WeekendDays = weekendDayIds,
+                WeekendDays = weekendDayIds,  // List of weekend day IDs
 
                 CreatedBy = entity.CreatedBy,
-                UpdatedBy = entity.UpdatedBy,
-                //CreatedAt = entity.CreatedAt,  
-                //UpdatedAt = entity.UpdatedAt,  
-                //LIP = entity.LIP,  
-                //LMAC = entity.LMAC  
+                UpdatedBy = entity.UpdatedBy
+
+                // Optionally map other fields if needed (LIP, LMAC, etc.)
             };
 
             return model;
         }
-
 
         #endregion
 
@@ -381,7 +380,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
 
         #endregion
 
-        #region GetOrganizationsAsync
+        #region GetOrganizationsAsync and byId
         public async Task<List<SelectListItem>> GetOrganizationsAsync()
         {
             var organizations = await _genericRepositoryOraganization.All()
@@ -395,6 +394,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
 
             return organizations;
         }
+
+       
+
         #endregion
 
         #region GetBranchesByOrganizationAsync

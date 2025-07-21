@@ -52,6 +52,24 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         #endregion
 
+        #region edit
+        [HttpGet]
+        public async Task<IActionResult> EditApprovalSetting(int id)
+        {
+            // Get the approval setting by ID
+            var approvalSetting = await _approvalSettingService.GetByIdAsync(id);
+
+            if (approvalSetting == null)
+            {
+                return NotFound();
+            }
+
+            // Return the View with the model data
+            return View(approvalSetting);
+        }
+
+        #endregion
+
         #region delete 
 
         [HttpPost]
