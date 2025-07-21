@@ -1,112 +1,132 @@
 ﻿<div class="modal fade" id="edit_approval_setting">
     <div class="modal-dialog modal-dialog-centered modal-md">
-        <div class="modal-content">
+        <div class="modal-content p-3">
             <div class="modal-header">
                 <h4 class="modal-title">Edit Approval</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="approval-settings.html" class="p-3">
-
+            <form id="aprovalSettingsFormEdit" asp-controller="ApprovalSettings" asp-action="Updates" method="post">
                 <div class="border-bottom mb-3">
                     <div class="row">
                         <div class="col-md-12 d-flex">
                             <div class="flex-fill">
-
-
                                 <div class="row">
+                                    <!-- Company and Approval Type -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3 mt-1">
+                                            <label class="form-label">Organization Name</label>
+                                            <select class="form-select choiceDD" id="OrganizationeEditID" name="OrganizationID" required>
+                                                <option value="">Select Organization</option>
+                                                @foreach (var org in ViewBag.Organizations)
+                                                {
+                                                    var isSelected = org.Selected ? "selected" : "";
+
+
+                                                    <option value="@org.Value" selected="@isSelected">@org.Text</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3 mt-1">
-                                            <label class="form-label" for="exampleFormControlInput">Company Name</label>
-                                            <select class="form-multi-select" multiple data-coreui-search="true">
-                                                <option value="1">CSL</option>
-                                                <option value="2">GCTL</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="mb-3 mt-1">
-                                            <label class="form-label" for="exampleFormControlInput">Approval Type</label>
-                                            <select class="form-select" id="approval" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                <option selected>Leave Approval</option>
-                                                <option>Purchage Approval</option>
-                                                <option>Loan Approval</option>
+                                            <label class="form-label">Approval Type</label>
+                                            <select class="form-select choiceDD" id="ApprovalTypeEditID" name="ApprovalTypeID" required>
+                                                <option value="">Select Approval Type</option>
+                                                @foreach (var status in ViewBag.ApprovalTypes)
+                                                {
+                                                    <option value="@status.Value">@status.Text</option>
+                                                }
                                             </select>
                                         </div>
                                     </div>
 
 
-                                    <!-- Second Div -->
-                                    <div class="col-md-4">
-                                        <div class="mb-3 mt-1">
-                                            <label class="form-label" for="exampleFormControlInput">First Approvers</label>
-                                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                <option>Select</option>
-                                                <option selected>CEO</option>A
-                                                <option>Manager</option>
-                                                <option>Team Lead</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <!-- First Div -->
+                                    <!-- Approver Sections (First, Second, Third Approver) -->
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" id="flexSwitchCheckDefault1" type="checkbox" />
-                                                <label class="form-check-label" for="flexSwitchCheckDefault1">Second Approvers</label>
+                                            <div class="row">
+                                                <!-- First Approvers Checkbox -->
+                                                <div class="form-check form-switch col-12 custom-padding-left">
+                                                    <input class="form-check-input" id="chkFirstEdit" type="checkbox" required />
+                                                    <label class="form-check-label" for="chkFirstEdit">First Approver</label>
+                                                </div>
                                             </div>
-                                            <select class="form-select" id="organizerSingle1" disabled>
-                                                <option value="">Select</option>
-                                                <option value="ceo">CEO</option>
-                                                <option value="manager">Manager</option>
-                                                <option value="teamlead">Team Lead</option>
-                                            </select>
+
+                                            <!-- Select Dropdown (Below Checkbox) -->
+                                            <div class="mt-3">
+                                                <select class="form-select choiceDD" id="selFirstEdit" name="FirstApprovalID" required></select>
+
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <!-- Second Div -->
+                                    <!-- Second Approvers Section -->
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" id="flexSwitchCheckDefault2" type="checkbox" />
-                                                <label class="form-check-label" for="flexSwitchCheckDefault2">Third Approvers</label>
+                                            <div class="row">
+                                                <!-- Second Approvers Checkbox -->
+                                                <div class="form-check form-switch col-12 custom-padding-left">
+                                                    <input class="form-check-input" id="chkSecondEdit" type="checkbox" name="IsEnableSecondApproval" />
+                                                    <label class="form-check-label" for="chkSecondEdit">Second Approver</label>
+                                                </div>
                                             </div>
-                                            <select class="form-select" id="organizerSingle2" disabled>
-                                                <option value="">Select</option>
-                                                <option value="ceo">CEO</option>
-                                                <option value="manager">Manager</option>
-                                                <option value="teamlead">Team Lead</option>
-                                            </select>
+
+                                            <!-- Select Dropdown (Below Checkbox) -->
+                                            <div class="mt-3">
+                                                <select class="form-select choiceDD" id="selSecondEdit" name="SecondApprovalID"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Third Approvers Section -->
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <div class="row">
+                                                <!-- Third Approvers Checkbox -->
+                                                <div class="form-check form-switch col-12 custom-padding-left">
+                                                    <input class="form-check-input" id="chkThirdEdit" type="checkbox" name="IsEnableThirdApproval" />
+                                                    <label class="form-check-label" for="chkThirdEdit">Third Approver</label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Select Dropdown (Below Checkbox) -->
+                                            <div class="mt-3">
+                                                <select class="form-select choiceDD" id="selThirdEdit" name="ThirdApprovalID"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Checkbox for AllowSelfApproval (Initially hidden) -->
+                                    <div class="col-md-4" id="selfApprovalEditSection">
+
+                                        <div class="mb-3">
+                                            <div class="row">
+                                                <div class="form-check form-switch col-12 custom-padding-left">
+                                                    <input class="form-check-input" type="checkbox" id="chkSelfApprovaEditl" name="AllowSelfApproval" />
+                                                    <label class="form-check-label" for="chkSelfApprovalEdit">Allow Self-Approval</label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Select Dropdown (Below Checkbox) -->
+                                            @* <div class="mt-3">
+                                     <select class="form-select choiceDD" id="selSelfApproval" name="SelfExceptionApprovalID" required>
+                                         <option value="">Select Self Approver</option>
+                                         <!-- Options will be populated dynamically -->
+                                     </select>
+                                 </div> *@
+                                            <div class="mt-3">
+                                                <select class="form-select choiceDD"
+                                                        id="selSelfApprovalEdit"
+                                                        name="SelfExceptionApprovalID">
+                                                    <option value="">Select Self Approver</option>
+                                                </select>
+                                            </div>
+
                                         </div>
                                     </div>
 
 
-                                    <!-- JavaScript Logic -->
-                                    <script>
-                                        document.addEventListener('DOMContentLoaded', function () {
-                                          const firstCheckbox = document.getElementById('flexSwitchCheckDefault1');
-                                          const secondCheckbox = document.getElementById('flexSwitchCheckDefault2');
-                                          const firstSelect = document.getElementById('organizerSingle1');
-                                          const secondSelect = document.getElementById('organizerSingle2');
-
-                                          // Task 1: Enable first select when first checkbox is checked
-                                          firstCheckbox.addEventListener('change', function () {
-                                            firstSelect.disabled = !this.checked;
-                                          });
-
-                                          // Task 2: Enable second select only if first checkbox is checked
-                                          secondCheckbox.addEventListener('change', function () {
-                                            if (firstCheckbox.checked) {
-                                              secondSelect.disabled = !this.checked;
-                                            } else {
-                                              alert('Please check the "Second Leave Approvers" first.');
-                                              this.checked = false; // Prevent checking if first is not checked
-                                            }
-                                          });
-                                        });
-                                    </script>
 
                                 </div>
                             </div>
@@ -114,8 +134,9 @@
                     </div>
                 </div>
 
+                <!-- Form Buttons -->
                 <div class="d-flex align-items-center justify-content-end">
-                    <button type="reset" class="btn btn-outline-secondary  me-3">Reset</button>
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>

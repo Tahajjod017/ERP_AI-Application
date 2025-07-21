@@ -45,6 +45,7 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
         public string? AllowSelfApproval { get; set; }
 
         public string? SelfExceptionApprovalID { get; set; }
+        public string? SelfExceptionApprovalName { get; set; }
 
     }
 }

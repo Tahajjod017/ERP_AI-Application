@@ -1,18 +1,16 @@
-﻿@{
-    var mainTab = "CompanySetting";
-    var subTab = "HolidaySettings";
-}
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
 
-<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
-<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
-
-<div class="col-xl-12 mt-3">
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="border-bottom mb-3 pb-3">
-                <h4>Holiday Settings</h4>
+<div class="modal fade" id="edit_holiday_setting">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Holiday Settings</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="holidayForm" asp-controller="HolidaySettings" asp-action="Create" method="post" >
+            <form id="holidayForm" asp-controller="HolidaySettings" asp-action="Create" method="post">
                 <div class=" mb-3">
 
                     <div class="row">
@@ -20,12 +18,9 @@
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Organization</label>
-                                <select class="form-select choiceDD" id="OrganizationID" name="OrganizationID" multiple>
+                                <select class="form-select choiceDD" id="OrganizationEditID" name="OrganizationID" multiple>
                                     <option value="">Select Organization</option>
-                                    @foreach (var org in ViewBag.Organizations)
-                                    {
-                                        <option value="@org.Value">@org.Text</option>
-                                    }
+                                   
                                 </select>
                             </div>
                         </div>
@@ -43,7 +38,7 @@
                                 <input class="form-control datetimepicker flatpickr-input" id="StartDate" type="text" name="StartDate" placeholder="dd/mm/yyyy">
                             </div>
                         </div>
-                        
+
 
 
                         <div class="col-sm-6 col-md-6">
@@ -63,12 +58,9 @@
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
-                                <select class="form-select choiceDD" id="StatusID" name="StatusID">
+                                <select class="form-select choiceDD" id="StatusEditID" name="StatusID">
                                     <option value="">Select Holiday Status</option>
-                                    @foreach (var status in ViewBag.HolidayStatuses)
-                                    {
-                                        <option value="@status.Value">@status.Text</option>
-                                    }
+                                    
                                 </select>
                             </div>
                         </div>
@@ -91,20 +83,7 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
-
         </div>
     </div>
-
-
 </div>
 
-<partial name="_HolidaysListTable" />
-<partial name="_editHolidaysSettings" />
-<partial name="_ConfirmDelete" />
-
-@section Scripts {
-    <script src="~/js/pages/adminsettings/organizationsettings/holidaysettings.js"></script>
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

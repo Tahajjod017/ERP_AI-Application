@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -80,6 +81,46 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+        #endregion
+
+        #region
+        [HttpGet]
+        public async Task<IActionResult> GetWeekendSettingById(int id)
+        {
+            var model = await _weekendSettingService.GetByIdAsync(id);
+            if (model == null)
+            {
+                return NotFound(); // Return a 404 if the entity is not found
+            }
+
+            // Get organizations and branches for the dropdowns
+            var organizations = await _weekendSettingService.GetOrganizationsAsync();
+            var branches = await _weekendSettingService.GetBranchesByOrganizationIdAsync(model.OrganizationID ?? 0);
+
+            // Set the WeekendDays dropdown
+            var weekendDays = Enum.GetValues(typeof(DayOfWeek))
+                                .Cast<DayOfWeek>()
+                                .Select(d => new SelectListItem
+                                {
+                                    Value = ((int)d).ToString(),
+                                    Text = d.ToString()
+                                })
+                                .ToList();
+
+            // Create a response object that will be returned as JSON
+            var response = new
+            {
+                model,
+                Organizations = organizations,
+                Branches = branches,
+                WeekendDays = weekendDays
+            };
+
+            // Return the response as JSON
+            return Json(response);
+        }
+
+
         #endregion
 
         #region GetAll

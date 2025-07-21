@@ -74,6 +74,13 @@ $(document).on('click', '#confirmDeleteBtn', function () {
     }
 });
 
+//edit
+$(document).on('click', '#edit_holiday_settingBtn', function () {
+    var approvalSettingID = $(this).data('id');
+    $('#edit_holiday_setting').modal('show'); // Show the delete confirmation modal
+   /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
+});
+
 //////////////////////////////Data Table Initialization//////////////////////////////
 var currentPage = 1;
 var pageSize = 5;
@@ -179,7 +186,7 @@ function loadTableData(sortColumn, sortOrder) {
                          <a
                                href="#"
                                title="Edit"
-                               id="LeaveRequestEditButton"
+                               id="edit_holiday_settingBtn"
                                data-id="${item.holidayID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 

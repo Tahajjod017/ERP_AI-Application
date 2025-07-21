@@ -28,8 +28,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         private readonly IGenericRepository<Country> _genericRepositoryCountry;
         private readonly IGenericRepository<ApprovalDesignation> _genericRepositoryApprovalDesignations;
         private readonly IGenericRepository<EmployeeOfficeInfo> _genericRepositoryEmployeeOfficeInfo;
+        private readonly IGenericRepository<ApprovalDesignation> _genericRepositoryApprovalDesignation;
 
-        public ApprovalSettingService(IUserInfoService userInfoService, IGenericRepository<ApprovalSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<OrganizationBranches> genericRepositoryBranches, IGenericRepository<ApprovalTypes> genericRepositoryApprovalType, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees, IGenericRepository<Designations> genericRepositoryDesignations, IGenericRepository<Country> genericRepositoryCountry, IGenericRepository<ApprovalDesignation> genericRepositoryApprovalDesignations, IGenericRepository<EmployeeOfficeInfo> genericRepositoryEmployeeOfficeInfo) : base(genericRepository)
+        public ApprovalSettingService(IUserInfoService userInfoService, IGenericRepository<ApprovalSettings> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<OrganizationBranches> genericRepositoryBranches, IGenericRepository<ApprovalTypes> genericRepositoryApprovalType, IGenericRepository<Data.Models.Employees> genericRepositoryEmployees, IGenericRepository<Designations> genericRepositoryDesignations, IGenericRepository<Country> genericRepositoryCountry, IGenericRepository<ApprovalDesignation> genericRepositoryApprovalDesignations, IGenericRepository<EmployeeOfficeInfo> genericRepositoryEmployeeOfficeInfo, IGenericRepository<ApprovalDesignation> genericRepositoryApprovalDesignation) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -41,6 +42,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             _genericRepositoryCountry = genericRepositoryCountry;
             _genericRepositoryApprovalDesignations = genericRepositoryApprovalDesignations;
             _genericRepositoryEmployeeOfficeInfo = genericRepositoryEmployeeOfficeInfo;
+            _genericRepositoryApprovalDesignation = genericRepositoryApprovalDesignation;
         }
         #endregion
 
@@ -166,15 +168,14 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         #region Update
         public async Task<bool> UpdateAsync(ApprovalSettingsVM model)
         {
-
             await _genericRepository.BeginTransactionAsync();
 
             try
             {
-                // Step 1: Find existing ApprovalSetting record (including soft-deleted ones)
+                // Step 1: Retrieve the existing entity by its ID
                 var existingEntityList = await _genericRepository.FindAsync(e =>
-                    (e.DeletedAt == null || e.DeletedAt != null) &&
-                    e.ApprovalSettingID == model.ApprovalSettingID //  a primary key in the model
+                    e.ApprovalSettingID == model.ApprovalSettingID &&
+                    (e.DeletedAt == null || e.DeletedAt != null)  // Ensure you consider both active and soft-deleted records
                 );
 
                 var existingEntity = existingEntityList.FirstOrDefault();
@@ -184,7 +185,13 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     throw new Exception("Approval Setting not found.");
                 }
 
-                // Step 2: Update properties
+                // Step 2: Parse approval IDs and designation flags
+                var (firstApprovalId, isFirstDesignation) = ParseApprovalId(model.FirstApprovalID);
+                var (secondApprovalId, isSecondDesignation) = ParseApprovalId(model.SecondApprovalID);
+                var (thirdApprovalId, isThirdDesignation) = ParseApprovalId(model.ThirdApprovalID);
+                var (selfApprovalId, isSelfDesignation) = ParseApprovalId(model.SelfExceptionApprovalID);
+
+                // Step 3: Update properties of the existing entity
                 existingEntity.OrganizationID = model.OrganizationID;
                 existingEntity.OrganizationBranchID = model.OrganizationBranchID;
                 existingEntity.ApprovalTypeID = model.ApprovalTypeID;
@@ -192,30 +199,27 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                 existingEntity.EndDate = model.EndDate;
                 existingEntity.LIP = model.LIP;
                 existingEntity.LMAC = model.LMAC;
-                existingEntity.FirstApprovalID = string.IsNullOrEmpty(model.FirstApprovalID) ? null : int.Parse(model.FirstApprovalID);
-                existingEntity.IsDesignationOrEmpFirstApprovalID = model.IsDesignationOrEmpFirstApprovalID == "on";
-                existingEntity.IsEnableSecondApproval = model.IsEnableSecondApproval == "on";
-                existingEntity.SecondApprovalID = string.IsNullOrEmpty(model.SecondApprovalID) ? null : int.Parse(model.SecondApprovalID);
-                existingEntity.IsDesignationOrEmpSecondApprovalID = model.IsDesignationOrEmpSecondApprovalID == "on";
-                existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval == "on";
-                existingEntity.ThirdApprovalID = string.IsNullOrEmpty(model.ThirdApprovalID) ? null : int.Parse(model.ThirdApprovalID);
-                existingEntity.IsDesignationOrEmpThirdApprovalID = model.IsDesignationOrEmpThirdApprovalID == "on";
 
-                // Restore soft-deleted record (if previously deleted)
-                existingEntity.DeletedAt = null;
-                existingEntity.DeletedBy = null;
+                existingEntity.FirstApprovalID = firstApprovalId;
+                existingEntity.IsDesignationOrEmpFirstApprovalID = isFirstDesignation;
+                existingEntity.IsEnableSecondApproval = model.IsEnableSecondApproval == "on";
+                existingEntity.SecondApprovalID = secondApprovalId;
+                existingEntity.IsDesignationOrEmpSecondApprovalID = isSecondDesignation;
+                existingEntity.IsEnableThirdApproval = model.IsEnableThirdApproval == "on";
+                existingEntity.ThirdApprovalID = thirdApprovalId;
+                existingEntity.IsDesignationOrEmpThirdApprovalID = isThirdDesignation;
+                existingEntity.AllowSelfApproval = model.AllowSelfApproval == "on";
+                existingEntity.SelfExceptionApprovalID = isSelfDesignation ? null : selfApprovalId;
 
                 existingEntity.UpdatedAt = DateTime.Now;
-                existingEntity.UpdatedBy = model.UpdatedBy ?? model.CreatedBy; // Default or current user
+                existingEntity.UpdatedBy = model.UpdatedBy ?? model.CreatedBy; // Ensure it has a valid user who updated the record
 
-                // Optional: Restore other fields like LIP, LMAC if needed
-                // existingEntity.LIP = model.LIP;
-                // existingEntity.LMAC = model.LMAC;
+                // Optional: You can restore other fields like LIP, LMAC if needed
 
-                // Step 3: Save changes
+                // Step 4: Save changes to the repository
                 await _genericRepository.UpdateAsync(existingEntity);
 
-                // Step 4: Commit transaction
+                // Step 5: Commit the transaction
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;
@@ -223,12 +227,11 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             catch (Exception ex)
             {
                 await _genericRepository.RollbackTransactionAsync();
-                // You can log the error here
                 throw new Exception("Failed to update approval setting: " + ex.Message, ex);
             }
         }
-
         #endregion
+
 
         #region Soft Delete 
         public async Task<ApprovalSettingsVM> SoftDeleteAsync(DeleteRequestVM requestVM)
@@ -281,7 +284,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             }
         }
         #endregion
-        #region Get  
+        #region Get by id
         public async Task<ApprovalSettingsVM> GetByIdAsync(int id)
         {
             // Retrieve the ApprovalSetting entity by ID, excluding soft-deleted records  
@@ -302,6 +305,10 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                 EndDate = entity.EndDate,
                 FirstApprovalID = entity.FirstApprovalID?.ToString(), // Fix for CS0029: Convert int? to string  
                 IsDesignationOrEmpFirstApprovalID = entity.IsDesignationOrEmpFirstApprovalID ? "on" : null,
+                IsEnableSecondApproval = entity.IsEnableSecondApproval ? "on" : null,
+                IsEnableThirdApproval = entity.IsEnableThirdApproval ? "on" : null,
+                IsDesignationOrEmpSecondApprovalID = entity.IsDesignationOrEmpSecondApprovalID ? "on" : null,
+                IsDesignationOrEmpThirdApprovalID = entity.IsDesignationOrEmpThirdApprovalID ? "on" : null,
                 SecondApprovalID = entity.SecondApprovalID?.ToString(), // Fix for CS0029: Convert int? to string  
                 ThirdApprovalID = entity.ThirdApprovalID?.ToString(), // Fix for CS0029: Convert int? to string  
                 CreatedBy = entity.CreatedBy,
@@ -323,12 +330,14 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             string sortOrder = "desc",
             int? organizationID = null)
         {
-            var query = _genericRepository.All()
+             var query = _genericRepository.All()
                 .AsNoTracking()
                 .Include(x => x.Organization) // Include  Organization entity
                 .Include(x => x.ApprovalType) // Include  ApprovalType entity
                 .Where(x => x.DeletedAt == null); // Filter out soft-deleted records
-
+            var apprvDesignation = _genericRepositoryApprovalDesignation.All()
+                .Where(x => x.DeletedAt == null)
+                .Select(x => new { x.ApprovalDesignationID, x.ApprovalDesignationName });
             // Filter by organization if provided
             if (organizationID.HasValue && organizationID.Value > 0)
             {
@@ -381,28 +390,40 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
                     FirstApprovalID = x.FirstApprovalID?.ToString(),
+                    IsDesignationOrEmpFirstApprovalID = x.IsDesignationOrEmpFirstApprovalID ? "on" : null,
                     //IsDesignationOrEmpFirstApprovalID = x.IsDesignationOrEmpFirstApprovalID,
                     // Conditional logic for FirstApprovalName based on IsDesignationOrEmpFirstApprovalID
                     FirstApprovalName = x.FirstApprovalID.HasValue
-                        ? (x.IsDesignationOrEmpFirstApprovalID
-                            ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName
-                            : _genericRepositoryDesignations.All().FirstOrDefault(d => d.DesignationID == x.FirstApprovalID)?.DesignationName ?? "_")
-                        : "_",
+                                        ? (x.IsDesignationOrEmpFirstApprovalID
+                                            ? _genericRepositoryApprovalDesignation.AllActive().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
+                                            : _genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
+                                        : "_",
                     //IsEnableSecondApproval = x.IsEnableSecondApproval,
                     SecondApprovalID = x.SecondApprovalID?.ToString(),
+                    IsDesignationOrEmpSecondApprovalID = x.IsDesignationOrEmpSecondApprovalID ? "on" : null,
                     SecondApprovalName = x.SecondApprovalID.HasValue
                          ? (x.IsDesignationOrEmpSecondApprovalID
-                             ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SecondApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SecondApprovalID)?.LastName
-                             : _genericRepositoryDesignations.All().FirstOrDefault(d => d.DesignationID == x.SecondApprovalID)?.DesignationName ?? "_")
-                         : "_",
+                                            ? _genericRepositoryApprovalDesignation.AllActive().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
+                                            : _genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
+                                        : "_",
                     //IsDesignationOrEmpSecondApprovalID = x.IsDesignationOrEmpSecondApprovalID,
                     // IsEnableThirdApproval = x.IsEnableThirdApproval,
                     ThirdApprovalID = x.ThirdApprovalID?.ToString(),
+                    IsDesignationOrEmpThirdApprovalID = x.IsDesignationOrEmpThirdApprovalID ? "on" : null,
                     ThirdApprovalName = x.ThirdApprovalID.HasValue
-                        ? (x.IsDesignationOrEmpThirdApprovalID
-                            ? _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.ThirdApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.ThirdApprovalID)?.LastName
-                            : _genericRepositoryDesignations.All().FirstOrDefault(d => d.DesignationID == x.ThirdApprovalID)?.DesignationName ?? "_")
-                        : "_",
+                       ? (x.IsDesignationOrEmpThirdApprovalID
+                                            ? _genericRepositoryApprovalDesignation.AllActive().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
+                                            : _genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
+                                        : "_",
+                    SelfExceptionApprovalID = x.SelfExceptionApprovalID?.ToString(),
+                    AllowSelfApproval = x.AllowSelfApproval == true ? "on" : null,
+                    SelfExceptionApprovalName = x.SelfExceptionApprovalID.HasValue
+                                            ? (x.AllowSelfApproval == false
+                                                ? (_genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName) ?? "-"
+                                                : "-")
+                                            : "True",
+
+
                     // IsDesignationOrEmpThirdApprovalID = x.IsDesignationOrEmpThirdApprovalID,
                     CreatedBy = x.CreatedBy,
                     UpdatedBy = x.UpdatedBy,
