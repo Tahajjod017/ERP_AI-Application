@@ -107,7 +107,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         [Route("LeaveRequestUpdatedRoute/UpdateLeaveRequest")]
         [HttpPost]
-        public async Task<IActionResult> UpdateLeaveRequest(LeaveApplicationEditVM model)
+        public async Task<IActionResult> UpdateLeaveRequest([FromBody]LeaveApplicationEditVM model)
         {
             //if (!ModelState.IsValid)
             //{

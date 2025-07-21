@@ -253,8 +253,7 @@ $(document).ready(function () {
                 }
 
             },
-            error: function ()
-            {
+            error: function () {
                 toastr.error('Failed to retrieve employee data.');
             }
         });
@@ -273,25 +272,24 @@ $(document).ready(function () {
                     } else {
                         $('#SubsequentHolydayDays').val('Not Applicable');
                     }
-                  
+
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0); 
+                    today.setHours(0, 0, 0, 0);
                     let minDate = null;
                     let maxDate = null;
                     // Allow or disallow past dates
                     if (policy.isAllowRequestForPastDates === true) {
                         //minDate = today ;
                         const pastDate = new Date(today);
-                        pastDate.setDate(today.getDate() +1); 
+                        pastDate.setDate(today.getDate() + 1);
                         minDate = pastDate;
-                    } else 
-                    {
+                    } else {
                         minDate = null
                     }
-                   
+
                     if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
                         const futureDate = new Date(today);
-                        futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays+1));
+                        futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays + 1));
                         maxDate = futureDate;
                     }
                     const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
@@ -320,7 +318,7 @@ $(document).ready(function () {
             url: '/LeaveApprovalDeclineRoute/GetLeaveTypeBalancesForEmployeeDisplay',
             type: 'GET',
             success: function (data) {
-                //debugger
+                debugger
                 if (data && data.length > 0) {
                     let container = $('#leaveCardsContainer');
                     container.empty(); // clear previous content if any
@@ -422,14 +420,14 @@ $(document).ready(function () {
                 maxDate: window.__maxDateStr // ✅ reuse global maxDate
             });
         }
-        
+
     });
 
 
     $(document).on('change', '#FromDateEdit', function () {
         const fromDate = $(this).val();
         if (fromDate) {
-           
+
             updateDatepickerWithMinDate("ToDateEdit", fromDate, {
                 maxDate: window.__maxDateStr
             });
@@ -501,7 +499,7 @@ $(document).ready(function () {
         }
     });
 
-   
+
     //
 
     function toggleTimeDateValidation() {
@@ -534,7 +532,7 @@ $(document).ready(function () {
 
 
 
-    function GetLeavedaysSubsequent(employeeId,fromDate, toDate) {
+    function GetLeavedaysSubsequent(employeeId, fromDate, toDate) {
 
         if (!fromDate || !toDate) return;
 
@@ -580,7 +578,7 @@ $(document).ready(function () {
                     $('#GapDaysTotalAppliedDaysValidation').text('');
 
                 }
-                
+
             }
             ,
             error: function () {
@@ -596,17 +594,17 @@ $(document).ready(function () {
         let fromDate = flatpickrHelper.getDate('FromDate');
         let toDate = flatpickrHelper.getDate('ToDate');
         var employeeId = $('#EmployeeID').val();
-       
+
         GetLeavedaysSubsequent(employeeId, fromDate, toDate);
     });
-    
+
     $(document).on('change', '#EmployeeIDEdit,#FromDateEdit, #ToDateEdit', function (e) {
         e.preventDefault();
 
         let fromDate = flatpickrHelper.getDate('FromDateEdit');
         let toDate = flatpickrHelper.getDate('ToDateEdit');
         var employeeId = $('#EmployeeIDEdit').val();
-      
+
         GetLeavedaysSubsequent(employeeId, fromDate, toDate);
 
     });
@@ -691,22 +689,18 @@ $(document).ready(function () {
     // Get By data leaveRequest
     $(document).on('click', '#LeaveRequestEditButton', function () {
         var leaveApplicationID = $(this).data('id');
-      
+
         $.ajax({
             url: '/LeaveRequestRoute/GetLeaveRequestByIdAsync',
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-
-                console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
                     const maxDate = window.__maxDateStr || null;
                     const minDate = window.__minDateStr || null;
-                    // Set hidden ID
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
-                    /*flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);*/
                     $('#TotalAppliedDaysTT').val(data.period);
                     $('#SubsequentHolydayDaysTT').val(data.totalSubsequentDays);
                     $('#LeaveDaysEdit').val(data.leaveDaysEdit);
@@ -725,7 +719,6 @@ $(document).ready(function () {
                     $('textarea[name="ReasonEdit"]').val(data.reasonEdit);
                     initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");
                     initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDate, maxDate);
-                    // Optionally toggle the sections based on IsFullDayEdit
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');
                         $('#PartialDayDivEdit').addClass('d-none');
@@ -754,32 +747,33 @@ $(document).ready(function () {
     //
     $(document).on('click', '#ApplyLeaveSubmitButtonUpdate', function (e) {
         e.preventDefault();
-     
+
         var model = {
             LeaveApplicationID: parseInt($('#LeaveApplicationID').val()) || 0,
-            EmployeeIDEdit: $('#EmployeeIDEdit').val(),
+            EmployeeIDEdit: parseInt($('#EmployeeIDEdit').val()) || null,
             LeaveTypeIDEdit: parseInt($('#LeaveTypeIDEdit').val()) || 0,
+            LeaveDaysEdit: parseFloat($('#LeaveDaysEdit').val()) || 0,
             IsFullDayEdit: $('input[name="IsFullDayEdit"]:checked').val() === "true",
-            FromDateEdit: $('#FromDateEdit').val(),
-            FromDateEdit: new Date(),
-            ToDateEdit: $('#ToDateEdit').val(),
-            ToDateFromDateCombinedEdit: $('#ToDateFromDateCombinedEdit').val(),
-            PartialFromTimeEdit: $('#PartialFromTimeEdit').val(),
-            PartialToTimeEdit: $('#PartialToTimeEdit').val(),
-            ReasonEdit: $('textarea[name="ReasonEdit"]').val(),
+            FromDateEdit: $('#FromDateEdit').val() || null,
+            ToDateEdit: $('#ToDateEdit').val() || null,
+            ToDateFromDateCombinedEdit: $('#ToDateFromDateCombinedEdit').val() || null,
+            PartialFromTimeEdit: $('#PartialFromTimeEdit').val() || null,
+            PartialToTimeEdit: $('#PartialToTimeEdit').val() || null,
+            ReasonEdit: $('textarea[name="ReasonEdit"]').val() || null,
+            TotalSubsequentDays: parseInt($('#TotalSubsequentDays').val()) || null,
+            IsHolidayCountedAsLeave: $('input[name="IsHolidayCountedAsLeave"]:checked').val() === "true",
+            IsWeekendCountedAsLeave: $('input[name="IsWeekendCountedAsLeave"]:checked').val() === "true",
             Period: parseFloat($('#TotalAppliedDaysTT').val()) || 0,
-
-
         };
-        console.log("Model For update" + model);
-    
+   
+        //
         $.ajax({
             url: '/LeaveRequestUpdatedRoute/UpdateLeaveRequest',
             type: 'POST',
             data: JSON.stringify(model),
             contentType: 'application/json',
             success: function (response) {
-                
+
                 if (response.success) {
                     toastr.success(response.message || "Updated successfully.");
                     resetLeaveRequestFormEdit();
@@ -796,7 +790,7 @@ $(document).ready(function () {
     //
 
     function resetLeaveRequestFormEdit() {
-     
+
         $('#LeaveRequestForm')[0].reset();
         $('#LeaveApplicationID').val('');
         choiceManager.clearChoice('EmployeeIDEdit');
@@ -850,18 +844,16 @@ $(document).ready(function () {
     }
 
     //
-    // Reset button click
+
+
+    //#region Reset logic function
     $('#ResetButton').on('click', function () {
         resetForm();
     });
-
-    // Reset logic function
     function resetForm() {
 
         choiceManager.clearChoice('EmployeeID');
         choiceManager.clearChoice('LeaveTypeID');
-
-        // Reset text inputs and textareas
         $('#Reason').val('');
         $('#FromDate').val('');
         $('#ToDate').val('');
@@ -869,7 +861,6 @@ $(document).ready(function () {
         $('#PartialFromTime').val('');
         $('#PartialToTime').val('');
         $('#TotalAppliedDays').val();
-        // Reset validation states
         $('#ToDateFromDateCombined').removeClass('is-invalid');
         $('#ToDateFromDateCombinedError').hide().text('');
         $('#FromDate').removeClass('is-invalid');
@@ -879,7 +870,6 @@ $(document).ready(function () {
         $('#PartialFromTime, #PartialToTime').removeClass('is-invalid input-validation-error');
         $('#PartialFromTime, #PartialToTime').siblings('.text-danger').text('');
         loadTableData();
-        // Reset flatpickr instances
         ['#FromDate', '#ToDate', '#ToDateFromDateCombined', '#PartialFromTime', '#PartialToTime'].forEach(function (id) {
             if ($(id)[0] && $(id)[0]._flatpickr) {
                 $(id)[0]._flatpickr.clear();
@@ -887,10 +877,9 @@ $(document).ready(function () {
         });
 
     }
+    //#endregion
 
-    // Delete Soft Leave Request
-
-    //
+    //#region Delete Soft Leave Request
     $(document).on('click', '#leaveRequestDelete-singleDelBtn', function () {
         var id = $(this).data('id');
 
@@ -918,82 +907,13 @@ $(document).ready(function () {
             toastr.error("Invalid action.");
         }
     });
-    //
+    //#endregion
 
-   
+
 });
 
 
-// Data Table for Peresona
-var currentPage = 1;
-var pageSize = 5;
-
-$('#leaveRequest-pageSizeSelect').on('change', function () {
-    var selectedSize = $(this).val();
-
-    if (selectedSize) {
-        pageSize = parseInt(selectedSize, 10);
-        currentPage = 1;
-        loadTableData();
-    }
-});
-
-$(document).ready(function () {
-    loadTableData();
-
-    $("#leaveRequest-searchInput").on("input", function () {
-        currentPage = 1;
-        loadTableData();
-    });
-
-    $("#leaveRequest-prevPageBtn").on('click', function () {
-        if (currentPage > 1) {
-            currentPage--;
-            loadTableData();
-        }
-    });
-
-    $("#leaveRequest-nextPageBtn").on('click', function () {
-        currentPage++;
-        loadTableData();
-    });
-});
-
-
-let currentSortColumn = '';
-let currentSortOrder = '';
-
-$('th.sort').on('click', function () {
-    const column = $(this).data('sort');
-
-    if (currentSortColumn === column) {
-        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSortColumn = column;
-        currentSortOrder = 'asc';
-    }
-
-    loadTableData(currentSortColumn, currentSortOrder);
-    updateSortingIndicator(column, currentSortOrder);
-});
-
-
-function updateSortingIndicator() {
-    $('th.sort').each(function () {
-        const $th = $(this);
-        const column = $th.data('sort');
-        $th.find('.sort-icon').remove();
-
-        if (column === currentSortColumn) {
-            const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
-            $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
-        } else {
-            $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
-        }
-    });
-}
-
-
+//#region TooTip Modal
 //
 let hideTooltipTimer;
 // 1. Create the tooltip only once and append to <body>
@@ -1012,7 +932,7 @@ let $tooltip = $('<div class="custom-tooltip-box"></div>').css({
     boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
     display: 'none',
     fontSize: '13px',
-    borderRadius: '4px' 
+    borderRadius: '4px'
 });
 $('body').append($tooltip);
 
@@ -1028,9 +948,9 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
     // Show loading state
     $tooltip.html('<div style="text-align: center; color: #666;">Loading...</div>').css({
         top: offset.top + 25,
-        left: offset.left -100
+        left: offset.left - 100
     }).fadeIn(200);
-    
+
     $.ajax({
         url: '/LeaveRequest/GetByPersonLeaveStepVM',
         type: 'GET',
@@ -1076,14 +996,15 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                             </div>
                         </div>
                     </div>
-                </div> `; });
+                </div> `;
+                });
             } else {
                 html = '<div class="text-muted" style="color: #999;">No approval steps found</div>';
             }
 
             $tooltip.html(html);
         }
-,
+        ,
         error: function () {
             $tooltip.html('<div class="text-danger" style="color: #d32f2f;">Error loading data</div>');
         }
@@ -1114,11 +1035,12 @@ $(document).on('click', function (e) {
     }
 });
 
+//#endregion
 
 
-// For Table 
+
+// #region 🔵 Get Badge Class Based on Status
 function getBadgeClass(status) {
-
     if (!status || status.trim() === '') return 'text-bg-success';
 
     switch (status.trim().toUpperCase()) {
@@ -1127,31 +1049,28 @@ function getBadgeClass(status) {
         case 'APPROVED':
             return 'badge-phoenix badge-phoenix-success';
         case 'PENDING':
-            return 'badge-phoenix badge-phoenix-warning';
         case 'WAITING FOR APPROVAL':
-            return 'badge-phoenix badge-phoenix-warning'; 
+            return 'badge-phoenix badge-phoenix-warning';
         case 'NEW':
             return 'badge-phoenix text-bg-success';
-        case 'ONGOING': // ✅ Add this case
+        case 'ONGOING':
             return 'badge-phoenix badge-phoenix-primary';
         default:
             return 'text-bg-success';
     }
 }
+// #endregion
 
-
+// #region 🟡 Get Status Text Based on Approver Steps & Timing
 function getStatusText(item) {
     const rawStatus = item.statusName?.trim().toUpperCase();
     const isNewStatus = !rawStatus || rawStatus === 'NEW';
-
-    // Prioritize ApproverStep logic
     if (item.approverStep === 1 || item.approverStep === 2) {
         return 'OnGoing';
     } else if (item.approverStep === 3) {
         return 'APPROVED';
     }
 
-    // Handle NEW status logic based on time passed
     if (isNewStatus && item.applicationDate) {
         const applicationDate = new Date(item.applicationDate);
         const now = new Date();
@@ -1162,17 +1081,18 @@ function getStatusText(item) {
         }
         return 'New';
     }
-
-    // Fallback: return existing status name or default markup
     return rawStatus || '<i class="text-success"></i> New';
 }
+// #endregion
 
-
+// #region 🟠 Check Whether to Show Info Icon
 function shouldShowInfoIcon(item) {
     const status = getStatusText(item)?.trim().toUpperCase();
     return !(status === 'NEW' || status === 'WAITING FOR APPROVAL');
 }
+// #endregion
 
+// #region 🟣 Get Employee Avatar HTML (Initial or Image)
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
@@ -1180,6 +1100,73 @@ function getAvatarHtml(employee) {
         const initial = employee.employeeName.charAt(0).toUpperCase();
         return `<div class="avatar-initial rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="height: 100%;">${initial}</div>`;
     }
+}
+// #endregion
+
+
+// #region  Data Table for Peresonal
+var currentPage = 1;
+var pageSize = 5;
+
+$('#leaveRequest-pageSizeSelect').on('change', function () {
+    var selectedSize = $(this).val();
+
+    if (selectedSize) {
+        pageSize = parseInt(selectedSize, 10);
+        currentPage = 1;
+        loadTableData();
+    }
+});
+
+$(document).ready(function () {
+    loadTableData();
+
+    $("#leaveRequest-searchInput").on("input", function () {
+        currentPage = 1;
+        loadTableData();
+    });
+
+    $("#leaveRequest-prevPageBtn").on('click', function () {
+        if (currentPage > 1) {
+            currentPage--;
+            loadTableData();
+        }
+    });
+
+    $("#leaveRequest-nextPageBtn").on('click', function () {
+        currentPage++;
+        loadTableData();
+    });
+});
+let currentSortColumn = '';
+let currentSortOrder = '';
+
+$('th.sort').on('click', function () {
+    const column = $(this).data('sort');
+
+    if (currentSortColumn === column) {
+        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortColumn = column;
+        currentSortOrder = 'asc';
+    }
+
+    loadTableData(currentSortColumn, currentSortOrder);
+    updateSortingIndicator(column, currentSortOrder);
+});
+function updateSortingIndicator() {
+    $('th.sort').each(function () {
+        const $th = $(this);
+        const column = $th.data('sort');
+        $th.find('.sort-icon').remove();
+
+        if (column === currentSortColumn) {
+            const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+            $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
+        } else {
+            $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
+        }
+    });
 }
 
 $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
@@ -1192,6 +1179,7 @@ $('#EmployeeIDs').on('changed.coreui.multi-select', function () {
     currentPage = 1;
     loadTableData(); // Make AJAX call or reload the table
 });
+
 // Filtering according to formdate to ToDate
 initializeGlobalDateRangePicker(
     'basic-daterange',
@@ -1202,8 +1190,6 @@ initializeGlobalDateRangePicker(
         loadTableData();
     }
 );
-
-
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
@@ -1217,7 +1203,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     console.log("From: " + fromDate + " | To: " + toDate);
 
     $.ajax({
-        url: '/LeaveRequestRoute/GetAllTableListAsync', 
+        url: '/LeaveRequestRoute/GetAllTableListAsync',
         method: 'GET',
         traditional: true,
         data: {
@@ -1236,8 +1222,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
         },
         success: function (response) {
 
-   
-            
+
+
             console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
@@ -1387,6 +1373,4 @@ $(document).on('click', '.page-btn', function () {
     currentPage = page;
     loadTableData();
 });
-
-
-
+//#endregion

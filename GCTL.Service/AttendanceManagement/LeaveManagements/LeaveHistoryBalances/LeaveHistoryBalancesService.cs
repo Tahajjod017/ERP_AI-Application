@@ -9,6 +9,7 @@ using OfficeOpenXml.Packaging.Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,10 +44,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
         {
             try
             {
-                var employeeId = await appDb.Users
-                    .Where(u => u.Id == userId)
-                    .Select(e => e.EmployeeId)
-                    .FirstOrDefaultAsync();
+                var employeeId = await appDb.Users.Where(u => u.Id == userId) .Select(e => e.EmployeeId) .FirstOrDefaultAsync();
 
                 var roleName = await (
                     from user in appDb.Users
@@ -56,10 +54,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                     select role.Name).FirstOrDefaultAsync();
 
                 // Get all leave balances
-                var query = leaveBalances.AllActive()
-                    .Include(x => x.Employee)
-                    .Include(x => x.LeaveType)
-                    .AsQueryable();
+                var query = leaveBalances.AllActive().Include(x => x.Employee) .Include(x => x.LeaveType).AsQueryable();
 
                 // Filter: Non-SuperAdmin
                 if (string.IsNullOrEmpty(roleName) || !string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
@@ -72,19 +67,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                 if (organizationId.HasValue)
                 {
                     var empIds = await officeInfoQuery
-                        .Where(x => x.OrganizationID == organizationId)
-                        .Select(x => x.EmployeeID)
-                        .ToListAsync();
+                        .Where(x => x.OrganizationID == organizationId).Select(x => x.EmployeeID).ToListAsync();
 
                     query = query.Where(x => empIds.Contains(x.EmployeeID));
                 }
-
+                
                 if (departmentIds?.Any() == true)
                 {
                     var empIds = await officeInfoQuery
-                        .Where(x => departmentIds.Contains(x.DepartmentID ?? 0))
-                        .Select(x => x.EmployeeID)
-                        .ToListAsync();
+                        .Where(x => departmentIds.Contains(x.DepartmentID ?? 0)).Select(x => x.EmployeeID) .ToListAsync();
 
                     query = query.Where(x => empIds.Contains(x.EmployeeID));
                 }
@@ -93,10 +84,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                 {
                     query = query.Where(x => employeeIds.Contains((int)x.EmployeeID));
                 }
+               
 
                 // Materialize the query for pivoting
                 var leaveData = await query.ToListAsync();
-                var leaveTypes = await leaveTypesRepository.AllActive().ToListAsync();
+                var leaveTypes = await leaveTypesRepository.AllActive().Where(x=>x.IsActive).ToListAsync();
                 var employees = leaveData.Select(x => x.Employee).Distinct().ToList();
 
                 var leaveVMs = new List<LeaveBalancesGetVM>();
@@ -108,10 +100,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                         EmployeeName = $"{employee.FirstName} {employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(employee.EmployeeImageFileName) ? url + employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive()
-                            .Where(e => e.EmployeeID == employee.EmployeeID)
-                            .Include(e => e.Department)
-                            .Select(e => e.Department.DepartmentName)
-                            .FirstOrDefault()
+                            .Where(e => e.EmployeeID == employee.EmployeeID).Include(e => e.Department).Select(e => e.Department.DepartmentName).FirstOrDefault()
                     };
 
                     foreach (var lt in leaveTypes)
@@ -142,6 +131,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
 
                         var taken = fullDayTaken + partialTakenInDays;
                         var remaining = totalLeave - taken;
+                        //
+                        var (takenFormatted, remainingFormatted) = LeaveCalculationHelper.CalculateTakenAndRemaining(totalLeave,taken, partialTakenInDays,(decimal)companyPolicyHour);
+
+                        Console.WriteLine($"Taken: {takenFormatted}");
+                        Console.WriteLine($"Remaining: {remainingFormatted}");
 
                         //
                         switch (lt.LeaveTypeName)
@@ -155,8 +149,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                                 vm.CasualRemaining = remaining;
                                 break;
                             case "Sick Leave":
-                                vm.MedicalTaken = taken;
-                                vm.MedicalRemaining = remaining;
+                                vm.MedicalTaken = takenFormatted;
+                                vm.MedicalRemaining = remainingFormatted;
                                 break;
                             case "Maternity Leave":
                                 vm.MaternityTaken = taken;
@@ -186,11 +180,38 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                 {
                     leaveVMs = currentSortColumn switch
                     {
-                        "EmployeeName" => (currentSortOrder == "asc" ? leaveVMs.OrderBy(x => x.EmployeeName) : leaveVMs.OrderByDescending(x => x.EmployeeName)).ToList(),
-                        "EmployeeDepartment" => (currentSortOrder == "asc" ? leaveVMs.OrderBy(x => x.EmployeeDepartment) : leaveVMs.OrderByDescending(x => x.EmployeeDepartment)).ToList(),
+                        "EmployeeName" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.EmployeeName).ToList()
+                            : leaveVMs.OrderByDescending(x => x.EmployeeName).ToList(),
+
+                        "EmployeeDepartment" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.EmployeeDepartment).ToList()
+                            : leaveVMs.OrderByDescending(x => x.EmployeeDepartment).ToList(),
+
+                        "AnnualTaken" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.AnnualTaken).ToList()
+                            : leaveVMs.OrderByDescending(x => x.AnnualTaken).ToList(),
+
+                        "CasualTaken" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.CasualTaken).ToList()
+                            : leaveVMs.OrderByDescending(x => x.CasualTaken).ToList(),
+
+                        "MedicalTaken" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.MedicalTaken).ToList()
+                            : leaveVMs.OrderByDescending(x => x.MedicalTaken).ToList(),
+
+                        "MaternityTaken" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.MaternityTaken).ToList()
+                            : leaveVMs.OrderByDescending(x => x.MaternityTaken).ToList(),
+
+                        "PaternityTaken" => currentSortOrder == "asc"
+                            ? leaveVMs.OrderBy(x => x.PaternityTaken).ToList()
+                            : leaveVMs.OrderByDescending(x => x.PaternityTaken).ToList(),
+
                         _ => leaveVMs
                     };
                 }
+
 
                 // Pagination
                 var totalItems = leaveVMs.Count;
@@ -223,6 +244,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
             }
 
         }
+        
 
         #endregion
 
@@ -244,11 +266,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                                      .FirstOrDefaultAsync();
 
                 // 🔹 Step 3: Base query with includes
-                var query = leaveRequest.AllActive()
-                    .Include(x => x.Employee)
-                    .Include(x => x.Status)
-                    .Include(x => x.LeaveType)
-                    .OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
+                var query = leaveRequest.AllActive().Include(x => x.Employee) .Include(x => x.Status) .Include(x => x.LeaveType).OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -303,6 +321,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                     query = query.Where(x => employeeIds.Contains((int)x.EmployeeID));
                 }
 
+                Expression<Func<LeaveApplications, object>> orderByExpression = currentSortColumn?.ToLower() switch
+                {
+                    "employeename" => x => x.Employee.FirstName + " " + x.Employee.LastName,
+                    "leavetype" => x => x.LeaveType.LeaveTypeName,
+                    "fromdate" => x => x.FromDate,
+                    "todate" => x => x.ToDate,
+                    "period" => x => x.ToDate.DayNumber - x.FromDate.DayNumber + 1,
+                    _ => x => x.LeaveApplicationID
+                };
                 //
                 var result = await PaginationService<LeaveApplications, LeaveHistoryGetVM>.GetPaginatedData(
 
@@ -333,7 +360,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
 
                     });
 
-               
+             
 
                 return result;
 

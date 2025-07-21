@@ -21,8 +21,8 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveHistor
         public decimal? CasualTaken { get; set; }
         public decimal? CasualRemaining { get; set; }
 
-        public decimal? MedicalTaken { get; set; }
-        public decimal? MedicalRemaining { get; set; }
+        public string? MedicalTaken { get; set; }
+        public string? MedicalRemaining { get; set; }
 
         public decimal? MaternityTaken { get; set; }
         public decimal? MaternityRemaining { get; set; }
