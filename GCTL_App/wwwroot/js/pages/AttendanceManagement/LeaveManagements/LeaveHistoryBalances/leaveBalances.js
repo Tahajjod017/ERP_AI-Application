@@ -293,8 +293,6 @@ $('th.sort').on('click', function () {
     loadTableData(currentSortColumn, currentSortOrder);
     updateSortingIndicator(column, currentSortOrder);
 });
-
-
 function updateSortingIndicator() {
     $('th.sort').each(function () {
         const $th = $(this);
@@ -309,9 +307,6 @@ function updateSortingIndicator() {
         }
     });
 }
-
-
-
 
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
