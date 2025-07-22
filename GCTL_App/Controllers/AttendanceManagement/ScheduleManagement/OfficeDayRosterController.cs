@@ -89,26 +89,19 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetAll
-        //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
-        //{
-        //    var start = startDate ?? DateTime.Today; // default to today if not provided
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        {
+            try
+            {
+                var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
 
-        //    // Pass start date to service
-        //    var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, start);
-
-        //    // Generate header dates based on provided start date
-        //    var dateList = Enumerable.Range(0, daysToShow).Select(offset => start.AddDays(offset)).ToList();
-
-        //    return Json(new
-        //    {
-        //        result,
-        //        headers = dateList.Select(date => new
-        //        {
-        //            day = date.ToString("ddd"),
-        //            date = date.ToString("dd MMM yyyy")
-        //        }).ToList()
-        //    });
-        //}
+                return Json(result);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
 
 
         //public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
@@ -242,9 +235,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OrganizationName", string sortOrder = "DESC", int daysToShow = 7, DateTime? startDate = null)
+        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null)
         {
-            var result = await _assignDefaultShiftService.GetPagedEmployeesAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _assignDefaultShiftService.GetPagedEmployeesAsync(pageNumber, pageSize, searchTerm);
 
             int totalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
 

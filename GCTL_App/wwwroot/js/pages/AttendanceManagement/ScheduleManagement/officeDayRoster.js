@@ -26,14 +26,7 @@
         let selectedDate = null;
         $(() => {
 
-
-            //$(document).ready(function () {
-            //    $('#StartDate').flatpickr({
-            //        dateFormat: "Y-m-d", // Optional format
-            //        minDate: "today",    // Optional: disable past dates
-            //    });
-            //});
-                      
+            
 
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
@@ -651,6 +644,19 @@
             });
             // #endregion
 
+
+
+            // #region flatpicker DatePicker
+            flatpickr(".datetimepicker", {
+                altInput: true,
+                altFormat: "d/m/Y",
+                dateFormat: "Y-m-d",
+                monthSelectorType: "dropdown",
+                disableMobile: true,
+                allowInput: true 
+            });
+            // #endregion
+
                                    
             
             // #region For Range Date
@@ -798,14 +804,38 @@
                 // Parse and show shifts
                 const shiftMap = parseShiftSchedule(emp.assignedDates);
                 const weekendDays = parseWeekdayNumbers(emp.weekdayNumber);
+                const holidayMap = {};
+                (emp.holidayDates || "").split(',').forEach((date, i) => {
+                    const title = (emp.holidayTitle || "").split(',')[i] || "Holiday";
+                    holidayMap[date.trim()] = title.trim();
+                });
                 headers.forEach(h => {
                     const dateObj = new Date(h.date);
                     const weekdayNumber = dateObj.getDay(); // Sunday = 0, Saturday = 6
                     const shift = shiftMap[h.date];
-                    if (shift) {
-                        const isWeekend = weekendDays.includes(weekdayNumber);
+                    const holidayTitle = holidayMap[h.date];
+                    const isWeekend = weekendDays.includes(weekdayNumber);
+                    if (holidayTitle) {
+                        bodyHtml += `
+                        <td class="holiday-cell align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
+                                <p class="fs-10 mb-1">${shift?.timeRange || ''}</p>
+                                <p class="fs-10 mb-1">${shift?.shiftName || ''}</p>
+                                <p class="fs-10 mb-0 p-1 bg-light text-info">${holidayTitle}</p>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
+                                    id="rosterInOfficeDays-editBtn"
+                                    data-id="${shift?.rosterInOfficeDayId || ''}" 
+                                    data-date="${h.date}" 
+                                    data-shift-id="${shift?.shiftID || ''}"
+                                    data-organization-id="${emp.organizationID}" 
+                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>`;
+                    } else if (shift) {
                         const badgeClass = isWeekend ? 'badge-phoenix-danger' : 'badge-phoenix-primary';
-                        const leftColor = isWeekend ? '#FF6F6F' : '#a1f1a1';
+                        const leftColor = isWeekend ? '#FF6F6F' : '#A1F1A1';
                         bodyHtml += `
                         <td class="startTime align-middle text-center">
                             <div class="position-relative badge ${badgeClass} shift-block px-4 py-2" style="border-left:5px solid ${leftColor};">
@@ -863,19 +893,18 @@
         }
 
 
-        function loadTableData(sortColumn = currentSortColumn, sortOrder = currentSortOrder, daysToShow = getDaysToShow(), startDate = currentStartDate) {
+        function loadTableData(daysToShow = getDaysToShow(), startDate = currentStartDate) {
             var searchTerm = $("#rosterInOfficeDays-searchInput").val();
             $.ajax({
-                url: settings.baseUrl + '/GetEmployeesPaged',
+                //url: settings.baseUrl + '/GetEmployeesPaged',
+                url: settings.baseUrl + '/GetAll',
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
                     pageSize: pageSize,
                     searchTerm: searchTerm,
-                    sortColumn: sortColumn,
-                    sortOrder: sortOrder,
                     daysToShow: daysToShow,
-                    startDate: startDate.toISOString()
+                    startDate: startDate
                 },
                 success: function (response) {
                     const employees = response.data;  // Your controller returns JSON { data = ..., totalCount = ... }
@@ -883,17 +912,15 @@
                     renderEmployeeTable(employees);
 
                     // Calculate pagination info
-                    const startItem = (currentPage - 1) * pageSize + 1;
-                    let endItem = currentPage * pageSize;
-                    if (endItem > totalCount) endItem = totalCount;
+                    const pagination = response.separatePaginationInfo;
 
-                    // ✅ Pagination info
-                    $("#startItem").text(startItem);
-                    $("#endItem").text(endItem);
-                    $("#totalItems").text(totalCount);
+                    // ✅ Update pagination info display
+                    $("#startItem").text(pagination.startItem);
+                    $("#endItem").text(pagination.endItem);
+                    $("#totalItems").text(pagination.totalItems);
 
-                     // ✅ Update pagination controls
-                     updatePagination(response.pageNumbers, response.currentPage, response.totalPages);
+                    // ✅ Update pagination buttons
+                    updatePagination(pagination.pageNumbers, pagination.currentPage, pagination.totalPages);
                 },
                 error: function (xhr, status, error) {
                     console.error('Error loading employee data:', error);

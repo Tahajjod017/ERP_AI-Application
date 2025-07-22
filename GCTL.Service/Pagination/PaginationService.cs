@@ -82,4 +82,24 @@ namespace GCTL.Service.Pagination
         }
         #endregion
     }
+
+
+    #region SeparatePaginationResult & SeparatePaginationInfo Class
+    public class SeparatePaginationResult<T>
+    {
+        public IEnumerable<T> Data { get; set; }
+        public int TotalCount { get; set; }
+        public SeparatePaginationInfo SeparatePaginationInfo { get; set; }
+    }
+
+    public class SeparatePaginationInfo
+    {
+        public int StartItem { get; set; }
+        public int EndItem { get; set; }
+        public int TotalItems { get; set; }
+        public List<int> PageNumbers { get; set; }
+        public int TotalPages { get; set; }
+        public int CurrentPage { get; set; }
+    }
+    #endregion
 }

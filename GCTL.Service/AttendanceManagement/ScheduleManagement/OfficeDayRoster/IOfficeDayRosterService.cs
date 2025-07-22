@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;
@@ -19,19 +20,11 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         //Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model);
         //Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);
         Task<RosterInOfficeDaysSetupVM> GetByIdAsync(int id);
-
-        //    Task<(List<RosterEmployeeGroupedVM> Data, PaginationInfo2 Pagination)> GetAllGroupedAsync(
-        //int pageNumber = 1,
-        //int pageSize = 5,
-        //string searchTerm = "",
-        //string sortColumn = "RosterInOfficeDayID",
-        //string sortOrder = "desc",
-        //int daysToShow = 7,
-        //DateTime? startDate = null);
+        Task<SeparatePaginationResult<RosterInOfficeDaysListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null);
         #endregion
 
 
-        Task<PaginationResult2<RosterInOfficeDaysListVM>> GetPagedEmployeesAsync(int pageNumber, int pageSize, string searchTerm, string sortColumn, string sortOrder, int daysToShow = 7, DateTime? startDate = null);
+        Task<PaginationResult2<RosterInOfficeDaysListVM>> GetPagedEmployeesAsync(int pageNumber, int pageSize, string searchTerm, int daysToShow = 7, DateTime? startDate = null);
     }
 
     public class PaginationResult2<T>

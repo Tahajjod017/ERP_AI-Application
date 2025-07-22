@@ -87,13 +87,13 @@
 
         <div class="col-md">
             <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")<span style="color:red;">&nbsp;*</span></label>
-            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "monthSelectorType": "dropdown", "disableMobile": true}' />
+            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" />
             <span id="StartDateError" class="text-danger" style="display:none;"></span>
         </div>
 
         <div class="col-md">
             <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")<span style="color:red;">&nbsp;*</span></label>
-            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" data-options='{"altInput": true, "altFormat": "d/m/Y", "dateFormat": "Y-m-d", "monthSelectorType": "dropdown", "disableMobile": true}' />
+            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" />
             <span id="EndDateError" class="text-danger" style="display:none;"></span>
         </div>
 
