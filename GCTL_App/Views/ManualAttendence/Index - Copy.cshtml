@@ -1,457 +1,155 @@
 ﻿<link href="~/js/layout/flatpickr/flatpickr.min.css" rel="stylesheet" />
 
-<style>
-    /* Existing styles remain unchanged */
-    .timeline-horizontal {
-        display: flex;
-        overflow-x: auto;
-        padding: 20px 0;
-        position: relative;
-        scroll-behavior: smooth;
-    }
-
-        .timeline-horizontal::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            height: 2px;
-            width: 100%;
-            background: #e9ecef;
-            z-index: 0;
-        }
-
-    .timeline-item-horizontal {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 120px;
-        margin-right: 30px;
-        z-index: 1;
-        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-        .timeline-item-horizontal.shift-left {
-            transform: translateX(-50px);
-        }
-
-        .timeline-item-horizontal.shift-right {
-            transform: translateX(150px);
-        }
-
-        .timeline-item-horizontal.deletable {
-            position: relative;
-        }
-
-            .timeline-item-horizontal.deletable:hover::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 8px;
-                opacity: 0;
-                transition: opacity 0.4s ease-in-out;
-                z-index: 1;
-            }
-
-            .timeline-item-horizontal.deletable:hover::after {
-                opacity: 1;
-            }
-
-            .timeline-item-horizontal.deletable:hover .timeline-delete-btn {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-                top: 50%;
-                transition: all 0.4s ease-in-out;
-            }
-
-        .timeline-item-horizontal.slide-from-input {
-            animation: slideFromInputHorizontal 0.4s ease-in-out forwards;
-        }
-
-        .timeline-item-horizontal.fly-out {
-            animation: flyOut 0.4s ease-in-out forwards;
-        }
-
-    .timeline-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background-color: #007bff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 12px;
-        margin-bottom: 8px;
-        border: 2px solid white;
-        z-index: 2;
-    }
-
-        .timeline-icon.not-punched {
-            background-color: #6c757d;
-            border: 2px dashed #adb5bd;
-        }
-
-    .timeline-time {
-        font-weight: 600;
-        color: #495057;
-        font-size: 14px;
-        margin-top: 5px;
-    }
-
-    .timeline-label {
-        font-size: 11px;
-        color: #6c757d;
-        opacity: 0.6;
-        font-style: italic;
-    }
-
-    .timeline-wrapper {
-        border: 1px solid #e9ecef;
-        background: #f8f9fa;
-        border-radius: 8px;
-        max-height: 180px;
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-
-    .timeline {
-        position: relative;
-        padding: 0;
-        max-height: 300px;
-        overflow-y: auto;
-        padding-right: 10px;
-    }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 30px;
-            height: 100%;
-            width: 2px;
-            background: #e9ecef;
-        }
-
-    .timeline-item {
-        position: relative;
-        padding-left: 70px;
-        padding-bottom: 20px;
-        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-        .timeline-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .timeline-item.shift-up {
-            transform: translateY(-30px);
-        }
-
-        .timeline-item.shift-down {
-            transform: translateY(80px);
-        }
-
-        .timeline-item.deletable {
-            position: relative;
-        }
-
-            .timeline-item.deletable:hover::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 8px;
-                opacity: 0;
-                transition: opacity 0.4s ease-in-out;
-                z-index: 1;
-            }
-
-            .timeline-item.deletable:hover::after {
-                opacity: 1;
-            }
-
-            .timeline-item.deletable:hover .timeline-delete-btn {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-                top: 50%;
-                transition: all 0.4s ease-in-out;
-            }
-
-        .timeline-item.slide-from-input {
-            animation: slideFromInputVertical 0.4s ease-in-out forwards;
-        }
-
-        .timeline-item.fly-out {
-            animation: flyOut 0.4s ease-in-out forwards;
-        }
-
-        .timeline-item .timeline-icon {
-            position: absolute;
-            left: 18px;
-            top: 0;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: white;
-            z-index: 1;
-            background-color: #007bff;
-        }
-
-            .timeline-item .timeline-icon.not-punched {
-                background-color: #6c757d;
-                border: 2px dashed #adb5bd;
-            }
-
-    .timeline-content {
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin-top: -2px;
-    }
-
-        .timeline-content .timeline-time {
-            font-weight: 600;
-            color: #495057;
-            font-size: 14px;
-        }
-
-        .timeline-content .timeline-label {
-            font-size: 11px;
-            color: #6c757d;
-            opacity: 0.6;
-            font-style: italic;
-            position: absolute;
-            right: 10px;
-            top: 12px;
-        }
-
-    .not-punched-text {
-        color: #dc3545;
-        font-style: italic;
-        font-size: 13px;
-    }
-
-    .timeline::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .timeline::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 3px;
-    }
-
-    .timeline::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 3px;
-    }
-
-        .timeline::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
-
-    .flatpickr-calendar {
-        width: 17.3% !important;
-    }
-
-    .timeline-delete-btn {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #dc3545;
-        border: 2px solid white;
-        color: white;
-        font-size: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        opacity: 0;
-        transform: translate(-50%, -100%);
-        transition: all 0.4s ease-in-out;
-    }
-
-    .timeline-item-horizontal:not(.deletable):hover,
-    .timeline-item:not(.deletable):hover {
-        cursor: default;
-    }
-
-    .timeline-item-horizontal:not(.deletable) .timeline-delete-btn,
-    .timeline-item:not(.deletable) .timeline-delete-btn {
-        display: none;
-    }
-
-    @@keyframes slideFromInputHorizontal {
-        from {
-            transform: translateX(var(--start-x, 0)) scale(0.8);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0) scale(1);
-            opacity: 1;
-        }
-    }
-
-    @@keyframes slideFromInputVertical {
-        from {
-            transform: translateY(var(--start-y, 0)) scale(0.8);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-        }
-    }
-
-    @@keyframes flyOut {
-        from {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        to {
-            opacity: 0;
-            transform: translateY(-20px) scale(0.5);
-        }
-    }
-</style>
-
 <!-- Breadcrumb -->
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
     <div class="my-auto mb-2">
-        <h2 class="mb-1">Manual Attendance</h2>
+        <h2 class="mb-1">Manual Attendence</h2>
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
                     <a href="#"><i class="ti ti-smart-home"></i></a>
                 </li>
-                <li class="breadcrumb-item">Employee</li>
-                <li class="breadcrumb-item active" aria-current="page">Attendance</li>
+                <li class="breadcrumb-item">
+                    Employee
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Attendence</li>
             </ol>
         </nav>
     </div>
-    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
+        <div class="me-2 mb-2">
+            @*<div class="dropdown">
+                    <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                        <i class="ti ti-file-export me-1"></i>Export
+                    </a>
+                    <ul class="dropdown-menu  dropdown-menu-end p-3">
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>Export as PDF</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>Export as Excel </a>
+                        </li>
+                    </ul>
+                </div>*@
+        </div>
         <div class="mb-2">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#apply_leave" class="btn btn-primary d-flex align-items-center">
-                <i class="ti ti-circle-plus me-2"></i>Add Manual Attendance
-            </a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#apply_leave" class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add Manual Attendence</a>
+        </div>
+        <div class="head-icons ms-2">
+
         </div>
     </div>
 </div>
+<!-- /Breadcrumb -->
 
-<!-- Leaves Info -->
-<div class="row my-4">
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-black-le">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-start">
-                        <p class="mb-1">In/Out Time Missing</p>
-                        <h4 id="inTimeMissing">0</h4>
-                    </div>
-                    <div class="d-flex">
-                        <div class="flex-shrink-0 me-2">
-                            <span class="avatar avatar-md d-flex">
-                                <i class="ti ti-calendar-event fs-5 text-white"></i>
-                            </span>
+<div class="my-4">
+
+
+    <!-- Leaves Info -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-black-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">In/Out Time Missing</p>
+                            <h4 id="inTimeMissing">29</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-calendar-event fs-5 text-white"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-purple-le">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-start">
-                        <p class="mb-1">Break Time In/Out Missing</p>
-                        <h4 id="bTinOutMissing">0</h4>
-                    </div>
-                    <div class="d-flex">
-                        <div class="flex-shrink-0 me-2">
-                            <span class="avatar avatar-md d-flex">
-                                <i class="ti ti-hexagon-letter-c fs-5 text-white"></i>
-                            </span>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-purple-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">Break Time In/Out Missing</p>
+                            <h4 id="bTinOutMissing">10</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-hexagon-letter-c fs-5 text-white"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-pink-le">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-start">
-                        <p class="mb-1">Double Entry</p>
-                        <h4 id="doubleEntry">0</h4>
-                    </div>
-                    <div class="d-flex">
-                        <div class="flex-shrink-0 me-2">
-                            <span class="avatar avatar-md d-flex">
-                                <i class="ti ti-hexagonal-prism-plus fs-5 text-white"></i>
-                            </span>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-pink-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">Double Entry</p>
+                            <h4 id="doubleEntry">05</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-hexagonal-prism-plus fs-5 text-white"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xl-3 col-md-6">
-        <div class="card bg-blue-le">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-start">
-                        <p class="mb-1">Absent</p>
-                        <h4 id="holidayEntry">0</h4>
-                    </div>
-                    <div class="d-flex">
-                        <div class="flex-shrink-0 me-2">
-                            <span class="avatar avatar-md d-flex">
-                                <i class="ti ti-vaccine fs-5 text-white"></i>
-                            </span>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-blue-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">Absent</p>
+                            <h4 id="holidayEntry">14</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-vaccine fs-5 text-white"></i>
+                                </span>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
+
     </div>
+    <!-- /Leaves Info -->
 </div>
 
-<!-- Attendance Table -->
 <div class="mb-4">
+
     <div class="card">
+
+
+
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
             <h4 class="mb-1">Manual Attendance Possible List</h4>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-                <div class="me-3">
-                    <input class="form-control" id="searchInput" type="text" placeholder="Search by Employee Name">
-                </div>
+
                 <div class="me-3">
                     <div class="input-icon-end position-relative">
                         <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y to d/m/y" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                     </div>
                 </div>
+
                 <div class="dropdown me-3">
                     <select class="form-select" id="departmentFilter" data-choices="data-choices" size="1" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Select Department</option>
@@ -462,7 +160,9 @@
                         <option>Operations</option>
                     </select>
                 </div>
+
                 <div class="dropdown me-3">
+
                     <select class="form-select" id="possibleReasonFilter" data-choices="data-choices" size="1" name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">All Possible Reasons</option>
                         <option value="In Time Missing">In Time Missing</option>
@@ -473,30 +173,40 @@
                         <option value="Over Punching">Over Punching</option>
                         <option value="Complete Record">Complete Record</option>
                     </select>
+
                 </div>
+
                 <div class="dropdown me-3">
+                    <select class="form-select" id="priorityFilter" data-choices="data-choices" size="1" name="priorityFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Select Priority</option>
+                        <option>High</option>
+                        <option>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="dropdown">
                     <select class="form-select" id="sortFilter" data-choices="data-choices" size="1" name="sortFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
                         <option value="">Sort by: Latest</option>
                         <option>Latest</option>
                         <option>Oldest</option>
                         <option>Employee Name</option>
                         <option>Department</option>
+                        <option>Priority</option>
                     </select>
                 </div>
-                <div class="dropdown me-3">
-                    <select class="form-select" id="pageSizeSelect" data-choices="data-choices" size="1" name="pageSizeSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="10">10 per page</option>
-                        <option value="25">25 per page</option>
-                        <option value="50">50 per page</option>
-                        <option value="100">100 per page</option>
-                    </select>
-                </div>
+
             </div>
         </div>
+
         <div class="border-translucent p-3 pt-0">
-            <div id="manualAttendanceListTable">
+            <div id="manualAttendenceListTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
                     <table class="table table-sm fs-9 leads-table">
+
+
+
+
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -511,6 +221,7 @@
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="overtime">Overtime</th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="biometricHits">Biometric Hits</th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="possibleReason">Possible Reason</th>
+
                             </tr>
                         </thead>
                         <tbody class="list" id="attendance-body">
@@ -518,9 +229,12 @@
                         </tbody>
                     </table>
                 </div>
+
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
                         <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        <a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -530,15 +244,17 @@
                 </div>
             </div>
         </div>
+
+
     </div>
+
 </div>
 
-<!-- Add/Edit Attendance Modal -->
 <div class="modal fade" id="apply_leave">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Add/Edit Attendance</h4>
+                <h4 class="modal-title">Edit Attendance</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form>
@@ -553,30 +269,41 @@
                                 <label class="form-label">Date</label>
                                 <input type="text" class="form-control datetimepicker" name="attendanceDate" placeholder="dd/mm/yyyy" disabled>
                             </div>
+                            @*<div class="mb-3">
+                                    <label class="form-label">Punch History</label>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="mb-1"><strong>In:</strong> <span name="punchHistoryIn">Not Punched</span></p>
+                                            <p class="mb-1"><strong>Out:</strong> <span name="punchHistoryOut">Not Punched</span></p>
+                                            <p class="mb-1"><strong>Break In:</strong> <span name="punchHistoryBreakIn">Not Punched</span></p>
+                                            <p class="mb-0"><strong>Break Out:</strong> <span name="punchHistoryBreakOut">Not Punched</span></p>
+                                        </div>
+                                    </div>
+                                </div>*@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Actual In Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="actualInTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" name="actualInTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Actual Out Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="actualOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" name="actualOutTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Break In Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="breakInTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" name="breakInTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Break Out Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="breakOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" name="breakOutTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
                         </div>
@@ -591,6 +318,347 @@
     </div>
 </div>
 
+
+<style>
+
+/* Horizontal Timeline Styles */
+.timeline-horizontal {
+    display: flex;
+    overflow-x: auto;
+    padding: 20px 0;
+    position: relative;
+    scroll-behavior: smooth;
+}
+
+.timeline-horizontal::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: #e9ecef;
+    z-index: 0;
+}
+
+.timeline-item-horizontal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+    margin-right: 30px;
+    z-index: 1;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-item-horizontal.shift-left {
+    transform: translateX(-50px); /* Slight left shift for items before */
+}
+
+.timeline-item-horizontal.shift-right {
+    transform: translateX(150px); /* More pronounced right shift for items after */
+}
+
+.timeline-item-horizontal.deletable {
+    position: relative;
+}
+
+.timeline-item-horizontal.deletable:hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    z-index: 1;
+}
+
+.timeline-item-horizontal.deletable:hover::after {
+    opacity: 1;
+}
+
+.timeline-item-horizontal.deletable:hover .timeline-delete-btn {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    transition: all 0.4s ease-in-out;
+}
+
+.timeline-item-horizontal.slide-from-input {
+    animation: slideFromInputHorizontal 0.4s ease-in-out forwards;
+}
+
+.timeline-item-horizontal.fly-out {
+    animation: flyOut 0.4s ease-in-out forwards;
+}
+
+.timeline-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    margin-bottom: 8px;
+    border: 2px solid white;
+    z-index: 2;
+}
+
+.timeline-icon.not-punched {
+    background-color: #6c757d;
+    border: 2px dashed #adb5bd;
+}
+
+.timeline-time {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.timeline-label {
+    font-size: 11px;
+    color: #6c757d;
+    opacity: 0.6;
+    font-style: italic;
+}
+
+.timeline-wrapper {
+    border: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 8px;
+    max-height: 180px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Vertical Timeline Styles */
+.timeline {
+    position: relative;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 30px;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 70px;
+    padding-bottom: 20px;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item.shift-up {
+    transform: translateY(-30px); /* Slight upward shift for items before */
+}
+
+.timeline-item.shift-down {
+    transform: translateY(80px); /* More pronounced downward shift for items after */
+}
+
+.timeline-item.deletable {
+    position: relative;
+}
+
+.timeline-item.deletable:hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    z-index: 1;
+}
+
+.timeline-item.deletable:hover::after {
+    opacity: 1;
+}
+
+.timeline-item.deletable:hover .timeline-delete-btn {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    transition: all 0.4s ease-in-out;
+}
+
+.timeline-item.slide-from-input {
+    animation: slideFromInputVertical 0.4s ease-in-out forwards;
+}
+
+.timeline-item.fly-out {
+    animation: flyOut 0.4s ease-in-out forwards;
+}
+
+.timeline-item .timeline-icon {
+    position: absolute;
+    left: 18px;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: white;
+    z-index: 1;
+    background-color: #007bff;
+}
+
+.timeline-item .timeline-icon.not-punched {
+    background-color: #6c757d;
+    border: 2px dashed #adb5bd;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: -2px;
+}
+
+.timeline-content .timeline-time {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+.timeline-content .timeline-label {
+    font-size: 11px;
+    color: #6c757d;
+    opacity: 0.6;
+    font-style: italic;
+    position: absolute;
+    right: 10px;
+    top: 12px;
+}
+
+.not-punched-text {
+    color: #dc3545;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.timeline::-webkit-scrollbar {
+    width: 6px;
+}
+
+.timeline::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.timeline::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.timeline::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+.flatpickr-calendar {
+    width: 17.3% !important;
+}
+
+.timeline-delete-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #dc3545;
+    border: 2px solid white;
+    color: white;
+    font-size: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    opacity: 0;
+    transform: translate(-50%, -100%);
+    transition: all 0.4s ease-in-out;
+}
+
+.timeline-item-horizontal:not(.deletable):hover,
+.timeline-item:not(.deletable):hover {
+    cursor: default;
+}
+
+.timeline-item-horizontal:not(.deletable) .timeline-delete-btn,
+.timeline-item:not(.deletable) .timeline-delete-btn {
+    display: none;
+}
+
+/* Animation Keyframes */
+@@keyframes slideFromInputHorizontal {
+    from {
+        transform: translateX(var(--start-x, 0)) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@@keyframes slideFromInputVertical {
+    from {
+        transform: translateY(var(--start-y, 0)) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@@keyframes flyOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.5);
+    }
+}
+
+
+    
+
+
+</style>
+
 <!-- Horizontal Timeline Modal -->
 <div class="modal fade" id="edit_leaves_horizontal">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -601,6 +669,8 @@
             </div>
             <form>
                 <div class="modal-body">
+
+
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-floating">
@@ -618,7 +688,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-sm-2 mb-md-0">
+
+
+
+
+
+                    <div class="row mb-sm-2 mb-md-0 ">
                         <div class="col-md-6">
                             <div class="input-group">
                                 <div class="flatpickr-input-container" style="width: 83%;">
@@ -634,6 +709,9 @@
                             </div>
                         </div>
                     </div>
+                    
+
+
                     <div class="mt-2">
                         <label class="form-label">Punch History</label>
                         <div class="timeline-wrapper">
@@ -642,7 +720,9 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -675,6 +755,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <div class="form-floating">
@@ -691,11 +772,16 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="mb-3">
                                 <div class="input-group">
                                     <div class="flatpickr-input-container" style="width: 83%;">
                                         <div class="form-floating">
-                                            <input id="time2" class="form-control datetimepicker timepicker-12hr" type="text" name="actualInTime" placeholder="hour : minute" data-options='{"disableMobile":true}' />
+                                            <input id="time2" class="form-control datetimepicker timepicker-12hr"
+                                                   type="text"
+                                                   name="actualInTime"
+                                                   placeholder="hour : minute"
+                                                   data-options='{"disableMobile":true}' />
                                             <label class="ps-6" for="time2">Time</label>
                                             <span class="uil uil-clock flatpickr-icon text-body-tertiary"></span>
                                         </div>
@@ -720,8 +806,8 @@
 @section Scripts
 {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/layout/flatpickr/flatpickr.min.js"></script>
-   
     <script src="~/js/pages/AttendanceManagement/ManualAttendence/ManualAttendence.js"></script>
 }
