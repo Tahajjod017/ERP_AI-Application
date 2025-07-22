@@ -20,8 +20,6 @@
                                                 @foreach (var org in ViewBag.Organizations)
                                                 {
                                                     var isSelected = org.Selected ? "selected" : "";
-
-
                                                     <option value="@org.Value" selected="@isSelected">@org.Text</option>
                                                 }
                                             </select>
@@ -99,22 +97,15 @@
 
                                     <!-- Checkbox for AllowSelfApproval (Initially hidden) -->
                                     <div class="col-md-4" id="selfApprovalEditSection">
-
                                         <div class="mb-3">
                                             <div class="row">
                                                 <div class="form-check form-switch col-12 custom-padding-left">
-                                                    <input class="form-check-input" type="checkbox" id="chkSelfApprovaEditl" name="AllowSelfApproval" />
+                                                    <input class="form-check-input" type="checkbox" id="chkSelfApprovalEdit" name="AllowSelfApproval" />
                                                     <label class="form-check-label" for="chkSelfApprovalEdit">Allow Self-Approval</label>
                                                 </div>
                                             </div>
 
                                             <!-- Select Dropdown (Below Checkbox) -->
-                                            @* <div class="mt-3">
-                                     <select class="form-select choiceDD" id="selSelfApproval" name="SelfExceptionApprovalID" required>
-                                         <option value="">Select Self Approver</option>
-                                         <!-- Options will be populated dynamically -->
-                                     </select>
-                                 </div> *@
                                             <div class="mt-3">
                                                 <select class="form-select choiceDD"
                                                         id="selSelfApprovalEdit"
@@ -122,11 +113,8 @@
                                                     <option value="">Select Self Approver</option>
                                                 </select>
                                             </div>
-
                                         </div>
                                     </div>
-
-
 
                                 </div>
                             </div>
@@ -143,3 +131,4 @@
         </div>
     </div>
 </div>
+
