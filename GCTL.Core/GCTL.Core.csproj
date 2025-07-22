@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\AttendanceManagement\ManualAttendence\" />
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\AssignSpiralPattern\" />
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\CreateSpiralPattern\" />
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\EmployeeShiftView\" />
