@@ -222,69 +222,11 @@ $(document).ready(function () {
         }
     });
 
-    // Also initialize flatpickr for other date fields
-    //flatpickr("#FromDate", { dateFormat: "Y-m-d" });
-    //flatpickr("#ToDate", { dateFormat: "Y-m-d" });
+  
     initializeDatepickerDMY("FromDateEdit, ToDateEdit,ToDateFromDateCombinedEdit")
     initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
-    //$(document).on('change', "#FromDateEdit", function () {
-    //    updateDatepickerWithMinDate("ToDateEdit", $("#FromDateEdit").val());
-
-    //})
-    //GetLeavePolicyIsCountAsync();
-    //function GetLeavePolicyIsCountAsync() {
-    //    $.ajax({
-    //        url: '/LeaveRequest/GetLeavePolicyIsCountAsync',
-    //        type: 'GET',
-    //        success: function (data) {
-    //            if (data.length > 0) {
-    //                const policy = data[0];
-    //                if (policy.isWeekendCountedAsLeave || policy.isHolidayCountedAsLeave) {
-    //                    $('#SubsequentHolydayDays').val('');
-    //                } else {
-    //                    $('#SubsequentHolydayDays').val('Not Applicable');
-    //                }
-
-    //                const today = new Date();
-    //                today.setHours(0, 0, 0, 0);
-    //                let minDate = null;
-    //                let maxDate = null;
-    //                // Allow or disallow past dates
-    //                if (policy.isAllowRequestForPastDates === true) {
-    //                    //minDate = today ;
-    //                    const pastDate = new Date(today);
-    //                    pastDate.setDate(today.getDate() + 1);
-    //                    minDate = pastDate;
-    //                } else {
-    //                    minDate = null
-    //                }
-
-    //                if (policy.isAllowRequestForFutureDays && policy.allowRequestForFutureDays > 0) {
-    //                    const futureDate = new Date(today);
-    //                    futureDate.setDate(today.getDate() + (policy.allowRequestForFutureDays + 1));
-    //                    maxDate = futureDate;
-    //                }
-    //                const minDateStr = minDate ? minDate.toISOString().split('T')[0] : null;
-    //                const maxDateStr = maxDate ? maxDate.toISOString().split('T')[0] : null;
-    //                console.log("Today:", today.toISOString().split('T')[0]);
-    //                console.log("Past dates allowed:", policy.isAllowRequestForPastDates);
-    //                console.log("Final minDate:", minDate ? minDate.toISOString().split('T')[0] : 'null');
-
-    //                initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
-    //                initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDateStr, maxDateStr);
-
-    //                window.__minDateStr = minDateStr;
-    //                window.__maxDateStr = maxDateStr;
-    //                //
-    //            }
-    //        },
-    //        error: function () {
-    //            toastr.error('Failed to retrieve data.');
-    //        }
-    //    });
-    //}
-    //
-
+    initializeTimePickerById('timepicker-12hr,timepicker-12hrEdit');
+    
     function TotalDaysCount(fromDate, toDate) {
         if (!fromDate || !toDate) return;
 
@@ -583,29 +525,6 @@ $(document).ready(function () {
         $('#ApplyLeaveSubmitButtonApproval').addClass('d-none');
     });
 
-
-    
-    //$(document).on('change', '#ToDateEdit', function () {
-    //    debugger
-    //    const selectedDate = $(this).val();
-    //    const originalToDate = window.__originalToDate;
-    //    const originalFromdate = window.__originalFromDate;
-    //    if (originalFromdate > selectedDate)
-    //    {
-    //        toastr.warning(' originalFromdate > selectedDate value.');
-    //    }
-    //    if (selectedDate > originalToDate) {
-    //        $(this).val(window.__originalToDate);
-    //        toastr.warning('You cannot increase the To Date beyond the original value.');
-    //    }
-    //});
-
-
-    //
-   
-
-    //
-
 });
 
 
@@ -684,39 +603,6 @@ function updateSortingIndicator() {
 
 
 
-//<td class="dptStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-//    <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Approved">
-//        <i class="fas fa-check-square text-success"></i>
-//    </a>
-
-//    <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Declined">
-//        <i class="far fa-window-close text-danger"></i>
-//    </a>
-//</td>
-
-
-//<td class="align-middle white-space-nowrap text-end pe-0">
-//    <div class="d-flex justify-content-end align-items-center">
-//        <a
-//            href="#"
-//            title="Edit"
-//            id="LeaveRequestEditButton"
-//            data-id="${item.leaveApplicationID}"
-//            class="btn btn-outline-light btn-icon me-1 ${isDisabled ? 'disabled' : ''}"
-//            data-bs-toggle="modal"
-//            data-bs-target="#edit_leaves"
-//            ${isDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
-//            <i class="fas fa-edit text-black"></i>
-//        </a>
-//        <a
-//            href="#" title="Delete" data-id="${item.leaveApplicationID}"
-//            class="btn btn-outline-light btn-icon"
-//            id="leaveRequestDelete-singleDelBtn" >
-//            <i class="far fa-trash-alt text-black"></i>
-//        </a>
-//    </div>
-//</td>
-
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
         return `<img class="rounded-circle" src="${employee.employeeImage}" alt="${employee.employeeName}" />`;
@@ -734,7 +620,6 @@ $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
 
 // Filtering according to formdate to ToDate
 
-
 $(document).ready(function () {
     initializeGlobalDateRangePicker(
         'basic-daterange_aboveTable',                   // visible input
@@ -748,7 +633,6 @@ $(document).ready(function () {
 });
 
 //
-
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#leaveRequest-searchInput").val();
     var leaveTypeID = $('#LeaveTypeIDFilterDD').val();
@@ -865,7 +749,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"
-                              class="btn btn-outline-light btn-icon"  
+                              class="btn btn-outline-light btn-icon d-none"  
                               id="leaveRequestDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
@@ -1110,7 +994,7 @@ $(document).ready(function () {
                          
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"
-                              class="btn btn-outline-light btn-icon"  
+                              class="btn btn-outline-light btn-icon d-none"  
                               id="leaveRequestDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>

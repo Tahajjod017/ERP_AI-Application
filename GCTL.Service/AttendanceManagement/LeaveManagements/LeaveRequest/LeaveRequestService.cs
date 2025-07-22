@@ -1010,11 +1010,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 .Include(x => x.ApprovalType).Where(x =>
                     x.OrganizationID == offf.OrganizationID &&
                     (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                    x.ApprovalType.ApprovalTypeName == "Leave Request Approval")
-                .FirstOrDefaultAsync();
+                    x.ApprovalType.ApprovalTypeName == "Leave Request Approval").FirstOrDefaultAsync();
 
-            if (approvalSettings == null)
-                return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
+            if (approvalSettings == null)return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
 
             int? approvalPersonId = null;
 

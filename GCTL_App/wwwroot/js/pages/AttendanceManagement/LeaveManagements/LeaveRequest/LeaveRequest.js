@@ -1310,7 +1310,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     </a>
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"
-                              class="btn btn-outline-light btn-icon"  
+                              class="btn btn-outline-light btn-icon d-none"  
                               id="leaveRequestDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>

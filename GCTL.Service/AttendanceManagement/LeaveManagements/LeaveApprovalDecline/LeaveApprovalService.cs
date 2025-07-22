@@ -361,19 +361,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 if (!(minDate <= model.ToDateEdit && model.ToDateEdit <= maxDate))
                     errors.Add("To Date must be within the allowed range.");
-
-                //if (model.ToDateEdit < model.FromDateEdit)
-                //    errors.Add("To Date must be on or after From Date.");
-
-                //if (model.TotalAppliedDays > model.AvailableLeaveDays)
-                //    errors.Add("Applied days exceed available leave.");
             }
 
 
 
             return !errors.Any();
         }
-
 
         // Time Hour Min
         public static decimal CalculatePartialHours(TimeOnly? from, TimeOnly? to)
@@ -529,7 +522,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 }
 
                 // 🔹 Update leave balance only if final approval (CHANGED)
-                if (isFinalApproval)
+                if (isFinalApproval && entityVM.Approved==true)
                 {
                     var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
                         .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
@@ -587,7 +580,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = entityVM.UpdatedBy;
-
                 await leaveRequest.UpdateAsync(entity);
 
                 // 🔹 Always save approval history
@@ -898,7 +890,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                                 Taken = lb.Taken,
                                 ApplicableYear = lb.ApplicableYear,
                                 RemainingDays = lb != null
-                                    ? (lb.TotalLeave - (lb.Taken ?? 0) + (lb.TakenPartialHours ?? 0))
+                                    ? ((lb.TotalLeave ?? 0) - ((lb.Taken ?? 0) + (lb.TakenPartialHours ?? 0)))
                                     : (lt.LeaveDays ?? 0)
                             };
            return await baseQuery.ToListAsync();
