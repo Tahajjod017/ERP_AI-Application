@@ -22,7 +22,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public List<int>? EmployeeIDs { get; set; }
         public string? EmployeeName { get; set; }
 
-        public string? ShiftID { get; set; }
+        public int? ShiftID { get; set; }
         public string? ShiftName { get; set; }
 
         public DateTime? StartDate { get; set; }
@@ -34,5 +34,11 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public string? AssignedDates { get; set; }
 
         public string? WeekdayNumber { get; set; }
+
+        public string? WeekendDays { get; set; }
+
+        public string? HolidayTitle { get; set; }
+
+        public string? HolidayDates { get; set; }
     }
 }

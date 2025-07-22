@@ -117,31 +117,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 // #region For flatpicker datepicker
-document.addEventListener("DOMContentLoaded", function () {
-    flatpickr(".datetimepicker", {
-        //onDayCreate: function (dObj, dStr, fp, dayElem) {
-        //    const dayNumber = parseInt(dayElem.textContent);
-        //    const year = fp.currentYear;
-        //    const month = fp.currentMonth;
+//document.addEventListener("DOMContentLoaded", function () {
+//    flatpickr(".datetimepicker", {
+//        //onDayCreate: function (dObj, dStr, fp, dayElem) {
+//        //    const dayNumber = parseInt(dayElem.textContent);
+//        //    const year = fp.currentYear;
+//        //    const month = fp.currentMonth;
 
-        //    // Check if the day is part of the currently displayed month
-        //    if (
-        //        !isNaN(dayNumber) &&
-        //        !dayElem.classList.contains("prevMonthDay") &&
-        //        !dayElem.classList.contains("nextMonthDay")
-        //    ) {
-        //        const date = new Date(year, month, dayNumber);
-        //        const dayOfWeek = date.getDay(); // 5 = Friday, 6 = Saturday
+//        //    // Check if the day is part of the currently displayed month
+//        //    if (
+//        //        !isNaN(dayNumber) &&
+//        //        !dayElem.classList.contains("prevMonthDay") &&
+//        //        !dayElem.classList.contains("nextMonthDay")
+//        //    ) {
+//        //        const date = new Date(year, month, dayNumber);
+//        //        const dayOfWeek = date.getDay(); // 5 = Friday, 6 = Saturday
 
-        //        if (dayOfWeek === 5 || dayOfWeek === 6) {
-        //            dayElem.style.backgroundColor = "#FFA500"; // #FFA500 = Orange, gray = #e8eaec
-        //            dayElem.style.color = "#ffffff";
-        //            dayElem.style.borderRadius = "50%";
-        //        }
-        //    }
-        //}
-    });
-});
+//        //        if (dayOfWeek === 5 || dayOfWeek === 6) {
+//        //            dayElem.style.backgroundColor = "#FFA500"; // #FFA500 = Orange, gray = #e8eaec
+//        //            dayElem.style.color = "#ffffff";
+//        //            dayElem.style.borderRadius = "50%";
+//        //        }
+//        //    }
+//        //}
+//    });
+//});
 // #endregion
 
 
@@ -154,33 +154,27 @@ function validateField(fieldId, response) {
     const hasError = response.field === fieldId;
     const hasValue = $field.val();
 
-    // Check if it's a Choices.js-enhanced field
+    const flatpickrInstance = $field[0]?._flatpickr;
+    const $flatpickerInner = flatpickrInstance?.altInput ? $(flatpickrInstance.altInput) : $field;
+
     const isChoices = $field.closest('.choices').length > 0;
+    const $choicesInner = isChoices ? $field.closest('.choices').find('.choices__inner') : null;
 
-    if (isChoices) {
-        const $choicesInner = $field.closest('.choices').find('.choices__inner');
-        // Clear previous styles
+    // Reset previous styles
+    $flatpickerInner.removeClass('is-invalid is-valid');
+    $errorSpan.hide().text('');
+    if ($choicesInner) {
         $choicesInner.removeClass('border-danger border-success');
-        $errorSpan.hide().text('');
+    }
 
-        // Apply validation
-        if (hasError) {
-            $choicesInner.addClass('border-danger');
-            $errorSpan.text(response.message).show();
-        } else if (hasValue) {
-            $choicesInner.addClass('border-success');
-        }
-    } else {
-        // Normal input/select field
-        $field.removeClass('is-invalid is-valid');
-        $errorSpan.hide().text('');
-
-        if (hasError) {
-            $field.addClass('is-invalid');
-            $errorSpan.text(response.message).show();
-        } else if (hasValue) {
-            $field.addClass('is-valid');
-        }
+    // Apply validation feedback
+    if (hasError) {
+        $flatpickerInner.addClass('is-invalid');
+        $errorSpan.text(response.message).show();
+        if ($choicesInner) $choicesInner.addClass('border-danger');
+    } else if (hasValue) {
+        $flatpickerInner.addClass('is-valid');
+        if ($choicesInner) $choicesInner.addClass('border-success');
     }
 }
 // #endregion

@@ -38,8 +38,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public DateTime? EndDate { get; set; }
 
         public string? TimeRange { get; set; }
-
-        public List<int>? ExcludedEmployeeIDs { get; set; }
     }
 
 
