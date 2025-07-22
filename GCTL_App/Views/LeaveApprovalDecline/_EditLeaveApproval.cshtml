@@ -1,5 +1,14 @@
 ﻿@model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprovalDecline.LeaveApplicationApprovalModifyVM
 
+<style>
+   .readonly {
+        background-color: #f4f6f9;
+        pointer-events: none;
+        cursor: default;
+        color: #6c757d;
+    }
+</style>
+
 
 <form  id="LeaveRequestUpdatedForm">
     <div class="modal-body pb-0">
@@ -27,7 +36,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Available No of Days</label>
-                    <input type="text" class="form-control" id="AvailableLeaveDays" readonly>
+                    <input type="text" class="form-control readonly" id="AvailableLeaveDays" readonly>
                 </div>
             </div>
 
@@ -80,7 +89,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Total Applied Days</label>
-                            <input type="text" id="TotalAppliedDays" class="form-control" readonly >
+                            <input type="text" id="TotalAppliedDays readonly" class="form-control" readonly>
                         </div>
                     </div>
                 </div>
@@ -104,7 +113,8 @@
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">Start Time</label>
-                            <input class="form-control datetimepicker" asp-for="PartialFromTimeEdit" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
+                            <input class="form-control datetimepicker timepicker-12hrEdit" asp-for="PartialFromTimeEdit" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                            @* <input class="form-control datetimepicker" asp-for="PartialFromTimeEdit" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
                             <span asp-validation-for="PartialFromTimeEdit" class="text-danger small"></span>
                         </div>
                     </div>
@@ -112,7 +122,8 @@
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label req">End Time</label>
-                            <input class="form-control datetimepicker" asp-for="PartialToTimeEdit" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' />
+                            <input class="form-control datetimepicker timepicker-12hr" asp-for="PartialToTimeEdit" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
+                           @*  <input class="form-control datetimepicker" asp-for="PartialToTimeEdit" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
                             <span asp-validation-for="PartialToTimeEdit" class="text-danger small"></span>
                         </div>
                     </div>
