@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
@@ -85,17 +86,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 var roleName = await (from user in appDb.Users
                                       join userRole in appDb.UserRoles on user.Id equals userRole.UserId
                                       join role in appDb.Roles on userRole.RoleId equals role.Id
-                                      where user.Id == userId
-                                      select role.Name)
-                                     .FirstOrDefaultAsync();
+                                      where user.Id == userId select role.Name).FirstOrDefaultAsync();
 
                 // 🔹 Step 3: Base query with includes
-                var query = leaveRequest.AllActive()
-                    .Include(x => x.LeaveBaseApprovalHistory)
-                    .Include(x => x.Employee)
-                    .Include(x => x.Status)
-                    .Include(x => x.LeaveType)
-                    .OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
+                var query = leaveRequest.AllActive().Include(x => x.LeaveBaseApprovalHistory).Include(x => x.Employee).Include(x => x.Status).Include(x => x.LeaveType).OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -219,7 +213,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
-                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
+                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? LeaveCalculationHelper.CalculatePartialHoursTable(b.PartialToTime.Value, b.PartialFromTime.Value) : 0,  
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
@@ -241,6 +235,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
             }
         }
+        
         #endregion
 
         #region Get Data By LeaveRequestID
@@ -709,7 +704,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private async Task<int?> GetIdByNameAsync(string name)
         {
             var data = await leaveStatuses.AllActive().Where(x => EF.Functions.Like(x.StatusName.ToLower(), name.ToLower())).Select(x => (int?)x.StatusID).FirstOrDefaultAsync();
-
             return data;
         }
         //LeaveTypeID according to The Name 
@@ -718,9 +712,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return await leaveTypes.AllActive()
                 .Where(x => EF.Functions.Like(x.LeaveTypeName.ToLower(), name.ToLower())).Select(x => (int?)x.LeaveTypeID) .FirstOrDefaultAsync();
         }
-
         // Calculate Hour 
-
         public static decimal CalculatePartialHours(TimeOnly? from, TimeOnly? to)
         {
             if (!from.HasValue || !to.HasValue)
@@ -730,14 +722,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             if (duration.TotalMinutes <= 0)
                 return 0;
-            var result = Math.Round((decimal)duration.TotalMinutes / 60, 2); // e.g., 1.67
+            var result = Math.Round((decimal)duration.TotalMinutes / 60, 2); 
             return result;
         }
         // Self approver 
         private async Task HandleSelfApprovalAsync(LeaveApplicationsRequestVM entityVM, int? approvalPersonId, ApprovalSettings approvalSettings, int sequence, dynamic offf,
          List<(int? id, bool isDesignation)> approvalFlow)
         {
-            //
+   
             int selfStep = 0;
             for (int i = 0; i < approvalFlow.Count; i++)
             {
@@ -782,7 +774,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     var newPartial = CalculatePartialHours(entityVM.PartialFromTime, entityVM.PartialToTime);
                     existingBalance.TakenPartialHours = (existingBalance.TakenPartialHours ?? 0) + newPartial;
                 }
-                //
                 existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                 existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                 existingBalance.LIP = entityVM.LIP;
@@ -808,7 +799,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC
                 };
-
                 await leaveBalances.AddAsync(newBalance);
             }
 
@@ -845,28 +835,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             await leaveBaseApprovalHistory.AddAsync(leaveBase);
         }
 
-     
-        // Duplicate Check accordimg to  FromDate to ToDate 
-        //private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int? applicableYear)
-        //{
-        //    var rejectedStatuses = await leaveStatuses.AllActive().Where(x => x.StatusName == "DECLINED").Select(x => x.StatusID).ToListAsync();
-
-        //    return await leaveRequest.AllActive().AnyAsync(x =>
-        //        x.EmployeeID == employeeId &&
-        //        !rejectedStatuses.Contains((int)x.StatusID) &&
-        //        x.LeaveApplicableYear == applicableYear &&
-        //        (
-        //            (from >= x.FromDate && from <= x.ToDate) ||
-        //            (to >= x.FromDate && to <= x.ToDate) ||
-        //            (from <= x.FromDate && to >= x.ToDate)
-        //        )
-        //    );
-        //}
-
         private async Task<bool> HasOverlappingLeave(int? employeeId, DateOnly? from, DateOnly? to, int? applicableYear)
         {
             var rejectedStatusId = await GetIdByNameAsync("DECLINED");
-
             return await leaveRequest.AllActive().AnyAsync(x =>
                 x.EmployeeID == employeeId &&
                 (rejectedStatusId == null || x.StatusID != rejectedStatusId) && 
@@ -890,8 +861,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     x.IsExceedLeaveBalance,
                     x.EnableLeaveBalanceResetDate,
                     ResetYear = x.LeaveBalanceResetDate.HasValue ? x.LeaveBalanceResetDate.Value.Year : (int?)null
-                })
-                .FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync();
 
             if (config == null) return (false, false);
 
@@ -924,7 +894,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return approvalId;
         }
 
-
+        //According to Designationassign 
         private async Task<int?> ResolveApprovalAsync(int? approvalId, bool isDesignation, dynamic offf, int? employeeId, bool? allowSelfApproval, int? selfExceptionApprovalId)
         {
             if (!approvalId.HasValue) return null;
@@ -966,12 +936,57 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             if (allowSelfApproval == true && exceptionId != employeeId) return false;
             return true;
         }
+        // Vaidation For Maximum Per day according to LeavePolicyConfiguration
+        private async Task<CommonReturnViewModel> ValidationMaxPerDayPartialDayAsync( int? employeeID,DateOnly? combinedDate )
+        {
+            // Step 1: Get max allowed partial leaves per day from policy
+            var maxPartialLeavesPerDay = await leavePolicyConfiguration.AllActive().Select(x => x.ShortLeaveMaxInADay) .FirstOrDefaultAsync();
+
+            if (maxPartialLeavesPerDay == null || maxPartialLeavesPerDay <= 0)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Short Leave Per Day policy is not configured. Please contact HR or Administrator."
+                };
+            }
+                var partialLeavesCount = await leaveRequest.AllActive().Include(x=>x.Status).CountAsync(lr =>lr.EmployeeID == employeeID && lr.FromDate == combinedDate && lr.ToDate==combinedDate &&!lr.IsFullDay && lr.Status.StatusName== "APPROVED");
+
+                if (partialLeavesCount >= maxPartialLeavesPerDay)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = $"Policy restricts to a maximum of {maxPartialLeavesPerDay} partial leave(s) per day.But You've already reached the limit for {combinedDate:dd/MM/yyyy}."
+                    };
+                }
+           
+
+            return new CommonReturnViewModel
+            {
+                Success = true,
+              
+            };
+        }
+
+
         // Save Code 
         public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
         {
+
             if (entityVM == null)
                 return new CommonReturnViewModel { Success = false, Message = "Data cannot be null" };
 
+            // 3. If it's a partial day leave, check how many partials already exist
+            if (!entityVM.IsFullDay)
+            {
+               var result = await  ValidationMaxPerDayPartialDayAsync(entityVM.EmployeeID, entityVM.ToDateFromDateCombined);
+                if (!result.Success)
+                {
+                    return result; 
+                }
+            }
+           //
             int? applicableYear = DateTime.Now.Year;
             if (await HasOverlappingLeave(entityVM.EmployeeID, entityVM.FromDate, entityVM.ToDate, applicableYear))
                 return new CommonReturnViewModel { Success = false, Message = "You already have leave on selected dates" };
@@ -1056,12 +1071,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, false);
            
         }
+    
+        // Max Perday Validation Partial
 
+        //
         private async Task<CommonReturnViewModel> ProcessLeaveApplicationAsync( LeaveApplicationsRequestVM entityVM,int approvalPersonId,ApprovalSettings approvalSettings,dynamic offf,List<(int? id, bool isDesignation)> approvalFlow,bool isSelfApproval
         )
         {
             await leaveRequest.BeginTransactionAsync();
-
             try
             {
                 var (allowFallback, allowLWP) = await GetLeaveAdjustmentPolicyAsync();
@@ -1862,7 +1879,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #endregion
 
-
         #region GetCompanies
         public Task<List<CommonSelectVM>> GetCompanies()
         {
@@ -1876,7 +1892,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
         #endregion
 
-
         #region GetDepartments
         public async Task<List<CommonSelectVM>> GetDepartments()
         {
@@ -1889,7 +1904,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return data;
         }
         #endregion
-
 
         #region GetGroupedEmployees
         public async Task<List<MultiDropDown>> GetGroupedEmployees()
@@ -1914,7 +1928,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return data;
         }
         #endregion
-
 
         #region GetFilteredEmployees
         public async Task<List<MultiDropDown>> GetEmployeeByDepartment(List<int> departmentIds)
@@ -1948,14 +1961,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
         #endregion
 
-
         #region SoftDeleteAsync
         public Task<MultiDropDown> SoftDeleteAsync(DeleteRequestVM model)
         {
             throw new NotImplementedException();
         }
         #endregion
-
 
         #region GetDepartmentByCompany
         public async Task<List<MultiDropDown>> GetDepartmentByCompany(int id)
@@ -1981,7 +1992,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return data;
         }
         #endregion
-
 
         #region GetEmployeeByCompany
         public async Task<List<MultiDropDown>> GetEmployeeByCompany(int id)

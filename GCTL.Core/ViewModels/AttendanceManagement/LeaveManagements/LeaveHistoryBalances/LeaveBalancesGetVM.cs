@@ -15,19 +15,19 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveHistor
         public string? LeaveType { get; set; }
         public string? EmployeeDepartment { get; set; }
 
-        public decimal? AnnualTaken { get; set; }
-        public decimal? AnnualRemaining { get; set; }
+        public string? AnnualTaken { get; set; }
+        public string? AnnualRemaining { get; set; }
 
-        public decimal? CasualTaken { get; set; }
-        public decimal? CasualRemaining { get; set; }
+        public string? CasualTaken { get; set; }
+        public string? CasualRemaining { get; set; }
 
         public string? MedicalTaken { get; set; }
         public string? MedicalRemaining { get; set; }
 
-        public decimal? MaternityTaken { get; set; }
-        public decimal? MaternityRemaining { get; set; }
+        public string? MaternityTaken { get; set; }
+        public string? MaternityRemaining { get; set; }
 
-        public decimal? PaternityTaken { get; set; }
-        public decimal? PaternityRemaining { get; set; }
+        public string? PaternityTaken { get; set; }
+        public string? PaternityRemaining { get; set; }
     }
 }

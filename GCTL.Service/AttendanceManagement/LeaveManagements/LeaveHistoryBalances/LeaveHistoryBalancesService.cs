@@ -141,24 +141,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                         switch (lt.LeaveTypeName)
                         {
                             case "Annual Leave":
-                                vm.AnnualTaken = taken;
-                                vm.AnnualRemaining = remaining;
+                                vm.AnnualTaken = takenFormatted;
+                                vm.AnnualRemaining = remainingFormatted;
                                 break;
                             case "Casual Leave":
-                                vm.CasualTaken = taken;
-                                vm.CasualRemaining = remaining;
+                                vm.CasualTaken = takenFormatted;
+                                vm.CasualRemaining = remainingFormatted;
                                 break;
                             case "Sick Leave":
                                 vm.MedicalTaken = takenFormatted;
                                 vm.MedicalRemaining = remainingFormatted;
                                 break;
                             case "Maternity Leave":
-                                vm.MaternityTaken = taken;
-                                vm.MaternityRemaining = remaining;
+                                vm.MaternityTaken = takenFormatted;
+                                vm.MaternityRemaining = remainingFormatted;
                                 break;
                             case "Paternity Leave":
-                                vm.PaternityTaken = taken;
-                                vm.PaternityRemaining = remaining;
+                                vm.PaternityTaken = takenFormatted;
+                                vm.PaternityRemaining = remainingFormatted;
                                 break;
                         }
                     }
@@ -352,7 +352,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalance
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
-                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
+                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? LeaveCalculationHelper.CalculatePartialHoursTable(b.PartialToTime.Value, b.PartialFromTime.Value) : 0,
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),

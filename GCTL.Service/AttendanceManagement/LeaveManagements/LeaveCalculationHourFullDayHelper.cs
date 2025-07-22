@@ -52,7 +52,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements
                 //string hourLabel = hours == 1 ? "Hr" : "Hrs";
 
                 //return $"{days} {dayLabel}, {hours}{hourLabel}:{minutes:D2} min";
-                return $"{days} Day, {hours}:{minutes:D2} min";
+                return $"{days} Day, {hours}:{minutes:D2} Hr";
             }
 
             public static (string takenFormatted, string remainingFormatted) CalculateTakenAndRemaining(
@@ -72,6 +72,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements
 
                 return (takenFormatted, remainingFormatted);
             }
-        
+        public static double? CalculatePartialHoursTable(TimeOnly? to, TimeOnly? from)
+        {
+            if (!from.HasValue || !to.HasValue)
+                return 0;
+
+            var duration = to.Value.ToTimeSpan() - from.Value.ToTimeSpan();
+
+            if (duration.TotalMinutes <= 0)
+                return 0;
+            var result = Math.Round(duration.TotalMinutes / 60, 2);
+            return result;
+        }
     }
 }
