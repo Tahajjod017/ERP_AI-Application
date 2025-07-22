@@ -396,15 +396,15 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     FirstApprovalName = x.FirstApprovalID.HasValue
                                         ? (x.IsDesignationOrEmpFirstApprovalID
                                             ? _genericRepositoryApprovalDesignation.AllActive().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
-                                            : _genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
+                                            : _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
                                         : "_",
                     //IsEnableSecondApproval = x.IsEnableSecondApproval,
                     SecondApprovalID = x.SecondApprovalID?.ToString(),
                     IsDesignationOrEmpSecondApprovalID = x.IsDesignationOrEmpSecondApprovalID ? "on" : null,
                     SecondApprovalName = x.SecondApprovalID.HasValue
                          ? (x.IsDesignationOrEmpSecondApprovalID
-                                            ? _genericRepositoryApprovalDesignation.AllActive().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
-                                            : _genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
+                                            ? _genericRepositoryApprovalDesignation.All().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
+                                            : _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SecondApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SecondApprovalID)?.LastName)
                                         : "_",
                     //IsDesignationOrEmpSecondApprovalID = x.IsDesignationOrEmpSecondApprovalID,
                     // IsEnableThirdApproval = x.IsEnableThirdApproval,
@@ -412,16 +412,16 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                     IsDesignationOrEmpThirdApprovalID = x.IsDesignationOrEmpThirdApprovalID ? "on" : null,
                     ThirdApprovalName = x.ThirdApprovalID.HasValue
                        ? (x.IsDesignationOrEmpThirdApprovalID
-                                            ? _genericRepositoryApprovalDesignation.AllActive().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
-                                            : _genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName)
+                                            ? _genericRepositoryApprovalDesignation.All().FirstOrDefault(d => d.ApprovalDesignationID == x.FirstApprovalID)?.ApprovalDesignationName ?? "_"
+                                            : _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.ThirdApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.ThirdApprovalID)?.LastName)
                                         : "_",
                     SelfExceptionApprovalID = x.SelfExceptionApprovalID?.ToString(),
                     AllowSelfApproval = x.AllowSelfApproval == true ? "on" : null,
                     SelfExceptionApprovalName = x.SelfExceptionApprovalID.HasValue
                                             ? (x.AllowSelfApproval == false
-                                                ? (_genericRepositoryEmployees.AllActive().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.FirstApprovalID)?.LastName) ?? "-"
+                                                ? (_genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SelfExceptionApprovalID)?.FirstName + " " + _genericRepositoryEmployees.All().FirstOrDefault(e => e.EmployeeID == x.SelfExceptionApprovalID)?.LastName) ?? "-"
                                                 : "-")
-                                            : "True",
+                                            : "Yes",
 
 
                     // IsDesignationOrEmpThirdApprovalID = x.IsDesignationOrEmpThirdApprovalID,
