@@ -14,7 +14,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveHistor
         public string? EmployeeDepartment { get; set; }
         public string? ToDate { get; set; }
         public string? FromDate { get; set; }
-        public decimal? Period { get; set; }
+        public double? Period { get; set; }
         public int LeaveApplicationID { get; set; }
         public bool IsFullDay { get; set; }
        

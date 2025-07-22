@@ -318,7 +318,7 @@ $(document).ready(function () {
             url: '/LeaveApprovalDeclineRoute/GetLeaveTypeBalancesForEmployeeDisplay',
             type: 'GET',
             success: function (data) {
-                debugger
+             
                 if (data && data.length > 0) {
                     let container = $('#leaveCardsContainer');
                     container.empty(); // clear previous content if any

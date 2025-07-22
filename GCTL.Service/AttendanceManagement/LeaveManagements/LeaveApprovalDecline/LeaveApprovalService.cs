@@ -51,23 +51,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         }
 
 
-
-
-
         #region  Get Data All  Leave  Requyest above table 
 
-        public static double GetDecimalHours(TimeOnly from, TimeOnly to)
-        {
-            var duration = to.ToTimeSpan() - from.ToTimeSpan();
-
-            if (duration.TotalMinutes < 0)
-                return 0; // or throw exception
-
-            return Math.Round(duration.TotalMinutes / 60.0, 2); // e.g., 1.33 for 1h 20m
-        }
-
-
-
+  
 
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>>
     GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate = null, DateOnly? toDate = null)
@@ -131,17 +117,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     term => b => EF.Functions.Like(b.LeaveApplicationID.ToString(), $"%{term}%"),
                     b =>
                     {
-                        var balance = leaveBalances.FirstOrDefault(lb =>
-                            lb.EmployeeID == b.EmployeeID &&
-                            lb.LeaveTypeID == b.LeaveTypeID &&
-                            lb.ApplicableYear == b.FromDate.Year);
+                        var balance = leaveBalances.FirstOrDefault(lb =>lb.EmployeeID == b.EmployeeID && lb.LeaveTypeID == b.LeaveTypeID &&  lb.ApplicableYear == b.FromDate.Year);
 
                         var defaultLeaveDays = leaveTypes.FirstOrDefault(x => x.LeaveTypeID == b.LeaveTypeID)?.LeaveDays ?? 0;
 
                         var availableLeaveDays = balance != null
-                            ? (balance.TotalLeave ?? 0) - (balance.Taken ?? 0)
-                            : defaultLeaveDays;
-
+                            ? (balance.TotalLeave ?? 0) - (balance.Taken ?? 0 + balance.TakenPartialHours ?? 0): defaultLeaveDays;
+                        Console.WriteLine(availableLeaveDays);
                         var department = employeeDepartments.FirstOrDefault(e => e.EmployeeID == b.EmployeeID)?.DepartmentName ?? "";
 
                         var result = new LeaveApplicationsList
@@ -155,7 +137,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                             Period = b.IsFullDay
                                 ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
                                 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                                    ? GetDecimalHours(b.PartialFromTime.Value, b.PartialToTime.Value)
+                                    ? LeaveCalculationHelper.CalculatePartialHoursTable(b.PartialToTime.Value, b.PartialFromTime.Value)
                                     : 0,
                             EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                             EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
@@ -257,7 +239,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
-                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours : 0,
+                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? LeaveCalculationHelper.CalculatePartialHoursTable(b.PartialToTime.Value, b.PartialFromTime.Value) : 0,
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
@@ -884,76 +866,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         #endregion
 
         #region Dispaly LeaveDays 
-        //public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(string userId)
-        //{
-        //    // Get employee ID from user ID
-        //    var employeeId = await appDb.Users
-        //        .Where(u => u.Id == userId)
-        //        .Select(e => e.EmployeeId)
-        //        .FirstOrDefaultAsync();
-
-        //    if (employeeId == null)
-        //        return new List<LeaveBalancesDisplayVM>(); // or throw exception if required
-
-        //    // Get the role of the user
-        //    var roleName = await (
-        //        from user in appDb.Users
-        //        join userRole in appDb.UserRoles on user.Id equals userRole.UserId
-        //        join role in appDb.Roles on userRole.RoleId equals role.Id
-        //        where user.Id == userId
-        //        select role.Name
-        //    ).FirstOrDefaultAsync();
-
-        //    // Base query for leave balances
-        //    var baseQuery = from lt in leaveTypesRepository.AllActive()
-        //                    join lb in leaveBalance.AllActive().Where(x => x.EmployeeID == employeeId)
-        //                        on lt.LeaveTypeID equals lb.LeaveTypeID into lbGroup
-        //                    from lb in lbGroup.DefaultIfEmpty()
-        //                    select new LeaveBalancesDisplayVM
-        //                    {
-        //                        LeaveBalanceID = lb != null ? lb.LeaveBalanceID : 0,
-        //                        EmployeeID = employeeId,
-        //                        LeaveTypeID = lt.LeaveTypeID,
-        //                        LeaveTypeName = lt.LeaveTypeName,
-        //                        TotalLeave = lb.TotalLeave ?? lt.LeaveDays,
-        //                        Taken = lb.Taken,
-        //                        ApplicableYear = lb.ApplicableYear,
-        //                        RemainingDays = lb != null
-        //                            ? (lb.TotalLeave - lb.Taken)
-        //                            : (lt.LeaveDays ?? 0)
-        //                    };
-
-        //    // Only restrict by employee ID if the user is not SuperAdmin
-        //    if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
-        //    {
-        //        baseQuery = baseQuery.Where(x => x.EmployeeID == employeeId);
-        //    }
-        //    var leaveBalances = await baseQuery.ToListAsync();
-
-        //    // Calculate duration for each leave balance
-        //    foreach (var balance in leaveBalances)
-        //    {
-        //        var (days, hours, minutes) = LeaveCalculationHelper.CalculateLeaveDuration(
-        //            balance.TotalLeave,
-        //            balance.Taken,
-        //            balance.TakenPartialHours
-        //        );
-        //        balance.DaysTaken = days;
-        //        balance.HoursTaken = hours;
-        //        balance.MinutesTaken = minutes;
-        //    }
-
-        //    return leaveBalances;
-        //    //return await baseQuery.ToListAsync();
-        //}
-
         public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(string userId)
         {
             // Get employee ID from user ID
-            var employeeId = await appDb.Users
-                .Where(u => u.Id == userId)
-                .Select(e => e.EmployeeId)
-                .FirstOrDefaultAsync();
+            var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
 
             if (employeeId == null)
                 return new List<LeaveBalancesDisplayVM>(); // or throw exception if required
@@ -982,32 +898,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                                 Taken = lb.Taken,
                                 ApplicableYear = lb.ApplicableYear,
                                 RemainingDays = lb != null
-                                    ? (lb.TotalLeave - lb.Taken)
+                                    ? (lb.TotalLeave - (lb.Taken ?? 0) + (lb.TakenPartialHours ?? 0))
                                     : (lt.LeaveDays ?? 0)
                             };
-
-            // Only restrict by employee ID if the user is not SuperAdmin
-            if (!string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
-            {
-                baseQuery = baseQuery.Where(x => x.EmployeeID == employeeId);
-            }
-            var leaveBalances = await baseQuery.ToListAsync();
-
-            // Calculate duration for each leave balance
-            foreach (var balance in leaveBalances)
-            {
-                var (days, hours, minutes) = LeaveCalculationHelper.CalculateLeaveDuration(
-                    balance.TotalLeave,
-                    balance.Taken,
-                    balance.TakenPartialHours
-                );
-                balance.DaysTaken = days;
-                balance.HoursTaken = hours;
-                balance.MinutesTaken = minutes;
-            }
-
-            return leaveBalances;
-            //return await baseQuery.ToListAsync();
+           return await baseQuery.ToListAsync();
 
 
 
