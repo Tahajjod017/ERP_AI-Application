@@ -184,186 +184,13 @@ $(document).ready(function () {
 
 
 
-//edit function
-$(document).ready(function () {
-    const designationsUrl = '/ApprovalSettings/GetDesignation';
 
-    const approversEdit = [
-        { checkboxId: "chkFirstEdit", selectId: "selFirstEdit" },
-        { checkboxId: "chkSecondEdit", selectId: "selSecondEdit" },
-        { checkboxId: "chkThirdEdit", selectId: "selThirdEdit" }
-    ];
 
-    let cachedRolesEdit = {};
-    let selectedFirstEdit = null;
-    let selectedSecondEdit = null;
 
-    // ===== Self Approval Logic (for Edit) =====
-    function handleSelfApprovalDisplayEdit() {
-        const selfCheckboxEdit = $('#chkSelfApprovalEdit');
-        const selfSelectEdit = $('#selSelfApprovalEdit');
-        const selfWrapperEdit = selfSelectEdit.closest('.mt-3');
 
-        if (selfCheckboxEdit.is(':checked')) {
-            selfWrapperEdit.hide();
-            selfSelectEdit.prop('disabled', true);
-            selfSelectEdit.removeAttr('required');
-        } else {
-            selfWrapperEdit.show();
-            selfSelectEdit.prop('disabled', false);
-            selfSelectEdit.attr('required', 'required');
-        }
-    }
 
-    function setDefaultIfAvailableEdit(selectEl) {
-        const defaultValue = selectEl.data('default');
-        if (defaultValue) {
-            selectEl.val(defaultValue).trigger('change');
-        }
-    }
 
-    function populateOptionsEdit(selectEl, url, organId, excludedValues = [], callback = null) {
-        if (cachedRolesEdit[organId]) {
-            const filtered = cachedRolesEdit[organId].filter(role => !excludedValues.includes(role.value));
-            choiceManager.populateDropdown(selectEl.attr('id'), filtered);
-            setDefaultIfAvailableEdit(selectEl);
-            if (callback) callback();
-            return;
-        }
 
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: 'json',
-            data: { organizationId: organId },
-            success: function (data) {
-                const simplified = data.map(role => ({
-                    value: role.value,
-                    label: role.text
-                }));
-                cachedRolesEdit[organId] = simplified;
-                const filtered = simplified.filter(role => !excludedValues.includes(role.value));
-                choiceManager.populateDropdown(selectEl.attr('id'), filtered);
-                setDefaultIfAvailableEdit(selectEl);
-                if (callback) callback();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading options:', error);
-            }
-        });
-    }
-
-    // ===== Approver Setup (for Edit) =====
-    approversEdit.forEach(ap => {
-        const checkbox = $('#' + ap.checkboxId);
-        const select = $('#' + ap.selectId);
-        const orgId = $('#OrganizationID').val();
-
-        select.prop('disabled', true);
-        select.removeAttr('required');
-        choiceManager.disableChoice(ap.selectId);
-        populateOptionsEdit(select, designationsUrl, orgId);
-
-        checkbox.on('change', function () {
-            const isChecked = this.checked;
-            const currentOrgId = $('#OrganizationID').val();
-
-            // Enforce hierarchy rules
-            if (ap.checkboxId === 'chkSecondEdit' && !$('#chkFirstEdit').is(':checked')) {
-                this.checked = false;
-            }
-            if (ap.checkboxId === 'chkThirdEdit' && !$('#chkSecondEdit').is(':checked')) {
-                this.checked = false;
-            }
-
-            if (isChecked) {
-                select.prop('disabled', false);
-                select.attr('required', 'required');
-                choiceManager.enableChoice(ap.selectId);
-
-                let exclude = [];
-                if (ap.selectId === 'selSecondEdit' && selectedFirstEdit) exclude = [selectedFirstEdit];
-                if (ap.selectId === 'selThirdEdit') exclude = [selectedFirstEdit, selectedSecondEdit].filter(Boolean);
-                populateOptionsEdit(select, designationsUrl, currentOrgId, exclude);
-            } else {
-                select.prop('disabled', true);
-                select.removeAttr('required');
-                choiceManager.disableChoice(ap.selectId);
-            }
-
-            // Also disable subsequent checkboxes/selects if current is unchecked
-            if (ap.checkboxId === 'chkFirstEdit' && !isChecked) {
-                $('#chkSecondEdit, #chkThirdEdit').prop('checked', false).prop('disabled', true);
-                $('#selSecondEdit, #selThirdEdit').prop('disabled', true).removeAttr('required');
-                choiceManager.disableChoice('selSecondEdit');
-                choiceManager.disableChoice('selThirdEdit');
-            } else if (ap.checkboxId === 'chkFirstEdit' && isChecked) {
-                $('#chkSecondEdit').prop('disabled', false);
-            }
-
-            if (ap.checkboxId === 'chkSecondEdit' && !isChecked) {
-                $('#chkThirdEdit').prop('checked', false).prop('disabled', true);
-                $('#selThirdEdit').prop('disabled', true).removeAttr('required');
-                choiceManager.disableChoice('selThirdEdit');
-            } else if (ap.checkboxId === 'chkSecondEdit' && isChecked) {
-                $('#chkThirdEdit').prop('disabled', false);
-            }
-        });
-
-    });
-
-    $('#selFirstEdit').on('change', function () {
-        selectedFirstEdit = $(this).val();
-        const orgId = $('#OrganizationID').val();
-
-        if (!$('#selSecondEdit').prop('disabled')) {
-            populateOptionsEdit($('#selSecondEdit'), designationsUrl, orgId, [selectedFirstEdit]);
-        }
-        if (!$('#selThirdEdit').prop('disabled')) {
-            populateOptionsEdit($('#selThirdEdit'), designationsUrl, orgId, [selectedFirstEdit, selectedSecondEdit].filter(Boolean));
-        }
-    });
-
-    $('#selSecondEdit').on('change', function () {
-        selectedSecondEdit = $(this).val();
-        const orgId = $('#OrganizationID').val();
-
-        if (!$('#selThirdEdit').prop('disabled')) {
-            populateOptionsEdit($('#selThirdEdit'), designationsUrl, orgId, [selectedFirstEdit, selectedSecondEdit].filter(Boolean));
-        }
-    });
-
-    $('#OrganizationID').on('change', function () {
-        const newOrgId = $(this).val();
-        selectedFirstEdit = null;
-        selectedSecondEdit = null;
-
-        approversEdit.forEach(ap => {
-            const select = $('#' + ap.selectId);
-            select.prop('disabled', true);
-            select.removeAttr('required');
-            populateOptionsEdit(select, designationsUrl, newOrgId);
-        });
-
-        populateOptionsEdit($('#selSelfApprovalEdit'), designationsUrl, newOrgId, [], function () {
-            handleSelfApprovalDisplayEdit();
-        });
-    });
-
-    $('#chkSelfApprovalEdit').on('change', function () {
-        handleSelfApprovalDisplayEdit();
-    });
-
-    const orgId = $('#OrganizationID').val();
-    populateOptionsEdit($('#selSelfApprovalEdit'), designationsUrl, orgId, [], function () {
-        handleSelfApprovalDisplayEdit();
-    });
-
-    // Safe cleanup before form submit to avoid focus errors
-    $('#aprovalSettingsFormEdit').on('submit', function () {
-        $(':input:disabled').removeAttr('required');
-    });
-});
 
 
 
@@ -388,6 +215,9 @@ $(document).ready(function () {
                     toastr.success(response.message, '');
                     form.trigger("reset");
                     loadTableData();
+                    populateOptions();
+                    choicDp();
+                    
                 } else {
                     toastr.error(response.message, 'Error');
                 }
@@ -399,6 +229,19 @@ $(document).ready(function () {
     });
 });
 
+function choicDp() {
+    $.ajax({
+        url: '/ApprovalSettings/GetChoiceOrgnization', // Adjust this URL if needed
+        type: 'GET',
+       
+        success: function (data) {
+            choiceManager.populateDropdown('OrganizationeID',data);
+        },
+        error: function (error) {
+            console.error('Error fetching approvers:', error);
+        }
+    });
+}
 
 // delete 
 $(document).on('click', '#approvalSettingsDelete-singleDelBtn', function () {
@@ -436,121 +279,60 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 });
 
 
+
+
+
 //edit
-$(document).on('click', '#edit_approval_settingBtn', function () {
- 
-    // Get the Approval Setting ID from the button's data-id attribute
-    var approvalSettingID = $(this).data('id');
+//$(document).on('click', '#edit_approval_settingBtn', function () {
+//    // Get the Approval Setting ID from the button's data-id attribute
+//    var approvalSettingID = $(this).data('id');
 
-    // Show the modal
-    $('#edit_approval_setting').modal('show');
+//    // Show the modal
+//    var myModal = new bootstrap.Modal(document.getElementById('edit_approval_setting'));
+//    myModal.show();
 
-    // Make an AJAX call to retrieve the approval setting data
-    $.ajax({
-        url: '/ApprovalSettings/EditApprovalSetting', // URL to your controller action
-        type: 'GET',
-        data: { id: approvalSettingID },
-        success: function (data) {
-            debugger
-            if (data.success) {
-                // Populate the modal form fields with the data returned from the server
-                $('#OrganizationeEditID').val(data.OrganizationID);  // Set Organization ID
-                $('#ApprovalTypeEditID').val(data.ApprovalTypeID);  // Set Approval Type ID
 
-                // Set the checkboxes (First, Second, Third Approvers)
-                $('#chkFirstEdit').prop('checked', data.IsEnableFirstApproval);
-                $('#chkSecondEdit').prop('checked', data.IsEnableSecondApproval);
-                $('#chkThirdEdit').prop('checked', data.IsEnableThirdApproval);
-                $('#chkSelfApprovalEdit').prop('checked', data.AllowSelfApproval);
+//    // Make an AJAX call to retrieve the approval setting data
+//    $.ajax({
+//        url: '/ApprovalSettings/EditApprovalSetting', // URL to your controller action
+//        type: 'GET',
+//        data: { id: approvalSettingID },
+//        success: function (data) {
+//            if (data.success) {
+//                // Set the values using the data received
+//                choiceManager.setChoiceValue('OrganizationeEditID', data.organizationID);
+//                $('#ApprovalTypeEditID').val(data.ApprovalTypeID);  // Set Approval Type ID
 
-                // Set the select fields for approvers
-                $('#selFirstEdit').val(data.FirstApprovalID);
-                $('#selSecondEdit').val(data.SecondApprovalID);
-                $('#selThirdEdit').val(data.ThirdApprovalID);
-                $('#selSelfApprovalEdit').val(data.SelfExceptionApprovalID);
+//                // Set the checkboxes (First, Second, Third Approvers)
+//                $('#chkFirstEdit').prop('checked', data.IsEnableFirstApproval);
+//                $('#chkSecondEdit').prop('checked', data.IsEnableSecondApproval);
+//                $('#chkThirdEdit').prop('checked', data.IsEnableThirdApproval);
+//                $('#chkSelfApprovalEdit').prop('checked', data.AllowSelfApproval);
 
-                // Enable or disable approver select fields based on checkboxes
-                toggleApproverFields(data);
+//                // Set the select fields for approvers
+//                $('#selFirstEdit').val(data.FirstApprovalID);
+//                $('#selSecondEdit').val(data.SecondApprovalID);
+//                $('#selThirdEdit').val(data.ThirdApprovalID);
+//                $('#selSelfApprovalEdit').val(data.SelfExceptionApprovalID);
 
-                // Dynamically populate the select fields for approvers if needed
-                populateApproverOptions('#selFirstEdit', data.OrganizationID);
-                populateApproverOptions('#selSecondEdit', data.OrganizationID);
-                populateApproverOptions('#selThirdEdit', data.OrganizationID);
-            } else {
-                alert('Error fetching approval setting data: ' + data.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching approval setting data: ", error);
-        }
-    });
-});
+//                // Enable or disable approver select fields based on checkboxes
+//                toggleApproverFields(data);
+
+//                // Dynamically populate the select fields for approvers if needed
+//                populateApproverOptions('#selFirstEdit', data.OrganizationID);
+//                populateApproverOptions('#selSecondEdit', data.OrganizationID);
+//                populateApproverOptions('#selThirdEdit', data.OrganizationID);
+//            } else {
+//                alert('Error fetching approval setting data: ' + data.message);
+//            }
+//        },
+//        error: function (xhr, status, error) {
+//            console.error("Error fetching approval setting data: ", error);
+//        }
+//    });
+//});
 
 // Function to populate approver options (e.g., First, Second, Third approver) dynamically
-function populateApproverOptions(selectElementId, orgId) {
-    $.ajax({
-        url: '/ApprovalSettings/GetApproversByOrganization', // Adjust this URL if needed
-        type: 'GET',
-        data: { orgId: orgId },
-        success: function (data) {
-            var selectElement = $(selectElementId);
-            selectElement.empty(); // Clear existing options
-            selectElement.append('<option value="">Select Approver</option>');
-            data.forEach(function (approver) {
-                selectElement.append('<option value="' + approver.Value + '">' + approver.Text + '</option>');
-            });
-        },
-        error: function (error) {
-            console.error('Error fetching approvers:', error);
-        }
-    });
-}
-
-// Function to enable or disable approver select fields based on checkbox status
-function toggleApproverFields(data) {
-    // Enable or disable based on whether the checkbox is checked
-    $('#selFirstEdit').prop('disabled', !data.IsEnableFirstApproval);
-    $('#selSecondEdit').prop('disabled', !data.IsEnableSecondApproval);
-    $('#selThirdEdit').prop('disabled', !data.IsEnableThirdApproval);
-
-    // Enable/Disable the approver select fields based on whether the checkbox is checked
-    if (!data.IsEnableFirstApproval) {
-        $('#selFirstEdit').val(''); // Clear the value if the checkbox is unchecked
-    }
-    if (!data.IsEnableSecondApproval) {
-        $('#selSecondEdit').val(''); // Clear the value if the checkbox is unchecked
-    }
-    if (!data.IsEnableThirdApproval) {
-        $('#selThirdEdit').val(''); // Clear the value if the checkbox is unchecked
-    }
-}
-
-// Form submission handling for the approval settings edit form
-$('#aprovalSettingsFormEdit').on('submit', function (e) {
-    e.preventDefault(); // Prevent the form from submitting normally
-
-    // Gather form data
-    var formData = $(this).serialize();
-
-    // Send an AJAX request to submit the form
-    $.ajax({
-        url: '/ApprovalSettings/UpdateApprovalSetting', // Adjust the URL to your update endpoint
-        type: 'POST',
-        data: formData,
-        success: function (data) {
-            if (data.isSuccess) {
-                alert('Approval setting updated successfully!');
-                $('#edit_approval_setting').modal('hide'); // Close the modal
-                // Optionally, you can refresh the list of approval settings here
-            } else {
-                alert('Error updating approval setting: ' + data.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error updating approval setting:", error);
-        }
-    });
-});
 
 
 //////////////////////////////Data Table Initialization//////////////////////////////
@@ -663,7 +445,7 @@ function loadTableData(sortColumn, sortOrder) {
                                data-id="${item.approvalSettingID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves"
+                               data-bs-target="#edit_approval_setting"
                               >
                                <i class="fas fa-edit text-black"></i>
                         </a>

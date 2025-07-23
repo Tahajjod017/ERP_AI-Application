@@ -53,6 +53,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         #endregion
 
         #region edit
+        [Route("ApprovalSettings/EditApprovalSetting")]
         [HttpGet]
         public async Task<IActionResult> EditApprovalSetting(int id)
         {
@@ -65,7 +66,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
 
             // Return the View with the model data
-            return View(approvalSetting);
+            return Json(approvalSetting);
         }
 
         #endregion
@@ -122,8 +123,26 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             var designations = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync(organizationId);
             return Json(designations);
         }
-        
+        [HttpGet]
+        public async Task<IActionResult> GetDesignation2(int organizationId)
+        {
+            var designations = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync(organizationId);
+            return Json(designations);
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> GetChoiceOrgnization()
+        {
+            var designations = await _approvalSettingService.GetOrganizationsAsync2();
+            return Json(designations);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetappvalTypes()
+        {
+            var designations = await _approvalSettingService.GetApprovalTypesAsync();
+            return Json(designations);
+        }
 
     }
 }

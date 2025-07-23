@@ -311,10 +311,18 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
                 IsDesignationOrEmpThirdApprovalID = entity.IsDesignationOrEmpThirdApprovalID ? "on" : null,
                 SecondApprovalID = entity.SecondApprovalID?.ToString(), // Fix for CS0029: Convert int? to string  
                 ThirdApprovalID = entity.ThirdApprovalID?.ToString(), // Fix for CS0029: Convert int? to string  
+                SelfExceptionApprovalID = entity.SelfExceptionApprovalID?.ToString(), // Fix for CS0029: Convert int? to string
+                AllowSelfApproval = entity.AllowSelfApproval == true ? "on" : null,
                 CreatedBy = entity.CreatedBy,
                 UpdatedBy = entity.UpdatedBy
                 // You can add additional properties (LIP, LMAC) if required  
             };
+            if (entity.IsDesignationOrEmpFirstApprovalID)
+                model.FirstApprovalID += "_ad";
+            if (entity.IsDesignationOrEmpSecondApprovalID)
+                model.SecondApprovalID += "_ad";
+            if (entity.IsDesignationOrEmpThirdApprovalID)
+                model.ThirdApprovalID += "_ad";
 
             return model;
         }
@@ -470,6 +478,22 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             {
                 organizations[0].Selected = true;
             }
+
+
+
+            return organizations;
+        }
+        public async Task<List<SelectListItem>> GetOrganizationsAsync2()
+        {
+            var organizations = await _genericRepositoryOraganization.All()
+                .Where(o => o.DeletedAt == null)
+                .Select(o => new SelectListItem
+                {
+                    Value = o.OrganizationID.ToString(),
+                    Text = o.OrganizationName
+                })
+                .ToListAsync();
+            
 
 
 
