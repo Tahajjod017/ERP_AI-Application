@@ -1,27 +1,36 @@
-﻿<!-- Modal  for add shift  used-->
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDayModalAddVM
+
+<!-- Modal  for add shift  used-->
 <div class="modal fade" id="addShiftModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addShiftModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shiftModalLabel">Add shift into Roster</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <div class="col-md">
-                            <label class="form-label" for="AddShiftModal-ShiftID">Shift Name</label>
-                            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" id="AddShiftModal-ShiftID">
-                                <option value="">Select Shift...</option>
-                            </select>
+            <form asp-controller="OfficeDayRoster" asp-action="AddEmpShiftAsync" id="AddShiftModal-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shiftModalLabel">@Html.SmartLocalize("Add shift")</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="RosterInOfficeDayIdAdd" />
+                    <input type="hidden" asp-for="OrganizationIdAdd" />
+                    <input type="hidden" asp-for="DepartmentIdAdd" />
+                    <input type="hidden" asp-for="EmployeeIdAdd" />
+                    <input type="hidden" asp-for="DayDateAdd" />
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="col-md">
+                                <label class="form-label" asp-for="ShiftIdAdd">@Html.SmartLocalize("Shift Name")</label>
+                                <select class="form-select" asp-for="ShiftIdAdd">
+                                    <option value="">@Html.SmartLocalize("Select Shift")...</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveShift">Save shift</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                    <button type="submit" class="btn btn-primary" id="addShiftModal-saveShift">@Html.SmartLocalize("Save shift")</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

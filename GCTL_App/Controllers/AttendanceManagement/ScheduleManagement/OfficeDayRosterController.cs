@@ -45,6 +45,30 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region SearchOrganizations / OrganizationDD
+        [HttpGet]
+        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        {
+            var result = await _commonService.SearchOrganizations(search, page, pageSize);
+
+            //return Json(new
+            //{
+            //    items = result.Items,
+            //    hasMore = result.HasMore
+            //});
+            return Json(new
+            {
+                items = result.Items.Select(x => new {
+                    value = x.Id,
+                    label = x.Name,
+                    group = x.GroupName // Optional: only if you want to group
+                }),
+                hasMore = result.HasMore
+            });
+        }
+        #endregion
+
+
         #region Create
         [Permission("Create", "OfficeDayRoster")]
         [ValidateAntiForgeryToken]
@@ -102,81 +126,68 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
-
-
-        //public async Task<IActionResult> GetGrouped(int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
-        //{
-        //    var (data, pagination) = await _assignDefaultShiftService.GetAllGroupedAsync(
-        //        pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
-
-        //    var headers = Enumerable.Range(0, daysToShow)
-        //        .Select(i => (startDate ?? DateTime.Today).AddDays(i))
-        //        .Select(date => new { day = date.ToString("ddd"), date = date.ToString("dd MMM yyyy") })
-        //        .ToList();
-
-        //    return Json(new
-        //    {
-        //        result = data,
-        //        paginationInfo = pagination,
-        //        headers = headers
-        //    });
-        //}
         #endregion
 
 
         #region UpdateEmpShiftAsync
-        //[Permission("Edit", "OfficeDayRoster")]
+        [Permission("Edit", "OfficeDayRoster")]
         //[ValidateAntiForgeryToken]
-        //[Route("OfficeDayRosterRoute/UpdateEmpShiftAsync")]
-        //[HttpPost]
-        //public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
-        //{
-        //    try
-        //    {
-        //        if(model.RosterInOfficeDayID == null || model.RosterInOfficeDayID == 0)
-        //        {
-        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
-        //        }
+        [Route("OfficeDayRoster/UpdateEmpShiftAsync")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOfficeDayEditVM model)
+        {
+            try
+            {
+                if (model.RosterInOfficeDayIdEdit == null || model.RosterInOfficeDayIdEdit == 0)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
 
-        //        var result = await _assignDefaultShiftService.UpdateEmpShiftAsync(model);
+                var result = await _assignDefaultShiftService.UpdateEmpShiftAsync(model);
 
-        //        if(result == false)
-        //        {
-        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
-        //        }
+                if (result == false)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
 
-        //        return Json(new { isSuccess = true, message = "Updated Successfully." });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { isSuccess = false, message = ex.Message });
-        //    }
-        //}
+                return Json(new { isSuccess = true, message = "Updated Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
         #endregion
 
 
-        #region Delete
-        //public async Task<IActionResult> Delete(RosterDelVM model)
-        //{
-        //    try
-        //    {
-        //        if(model.Id == null || model.Id == 0)
-        //        {
-        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
-        //        }
+        #region AddEmpShiftAsync
+        [Permission("Create", "OfficeDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [Route("OfficeDayRoster/AddEmpShiftAsync")]
+        [HttpPost]
+        public async Task<IActionResult> AddEmpShiftAsync(RosterInOfficeDayModalAddVM model)
+        {
+            try
+            {
+                if (model.RosterInOfficeDayIdAdd == null || model.RosterInOfficeDayIdAdd == 0)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
 
-        //        var result = await _assignDefaultShiftService.SoftDeleteAsync(model);
-        //        if(result == null)
-        //        {
-        //            return Json(new { isSuccess = false, message = "Something went wrong!" });
-        //        }
-        //        return Json(new { isSuccess = true, message = "Deleted Successfully." });
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        return Json(new { isSuccess = false, message = ex.Message });
-        //    }
-        //}
+                var result = await _assignDefaultShiftService.AddEmpShiftAsync(model);
+
+                if (result == false)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
+
+                return Json(new { isSuccess = true, message = "Updated Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
         #endregion
 
 
@@ -234,6 +245,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         }
         #endregion
 
+
+        #region GetEmployeesPaged
         [HttpGet]
         public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null)
         {
@@ -258,5 +271,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             //    result = result
             //});
         }
+        #endregion
     }
 }

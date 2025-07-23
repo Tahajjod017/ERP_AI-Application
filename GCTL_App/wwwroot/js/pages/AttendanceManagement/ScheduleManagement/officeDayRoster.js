@@ -10,6 +10,7 @@
             delModal: '#rosterInOfficeDays-delModal',
             modalDelBtn: '#rosterInOfficeDays-delModal-delBtn',
             addShiftModal: '#addShiftModal',
+            addShiftSaveBtn: '#addShiftModal-saveShift',
             editShiftModal: '#rosterInOfficeDays-editShiftModal',
             editShiftSaveBtn: '#EditShiftModal-saveShift',
         }, options);
@@ -18,6 +19,7 @@
         var getAllSp = settings.baseUrl + "/GetAllFromStoredProc";
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
+        var addEmpShift = settings.baseUrl + "/AddEmpShiftAsync";
         var updateEmpShift = settings.baseUrl + "/UpdateEmpShiftAsync";
         var deleteUrl = settings.baseUrl + "/Delete";
         let organizationDD;
@@ -26,7 +28,6 @@
         let selectedDate = null;
         $(() => {
 
-            
 
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
@@ -76,31 +77,88 @@
             // #endregion
 
 
-                        
-            // #region Edit
-            $(settings.editShiftSaveBtn).on('click', function (e) {
+
+            // #region Single add from modal
+            $(settings.addShiftSaveBtn).on('click', function (e) {
                 e.preventDefault();
+
                 const $modal = $(settings.editShiftModal);
-                const token = $('#EditShiftModal-form input[name="__RequestVerificationToken"]').val();
+                //const token = $('#EditShiftModal-form input[name="__RequestVerificationToken"]').val();
 
-                const rosterInOfficeDayID = $modal.data('roster-id');
-                const overrideDate = $modal.data('override-date');
-
-                const formData = {
-                    __RequestVerificationToken: token,
-                    RosterInOfficeDayID: rosterInOfficeDayID,
-                    OverrideDate: overrideDate,
-                    ShiftID: $('#EditShiftModal-ShiftID').val(),
+                const rosterInOfficeDayID = $modal.val('#AddShiftModal-ShiftID');
+                if (!rosterInOfficeDayID) {
+                    toastr.info('Something went wrong!');
+                    return;
                 };
 
-                if (rosterInOfficeDayID == 0 || rosterInOfficeDayID == null) return toastr.info('Something went wrong!');
+                let formData = new FormData();
+                formData.append("RosterInOfficeDayIdAdd", $('#RosterInOfficeDayIdAdd').val());
+                formData.append("OrganizationIdAdd", $('#OrganizationIdAdd').val());
+                formData.append("DepartmentIdAdd", $('#DepartmentIdAdd').val());
+                formData.append("EmployeeIdAdd", $('#EmployeeIdAdd').val());
+                formData.append("ShiftIdAdd", $('#ShiftIdAdd').val());
+                formData.append("DayDateAdd", $('#DayDateAdd').val());
 
-                const url = '/OfficeDayRosterRoute/UpdateEmpShiftAsync';
+                const url = addEmpShift;
 
                 $.ajax({
                     url: url,
                     type: 'POST',
                     data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            toastr.success(response.message);
+
+                            const modalElement = document.getElementById('addShiftModal');
+                            const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                            modalInstance.hide();
+
+                            loadTableData();
+                            clear();
+                        } else {
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Conflict check failed:', err);
+                    }
+                });
+            });
+            // #endregion
+
+
+
+            // #region Edit
+            $(settings.editShiftSaveBtn).on('click', function (e) {
+                e.preventDefault();
+
+                const $modal = $(settings.editShiftModal);
+                //const token = $('#EditShiftModal-form input[name="__RequestVerificationToken"]').val();
+
+                const rosterInOfficeDayID = $modal.val('#AddShiftModal-ShiftID');
+                if (!rosterInOfficeDayID) {
+                    toastr.info('Something went wrong!');
+                    return;
+                };
+
+                let formData = new FormData();
+                formData.append("RosterInOfficeDayIdEdit", $('#RosterInOfficeDayIdEdit').val());
+                formData.append("OrganizationIdEdit", $('#OrganizationIdEdit').val());
+                formData.append("DepartmentIdEdit", $('#DepartmentIdEdit').val());
+                formData.append("EmployeeIdEdit", $('#EmployeeIdEdit').val());
+                formData.append("ShiftIdEdit", $('#ShiftIdEdit').val());
+                formData.append("DayDateEdit", $('#DayDateEdit').val());
+
+                const url = updateEmpShift;
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function (response) {
                         if (response.isSuccess) {
                             toastr.success(response.message);
@@ -209,7 +267,7 @@
                     $('#' + fieldId).val('');
                 });
 
-                initOrganizationDD();
+                //initOrganizationDD();
                 initShiftDD();
             }
             // #endregion
@@ -217,15 +275,15 @@
 
 
             // #region Dropdown
-            function initOrganizationDD() {
-                organizationDD = new Choices('#OrganizationID', {
-                    removeItemButton: true,
-                    shouldSort: false,
-                    placeholderValue: 'Select Organization...'
-                });
-            }
-            document.addEventListener('DOMContentLoaded', initOrganizationDD);
-            initOrganizationDD();
+            //function initOrganizationDD() {
+            //    organizationDD = new Choices('#OrganizationID', {
+            //        removeItemButton: true,
+            //        shouldSort: false,
+            //        placeholderValue: 'Select Organization...'
+            //    });
+            //}
+            //document.addEventListener('DOMContentLoaded', initOrganizationDD);
+            //initOrganizationDD();
 
             
             function initShiftDD() {
@@ -566,17 +624,27 @@
 
 
 
-            // #region Load shift by opening edit shift modal
+            // #region Load shift by opening add shift modal
             $(settings.addShiftModal).on('show.bs.modal', function (e) {
                 var btn = $(e.relatedTarget);
+                var rosterInOfficeDayID = btn.data('id');
                 var organizationId = btn.data('organization-id');
+                var depId = btn.data('dep-id');
+                var empId = btn.data('emp-id');
+                var overrideDate = btn.data('date');
+
+                $('#RosterInOfficeDayIdAdd').val(rosterInOfficeDayID);
+                $('#OrganizationIdAdd').val(organizationId);
+                $('#DepartmentIdAdd').val(depId);
+                $('#EmployeeIdAdd').val(empId);
+                $('#DayDateAdd').val(overrideDate);
 
                 $.ajax({
                     url: '/OfficeDayRoster/GetShiftByOrganization',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (shifts) {
-                        const $shiftSelect = $('#AddShiftModal-ShiftID');
+                        const $shiftSelect = $('#ShiftIdAdd');
 
                         $shiftSelect.empty();
 
@@ -585,9 +653,8 @@
 
                         // Populate shift options
                         shifts.forEach(shift => {
-                            const isSelected = shift.id;
                             $shiftSelect.append(
-                                `<option value="${shift.id}" ${isSelected ? 'selected' : ''}>
+                                `<option value="${shift.id}">
                                     ${shift.name}
                                 </option>`
                             );
@@ -605,22 +672,25 @@
             // #region Load shift by opening edit shift modal
             $(settings.editShiftModal).on('show.bs.modal', function (e) {
                 var btn = $(e.relatedTarget);
+                var rosterInOfficeDayID = btn.data('id');
                 var shiftId = btn.data('shift-id');
                 var organizationId = btn.data('organization-id');
-                var rosterInOfficeDayID = btn.data('id');
+                var depId = btn.data('dep-id');
+                var empId = btn.data('emp-id');
                 var overrideDate = btn.data('date');
 
-                const $modal = $(this);
-                $modal.data('roster-id', rosterInOfficeDayID);
-                $modal.data('override-date', overrideDate);
+                $('#RosterInOfficeDayIdEdit').val(rosterInOfficeDayID);
+                $('#OrganizationIdEdit').val(organizationId);
+                $('#DepartmentIdEdit').val(depId);
+                $('#EmployeeIdEdit').val(empId);
+                $('#DayDateEdit').val(overrideDate);
 
                 $.ajax({
                     url: '/OfficeDayRoster/GetShiftByOrganization',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (shifts) {
-                        const $shiftSelect = $('#EditShiftModal-ShiftID');
-                        const selectedShiftId = $shiftSelect.data('selected');
+                        const $shiftSelect = $('#ShiftIdEdit');
 
                         $shiftSelect.empty();
 
@@ -629,7 +699,7 @@
 
                         // Populate shift options
                         shifts.forEach(shift => {
-                            const isSelected = shift.id;
+                            const isSelected = shift.id === shiftId;
                             $shiftSelect.append(
                                 `<option value="${shift.id}" ${isSelected ? 'selected' : ''}>
                                     ${shift.name}
@@ -657,8 +727,8 @@
             });
             // #endregion
 
-                                   
-            
+
+
             // #region For Range Date
             //$(document).ready(function () {
             //    $('#basic-daterange').dateRangePicker({
@@ -680,10 +750,71 @@
             //    });
             //});
             // #endregion
+
+
+
+            // #region Choice with Pagination have delay
+            const selectEl = document.getElementById('OrganizationID');
+            let debounceTimer;
+            let loading = false;
+            let hasInteracted = false;
+
+            const choices = new Choices(selectEl, {
+                searchEnabled: true,
+                placeholder: true,
+                placeholderValue: 'Select Organization...',
+                searchPlaceholderValue: 'Type to search...',
+                noChoicesText: 'Type 3 or more characters...',
+                searchResultLimit: 10,
+                shouldSort: false,
+                duplicateItemsAllowed: false,
+                loadingText: 'Loading...',
+                itemSelectText: '',
+                removeItemButton: true
+            });
+
+            // Fetch data from server
+            async function fetchOptions(search) {
+                loading = true;
+                try {
+                    const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=1&pageSize=10`);
+                    const data = await res.json();
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching organizations:", error);
+                    return { items: [] };
+                } finally {
+                    loading = false;
+                }
+            }
+
+            // Handle debounce on search
+            selectEl.addEventListener('search', function (e) {
+                const searchTerm = e.detail.value;
+
+                // Wait until user really types
+                if (!hasInteracted) {
+                    hasInteracted = true;
+                }
+
+                clearTimeout(debounceTimer);
+
+                if (!hasInteracted || searchTerm.length < 3) {
+                    choices.clearChoices();
+                    return;
+                }
+
+                debounceTimer = setTimeout(async () => {
+                    const data = await fetchOptions(searchTerm);
+                    choices.clearChoices();
+                    choices.setChoices(data.items, 'value', 'label', true);
+                }, 1000); // Wait 1 second after pause
+            });
+            // #endregion
         });
 
 
-        
+                        
         // #region Table With Pagination
         var currentPage = 1;
         var pageSize = 5;
@@ -824,10 +955,12 @@
                                 <p class="fs-10 mb-0 p-1 bg-light text-info">${holidayTitle}</p>
                                 <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
                                     id="rosterInOfficeDays-editBtn"
-                                    data-id="${shift?.rosterInOfficeDayId || ''}" 
+                                    data-id="${emp.rosterInOfficeDayID || ''}" 
                                     data-date="${h.date}" 
-                                    data-shift-id="${shift?.shiftID || ''}"
+                                    data-shift-id="${emp.shiftID || ''}"
                                     data-organization-id="${emp.organizationID}" 
+                                    data-dep-id="${emp.departmentID}" 
+                                    data-emp-id="${emp.employeeID}" 
                                     data-bs-target="#rosterInOfficeDays-editShiftModal">
                                     <i class="fas fa-pen"></i>
                                 </a>
@@ -842,10 +975,12 @@
                                 <p class="fs-10 mb-1">${shift.timeRange}</p>
                                 <p class="fs-10 mb-1">${shift.shiftName}</p>
                                 <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
-                                    data-id="${shift.rosterInOfficeDayId}" 
+                                    data-id="${emp.rosterInOfficeDayID}" 
                                     data-date="${h.date}" 
-                                    data-shift-id="${shift.shiftID}"
+                                    data-shift-id="${emp.shiftID}"
                                     data-organization-id="${emp.organizationID}" 
+                                    data-dep-id="${emp.departmentID}" 
+                                    data-emp-id="${emp.employeeID}" 
                                     data-bs-target="#rosterInOfficeDays-editShiftModal">
                                     <i class="fas fa-pen"></i>
                                 </a>
@@ -855,7 +990,11 @@
                         bodyHtml += `
                         <td class="shift-cell align-middle text-center">
                             <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal"
-                                data-organization-id="${emp.organizationID}">
+                                data-id="${emp.rosterInOfficeDayID}" 
+                                data-date="${h.date}" 
+                                data-organization-id="${emp.organizationID}" 
+                                data-dep-id="${emp.departmentID}" 
+                                data-emp-id="${emp.employeeID}" >
                                 <i class="fa fa-plus"></i>
                             </a>
                         </td>`;
@@ -897,7 +1036,7 @@
             var searchTerm = $("#rosterInOfficeDays-searchInput").val();
             $.ajax({
                 //url: settings.baseUrl + '/GetEmployeesPaged',
-                url: settings.baseUrl + '/GetAll',
+                url: getAll,
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,

@@ -1,19 +1,26 @@
-﻿<!-- Modal  for edit shift  used-->
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster.RosterInOfficeDayEditVM
+
+
 <div class="modal fade" id="rosterInOfficeDays-editShiftModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editShiftModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-controller="OfficeDayRoster" asp-action="UpdateEmpShiftAsync" id="EditShiftModal-form">
+                @* @Html.AntiForgeryToken() *@
                 <div class="modal-header">
                     <h5 class="modal-title" id="shiftModalLabel">@Html.SmartLocalize("Edit shift")</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="RosterInOfficeDayIdEdit" />
+                    <input type="hidden" asp-for="OrganizationIdEdit" />
+                    <input type="hidden" asp-for="DepartmentIdEdit" />
+                    <input type="hidden" asp-for="EmployeeIdEdit" />
+                    <input type="hidden" asp-for="DayDateEdit" />
                     <p id="shiftModalDetails" class="mb-3 text-muted"></p>
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label" for="EditShiftModal-ShiftID">@Html.SmartLocalize("Shift Name")</label>
-                            <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" id="EditShiftModal-ShiftID">
+                            <select class="form-select" asp-for="ShiftIdEdit">
                                 <option value="">@Html.SmartLocalize("Select Shift")...</option>
                             </select>
                         </div>
@@ -21,7 +28,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
-                    <button type="submit" class="btn btn-primary" id="EditShiftModal-saveShift">@Html.SmartLocalize("Save shift")</button>
+                    <button type="submit" class="btn btn-primary" id="EditShiftModal-saveShift">@Html.SmartLocalize("Update shift")</button>
                 </div>
             </form>
         </div>

@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetOrganizations
+        #region GetOrganizations, SearchOrganizations
         public async Task<List<CommonSelectVM>> GetOrganizations()
         {
             var result = await _organization.AllActive().AsNoTracking().Select(x => new CommonSelectVM
@@ -48,6 +49,36 @@ namespace GCTL.Service.CommonService
             }).ToListAsync();
 
             return result;
+        }
+
+
+        public async Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        {
+            var query = _organization.AllActive().AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => x.OrganizationName.Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(x => x.OrganizationName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.OrganizationID,
+                    Name = x.OrganizationName
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<CommonSelectVM>
+            {
+                Items = items,
+                HasMore = (page * pageSize) < totalCount
+            };
         }
         #endregion
 
