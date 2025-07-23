@@ -35,8 +35,6 @@ public partial class LeaveBaseApprovalHistory
 
     public int? DeletedBy { get; set; }
 
-    public bool? IsFullDay { get; set; }
-
     public DateOnly? FromDate { get; set; }
 
     public DateOnly? ToDate { get; set; }

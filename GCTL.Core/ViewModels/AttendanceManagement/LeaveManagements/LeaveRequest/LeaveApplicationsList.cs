@@ -19,11 +19,8 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public string? ToDate { get; set; }
         public string? FromDate { get; set; }
         public bool IsFullDay { get; set; }
-        
-        public int? EmployeeID { get; set; }
-
         public decimal AvailableLeaveDays { get; set; }
-    
+        public string? ApplicationDateForTable { get; set; }
         public DateTime? ApplicationDate { get; set; }
         public List<int> ApproverStep { get; set; }
     }

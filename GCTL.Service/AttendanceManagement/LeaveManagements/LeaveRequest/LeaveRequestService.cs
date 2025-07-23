@@ -153,6 +153,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     "todate" => x => x.ToDate,
                     "period" => x => x.ToDate.DayNumber - x.FromDate.DayNumber + 1,
                     "statusname" => x => x.Status.StatusName,
+                    "applyDate" => x => x.CreatedAt,
                     _ => x => x.LeaveApplicationID
                 };
 
@@ -206,6 +207,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                     b => new LeaveApplicationsList
                     {
+                        ApplicationDateForTable = DateTimeHelpers.FormatDateTime(b.CreatedAt)  ,
                         ApplicationDate = b.CreatedAt,
                         LeaveApplicationID = b.LeaveApplicationID,
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
@@ -213,7 +215,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         LeaveType = b.LeaveType != null ? b.LeaveType.LeaveTypeName : "",
                         FromDate = DateOnly.FromDateTime(b.FromDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
                         ToDate = DateOnly.FromDateTime(b.ToDate.ToDateTime(TimeOnly.MinValue)).ToString("dd MMM yyyy"),
-                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? LeaveCalculationHelper.CalculatePartialHoursTable(b.PartialToTime.Value, b.PartialFromTime.Value) : 0,  
+                        Period = b.IsFullDay ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1 : b.PartialFromTime.HasValue && b.PartialToTime.HasValue ? LeaveCalculationHelper.CalculatePartialHoursTable(b.PartialToTime.Value, b.PartialFromTime.Value) : 0,
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
@@ -789,7 +791,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 {
                     EmployeeID = entityVM.EmployeeID,
                     LeaveTypeID = entityVM.LeaveTypeID,
-                    //Taken = TotalAppliedDays,
                     Taken = entityVM.IsFullDay ? TotalAppliedDays : 0,
                     TakenPartialHours = entityVM.IsFullDay ? 0 : CalculatePartialHours(entityVM.PartialFromTime, entityVM.PartialToTime),
                     TotalLeave = leaveDaysFromConfig.LeaveDays,
@@ -1035,32 +1036,77 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             }
 
             // Case 1: Self-approval is allowed and not blocked
+            //if (approvalSettings.AllowSelfApproval == true && isSelfApprover &&
+            //    !IsSelfApprovalBlocked(entityVM.EmployeeID, entityVM.CreatedBy, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+            //{
+            //    approvalPersonId = entityVM.CreatedBy;
+            //    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
+            //}
+            //// Case 2: Self-approval is blocked, use SelfExceptionApprovalID if valid
+            //else if (isSelfApprover && approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue &&
+            //         !IsSelfApprovalBlocked(entityVM.EmployeeID, approvalSettings.SelfExceptionApprovalID.Value, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+            //{
+            //    approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
+            //}
+            //// Case 3: Normal approval flow
+            //else
+            //{
+            //    foreach (var (id, isDesignation) in approvalFlow)
+            //    {
+            //        if (approvalPersonId != null) break;
+
+            //        var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+            //        if (resolvedId.HasValue && !IsSelfApprovalBlocked(entityVM.EmployeeID, resolvedId, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+            //        {
+            //            approvalPersonId = resolvedId;
+            //        }
+            //    }
+            //}
+
+            //
+
+            //
             if (approvalSettings.AllowSelfApproval == true && isSelfApprover &&
-                !IsSelfApprovalBlocked(entityVM.EmployeeID, entityVM.CreatedBy, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+    !IsSelfApprovalBlocked(entityVM.EmployeeID, entityVM.CreatedBy, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
             {
+                // Case: Self-approver and allowed
                 approvalPersonId = entityVM.CreatedBy;
+
+                // 🔽 Add condition here for 2nd or 3rd approval fallback
+                if (approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
+                {
+                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID, offf);
+                }
+                else if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
+                {
+                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf);
+                }
+
                 return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
             }
-            // Case 2: Self-approval is blocked, use SelfExceptionApprovalID if valid
-            else if (isSelfApprover && approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue &&
+            else if (isSelfApprover && approvalSettings.AllowSelfApproval == false &&
+                     approvalSettings.SelfExceptionApprovalID.HasValue &&
                      !IsSelfApprovalBlocked(entityVM.EmployeeID, approvalSettings.SelfExceptionApprovalID.Value, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
             {
+                // Case: Self-approver but not allowed → fallback to SelfExceptionApprovalID
                 approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
             }
-            // Case 3: Normal approval flow
             else
             {
+                // Case: General applicant OR fallback
                 foreach (var (id, isDesignation) in approvalFlow)
                 {
-                    if (approvalPersonId != null) break;
-
                     var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
-                    if (resolvedId.HasValue && !IsSelfApprovalBlocked(entityVM.EmployeeID, resolvedId, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+                    if (resolvedId.HasValue &&
+                        !IsSelfApprovalBlocked(entityVM.EmployeeID, resolvedId, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
                     {
                         approvalPersonId = resolvedId;
+                        break;
                     }
                 }
             }
+
+            //
 
             if (approvalPersonId == null)
             {
@@ -2063,11 +2109,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         on lb.LeaveApplicationID equals leaveReq.LeaveApplicationID
                     select new PersonLeaveStepVM
                     {
-                        ApprovarNote = lb.ApproverNote,
-                        ApproverStep = lb.ApprovalStep,
-                        ApprovarPerson = e.FirstName + " " + e.LastName,
-                        StatusName = statusName.StatusName,
-                        //ApprovedDate=lb.CreatedAt,
+                        ApprovarNote = lb.ApproverNote ?? string.Empty,
+                        ApproverStep = lb.ApprovalStep ?? 0,
+                        ApprovarPerson = e.FirstName + " " + e.LastName ?? string.Empty,
+                        StatusName = statusName.StatusName ?? string.Empty,
+                        ApprovedOrDeclineDate =DateTimeHelpers.FormatDateTime(lb.CreatedAt),
                        
 
 

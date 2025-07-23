@@ -656,7 +656,16 @@ $(document).ready(function () {
                 console.log("Response:", response);
                 if (response.success) {
                     toastr.success(response.message);
-                    resetForm(); // Reset after successful save
+                    resetForm(); 
+                    //
+                    var applyModalEl = document.getElementById('apply_leave');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal)
+                    {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+                    //
                 } else {
                     // Show server-side validation errors
                     if (response.errors && response.errors.length > 0) {
@@ -844,8 +853,6 @@ $(document).ready(function () {
     }
 
     //
-
-
     //#region Reset logic function
     $('#ResetButton').on('click', function () {
         resetForm();
@@ -875,7 +882,8 @@ $(document).ready(function () {
                 $(id)[0]._flatpickr.clear();
             }
         });
-
+        exceedConfirmed = false;
+        $('#apply_leave').modal('hide');
     }
     //#endregion
 
@@ -911,7 +919,6 @@ $(document).ready(function () {
 
 
 });
-
 
 //#region TooTip Modal
 //
@@ -962,10 +969,11 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
 
             if (steps.length > 0) {
                 steps.forEach((item, index) => {
-                    const approverStep = item.approverStep ?? 'N/A';
-                    const statusName = item.statusName ?? 'N/A';
-                    const author = item.approvarPerson ?? 'N/A';
-                    const statusDescription = item.approvarNote ?? 'N/A';
+                    const approverStep = item.approverStep ?? '';
+                    const statusName = item.statusName ?? '';
+                    const author = item.approvarPerson ?? '';
+                    const statusDescription = item.approvarNote ?? '';
+                    const approvedOrDeclineDate = item.approvedOrDeclineDate ?? '';
 
                     html += `
                 <div class="timeline-item" style="margin-bottom:1px>
@@ -984,13 +992,12 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                                     </div>
                                     <span class="timeline-bar border-end border-dashed"></span>
                                 </div>
-
-
                             </div>
                             <div class="col">
                                 <div class="timeline-item-content ps-6 ps-md-3">
                                     <h5 class="fs-9 lh-sm">${statusName}</h5>
                                     <p class="fs-9 mb-0">by <a class="fw-semibold" href="#!">${author}</a></p>
+                                    <h5 class="fs-9 lh-sm">${approvedOrDeclineDate}</h5>
                                     <p class="fs-9 text-body-secondary">${statusDescription}</p>
                                 </div>
                             </div>
@@ -1072,6 +1079,7 @@ function getStatusText(item) {
     }
 
     if (isNewStatus && item.applicationDate) {
+       
         const applicationDate = new Date(item.applicationDate);
         const now = new Date();
         const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
@@ -1197,8 +1205,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     const organizationId = $('#OrganizationID').val();
     const departmentIds = $('#DepartmentIDs').val() || [];
     const employeeIds = $('#EmployeeIDs').val() || [];
-    const fromDate = $('#basic-daterange_fromHidden').val(); // YYYY-MM-DD
-    const toDate = $('#basic-daterange_toHidden').val();     // YYYY-MM-DD
+    const fromDate = $('#basic-daterange_fromHidden').val(); 
+    const toDate = $('#basic-daterange_toHidden').val();    
     console.log("Dept: " + departmentIds + " | Emp: " + employeeIds + " | Org: " + organizationId);
     console.log("From: " + fromDate + " | To: " + toDate);
 
@@ -1217,7 +1225,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
             organizationId: organizationId,
             departmentIds: departmentIds,
             employeeIds: employeeIds,
-            fromDate: fromDate,    // 👈 added
+            fromDate: fromDate,    
             toDate: toDate
         },
         success: function (response) {
@@ -1244,12 +1252,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     const unitLabel = isFullDay
                         ? (item.period > 1 ? 'Days' : 'Day')
                         : (item.period > 1 ? 'Hours' : 'Hour');
-                    //
-                    //
-
+                    
                     const avatar = getAvatarHtml(item);
-
-                    //
                     tableBody.append(`
                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                         
@@ -1294,7 +1298,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                style="cursor: pointer; font-size: 14px; color: #007bff;"></i>
         </div>` : ''}
                         </td>
-
+                        <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.applicationDateForTable}</td>
                      <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
                          <a

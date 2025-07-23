@@ -322,6 +322,12 @@ $(document).ready(function () {
                 if (response.success) {
                     toastr.success(response.message);
                     resetForm(); // Reset after successful save
+                    var applyModalEl = document.getElementById('edit_leaves');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
                 } else {
                     if (response.errors && response.errors.length > 0) {
                         response.errors.forEach(function (error) {
