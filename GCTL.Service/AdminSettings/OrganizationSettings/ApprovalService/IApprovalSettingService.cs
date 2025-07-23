@@ -21,6 +21,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
         Task<ApprovalSettingsVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<bool> IsNameUniqueAsync(int approvalTypeId, int organizationId);
         Task<List<SelectListItem>> GetOrganizationsAsync();
+        Task<List<SelectListItem>> GetOrganizationsAsync2();
         Task<List<SelectListItem>> GetApprovalTypesAsync();
         Task<List<SelectListItem>> GetEmployeeAsync();
         Task<List<SelectListItem>> GetDesignationAsync();
