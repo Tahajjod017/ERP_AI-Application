@@ -71,6 +71,13 @@ namespace GCTL.Core.Helpers
 
             return TimeOnly.MinValue;
         }
+        // added By 404, for Getting DateFormat
+        public static string FormatDateTime(DateTime? dateTime)
+        {
+            return dateTime.HasValue
+                ? dateTime.Value.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("en-US"))
+                : "";
+        }
 
     }
 }
