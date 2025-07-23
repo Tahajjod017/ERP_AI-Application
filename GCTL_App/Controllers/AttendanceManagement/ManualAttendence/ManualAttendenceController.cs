@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence;
+using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -10,11 +12,16 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
     public class ManualAttendenceController : BaseController
     {
         private readonly IManualAttendenceService _manualAttendenceService;
-        public ManualAttendenceController(ITranslateService translateService, IUserProfileService userProfileService, IManualAttendenceService manualAttendenceService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Attendance> _attendanceRepository;
+        private readonly IGenericRepository<AttendanceLog> _attendanceLogRepository;
+
+        public ManualAttendenceController(ITranslateService translateService, IUserProfileService userProfileService, IManualAttendenceService manualAttendenceService, IGenericRepository<Attendance> attendanceRepository, IGenericRepository<AttendanceLog> attendanceLogRepository) : base(translateService, userProfileService)
         {
             _manualAttendenceService = manualAttendenceService;
+            _attendanceRepository = attendanceRepository;
+            _attendanceLogRepository = attendanceLogRepository;
         }
-       
+
         public IActionResult Index()
         {
             SetSmartPageCode(113000);
@@ -141,9 +148,16 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
         [Route("ManualAttendance/GetAllAttendance")]
         [HttpPost]
-        public IActionResult GetAllAttendance(int page, int pageSize, string department, string possibleReason, string dateRange, string search, string sort)
+        public async Task<IActionResult> GetAllAttendance(int page, int pageSize, string department, string possibleReason, string dateRange, string search, string sort)
         {
-            var filteredData = _attendanceData.AsQueryable();
+
+            var imgTemFolder = GetEmployeePictureURL(true);
+
+            var rawData = await _manualAttendenceService.GetAllDataAsync(imgTemFolder);
+
+            var filteredData = rawData.AsQueryable();
+
+            
 
             // Apply filters
             if (!string.IsNullOrEmpty(department))
@@ -204,12 +218,45 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         }
 
         [Route("ManualAttendence/GetPunchData")]
+        //[HttpGet]
+        //public IActionResult GetPunchData(string employeeId, string attendanceDate)
+        //{
+        //    //var record = _attendanceData.FirstOrDefault(a => a.Id.ToString() == employeeId && a.AttendanceDate == attendanceDate);
+        //    var record = 
+        //    return Json(new { data = record?.PunchData ?? new List<PunchData>() });
+        //}
         [HttpGet]
-        public IActionResult GetPunchData(string employeeId, string attendanceDate)
+        public async Task<IActionResult> GetPunchData(string employeeId, string attendanceDate)
         {
-            var record = _attendanceData.FirstOrDefault(a => a.Id.ToString() == employeeId && a.AttendanceDate == attendanceDate);
-            return Json(new { data = record?.PunchData ?? new List<PunchData>() });
+            if (!int.TryParse(employeeId, out var empId) || !DateOnly.TryParse(attendanceDate, out var attDate))
+            {
+                return BadRequest(new { message = "Invalid employeeId or attendanceDate" });
+            }
+
+            // Step 1: Get AttendanceID
+            var attendance = (await _attendanceRepository.GetAllAsync())
+                                .FirstOrDefault(x => x.EmployeeID == empId && x.AttendanceDate == attDate);
+
+            if (attendance == null)
+            {
+                return Json(new { data = new List<PunchData>() });
+            }
+
+            // Step 2: Get punch logs by AttendanceID
+            var punchLogs = (await _attendanceLogRepository.GetAllAsync())
+                                .Where(x => x.AttendanceID == attendance.AttendanceID)
+                                .OrderBy(x => x.PunchTime)
+                                .Select(x => new PunchData
+                                {
+                                    Time = x.PunchTime.ToString("hh:mm tt"),
+                                    Label = "punch",
+                                    Icon = "fas fa-fingerprint",
+                                    Deletable = false
+                                }).ToList();
+
+            return Json(new { data = punchLogs });
         }
+
 
         [HttpPost]
         public IActionResult SavePunchData(string employeeId, string attendanceDate, List<PunchData> punchData)

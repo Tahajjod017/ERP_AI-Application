@@ -5,6 +5,8 @@
     let pageSize = 10;
     let totalRecords = 0;
 
+    
+
     //#region Function to convert time to 24-hour format for sorting (client-side for timeline)
     function convertTo24Hour(timeStr) {
         if (!timeStr || typeof timeStr !== 'string' || timeStr.trim() === '') {
@@ -379,7 +381,7 @@
 
     //#endregion
 
-    //#region Fetch data from controller
+    //#region Fetch Table data from controller
     function GetLoadData(page = 1, size = pageSize, filters = {}) {
         console.log("Sending AJAX request to GetAllAttendance with:", { page, size, filters });
 
@@ -468,6 +470,7 @@
         tbody.innerHTML = '';
 
         attendanceData.forEach(item => {
+          
             const row = document.createElement('tr');
             row.className = 'hover-actions-trigger btn-reveal-trigger position-static';
             row.setAttribute('data-id', item.id);
@@ -507,7 +510,8 @@
             `;
 
             row.querySelector('.edit-attendance').addEventListener('click', function () {
-                fetchPunchData(item.id, item.attendanceDate).then(data => {
+                debugger
+                fetchPunchData(item.employeeId, item.attendanceDate).then(data => {
                    
                     punchData = data.data;
                     renderHorizontalTimeline(punchData, 'timelineContainer');
