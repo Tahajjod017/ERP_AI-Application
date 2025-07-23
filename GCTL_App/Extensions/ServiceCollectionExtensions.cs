@@ -202,6 +202,7 @@ namespace GCTL_App.Extensions
             #region Attendance Management Services
 
             services.AddScoped<IManualAttendenceService, ManualAttendenceService>();
+           
 
             #endregion
 
