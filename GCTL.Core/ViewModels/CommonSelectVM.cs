@@ -12,4 +12,10 @@ namespace GCTL.Core.ViewModels
         public string? Name { get; set; }
         public string? GroupName { get; set; }
     }
+
+    public class PaginatedResult<T>
+    {
+        public List<T> Items { get; set; }
+        public bool HasMore { get; set; }
+    }
 }

@@ -17,6 +17,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 {
@@ -119,9 +120,61 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                         var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
                         if (employees == null || !employees.Any())
                             continue;
-                        foreach (var employee in employees)
+
+                        for(var date  = model.StartDate.Value; date <= model.EndDate.Value; date = date.AddDays(1))
                         {
-                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            foreach (var employee in employees)
+                            {
+                                var existingEntity = await _genericRepository.All()
+                                    .Where(x => x.OrganizationID == employee.OrganizationID 
+                                    && x.DepartmentID == employee.DepartmentID 
+                                    && x.EmployeeID == employee.EmployeeID
+                                    && x.DayDate == date)
+                                    .FirstOrDefaultAsync();
+                                if (existingEntity != null)
+                                {
+                                    existingEntity.ShiftID = model.ShiftID;
+                                    existingEntity.LIP = model.LIP;
+                                    existingEntity.LMAC = model.LMAC;
+                                    existingEntity.CreatedBy = model.CreatedBy;
+                                    existingEntity.CreatedAt = DateTime.Now;
+
+                                    await _genericRepository.UpdateAsync(existingEntity);
+                                }
+                                else
+                                {
+                                    RosterInOfficeDays entity = new RosterInOfficeDays();
+                                    entity.OrganizationID = employee.OrganizationID;
+                                    entity.DepartmentID = employee.DepartmentID;
+                                    entity.EmployeeID = employee.EmployeeID;
+                                    entity.ShiftID = model.ShiftID;
+                                    entity.DayDate = date;
+                                    entity.LIP = model.LIP;
+                                    entity.LMAC = model.LMAC;
+                                    entity.CreatedBy = model.CreatedBy;
+                                    entity.CreatedAt = DateTime.Now;
+                                    await _genericRepository.AddAsync(entity);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
+                {
+                    foreach (var empId in model.EmployeeIDs)
+                    {
+                        var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
+
+                        if (employee == null || employee.DepartmentID == null) continue;
+
+                        for(var date = model.StartDate.Value; date <= model.EndDate.Value; date = date.AddDays(1))
+                        {
+                            var existingEntity = await _genericRepository.All()
+                                .Where(x => x.OrganizationID == employee.OrganizationID 
+                                && x.DepartmentID == employee.DepartmentID 
+                                && x.EmployeeID == employee.EmployeeID
+                                && x.DayDate == date)
+                                .FirstOrDefaultAsync();
                             if (existingEntity != null)
                             {
                                 existingEntity.ShiftID = model.ShiftID;
@@ -135,52 +188,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                             else
                             {
                                 RosterInOfficeDays entity = new RosterInOfficeDays();
-                                entity.ShiftID = model.ShiftID;
                                 entity.OrganizationID = employee.OrganizationID;
                                 entity.DepartmentID = employee.DepartmentID;
-                                entity.EmployeeID = employee.EmployeeID;
+                                entity.EmployeeID = empId;
+                                entity.ShiftID = model.ShiftID;
+                                entity.DayDate = date;
                                 entity.LIP = model.LIP;
                                 entity.LMAC = model.LMAC;
                                 entity.CreatedBy = model.CreatedBy;
                                 entity.CreatedAt = DateTime.Now;
+
                                 await _genericRepository.AddAsync(entity);
                             }
-                        }
-                    }
-                }
-                else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
-                {
-                    foreach (var empId in model.EmployeeIDs)
-                    {
-                        var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
-
-                        if (employee == null || employee.DepartmentID == null) continue;
-
-                        var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
-                        if (existingEntity != null)
-                        {
-                            existingEntity.ShiftID = model.ShiftID;
-                            existingEntity.LIP = model.LIP;
-                            existingEntity.LMAC = model.LMAC;
-                            existingEntity.CreatedBy = model.CreatedBy;
-                            existingEntity.CreatedAt = DateTime.Now;
-
-                            await _genericRepository.UpdateAsync(existingEntity);
-                        }
-                        else
-                        {
-                            RosterInOfficeDays entity = new RosterInOfficeDays();
-                            entity.OrganizationID = employee.OrganizationID;
-                            entity.DepartmentID = employee.DepartmentID;
-                            entity.EmployeeID = empId;
-                            entity.ShiftID = model.ShiftID;
-
-                            entity.LIP = model.LIP;
-                            entity.LMAC = model.LMAC;
-                            entity.CreatedBy = model.CreatedBy;
-                            entity.CreatedAt = DateTime.Now;
-
-                            await _genericRepository.AddAsync(entity);
                         }
                     }
                 }
@@ -227,111 +246,117 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
         #endregion
 
 
-        #region UpdateAsync
-        //public async Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
-        //{
-        //    await _genericRepository.BeginTransactionAsync();
-        //    try
-        //    {
-        //        var data = await _genericRepository.FindAsync(x => x.RosterInOfficeDayID == model.RosterInOfficeDayID);
-        //        if (data == null || data.Count == 0)
-        //        {
-        //            return false;
-        //        }
+        #region AddEmpShiftAsync
+        public async Task<bool> AddEmpShiftAsync(RosterInOfficeDayModalAddVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var employees = await _employeeOfficeInfo
+                    .FindAsync(x => x.OrganizationID == model.OrganizationIdAdd
+                    && x.DepartmentID == model.DepartmentIdAdd
+                    && x.EmployeeID == model.EmployeeIdAdd);
 
-        //        foreach (var item in data)
-        //        {
-        //            var existingOverride = await _rosterInOfficeDayOverride.FirstOrDefaultAsync(x =>
-        //                x.RosterInOfficeDayID == model.RosterInOfficeDayID &&
-        //                x.OverrideDate == model.OverrideDate);
+                foreach (var employee in employees)
+                {
+                    var existingEntity = await _genericRepository.All()
+                        .Where(x => x.OrganizationID == employee.OrganizationID
+                        && x.DepartmentID == employee.DepartmentID
+                        && x.EmployeeID == employee.EmployeeID
+                        && x.DayDate == model.DayDateAdd)
+                        .FirstOrDefaultAsync();
+                    if (existingEntity != null)
+                    {
+                        existingEntity.ShiftID = model.ShiftIdAdd;
+                        existingEntity.LIP = model.LIP;
+                        existingEntity.LMAC = model.LMAC;
+                        existingEntity.CreatedBy = model.CreatedBy;
+                        existingEntity.CreatedAt = DateTime.Now;
 
-        //            if (existingOverride != null)
-        //            {
-        //                existingOverride.ShiftID = model.ShiftID;
-        //                existingOverride.UpdatedAt = DateTime.Now;
-        //                existingOverride.UpdatedBy = model.CreatedBy ?? null;
+                        await _genericRepository.UpdateAsync(existingEntity);
+                    }
+                    else
+                    {
+                        RosterInOfficeDays entity = new RosterInOfficeDays();
+                        entity.OrganizationID = employee.OrganizationID;
+                        entity.DepartmentID = employee.DepartmentID;
+                        entity.EmployeeID = employee.EmployeeID;
+                        entity.ShiftID = model.ShiftIdAdd;
+                        entity.DayDate = model.DayDateAdd;
+                        entity.LIP = model.LIP;
+                        entity.LMAC = model.LMAC;
+                        entity.CreatedBy = model.CreatedBy;
+                        entity.CreatedAt = DateTime.Now;
+                        await _genericRepository.AddAsync(entity);
+                    }
+                }
 
-        //                await _rosterInOfficeDayOverride.UpdateAsync(existingOverride);
-        //            }
-        //            else
-        //            {
-        //                var newOverride = new RosterInOfficeDaysOverride
-        //                {
-        //                    RosterInOfficeDayID = item.RosterInOfficeDayID,
-        //                    OverrideDate = model.OverrideDate,
-        //                    ShiftID = model.ShiftID,
-        //                    CreatedAt = DateTime.Now,
-        //                    CreatedBy = model.CreatedBy ?? null,
-        //                    LIP = item.LIP,
-        //                    LMAC = item.LMAC
-        //                };
-
-        //                await _rosterInOfficeDayOverride.AddAsync(newOverride);
-        //            }
-        //        }
-
-        //        await _genericRepository.CommitTransactionAsync();
-        //        return true;
-        //    }
-        //    catch
-        //    {
-        //        await _genericRepository.RollbackTransactionAsync();
-        //        return false;
-        //    }
-        //}
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
+        #endregion
 
 
-        //public async Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model)
-        //{
-        //    await _genericRepository.BeginTransactionAsync();
-        //    try
-        //    {
-        //        var data = await _genericRepository.FindAsync(x => x.RosterInOfficeDayID == model.RosterInOfficeDayID);
-        //        if (data == null || data.Count == 0)
-        //        {
-        //            return false;
-        //        }
+        #region UpdateEmpShiftAsync
+        public async Task<bool> UpdateEmpShiftAsync(RosterInOfficeDayEditVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var employees = await _employeeOfficeInfo
+                    .FindAsync(x => x.OrganizationID == model.OrganizationIdEdit
+                    && x.DepartmentID == model.DepartmentIdEdit
+                    && x.EmployeeID == model.EmployeeIdEdit);
 
-        //        // 🔍 Remove existing override for the same day (if any)
-        //        var existingOverrides = await _rosterInOfficeDayOverride.FindAsync(x =>
-        //            x.RosterInOfficeDayID == model.RosterInOfficeDayID &&
-        //            x.OverrideDate == model.OverrideDate);
+                foreach (var employee in employees)
+                {
+                    var existingEntity = await _genericRepository.All()
+                        .Where(x => x.OrganizationID == employee.OrganizationID
+                        && x.DepartmentID == employee.DepartmentID
+                        && x.EmployeeID == employee.EmployeeID
+                        && x.DayDate == model.DayDateEdit)
+                        .FirstOrDefaultAsync();
+                    if (existingEntity != null)
+                    {
+                        existingEntity.ShiftID = model.ShiftIdEdit;
+                        existingEntity.LIP = model.LIP;
+                        existingEntity.LMAC = model.LMAC;
+                        existingEntity.CreatedBy = model.CreatedBy;
+                        existingEntity.CreatedAt = DateTime.Now;
 
-        //        if (existingOverrides != null && existingOverrides.Count > 0)
-        //        {
-        //            await _rosterInOfficeDayOverride.DeleteRangeAsync(existingOverrides);
-        //        }
+                        await _genericRepository.UpdateAsync(existingEntity);
+                    }
+                    else
+                    {
+                        RosterInOfficeDays entity = new RosterInOfficeDays();
+                        entity.OrganizationID = employee.OrganizationID;
+                        entity.DepartmentID = employee.DepartmentID;
+                        entity.EmployeeID = employee.EmployeeID;
+                        entity.ShiftID = model.ShiftIdEdit;
+                        entity.DayDate = model.DayDateEdit;
+                        entity.LIP = model.LIP;
+                        entity.LMAC = model.LMAC;
+                        entity.CreatedBy = model.CreatedBy;
+                        entity.CreatedAt = DateTime.Now;
+                        await _genericRepository.AddAsync(entity);
+                    }
+                }
 
-        //        // ➕ Add new override
-        //        var overrideList = new List<RosterInOfficeDaysOverride>();
-
-        //        foreach (var item in data)
-        //        {
-        //            var overrideEntry = new RosterInOfficeDaysOverride
-        //            {
-        //                RosterInOfficeDayID = item.RosterInOfficeDayID,
-        //                OverrideDate = model.OverrideDate,
-        //                ShiftID = model.ShiftID,
-        //                CreatedAt = DateTime.Now,
-        //                CreatedBy = model.CreatedBy ?? null,
-        //                LIP = item.LIP,
-        //                LMAC = item.LMAC
-        //            };
-
-        //            overrideList.Add(overrideEntry);
-        //        }
-
-        //        await _rosterInOfficeDayOverride.AddRangeAsync(overrideList);
-
-        //        await _genericRepository.CommitTransactionAsync();
-        //        return true;
-        //    }
-        //    catch
-        //    {
-        //        await _genericRepository.RollbackTransactionAsync();
-        //        return false;
-        //    }
-        //}
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
         #endregion
 
 
@@ -379,20 +404,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 .Include(x => x.Department)
                 .Include(x => x.Employee).ThenInclude(x => x.EmployeeOfficeInfoEmployee)
                 .Where(x => x.DeletedAt == null && x.DayDate >= startDate || x.DayDate < endDate);
-
-            //// Sorting
-            //if (!string.IsNullOrEmpty(sortColumn))
-            //{
-            //    query = sortColumn switch
-            //    {
-            //        "RosterInOfficeDayID" => sortOrder == "desc" ? query.OrderByDescending(x => x.RosterInOfficeDayID) : query.OrderBy(x => x.RosterInOfficeDayID),
-            //        "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
-            //        "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-            //        "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
-            //        "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
-            //        _ => query.OrderBy(x => x.RosterInOfficeDayID)
-            //    };
-            //}
 
             // Apply search filtering
             if (!string.IsNullOrEmpty(searchTerm))
@@ -504,61 +515,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 EmployeeID = defaultShift.EmployeeID
             };
         }
-        #endregion
-
-
-        #region SoftDeleteAsync
-        //public async Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model)
-        //{
-        //    await _genericRepository.BeginTransactionAsync();
-        //    try
-        //    {
-        //        var data = await _genericRepository.FindAsync(x => x.RosterInOfficeDayID == model.Id);
-        //        if(data == null || data.Count == 0)
-        //        {
-        //            return new RosterInOfficeDaysSetupVM
-        //            {
-        //                Message = "No data found to delete."
-        //            };
-        //        }
-
-        //        var overrideList = new List<RosterInOfficeDaysOverride>();
-
-        //        foreach (var item in data)
-        //        {
-        //            //item.ShiftID = null;
-        //            //item.DeletedAt = DateTime.Now;
-        //            //item.DeletedBy = model.DeletedBy ?? null;
-        //            var overrideEntry = new RosterInOfficeDaysOverride
-        //            {
-        //                RosterInOfficeDayID = item.RosterInOfficeDayID,
-        //                OverrideDate = model.OverrideDate, 
-        //                ShiftID = null,
-        //                DeletedAt = DateTime.Now,
-        //                DeletedBy = model.DeletedBy ?? null,
-        //                LIP = item.LIP,
-        //                LMAC = item.LMAC
-        //            };
-
-        //            overrideList.Add(overrideEntry);
-        //        }
-
-        //        //await _genericRepository.UpdateRangeAsync(data);
-        //        await _rosterInOfficeDayOverride.AddRangeAsync(overrideList);
-
-        //        await _genericRepository.CommitTransactionAsync();
-
-        //        return new RosterInOfficeDaysSetupVM
-        //        {
-        //            Message = $"{data.Count} shift deleted successfully."
-        //        };
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        await _genericRepository.RollbackTransactionAsync();
-        //        throw new Exception("Error occured during the deletion of data.", ex);
-        //    }
-        //}
         #endregion
     }
 }

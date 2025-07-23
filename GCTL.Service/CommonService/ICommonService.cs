@@ -22,6 +22,11 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
+        #region Load Paginated
+        Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 10);
+        #endregion
+
+
         #region Load by OrganizationId
         Task<List<CommonSelectVM>> GetBranchesByOrgId(int? orgId);
 

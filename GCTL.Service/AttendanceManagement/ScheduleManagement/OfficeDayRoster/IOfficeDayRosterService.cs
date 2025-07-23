@@ -16,9 +16,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
     {
         #region CRUD
         Task<bool> AddAsync(RosterInOfficeDaysSetupVM model);
-        //Task<bool> UpdateAsync(RosterInOfficeDaysSetupVM model);
-        //Task<bool> UpdateEmpShiftAsync(RosterInOfficeDaysOverrideSetupVM model);
-        //Task<RosterInOfficeDaysSetupVM> SoftDeleteAsync(RosterDelVM model);
+        Task<bool> AddEmpShiftAsync(RosterInOfficeDayModalAddVM model);
+        Task<bool> UpdateEmpShiftAsync(RosterInOfficeDayEditVM model);
         Task<RosterInOfficeDaysSetupVM> GetByIdAsync(int id);
         Task<SeparatePaginationResult<RosterInOfficeDaysListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null);
         #endregion

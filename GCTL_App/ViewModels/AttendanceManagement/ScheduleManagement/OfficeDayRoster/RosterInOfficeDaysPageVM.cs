@@ -6,6 +6,8 @@ namespace GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayR
     public class RosterInOfficeDaysPageVM : BaseViewModel
     {
         public RosterInOfficeDaysSetupVM Setup { get; set; } = new RosterInOfficeDaysSetupVM();
+        public RosterInOfficeDayEditVM Edit { get; set; } = new RosterInOfficeDayEditVM();
+        public RosterInOfficeDayModalAddVM ModalAdd { get; set; } = new RosterInOfficeDayModalAddVM();
         public List<RosterInOfficeDaysSetupVM> RosterList { get; set; } = new List<RosterInOfficeDaysSetupVM>();
     }
 }

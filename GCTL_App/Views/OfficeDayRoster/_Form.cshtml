@@ -25,7 +25,7 @@
 
         <div class="col-md">
             <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
-            <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+            <select class="form-select" asp-for="OrganizationID">
                 <option value="">@Html.SmartLocalize("Select Organization")...</option>
             </select>
             <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
@@ -127,3 +127,4 @@ data-coreui-select-all-label="string" — Set custom label for “Select All”
 data-coreui-selection-type="tag|counter|text" — Display selected items as tags, counter, or comma‑separated text
 data-coreui-selection-type-counter-text="string" — Change counter text, e.g. "items selected"
 data-coreui-valid="true|false" — Apply valid state styling *@
+
