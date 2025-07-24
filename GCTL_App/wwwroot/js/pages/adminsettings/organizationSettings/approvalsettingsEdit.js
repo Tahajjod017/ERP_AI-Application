@@ -48,7 +48,7 @@ $(document).ready(function () {
 
 
             // Fetch the approval setting data again based on the new organization ID
-            fetchApprovalSettingData(approvalSettingID);
+            //fetchApprovalSettingData(approvalSettingID);
 
         });
     });
@@ -161,7 +161,40 @@ $(document).ready(function () {
         });
     }
 
+   
+    // Attach the submit event handler to the form
+    $('#aprovalSettingsFormEdit').on('submit', function (e) {
+        e.preventDefault();  // Prevent the default form submission
 
+        var form = $(this);
+        var formData = form.serialize();  // Serialize the form data into a query string
+
+        // Add the ApprovalSettingID to the form data dynamically (if required)
+        var approvalSettingID = $('#edit_approval_settingBtn').data('id');
+        formData += '&ApprovalSettingID=' + approvalSettingID;  // Append to the serialized data
+
+        // Send the form data via AJAX
+        $.ajax({
+            url: form.attr('action'),  // The action URL from the form's 'action' attribute
+            method: 'POST',  // The HTTP method (POST)
+            data: formData,  // The serialized form data
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message, '');
+                    form.trigger("reset");  // Reset the form after successful submission
+                    $('#edit_approval_setting').modal('hide');  // Close the modal
+                    loadTableData();  // Reload the table data if needed
+                    populateOptions();  // Re-populate any necessary dropdowns or options
+                    choicDp();  // Update any custom dropdown or options
+                } else {
+                    toastr.error(response.message, 'Error');
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        });
+    });
 
 });
 

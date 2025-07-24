@@ -68,7 +68,26 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             // Return the View with the model data
             return Json(approvalSetting);
         }
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> UpdateApprovalSetting(ApprovalSettingsVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _approvalSettingService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
 
+        }
         #endregion
 
         #region delete 

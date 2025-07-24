@@ -53,6 +53,24 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             var branches = await _weekendSettingService.GetBranchesByOrganizationIdAsync(organizationId);
             return Json(branches);
         }
+        public async Task<IActionResult> GetOrganizations()
+        {
+            var organizations = await _weekendSettingService.GetOrganizationsAsync();
+            return Json(organizations);
+        }
+        public async Task<IActionResult> GetWeekendDays()
+        {
+            // Get the list of weekend days from the enum
+            var weekendDays = Enum.GetValues(typeof(DayOfWeek)) 
+                                .Cast<DayOfWeek>()
+                                .Select(d => new SelectListItem
+                                {
+                                    Value = ((int)d).ToString(), // Values: 0 = Sunday, 1 = Monday, etc.
+                                    Text = d.ToString()
+                                })
+                                .ToList();
+            return Json(weekendDays);
+        }
 
         #region Create
         //[Permission("Create", "WeekendSettings")]
@@ -93,9 +111,8 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                 return NotFound(); // Return a 404 if the entity is not found
             }
 
-            // Get organizations and branches for the dropdowns
-            var organizations = await _weekendSettingService.GetOrganizationsAsync();
-            var branches = await _weekendSettingService.GetBranchesByOrganizationIdAsync(model.OrganizationID ?? 0);
+            
+           
 
             // Set the WeekendDays dropdown
             var weekendDays = Enum.GetValues(typeof(DayOfWeek))
@@ -111,8 +128,6 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             var response = new
             {
                 model,
-                Organizations = organizations,
-                Branches = branches,
                 WeekendDays = weekendDays
             };
 

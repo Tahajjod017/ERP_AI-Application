@@ -26,5 +26,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyRepo
         }
 
         #endregion
+        //public async Task<IActionResult> GetOrganization()
+        //{
+            
+        //}
     }
 }
