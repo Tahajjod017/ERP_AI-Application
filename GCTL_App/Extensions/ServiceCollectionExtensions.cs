@@ -78,6 +78,7 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
+using GCTL.Service.Employees.EmpTransfer;
 
 #endregion
 
@@ -151,6 +152,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeaveSettingsService , LeaveSettingsService>();
             services.AddScoped<ILeaveApprovalService , LeaveApprovalService>();
             services.AddScoped<ILeaveHistoryBalancesService, LeaveHistoryBalancesService>();
+            services.AddScoped<IEmployeeTransferService, EmployeeTransferService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();

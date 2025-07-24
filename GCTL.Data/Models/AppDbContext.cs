@@ -24,6 +24,18 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
+    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
+
+    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+
+    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
+
+    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
+
+    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
+
+    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
+
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -77,6 +89,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<EmployeeTranningInfo> EmployeeTranningInfo { get; set; }
 
+    public virtual DbSet<EmployeeTransfer> EmployeeTransfer { get; set; }
+
     public virtual DbSet<EmployeeType> EmployeeType { get; set; }
 
     public virtual DbSet<Employees> Employees { get; set; }
@@ -90,6 +104,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<Holidays> Holidays { get; set; }
 
     public virtual DbSet<LanguageInd_bn> LanguageInd_bn { get; set; }
+
+    public virtual DbSet<LanguageInd_hi> LanguageInd_hi { get; set; }
 
     public virtual DbSet<LanguageLists> LanguageLists { get; set; }
 
@@ -180,7 +196,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -316,22 +331,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-
-          .HasDiscriminator<string>("Discriminator")
-          .HasValue<ApplicationUser>("ApplicationUser");
-          
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Employees)
-                .WithMany(e => e.AspNetUsers)
-                .HasForeignKey(u => u.EmployeeId)
-                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Organization)
-                .WithMany(o => o.AspNetUsers)
-                .HasForeignKey(u => u.OrganizationID)
-                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
@@ -1296,6 +1297,49 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__EmployeeT__Updat__2B947552");
         });
 
+        modelBuilder.Entity<EmployeeTransfer>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeTransferID).HasName("PK__Employee__0AB6D6B86F2ADCD1");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.TransferDate).HasColumnType("datetime");
+            entity.Property(e => e.TransferNote).HasMaxLength(200);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeTransferCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeT__Creat__7C3A67EB");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeTransferDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeT__Delet__7F16D496");
+
+            entity.HasOne(d => d.FromOrganizationBranch).WithMany(p => p.EmployeeTransferFromOrganizationBranch)
+                .HasForeignKey(d => d.FromOrganizationBranchID)
+                .HasConstraintName("FK__EmployeeT__FromO__795DFB40");
+
+            entity.HasOne(d => d.FromOrganization).WithMany(p => p.EmployeeTransferFromOrganization)
+                .HasForeignKey(d => d.FromOrganizationID)
+                .HasConstraintName("FK__EmployeeT__FromO__7869D707");
+
+            entity.HasOne(d => d.ToOrganizationBranch).WithMany(p => p.EmployeeTransferToOrganizationBranch)
+                .HasForeignKey(d => d.ToOrganizationBranchID)
+                .HasConstraintName("FK__EmployeeT__ToOrg__7B4643B2");
+
+            entity.HasOne(d => d.ToOrganization).WithMany(p => p.EmployeeTransferToOrganization)
+                .HasForeignKey(d => d.ToOrganizationID)
+                .HasConstraintName("FK__EmployeeT__ToOrg__7A521F79");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeTransferUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeT__Updat__7D2E8C24");
+        });
+
         modelBuilder.Entity<EmployeeType>(entity =>
         {
             entity.HasKey(e => e.EmployeeTypeID).HasName("PK__Employee__1F1B6AB43780DC4B");
@@ -1541,6 +1585,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id).HasName("PK__Language__3214EC0707052EE9");
         });
 
+        modelBuilder.Entity<LanguageInd_hi>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Language__3214EC07F63FB507");
+
+            entity.Property(e => e.TranslatedText).UseCollation("Indic_General_90_CI_AS");
+        });
+
         modelBuilder.Entity<LanguageLists>(entity =>
         {
             entity.HasKey(e => e.ID).HasName("PK__Language__3214EC27569C0871");
@@ -1613,6 +1664,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.Taken).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TakenPartialHours).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalLeave).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -1694,6 +1746,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LeaveBalanceResetDate).HasColumnType("datetime");
             entity.Property(e => e.RoundOffHour).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.WorkingHour).HasColumnType("decimal(5, 2)");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeavePolicyConfigurationCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -1919,6 +1972,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.TenantInfo).WithMany(p => p.Organization)
                 .HasForeignKey(d => d.TenantInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_Organization");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationUpdatedByNavigation)

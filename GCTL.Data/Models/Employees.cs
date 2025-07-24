@@ -283,6 +283,12 @@ public partial class Employees
 
     public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfoUpdatedByNavigation { get; set; } = new List<EmployeeTranningInfo>();
 
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferCreatedByNavigation { get; set; } = new List<EmployeeTransfer>();
+
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferDeletedByNavigation { get; set; } = new List<EmployeeTransfer>();
+
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferUpdatedByNavigation { get; set; } = new List<EmployeeTransfer>();
+
     public virtual ICollection<EmployeeType> EmployeeTypeCreatedByNavigation { get; set; } = new List<EmployeeType>();
 
     public virtual ICollection<EmployeeType> EmployeeTypeDeletedByNavigation { get; set; } = new List<EmployeeType>();

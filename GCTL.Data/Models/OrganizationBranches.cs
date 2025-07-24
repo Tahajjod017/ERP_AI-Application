@@ -63,6 +63,10 @@ public partial class OrganizationBranches
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferFromOrganizationBranch { get; set; } = new List<EmployeeTransfer>();
+
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferToOrganizationBranch { get; set; } = new List<EmployeeTransfer>();
+
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
     public virtual Organization Organization { get; set; }
