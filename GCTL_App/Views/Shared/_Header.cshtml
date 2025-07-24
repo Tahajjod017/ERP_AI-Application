@@ -18,7 +18,7 @@
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
                         <img src="~/media/logo/logo.png" alt="Logo" width="27" />
-                        <h5 class="logo-text ms-2 d-none d-sm-block">HRM</h5>
+                        <h5 class="logo-text ms-2 d-none d-sm-block">@Html.SmartLocalize("HRM")</h5>
                     </div>
                 </div>
             </a>
@@ -30,7 +30,7 @@
                     <option value="">🌐</option>
                     @foreach (var language in LangugesInd)
                     {
-                        <option value="@language">@language</option>
+                        <option value="@language">@Html.SmartLocalize($"{@language}")</option>
                     }
                 </select>
             </li>
@@ -88,8 +88,8 @@
                             </div>
                             <div class="overflow-auto scrollbar" style="height: 5rem;">
                                 <ul class="nav d-flex flex-column mb-2 pb-1">
-                                    <li class="nav-item"><a class="nav-link px-3 d-block" href="/UserProfile/Index"> <span class="me-2 text-body align-bottom" data-feather="user"></span><span>Profile</span></a></li>
-                                    <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"><span class="me-2 text-body align-bottom" data-feather="pie-chart"></span>Dashboard</a></li>
+                                    <li class="nav-item"><a class="nav-link px-3 d-block" href="/UserProfile/Index"> <span class="me-2 text-body align-bottom" data-feather="user"></span><span>@Html.SmartLocalize("Profile")</span></a></li>
+                                    <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"><span class="me-2 text-body align-bottom" data-feather="pie-chart"></span>@Html.SmartLocalize("Dashboard")</a></li>
                                     @*  <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="lock"></span>Posts &amp; Activity</a></li>
                                 <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="settings"></span>Settings &amp; Privacy </a></li>
                                 <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="help-circle"></span>Help Center</a></li>
@@ -102,9 +102,9 @@
                             </ul> *@
                                 <hr />
                                 <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <div class="px-3"> <button class="btn btn-phoenix-secondary d-flex flex-center w-100" type="submit" href="/Account/Logout"> <span class="me-2" data-feather="log-out"> </span>Sign out</button></div>
+                                    <div class="px-3"> <button class="btn btn-phoenix-secondary d-flex flex-center w-100" type="submit" href="/Account/Logout"> <span class="me-2" data-feather="log-out"> </span>@Html.SmartLocalize("Sign out")</button></div>
                                 </form>
-                                <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a class="text-body-quaternary me-1" href="#!">Privacy policy</a>&bull;<a class="text-body-quaternary mx-1" href="#!">Terms</a>&bull;<a class="text-body-quaternary ms-1" href="#!">Cookies</a></div>
+                                <div class="my-2 text-center fw-bold fs-10 text-body-quaternary"><a class="text-body-quaternary me-1" href="#!">@Html.SmartLocalize("Privacy policy")</a>&bull;<a class="text-body-quaternary mx-1" href="#!">@Html.SmartLocalize("Terms")</a>&bull;<a class="text-body-quaternary ms-1" href="#!">@Html.SmartLocalize("Cookies")</a></div>
                             </div>
                         </div>
                     </div>

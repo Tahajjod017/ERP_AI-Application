@@ -3,6 +3,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
+using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
@@ -18,14 +19,17 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #region Services & Repositories
         private readonly IAddShiftService _addShiftService;
         private readonly IGenericRepository<Shifts> _genericRepository;
+        private readonly ICommonService _commonService;
 
         public AddShiftController(ITranslateService translateService,
             IUserProfileService userProfileService,
             IAddShiftService addShiftService,
-            IGenericRepository<Shifts> genericRepository) : base(translateService, userProfileService)
+            IGenericRepository<Shifts> genericRepository,
+            ICommonService commonService) : base(translateService, userProfileService)
         {
             _addShiftService = addShiftService;
             _genericRepository = genericRepository;
+            _commonService = commonService;
         }
         #endregion
 
@@ -41,6 +45,30 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             ViewBag.OrganizationDD = new SelectList(_addShiftService.GetOrganizations(), "Id", "Name");
 
             return View(model);
+        }
+        #endregion
+
+
+        #region SearchOrganizations / OrganizationDD
+        [HttpGet]
+        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        {
+            var result = await _commonService.SearchOrganizations(search, page, pageSize);
+
+            //return Json(new
+            //{
+            //    items = result.Items,
+            //    hasMore = result.HasMore
+            //});
+            return Json(new
+            {
+                items = result.Items.Select(x => new {
+                    value = x.Id,
+                    label = x.Name,
+                    group = x.GroupName // Optional: only if you want to group
+                }),
+                hasMore = result.HasMore
+            });
         }
         #endregion
 
