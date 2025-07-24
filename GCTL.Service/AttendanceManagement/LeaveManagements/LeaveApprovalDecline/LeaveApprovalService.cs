@@ -547,6 +547,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         }
                         existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                         existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
+                  
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.UpdatedAt = DateTime.Now;
@@ -571,6 +572,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                         await leaveBalance.AddAsync(newBalance);
                     }
+                   
+                }
+               if (isFinalApproval && entityVM.Approved == true)
+                {
+                    entity.IsFinalApproved = true;   // only Final apprved
+                }else
+                {
+                    entity.IsFinalApproved = false;   // only Final apprved
                 }
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;

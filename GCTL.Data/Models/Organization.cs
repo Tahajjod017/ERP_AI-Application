@@ -27,7 +27,7 @@ public partial class Organization
 
     public int? DeletedBy { get; set; }
 
-    public int? TenantInfoId { get; set; }
+    public int TenantInfoId { get; set; }
 
     public string EmailAddress { get; set; }
 
@@ -78,6 +78,10 @@ public partial class Organization
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
+
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferFromOrganization { get; set; } = new List<EmployeeTransfer>();
+
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferToOrganization { get; set; } = new List<EmployeeTransfer>();
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 

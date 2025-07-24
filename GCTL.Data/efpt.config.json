@@ -167,6 +167,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmployeeTransfer]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[EmployeeType]",
          "ObjectType": 0
       },
@@ -188,6 +192,10 @@
       },
       {
          "Name": "[dbo].[LanguageInd_bn]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LanguageInd_hi]",
          "ObjectType": 0
       },
       {

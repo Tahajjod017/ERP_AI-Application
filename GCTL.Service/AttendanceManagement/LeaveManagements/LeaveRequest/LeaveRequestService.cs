@@ -971,8 +971,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
 
 
-        // Save Code 
-        public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
+        //Save Code
+            public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
         {
 
             if (entityVM == null)
@@ -981,13 +981,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             // 3. If it's a partial day leave, check how many partials already exist
             if (!entityVM.IsFullDay)
             {
-               var result = await  ValidationMaxPerDayPartialDayAsync(entityVM.EmployeeID, entityVM.ToDateFromDateCombined);
+                var result = await ValidationMaxPerDayPartialDayAsync(entityVM.EmployeeID, entityVM.ToDateFromDateCombined);
                 if (!result.Success)
                 {
-                    return result; 
+                    return result;
                 }
             }
-           //
+            //
             int? applicableYear = DateTime.Now.Year;
             if (await HasOverlappingLeave(entityVM.EmployeeID, entityVM.FromDate, entityVM.ToDate, applicableYear))
                 return new CommonReturnViewModel { Success = false, Message = "You already have leave on selected dates" };
@@ -1013,16 +1013,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
                     x.ApprovalType.ApprovalTypeName == "Leave Request Approval").FirstOrDefaultAsync();
 
-            if (approvalSettings == null)return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
+            if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Leave Request Approval settings found." };
 
             int? approvalPersonId = null;
 
             var approvalFlow = new List<(int? id, bool isDesignation)>
-    {
-        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-    };
+        {
+            (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+            (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+            (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+        };
 
             bool isSelfApprover = false;
             foreach (var step in approvalFlow)
@@ -1065,57 +1065,73 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
             //
 
+
             //
-            if (approvalSettings.AllowSelfApproval == true && isSelfApprover &&
-    !IsSelfApprovalBlocked(entityVM.EmployeeID, entityVM.CreatedBy, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+         
+            // Step 2: Self-approval logic for known fixed levels
+            if (isSelfApprover)
             {
-                // Case: Self-approver and allowed
-                approvalPersonId = entityVM.CreatedBy;
-
-                // 🔽 Add condition here for 2nd or 3rd approval fallback
-                if (approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
+                if (approvalSettings.AllowSelfApproval==true)
                 {
-                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID, offf);
-                }
-                else if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
-                {
-                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf);
-                }
-
-                return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
-            }
-            else if (isSelfApprover && approvalSettings.AllowSelfApproval == false &&
-                     approvalSettings.SelfExceptionApprovalID.HasValue &&
-                     !IsSelfApprovalBlocked(entityVM.EmployeeID, approvalSettings.SelfExceptionApprovalID.Value, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
-            {
-                // Case: Self-approver but not allowed → fallback to SelfExceptionApprovalID
-                approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-            }
-            else
-            {
-                // Case: General applicant OR fallback
-                foreach (var (id, isDesignation) in approvalFlow)
-                {
-                    var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
-                    if (resolvedId.HasValue &&
-                        !IsSelfApprovalBlocked(entityVM.EmployeeID, resolvedId, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+                    if (entityVM.CreatedBy == approvalSettings.FirstApprovalID && entityVM.EmployeeID == approvalSettings.FirstApprovalID)
                     {
-                        approvalPersonId = resolvedId;
-                        break;
+                        approvalPersonId = approvalSettings.SecondApprovalID;
+                    }
+                    else if (entityVM.CreatedBy == approvalSettings.SecondApprovalID && entityVM.EmployeeID == approvalSettings.SecondApprovalID)
+                    {
+                        approvalPersonId = approvalSettings.ThirdApprovalID;
+                    }
+                    else if (entityVM.CreatedBy == approvalSettings.ThirdApprovalID && entityVM.EmployeeID == approvalSettings.ThirdApprovalID)
+                    {
+                        // Third approver is applicant and self-approval allowed
+                        approvalPersonId = approvalSettings.ThirdApprovalID;
                     }
                 }
+                else // Self-approval not allowed
+                {
+                    approvalPersonId = approvalSettings.SelfExceptionApprovalID;
+                }
+
+                // Process if we got an approver in self-approval flow
+                if (approvalPersonId.HasValue)
+                {
+                    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
+                }
             }
 
-            //
+            // Step 3: Normal approval flow (fallback logic)
+            foreach (var (id, isDesignation) in approvalFlow)
+            {
+                var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
 
+                // Skip if resolved is the applicant
+                if (resolvedId == entityVM.CreatedBy)
+                {
+                    continue;
+                }
+
+                // Skip if blocked
+                if (resolvedId.HasValue &&
+                    !IsSelfApprovalBlocked(entityVM.EmployeeID, resolvedId.Value,
+                        approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+                {
+                    approvalPersonId = resolvedId.Value;
+                    break;
+                }
+            }
+
+            // Final step: Process leave
             if (approvalPersonId == null)
             {
                 return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
             }
             return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, false);
-           
+
         }
-    
+
+
+
+
         // Max Perday Validation Partial
 
         //
@@ -1151,7 +1167,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         ToDate = fromDate.AddDays(usedDays - 1),
                         PartialFromTime = entityVM.PartialFromTime,
                         PartialToTime = entityVM.PartialToTime,
-                        StatusID = isSelfApproval? leaveTypeIDApproved :  entityVM.StatusID,
+                        StatusID = isSelfApproval ? leaveTypeIDApproved : entityVM.StatusID,
                         LeaveApplicableYear = DateTime.Now.Year,
                         CreatedAt = DateTime.Now,
                         CreatedBy = entityVM.CreatedBy,
@@ -1159,6 +1175,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         IsGroupApplication = entityVM.IsGroupApplication,
                         Reason = entityVM.Reason,
                         ApprovalPersonID = approvalPersonId,
+                        IsFinalApproved = isSelfApproval ? true : false,
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC
                     };
@@ -1201,6 +1218,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 PartialToTime = entityVM.PartialToTime,
                                 StatusID = entityVM.StatusID,
                                 LeaveApplicableYear = DateTime.Now.Year,
+                                IsFinalApproved = isSelfApproval ? true : false,
                                 //IsGroupApplication = entityVM.IsGroupApplication,
                                 CreatedAt = DateTime.Now,
                                 CreatedBy = entityVM.CreatedBy,
@@ -1234,6 +1252,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialFromTime = entityVM.PartialFromTime,
                         PartialToTime = entityVM.PartialToTime,
                         StatusID = entityVM.StatusID,
+                        IsFinalApproved = isSelfApproval ? true : false,
                         LeaveApplicableYear = DateTime.Now.Year,
                         CreatedAt = DateTime.Now,
                         CreatedBy = entityVM.CreatedBy,
