@@ -33,6 +33,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence
         public bool IsOnFullLeave { get; set; }
         public string? PartialLeaveTimeRange { get; set; }
         public bool IsPartialLeave { get; set; }
+        public string AbnormalType { get; set; }
     }
 
     
