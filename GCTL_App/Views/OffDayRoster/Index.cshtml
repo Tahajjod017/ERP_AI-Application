@@ -99,3 +99,17 @@
       ]
     });
 </script> *@
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+	<script src="~/js/pages/attendancemanagement/schedulemanagement/offdayroster.js"></script>
+    <script>
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "OffDayRoster")'
+            };
+            options.load = () => { };
+            $.offdayroster(options);
+        });
+    </script>
+}
