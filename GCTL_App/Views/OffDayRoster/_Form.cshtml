@@ -1,5 +1,104 @@
-﻿<form>
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster.RosterInOffDaySetupVM
+
+@{
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
+}
+
+<form asp-controller="OffDayRoster" asp-action="Create" id="rosterInOffDay-form" enctype="multipart/form-data">
     <div class="modal-body pb-0">
+
+        <div class="row g-3 mb-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="RosterInOffDayID" />
+
+            <div class="col-md">
+                <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+                <select class="form-select" asp-for="OrganizationID">
+                    <option value="">@Html.SmartLocalize("Select Organization")...</option>
+                </select>
+                <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
+            </div>
+
+            <div class="col-md branch">
+                <label class="form-label" asp-for="BranchIDs">@Html.SmartLocalize("Branch Name")</label>
+                <select class="form-multi-select"
+                        asp-for="BranchIDs"
+                        asp-items="@ViewBag.BrnchDD as SelectList"
+                        multiple data-coreui-multiple="true"
+                        data-coreui-selection-type="counter"
+                        data-coreui-search="true"
+                        data-coreui-placeholder="@Html.SmartLocalize("Select Branch")...">
+                </select>
+            </div>
+
+            <div class="col-md department">
+                <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department Name")</label>
+                <select class="form-multi-select"
+                        asp-for="DepartmentIDs"
+                        asp-items="@ViewBag.DepartmentDD as SelectList"
+                        multiple data-coreui-multiple="true"
+                        data-coreui-selection-type="counter"
+                        data-coreui-search="true"
+                        data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
+                </select>
+            </div>
+
+            <div class="col-md employee">
+                <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
+                <select class="form-multi-select"
+                        asp-for="EmployeeIDs"
+                        multiple data-coreui-multiple="true"
+                        data-coreui-selection-type="counter"
+                        data-coreui-search="true"
+                        data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
+                    @foreach (var group in employees.GroupBy(e => e.GroupName))
+                    {
+                        <optgroup label="@group.Key">
+                            @foreach (var emp in group)
+                            {
+                                <option value="@emp.Id">@emp.Name</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md">
+                <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Shift Name")<span style="color:red;">&nbsp;*</span></label>
+                <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
+                    <option value="">@Html.SmartLocalize("Select Shift")...</option>
+                </select>
+                <span id="ShiftIDError" class="text-danger" style="display:none;"></span>
+            </div>
+
+            <div class="col-md">
+                <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" />
+                <span id="StartDateError" class="text-danger" style="display:none;"></span>
+            </div>
+
+            <div class="col-md">
+                <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" />
+                <span id="EndDateError" class="text-danger" style="display:none;"></span>
+            </div>
+
+            @* <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>
+            <input type="hidden" asp-for="StartDate" name="StartDate" />
+            <input type="hidden" asp-for="EndDate" name="EndDate" /> *@
+        </div>
+        <div class="col-12">
+            <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                    <button type="reset" class="btn btn-phoenix-primary px-5" id="rosterInOfficeDays-resetBtn">@Html.SmartLocalize("Reset")</button>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Save")</button>
+                </div>
+            </div>
+        </div>
         <div class="row">
 
             <div class="col-md-2">
