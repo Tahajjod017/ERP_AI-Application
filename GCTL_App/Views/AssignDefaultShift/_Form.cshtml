@@ -10,8 +10,11 @@
         <div class="col-md-4">
             <div class="mb-3 one">
                 <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Company")</label>
-                <select class="form-multi-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" data-coreui-multiple="false" data-coreui-search="true">
-                    <option value="">@Html.SmartLocalize("Select Company")</option>
+                <select class="form-multi-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" 
+                    data-coreui-multiple="false" 
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
+                    <option value="">@Html.SmartLocalize("Select Company")...</option>
                 </select>
             </div>
         </div>
@@ -19,7 +22,11 @@
         <div class="col-md-4">
             <div class="mb-3 two">
                 <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department")</label>
-                <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+                <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" 
+                    multiple data-coreui-multiple="true" 
+                    data-coreui-selection-type="counter" 
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
                 </select>
             </div>
         </div>
@@ -27,7 +34,11 @@
         <div class="col-md-4">
             <div class="mb-3 three">
                 <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
-                <select class="form-multi-select" asp-for="EmployeeIDs" multiple data-coreui-multiple="true" data-coreui-selection-type="counter" data-coreui-search="true">
+                <select class="form-multi-select" asp-for="EmployeeIDs" 
+                    multiple data-coreui-multiple="true" 
+                    data-coreui-selection-type="counter" 
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
                     @foreach (var group in employees.GroupBy(e => e.DepartmentName))
                     {
                         <optgroup label="@group.Key">

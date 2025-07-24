@@ -19,7 +19,17 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Company Name")</label>
-                            <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" multiple data-coreui-selection-type="tags" data-coreui-search="true">
+                            @* <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" 
+                                multiple data-coreui-selection-type="counter"
+                                data-coreui-search="true"
+                                data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
+                            </select> *@
+                            <select class="form-multi-select coreUiDD"
+                                    id="OrganizationIDs"
+                                    multiple
+                                    data-coreui-selection-type="counter"
+                                    data-coreui-search="true"
+                                    data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
                             </select>
                         </div>
                     </div>
@@ -62,7 +72,7 @@
 
                     <div class="col-md-3 d-none" id="addShift-GraceTimeDiv">
                         <div class="mb-1">
-                            <label class="form-label" for="organizerSingle">Grace Time</label>
+                            <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Grace Time")</label>
                             <input class="form-control datetimepicker timepicker-12hr" asp-for="GraceTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                         </div>
                     </div>
@@ -125,7 +135,7 @@
                             <div class="d-flex col-md-12  px-3">
                                 <div class="col-md-3 me-4">
                                     <div class="mb-3">
-                                        <label class="form-label" asp-for="MealBreakStartTime">Start Time</label>
+                                        <label class="form-label" asp-for="MealBreakStartTime">@Html.SmartLocalize("Start Time")</label>
                                         <input class="form-control datetimepicker flatpickr-input" asp-for="MealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                                data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
                                     </div>
@@ -133,7 +143,7 @@
 
                                 <div class="col-md-3">
                                     <div class="">
-                                        <label class="form-label" asp-for="MealBreakEndTime">End Time</label>
+                                        <label class="form-label" asp-for="MealBreakEndTime">@Html.SmartLocalize("End Time")</label>
                                         <input class="form-control datetimepicker flatpickr-input" asp-for="MealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")"
                                                data-options='{ "enableTime": true, "noCalendar": true, "dateFormat": "h:i K", "disableMobile": true }' readonly="readonly">
                                     </div>
@@ -158,24 +168,21 @@
                         <div class="d-flex justify-content-between border rounded-3">
                             <div class="col-md-4 me-3">
                                 <div class="mb-3">
-                                    <label class="form-label" for="organizerSingle">
-                                        Minimum working time eligable for
-                                        overtime
-                                    </label>
+                                    <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Minimum working time eligable for overtime")</label>
                                     <input class="form-control datetimepicker timepicker-12hr" asp-for="MinimumWorkingTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
 
                             <div class="col-md-3 me-3">
                                 <div class="mb-4">
-                                    <label class="form-label" for="organizerSingle">Minimum Required Overtime</label>
+                                    <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Minimum Required Overtime")</label>
                                     <input class="form-control datetimepicker timepicker-12hr" asp-for="MinimumRequiredOvertime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-1">
-                                    <label class="form-label" for="organizerSingle">Maximum Allowed Overtime</label>
+                                    <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Maximum Allowed Overtime")</label>
                                     <input class="form-control datetimepicker timepicker-12hr" asp-for="MaximumAllowedOvertime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
                                 </div>
                             </div>
