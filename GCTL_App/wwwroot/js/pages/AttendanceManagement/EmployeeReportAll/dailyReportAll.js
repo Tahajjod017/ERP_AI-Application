@@ -1,5 +1,22 @@
 ﻿
 
+function populateOrganizationDropdown(organizations) {
+    $.ajax({
+        url: '/WeekendSettings/GetOrganizations',  // API to get organizations
+        type: 'GET',
+        success: function (organizations) {
+            const simplifiedRoles = organizations.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('OrganizationEditID', simplifiedRoles);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching organizations:', error);
+        }
+    });
+}
+
 //////////////////////////////Data Table Initialization//////////////////////////////
 
 $(document).ready(function () {

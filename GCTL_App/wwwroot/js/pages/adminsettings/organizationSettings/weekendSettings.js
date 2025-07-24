@@ -108,6 +108,8 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 $(document).on('click', '#edit_weekend_settingBtn', function () {
     var approvalSettingID = $(this).data('id');
     $('#edit_weekend_setting').modal('show'); // Show the edit modal
+    populateOrganizations(); // Populate the organization dropdown
+    populateWeekendDays(); // Populate the weekend days dropdown
 
     // Fetch the current data for the weekend setting using the ID (Example: Get the existing values from your backend)
     $.ajax({
@@ -115,20 +117,26 @@ $(document).on('click', '#edit_weekend_settingBtn', function () {
         type: 'GET',
         data: { id: approvalSettingID },
         success: function (data) {
+            debugger
             console.log(data.model.organizationID)
-            if (data.model.success) {
+           
                 // Populate the modal fields with the data returned from the server
 /*                $('#OrganizationEditID').val(data.OrganizationID);  // Set Organization ID*/
 
-                choiceManager.setChoiceValue('#OrganizationEditID', data.model.organizationID)
+                choiceManager.setChoiceValue('OrganizationEditID', data.model.organizationID)
+            
+                populateBranchesByOrganization(data.model.organizationID);
+                choiceManager.setChoiceValue('OrganizationBranchEditID', data.model.organizationBranchID) // Set Branch ID
+      
+            
+            choiceManager.setChoiceValue('WeekendDaysEdit', data.model.weekendDays) // Set Weekend Days
+
                /* choiceManager.setChoiceValue('#OrganizationBranchEditID', data.model.OrganizationBranchID)*/
                 
 
                 // Pre-select the weekend days
                 /*$('#WeekendDaysEdit').val(data.WeekendDays).trigger('change');*/ // Assuming WeekendDays is an array
-            } else {
-                
-            }
+           
         },
         error: function (xhr, status, error) {
             
@@ -136,33 +144,71 @@ $(document).on('click', '#edit_weekend_settingBtn', function () {
     });
 });
 
-// Organization Change: Populate Branch Dropdown when Organization is changed
-$('#OrganizationEditID').on('change', function () {
+
+
+function populateOrganizations() {
+    // Populate the Organization dropdown
+    $.ajax({
+        url: '/WeekendSettings/GetOrganizations',  // API to get organizations
+        type: 'GET',
+        success: function (organizations) {
+            const simplifiedRoles = organizations.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('OrganizationEditID', simplifiedRoles);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching organizations:', error);
+        }
+    });
+}
+
+function populateBranchesByOrganization(orgId) {
+    // Populate the Branch dropdown based on selected Organization
+    $.ajax({
+        url: '/WeekendSettings/GetBranches',
+        type: 'GET',
+        data: { organizationId: orgId },
+        success: function (branches) {
+            debugger
+            const simplifiedRoles = branches.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('OrganizationBranchEditID', simplifiedRoles);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching branches:', error);
+        }
+    });
+}
+
+function populateWeekendDays() {
+    // Populate the Weekend Days dropdown
+    $.ajax({
+        url: '/WeekendSettings/GetWeekendDays',  // API to get weekend days
+        type: 'GET',
+        success: function (weekendDays) {
+            const simplifiedRoles = weekendDays.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('WeekendDaysEdit', simplifiedRoles);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching weekend days:', error);
+        }
+    });
+}
+$(document).on('change', '#OrganizationEditID', function () {
     var orgId = $(this).val();
-
     if (orgId) {
-        $.ajax({
-            url: '/WeekendSettings/GetBranches',  // API to get branches based on the selected organization
-            type: 'GET',
-            data: { organizationId: orgId },
-            success: function (branches) {
-                const simplifiedRoles = branches.map(role => ({
-                    id: role.value,
-                    name: role.text
-                }));
-
-                choiceManager.populateDropdown('OrganizationBranchEditID', simplifiedRoles);
-            },
-            error: function (xhr, status, error) {
-                console.error('Error fetching branches:', error);
-            }
-        });
+        populateBranchesByOrganization(orgId);
     } else {
-        // Clear the Branch dropdown if no organization is selected
         $('#OrganizationBranchEditID').empty().append('<option value="">-- Select Branch --</option>');
     }
-}); 
-
+});
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 //////////////////////////////Data Table Initialization//////////////////////////////

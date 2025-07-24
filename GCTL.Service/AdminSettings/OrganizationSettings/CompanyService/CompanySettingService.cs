@@ -61,6 +61,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                     existingEntity.Street = model.Street;
                     existingEntity.City = model.City;
                     existingEntity.PostCode = model.PostCode;
+                    existingEntity.TenantInfoId = 1; // Assuming TenantInfoId is set to 1, you can modify this as needed
 
                     // Fix for CS0029: Convert Latitude and Longitude to decimal?  
                     existingEntity.Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude);
@@ -95,6 +96,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                         Street = model.Street,
                         City = model.City,
                         PostCode = model.PostCode,
+                        TenantInfoId = 1, // Assuming TenantInfoId is set to 1, you can modify this as needed
 
                         // Fix for CS0029: Convert Latitude and Longitude to decimal?  
                         Latitude = string.IsNullOrEmpty(model.Latitude) ? null : decimal.Parse(model.Latitude),

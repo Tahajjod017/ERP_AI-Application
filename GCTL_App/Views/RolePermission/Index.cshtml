@@ -102,7 +102,12 @@
                     <div class="form-floating">
                         <select id="companySelect" class="form-select">
                             <option value="">-- Select Company --</option>
-                            <option value="0"> All Company </option>
+                            <!-- Check if the User's OrganizationID is null (super admin) -->
+                            @if (ViewBag.UserCompanyId == null)
+                            {
+                                <option value="0">All Companies</option>
+                            }
+                           
                             @if (ViewBag.Companies != null)
                             {
                                 foreach (var company in ViewBag.Companies)
