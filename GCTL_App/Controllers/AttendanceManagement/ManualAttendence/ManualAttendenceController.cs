@@ -151,70 +151,80 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         public async Task<IActionResult> GetAllAttendance(int page, int pageSize, string department, string possibleReason, string dateRange, string search, string sort)
         {
 
-            var imgTemFolder = GetEmployeePictureURL(true);
+            try
+            {
+                var imgTemFolder = GetEmployeePictureURL(true);
 
-            var rawData = await _manualAttendenceService.GetAllDataAsync(imgTemFolder);
+                //var rawData = await _manualAttendenceService.GetAllDataAsync(imgTemFolder);
+                var rawDataList = await _manualAttendenceService.GetAbnormalPunchDataAsync(imgTemFolder);
+                var filteredData = rawDataList.AsQueryable();
 
-            var filteredData = rawData.AsQueryable();
+
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(department))
+                {
+                    filteredData = filteredData.Where(a => a.Department == department);
+                }
+
+                if (!string.IsNullOrEmpty(possibleReason))
+                {
+                    filteredData = filteredData.Where(a => a.PossibleReason == possibleReason);
+                }
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    filteredData = filteredData.Where(a => a.EmployeeName.ToLower().Contains(search.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(dateRange))
+                {
+                    var dates = dateRange.Split(" to ");
+                    if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
+                    {
+                        filteredData = filteredData.Where(a => DateTime.Parse(a.AttendanceDate) >= startDate && DateTime.Parse(a.AttendanceDate) <= endDate);
+                    }
+                }
+
+                // Apply sorting
+                switch (sort)
+                {
+                    case "Latest":
+                        filteredData = filteredData.OrderByDescending(a => DateTime.Parse(a.AttendanceDate));
+                        break;
+                    case "Oldest":
+                        filteredData = filteredData.OrderBy(a => DateTime.Parse(a.AttendanceDate));
+                        break;
+                    case "Employee Name":
+                        filteredData = filteredData.OrderBy(a => a.EmployeeName);
+                        break;
+                    case "Department":
+                        filteredData = filteredData.OrderBy(a => a.Department);
+                        break;
+                    default:
+                        filteredData = filteredData.OrderByDescending(a => DateTime.Parse(a.AttendanceDate));
+                        break;
+                }
+
+                // Pagination
+                var totalRecords = filteredData.Count();
+                var pagedData = filteredData.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                return Json(new
+                {
+                    data = filteredData,
+                    pagedData = pagedData,
+                    totalRecords = totalRecords,
+                    summary = _summary
+                });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
 
             
-
-            // Apply filters
-            if (!string.IsNullOrEmpty(department))
-            {
-                filteredData = filteredData.Where(a => a.Department == department);
-            }
-
-            if (!string.IsNullOrEmpty(possibleReason))
-            {
-                filteredData = filteredData.Where(a => a.PossibleReason == possibleReason);
-            }
-
-            if (!string.IsNullOrEmpty(search))
-            {
-                filteredData = filteredData.Where(a => a.EmployeeName.ToLower().Contains(search.ToLower()));
-            }
-
-            if (!string.IsNullOrEmpty(dateRange))
-            {
-                var dates = dateRange.Split(" to ");
-                if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
-                {
-                    filteredData = filteredData.Where(a => DateTime.Parse(a.AttendanceDate) >= startDate && DateTime.Parse(a.AttendanceDate) <= endDate);
-                }
-            }
-
-            // Apply sorting
-            switch (sort)
-            {
-                case "Latest":
-                    filteredData = filteredData.OrderByDescending(a => DateTime.Parse(a.AttendanceDate));
-                    break;
-                case "Oldest":
-                    filteredData = filteredData.OrderBy(a => DateTime.Parse(a.AttendanceDate));
-                    break;
-                case "Employee Name":
-                    filteredData = filteredData.OrderBy(a => a.EmployeeName);
-                    break;
-                case "Department":
-                    filteredData = filteredData.OrderBy(a => a.Department);
-                    break;
-                default:
-                    filteredData = filteredData.OrderByDescending(a => DateTime.Parse(a.AttendanceDate));
-                    break;
-            }
-
-            // Pagination
-            var totalRecords = filteredData.Count();
-            var pagedData = filteredData.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            return Json(new
-            {
-                data = filteredData,
-                pagedData = pagedData,
-                totalRecords = totalRecords,
-                summary = _summary
-            });
         }
 
         [Route("ManualAttendence/GetPunchData")]
@@ -282,6 +292,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         [HttpPost]
         public IActionResult SaveAttendance(string employeeName, string attendanceDate, string actualInTime, string actualOutTime, string breakInTime, string breakOutTime)
         {
+
+
+
             var record = _attendanceData.FirstOrDefault(a => a.EmployeeName == employeeName && a.AttendanceDate == attendanceDate);
             if (record != null)
             {

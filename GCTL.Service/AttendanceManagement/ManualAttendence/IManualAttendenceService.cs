@@ -10,5 +10,6 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
     public interface IManualAttendenceService
     {
         Task<List<AttendanceRecord>> GetAllDataAsync(string imgTemFolder);
+        Task<List<AttendanceRecord>> GetAbnormalPunchDataAsync(string imgTemFolder);
     }
 }
