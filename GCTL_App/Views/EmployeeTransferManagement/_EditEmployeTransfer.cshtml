@@ -9,55 +9,56 @@
     }
 </style>
 
-<form method="post" id="employeeTransferForm">
+<form method="post" id="employeeTransferFormEdit">
     <div class="modal-body pb-0">
         <div class="row">
+            <input id="EmployeeTransferID"  type="hidden" />
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" id="EmployeeID" required>
+                    <select class="form-select choiceDD" id="EmployeeIDEdit" required>
                         <option value="">Select Employee</option>
                     </select>
-                  
+
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">From Organization</label>
-                    <select class="form-select choiceDD" id="FromOrganizationID" required asp-items="@ViewBag.OrganizationDD as SelectList">
+                    <select class="form-select choiceDD" id="FromOrganizationIDEdit" required asp-items="@ViewBag.OrganizationDD as SelectList">
                         <option value="">Select Organization</option>
                     </select>
-                    
+
                 </div>
             </div>
-             <div class="col-md-6">
+            <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">From Organization Branch</label>
-                    <select class="form-select choiceDD" id="FromOrganizationBranchID" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
+                    <select class="form-select choiceDD" id="FromOrganizationBranchIDEdit" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
                         <option value="">Select Organization</option>
                     </select>
-                   
+
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">To Organization</label>
-                    <select class="form-select choiceDD" id="ToOrganizationID" required asp-items="@ViewBag.OrganizationDD as SelectList">
+                    <select class="form-select choiceDD" id="ToOrganizationIDEdit" required asp-items="@ViewBag.OrganizationDD as SelectList">
                         <option value="">Select Organization</option>
                     </select>
-                   
+
                 </div>
             </div>
 
-           
+
 
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">To Branch</label>
-                    <select class="form-select choiceDD" id="ToOrganizationBranchID" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
+                    <select class="form-select choiceDD" id="ToOrganizationBranchIDEdit" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
                         <option value="">Select Organization</option>
                     </select>
-                   
+
                 </div>
             </div>
             <!-- Divs to Show/Hide -->
@@ -65,9 +66,9 @@
                 <div class="mb-3">
                     <label class="form-label req">Transfer Date</label>
                     <div class="input-icon-end position-relative">
-                        <input type="text" id="TransferDate"  class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
+                        <input type="text" id="TransferDateEdit" class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
                         <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                       
+
                     </div>
                     <span id="ToDateError" class="text-danger small"></span>
                 </div>
@@ -75,16 +76,16 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Note</label>
-                    <input id="TransferNote" class="form-control" />
+                    <input id="TransferNoteEdit" class="form-control" />
                 </div>
             </div>
         </div>
     </div>
-   
+
 
     <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
-        <button type="button" id="EmpTransferButtonReset" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button id="EmpTransferButton" class="btn btn-primary">Apply</button>
+        <button type="button" id="EmpTransferButtonResetEdit" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button id="EmpTransferButtonUpdateSubmit" class="btn btn-primary">Apply</button>
     </div>
 
 </form>

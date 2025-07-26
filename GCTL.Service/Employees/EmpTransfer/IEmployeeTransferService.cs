@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using GCTL.Core.ViewModels.Employee.EmpTransfer;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using GCTL.Core.Helpers;
 
 namespace GCTL.Service.Employees.EmpTransfer
 {
@@ -18,5 +19,10 @@ namespace GCTL.Service.Employees.EmpTransfer
   List<int> departmentIds = null,
   List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null);
         Task<CommonReturnViewModel> SaveEmployeeTansferAsync(EmployeeTransferAddVM entityVM);
+        Task<CommonReturnViewModel> GetEmployeeTransferByIdAsync(int employeeTransferID);
+        Task<CommonReturnViewModel> UpdateEmployeeTransferAsync(EmployeeTransferEditVM entityVM);
+        Task<CommonReturnViewModel> GetEmpOrganizationBranchId(int employeeID);
+        Task<CommonReturnViewModel> GetEmpBranchId(int toOrganizationID);
+        Task<CommonReturnViewModel> SoftDeleteEmpTransfer(DeleteRequestVM deleteRequestVM);
     }
 }
