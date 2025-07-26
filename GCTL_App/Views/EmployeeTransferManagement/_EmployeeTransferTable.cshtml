@@ -126,20 +126,6 @@
 
                     </div>
 
-                    <div class="dropdown me-3">
-                        <select class="form-select" data-choices="data-choices" size="1" id="LeaveTypeIDFilterDD" asp-items="@ViewBag.LeaveTypeDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
-                            <option value="">Leave Type</option>
-
-                        </select>
-                    </div>
-
-                    <div class="dropdown me-3">
-                        <select class="form-select" data-choices="data-choices" size="1" id="StatusIDFilterDD" asp-items="@ViewBag.StatusDD as SelectList" data-options='{"removeItemButton":true,"placeholder":true}'>
-                            <option value="">Select Status</option>
-
-                        </select>
-                    </div>
-
                     <div class="dropdown me-3" id="leaveRequest-searchBox">
                         <form class="position-relative" id="leaveRequest-searchForm">
                             <input class="form-control search-input" id="leaveRequest-searchInput" type="search"
@@ -164,13 +150,13 @@
                                 <input class="form-check-input" type="checkbox" />
                             </div>
                         </th>
-
+                   
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="employeeName">Employee Name</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="leaveType">From Organization</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="fromDate">To Organization</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="toDate">From Branch</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="toDate">To Branch</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="period">Date</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="fromOrganization">From Organization</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="toOrganization">To Organization</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="fromBranch">From Branch</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="toBranch">To Branch</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="transferDate">Date</th>
                         <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
                     </tr>
                 </thead>

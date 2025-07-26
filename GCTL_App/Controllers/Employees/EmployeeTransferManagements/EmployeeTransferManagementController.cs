@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Employee.EmpTransfer;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
@@ -47,10 +48,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
             return View();
         }
 
-        
+        #region Save/Update Data
         [Route("EmployeeTransferManagement/SaveEmplopyeeTransfer")]
         [HttpPost]
-            public async Task<IActionResult> SaveEmplopyeeTransfer(EmployeeTransferAddVM entityVM)
+        public async Task<IActionResult> SaveEmplopyeeTransfer(EmployeeTransferAddVM entityVM)
         {
             try
             {
@@ -62,8 +63,56 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
 
                 throw;
             }
-           
+
         }
+        [Route("EmployeeTransferManagement/UpdateEmployeeTransferAsync")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateEmployeeTransferAsync([FromBody]EmployeeTransferEditVM entityVM)
+        {
+            try
+            {
+                var data = await employeeTransferService.UpdateEmployeeTransferAsync(entityVM);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+        #endregion
+        #region GetBy EmployeeTransferID
+        [Route("EmployeeTransferManagement/GetEmployeeTransferByIdAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeTransferByIdAsync(int employeeTransferID)
+        {
+
+            var data = await employeeTransferService.GetEmployeeTransferByIdAsync(employeeTransferID);
+            return Json(data);
+        }
+
+        #endregion
+
+        #region Delete Leave Request
+        [Route("EmployeeTransferManagement/SoftDeleteEmpTransfer")]
+        [HttpPost]
+        public async Task<IActionResult> SofteDeleteLeaveRequest(DeleteRequestVM deleteRequestVM)
+        {
+            try
+            {
+                var data = await employeeTransferService.SoftDeleteEmpTransfer(deleteRequestVM);
+                return Json(data);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new { message = ex.Message });
+
+            }
+        }
+        #endregion
 
         #region Get All Data List
 
@@ -86,6 +135,41 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
+        }
+        #endregion
+        #region Get EmpOrganizationwithBranch according to emplopyee
+        [Route("EmployeeTransferManagement/GetEmpOrganizationBranchId")]
+        [HttpGet]
+        public async Task<IActionResult> GetEmpOrganizationBranchId(int employeeID)
+        {
+            try
+            {
+                var data = await employeeTransferService.GetEmpOrganizationBranchId(employeeID);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+        #region Get Organization According to Branch
+        [Route("EmployeeTransferManagement/GetEmpBranchId")]
+        [HttpGet]   
+        public async Task<IActionResult> GetEmpBranchId(int toOrganizationID)
+        {
+            try
+            {
+                var data = await employeeTransferService.GetEmpBranchId(toOrganizationID);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+                
+            }
+           
         }
         #endregion
     }
