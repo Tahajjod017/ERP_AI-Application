@@ -234,26 +234,12 @@
                 if (response.success) {
                     toastr.success(response.message || "Punch data saved successfully");
 
-                    var reason = document.getElementById('possibleText').value;
-                    debugger
-                    if (reason == 'Complete Record') {
-                        var applyModalEl = document.getElementById('edit_leaves_horizontal');
-                        var applyModal = bootstrap.Modal.getInstance(applyModalEl);
-                        if (!applyModal) {
-                            applyModal = new bootstrap.Modal(applyModalEl);
-                        }
-                        applyModal.hide();
+                    var applyModalEl = document.getElementById('edit_leaves_horizontal');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
                     }
-
-
-                    fetchPunchData(employeeId, attendanceDate).then(data => {
-                        
-                        punchData = data.data;
-                        renderHorizontalTimeline(punchData, 'timelineContainer');
-                        initHorizontalScroll('timelineContainer')
-                      
-                    });
-                    
+                    applyModal.hide();
                    
                     GetLoadData(currentPage, pageSize);
                 }
@@ -271,49 +257,7 @@
 
     //#region Add or delete entry
 
-
-    // Modified addTimeEntry function to prevent duplicate times and fetch possible reason
-    function addTimeEntry(timeValue, employeeId, attendanceDate, timelineType = 'both', inputElement = null) {
-        if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
-            toastr.error('Please enter a valid time');
-            return;
-        }
-
-        // Convert input time to 24-hour format for comparison
-        const newTime24 = convertTo24Hour(timeValue);
-        // Check for duplicate time
-        const isDuplicate = punchData.some(item => convertTo24Hour(item.time) === newTime24);
-        if (isDuplicate) {
-            toastr.warning('This time is already added in the timeline');
-            return;
-        }
-
-        const newEntry = {
-            time: timeValue,
-            label: 'manual entry',
-            icon: 'fas fa-plus',
-            deletable: true
-        };
-
-        punchData.push(newEntry);
-        punchData = sortPunchDataByTime(punchData);
-        const newIndex = punchData.findIndex(item => item === newEntry);
-        const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
-
-        // Update timeline
-        if (timelineType === 'both' || timelineType === 'horizontal') {
-            renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
-            initHorizontalScroll('timelineContainer');
-        }
-        if (timelineType === 'both' || timelineType === 'vertical') {
-            renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
-        }
-
-        // Fetch possible reason from backend
-        fetchPossibleReason(employeeId, attendanceDate, punchData);
-    }
-
-    // Modified deleteTimeEntry function to fetch possible reason
+    
     function deleteTimeEntry(index, employeeId, attendanceDate, timelineType = 'both') {
         const horizontalItems = document.querySelectorAll('.timeline-item-horizontal');
         const verticalItems = document.querySelectorAll('.timeline-item');
@@ -331,7 +275,7 @@
 
         setTimeout(() => {
             punchData.splice(index, 1);
-            // Update timeline
+           // savePunchData(employeeId, attendanceDate, punchData);
             if (timelineType === 'both' || timelineType === 'horizontal') {
                 renderHorizontalTimeline(punchData, 'timelineContainer');
                 initHorizontalScroll('timelineContainer');
@@ -339,93 +283,38 @@
             if (timelineType === 'both' || timelineType === 'vertical') {
                 renderVerticalTimeline(punchData, 'verticalTimelineContainer');
             }
-            // Fetch possible reason from backend
-            fetchPossibleReason(employeeId, attendanceDate, punchData);
         }, 400);
     }
 
-    // New function to fetch possible reason from backend
-    function fetchPossibleReason(employeeId, attendanceDate, punchData) {
-        $.ajax({
-            url: "/ManualAttendence/GetPossibleReason",
-            method: "POST",
-            data: { employeeId: employeeId, attendanceDate: attendanceDate, punchData: punchData },
-            success: function (response) {
-                if (response.success && response.possibleReason) {
-                    const reasonText = response.abnormalType
-                        ? `${response.possibleReason} (${response.abnormalType})`
-                        : response.possibleReason;
-                    document.getElementById('possibleText').value = reasonText;
-                } else {
-                    document.getElementById('possibleText').value = "No issues detected";
-                }
-            },
-            error: function (xhr) {
-                console.error("Failed to fetch possible reason:", xhr.responseText);
-                toastr.error("Failed to fetch possible reason");
-                document.getElementById('possibleText').value = "Error fetching reason";
-            }
-        });
-    }
-
-    
-    //function deleteTimeEntry(index, employeeId, attendanceDate, timelineType = 'both') {
-    //    const horizontalItems = document.querySelectorAll('.timeline-item-horizontal');
-    //    const verticalItems = document.querySelectorAll('.timeline-item');
-
-    //    if (timelineType === 'both' || timelineType === 'horizontal') {
-    //        if (horizontalItems[index]) {
-    //            horizontalItems[index].classList.add('fly-out');
-    //        }
-    //    }
-    //    if (timelineType === 'both' || timelineType === 'vertical') {
-    //        if (verticalItems[index]) {
-    //            verticalItems[index].classList.add('fly-out');
-    //        }
-    //    }
-
-    //    setTimeout(() => {
-    //        punchData.splice(index, 1);
-    //       // savePunchData(employeeId, attendanceDate, punchData);
-    //        if (timelineType === 'both' || timelineType === 'horizontal') {
-    //            renderHorizontalTimeline(punchData, 'timelineContainer');
-    //            initHorizontalScroll('timelineContainer');
-    //        }
-    //        if (timelineType === 'both' || timelineType === 'vertical') {
-    //            renderVerticalTimeline(punchData, 'verticalTimelineContainer');
-    //        }
-    //    }, 400);
-    //}
-
    
-    //function addTimeEntry(timeValue, employeeId, attendanceDate, timelineType = 'both', inputElement = null) {
-    //    if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
-    //        alert('Please enter a valid time');
-    //        return;
-    //    }
+    function addTimeEntry(timeValue, employeeId, attendanceDate, timelineType = 'both', inputElement = null) {
+        if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
+            alert('Please enter a valid time');
+            return;
+        }
 
-    //    const newEntry = {
-    //        time: timeValue,
-    //        label: 'manual entry',
-    //        icon: 'fas fa-plus',
-    //        deletable: true
-    //    };
+        const newEntry = {
+            time: timeValue,
+            label: 'manual entry',
+            icon: 'fas fa-plus',
+            deletable: true
+        };
 
-    //    punchData.push(newEntry);
-    //    punchData = sortPunchDataByTime(punchData);
-    //    const newIndex = punchData.findIndex(item => item === newEntry);
-    //    const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
+        punchData.push(newEntry);
+        punchData = sortPunchDataByTime(punchData);
+        const newIndex = punchData.findIndex(item => item === newEntry);
+        const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
 
-    //    //savePunchData(employeeId, attendanceDate, punchData);
+        //savePunchData(employeeId, attendanceDate, punchData);
 
-    //    if (timelineType === 'both' || timelineType === 'horizontal') {
-    //        renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
-    //        initHorizontalScroll('timelineContainer');
-    //    }
-    //    if (timelineType === 'both' || timelineType === 'vertical') {
-    //        renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
-    //    }
-    //}
+        if (timelineType === 'both' || timelineType === 'horizontal') {
+            renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
+            initHorizontalScroll('timelineContainer');
+        }
+        if (timelineType === 'both' || timelineType === 'vertical') {
+            renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
+        }
+    }
 
     //#endregion
 
@@ -435,8 +324,7 @@
             const deleteBtn = e.target.closest('.timeline-delete-btn');
             const index = parseInt(deleteBtn.getAttribute('data-index'));
             const type = deleteBtn.getAttribute('data-type');
-           // const employeeId = document.getElementById('empName').value;
-            const employeeId = document.getElementById('empId').value;
+            const employeeId = document.getElementById('empName').value;
             const attendanceDate = document.getElementById('Date').value;
             if (punchData[index] && punchData[index].deletable) {
                 deleteTimeEntry(index, employeeId, attendanceDate, type);
@@ -451,8 +339,7 @@
     document.getElementById('btnAddTime').addEventListener('click', function () {
         const timeInput = document.getElementById('time');
         const timeValue = timeInput.value.trim();
-       // const employeeId = document.getElementById('empName').value;
-        const employeeId = document.getElementById('empId').value;
+        const employeeId = document.getElementById('empName').value;
         const attendanceDate = document.getElementById('Date').value;
         if (timeValue) {
             addTimeEntry(timeValue, employeeId, attendanceDate, 'horizontal', timeInput);
@@ -645,7 +532,6 @@
                     document.getElementById('empName').value = data.empData.name;
                     document.getElementById('empId').value = data.empData.id;
                     document.getElementById('Date').value = item.attendanceDate;
-                    document.getElementById('possibleText').value = item.possibleReason;
                 });
             });
 
@@ -783,7 +669,7 @@
         const employeeId = $(this).find('input[name="empId"]').val();
         const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
         savePunchData(employeeId, attendanceDate, punchData);
-        //$('#edit_leaves_horizontal').modal('hide');
+        $('#edit_leaves_horizontal').modal('hide');
         GetLoadData(currentPage, pageSize);
     });
 
@@ -793,7 +679,7 @@
         const employeeId = $(this).find('input[name="empId"]').val();
         const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
         savePunchData(employeeId, attendanceDate, punchData);
-        //$('#edit_leaves_vertical').modal('hide');
+        $('#edit_leaves_vertical').modal('hide');
         GetLoadData(currentPage, pageSize);
     });
 

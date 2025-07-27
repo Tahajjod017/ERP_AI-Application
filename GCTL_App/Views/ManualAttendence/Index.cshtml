@@ -449,7 +449,7 @@
                 </div>
                 <div class="me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y " >
+                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y ">
                     </div>
                 </div>
                 <div class="dropdown me-3">
@@ -464,21 +464,21 @@
                 </div>
                 <div class="dropdown me-3">
                     @*<select class="form-select" id="possibleReasonFilter" data-choices="data-choices" size="1" name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">All Possible Reasons</option>
-                        <option value="In Time Missing">In Time Missing</option>
-                        <option value="Out Time Missing">Out Time Missing</option>
-                        <option value="Break In Missing">Break In Missing</option>
-                        <option value="Break Out Missing">Break Out Missing</option>
-                        <option value="Multiple Missing">Multiple Missing</option>
-                        <option value="Over Punching">Over Punching</option>
-                        <option value="Complete Record">Complete Record</option>
-                    </select>*@
-                    
-                       
-                        <select class="form-select choiceDD" id="possibleReasonFilter" asp-items="@ViewBag.ViolationTypeList as SelectList">
-                            <option value="">@Html.SmartLocalize("Select Type")</option>
-                        </select>
-                   
+                            <option value="">All Possible Reasons</option>
+                            <option value="In Time Missing">In Time Missing</option>
+                            <option value="Out Time Missing">Out Time Missing</option>
+                            <option value="Break In Missing">Break In Missing</option>
+                            <option value="Break Out Missing">Break Out Missing</option>
+                            <option value="Multiple Missing">Multiple Missing</option>
+                            <option value="Over Punching">Over Punching</option>
+                            <option value="Complete Record">Complete Record</option>
+                        </select>*@
+
+
+                    <select class="form-select choiceDD" id="possibleReasonFilter" asp-items="@ViewBag.ViolationTypeList as SelectList">
+                        <option value="">@Html.SmartLocalize("Select Type")</option>
+                    </select>
+
                 </div>
                 <div class="dropdown me-3">
                     <select class="form-select" id="sortFilter" data-choices="data-choices" size="1" name="sortFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
@@ -610,8 +610,8 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input id="empName" type="text" class="form-control" name="employeeName" disabled >
-                                <input id="empId" type="hidden" name="empId"  >
+                                <input id="empName" type="text" class="form-control" name="employeeName" disabled>
+                                <input id="empId" type="hidden" name="empId">
                                 <label for="empName" class="form-label">Employee Name</label>
                             </div>
                         </div>
@@ -657,6 +657,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="mt-2">
+                        <div class="form-floating">
+                            <textarea id="possibleText" type="text" class="form-control" name="possibleText" disabled></textarea>
+                            <label for="possibleText" class="form-label">Possible Reason</label>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="hoClMo" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
@@ -693,7 +701,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <div class="form-floating">
-                                    <input id="empName2" type="text" class="form-control" name="employeeName" disabled >
+                                    <input id="empName2" type="text" class="form-control" name="employeeName" disabled>
                                     <label for="empName2" class="form-label">Employee Name</label>
                                 </div>
                             </div>
@@ -737,6 +745,6 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/layout/flatpickr/flatpickr.min.js"></script>
-   
+
     <script src="~/js/pages/AttendanceManagement/ManualAttendence/ManualAttendence.js"></script>
 }
