@@ -23,28 +23,34 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
         private readonly IGenericRepository<Organization> organizationService;
         private readonly IGenericRepository<OrganizationBranches> organizationBranchesService;
         private IEmployeeTransferService  employeeTransferService;
-        public EmployeeTransferManagementController(ITranslateService translateService, IUserProfileService userProfileService,  ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService, IGenericRepository<Organization> organizationService, IGenericRepository<OrganizationBranches> organizationBranchesService, IEmployeeTransferService employeeTransferService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Designations> designationsService;
+        private readonly IGenericRepository<Departments> departmentsService;
+        public EmployeeTransferManagementController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService, IGenericRepository<Organization> organizationService, IGenericRepository<OrganizationBranches> organizationBranchesService, IEmployeeTransferService employeeTransferService, IGenericRepository<Designations> designationsService , IGenericRepository<Departments> departmentsService) : base(translateService, userProfileService)
         {
-          
+
             this.leaveRequestService = leaveRequestService;
             this.leaveApprovalService = leaveApprovalService;
             this.organizationService = organizationService;
             this.organizationBranchesService = organizationBranchesService;
             this.employeeTransferService = employeeTransferService;
+            this.designationsService = designationsService;
+            this.departmentsService = departmentsService;
         }
 
-      
+
 
         public async Task<IActionResult> Index()
         {
 
-          
            
+
             ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
             ViewBag.OrganizationDD=new SelectList( organizationService.AllActive(), "OrganizationID", "OrganizationName");
             ViewBag.OrganizationBranchDD = new SelectList(organizationBranchesService.AllActive(), "OrganizationBranchID", "OrganizationBranchName");
+            ViewBag.DesignationDD=new SelectList(designationsService.AllActive(), "DesignationID", "DesignationName");
+            ViewBag.DepartmentDD=new SelectList(departmentsService.AllActive(),"DepartmentID", "DepartmentName");
             return View();
         }
 

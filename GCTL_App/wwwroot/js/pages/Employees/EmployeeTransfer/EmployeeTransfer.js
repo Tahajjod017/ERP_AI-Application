@@ -272,7 +272,11 @@ $(document).ready(function () {
           FromOrganizationBranchID: $('#FromOrganizationBranchID').val(),
           ToOrganizationBranchID: $('#ToOrganizationBranchID').val(),
           TransferDate: $('#TransferDate').val(),
-          TransferNote: $('#TransferNote').val()
+          TransferNote: $('#TransferNote').val(),
+          ToDesignationID: $('#ToDesignationID').val(),
+          FromDesignationID: $('#FromDesignationID').val(),
+          ToDepartmentID: $('#ToDepartmentID').val(),
+          FromDepartmentID: $('#FromDepartmentID').val()
       };
      
       $.ajax({
@@ -302,8 +306,8 @@ $(document).ready(function () {
 
     function resetForm() {
         $('#employeeTransferForm,#employeeTransferFormEdit')[0].reset();
-        choiceManager.clearChoice('EmployeeID', 'FromOrganizationID', 'ToOrganizationID', 'FromOrganizationBranchID','ToOrganizationBranchID');
-        choiceManager.clearChoice('EmployeeIDEdit', 'FromOrganizationIDEdit', 'ToOrganizationIDEdit','FromOrganizationBranchIDEdit','ToOrganizationBranchIDEdit');
+        choiceManager.resetChoice('EmployeeID', 'FromOrganizationID', 'ToOrganizationID', 'FromOrganizationBranchID', 'ToOrganizationBranchID', 'FromDepartmentID', 'FromDesignationID', 'ToDepartmentID', 'ToDesignationID');
+        choiceManager.resetChoice('EmployeeIDEdit', 'FromOrganizationIDEdit', 'ToOrganizationIDEdit', 'FromOrganizationBranchIDEdit', 'ToOrganizationBranchIDEdit');
         loadTableData();
     }
 
@@ -352,7 +356,7 @@ $(document).ready(function () {
             FromOrganizationBranchIDEdit: parseInt($('#FromOrganizationBranchIDEdit').val()) || null,
             ToOrganizationIDEdit: parseInt($('#ToOrganizationIDEdit').val()) || null,
             ToOrganizationBranchIDEdit: parseInt($('#ToOrganizationBranchIDEdit').val()) || null,
-            TransferDateEdit: $('#TransferDateEdit').val(), 
+            TransferDateEdit: $('#TransferDateEdit').val() || null, 
             TransferNoteEdit: $('#TransferNoteEdit').val() || ""
         };
 
@@ -362,7 +366,8 @@ $(document).ready(function () {
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
-            success: function (response) {
+            success: function (response)
+            {
               
                 if (response.success) {
                     toastr.success(response.message || 'Updated successfully');
@@ -431,6 +436,11 @@ $(document).ready(function () {
             choiceManager.setChoiceValue('FromOrganizationBranchID', '');
             choiceManager.setChoiceValue('FromOrganizationIDEdit', '');
             choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', '');
+            choiceManager.setChoiceValue('FromDepartmentID', '');
+            choiceManager.setChoiceValue('FromDesignationID', '');
+           
+                 
+
             return;
         }
 
@@ -449,6 +459,9 @@ $(document).ready(function () {
                 choiceManager.setChoiceValue('FromOrganizationBranchID', data.fromOrganizationBranchID);
                 choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationID);
                 choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchID);
+                choiceManager.setChoiceValue('FromDepartmentID', data.fromDepartmentID);
+                choiceManager.setChoiceValue('FromDesignationID', data.fromDesignationID);
+                
             },
             error: function () {
                 toastr.error('Failed to fetch organization and branch information.');

@@ -79,6 +79,14 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
+    public virtual ICollection<Alerts> AlertsAlertForEmployee { get; set; } = new List<Alerts>();
+
+    public virtual ICollection<Alerts> AlertsCreatedByNavigation { get; set; } = new List<Alerts>();
+
+    public virtual ICollection<Alerts> AlertsDeletedByNavigation { get; set; } = new List<Alerts>();
+
+    public virtual ICollection<Alerts> AlertsUpdatedByNavigation { get; set; } = new List<Alerts>();
+
     public virtual ICollection<ApprovalDesignation> ApprovalDesignationCreatedByNavigation { get; set; } = new List<ApprovalDesignation>();
 
     public virtual ICollection<ApprovalDesignation> ApprovalDesignationDeletedByNavigation { get; set; } = new List<ApprovalDesignation>();

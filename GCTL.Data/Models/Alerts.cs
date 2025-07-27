@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Designations
+public partial class Alerts
 {
-    public int DesignationID { get; set; }
+    public int AlertID { get; set; }
 
-    public string DesignationName { get; set; }
+    public int? AlertForEmployeeID { get; set; }
+
+    public string AlertNote { get; set; }
+
+    public bool? IsChecked { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,21 +31,11 @@ public partial class Designations
 
     public int? DeletedBy { get; set; }
 
-    public int? OrganizationID { get; set; }
-
-    public int? Ranking { get; set; }
+    public virtual Employees AlertForEmployee { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
-
-    public virtual ICollection<EmployeeTransfer> EmployeeTransferFromDesignation { get; set; } = new List<EmployeeTransfer>();
-
-    public virtual ICollection<EmployeeTransfer> EmployeeTransferToDesignation { get; set; } = new List<EmployeeTransfer>();
-
-    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
