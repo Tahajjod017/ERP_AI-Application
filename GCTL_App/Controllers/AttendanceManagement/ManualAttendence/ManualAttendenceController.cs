@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence;
 using GCTL.Data.Models;
@@ -6,75 +8,51 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 {
     public class ManualAttendenceController : BaseController
     {
         private readonly IManualAttendenceService _manualAttendenceService;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<Attendance> _attendanceRepository;
         private readonly IGenericRepository<AttendanceLog> _attendanceLogRepository;
 
-        public ManualAttendenceController(ITranslateService translateService, IUserProfileService userProfileService, IManualAttendenceService manualAttendenceService, IGenericRepository<Attendance> attendanceRepository, IGenericRepository<AttendanceLog> attendanceLogRepository) : base(translateService, userProfileService)
+
+        public ManualAttendenceController(ITranslateService translateService, IUserProfileService userProfileService, IManualAttendenceService manualAttendenceService, IGenericRepository<Attendance> attendanceRepository, IGenericRepository<AttendanceLog> attendanceLogRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository) : base(translateService, userProfileService)
         {
             _manualAttendenceService = manualAttendenceService;
             _attendanceRepository = attendanceRepository;
             _attendanceLogRepository = attendanceLogRepository;
+            _employeeRepository = employeeRepository;
         }
 
         public IActionResult Index()
         {
             SetSmartPageCode(113000);
 
+            var violationTypeList = Enum.GetValues(typeof(ViolationType))
+                .Cast<ViolationType>()
+                .Select(v => new
+                {
+                    Value = v.ToString(),
+                    Text = v.GetType()
+                             .GetMember(v.ToString())
+                             .First()
+                             .GetCustomAttribute<DisplayAttribute>()
+                             ?.Name ?? v.ToString()
+                });
+
+            ViewBag.ViolationTypeList = new SelectList(violationTypeList, "Value", "Text");
+
             return View();
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAllAttendance()
-        //{
-        //    await GetCurrentEmployeeIdAsync();
-
-           
-        //    var attendanceData = new[]
-        //    {
-        //        new {
-        //            id = 1,
-        //            employeeName = "Faruk Hasan",
-        //            employeeRole = "Admin",
-        //            department = "IT",
-        //            employeeImage = "https://placehold.co/300x200?text=Placeholder",
-        //            attendanceDate = "20 Jul 2025",
-        //            scheduleTime = "09:00 AM - 06:00 PM",
-        //            actualInTime = "09:45 AM",
-        //            actualOutTime = "Not Punched",
-        //            breakInTime = "01:00 PM",
-        //            breakOutTime = "Not Punched",
-        //            overtime = "No Overtime",
-        //            biometricHits = 3,
-        //            possibleReason = "Break In/Out Missing"
-        //        },
-        //        new {
-        //            id = 2,
-        //            employeeName = "Aminul Islam",
-        //            employeeRole = "Manager",
-        //            department = "HR",
-        //            employeeImage = "https://placehold.co/300x200?text=Placeholder",
-        //            attendanceDate = "19 Jul 2025",
-        //            scheduleTime = "08:30 AM - 05:30 PM",
-        //            actualInTime = "Not Punched",
-        //            actualOutTime = "05:30 PM",
-        //            breakInTime = "Not Punched",
-        //            breakOutTime = "Not Punched",
-        //            overtime = "No Overtime",
-        //            biometricHits = 1,
-        //            possibleReason = "In Time Missing"
-        //        }
-        //    };
-
-        //    return Ok(attendanceData);
-        //}
 
 
+        #region Dummy Data For test
 
         private static List<AttendanceRecord> _attendanceData = new List<AttendanceRecord>
         {
@@ -146,10 +124,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
             { "absent", 14 }
         };
 
+        #endregion
+
+        #region Get Data 
+
         [Route("ManualAttendance/GetAllAttendance")]
         [HttpPost]
-        public async Task<IActionResult> GetAllAttendance(int page, int pageSize, string department, string possibleReason, string dateRange, string search, string sort)
+       // public async Task<IActionResult> GetAllAttendance(int page, int pageSize, string department, string possibleReason, string dateRange, string search, string sort)
+        public async Task<IActionResult> GetAllAttendance(AttendanceFilterViewModel filters)
         {
+            int page = filters.Page;
+            int pageSize = filters.PageSize;
+            string department = filters.Department;
+            string possibleReason = filters.PossibleReason;
+            string dateRange = filters.DateRange;
+            string search = filters.Search;
+            string sort = filters.Sort;
 
             try
             {
@@ -167,24 +157,41 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     filteredData = filteredData.Where(a => a.Department == department);
                 }
 
+                //if (!string.IsNullOrEmpty(possibleReason))
+                //{
+                //    filteredData = filteredData.Where(a => a.PossibleReason == possibleReason);
+                //}
+
                 if (!string.IsNullOrEmpty(possibleReason))
                 {
-                    filteredData = filteredData.Where(a => a.PossibleReason == possibleReason);
+                    string normalizedPossibleReason = possibleReason.Replace(" ", "").ToLower();
+
+                    filteredData = filteredData
+                        .Where(a => !string.IsNullOrEmpty(a.AbnormalType) &&
+                                    a.AbnormalType.Replace(" ", "").ToLower() == normalizedPossibleReason);
                 }
+
 
                 if (!string.IsNullOrEmpty(search))
                 {
                     filteredData = filteredData.Where(a => a.EmployeeName.ToLower().Contains(search.ToLower()));
                 }
 
-                if (!string.IsNullOrEmpty(dateRange))
+                //if (!string.IsNullOrEmpty(dateRange))
+                //{
+                //    var dates = dateRange.Split(" to ");
+                //    if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
+                //    {
+                //        filteredData = filteredData.Where(a => DateTime.Parse(a.AttendanceDate) >= startDate && DateTime.Parse(a.AttendanceDate) <= endDate);
+                //    }
+                //}
+
+                if (!string.IsNullOrEmpty(dateRange) && DateTime.TryParse(dateRange, out var selectedDate))
                 {
-                    var dates = dateRange.Split(" to ");
-                    if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
-                    {
-                        filteredData = filteredData.Where(a => DateTime.Parse(a.AttendanceDate) >= startDate && DateTime.Parse(a.AttendanceDate) <= endDate);
-                    }
+                    filteredData = filteredData
+                        .Where(a => DateTime.Parse(a.AttendanceDate).Date == selectedDate.Date);
                 }
+
 
                 // Apply sorting
                 switch (sort)
@@ -228,13 +235,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         }
 
         [Route("ManualAttendence/GetPunchData")]
-        //[HttpGet]
-        //public IActionResult GetPunchData(string employeeId, string attendanceDate)
-        //{
-        //    //var record = _attendanceData.FirstOrDefault(a => a.Id.ToString() == employeeId && a.AttendanceDate == attendanceDate);
-        //    var record = 
-        //    return Json(new { data = record?.PunchData ?? new List<PunchData>() });
-        //}
         [HttpGet]
         public async Task<IActionResult> GetPunchData(string employeeId, string attendanceDate)
         {
@@ -246,6 +246,19 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
             // Step 1: Get AttendanceID
             var attendance = (await _attendanceRepository.GetAllAsync())
                                 .FirstOrDefault(x => x.EmployeeID == empId && x.AttendanceDate == attDate);
+
+           // var empData = _employeeRepository.AllActive().Where(e => e.EmployeeID == empId).Select(m => m.FirstName + " " + m.LastName + " (" + m.EmployeeCode + ")" + " (" + m.EmployeeID + ")" ).FirstOrDefault();
+           
+            var empData = await _attendanceRepository.AllActive().Include(o=>o.Shift).Include(i=>i.Employee)
+                                .Where(x => x.EmployeeID == empId )
+                                .Select(m=> new
+                                {
+                                    id = m.EmployeeID,
+                                    name = m.Employee.FirstName + " " + m.Employee.LastName + " (" + m.Employee.EmployeeCode + ")" + " (" + m.EmployeeID + ")",
+                                    shiftName = m.Shift.ShiftName,
+                                    shiftTime = m.Shift.StartTime.Value.ToString("hh:mm tt") + " - " + m.Shift.EndTime.Value.ToString("hh:mm tt") + " (" + m.Shift.ShiftName + ")"
+                                })
+                                .FirstOrDefaultAsync();
 
             if (attendance == null)
             {
@@ -264,30 +277,96 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                                     Deletable = false
                                 }).ToList();
 
-            return Json(new { data = punchLogs });
+            return Json(new { data = punchLogs , empData = empData  });
         }
 
+        #endregion
+
+        #region Save Data
 
         [HttpPost]
-        public IActionResult SavePunchData(string employeeId, string attendanceDate, List<PunchData> punchData)
+        public async Task<IActionResult> SavePunchData(string employeeId, string attendanceDate, List<PunchData> punchData)
         {
             var deletableItems = punchData.Where(p => p.Deletable).ToList();
 
             if (!deletableItems.Any())
             {
-                return Json(new { success = false , message = "no new data added" });
+                return  Json(new { success = false , message = "no new data added" });
             }
 
-            var record = _attendanceData.FirstOrDefault(a => a.Id.ToString() == employeeId && a.AttendanceDate == attendanceDate);
-            if (record != null)
+            var attendanceDateParsed = DateOnly.TryParse(attendanceDate, out var parsedDate) ? parsedDate : DateOnly.FromDateTime(DateTime.Now);
+
+            if (!int.TryParse(employeeId, out var empId))
             {
-                record.PunchData = punchData;
-                // Update other fields (e.g., biometricHits, possibleReason) based on punchData
-                record.BiometricHits = punchData.Count(p => !p.NotPunched);
-                record.PossibleReason = CalculatePossibleReason(punchData);
+                return Json(new { success = false, message = "Invalid employeeId" });
             }
-            return Json(new { success = true });
+            if (attendanceDateParsed == default)
+            {
+                return Json(new { success = false, message = "Invalid attendanceDate" });
+            }
+
+            var attendanceRecord = _attendanceRepository.AllActive().FirstOrDefault(a => a.EmployeeID == empId && a.AttendanceDate == parsedDate);
+
+            if (attendanceRecord == null)
+            {
+                return Json(new { success = false, message = "Attendance record not found" });
+            }
+
+            var itemData = new PunchDataListViewModel()
+            {
+                Punches = deletableItems
+            };
+
+            var AttendanceLog = new List<AttendanceLog>();
+
+            foreach (var item in itemData.Punches)
+            {
+                if (string.IsNullOrEmpty(item.Time) || item.NotPunched)
+                {
+                    continue; // Skip empty or not punched items
+                }
+                if (!DateTime.TryParse(item.Time, out var punchTime))
+                {
+                    return Json(new { success = false, message = "Invalid punch time format" });
+                }
+                AttendanceLog.Add(new AttendanceLog
+                {
+                    PunchTime = punchTime,
+                    SourceType = "Manual",
+                    AttendanceID = attendanceRecord.AttendanceID,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = itemData.CreatedBy
+                });
+            }
+
+
+            if (AttendanceLog.Count == 0)
+            {
+                return Json(new { success = false, message = "No valid punch data to save" });
+            }
+
+            try
+            {
+                // Save AttendanceLog entries
+                await _attendanceLogRepository.AddRangeAsync(AttendanceLog);
+               
+                return Json(new { success = true, message = "Punch data saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error saving punch data: " + ex.Message });
+            }
+
+
+
+
         }
+
+
+        #endregion
+
+        #region Save ATD
+
 
         [HttpPost]
         public IActionResult SaveAttendance(string employeeName, string attendanceDate, string actualInTime, string actualOutTime, string breakInTime, string breakOutTime)
@@ -330,6 +409,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
             return Json(new { success = true });
         }
 
+
+
         private int CalculateBiometricHits(string actualInTime, string actualOutTime, string breakInTime, string breakOutTime)
         {
             int hits = 0;
@@ -368,6 +449,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
             }
             return "Complete Record";
         }
+
+        #endregion
 
     }
 }

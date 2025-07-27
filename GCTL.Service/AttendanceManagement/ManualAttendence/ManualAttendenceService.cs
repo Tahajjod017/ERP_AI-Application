@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence;
 using GCTL.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.AttendanceManagement.ManualAttendence
 {
@@ -37,16 +39,17 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
         {
             try
             {
+               
                 var employees = await _employeeRepository.GetAllAsync();
-                var official = await _officialRepository.GetAllAsync(); // This is Attendance
-                var attendances = await _attendenceRepository.GetAllAsync(); // This is Attendance
-                var logs = await _attendenceLogRepository.GetAllAsync();   // AttendanceLog
+                var official = await _officialRepository.GetAllAsync(); 
+                var attendances = await _attendenceRepository.GetAllAsync(); 
+                var logs = await _attendenceLogRepository.GetAllAsync();   
                 var departments = await _departmentRepository.GetAllAsync();
                 var designations = await _designationRepository.GetAllAsync();
                 var shifts = await _shiftRepository.GetAllAsync();
                 var leaves = await _leaveRepository.GetAllAsync();
 
-                // Add null checks for collections
+               
                 if (attendances == null || !attendances.Any())
                     return new List<AttendanceRecord>();
 
@@ -157,102 +160,293 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
 
 
 
+        //public async Task<List<AttendanceRecord>> GetAbnormalPunchDataAsync(string imgTemFolder)
+        //{
+        //    var allData = await GetAllDataAsync(imgTemFolder);
+        //    var abnormalList = new List<AttendanceRecord>();
+
+        //    foreach (var record in allData)
+        //    {
+        //        var reasons = new List<string>();
+        //        string type = "";
+        //        int punchCount = record.PunchData?.Count ?? 0;
+
+        //        // Skip full and partial leave records unless punches exist during full leave
+        //        if (record.IsOnFullLeave && punchCount > 0)
+        //        {
+        //            reasons.Add("Punches recorded during full leave");
+        //            type = "Leave Violation";
+        //        }
+        //        else if (record.IsOnFullLeave || record.IsPartialLeave)
+        //        {
+        //            continue; // Skip valid leave records with no punches
+        //        }
+
+        //        // 1. Punch Count Issues
+        //        if (punchCount == 0)
+        //        {
+        //            reasons.Add("No punch recorded");
+        //            type = "Punch Count";
+        //        }
+        //        else if (punchCount == 1)
+        //        {
+        //            var punch = record.PunchData.First();
+        //            reasons.Add($"Single punch: {punch.Label} at {punch.Time}");
+        //            type = "Punch Count";
+        //        }
+        //        else if (punchCount % 2 != 0)
+        //        {
+        //            reasons.Add("Unpaired punches (odd count)");
+        //            type = "Punch Sequence";
+        //        }
+
+        //    // 2. Punch Sequence Validation
+        //    if (punchCount >= 2)
+        //    {
+        //        var punches = record.PunchData.OrderBy(x => DateTime.ParseExact(x.Time, "hh:mm tt", null)).ToList();
+        //        var logs1 = await _attendenceLogRepository.GetAllAsync();
+        //        var recordLogs1 = logs1.Where(x => x.AttendanceID == record.Id).OrderBy(x => x.PunchTime).ToList();
+
+        //        for (int i = 0; i < punches.Count - 1; i++)
+        //        {
+        //            bool isFirstIn = i % 2 == 0; // Even index = IN, Odd index = OUT
+        //            bool isSecondIn = (i + 1) % 2 == 0;
+        //            if (isFirstIn == isSecondIn)
+        //            {
+        //                var punchType = isFirstIn ? "IN" : "OUT";
+        //                reasons.Add($"Consecutive {punchType} punches at {punches[i].Time} and {punches[i + 1].Time}");
+        //                type = type == "" ? "Punch Sequence" : type;
+        //            }
+        //        }
+        //        if (punches.Count % 2 != 0)
+        //        {
+        //            var lastPunchType = (punches.Count - 1) % 2 == 0 ? "IN" : "OUT";
+        //            reasons.Add($"Last punch is {lastPunchType} (unpaired)");
+        //            type = type == "" ? "Punch Sequence" : type;
+        //        }
+        //    }
+
+
+        //    // 3. Break Validation
+        //    if (record.ScheduleTime != "N/A" && punchCount >= 2)
+        //        {
+        //            var breakStart = record.BreakInTime != "Not Punched" ? DateTime.ParseExact(record.BreakInTime, "hh:mm tt", null).TimeOfDay : (TimeSpan?)null;
+        //            var breakEnd = record.BreakOutTime != "Not Punched" ? DateTime.ParseExact(record.BreakOutTime, "hh:mm tt", null).TimeOfDay : (TimeSpan?)null;
+        //            if (breakStart.HasValue && breakEnd.HasValue)
+        //            {
+        //                var breakDuration = breakEnd.Value - breakStart.Value;
+        //                if (breakDuration > TimeSpan.FromHours(1)) // Assume 1-hour max break
+        //                {
+        //                    reasons.Add($"Extended break: {breakDuration.TotalMinutes:F0} minutes");
+        //                    type = type == "" ? "Break Violation" : type;
+        //                }
+        //            }
+        //            else if (record.MinimumWorkHour.HasValue && record.MinimumWorkHour.Value.ToTimeSpan() > TimeSpan.FromHours(6))
+        //            {
+        //                reasons.Add("No break punches recorded for long shift");
+        //                type = type == "" ? "Break Violation" : type;
+        //            }
+        //        }
+
+        //        // 4. Timing Issues
+        //        if (punchCount >= 2 && record.ScheduleTime != "N/A")
+        //        {
+        //            var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
+        //            var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
+        //            //var shiftStart = TimeSpan.Parse(record.ScheduleTime.Split('-')[0].Trim());
+        //            //var shiftEnd = TimeSpan.Parse(record.ScheduleTime.Split('-')[1].Trim());
+
+        //            var shiftStart = SafeParseTime(record.ScheduleTime.Split('-')[0].Trim());
+        //            var shiftEnd = SafeParseTime(record.ScheduleTime.Split('-')[1].Trim());
+
+        //            if (record.GraceTime.HasValue)
+        //            {
+        //                var graceSpan = record.GraceTime.Value.ToTimeSpan();
+        //                if (firstPunchTime > shiftStart + graceSpan)
+        //                {
+        //                    var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
+        //                    reasons.Add($"Late check-in by {lateBy:F0} minutes");
+        //                    type = type == "" ? "Timing" : type;
+        //                }
+        //                if (lastPunchTime < shiftEnd - graceSpan)
+        //                {
+        //                    var earlyBy = (shiftEnd - lastPunchTime).TotalMinutes;
+        //                    reasons.Add($"Early departure by {earlyBy:F0} minutes");
+        //                    type = type == "" ? "Timing" : type;
+        //                }
+        //            }
+        //        }
+
+        //        // 5. Work Duration
+        //        if (punchCount >= 2)
+        //        {
+        //            var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
+        //            var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
+        //            var workDuration = lastPunchTime - firstPunchTime;
+
+        //            if (record.MinimumWorkHour.HasValue)
+        //            {
+        //                var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+        //                if (workDuration < minWorkSpan)
+        //                {
+        //                    reasons.Add($"Work duration too short: {workDuration.TotalHours:F1} hrs vs {minWorkSpan.TotalHours:F1} hrs required");
+        //                    type = type == "" ? "Duration" : type;
+        //                }
+        //            }
+        //        }
+
+        //        // 6. Overtime Validation
+        //        if (record.Overtime != "No Overtime")
+        //        {
+        //            var overtimeHours = double.Parse(record.Overtime.Split(' ')[0]);
+        //            if (!record.isOvertimeEligible)
+        //            {
+        //                reasons.Add("Unauthorized overtime recorded");
+        //                type = type == "" ? "Overtime" : type;
+        //            }
+        //            else if (record.MaximumOverTime.HasValue && overtimeHours > record.MaximumOverTime.Value.ToTimeSpan().TotalHours)
+        //            {
+        //                reasons.Add($"Overtime exceeds limit: {overtimeHours:F1} hrs vs {record.MaximumOverTime.Value.ToTimeSpan().TotalHours:F1} hrs allowed");
+        //                type = type == "" ? "Overtime" : type;
+        //            }
+        //            else if (record.MinimumOverTime.HasValue && overtimeHours < record.MinimumOverTime.Value.ToTimeSpan().TotalHours)
+        //            {
+        //                reasons.Add($"Overtime below minimum: {overtimeHours:F1} hrs vs {record.MinimumOverTime.Value.ToTimeSpan().TotalHours:F1} hrs required");
+        //                type = type == "" ? "Overtime" : type;
+        //            }
+        //        }
+
+        //        // 7. Rapid Punches
+        //        if (punchCount >= 2)
+        //        {
+        //            var punches = record.PunchData.OrderBy(x => DateTime.ParseExact(x.Time, "hh:mm tt", null)).ToList();
+        //            for (int i = 0; i < punches.Count - 1; i++)
+        //            {
+        //                var timeDiff = DateTime.ParseExact(punches[i + 1].Time, "hh:mm tt", null) - DateTime.ParseExact(punches[i].Time, "hh:mm tt", null);
+        //                if (timeDiff.TotalSeconds < 30)
+        //                {
+        //                    reasons.Add($"Rapid punches detected: {punches[i].Time} and {punches[i + 1].Time}");
+        //                    type = type == "" ? "Biometric Anomaly" : type;
+        //                }
+        //            }
+        //        }
+
+        //        // 8. Retroactive Punches
+        //        var logs = await _attendenceLogRepository.GetAllAsync();
+        //        var recordLogs = logs.Where(x => x.AttendanceID == record.Id).ToList();
+        //        foreach (var log in recordLogs)
+        //        {
+        //            if (log.CreatedAt > log.PunchTime.AddDays(1))
+        //            {
+        //                reasons.Add($"Retroactive punch added on {log.CreatedAt:dd MMM yyyy}");
+        //                type = type == "" ? "Data Integrity" : type;
+        //            }
+        //        }
+
+        //        // 9. Unscheduled Work or No Shift
+        //        if (record.ScheduleTime == "N/A")
+        //        {
+        //            reasons.Add("Punch recorded without assigned shift");
+        //            type = type == "" ? "Schedule Violation" : type;
+        //        }
+
+        //        // 10. Cross-Day Shift Handling
+        //        if (punchCount == 1 && record.ScheduleTime != "N/A")
+        //        {
+        //            // var shiftEnd = TimeSpan.Parse(record.ScheduleTime.Split('-')[1].Trim());
+        //            var shiftEnd = SafeParseTime(record.ScheduleTime.Split('-')[1].Trim());
+        //            if (shiftEnd < TimeSpan.FromHours(12)) // Likely a night shift
+        //            {
+        //                reasons.Add("Possible incomplete cross-day shift");
+        //                type = type == "" ? "Cross-Day Shift" : type;
+        //            }
+        //        }
+
+        //        // 11. Group Punch Check
+        //        var groupedPunches = allData
+        //            .Where(r => r.PunchData != null && r.PunchData.Any())
+        //            .SelectMany(r => r.PunchData.Select(p => new { EmployeeId = r.EmployeeId, Time = p.Time }))
+        //            .GroupBy(p => p.Time)
+        //            .Where(g => g.Count() > 3) // Flag if >3 employees punch at same time
+        //            .ToList();
+
+        //        foreach (var group in groupedPunches)
+        //        {
+        //            foreach (var punch in group)
+        //            {
+        //                var record1 = allData.FirstOrDefault(r => r.EmployeeId == punch.EmployeeId);
+        //                if (record1 != null && !abnormalList.Contains(record1))
+        //                {
+        //                    record.PossibleReason = $"Suspicious group punch at {punch.Time} with {group.Count()} employees";
+        //                    record.AbnormalType = "Group Punch";
+        //                    abnormalList.Add(record1);
+        //                }
+        //            }
+        //        }
+
+        //        // Add to abnormal list if issues found
+        //        if (reasons.Any())
+        //        {
+        //            record.PossibleReason = string.Join(", ", reasons);
+        //            record.AbnormalType = type;
+        //            abnormalList.Add(record);
+        //        }
+        //    }
+
+        //    return abnormalList;
+        //}
+
+
+    
+
+
         public async Task<List<AttendanceRecord>> GetAbnormalPunchDataAsync(string imgTemFolder)
         {
             var allData = await GetAllDataAsync(imgTemFolder);
-            var abnormalList = new List<AttendanceRecord>();
+            var abnormalList = new HashSet<AttendanceRecord>(); // Use HashSet to avoid duplicates
 
             foreach (var record in allData)
             {
                 var reasons = new List<string>();
                 string type = "";
+
+                // 1. Punches on Leave Days (Full or Partial)
+                if (record.IsOnFullLeave || record.IsPartialLeave)
+                {
+                    int punchCount1 = record.PunchData?.Count ?? 0;
+                    if (punchCount1 > 0)
+                    {
+                        reasons.Add($"Punches recorded during {(record.IsOnFullLeave ? "full" : "partial")} leave");
+                      //  type = "Leave Violation";
+                        type = ViolationType.LeaveViolation.ToString();
+                    }
+                }
+
+                // 2. Punches without Assigned Shift
+                if (record.ScheduleTime == "N/A" && (record.PunchData?.Count ?? 0) > 0)
+                {
+                    reasons.Add("Punch recorded without assigned shift");
+                    //type = type == "" ? "Schedule Violation" : type;
+                    type = type == "" ? ViolationType.ScheduleViolation.ToString() : type;
+                }
+
                 int punchCount = record.PunchData?.Count ?? 0;
 
-                // Skip full and partial leave records unless punches exist during full leave
-                if (record.IsOnFullLeave && punchCount > 0)
+                // 3. Odd Punch Count (Detect IN or OUT Missing)
+                if (punchCount % 2 != 0)
                 {
-                    reasons.Add("Punches recorded during full leave");
-                    type = "Leave Violation";
-                }
-                else if (record.IsOnFullLeave || record.IsPartialLeave)
-                {
-                    continue; // Skip valid leave records with no punches
-                }
-
-                // 1. Punch Count Issues
-                if (punchCount == 0)
-                {
-                    reasons.Add("No punch recorded");
-                    type = "Punch Count";
-                }
-                else if (punchCount == 1)
-                {
-                    var punch = record.PunchData.First();
-                    reasons.Add($"Single punch: {punch.Label} at {punch.Time}");
-                    type = "Punch Count";
-                }
-                else if (punchCount % 2 != 0)
-                {
-                    reasons.Add("Unpaired punches (odd count)");
-                    type = "Punch Sequence";
+                    var lastPunch = record.PunchData.Last();
+                    bool isLastPunchIn = punchCount % 2 == 1; // Odd count means last punch is IN (expecting OUT next)
+                    reasons.Add($"Unpaired punch: Last punch is {(isLastPunchIn ? "IN" : "OUT")}");
+                    //type = isLastPunchIn ? "OUT Missing" : "IN Missing";
+                    type = isLastPunchIn ? ViolationType.OutMissing.ToString() : ViolationType.InMissing.ToString();
                 }
 
-            // 2. Punch Sequence Validation
-            if (punchCount >= 2)
-            {
-                var punches = record.PunchData.OrderBy(x => DateTime.ParseExact(x.Time, "hh:mm tt", null)).ToList();
-                var logs1 = await _attendenceLogRepository.GetAllAsync();
-                var recordLogs1 = logs1.Where(x => x.AttendanceID == record.Id).OrderBy(x => x.PunchTime).ToList();
-
-                for (int i = 0; i < punches.Count - 1; i++)
-                {
-                    bool isFirstIn = i % 2 == 0; // Even index = IN, Odd index = OUT
-                    bool isSecondIn = (i + 1) % 2 == 0;
-                    if (isFirstIn == isSecondIn)
-                    {
-                        var punchType = isFirstIn ? "IN" : "OUT";
-                        reasons.Add($"Consecutive {punchType} punches at {punches[i].Time} and {punches[i + 1].Time}");
-                        type = type == "" ? "Punch Sequence" : type;
-                    }
-                }
-                if (punches.Count % 2 != 0)
-                {
-                    var lastPunchType = (punches.Count - 1) % 2 == 0 ? "IN" : "OUT";
-                    reasons.Add($"Last punch is {lastPunchType} (unpaired)");
-                    type = type == "" ? "Punch Sequence" : type;
-                }
-            }
-
-
-            // 3. Break Validation
-            if (record.ScheduleTime != "N/A" && punchCount >= 2)
-                {
-                    var breakStart = record.BreakInTime != "Not Punched" ? DateTime.ParseExact(record.BreakInTime, "hh:mm tt", null).TimeOfDay : (TimeSpan?)null;
-                    var breakEnd = record.BreakOutTime != "Not Punched" ? DateTime.ParseExact(record.BreakOutTime, "hh:mm tt", null).TimeOfDay : (TimeSpan?)null;
-                    if (breakStart.HasValue && breakEnd.HasValue)
-                    {
-                        var breakDuration = breakEnd.Value - breakStart.Value;
-                        if (breakDuration > TimeSpan.FromHours(1)) // Assume 1-hour max break
-                        {
-                            reasons.Add($"Extended break: {breakDuration.TotalMinutes:F0} minutes");
-                            type = type == "" ? "Break Violation" : type;
-                        }
-                    }
-                    else if (record.MinimumWorkHour.HasValue && record.MinimumWorkHour.Value.ToTimeSpan() > TimeSpan.FromHours(6))
-                    {
-                        reasons.Add("No break punches recorded for long shift");
-                        type = type == "" ? "Break Violation" : type;
-                    }
-                }
-
-                // 4. Timing Issues
+                // 4. Late Punch or Early Out
                 if (punchCount >= 2 && record.ScheduleTime != "N/A")
                 {
                     var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
                     var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
-                    //var shiftStart = TimeSpan.Parse(record.ScheduleTime.Split('-')[0].Trim());
-                    //var shiftEnd = TimeSpan.Parse(record.ScheduleTime.Split('-')[1].Trim());
-
                     var shiftStart = SafeParseTime(record.ScheduleTime.Split('-')[0].Trim());
                     var shiftEnd = SafeParseTime(record.ScheduleTime.Split('-')[1].Trim());
 
@@ -263,122 +457,41 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                         {
                             var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
                             reasons.Add($"Late check-in by {lateBy:F0} minutes");
-                            type = type == "" ? "Timing" : type;
+                            //type = type == "" ? "Timing" : type;
+                            type = type == "" ? ViolationType.Timing.ToString() : type;
                         }
                         if (lastPunchTime < shiftEnd - graceSpan)
                         {
                             var earlyBy = (shiftEnd - lastPunchTime).TotalMinutes;
                             reasons.Add($"Early departure by {earlyBy:F0} minutes");
-                            type = type == "" ? "Timing" : type;
+                            //type = type == "" ? "Timing" : type;
+                            type = type == "" ? ViolationType.Timing.ToString() : type;
                         }
                     }
                 }
 
-                // 5. Work Duration
-                if (punchCount >= 2)
+                // 5. Incomplete Work Hours (even punches but less than minimum)
+                if (punchCount >= 2 && punchCount % 2 == 0 && record.MinimumWorkHour.HasValue)
                 {
                     var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
                     var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
                     var workDuration = lastPunchTime - firstPunchTime;
+                    var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
 
-                    if (record.MinimumWorkHour.HasValue)
+                    if (workDuration < minWorkSpan)
                     {
-                        var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
-                        if (workDuration < minWorkSpan)
-                        {
-                            reasons.Add($"Work duration too short: {workDuration.TotalHours:F1} hrs vs {minWorkSpan.TotalHours:F1} hrs required");
-                            type = type == "" ? "Duration" : type;
-                        }
+                        reasons.Add($"Work duration too short: {workDuration.TotalHours:F1} hrs vs {minWorkSpan.TotalHours:F1} hrs required");
+                        //type = type == "" ? "Duration" : type;
+                        type = type == "" ? ViolationType.Duration.ToString() : type;
                     }
                 }
 
-                // 6. Overtime Validation
-                if (record.Overtime != "No Overtime")
+                // 6. Unauthorized Overtime
+                if (record.Overtime != "No Overtime" && !record.isOvertimeEligible)
                 {
-                    var overtimeHours = double.Parse(record.Overtime.Split(' ')[0]);
-                    if (!record.isOvertimeEligible)
-                    {
-                        reasons.Add("Unauthorized overtime recorded");
-                        type = type == "" ? "Overtime" : type;
-                    }
-                    else if (record.MaximumOverTime.HasValue && overtimeHours > record.MaximumOverTime.Value.ToTimeSpan().TotalHours)
-                    {
-                        reasons.Add($"Overtime exceeds limit: {overtimeHours:F1} hrs vs {record.MaximumOverTime.Value.ToTimeSpan().TotalHours:F1} hrs allowed");
-                        type = type == "" ? "Overtime" : type;
-                    }
-                    else if (record.MinimumOverTime.HasValue && overtimeHours < record.MinimumOverTime.Value.ToTimeSpan().TotalHours)
-                    {
-                        reasons.Add($"Overtime below minimum: {overtimeHours:F1} hrs vs {record.MinimumOverTime.Value.ToTimeSpan().TotalHours:F1} hrs required");
-                        type = type == "" ? "Overtime" : type;
-                    }
-                }
-
-                // 7. Rapid Punches
-                if (punchCount >= 2)
-                {
-                    var punches = record.PunchData.OrderBy(x => DateTime.ParseExact(x.Time, "hh:mm tt", null)).ToList();
-                    for (int i = 0; i < punches.Count - 1; i++)
-                    {
-                        var timeDiff = DateTime.ParseExact(punches[i + 1].Time, "hh:mm tt", null) - DateTime.ParseExact(punches[i].Time, "hh:mm tt", null);
-                        if (timeDiff.TotalSeconds < 30)
-                        {
-                            reasons.Add($"Rapid punches detected: {punches[i].Time} and {punches[i + 1].Time}");
-                            type = type == "" ? "Biometric Anomaly" : type;
-                        }
-                    }
-                }
-
-                // 8. Retroactive Punches
-                var logs = await _attendenceLogRepository.GetAllAsync();
-                var recordLogs = logs.Where(x => x.AttendanceID == record.Id).ToList();
-                foreach (var log in recordLogs)
-                {
-                    if (log.CreatedAt > log.PunchTime.AddDays(1))
-                    {
-                        reasons.Add($"Retroactive punch added on {log.CreatedAt:dd MMM yyyy}");
-                        type = type == "" ? "Data Integrity" : type;
-                    }
-                }
-
-                // 9. Unscheduled Work or No Shift
-                if (record.ScheduleTime == "N/A")
-                {
-                    reasons.Add("Punch recorded without assigned shift");
-                    type = type == "" ? "Schedule Violation" : type;
-                }
-
-                // 10. Cross-Day Shift Handling
-                if (punchCount == 1 && record.ScheduleTime != "N/A")
-                {
-                    // var shiftEnd = TimeSpan.Parse(record.ScheduleTime.Split('-')[1].Trim());
-                    var shiftEnd = SafeParseTime(record.ScheduleTime.Split('-')[1].Trim());
-                    if (shiftEnd < TimeSpan.FromHours(12)) // Likely a night shift
-                    {
-                        reasons.Add("Possible incomplete cross-day shift");
-                        type = type == "" ? "Cross-Day Shift" : type;
-                    }
-                }
-
-                // 11. Group Punch Check
-                var groupedPunches = allData
-                    .Where(r => r.PunchData != null && r.PunchData.Any())
-                    .SelectMany(r => r.PunchData.Select(p => new { EmployeeId = r.EmployeeId, Time = p.Time }))
-                    .GroupBy(p => p.Time)
-                    .Where(g => g.Count() > 3) // Flag if >3 employees punch at same time
-                    .ToList();
-
-                foreach (var group in groupedPunches)
-                {
-                    foreach (var punch in group)
-                    {
-                        var record1 = allData.FirstOrDefault(r => r.EmployeeId == punch.EmployeeId);
-                        if (record1 != null && !abnormalList.Contains(record1))
-                        {
-                            record.PossibleReason = $"Suspicious group punch at {punch.Time} with {group.Count()} employees";
-                            record.AbnormalType = "Group Punch";
-                            abnormalList.Add(record1);
-                        }
-                    }
+                    reasons.Add("Unauthorized overtime recorded");
+                    //type = type == "" ? "Overtime" : type;
+                    type = type == "" ? ViolationType.Overtime.ToString() : type;
                 }
 
                 // Add to abnormal list if issues found
@@ -390,11 +503,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                 }
             }
 
-            return abnormalList;
+            return abnormalList.ToList();
         }
 
-        // Add this helper method to your service class
-        // FIRST: Add this helper method to your class
         private TimeSpan SafeParseTime(string timeString)
         {
             if (string.IsNullOrWhiteSpace(timeString))
@@ -402,18 +513,14 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
 
             try
             {
-                // First try parsing as DateTime (handles AM/PM format)
                 if (DateTime.TryParse(timeString, out DateTime dateTime))
                 {
                     return dateTime.TimeOfDay;
                 }
-
-                // Fallback: try direct TimeSpan parsing for 24-hour format
                 if (TimeSpan.TryParse(timeString, out TimeSpan timeSpan))
                 {
                     return timeSpan;
                 }
-
                 return TimeSpan.Zero;
             }
             catch (Exception)
@@ -422,12 +529,39 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
             }
         }
 
-       
+        //private TimeSpan SafeParseTime(string timeString)
+        //{
+        //    if (string.IsNullOrWhiteSpace(timeString))
+        //        return TimeSpan.Zero;
 
-       
-        
+        //    try
+        //    {
+        //        // First try parsing as DateTime (handles AM/PM format)
+        //        if (DateTime.TryParse(timeString, out DateTime dateTime))
+        //        {
+        //            return dateTime.TimeOfDay;
+        //        }
 
-      
+        //        // Fallback: try direct TimeSpan parsing for 24-hour format
+        //        if (TimeSpan.TryParse(timeString, out TimeSpan timeSpan))
+        //        {
+        //            return timeSpan;
+        //        }
+
+        //        return TimeSpan.Zero;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return TimeSpan.Zero;
+        //    }
+        //}
+
+
+
+
+
+
+
 
 
         private string GetPossibleReason(Attendance att, List<AttendanceLog> logs)

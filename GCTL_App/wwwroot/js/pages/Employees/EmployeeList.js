@@ -101,10 +101,10 @@
     function getAvatarHtml(employee) {
         if (employee.avatar && employee.avatar !== '') {
             urle = employee.url;
-            //const initial2 = employee.name.charAt(0).toUpperCase();
+            
             const initial2 = getInitials(employee.name); 
            
-          //  return `<img class="rounded-circle" src="${employee.avatar}" alt="${initial2}" />`;
+         
             return `<div class="avatar-wrapper rounded-circle">
                       <img src="${employee.avatar}" alt="${initial2}" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="position: relative;z-index: 10;" />
                       <div class="avatar-fallback">${initial2}</div>

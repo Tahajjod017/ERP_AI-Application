@@ -232,7 +232,16 @@
             data: { employeeId: employeeId, attendanceDate: attendanceDate, punchData: punchData },
             success: function (response) {
                 if (response.success) {
-                    toastr.success("Punch data saved successfully");
+                    toastr.success(response.message || "Punch data saved successfully");
+
+                    var applyModalEl = document.getElementById('edit_leaves_horizontal');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+                   
+                    GetLoadData(currentPage, pageSize);
                 }
                 else {
                     toastr.warning("Punch data saved with warnings: " + response.message);
@@ -382,31 +391,35 @@
     //#endregion
 
     //#region Fetch Table data from controller
+
+
+    
+
     function GetLoadData(page = 1, size = pageSize, filters = {}) {
-        console.log("Sending AJAX request to GetAllAttendance with:", { page, size, filters });
+        const formData = new FormData();
+
+        // Keys must match the C# ViewModel property names exactly (case-insensitive)
+        formData.append("Page", page);
+        formData.append("PageSize", size);
+        formData.append("Department", filters.department || '');
+        formData.append("PossibleReason", filters.possibleReason || '');
+        formData.append("DateRange", filters.dateRange || '');
+        formData.append("Search", filters.search || '');
+        formData.append("Sort", filters.sort || '');
+
+        console.log("Sending FormData:", Object.fromEntries(formData));
 
         $.ajax({
             url: "/ManualAttendance/GetAllAttendance",
             method: "POST",
-            contentType: "application/json; charset=utf-8",
+            processData: false,
+            contentType: false,
             headers: {
                 "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() || ''
             },
-            data: JSON.stringify({
-                page: page,
-                pageSize: size,
-                department: filters.department || '',
-                possibleReason: filters.possibleReason || '',
-                dateRange: filters.dateRange || '',
-                search: filters.search || '',
-                sort: filters.sort || ''
-            }),
-            beforeSend: function (xhr) {
-                console.log("Request headers:", xhr.getAllResponseHeaders());
-                console.log("Request payload:", JSON.stringify({ page, size, ...filters }));
-            },
+            data: formData,
             success: function (response) {
-                console.log("Received response:", response);
+                console.log("Response:", response);
                 attendanceData = response.data || [];
                 totalRecords = response.totalRecords || 0;
                 populateAttendanceTable();
@@ -414,16 +427,12 @@
                 updateSummaryCards(response.summary);
             },
             error: function (xhr, status, error) {
-                console.error("AJAX error details:", {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
+                console.error("AJAX error:", xhr.responseText || error);
                 toastr.error(`Failed to load attendance data: ${xhr.statusText || error}`);
             }
         });
     }
+
 
     //#endregion
 
@@ -468,7 +477,7 @@
     function populateAttendanceTable() {
         const tbody = document.getElementById('attendance-body');
         tbody.innerHTML = '';
-
+        
         attendanceData.forEach(item => {
           
             const row = document.createElement('tr');
@@ -510,14 +519,18 @@
             `;
 
             row.querySelector('.edit-attendance').addEventListener('click', function () {
-                debugger
                 fetchPunchData(item.employeeId, item.attendanceDate).then(data => {
                    
+                    debugger
                     punchData = data.data;
                     renderHorizontalTimeline(punchData, 'timelineContainer');
                     initHorizontalScroll('timelineContainer')
                     //renderVerticalTimeline(punchData, 'verticalTimelineContainer');
-                    document.getElementById('empName').value = item.employeeName;
+                    //document.getElementById('empName').value = item.employeeName + ' (' + item.employeeId +')';
+                    //document.getElementById('shiftNameSpan').textContent = data.empData.shiftName;
+                    document.getElementById('shiftName').value = data.empData.shiftTime;
+                    document.getElementById('empName').value = data.empData.name;
+                    document.getElementById('empId').value = data.empData.id;
                     document.getElementById('Date').value = item.attendanceDate;
                 });
             });
@@ -567,6 +580,9 @@
         const possibleReasonFilter = document.getElementById('possibleReasonFilter');
         const sortFilter = document.getElementById('sortFilter');
         const pageSizeSelect = document.getElementById('pageSizeSelect');
+
+       
+
         const searchInput = document.getElementById('searchInput');
         const dateRangePicker = document.getElementById('dateRangePicker');
 
@@ -591,9 +607,16 @@
     }
 
     function applyFilters() {
-        const departmentValue = document.getElementById('departmentFilter').value;
-        const possibleReasonValue = document.getElementById('possibleReasonFilter').value;
-        const sortValue = document.getElementById('sortFilter').value;
+        
+        const departmentValue = choiceManager.getChoiceValue('departmentFilter');
+        const possibleReasonValue = choiceManager.getChoiceValue('possibleReasonFilter');
+        const sortValue = choiceManager.getChoiceValue('sortFilter');
+       
+
+        //const departmentValue = document.getElementById('departmentFilter').value;
+        //const possibleReasonValue = document.getElementById('possibleReasonFilter').value;
+        //const sortValue = document.getElementById('sortFilter').value;
+
         const searchValue = document.getElementById('searchInput').value.trim();
         const dateRangeValue = document.getElementById('dateRangePicker').value;
 
@@ -628,6 +651,7 @@
             method: "POST",
             data: formData,
             success: function (response) {
+                
                 toastr.success("Attendance saved successfully");
                 $('#apply_leave').modal('hide');
                 GetLoadData(currentPage, pageSize);
@@ -642,7 +666,7 @@
     // Handle form submission for horizontal timeline modal
     $('#edit_leaves_horizontal form').on('submit', function (e) {
         e.preventDefault();
-        const employeeId = $(this).find('input[name="employeeName"]').val();
+        const employeeId = $(this).find('input[name="empId"]').val();
         const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
         savePunchData(employeeId, attendanceDate, punchData);
         $('#edit_leaves_horizontal').modal('hide');
@@ -652,7 +676,7 @@
     // Handle form submission for vertical timeline modal
     $('#edit_leaves_vertical form').on('submit', function (e) {
         e.preventDefault();
-        const employeeId = $(this).find('input[name="employeeName"]').val();
+        const employeeId = $(this).find('input[name="empId"]').val();
         const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
         savePunchData(employeeId, attendanceDate, punchData);
         $('#edit_leaves_vertical').modal('hide');
