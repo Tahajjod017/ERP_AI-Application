@@ -124,7 +124,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-phoenix-primary" id="resetBtnUpdated">Reset</button>
-                           @*  <button type="button" class="btn btn-outline-light border me-2" id="resetBtnUpdated">Cancel</button> *@
+                            @*  <button type="button" class="btn btn-outline-light border me-2" id="resetBtnUpdated">Cancel</button> *@
                             <button type="submit" class="btn btn-primary" id="updateLeaveBtn">Save</button>
                         </div>
                     </div>
@@ -136,10 +136,9 @@
 </div>
 <!-- /Annual Leave settings-->
 <!-- Casual Leave settings-->
-
 <!-- /New Custom Policy -->
 <!-- Add Custom Policy Modal -->
-<partial name="_AddNewLeaveForm"/>
+<partial name="_AddNewLeaveForm" />
 
 
 <div class="col-12 col-md-12 col-lg-12 ">
@@ -160,9 +159,6 @@
                 <div class="d-flex justify-content-center mt-2 ">
                     <div class="col-12 col-md-12 col-lg-12 ">
                         <div class="row" id="leaveTypesContainer">
-
-                         
-
                         </div>
                     </div>
                 </div>
@@ -182,15 +178,15 @@
                                 <div class="card">
                                     <div class="card-header"><h4>Restrictions</h4> </div>
                                     <input type="hidden" id="LeavePolicyConfigurationID" />
-                                    
+
                                     <div class="card-body d-block ">
                                         <div class="mb-2">
                                             <p class="border-bottom h5">Weekend between leave period</p>
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <form action="">
-                                                   
+
                                                     <div class="form-check">
-                                                        <input class="form-check-input" id="IsWeekendCountedAsLeaveYes" type="radio" name="IsWeekendCountedAsLeave"  value="true" />
+                                                        <input class="form-check-input" id="IsWeekendCountedAsLeaveYes" type="radio" name="IsWeekendCountedAsLeave" value="true" />
                                                         <label class="form-check-label" for="IsWeekendCountedAsLeaveYes">Count as leave</label>
                                                     </div>
                                                     <div class="form-check">
@@ -241,7 +237,7 @@
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <form action="">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" id="IsExceedLeaveBalanceYes" type="radio" name="IsExceedLeaveBalance" value="true" checked/>
+                                                        <input class="form-check-input" id="IsExceedLeaveBalanceYes" type="radio" name="IsExceedLeaveBalance" value="true" checked />
                                                         <label class="form-check-label" for="IsExceedLeaveBalanceYes">Allow (Exceed leave mark as LWP)</label>
                                                     </div>
                                                     <div class="form-check">
@@ -255,116 +251,116 @@
 
 
                                     </div>
-                                   
+
                                 </div>
                             </div>
 
                             <div class="col-xl-6 col-md-6">
                                 <div class="card" style="min-height:258px">
                                     <div class="card-header"><h4>Allow requests for</h4> </div>
-                                   
-                                        <div class="mb-2">
 
-                                            <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
-                                                <form action="">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" id="IsAllowRequestForPastDates" name="IsAllowRequestForPastDates" type="checkbox" value="true" />
-                                                        <label class="form-check-label" for="flexCheckDefault">Past dates not allowed</label>
-                                                    </div>
+                                    <div class="mb-2">
 
-                                                    <div class="form-check d-flex align-items-center mb-3">
-                                                        <input class="form-check-input me-2" id="IsAllowRequestForFutureDays" name="IsAllowRequestForFutureDays" type="checkbox" value="true" />
-                                                        <label class="form-check-label me-2" for="IsAllowRequestForFutureDays">Future dates To be applied</label>
-                                                        <input type="text" class="form-control me-2" id="AllowRequestForFutureDays" style="width: 3rem; height: 28px" />
-                                                        <label class="form-check-label" for="AllowRequestForFutureDays">Days in advance</label>
-                                                    </div>
-                                                 
-                                                    <!-- Maximum leave per application -->
-                                                    <div class="form-check d-flex align-items-center mb-3">
-                                                        <input class="form-check-input me-2" id="IsMaximumleaveDaysPerAplication" name="IsMaximumleaveDaysPerAplication" type="checkbox" value="true" />
-                                                        <label class="form-check-label me-2" for="IsMaximumleaveDaysPerAplication">Maximum leave that can be availed per application</label>
-                                                        <input type="text" class="form-control" id="MaxLeavePerApplication" style="width: 3rem; height: 28px" />
-                                                    </div>
+                                        <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
+                                            <form action="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" id="IsAllowRequestForPastDates" name="IsAllowRequestForPastDates" type="checkbox" value="true" />
+                                                    <label class="form-check-label" for="flexCheckDefault">Past dates not allowed</label>
+                                                </div>
 
-                                                    <!-- Maximum gap between applications -->
-                                                    <div class="form-check d-flex align-items-center">
-                                                        <input class="form-check-input me-2" id="IsMaximumGapDaysBetweenAplications" name="IsMaximumGapDaysBetweenAplications" type="checkbox" value="true" />
-                                                        <label class="form-check-label me-2" for="IsMaximumGapDaysBetweenAplications">Maximum gap (in days) between two applications</label>
-                                                        <input type="text" class="form-control" id="MaxGapBetweenApplications" name="MaxGapBetweenApplications" style="width: 3rem; height: 28px" />
-                                                    </div>
+                                                <div class="form-check d-flex align-items-center mb-3">
+                                                    <input class="form-check-input me-2" id="IsAllowRequestForFutureDays" name="IsAllowRequestForFutureDays" type="checkbox" value="true" />
+                                                    <label class="form-check-label me-2" for="IsAllowRequestForFutureDays">Future dates To be applied</label>
+                                                    <input type="text" class="form-control me-2" id="AllowRequestForFutureDays" style="width: 3rem; height: 28px" />
+                                                    <label class="form-check-label" for="AllowRequestForFutureDays">Days in advance</label>
+                                                </div>
 
-                                                </form>
+                                                <!-- Maximum leave per application -->
+                                                <div class="form-check d-flex align-items-center mb-3">
+                                                    <input class="form-check-input me-2" id="IsMaximumleaveDaysPerAplication" name="IsMaximumleaveDaysPerAplication" type="checkbox" value="true" />
+                                                    <label class="form-check-label me-2" for="IsMaximumleaveDaysPerAplication">Maximum leave that can be availed per application</label>
+                                                    <input type="text" class="form-control" id="MaxLeavePerApplication" style="width: 3rem; height: 28px" />
+                                                </div>
 
-                                            </div>
+                                                <!-- Maximum gap between applications -->
+                                                <div class="form-check d-flex align-items-center">
+                                                    <input class="form-check-input me-2" id="IsMaximumGapDaysBetweenAplications" name="IsMaximumGapDaysBetweenAplications" type="checkbox" value="true" />
+                                                    <label class="form-check-label me-2" for="IsMaximumGapDaysBetweenAplications">Maximum gap (in days) between two applications</label>
+                                                    <input type="text" class="form-control" id="MaxGapBetweenApplications" name="MaxGapBetweenApplications" style="width: 3rem; height: 28px" />
+                                                </div>
+
+                                            </form>
+
                                         </div>
-                                    
+                                    </div>
+
                                 </div>
 
                                 <div class="col-xl-12 col-md-12 mt-2">
                                     <div class="card" style="height:90px">
-                                            <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
-                                                <form action="" style="margin-top:13px;">
+                                        <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
+                                            <form action="" style="margin-top:13px;">
 
-                                                    <h5>Round off</h5>
-                                                    <div class="form-check d-flex mb-1">
+                                                <h5>Round off</h5>
+                                                <div class="form-check d-flex mb-1">
                                                     <input class="form-check-input me-2 mt-2 " id="IsRoundOffHour" name="IsRoundOffHour" checked value="true" type="checkbox" style="margin-top: 9px !important;" />
-                                                        <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Round of</label>
+                                                    <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Round of</label>
 
-                                                        <div style="width:215px;">
-                                                            <select class="form-select choiceDD" id="RoundOffHour">
-                                                                <option value="">Select</option>
-                                                                <option value="Hour">Hour</option>
-                                                                <option value="Half an Hour">Half an Hour </option>
-                                                                <option value="Quarter Hour" selected>Quarter Hour</option>
-                                                            </select>
-                                                        </div>
-
-
-
+                                                    <div style="width:215px;">
+                                                        <select class="form-select choiceDD" id="RoundOffHour">
+                                                            <option value="">Select</option>
+                                                            <option value="Hour">Hour</option>
+                                                            <option value="Half an Hour">Half an Hour </option>
+                                                            <option value="Quarter Hour" selected>Quarter Hour</option>
+                                                        </select>
                                                     </div>
 
-                                                </form>
 
-                                            </div>
+
+                                                </div>
+
+                                            </form>
+
+                                        </div>
 
                                     </div>
                                 </div>
 
                                 <div class="col-xl-12 col-md-12 mt-2">
                                     <div class="card">
-                                            <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
+                                        <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
                                             <form action="" style="margin-top:13px;">
 
-                                                    <h5>Year Leave Balance Reset Date</h5>
-                                                    <div class="form-check d-flex mb-1">
-                                                        <input class="form-check-input me-2 mt-2 " id="EnableLeaveBalanceResetDate" name="EnableLeaveBalanceResetDate" checked value="true" type="checkbox" />
-                                                        <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Year Leave Balance Reset Date</label>
+                                                <h5>Year Leave Balance Reset Date</h5>
+                                                <div class="form-check d-flex mb-1">
+                                                    <input class="form-check-input me-2 mt-2 " id="EnableLeaveBalanceResetDate" name="EnableLeaveBalanceResetDate" checked value="true" type="checkbox" />
+                                                    <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Year Leave Balance Reset Date</label>
 
 
-                                                        <div class="mb-3 flatpickr-input-container">
+                                                    <div class="mb-3 flatpickr-input-container">
 
 
-                                                            <div class="input-icon-end position-relative flatpickr">
-                                                                <input type="text" id="LeaveBalanceResetDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
-                                                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-
-                                                            </div>
+                                                        <div class="input-icon-end position-relative flatpickr">
+                                                            <input type="text" id="LeaveBalanceResetDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                                                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
 
                                                         </div>
-                                                    </div>
-                                                </form>
 
-                                            </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+
+                                        </div>
 
                                     </div>
                                 </div>
-                            
+
                             </div>
                             <div class="col-xl-6 col-md-6 mt-2">
                                 <div class="card">
                                     <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
                                         <form action="" style="margin-top:13px;">
-                                          
+
                                             <div class="d-flex align-items-center mb-3">
                                                 <h5 class="me-3 mb-0" style="white-space: nowrap;">Working Hour</h5>
                                                 <div class="flex-grow-1">
@@ -383,13 +379,6 @@
                                 <div class="card">
                                     <div class="d-flex align-items-center justify-content-between ms-4 mt-2">
                                         <form action="" style="margin-top:13px;">
-                                           @*  <h5>Short Leave Max Per Day</h5>
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="flex-grow-1 me-2">
-                                                    <input class="form-control" id="ShortLeaveMaxInADay" name="ShortLeaveMaxInADay" type="number" placeholder="Short Leave Max Per Day" />
-                                                </div>
-                                              
-                                            </div>*@
                                             <div class="d-flex align-items-center mb-3">
                                                 <h5 class="me-3 mb-0" style="white-space: nowrap;">Short Leave Max Per Day</h5>
                                                 <div class="flex-grow-1">
@@ -404,20 +393,17 @@
                                 </div>
                             </div>
                             <div class="col-md-12 d-flex justify-content-end">
-                                <button type="button" class="btn btn-primary mt-2 submit-btn"  id="AddLeavePolicyBtn">Save Leave Policy</button>
+                                <button type="button" class="btn btn-primary mt-2 submit-btn" id="AddLeavePolicyBtn">Save Leave Policy</button>
                             </div>
 
                         </div>
                     </div>
                 </div>
             </div>
-       
-
 
         </div>
 
     </div>
-
 
 </div>
 <partial name="_ConfirmDelete" />
@@ -430,10 +416,7 @@
     <script src="~/js/pages/attendancemanagement/leavemanagements/leaverequest/leavesettings.js"></script>
     <script>
         const checkbox = document.getElementById('toggleEncashementCheckbox');
-        //const checkbox1 = document.getElementById('toggleCarryForwardCheckbox');
         const hiddenEncashmentDiv = document.getElementById('hiddenEncashmentDiv');
-        //const hiddenCaryforwardDiv = document.getElementById('hiddenCaryforwardDiv');
-
         checkbox.addEventListener('change', function() {
           hiddenEncashmentDiv.style.display = this.checked ? 'block' : 'none';
         });

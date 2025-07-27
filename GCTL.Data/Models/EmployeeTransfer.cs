@@ -39,15 +39,33 @@ public partial class EmployeeTransfer
 
     public int? EmployeeID { get; set; }
 
+    public int? FromDepartmentID { get; set; }
+
+    public int? FromDesignationID { get; set; }
+
+    public int? ToDepartmentID { get; set; }
+
+    public int? ToDesignationID { get; set; }
+
+    public string TransferType { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
 
+    public virtual Departments FromDepartment { get; set; }
+
+    public virtual Designations FromDesignation { get; set; }
+
     public virtual Organization FromOrganization { get; set; }
 
     public virtual OrganizationBranches FromOrganizationBranch { get; set; }
+
+    public virtual Departments ToDepartment { get; set; }
+
+    public virtual Designations ToDesignation { get; set; }
 
     public virtual Organization ToOrganization { get; set; }
 

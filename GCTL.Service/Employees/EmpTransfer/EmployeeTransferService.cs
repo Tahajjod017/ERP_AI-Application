@@ -29,7 +29,8 @@ namespace GCTL.Service.Employees.EmpTransfer
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly IGenericRepository<OrganizationBranches> organizationBranch;
-        public EmployeeTransferService(IGenericRepository<EmployeeTransfer> genericRepository, IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<OrganizationBranches> organizationBranch) : base(genericRepository)
+        private readonly IGenericRepository<Alerts> alertsRepository;
+        public EmployeeTransferService(IGenericRepository<EmployeeTransfer> genericRepository, IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<OrganizationBranches> organizationBranch, IGenericRepository<Alerts> alertsRepository) : base(genericRepository)
         {
             this.repositoryEmployeeTransfer = repositoryEmployeeTransfer;
             this.employee = employee;
@@ -40,6 +41,7 @@ namespace GCTL.Service.Employees.EmpTransfer
             this.appDb = appDb;
             this.empoffi = empoffi;
             this.organizationBranch = organizationBranch;
+            this.alertsRepository = alertsRepository;
         }
 
         #region Get All
@@ -261,6 +263,11 @@ namespace GCTL.Service.Employees.EmpTransfer
                     ToOrganizationBranchID = entityVM.ToOrganizationBranchID,
                     TransferNote = entityVM.TransferNote,
                     TransferDate = entityVM.TransferDate,
+                    FromDepartmentID= entityVM.FromDepartmentID,
+                    FromDesignationID= entityVM.FromDesignationID,
+                    ToDepartmentID= entityVM.ToDepartmentID,
+                    ToDesignationID= entityVM.ToDesignationID,
+                    TransferType = entityVM.TransferType ?? "",
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -284,9 +291,23 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 getByIdEmpoffi.OrganizationID = entityVM.ToOrganizationID;
                 getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
-
+                getByIdEmpoffi.DepartmentID = entityVM.ToDepartmentID;
+                getByIdEmpoffi.DesignationID = entityVM.ToDesignationID;
                 await empoffi.UpdateAsync(getByIdEmpoffi);
 
+                //Notifications
+                if (approvalSettings != null)
+                {
+                    var alert = new Alerts
+                    {
+                        AlertForEmployeeID = entityVM.EmployeeID,
+                        AlertNote = "AlertNote",
+                        IsChecked = false,
+                    };
+                    await alertsRepository.AddAsync(alert);
+                }
+                  
+                //
                 // Step 3: Commit transaction
                 await repositoryEmployeeTransfer.CommitTransactionAsync();
 
@@ -402,7 +423,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                         (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
                         x.ApprovalType.ApprovalTypeName == "Leave Request Approval").FirstOrDefaultAsync();
 
-                if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
+                //if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
 
                 //
                 // Step 1: Find existing transfer record
@@ -485,6 +506,7 @@ namespace GCTL.Service.Employees.EmpTransfer
         }
 
         #endregion
+
         #region Delete Leave Request
         public async Task<CommonReturnViewModel> SoftDeleteEmpTransfer(DeleteRequestVM deleteRequestVM)
         {
@@ -551,6 +573,8 @@ namespace GCTL.Service.Employees.EmpTransfer
                 {
                     FromOrganizationID = x.OrganizationID,
                     FromOrganizationBranchID = x.OrganizationBranchID,
+                    FromDepartmentID= x.DepartmentID,
+                    FromDesignationID= x.DesignationID,
                 }).FirstOrDefaultAsync();
 
             if (data == null)
