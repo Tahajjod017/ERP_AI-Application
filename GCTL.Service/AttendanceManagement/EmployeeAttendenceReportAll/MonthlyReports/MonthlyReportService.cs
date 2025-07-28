@@ -21,6 +21,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
     {
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Attendance> _genericRepository;
+        private readonly IGenericRepository<Shifts> _genericRepositoryShift;
 
         public MonthlyReportService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository) : base(genericRepository)
         {

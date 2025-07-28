@@ -143,6 +143,12 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             return Json(designations);
         }
         [HttpGet]
+        public async Task<IActionResult> GetDesignationEdit(int organizationId)
+        {
+            var designations = await _approvalSettingService.GetEmployeeWithApprovalDesignationForEditAsync(organizationId);
+            return Json(designations);
+        }
+        [HttpGet]
         public async Task<IActionResult> GetDesignation2(int organizationId)
         {
             var designations = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync(organizationId);

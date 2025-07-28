@@ -1,40 +1,746 @@
-﻿<div class="row">
-    <div class="row align-items-center justify-content-between g-3 mb-4">
-        <div class="col-12 col-md-auto">
-            <ul class="nav nav-underline fs-9" id="adminAttendanceReport" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="shift-tab" href="/DailyReport/Index" role="tab" aria-controls="tab-home" aria-selected="true">
-                        <span class="fa-solid far fa-address-card me-2 tab-icon-color"></span>Daily Report
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/MonthlyReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Monthly Report
-                    </a>
-                </li>
+﻿@{
+    var mainTab = "YearlyReport";
+    
+}
 
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/YearlyReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Yearly Report
-                    </a>
-                </li>
+<partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
 
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/MovementReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Movement Report
-                    </a>
-                </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/AvailabilityReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Availability Report
-                    </a>
-                </li>
 
-            </ul>
+    <div class="col-sm-12">
+        <div class="card mb-3 border-0">
+            <div class="card-body">
+                <!-- Data searching -->
+                <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
 
-            <div class="tab-content mt-3" id="adminAttendanceReportContent">
+                    <h4 class="mb-1">Yearly Employee Attendance</h4>
+                    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+                        <div class="dropdown me-3">
+                            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">Select Company</option>
+                                <option value="">GCTL</option>
+                                <option value="">CSL Computer</option>
+                            </select>
+                        </div>
+
+                        <div class="dropdown me-3">
+                            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">Department</option>
+                                <option>Finance</option>
+                                <option>Application Development</option>
+                                <option>IT Manager</option>
+                            </select>
+                        </div>
+
+                        <div class="dropdown me-3">
+                            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">Employee Name</option>
+                                <option>Juel Rana</option>
+                                <option>Hasan</option>
+                                <option>Sabbir</option>
+                                <option>Nojib</option>
+                            </select>
+                        </div>
+
+                        <div class="dropdown me-3">
+                            <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">Select Year</option>
+                                <option>2014</option>
+                                <option>2015</option>
+                                <option>2016</option>
+                                <option>2017</option>
+                                <option>2018</option>
+                                <option>2019</option>
+                                <option>2020</option>
+                                <option>2021</option>
+                                <option>2022</option>
+                                <option>2023</option>
+                                <option>2024</option>
+                                <option>2025</option>
+                                <option>2026</option>
+                                <option>2027</option>
+                                <option>2028</option>
+                                <option>2029</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Attendance data view -->
+                <div class="border rounded mb-4">
+                    <div class="row gx-0">
+
+                        <div class="col-md col-sm-4 border-end">
+                            <div class="p-3">
+                                <span class="fw-medium mb-1 d-block">Present</span>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5>250</h5>
+                                    <span class="badge badge-phoenix badge-phoenix-success">
+                                        <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                        72%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md col-sm-4 border-end">
+                            <div class="p-3">
+                                <span class="fw-medium mb-1 d-block">Absent</span>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5>5</h5>
+                                    <span class="badge badge-phoenix badge-phoenix-danger">
+                                        <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                        12%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md col-sm-4 border-end">
+                            <div class="p-3">
+                                <span class="fw-medium mb-1 d-block">Casual Leave</span>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5>15</h5>
+                                    <span class="badge badge-phoenix badge-phoenix-warning">
+                                        <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                        2%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-md col-sm-4">
+                            <div class="p-3">
+                                <span class="fw-medium mb-1 d-block">Medical</span>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5>4</h5>
+                                    <span class="badge badge-phoenix badge-phoenix-danger">
+                                        <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                        9%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- All Employee yearly attendance Table-->
+                <div id="allEmployeeYearlyAttendanceTable">
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center fw-bold">
+                            <thead>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">Month</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <th>01</th>
+                                    <th>02</th>
+                                    <th>03</th>
+                                    <th>04</th>
+                                    <th>05</th>
+                                    <th>06</th>
+                                    <th>07</th>
+                                    <th>08</th>
+                                    <th>09</th>
+                                    <th>10</th>
+                                    <th>11</th>
+                                    <th>12</th>
+                                    <th>13</th>
+                                    <th>14</th>
+                                    <th>15</th>
+                                    <th>16</th>
+                                    <th>17</th>
+                                    <th>18</th>
+                                    <th>19</th>
+                                    <th>20</th>
+                                    <th>21</th>
+                                    <th>22</th>
+                                    <th>23</th>
+                                    <th>24</th>
+                                    <th>25</th>
+                                    <th>27</th>
+                                    <th>28</th>
+                                    <th>29</th>
+                                    <th>30</th>
+                                    <th>31&nbsp;</th>
+                                    <th>Present</th>
+                                    <th>Absence</th>
+                                    <th>Casual</th>
+                                    <th>Medical</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allEmployeeYearlyAttendanceTable">
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">January</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">February</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">March</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">April</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">May</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">June</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">July</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">August</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">September</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">October</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">November</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                                <tr>
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+
+                                            <div class="ms-1">
+                                                <h5 class="fw-bold">December</h5>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-warning-subtle">H</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-primary">M</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger-subtle">C</td>
+                                    <td class="bg-warning">W</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-success">P</td>
+                                    <td class="bg-danger">A</td>
+                                    <td class="bg-success">P</td>
+                                    <td>20</td>
+                                    <td>03</td>
+                                    <td>01</td>
+                                    <td>01</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Leave Explaination-->
+                <div class="d-flex my-3 flex-wrap border-bottom ">
+                    <div class="full-present me-2">
+                        <p class="badge text-bg-success">P</p>
+                        <span>Present</span>
+                    </div>
+                    <div class="me-2">
+                        <p class="badge text-bg-danger">A</p>
+                        <span>Absence</span>
+                    </div>
+                    <div class="me-2">
+                        <p class="badge text-bg-warning">W</p>
+                        <span>Weekend</span>
+                    </div>
+                    <div class="me-2">
+                        <p class="badge badge-phoenix badge-phoenix-warning">H</p>
+                        <span>Holyday</span>
+                    </div>
+                    <div class="me-2">
+                        <p class="badge badge-phoenix badge-phoenix-danger">C</p>
+                        <span>Casual Leave</span>
+                    </div>
+                    <div class="me-2">
+                        <p class="badge text-bg-primary">M</p>
+                        <span>Medical Leave</span>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
-</div>
+

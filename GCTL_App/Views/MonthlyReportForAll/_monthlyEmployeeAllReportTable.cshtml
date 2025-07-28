@@ -11,31 +11,23 @@
         <div class="dropdown me-3">
             <select class="form-select choiceDD" id="organizationID" size="1" required="required">
                 <option value="">Select Organization</option>
+                <option value="1">Google LLC</option>
+                <option value="2">Microsoft</option>
             </select>
         </div>
 
         <div class="dropdown me-2">
             <select class="form-select choiceDD" id="departmentID" multiple>
                 <option value="">Select Department</option>
+                <option value="1">IT</option>
 
             </select>
         </div>
 
         <div class="dropdown me-3">
-            <select class="form-select choiceDD" id="MonthID" size="1" required="required">
-                <option value="">Select Month</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
+            <select class="date" id="MonthID" size="1" required="required">
+                
+                
             </select>
         </div>
         <!-- Year Dropdown -->
@@ -95,221 +87,7 @@
                 </tr>
             </thead>
             <tbody id="empMonthlyAll-tbody">
-                <tr>
-                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
-                        <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-2">
-                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                            </div>
-                            <div class="ms-1">
-                                <h6 class="fw-bold">Faruk Hasan</h6>
-                                <span class="fs-12 fw-normal ">Finance Executive</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-primary">M</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning-subtle">H</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger-subtle">C</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                </tr>
-                <tr>
-                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
-                        <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-2">
-                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                            </div>
-                            <div class="ms-1">
-                                <h6 class="fw-bold">Faruk Alam</h6>
-                                <span class="fs-12 fw-normal ">IT Executive</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-primary">M</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning-subtle">H</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger-subtle">C</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                </tr>
-                <tr>
-                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
-                        <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-2">
-                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                            </div>
-                            <div class="ms-1">
-                                <h6 class="fw-bold">Faruk Hasan</h6>
-                                <span class="fs-12 fw-normal ">Finance Executive</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-primary">M</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning-subtle">H</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger-subtle">C</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                </tr>
-                <tr>
-                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
-                        <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-2">
-                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                            </div>
-                            <div class="ms-1">
-                                <h6 class="fw-bold">Mukidul Alam</h6>
-                                <span class="fs-12 fw-normal ">Sales Executive</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-primary">M</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-warning-subtle">H</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger-subtle">C</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                </tr>
-                <tr>
-                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
-                        <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-2">
-                                <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
-                            </div>
-                            <div class="ms-1">
-                                <h6 class="fw-bold">Hasan Mahmud</h6>
-                                <span class="fs-12 fw-normal ">Finance Director</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-warning-subtle">H</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-primary">M</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger-subtle">C</td>
-                    <td class="bg-warning">W</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-success">P</td>
-                    <td class="bg-danger">A</td>
-                    <td class="bg-success">P</td>
-                </tr>
+               
             </tbody>
         </table>
 
@@ -351,22 +129,22 @@
         </div>
         <!-- Sick Leave (SL) - Lighter Blue -->
         <div class="me-2">
-            <p class="badge text-bg-primary">SL</p>
-            <span>Sick Leave</span>
+            <p class="badge text-bg-primary">ML</p>
+            <span>Medical Leave</span>
         </div>
         <!-- Casual Leave (C) - Dark Gray -->
         <div class="me-2">
-            <p class="badge text-bg-dark">C</p>
+            <p class="badge badge-phoenix badge-phoenix-warning">C</p>
             <span>Casual Leave</span>
         </div>
         <!-- Maternity/Paternity Leave (ML/PL) - Muted Gray -->
         <div class="me-2">
-            <p class="badge text-bg-muted">ML/PL</p>
-            <span>Maternity/Paternity Leave</span>
+            <p class="badge text-bg-info">ML/PL</p>
+            <span>Maternity Leave</span>
         </div>
         <!-- Paternity Leave (PL) - Muted Gray -->
         <div class="me-2">
-            <p class="badge text-bg-muted">PL</p>
+            <p class="badge text-bg-info">PL</p>
             <span>Paternity Leave</span>
         </div>
         <!-- Leave Without Pay (LWP) - Light Gray -->
