@@ -18,6 +18,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ActionTaken> ActionTaken { get; set; }
 
+    public virtual DbSet<AlertForEmployee> AlertForEmployee { get; set; }
+
     public virtual DbSet<Alerts> Alerts { get; set; }
 
     public virtual DbSet<ApprovalDesignation> ApprovalDesignation { get; set; }
@@ -28,6 +30,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -79,6 +82,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<EmployeeTranningInfo> EmployeeTranningInfo { get; set; }
 
     public virtual DbSet<EmployeeTransfer> EmployeeTransfer { get; set; }
+
+    public virtual DbSet<EmployeeTransferHistory> EmployeeTransferHistory { get; set; }
 
     public virtual DbSet<EmployeeType> EmployeeType { get; set; }
 
@@ -215,11 +220,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
         });
 
-        modelBuilder.Entity<Alerts>(entity =>
+        modelBuilder.Entity<AlertForEmployee>(entity =>
         {
-            entity.HasKey(e => e.AlertID).HasName("PK__Alerts__EBB16AEDF7229DB1");
+            entity.HasKey(e => e.AlertForEmployeeID).HasName("PK__AlertFor__633ED2D04DDFD174");
 
-            entity.Property(e => e.AlertNote).HasMaxLength(255);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -228,9 +232,40 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-            entity.HasOne(d => d.AlertForEmployee).WithMany(p => p.AlertsAlertForEmployee)
-                .HasForeignKey(d => d.AlertForEmployeeID)
-                .HasConstraintName("FK__Alerts__AlertFor__0F4D3C5F");
+            entity.HasOne(d => d.Alert).WithMany(p => p.AlertForEmployee)
+                .HasForeignKey(d => d.AlertID)
+                .HasConstraintName("FK__AlertForE__Alert__30AE302A");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.AlertForEmployeeCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__AlertForE__Creat__3296789C");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.AlertForEmployeeDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__AlertForE__Delet__3572E547");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.AlertForEmployeeEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__AlertForE__Emplo__31A25463");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.AlertForEmployeeUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__AlertForE__Updat__338A9CD5");
+        });
+
+        modelBuilder.Entity<Alerts>(entity =>
+        {
+            entity.HasKey(e => e.AlertID).HasName("PK__Alerts__EBB16AEDF7229DB1");
+
+            entity.Property(e => e.AlertNote).HasMaxLength(255);
+            entity.Property(e => e.AlertTitle).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.AlertsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -1331,6 +1366,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.TransferType).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
+            entity.HasOne(d => d.ApprovalPerson).WithMany(p => p.EmployeeTransferApprovalPerson)
+                .HasForeignKey(d => d.ApprovalPersonID)
+                .HasConstraintName("FK_Employees_ApprovalPersonID_EmployeeTransfer");
+
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeTransferCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__EmployeeT__Creat__7C3A67EB");
@@ -1359,6 +1398,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.FromOrganizationID)
                 .HasConstraintName("FK__EmployeeT__FromO__7869D707");
 
+            entity.HasOne(d => d.Status).WithMany(p => p.EmployeeTransfer)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK_Statuses_StatusID");
+
             entity.HasOne(d => d.ToDepartment).WithMany(p => p.EmployeeTransferToDepartment)
                 .HasForeignKey(d => d.ToDepartmentID)
                 .HasConstraintName("FK_Departments_DepartmentID_ToDepartmentID");
@@ -1378,6 +1421,78 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeTransferUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__EmployeeT__Updat__7D2E8C24");
+        });
+
+        modelBuilder.Entity<EmployeeTransferHistory>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeTransferHistoryID).HasName("PK__Employee__83928F86E6DA257F");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.TransferDate).HasColumnType("datetime");
+            entity.Property(e => e.TransferNote).HasMaxLength(200);
+            entity.Property(e => e.TransferType).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApprovalPerson).WithMany(p => p.EmployeeTransferHistoryApprovalPerson)
+                .HasForeignKey(d => d.ApprovalPersonID)
+                .HasConstraintName("FK__EmployeeT__Appro__290D0E62");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeTransferHistoryCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeT__Creat__2AF556D4");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeTransferHistoryDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeT__Delet__2DD1C37F");
+
+            entity.HasOne(d => d.EmployeeTransfer).WithMany(p => p.EmployeeTransferHistory)
+                .HasForeignKey(d => d.EmployeeTransferID)
+                .HasConstraintName("FK_EmployeeTransfer_EmployeeTransferID_EmployeeTransferHistory");
+
+            entity.HasOne(d => d.FromDepartment).WithMany(p => p.EmployeeTransferHistoryFromDepartment)
+                .HasForeignKey(d => d.FromDepartmentID)
+                .HasConstraintName("FK__EmployeeT__FromD__2354350C");
+
+            entity.HasOne(d => d.FromDesignation).WithMany(p => p.EmployeeTransferHistoryFromDesignation)
+                .HasForeignKey(d => d.FromDesignationID)
+                .HasConstraintName("FK__EmployeeT__FromD__24485945");
+
+            entity.HasOne(d => d.FromOrganizationBranch).WithMany(p => p.EmployeeTransferHistoryFromOrganizationBranch)
+                .HasForeignKey(d => d.FromOrganizationBranchID)
+                .HasConstraintName("FK__EmployeeT__FromO__226010D3");
+
+            entity.HasOne(d => d.FromOrganization).WithMany(p => p.EmployeeTransferHistoryFromOrganization)
+                .HasForeignKey(d => d.FromOrganizationID)
+                .HasConstraintName("FK__EmployeeT__FromO__216BEC9A");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.EmployeeTransferHistory)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__EmployeeT__Statu__2A01329B");
+
+            entity.HasOne(d => d.ToDepartment).WithMany(p => p.EmployeeTransferHistoryToDepartment)
+                .HasForeignKey(d => d.ToDepartmentID)
+                .HasConstraintName("FK__EmployeeT__ToDep__2724C5F0");
+
+            entity.HasOne(d => d.ToDesignation).WithMany(p => p.EmployeeTransferHistoryToDesignation)
+                .HasForeignKey(d => d.ToDesignationID)
+                .HasConstraintName("FK__EmployeeT__ToDes__2818EA29");
+
+            entity.HasOne(d => d.ToOrganizationBranch).WithMany(p => p.EmployeeTransferHistoryToOrganizationBranch)
+                .HasForeignKey(d => d.ToOrganizationBranchID)
+                .HasConstraintName("FK__EmployeeT__ToOrg__2630A1B7");
+
+            entity.HasOne(d => d.ToOrganization).WithMany(p => p.EmployeeTransferHistoryToOrganization)
+                .HasForeignKey(d => d.ToOrganizationID)
+                .HasConstraintName("FK__EmployeeT__ToOrg__253C7D7E");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeTransferHistoryUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeT__Updat__2BE97B0D");
         });
 
         modelBuilder.Entity<EmployeeType>(entity =>

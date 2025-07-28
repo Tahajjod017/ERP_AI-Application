@@ -14,18 +14,25 @@
             <div class="modal-header">
                 @* <h4 class="modal-title">Add Employee Transfer</h4> *@
                 <div class="col-12 col-md-12 col-lg-12 ">
-
                     <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-                        <li class="nav-item"><a class="nav-link active" id="TransferOrgazation-tab" data-bs-toggle="tab" href="#tab-TransferOrgazation" role="tab" aria-controls="tab-TransferOrgazation" aria-selected="true">Transfer Between Organization</a></li>
-                        <li class="nav-item"><a class="nav-link" id="TransferBranch-tab" data-bs-toggle="tab" href="#tab-TransferBranch" role="tab" aria-controls="tab-TransferBranch" aria-selected="false">Transfer Between Branch</a></li>
-                        <li class="nav-item"><a class="nav-link" id="Department-tab" data-bs-toggle="tab" href="#tab-Department" role="tab" aria-controls="tab-Department" aria-selected="false">Transfer Between Department</a></li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="TransferOrgazation-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">
+                                Transfer Between Organization
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="TransferBranch-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">
+                                Transfer Between Branch
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="Department-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false">
+                                Transfer Between Department
+                            </button>
+                        </li>
                         <button type="button" class="btn-close custom-btn-close text-end" data-bs-dismiss="modal" aria-label="Close"></button>
                     </ul>
-                
-                  
                 </div>
-
-               @*  <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button> *@
             </div>
             <partial name="_AddEmployeTransfer" />
         </div>
@@ -37,7 +44,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Edit Leave</h4>
+                <h4 class="modal-title">Edit EmployeTransfer</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <partial name="_EditEmployeTransfer" />
@@ -56,7 +63,7 @@
     }
     <script src="~/js/pages/employees/employeetransfer/employeetransfer.js"></script>
 }
-<script>
+@* <script>
     const triggerTabList = document.querySelectorAll('#myTab a');
     triggerTabList.forEach(triggerEl => {
       triggerEl.addEventListener('shown.bs.tab', function (event) {
@@ -75,6 +82,6 @@
       });
      });
      
-</script>
+</script> *@
 
 

@@ -23,6 +23,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[AlertForEmployee]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Alerts]",
          "ObjectType": 0
       },
@@ -172,6 +176,10 @@
       },
       {
          "Name": "[dbo].[EmployeeTransfer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeTransferHistory]",
          "ObjectType": 0
       },
       {

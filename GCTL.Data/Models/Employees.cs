@@ -79,7 +79,13 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
-    public virtual ICollection<Alerts> AlertsAlertForEmployee { get; set; } = new List<Alerts>();
+    public virtual ICollection<AlertForEmployee> AlertForEmployeeCreatedByNavigation { get; set; } = new List<AlertForEmployee>();
+
+    public virtual ICollection<AlertForEmployee> AlertForEmployeeDeletedByNavigation { get; set; } = new List<AlertForEmployee>();
+
+    public virtual ICollection<AlertForEmployee> AlertForEmployeeEmployee { get; set; } = new List<AlertForEmployee>();
+
+    public virtual ICollection<AlertForEmployee> AlertForEmployeeUpdatedByNavigation { get; set; } = new List<AlertForEmployee>();
 
     public virtual ICollection<Alerts> AlertsCreatedByNavigation { get; set; } = new List<Alerts>();
 
@@ -291,11 +297,21 @@ public partial class Employees
 
     public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfoUpdatedByNavigation { get; set; } = new List<EmployeeTranningInfo>();
 
+    public virtual ICollection<EmployeeTransfer> EmployeeTransferApprovalPerson { get; set; } = new List<EmployeeTransfer>();
+
     public virtual ICollection<EmployeeTransfer> EmployeeTransferCreatedByNavigation { get; set; } = new List<EmployeeTransfer>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferDeletedByNavigation { get; set; } = new List<EmployeeTransfer>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferEmployee { get; set; } = new List<EmployeeTransfer>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryApprovalPerson { get; set; } = new List<EmployeeTransferHistory>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryCreatedByNavigation { get; set; } = new List<EmployeeTransferHistory>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryDeletedByNavigation { get; set; } = new List<EmployeeTransferHistory>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryUpdatedByNavigation { get; set; } = new List<EmployeeTransferHistory>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferUpdatedByNavigation { get; set; } = new List<EmployeeTransfer>();
 
