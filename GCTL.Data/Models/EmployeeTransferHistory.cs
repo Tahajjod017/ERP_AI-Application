@@ -5,21 +5,37 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeTransfer
+public partial class EmployeeTransferHistory
 {
-    public int EmployeeTransferID { get; set; }
+    public int EmployeeTransferHistoryID { get; set; }
 
     public int? FromOrganizationID { get; set; }
 
     public int? FromOrganizationBranchID { get; set; }
 
+    public int? FromDepartmentID { get; set; }
+
+    public int? FromDesignationID { get; set; }
+
     public int? ToOrganizationID { get; set; }
 
     public int? ToOrganizationBranchID { get; set; }
 
+    public int? ToDepartmentID { get; set; }
+
+    public int? ToDesignationID { get; set; }
+
+    public string TransferType { get; set; }
+
+    public int? ApprovalPersonID { get; set; }
+
     public DateTime? TransferDate { get; set; }
 
     public string TransferNote { get; set; }
+
+    public int? StatusID { get; set; }
+
+    public int? ApprovalStep { get; set; }
 
     public string LIP { get; set; }
 
@@ -37,23 +53,7 @@ public partial class EmployeeTransfer
 
     public int? DeletedBy { get; set; }
 
-    public int? EmployeeID { get; set; }
-
-    public int? FromDepartmentID { get; set; }
-
-    public int? FromDesignationID { get; set; }
-
-    public int? ToDepartmentID { get; set; }
-
-    public int? ToDesignationID { get; set; }
-
-    public string TransferType { get; set; }
-
-    public int? StatusID { get; set; }
-
-    public bool? IsFinalApproved { get; set; }
-
-    public int? ApprovalPersonID { get; set; }
+    public int? EmployeeTransferID { get; set; }
 
     public virtual Employees ApprovalPerson { get; set; }
 
@@ -61,9 +61,7 @@ public partial class EmployeeTransfer
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Employees Employee { get; set; }
-
-    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistory { get; set; } = new List<EmployeeTransferHistory>();
+    public virtual EmployeeTransfer EmployeeTransfer { get; set; }
 
     public virtual Departments FromDepartment { get; set; }
 

@@ -251,7 +251,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                         (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
                         x.ApprovalType.ApprovalTypeName == "Leave Request Approval").FirstOrDefaultAsync();
 
-                if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
+                //if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
                 //
                 // Step 1: Save transfer record
                 var entity = new EmployeeTransfer
@@ -288,24 +288,31 @@ namespace GCTL.Service.Employees.EmpTransfer
                         Message = "Employee not found in official info table"
                     };
                 }
-
-                getByIdEmpoffi.OrganizationID = entityVM.ToOrganizationID;
-                getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
-                getByIdEmpoffi.DepartmentID = entityVM.ToDepartmentID;
+                
+                if (entityVM.TransferType == "Organization")
+                {
+                    getByIdEmpoffi.OrganizationID = entityVM.ToOrganizationID;
+                    getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
+                }
+                else if (entityVM.TransferType == "Branch")
+                {
+                    getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
+                }
                 getByIdEmpoffi.DesignationID = entityVM.ToDesignationID;
-                await empoffi.UpdateAsync(getByIdEmpoffi);
+                getByIdEmpoffi.DepartmentID = entityVM.ToDepartmentID;
+                //await empoffi.UpdateAsync(getByIdEmpoffi);
 
                 //Notifications
-                if (approvalSettings != null)
-                {
-                    var alert = new Alerts
-                    {
-                        AlertForEmployeeID = entityVM.EmployeeID,
-                        AlertNote = "AlertNote",
-                        IsChecked = false,
-                    };
-                    await alertsRepository.AddAsync(alert);
-                }
+                //if (approvalSettings != null)
+                //{
+                //    var alert = new Alerts
+                //    {
+                //        AlertForEmployeeID = entityVM.EmployeeID,
+                //        AlertNote = "AlertNote",
+                //        IsChecked = false,
+                //    };
+                //    await alertsRepository.AddAsync(alert);
+                //}
                   
                 //
                 // Step 3: Commit transaction
@@ -363,7 +370,12 @@ namespace GCTL.Service.Employees.EmpTransfer
                     ToOrganizationIDEdit = existenceEntity.ToOrganizationID,
                     ToOrganizationBranchIDEdit = existenceEntity.ToOrganizationBranchID,
                     TransferDateEdit = existenceEntity.TransferDate,
-                    TransferNoteEdit = existenceEntity.TransferNote
+                    TransferNoteEdit = existenceEntity.TransferNote,
+                    FromDepartmentIDEdit = existenceEntity.FromDepartmentID,
+                    ToDepartmentIDEdit = existenceEntity.ToDepartmentID,
+                    ToDesignationIDEdit = existenceEntity.ToDesignationID,
+                    FromDesignationIDEdit= existenceEntity.FromDesignationID,
+                    TransferTypeEdit= existenceEntity.TransferType,
                 };
 
                 return new CommonReturnViewModel
@@ -468,6 +480,9 @@ namespace GCTL.Service.Employees.EmpTransfer
                 existingEntity.FromOrganizationBranchID = entityVM.FromOrganizationBranchIDEdit;
                 existingEntity.ToOrganizationID = entityVM.ToOrganizationIDEdit;
                 existingEntity.ToOrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
+                existingEntity.FromDepartmentID = entityVM.FromDepartmentIDEdit;
+                existingEntity.ToDepartmentID = entityVM.ToDepartmentIDEdit;
+                existingEntity.FromDesignationID = entityVM.FromDesignationIDEdit;
                 existingEntity.TransferNote = entityVM.TransferNoteEdit;
                 existingEntity.TransferDate = entityVM.TransferDateEdit;
                 existingEntity.UpdatedAt = DateTime.Now;
@@ -480,11 +495,23 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 if (empOfficialInfo != null)
                 {
-                    empOfficialInfo.OrganizationID = entityVM.ToOrganizationIDEdit;
-                    empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
+                    if (entityVM.TransferTypeEdit == "Organization")
+                    {
+                        empOfficialInfo.OrganizationID = entityVM.ToOrganizationIDEdit;
+                        empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
+                    }
+                    else if (entityVM.TransferTypeEdit == "Branch")
+                    {
+                        empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
+                    }
+                    empOfficialInfo.DesignationID = entityVM.ToDesignationIDEdit;
+                    empOfficialInfo.DepartmentID = entityVM.ToDepartmentIDEdit;
                     await empoffi.UpdateAsync(empOfficialInfo);
                 }
 
+                //
+                
+                //
                 // Step 4: Commit transaction
                 await repositoryEmployeeTransfer.CommitTransactionAsync();
 

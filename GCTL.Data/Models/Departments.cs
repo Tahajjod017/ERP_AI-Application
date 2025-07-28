@@ -43,6 +43,10 @@ public partial class Departments
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromDepartment { get; set; } = new List<EmployeeTransfer>();
 
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryFromDepartment { get; set; } = new List<EmployeeTransferHistory>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryToDepartment { get; set; } = new List<EmployeeTransferHistory>();
+
     public virtual ICollection<EmployeeTransfer> EmployeeTransferToDepartment { get; set; } = new List<EmployeeTransfer>();
 
     public virtual Organization Organization { get; set; }

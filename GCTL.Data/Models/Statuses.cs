@@ -37,6 +37,10 @@ public partial class Statuses
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
+    public virtual ICollection<EmployeeTransfer> EmployeeTransfer { get; set; } = new List<EmployeeTransfer>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistory { get; set; } = new List<EmployeeTransferHistory>();
+
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
