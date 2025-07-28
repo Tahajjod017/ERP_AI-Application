@@ -1,33 +1,198 @@
-﻿using GCTL.Service.CommonService;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using GCTL.Service.CommonService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
-using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
     public class OffDayRosterController : BaseController
     {
+        #region Services & repositories
         private readonly ICommonService _commonService;
+        private readonly IOffDayRosterService _offDayRosterService;
 
-        public OffDayRosterController(ITranslateService translateService, IUserProfileService userProfileService, ICommonService commonService) : base(translateService, userProfileService)
+
+        public OffDayRosterController(ITranslateService translateService,
+            IUserProfileService userProfileService,
+            ICommonService commonService,
+            IOffDayRosterService offDayRosterService) : base(translateService, userProfileService)
         {
             _commonService = commonService;
+            _offDayRosterService = offDayRosterService;
         }
+        #endregion
 
+
+        #region Index
         public async Task<IActionResult> Index()
         {
-            RosterInOfficeDaysPageVM model = new RosterInOfficeDaysPageVM();
+            RosterInOffDayPageVM model = new RosterInOffDayPageVM();
             SetSmartPageCode(203200);
 
             ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
             ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");
+            ViewBag.CompensationDD = new SelectList(await _commonService.GetCompensation(), "Id", "Name");
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
 
             return View(model);
+        }
+        #endregion
+
+
+        #region GetAll
+        //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        //{
+        //    try
+        //    {
+        //        var result = await _offDayRosterService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
+
+        //        return Json(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { isSuccess = false, message = ex.Message });
+        //    }
+        //}
+        #endregion
+
+
+        #region Create
+        //[Permission("Create", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Create(RosterInOffDaySetupVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //// userInfoService.SetUserInfo(model, User, HttpContext);
+                    //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
+
+                    await _offDayRosterService.AddAsync(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "OrganizationID", "ShiftID", "DayDate", "CompensationTypeID" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region GetBranchByOrganization
+        [HttpGet]
+        public async Task<IActionResult> GetBranchByOrganization(int? id)
+        {
+            var result = await _commonService.GetBranchesByOrgId(id);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetDepartmentByOrganization
+        public async Task<IActionResult> GetDepartmentByOrganization(int? id)
+        {
+            var result = await _commonService.GetDepartmentsByOrgId(id);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetEmployeeByOrganization
+        public async Task<IActionResult> GetEmployeeByOrganization(int? id)
+        {
+            var result = await _commonService.GetEmployeesByOrgId(id);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetShiftByOrganization
+        public async Task<IActionResult> GetShiftByOrganization(int? id)
+        {
+            var result = await _commonService.GetShiftsByOrgId(id);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetEmployeeByDepartment
+        public async Task<IActionResult> GetEmployeeByDepartment(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        {
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetEmployeeByBranch
+        public async Task<IActionResult> GetEmployeeByBranch(int? orgId, [FromQuery] List<int>? ids)
+        {
+            var result = await _commonService.GetEmployeesByOrgBraId(orgId, ids);
+            return Json(result);
+        }
+        #endregion
+
+
+        #region GetWeekendByOrganization
+        [HttpGet]
+        public async Task<IActionResult> GetWeekendByOrganization(int id)
+        {
+            try
+            {
+                var weekendSettings = await _commonService.GetWeekendByOrganization(id);
+                return Json(weekendSettings);
+            }
+            catch (Exception ex)
+            {
+                // Log the error (optional) and return error response
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        #endregion
+
+
+        public async Task<IActionResult> GetRosterData()
+        {
+            var (rosterList, uniqueDates) = await _offDayRosterService.GetAll();
+
+            return Json(new
+            {
+                success = true,
+                rosterList,
+                uniqueDates
+            });
         }
     }
 }

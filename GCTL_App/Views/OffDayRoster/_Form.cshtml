@@ -8,12 +8,12 @@
     <div class="modal-body pb-0">
 
         <div class="row g-3 mb-3">
-            @Html.AntiForgeryToken()
+            @* @Html.AntiForgeryToken() *@
             <input type="hidden" asp-for="RosterInOffDayID" />
 
             <div class="col-md">
                 <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
-                <select class="form-select" asp-for="OrganizationID">
+                <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                     <option value="">@Html.SmartLocalize("Select Organization")...</option>
                 </select>
                 <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
@@ -74,106 +74,30 @@
             </div>
 
             <div class="col-md">
-                <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="DD/MM/YYYY" />
-                <span id="StartDateError" class="text-danger" style="display:none;"></span>
+                <label class="form-label" asp-for="DayDate">@Html.SmartLocalize("Select Date")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
+                <span id="DayDateError" class="text-danger" style="display:none;"></span>
             </div>
 
             <div class="col-md">
-                <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="DD/MM/YYYY" />
-                <span id="EndDateError" class="text-danger" style="display:none;"></span>
+                <label class="form-label" asp-for="CompensationTypeID">Compensation Type<span style="color:red;">&nbsp;*</span></label>
+                <select class="form-select" asp-for="CompensationTypeID" asp-items="@ViewBag.CompensationDD as SelectList">
+                    <option value="">@Html.SmartLocalize("Select Compensation")...</option>
+                </select>
+                <span id="CompensationTypeIDError" class="text-danger" style="display:none;"></span>
             </div>
-
-            @* <input type="text" id="basic-daterange" class="form-control date-input" placeholder="d/m/y to d/m/y" readonly>
-            <input type="hidden" asp-for="StartDate" name="StartDate" />
-            <input type="hidden" asp-for="EndDate" name="EndDate" /> *@
         </div>
         <div class="col-12">
             <div class="row g-3 justify-content-end">
                 <div class="col-auto">
-                    <button type="reset" class="btn btn-phoenix-primary px-5" id="rosterInOfficeDays-resetBtn">@Html.SmartLocalize("Reset")</button>
+                    <button type="reset" class="btn btn-phoenix-primary px-5" id="rosterInOffDay-resetBtn">@Html.SmartLocalize("Reset")</button>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOfficeDays-saveBtn">@Html.SmartLocalize("Save")</button>
+                    <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOffDay-saveBtn">@Html.SmartLocalize("Save")</button>
                 </div>
             </div>
         </div>
         <div class="row">
-
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label" for="organizerSingle">Company Name</label>
-                    <select class="form-multi-select" id="multiple-department-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                        <option value="">Select Company</option>
-                        <option>CSL</option>
-                        <option>GCTL</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label" for="organizerSingle">Select Department</label>
-                    <select class="form-multi-select" id="multiple-department-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                        <option value="0">Software Developer</option>
-                        <option value="1">Software Designer</option>
-                        <option value="2">Finance</option>
-                        <option value="3">IT Manager</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label" for="organizerSingle">Employee</label>
-                    <select class="form-multi-select" id="multiple-employee-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                        <optgroup label="Developer">
-                            <option>Hasan Ali</option>
-                            <option>Korim</option>
-                        </optgroup>
-                        <optgroup label="Designer">
-                            <option>Jueal Rana</option>
-                            <option>Kolim Ullah</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label" for="organizerSingle">Select Shift</label>
-                    <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Select Roster...</option>
-                        <option>Shift 1</option>
-                        <option>Shift 2</option>
-                        <option>Shift 3</option>
-                        <option>Shift 4</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <div class="">
-                        <label for="datepickerf" class="form-label">Select Date</label>
-                        <input type="text" class="form-control" id="datepickerf" placeholder="yyy/mm/dd" data-options='{"disableMobile":true,"dateFormat":"Y-m-d"}'>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="mb-3">
-                    <label class="form-label" for="organizerSingle">Compensation Type</label>
-                    <select class="form-select" id="leaveType">
-                        <option value="overtime">Overtime</option>
-                        <option value="compensation">Compensation Leave</option>
-                        <option value="dayexchange1">Day Exchange</option>
-                    </select>
-                </div>
-            </div>
-
             <!-- Modal for Day Exchange -->
             <div class="modal fade" id="dayExchangeModal" tabindex="-1" aria-labelledby="dayExchangeModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -200,14 +124,14 @@
                 </div>
             </div>
 
-            <script>
+            @* <script>
                 document.getElementById('leaveType').addEventListener('change', function () {
                   if (this.value === 'dayexchange1') {
                     const modal = new bootstrap.Modal(document.getElementById('dayExchangeModal'));
                     modal.show();
                   }
                 });
-            </script>
+            </script> *@
 
             <div id="dateSelect" class="">
                 @* <script>
@@ -224,7 +148,7 @@
                 </script> *@
             </div>
 
-            <script>
+            @* <script>
                 const leaveType = document.getElementById('leaveType');
                 const dateSelect = document.getElementById('dateSelect');
 
@@ -235,7 +159,7 @@
                     dateSelect.style.display = 'none';
                   }
                 });
-            </script>
+            </script> *@
         </div>
     </div>
 </form>
