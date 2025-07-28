@@ -20,14 +20,20 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
         private readonly IGenericRepository<Shifts> _shifts;
+        private readonly IGenericRepository<CompensationTypes> _compensationTypes;
+        private readonly IGenericRepository<WeekendSettings> _weekendSettings;
+        private readonly IGenericRepository<WeekendDays> _weekendDays;
 
         public CommonService(
-            IGenericRepository<Organization> organization, 
-            IGenericRepository<OrganizationBranches> organizationBranches, 
-            IGenericRepository<Departments> departments, 
-            IGenericRepository<Data.Models.Employees> employees, 
-            IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo, 
-            IGenericRepository<Shifts> shifts)
+            IGenericRepository<Organization> organization,
+            IGenericRepository<OrganizationBranches> organizationBranches,
+            IGenericRepository<Departments> departments,
+            IGenericRepository<Data.Models.Employees> employees,
+            IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo,
+            IGenericRepository<Shifts> shifts,
+            IGenericRepository<CompensationTypes> compensationTypes,
+            IGenericRepository<WeekendSettings> weekendSettings,
+            IGenericRepository<WeekendDays> weekendDays)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -35,6 +41,9 @@ namespace GCTL.Service.CommonService
             _employees = employees;
             _employeeOfficeInfo = employeeOfficeInfo;
             _shifts = shifts;
+            _compensationTypes = compensationTypes;
+            _weekendSettings = weekendSettings;
+            _weekendDays = weekendDays;
         }
         #endregion
 
@@ -140,6 +149,20 @@ namespace GCTL.Service.CommonService
             {
                 Id = x.ShiftID,
                 Name = $"{x.ShiftName} ({x.StartTime} - {x.EndTime})"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetShifts
+        public async Task<List<CommonSelectVM>> GetCompensation()
+        {
+            var result = await _compensationTypes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.CompensationTypeID,
+                Name = $"{x.CompensationTypeName}"
             }).ToListAsync();
 
             return result;
@@ -318,6 +341,38 @@ namespace GCTL.Service.CommonService
             }).ToListAsync();
 
             return result;
+        }
+        #endregion
+
+
+        #region GetWeekendByOrganization
+        public async Task<IEnumerable<object>> GetWeekendByOrganization(int id)
+        {
+            try
+            {
+                // Eager load related entities (Organization and WeekendDays)
+                var weekendSettings = await _weekendSettings.AllActive()
+                    .Include(ws => ws.Organization)
+                    .Where(ws => ws.OrganizationID == id)
+                    .GroupJoin(
+                        _weekendDays.AllActive(),
+                        ws => ws.WeekendSettingID,
+                        wd => wd.WeekendSettingID,
+                        (ws, days) => new
+                        {
+                            WeekendSettingID = ws.WeekendSettingID,
+                            OrganizationName = ws.Organization.OrganizationName,
+                            WeekdayNumbers = string.Join(", ", days.Select(d => d.WeekdayNumber))
+                        })
+                    .ToListAsync();
+
+                return weekendSettings;
+            }
+            catch (Exception ex)
+            {
+                // You can log the error here or throw a custom exception
+                throw new Exception("Error fetching weekend settings", ex);
+            }
         }
         #endregion
     }
