@@ -23,6 +23,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[AlertForEmployee]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Alerts]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ApprovalDesignation]",
          "ObjectType": 0
       },
@@ -168,6 +176,10 @@
       },
       {
          "Name": "[dbo].[EmployeeTransfer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeTransferHistory]",
          "ObjectType": 0
       },
       {
@@ -369,6 +381,14 @@
       {
          "Name": "[dbo].[YearlyEndBonusTypes]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[Prc_GetEmployeesPaged]",
+         "ObjectType": 1
       }
    ],
    "UiHint": null,

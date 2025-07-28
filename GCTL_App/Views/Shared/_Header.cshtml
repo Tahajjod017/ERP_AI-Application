@@ -46,6 +46,33 @@
             </li>
 
             <li class="nav-item dropdown">
+                <a class="nav-link" href="#" style="min-width: 2.25rem" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-auto-close="outside"><span class="d-block" style="height:20px;width:20px;"><span data-feather="bell" style="height:20px;width:20px;"></span></span></a>
+
+                <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu py-0 shadow border navbar-dropdown-caret" id="navbarDropdownNotfication" aria-labelledby="navbarDropdownNotfication">
+                    <div class="card position-relative border-0">
+                        <div class="card-header p-2">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="text-body-emphasis mb-0">Notifications</h5>
+                                <button class="btn btn-link p-0 fs-9 fw-normal" type="button">Mark all as read</button>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <div class="scrollbar-overlay" style="height: 27rem;" id="notificationContainer">
+                                <!-- AJAX-loaded notifications will be appended here -->
+                            </div>
+                        </div>
+
+
+                       
+                        <div class="card-footer p-0 border-top border-translucent border-0">
+                            <div class="my-2 text-center fw-bold fs-10 text-body-tertiary text-opactity-85"><a class="fw-bolder" href="/Notifications/Index">Notification history</a></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item dropdown">
                 <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar avatar-l ">
                         <div class="avatar avatar-l rounded-circle bg-secondary d-flex align-items-center justify-content-center"

@@ -1,7 +1,4 @@
-﻿
-<!-- Add Leaves -->
-
-<style>
+﻿<style>
     .input-validation-error {
         border-color: #dc3545 !important;
     }
@@ -10,41 +7,53 @@
         color: #dc3545;
         font-size: 0.875em;
     }
-
 </style>
-
 <div class="modal fade" id="apply_leave" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Add Leave</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                @* <h4 class="modal-title">Add Employee Transfer</h4> *@
+                <div class="col-12 col-md-12 col-lg-12 ">
+                    <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="TransferOrgazation-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab" aria-controls="tab1" aria-selected="true">
+                                Transfer Between Organization
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="TransferBranch-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">
+                                Transfer Between Branch
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="Department-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false">
+                                Transfer Between Department
+                            </button>
+                        </li>
+                        <button type="button" class="btn-close custom-btn-close text-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </ul>
+                </div>
             </div>
-
-           @*  @await Html.PartialAsync("_AddEmployeTransfer") *@
             <partial name="_AddEmployeTransfer" />
         </div>
     </div>
 </div>
-
 <!-- /Add Leaves -->
 <!-- Edit Leaves -->
 <div class="modal fade" id="edit_leaves">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Edit Leave</h4>
+                <h4 class="modal-title">Edit EmployeTransfer</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-          @*   @await Html.PartialAsync("_EditLeaveForm") *@
-
+            <partial name="_EditEmployeTransfer" />
         </div>
     </div>
 </div>
 <!-- Breadcrumb -->
 <partial name="_BreadCrumLeaveReq" />
 <!-- /Breadcrumb -->
-
 <partial name="_EmployeeTransferTable" />
 <partial name="_ConfirmDelete" />
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -53,6 +62,26 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="~/js/pages/employees/employeetransfer/employeetransfer.js"></script>
-   
-
 }
+@* <script>
+    const triggerTabList = document.querySelectorAll('#myTab a');
+    triggerTabList.forEach(triggerEl => {
+      triggerEl.addEventListener('shown.bs.tab', function (event) {
+        const selectedTabId = event.target.getAttribute('id');
+        console.log("Active tab changed to:", selectedTabId);
+
+        // Example: Load dynamic data if needed
+        if (selectedTabId === 'TransferOrgazation-tab') {
+          // Load organization transfer data
+        } else if (selectedTabId === 'TransferBranch-tab') {
+          // Load branch transfer data
+        } else if(selectedTabId==='Department-tab')
+        {
+
+        }
+      });
+     });
+     
+</script> *@
+
+

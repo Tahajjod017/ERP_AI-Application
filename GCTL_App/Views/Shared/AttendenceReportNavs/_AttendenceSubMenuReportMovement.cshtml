@@ -5,21 +5,21 @@
 <div class="col-12 col-md-12 col-lg-12">
     <ul class="nav nav-underline fs-9 mt-3" id="dailyReportTabs" role="tablist">
         <li class="nav-item">
-            <a class="nav-link @(Model == "MovementReport" ? "active" : "")"
+            <a class="nav-link @(Model == "MovementForAllReports" ? "active" : "")"
                href="@Url.Action("Index", "MovementForAllReport")"
                role="tab"
                aria-controls="tab-movementReport"
                aria-selected="@(Model == "MovementReport" ? "true" : "false")">
-                Movement Report
+                Report For All
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(Model == "MovementReportForIndividual" ? "active" : "")"
+            <a class="nav-link @(Model == "MovementIndividualReports" ? "active" : "")"
                href="@Url.Action("Index", "MovementIndividualReport")"
                role="tab"
                aria-controls="tab-movementReport"
-               aria-selected="@(Model == "MovementReportForIndividual" ? "true" : "false")">
-                Movement Report
+               aria-selected="@(Model == "MovementReport" ? "true" : "false")">
+                Individual Report
             </a>
         </li>
     </ul>

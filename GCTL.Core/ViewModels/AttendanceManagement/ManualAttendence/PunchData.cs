@@ -8,4 +8,10 @@
         public bool NotPunched { get; set; }
         public bool Deletable { get; set; }
     }
+
+    public class PunchDataListViewModel : BaseViewModel
+    {
+        public List<PunchData> Punches { get; set; }
+        
+    }
 }

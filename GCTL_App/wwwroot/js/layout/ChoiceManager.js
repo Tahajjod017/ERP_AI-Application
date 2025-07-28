@@ -12,6 +12,11 @@
 //choiceManager.setChoiceValue('LicenceTypeID', '');
 //choiceManager.getChoiceValue('EmployeePersonalId')
 
+
+//choiceManager.resetChoice('dropdown1', 'dropdown2'); // Method 1: Complete reset (destroys and recreates)
+
+
+
 // Example: Populate multiple dropdowns with auto-detected keys
 const branchDataDummy = [
     { organizationBranchID: 1, organizationBranchName: "Googleplex" },
@@ -77,6 +82,10 @@ class UniversalChoices {
         });
     }
 
+
+    //choiceManager.clearChoice('dropdown1');
+    //choiceManager.clearChoice('dropdown1', 'dropdown2');
+
     clearChoice(...ids) {
         ids.forEach(id => {
             const instance = this.instances[id];
@@ -92,19 +101,9 @@ class UniversalChoices {
         });
     }
 
-    //setChoiceValue(id, value) {
-    //    value = String(value);
-    //    const instance = this.instances[id];
 
-    //    if (instance) {
-    //        instance.setChoiceByValue(value);
-    //        $(`#${id}`).val(value).trigger('change');
-    //        console.debug(`Set value ${value} for ID: ${id}`);
-    //    } else {
-    //        $(`#${id}`).val(value).trigger('change');
-    //        console.warn(`No Choices instance found for ID: ${id} during setChoiceValue`);
-    //    }
-    //}
+    //choiceManager.setChoiceValue('dropdown1', '5');
+    //choiceManager.setChoiceValue('dropdown1', '');
 
 
     setChoiceValue(id, values) {
@@ -132,6 +131,51 @@ class UniversalChoices {
             console.warn(`No Choices instance found for ID: ${id} during setChoiceValue`);
         }
     }
+
+
+    //#region Reset Choice
+
+
+    //choiceManager.resetChoice('dropdown1');
+    //choiceManager.resetChoice('dropdown1', 'dropdown2');
+    
+    resetChoice(...ids) {
+        ids.forEach(id => {
+            const selectElement = document.getElementById(id);
+            if (!selectElement) {
+                console.warn(`No select element found for ID: ${id}`);
+                return;
+            }
+
+            const instance = this.instances[id];
+            if (instance) {
+                // Destroy the current instance
+                instance.destroy();
+                console.debug(`Destroyed Choices instance for ID: ${id}`);
+            }
+
+            // Reset the select element to its original state
+            selectElement.selectedIndex = 0;
+            $(selectElement).val('').trigger('change');
+
+            // Recreate the Choices instance
+            try {
+                const config = { ...this.defaultConfig };
+                this.instances[id] = new Choices(selectElement, config);
+                console.debug(`Recreated Choices instance for ID: ${id}`);
+            } catch (error) {
+                console.error(`Failed to recreate Choices for ID: ${id}`, error);
+            }
+        });
+    }
+
+    
+
+
+    //#endregion
+
+
+    //choiceManager.getChoiceValue('dropdown1')
 
     getChoiceValue(id) {
         const instance = this.instances[id];
@@ -173,7 +217,19 @@ class UniversalChoices {
         return null;
     }
 
-    // Populate one or multiple dropdowns with auto-detected or specified keys
+
+    
+
+ 
+    //const departmentDataDummy = [
+    //    { departmentID: 101, departmentName: "Engineering" },
+    //    { departmentID: 102, departmentName: "Marketing" },
+    //    { departmentID: 103, departmentName: "Sales" }
+    //];
+
+
+    //choiceManager.populateDropdown('dropdown1', departmentDataDummy);
+    
     populateDropdown(dropdownIds, data = [], config = {}) {
         const defaultConfig = {
             placeholder: this.defaultConfig.placeholderValue, // Use class default
@@ -277,6 +333,9 @@ class UniversalChoices {
             console.warn(`No Choices instance found for ID: ${id} during enableChoice`);
         }
     }
+
+
+
 }
 
 class ChoicePopulator {

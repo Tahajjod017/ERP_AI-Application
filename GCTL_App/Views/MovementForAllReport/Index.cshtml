@@ -5,8 +5,453 @@
 }
 @{
     var mainTab = "MovementReport";
-    var subTab = "MovementReportForIndividual";
+    var subTab = "MovementForAllReports";
 }
 
 <partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReportMovement.cshtml" model="subTab" />
+
+<div class="col-sm-12">
+    <div class="card mb-3 border-0">
+        <div class="card-body">
+
+            <!-- Data searching -->
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+
+                <h4 class="mb-1 me-3">Employees Movement</h4>
+                <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Company</option>
+                            <option value="">GCTL</option>
+                            <option value="">CSL Computer</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-multi-select" multiple data-coreui-search="true">
+                            <option value="0">Developer</option>
+                            <option value="1">Manager</option>
+                            <option value="2">Designer</option>
+                            <option value="3">Finance</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                            <optgroup label="Developer">
+                                <option value="2">Alam</option>
+                                <option value="3">Momin</option>
+                            </optgroup>
+                            <optgroup label="Designer">
+                                <option value="4">Name (id)</option>
+                                <option value="5">Name (id)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <input type="text" id="datepicker" class="form-control" placeholder="Select Date">
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <!-- Attendance data view -->
+            <div class="border rounded mb-4">
+                <div class="row gx-0">
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Office Time </span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>500 Hrs</h5>
+                                <span class="badge badge-phoenix badge-phoenix-success">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    92 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Total Brake Time</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>50 Hrs</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    10 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md col-sm-4 border-end">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Total Over Time</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>150</h5>
+                                <span class="badge badge-phoenix badge-phoenix-warning">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    30 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-md col-sm-4">
+                        <div class="p-3">
+                            <span class="fw-medium mb-1 d-block">Productive Time</span>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h5>300 Hrs</h5>
+                                <span class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
+                                    60 %
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!--All Employee movement Table data -->
+            <div class="border-translucent p-3">
+                <div id="all-employee-movement-report" data-list='{"valueNames":["empName","movementStatus","totalOfficeHour","breakHour","overTime","productiveHour"],"page":1,"pagination":true}'>
+
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <table class="table table-sm fs-9 leads-table text-center">
+                            <thead>
+                                <tr>
+
+                                    <th class="ps-4 pe-2 text-uppercase text-nowrap" scope="col" data-sort="empName" style="width: 5%;">Employee Name</th>
+                                    <th class="ps-4 pe-2 text-uppercase text-nowrap" scope="col" data-sort="movementStatus" style="min-width: 40rem;">Movement Status</th>
+                                    <th class="ps-4 pe-2 text-uppercase text-nowrap" scope="col" data-sort="totalOfficeTime" style="width: 5%;">Office Time</th>
+                                    <th class="ps-4 pe-2 text-uppercase text-nowrap" scope="col" data-sort="breakTime" style="width: 5%;">Brake Time</th>
+                                    <th class="ps-4 pe-2 text-uppercase text-nowrap" scope="col" data-sort="overTime" style="width: 5%;">Over Time</th>
+                                    <th class="text-uppercase text-nowrap" scope="col" data-sort="productiveTime" style="width: 5%;">Productivity</th>
+
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="all-employee-movement-report">
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+                                            <div class="ms-1">
+                                                <h6 class="fw-bold">Hasan Ali</h6>
+                                                <span class="fs-12 fw-normal ">Developer</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="movementStatus align-middle white-space-nowrap ps-5 fw-semibold text-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress bg-primary-subtle" style="height: 14px;">
+                                                    <!-- 8.4 min = 1% -->
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 6%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 25%;" data-bs-toggle="tooltip" data-bs-placement="top" title="9:10AM - 12:15PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 3%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:15PM - 12:35PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 23%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:35PM - 02:40PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="02:40PM - 03:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 18%;" data-bs-toggle="tooltip" data-bs-placement="top" title="03:10PM - 05:00PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 8%;" data-bs-toggle="tooltip" data-bs-placement="top" title="05:00PM - 06:00PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 2%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:00PM - 06:10PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 7%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:10PM - 07:00PM"></div>
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="co-md-12">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2">
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                                <span class="fs-10">10:00</span>
+                                                <span class="fs-10">11:00</span>
+                                                <span class="fs-10">12:00</span>
+                                                <span class="fs-10">01:00</span>
+                                                <span class="fs-10">02:00</span>
+                                                <span class="fs-10">03:00</span>
+                                                <span class="fs-10">04:00</span>
+                                                <span class="fs-10">05:00</span>
+                                                <span class="fs-10">06:00</span>
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="totalOfficeTime align-middle white-space-nowrap fw-semibold text-body py-0">09.37 H</td>
+                                    <td class="breakTime align-middle white-space-nowrap fw-semibold text-body py-0">45 Min</td>
+                                    <td class="overTime align-middle white-space-nowrap fw-semibold text-body py-0">55 Min</td>
+                                    <td class="productiveTime align-middle white-space-nowrap fw-semibold text-body py-0">08.17 H</td>
+
+                                </tr>
+
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+                                            <div class="ms-1">
+                                                <h6 class="fw-bold">Aminul Islam</h6>
+                                                <span class="fs-12 fw-normal ">Finance Director</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="movementStatus align-middle white-space-nowrap ps-5 fw-semibold text-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress bg-primary-subtle" style="height: 14px;">
+                                                    <!-- 8.4 min = 1% -->
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 6%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 25%;" data-bs-toggle="tooltip" data-bs-placement="top" title="9:10AM - 12:15PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 3%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:15PM - 12:35PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 23%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:35PM - 02:40PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="02:40PM - 03:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 18%;" data-bs-toggle="tooltip" data-bs-placement="top" title="03:10PM - 05:00PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 8%;" data-bs-toggle="tooltip" data-bs-placement="top" title="05:00PM - 06:00PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 2%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:00PM - 06:10PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 7%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:10PM - 07:00PM"></div>
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="co-md-12">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2">
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                                <span class="fs-10">10:00</span>
+                                                <span class="fs-10">11:00</span>
+                                                <span class="fs-10">12:00</span>
+                                                <span class="fs-10">01:00</span>
+                                                <span class="fs-10">02:00</span>
+                                                <span class="fs-10">03:00</span>
+                                                <span class="fs-10">04:00</span>
+                                                <span class="fs-10">05:00</span>
+                                                <span class="fs-10">06:00</span>
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="totalOfficeTime align-middle white-space-nowrap fw-semibold text-body py-0">09.37 H</td>
+                                    <td class="breakTime align-middle white-space-nowrap fw-semibold text-body py-0">45 Min</td>
+                                    <td class="overTime align-middle white-space-nowrap fw-semibold text-body py-0">55 Min</td>
+                                    <td class="productiveTime align-middle white-space-nowrap fw-semibold text-body py-0">08.17 H</td>
+
+                                </tr>
+
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+                                            <div class="ms-1">
+                                                <h6 class="fw-bold">Abdullah</h6>
+                                                <span class="fs-12 fw-normal ">Sr. Designer</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="movementStatus align-middle white-space-nowrap ps-5 fw-semibold text-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress bg-primary-subtle" style="height: 14px;">
+                                                    <!-- 8.4 min = 1% -->
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 6%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 25%;" data-bs-toggle="tooltip" data-bs-placement="top" title="9:10AM - 12:15PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 3%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:15PM - 12:35PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 23%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:35PM - 02:40PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="02:40PM - 03:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 18%;" data-bs-toggle="tooltip" data-bs-placement="top" title="03:10PM - 05:00PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 8%;" data-bs-toggle="tooltip" data-bs-placement="top" title="05:00PM - 06:00PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 2%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:00PM - 06:10PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 7%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:10PM - 07:00PM"></div>
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="co-md-12">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2">
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                                <span class="fs-10">10:00</span>
+                                                <span class="fs-10">11:00</span>
+                                                <span class="fs-10">12:00</span>
+                                                <span class="fs-10">01:00</span>
+                                                <span class="fs-10">02:00</span>
+                                                <span class="fs-10">03:00</span>
+                                                <span class="fs-10">04:00</span>
+                                                <span class="fs-10">05:00</span>
+                                                <span class="fs-10">06:00</span>
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="totalOfficeTime align-middle white-space-nowrap fw-semibold text-body py-0">09.37 H</td>
+                                    <td class="breakTime align-middle white-space-nowrap fw-semibold text-body py-0">45 Min</td>
+                                    <td class="overTime align-middle white-space-nowrap fw-semibold text-body py-0">55 Min</td>
+                                    <td class="productiveTime align-middle white-space-nowrap fw-semibold text-body py-0">08.17 H</td>
+
+                                </tr>
+
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+                                            <div class="ms-1">
+                                                <h6 class="fw-bold">Sabbir Rahman</h6>
+                                                <span class="fs-12 fw-normal ">Developer</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="movementStatus align-middle white-space-nowrap ps-5 fw-semibold text-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress bg-primary-subtle" style="height: 14px;">
+                                                    <!-- 8.4 min = 1% -->
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 6%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 25%;" data-bs-toggle="tooltip" data-bs-placement="top" title="9:10AM - 12:15PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 3%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:15PM - 12:35PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 23%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:35PM - 02:40PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="02:40PM - 03:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 18%;" data-bs-toggle="tooltip" data-bs-placement="top" title="03:10PM - 05:00PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 8%;" data-bs-toggle="tooltip" data-bs-placement="top" title="05:00PM - 06:00PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 2%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:00PM - 06:10PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 7%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:10PM - 07:00PM"></div>
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="co-md-12">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2">
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                                <span class="fs-10">10:00</span>
+                                                <span class="fs-10">11:00</span>
+                                                <span class="fs-10">12:00</span>
+                                                <span class="fs-10">01:00</span>
+                                                <span class="fs-10">02:00</span>
+                                                <span class="fs-10">03:00</span>
+                                                <span class="fs-10">04:00</span>
+                                                <span class="fs-10">05:00</span>
+                                                <span class="fs-10">06:00</span>
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="totalOfficeTime align-middle white-space-nowrap fw-semibold text-body py-0">09.37 H</td>
+                                    <td class="breakTime align-middle white-space-nowrap fw-semibold text-body py-0">45 Min</td>
+                                    <td class="overTime align-middle white-space-nowrap fw-semibold text-body py-0">55 Min</td>
+                                    <td class="productiveTime align-middle white-space-nowrap fw-semibold text-body py-0">08.17 H</td>
+
+                                </tr>
+
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                        <div class="d-flex align-items-center file-name-icon">
+                                            <div class="ms-1">
+                                                <h6 class="fw-bold">Hatem Ali</h6>
+                                                <span class="fs-12 fw-normal ">Jr. Developer</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="movementStatus align-middle white-space-nowrap ps-5 fw-semibold text-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress bg-primary-subtle" style="height: 14px;">
+                                                    <!-- 8.4 min = 1% -->
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 6%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 25%;" data-bs-toggle="tooltip" data-bs-placement="top" title="9:10AM - 12:15PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 3%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:15PM - 12:35PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 23%;" data-bs-toggle="tooltip" data-bs-placement="top" title="12:35PM - 02:40PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="02:40PM - 03:10PM"></div>
+                                                    <div class="progress-bar bg-success rounded" role="progressbar" style="width: 18%;" data-bs-toggle="tooltip" data-bs-placement="top" title="03:10PM - 05:00PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 8%;" data-bs-toggle="tooltip" data-bs-placement="top" title="05:00PM - 06:00PM"></div>
+                                                    <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 2%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:00PM - 06:10PM"></div>
+                                                    <div class="progress-bar bg-info rounded" role="progressbar" style="width: 7%;" data-bs-toggle="tooltip" data-bs-placement="top" title="06:10PM - 07:00PM"></div>
+                                                    <div class="progress-bar bg-body-quaternary rounded" role="progressbar" style="width: 4%;" data-bs-toggle="tooltip" data-bs-placement="top" title="8:10AM - 9:10PM"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="co-md-12">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2">
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                                <span class="fs-10">10:00</span>
+                                                <span class="fs-10">11:00</span>
+                                                <span class="fs-10">12:00</span>
+                                                <span class="fs-10">01:00</span>
+                                                <span class="fs-10">02:00</span>
+                                                <span class="fs-10">03:00</span>
+                                                <span class="fs-10">04:00</span>
+                                                <span class="fs-10">05:00</span>
+                                                <span class="fs-10">06:00</span>
+                                                <span class="fs-10">07:00</span>
+                                                <span class="fs-10">08:00</span>
+                                                <span class="fs-10">09:00</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="totalOfficeTime align-middle white-space-nowrap fw-semibold text-body py-0">09.37 H</td>
+                                    <td class="breakTime align-middle white-space-nowrap fw-semibold text-body py-0">45 Min</td>
+                                    <td class="overTime align-middle white-space-nowrap fw-semibold text-body py-0">55 Min</td>
+                                    <td class="productiveTime align-middle white-space-nowrap fw-semibold text-body py-0">08.17 H</td>
+
+                                </tr>
+
+
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row align-items-center justify-content-between pe-0 fs-9">
+                        <div class="col-auto d-flex">
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        </div>
+                        <div class="col-auto d-flex">
+                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                            <ul class="mb-0 pagination"></ul>
+                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <!-- Leave Explaination-->
+            <div class="d-flex my-3 flex-wrap border-bottom ">
+                <div class="full-present me-2">
+                    <p class="badge text-bg-success">P</p>
+                    <span>Productive Time</span>
+                </div>
+                <div class="me-2">
+                    <p class="badge text-bg-warning">W</p>
+                    <span>Brake Time</span>
+                </div>
+                <div class="me-2">
+                    <p class="badge text-bg-primary">M</p>
+                    <span>Over Time</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

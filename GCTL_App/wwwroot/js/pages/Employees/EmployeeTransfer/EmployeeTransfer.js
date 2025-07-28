@@ -245,7 +245,7 @@ $(document).ready(function () {
             success: function (data) {
 
                 choiceManager.populateDropdown('EmployeeID', data);
-               
+                choiceManager.populateDropdown('EmployeeIDEdit', data);
                 if (data.length === 1) {
                     var firstData = data[0];
                     choiceManager.setChoiceValue('EmployeeID', firstData.id);
@@ -260,6 +260,34 @@ $(document).ready(function () {
     initializeDatepickerDMY('TransferDate');
 
 
+    let transferType = null;
+
+    // ✅ Initialize transferType on page load
+    $(document).ready(function () {
+        const defaultActiveTabId = $('#myTab .nav-link.active').attr('id');
+        transferType = getTransferTypeFromTabId(defaultActiveTabId);
+    });
+
+    // ✅ Helper function
+    function getTransferTypeFromTabId(tabId) {
+        switch (tabId) {
+            case 'TransferOrgazation-tab':
+                return 'Organization';
+            case 'TransferBranch-tab':
+                return 'Branch';
+            case 'Department-tab':
+                return 'Department';
+            default:
+                return null;
+        }
+    }
+
+    // ✅ Update transferType on tab click
+    $('a[data-bs-toggle="tab"], button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const tabId = $(e.target).attr('id');
+        transferType = getTransferTypeFromTabId(tabId);
+    });
+
     
     //#region Save Data
   $(document).on('click', '#EmpTransferButton', function (e) {
@@ -272,7 +300,12 @@ $(document).ready(function () {
           FromOrganizationBranchID: $('#FromOrganizationBranchID').val(),
           ToOrganizationBranchID: $('#ToOrganizationBranchID').val(),
           TransferDate: $('#TransferDate').val(),
-          TransferNote: $('#TransferNote').val()
+          TransferNote: $('#TransferNote').val(),
+          ToDesignationID: $('#ToDesignationID').val(),
+          FromDesignationID: $('#FromDesignationID').val(),
+          ToDepartmentID: $('#ToDepartmentID').val(),
+          FromDepartmentID: $('#FromDepartmentID').val(),
+          TransferType: transferType
       };
      
       $.ajax({
@@ -283,7 +316,8 @@ $(document).ready(function () {
               if (response.success) {
                   toastr.success(response.message);
                   resetForm();
-                  var applyModalEl = document.getElementById('SaveEmplopyeeTransfer');
+                  GetAllEmpoyee();
+                  var applyModalEl = document.getElementById('apply_leave');
                   var applyModal = bootstrap.Modal.getInstance(applyModalEl);
                   if (!applyModal) {
                       applyModal = new bootstrap.Modal(applyModalEl);
@@ -301,24 +335,105 @@ $(document).ready(function () {
   });
 
     function resetForm() {
-        // Reset all input fields inside the form
-        $('#employeeTransferForm')[0].reset();
-        choiceManager.clearChoice('EmployeeID');
-        choiceManager.clearChoice('FromOrganizationID');
-        choiceManager.clearChoice('ToOrganizationID');
-        choiceManager.clearChoice('FromOrganizationBranchID');
-        choiceManager.clearChoice('ToOrganizationBranchID');
-       // choiceManager.clearChoice('TransferDate');
+        $('#employeeTransferForm,#employeeTransferFormEdit')[0].reset();
+        choiceManager.resetChoice('EmployeeID', 'FromOrganizationID', 'ToOrganizationID', 'FromOrganizationBranchID', 'ToOrganizationBranchID', 'FromDepartmentID', 'FromDesignationID', 'ToDepartmentID', 'ToDesignationID');
+        choiceManager.resetChoice('EmployeeIDEdit', 'FromOrganizationIDEdit', 'ToOrganizationIDEdit', 'FromOrganizationBranchIDEdit', 'ToOrganizationBranchIDEdit', 'FromDepartmentIDEdit', 'FromDesignationIDEdit', 'ToDepartmentIDEdit', 'ToDesignationIDEdit');
+        loadTableData();
     }
 
-
+    $('#EmpTransferButtonReset,#EmpTransferButtonResetEdit').on('click', function () {
+        resetForm();
+    });
     //#endregion
+
+    //#region GetBy EmpoyeeTransfer
+    $(document).on('click', '#EmpTransferButtonEdit', function (e) {
+        e.preventDefault();
+
+        let transferId = $(this).data('id');
+        console.log('GetByID' + transferId);
+        $.ajax({
+            url: '/EmployeeTransferManagement/GetEmployeeTransferByIdAsync', 
+            type: 'GET',
+            data: { employeeTransferID: transferId },
+            success: function (response) {
+                if (!response.success) {
+                    toastr.warning(response.message || 'Record not found.');
+                    return;
+                }
+                debugger
+                const data = response.data;
+                choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
+                choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationIDEdit);
+                choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchIDEdit);
+                choiceManager.setChoiceValue('ToOrganizationIDEdit', data.toOrganizationIDEdit);
+                choiceManager.setChoiceValue('ToOrganizationBranchIDEdit', data.toOrganizationBranchIDEdit);
+                choiceManager.setChoiceValue('FromDepartmentIDEdit', data.fromDepartmentIDEdit);
+                choiceManager.setChoiceValue('ToDepartmentIDEdit', data.toDepartmentIDEdit);
+                choiceManager.setChoiceValue('FromDesignationIDEdit', data.fromDesignationIDEdit);
+                choiceManager.setChoiceValue('ToDesignationIDEdit', data.toDesignationIDEdit);
+                $('#TransferDateEdit').val(data.transferDateEdit);
+                $('#TransferNoteEdit').val(data.transferNoteEdit);
+                $('#EmployeeTransferID').val(data.employeeTransferID);
+                $('#TransferTypeEdit').val(data.transferTypeEdit);
+                initializeDatepickerDMY('TransferDateEdit');
+            },
+            error: function () {
+                toastr.error('Failed to load data.');
+            }
+        });
+    });
+    $(document).on('click', '#EmpTransferButtonUpdateSubmit', function (e) {
+        e.preventDefault();
+        const payload = {
+            EmployeeTransferID: parseInt($('#EmployeeTransferID').val()) || 0, 
+            EmployeeIDEdit: parseInt($('#EmployeeIDEdit').val()) || null,
+            FromOrganizationIDEdit: parseInt($('#FromOrganizationIDEdit').val()) || null,
+            FromOrganizationBranchIDEdit: parseInt($('#FromOrganizationBranchIDEdit').val()) || null,
+            ToOrganizationIDEdit: parseInt($('#ToOrganizationIDEdit').val()) || null,
+            ToOrganizationBranchIDEdit: parseInt($('#ToOrganizationBranchIDEdit').val()) || null,
+            FromDepartmentIDEdit: parseInt($('#FromDepartmentIDEdit').val()) || null,
+            ToDepartmentIDEdit: parseInt($('#ToDepartmentIDEdit').val()) || null,
+            FromDesignationIDEdit: parseInt($('#FromDesignationIDEdit').val()) || null,
+            ToDesignationIDEdit: parseInt($('#ToDesignationIDEdit').val()) || null,
+            TransferDateEdit: $('#TransferDateEdit').val() || null, 
+            TransferNoteEdit: $('#TransferNoteEdit').val() || "",
+            TransferTypeEdit: $('#TransferTypeEdit').val() || ""
+        };
+
+
+        $.ajax({
+            url: '/EmployeeTransferManagement/UpdateEmployeeTransferAsync', 
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function (response)
+            {
+              
+                if (response.success) {
+                    toastr.success(response.message || 'Updated successfully');
+                    resetForm();
+                    var applyModalEl = document.getElementById('edit_leaves');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+                  
+                } else {
+                    toastr.warning(response.message || 'Update failed');
+                }
+            },
+            error: function () {
+               
+                toastr.error('An error occurred while updating.');
+            }
+        });
+    });
+
    
-});
-
-
-
     //#endregion
+
 
     //#region Delete Soft Leave Request
     $(document).on('click', '#leaveRequestDelete-singleDelBtn', function () {
@@ -327,15 +442,17 @@ $(document).ready(function () {
         if (id) {
             showDeleteModal(function () {
                 $.ajax({
-                    url: '/EmployeeTransferManagement/SofteDeleteLeaveRequest',
+                    url: '/EmployeeTransferManagement/SoftDeleteEmpTransfer',
                     method: 'POST',
                     data: { ids: [id] },
                     success: function (response) {
 
-                        if (response.success) {
+                        if (response.success)
+                        {
                             toastr.success(response.message);
                             loadTableData();
-                        } else {
+                        } else
+                        {
                             toastr.error(response.message);
                         }
                     },
@@ -350,6 +467,89 @@ $(document).ready(function () {
     });
     //#endregion
 
+    //region Get EmpOrganizationWithBranch according to employee
+    $(document).on('change', '#EmployeeID,#EmployeeEdit', function (e) {
+        e.preventDefault();
+        var employeeID = $(this).val();
+        if (!employeeID) {
+            // Clear dependent fields
+            choiceManager.setChoiceValue('FromOrganizationID', '');
+            choiceManager.setChoiceValue('FromOrganizationBranchID', '');
+            choiceManager.setChoiceValue('FromOrganizationIDEdit', '');
+            choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', '');
+            choiceManager.setChoiceValue('FromDepartmentID', '');
+            choiceManager.setChoiceValue('FromDesignationID', '');
+           
+                 
+
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeeTransferManagement/GetEmpOrganizationBranchId',
+            type: 'GET',
+            data: { employeeID: employeeID },
+            success: function (response) {
+                if (!response || !response.success || !response.data)
+                {
+                    toastr.warning('Employee data not found.');
+                    return;
+                }
+                const data = response.data;
+                choiceManager.setChoiceValue('FromOrganizationID', data.fromOrganizationID);
+                choiceManager.setChoiceValue('FromOrganizationBranchID', data.fromOrganizationBranchID);
+                choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationID);
+                choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchID);
+                choiceManager.setChoiceValue('FromDepartmentID', data.fromDepartmentID);
+                choiceManager.setChoiceValue('FromDesignationID', data.fromDesignationID);
+                
+            },
+            error: function () {
+                toastr.error('Failed to fetch organization and branch information.');
+            }
+        });
+    });
+
+    //organizationBranch according  Organization
+    $(document).on('change', '#ToOrganizationID,#ToOrganizationIDEdit', function (e) {
+        e.preventDefault();
+
+        var toOrganizationID = $(this).val();
+
+        if (!toOrganizationID) {
+            // Clear the branch selection if organization is deselected
+            choiceManager.setChoiceValue('ToOrganizationBranchID', '');
+            choiceManager.setChoiceValue('ToOrganizationBranchIDEdit', '');
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeeTransferManagement/GetEmpBranchId',
+            type: 'GET',
+            data: { toOrganizationID: toOrganizationID },
+            success: function (response) {
+                if (!response || !response.success || !response.data) {
+                    toastr.warning('Branch data not found.');
+                    choiceManager.setChoiceValue('ToOrganizationBranchID', '');
+                    choiceManager.setChoiceValue('ToOrganizationBranchIDEdit', '');
+                    return;
+                }
+
+                const data = response.data;
+
+                // ✅ Set the Branch dropdown value
+                choiceManager.setChoiceValue('ToOrganizationBranchID', data.id);
+            },
+            error: function () {
+                toastr.error('Failed to fetch branch information.');
+            }
+        });
+    });
+
+    //#endregion
+
+   
+});
 
 
 
@@ -495,8 +695,8 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     } else {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
-                   
 
+                 
                     const avatar = getAvatarHtml(item);
                     tableBody.append(`
                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -520,17 +720,13 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                           </div>
                         </td>
                         
-                        <td class="hdDescription align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                          <div class="d-flex align-items-center">
-                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">${item.leaveType}</p>
-                            <span href="#" class="ms-2" data-bs-toggle="tooltip" data-bs-placement="right"
-                              data-bs-title="I am currently experiencing a fever and design & Development">
-                              <i class="ti ti-info-circle text-info"></i>
-                          </span>
-                          </div>
-                        </td>
+                     
+                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromOrganizationName || ''}</td>
+                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromOrganizationBranchName || ''}</td>
 
-                        <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate}</td>
+                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toOrganizationName || ''}</td>
+                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toOrganizationBranchName || ''}</td>
+                        <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate || ''}</td>
                        
                         
                      <td class="align-middle white-space-nowrap text-end pe-0">
@@ -538,7 +734,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                          <a
                                href="#"
                                title="Edit"
-                               id="LeaveRequestEditButton"
+                               id="EmpTransferButtonEdit"
                                data-id="${item.employeeTransferID}"
                                class="btn btn-outline-light btn-icon me-1" 
                                data-bs-toggle="modal" 
@@ -547,7 +743,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                     </a>
                             <a 
                               href="#" title="Delete"  data-id="${item.employeeTransferID}"
-                              class="btn btn-outline-light btn-icon d-none"  
+                              class="btn btn-outline-light btn-icon"  
                               id="leaveRequestDelete-singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>

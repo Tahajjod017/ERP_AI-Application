@@ -9,16 +9,20 @@ namespace GCTL.Core.ViewModels.Employee.EmpTransfer
     public class EmployeeTransferAddVM:BaseViewModel
     {
         public int? FromOrganizationID { get; set; }
-
         public int? FromOrganizationBranchID { get; set; }
-
         public int? ToOrganizationID { get; set; }
-
         public int? ToOrganizationBranchID { get; set; }
-
         public DateTime? TransferDate { get; set; }
-
         public int ? EmployeeID { get; set; }
         public string? TransferNote { get; set; }
+        public int? FromDepartmentID { get; set; }
+
+        public int? FromDesignationID { get; set; }
+
+        public int? ToDepartmentID { get; set; }
+
+        public int? ToDesignationID { get; set; }
+
+        public string? TransferType { get; set; }
     }
 }

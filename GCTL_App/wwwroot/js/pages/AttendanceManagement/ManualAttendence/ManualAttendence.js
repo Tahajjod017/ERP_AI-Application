@@ -5,7 +5,7 @@
     let pageSize = 10;
     let totalRecords = 0;
 
-    
+    //#region Timeline Related Code
 
     //#region Function to convert time to 24-hour format for sorting (client-side for timeline)
     function convertTo24Hour(timeStr) {
@@ -232,7 +232,30 @@
             data: { employeeId: employeeId, attendanceDate: attendanceDate, punchData: punchData },
             success: function (response) {
                 if (response.success) {
-                    toastr.success("Punch data saved successfully");
+                    toastr.success(response.message || "Punch data saved successfully");
+
+                    var reason = document.getElementById('possibleText').value;
+                   
+                    if (reason == 'Complete Record') {
+                        var applyModalEl = document.getElementById('edit_leaves_horizontal');
+                        var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                        if (!applyModal) {
+                            applyModal = new bootstrap.Modal(applyModalEl);
+                        }
+                        applyModal.hide();
+                    }
+
+
+                    fetchPunchData(employeeId, attendanceDate).then(data => {
+                        
+                        punchData = data.data;
+                        renderHorizontalTimeline(punchData, 'timelineContainer');
+                        initHorizontalScroll('timelineContainer')
+                      
+                    });
+                    
+                   
+                    GetLoadData(currentPage, pageSize);
                 }
                 else {
                     toastr.warning("Punch data saved with warnings: " + response.message);
@@ -248,7 +271,49 @@
 
     //#region Add or delete entry
 
-    
+
+    // Modified addTimeEntry function to prevent duplicate times and fetch possible reason
+    function addTimeEntry(timeValue, employeeId, attendanceDate, timelineType = 'both', inputElement = null) {
+        if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
+            toastr.error('Please enter a valid time');
+            return;
+        }
+
+        // Convert input time to 24-hour format for comparison
+        const newTime24 = convertTo24Hour(timeValue);
+        // Check for duplicate time
+        const isDuplicate = punchData.some(item => convertTo24Hour(item.time) === newTime24);
+        if (isDuplicate) {
+            toastr.warning('This time is already added in the timeline');
+            return;
+        }
+
+        const newEntry = {
+            time: timeValue,
+            label: 'manual entry',
+            icon: 'fas fa-plus',
+            deletable: true
+        };
+
+        punchData.push(newEntry);
+        punchData = sortPunchDataByTime(punchData);
+        const newIndex = punchData.findIndex(item => item === newEntry);
+        const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
+
+        // Update timeline
+        if (timelineType === 'both' || timelineType === 'horizontal') {
+            renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
+            initHorizontalScroll('timelineContainer');
+        }
+        if (timelineType === 'both' || timelineType === 'vertical') {
+            renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
+        }
+
+        // Fetch possible reason from backend
+        fetchPossibleReason(employeeId, attendanceDate, punchData);
+    }
+
+    // Modified deleteTimeEntry function to fetch possible reason
     function deleteTimeEntry(index, employeeId, attendanceDate, timelineType = 'both') {
         const horizontalItems = document.querySelectorAll('.timeline-item-horizontal');
         const verticalItems = document.querySelectorAll('.timeline-item');
@@ -266,7 +331,7 @@
 
         setTimeout(() => {
             punchData.splice(index, 1);
-           // savePunchData(employeeId, attendanceDate, punchData);
+            // Update timeline
             if (timelineType === 'both' || timelineType === 'horizontal') {
                 renderHorizontalTimeline(punchData, 'timelineContainer');
                 initHorizontalScroll('timelineContainer');
@@ -274,38 +339,93 @@
             if (timelineType === 'both' || timelineType === 'vertical') {
                 renderVerticalTimeline(punchData, 'verticalTimelineContainer');
             }
+            // Fetch possible reason from backend
+            fetchPossibleReason(employeeId, attendanceDate, punchData);
         }, 400);
     }
 
-   
-    function addTimeEntry(timeValue, employeeId, attendanceDate, timelineType = 'both', inputElement = null) {
-        if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
-            alert('Please enter a valid time');
-            return;
-        }
-
-        const newEntry = {
-            time: timeValue,
-            label: 'manual entry',
-            icon: 'fas fa-plus',
-            deletable: true
-        };
-
-        punchData.push(newEntry);
-        punchData = sortPunchDataByTime(punchData);
-        const newIndex = punchData.findIndex(item => item === newEntry);
-        const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
-
-        //savePunchData(employeeId, attendanceDate, punchData);
-
-        if (timelineType === 'both' || timelineType === 'horizontal') {
-            renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
-            initHorizontalScroll('timelineContainer');
-        }
-        if (timelineType === 'both' || timelineType === 'vertical') {
-            renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
-        }
+    // New function to fetch possible reason from backend
+    function fetchPossibleReason(employeeId, attendanceDate, punchData) {
+        $.ajax({
+            url: "/ManualAttendence/GetPossibleReason",
+            method: "POST",
+            data: { employeeId: employeeId, attendanceDate: attendanceDate, punchData: punchData },
+            success: function (response) {
+                if (response.success && response.possibleReason) {
+                    const reasonText = response.abnormalType
+                        ? `${response.possibleReason} (${response.abnormalType})`
+                        : response.possibleReason;
+                    document.getElementById('possibleText').value = reasonText;
+                } else {
+                    document.getElementById('possibleText').value = "No issues detected";
+                }
+            },
+            error: function (xhr) {
+                console.error("Failed to fetch possible reason:", xhr.responseText);
+                toastr.error("Failed to fetch possible reason");
+                document.getElementById('possibleText').value = "Error fetching reason";
+            }
+        });
     }
+
+    
+    //function deleteTimeEntry(index, employeeId, attendanceDate, timelineType = 'both') {
+    //    const horizontalItems = document.querySelectorAll('.timeline-item-horizontal');
+    //    const verticalItems = document.querySelectorAll('.timeline-item');
+
+    //    if (timelineType === 'both' || timelineType === 'horizontal') {
+    //        if (horizontalItems[index]) {
+    //            horizontalItems[index].classList.add('fly-out');
+    //        }
+    //    }
+    //    if (timelineType === 'both' || timelineType === 'vertical') {
+    //        if (verticalItems[index]) {
+    //            verticalItems[index].classList.add('fly-out');
+    //        }
+    //    }
+
+    //    setTimeout(() => {
+    //        punchData.splice(index, 1);
+    //       // savePunchData(employeeId, attendanceDate, punchData);
+    //        if (timelineType === 'both' || timelineType === 'horizontal') {
+    //            renderHorizontalTimeline(punchData, 'timelineContainer');
+    //            initHorizontalScroll('timelineContainer');
+    //        }
+    //        if (timelineType === 'both' || timelineType === 'vertical') {
+    //            renderVerticalTimeline(punchData, 'verticalTimelineContainer');
+    //        }
+    //    }, 400);
+    //}
+
+   
+    //function addTimeEntry(timeValue, employeeId, attendanceDate, timelineType = 'both', inputElement = null) {
+    //    if (!timeValue || typeof timeValue !== 'string' || timeValue.trim() === '') {
+    //        alert('Please enter a valid time');
+    //        return;
+    //    }
+
+    //    const newEntry = {
+    //        time: timeValue,
+    //        label: 'manual entry',
+    //        icon: 'fas fa-plus',
+    //        deletable: true
+    //    };
+
+    //    punchData.push(newEntry);
+    //    punchData = sortPunchDataByTime(punchData);
+    //    const newIndex = punchData.findIndex(item => item === newEntry);
+    //    const inputRect = inputElement ? inputElement.getBoundingClientRect() : null;
+
+    //    //savePunchData(employeeId, attendanceDate, punchData);
+
+    //    if (timelineType === 'both' || timelineType === 'horizontal') {
+    //        renderHorizontalTimeline(punchData, 'timelineContainer', newIndex, inputRect);
+    //        initHorizontalScroll('timelineContainer');
+    //    }
+    //    if (timelineType === 'both' || timelineType === 'vertical') {
+    //        renderVerticalTimeline(punchData, 'verticalTimelineContainer', newIndex, inputRect);
+    //    }
+    //}
 
     //#endregion
 
@@ -315,7 +435,8 @@
             const deleteBtn = e.target.closest('.timeline-delete-btn');
             const index = parseInt(deleteBtn.getAttribute('data-index'));
             const type = deleteBtn.getAttribute('data-type');
-            const employeeId = document.getElementById('empName').value;
+           // const employeeId = document.getElementById('empName').value;
+            const employeeId = document.getElementById('empId').value;
             const attendanceDate = document.getElementById('Date').value;
             if (punchData[index] && punchData[index].deletable) {
                 deleteTimeEntry(index, employeeId, attendanceDate, type);
@@ -330,7 +451,8 @@
     document.getElementById('btnAddTime').addEventListener('click', function () {
         const timeInput = document.getElementById('time');
         const timeValue = timeInput.value.trim();
-        const employeeId = document.getElementById('empName').value;
+       // const employeeId = document.getElementById('empName').value;
+        const employeeId = document.getElementById('empId').value;
         const attendanceDate = document.getElementById('Date').value;
         if (timeValue) {
             addTimeEntry(timeValue, employeeId, attendanceDate, 'horizontal', timeInput);
@@ -356,57 +478,104 @@
 
     //#endregion
 
-    //#region Initialize Flatpickr
 
-    $("#Date").flatpickr({
-        defaultDate: new Date(),
-        disableMobile: true
+    //#region Handle form submission for horizontal timeline modal
+
+    $('#edit_leaves_horizontal form').on('submit', function (e) {
+        e.preventDefault();
+        const employeeId = $(this).find('input[name="empId"]').val();
+        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
+        savePunchData(employeeId, attendanceDate, punchData);
+        //$('#edit_leaves_horizontal').modal('hide');
+        GetLoadData(currentPage, pageSize);
     });
 
-    $("#Date2").flatpickr({
-        defaultDate: new Date(),
-        disableMobile: true
-    });
-
-    $(".timepicker-12hr").flatpickr({
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        disableMobile: true,
-        allowInput: true,
-        clickOpens: true,
-        defaultDate: null
+    // Handle form submission for vertical timeline modal
+    $('#edit_leaves_vertical form').on('submit', function (e) {
+        e.preventDefault();
+        const employeeId = $(this).find('input[name="empId"]').val();
+        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
+        savePunchData(employeeId, attendanceDate, punchData);
+        //$('#edit_leaves_vertical').modal('hide');
+        GetLoadData(currentPage, pageSize);
     });
 
     //#endregion
 
+
+    //#region modal off in horizontal timeline
+
+    $('#hoClMo').on('click', function (e) {
+        e.preventDefault(); // prevent Bootstrap auto-dismiss if needed
+
+        //const employeeId = $('input[name="empId"]').val();
+        //const attendanceDate = $('input[name="attendanceDate"]').val();
+
+        const employeeId = $(this).find('input[name="empId"]').val();
+        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
+
+        $.ajax({
+            url: '/ManualAttendence/CheckCancel', // 🔁 Replace with actual URL
+            method: "POST",
+            data: { employeeId: employeeId, attendanceDate: attendanceDate, punchData: punchData },
+            success: function (response) {
+
+                if (response.success) {
+                    // toastr.warning('Modal', 'Are u Sure')
+
+                } else {
+                   // toastr.success('Okay', 'U may Go')
+                }
+
+                
+                
+                GetLoadData(currentPage, pageSize);
+            },
+            error: function (xhr, status, error) {
+                console.error('Cancel action failed:', error);
+                // Optional: show toastr message or retain modal
+            }
+        });
+    });
+
+
+
+    //#endregion
+
+    //#endregion
+
+    //#region Table Related Code
+
     //#region Fetch Table data from controller
+
+
+    
+
     function GetLoadData(page = 1, size = pageSize, filters = {}) {
-        console.log("Sending AJAX request to GetAllAttendance with:", { page, size, filters });
+        const formData = new FormData();
+
+        // Keys must match the C# ViewModel property names exactly (case-insensitive)
+        formData.append("Page", page);
+        formData.append("PageSize", size);
+        formData.append("Department", filters.department || '');
+        formData.append("PossibleReason", filters.possibleReason || '');
+        formData.append("DateRange", filters.dateRange || '');
+        formData.append("Search", filters.search || '');
+        formData.append("Sort", filters.sort || '');
+
+        console.log("Sending FormData:", Object.fromEntries(formData));
 
         $.ajax({
             url: "/ManualAttendance/GetAllAttendance",
             method: "POST",
-            contentType: "application/json; charset=utf-8",
+            processData: false,
+            contentType: false,
             headers: {
                 "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() || ''
             },
-            data: JSON.stringify({
-                page: page,
-                pageSize: size,
-                department: filters.department || '',
-                possibleReason: filters.possibleReason || '',
-                dateRange: filters.dateRange || '',
-                search: filters.search || '',
-                sort: filters.sort || ''
-            }),
-            beforeSend: function (xhr) {
-                console.log("Request headers:", xhr.getAllResponseHeaders());
-                console.log("Request payload:", JSON.stringify({ page, size, ...filters }));
-            },
+            data: formData,
             success: function (response) {
-                console.log("Received response:", response);
+                console.log("Response:", response);
                 attendanceData = response.data || [];
                 totalRecords = response.totalRecords || 0;
                 populateAttendanceTable();
@@ -414,24 +583,20 @@
                 updateSummaryCards(response.summary);
             },
             error: function (xhr, status, error) {
-                console.error("AJAX error details:", {
-                    status: xhr.status,
-                    statusText: xhr.statusText,
-                    responseText: xhr.responseText,
-                    error: error
-                });
+                console.error("AJAX error:", xhr.responseText || error);
                 toastr.error(`Failed to load attendance data: ${xhr.statusText || error}`);
             }
         });
     }
 
+
     //#endregion
 
     function updateSummaryCards(summary) {
-        document.getElementById('inTimeMissing').textContent = summary.inTimeMissing || 0;
-        document.getElementById('bTinOutMissing').textContent = summary.breakTimeMissing || 0;
-        document.getElementById('doubleEntry').textContent = summary.doubleEntry || 0;
-        document.getElementById('holidayEntry').textContent = summary.absent || 0;
+        document.getElementById('inTimeMissing').textContent = summary.InMissing || 0;
+        document.getElementById('bTinOutMissing').textContent = summary.OutMissing || 0;
+        document.getElementById('doubleEntry').textContent = summary.Overtime || 0;
+        document.getElementById('holidayEntry').textContent = summary.Duration || 0;
     }
 
     //#region Get badge
@@ -468,7 +633,7 @@
     function populateAttendanceTable() {
         const tbody = document.getElementById('attendance-body');
         tbody.innerHTML = '';
-
+        
         attendanceData.forEach(item => {
           
             const row = document.createElement('tr');
@@ -510,15 +675,20 @@
             `;
 
             row.querySelector('.edit-attendance').addEventListener('click', function () {
-                debugger
                 fetchPunchData(item.employeeId, item.attendanceDate).then(data => {
                    
+                    debugger
                     punchData = data.data;
                     renderHorizontalTimeline(punchData, 'timelineContainer');
                     initHorizontalScroll('timelineContainer')
                     //renderVerticalTimeline(punchData, 'verticalTimelineContainer');
-                    document.getElementById('empName').value = item.employeeName;
+                    //document.getElementById('empName').value = item.employeeName + ' (' + item.employeeId +')';
+                    //document.getElementById('shiftNameSpan').textContent = data.empData.shiftName;
+                    document.getElementById('shiftName').value = data.empData.shiftTime;
+                    document.getElementById('empName').value = data.empData.name;
+                    document.getElementById('empId').value = data.empData.id;
                     document.getElementById('Date').value = item.attendanceDate;
+                    document.getElementById('possibleText').value = item.possibleReason;
                 });
             });
 
@@ -567,6 +737,9 @@
         const possibleReasonFilter = document.getElementById('possibleReasonFilter');
         const sortFilter = document.getElementById('sortFilter');
         const pageSizeSelect = document.getElementById('pageSizeSelect');
+
+       
+
         const searchInput = document.getElementById('searchInput');
         const dateRangePicker = document.getElementById('dateRangePicker');
 
@@ -591,9 +764,16 @@
     }
 
     function applyFilters() {
-        const departmentValue = document.getElementById('departmentFilter').value;
-        const possibleReasonValue = document.getElementById('possibleReasonFilter').value;
-        const sortValue = document.getElementById('sortFilter').value;
+        
+        const departmentValue = choiceManager.getChoiceValue('departmentFilter');
+        const possibleReasonValue = choiceManager.getChoiceValue('possibleReasonFilter');
+        const sortValue = choiceManager.getChoiceValue('sortFilter');
+       
+
+        //const departmentValue = document.getElementById('departmentFilter').value;
+        //const possibleReasonValue = document.getElementById('possibleReasonFilter').value;
+        //const sortValue = document.getElementById('sortFilter').value;
+
         const searchValue = document.getElementById('searchInput').value.trim();
         const dateRangeValue = document.getElementById('dateRangePicker').value;
 
@@ -607,6 +787,60 @@
 
         GetLoadData(currentPage, pageSize, filters);
     }
+
+    //#endregion
+
+    //#region Checkbox and bulk actions
+
+    // Toggle all row checkboxes when 'checkAll' is clicked
+    $('#checkAll').on('change', function () {
+        const isChecked = this.checked;
+        $('#attendance-body input[type="checkbox"]').each(function () {
+            this.checked = isChecked;
+        });
+    });
+
+
+    //#endregion
+
+    //#region check all button clik
+
+    $('#btnChecked').on('click', function () {
+        const selectedItems = [];
+
+        $('#attendance-body input[type="checkbox"]:checked').each(function () {
+            const row = $(this).closest('tr');
+            const id = row.attr('data-id'); // assuming data-id has a unique identifier
+            if (id) {
+                selectedItems.push(id);
+            }
+        });
+
+        if (selectedItems.length === 0) {
+            toastr.warning("Please select at least one entry.");
+            return;
+        }
+        debugger
+        $.ajax({
+            url: '/ManualAttendance/MarkChecked', 
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            contentType: 'application/json',
+            data: JSON.stringify(selectedItems),
+            success: function (response) {
+                toastr.success("Marked successfully.");
+                applyFilters(); // reload table
+            },
+            error: function (xhr) {
+                toastr.error("Error marking entries.");
+            }
+        });
+    });
+
+
+    //#endregion
 
     //#endregion
 
@@ -628,9 +862,9 @@
             method: "POST",
             data: formData,
             success: function (response) {
-                toastr.success("Attendance saved successfully");
-                $('#apply_leave').modal('hide');
-                GetLoadData(currentPage, pageSize);
+                
+                
+                //GetLoadData(currentPage, pageSize);
             },
             error: function (xhr) {
                 console.error("Failed to save attendance:", xhr.responseText);
@@ -639,27 +873,141 @@
         });
     });
 
-    // Handle form submission for horizontal timeline modal
-    $('#edit_leaves_horizontal form').on('submit', function (e) {
-        e.preventDefault();
-        const employeeId = $(this).find('input[name="employeeName"]').val();
-        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
-        savePunchData(employeeId, attendanceDate, punchData);
-        $('#edit_leaves_horizontal').modal('hide');
-        GetLoadData(currentPage, pageSize);
+    //#endregion
+
+    //#region Manual form
+
+
+    // On employee or date change
+    $('#manualEmployeeID, #manualAttendanceDate').on('change', function () {
+        const employeeId = $('#manualEmployeeID').val();
+        const attendanceDate = $('#manualAttendanceDate').val();
+
+        if (employeeId && attendanceDate) {
+            $.ajax({
+                url: '/ManualAttendence/GetShiftInfo', // change controller name
+                type: 'GET',
+                data: { employeeId: employeeId, attendanceDate: attendanceDate },
+                success: function (response) {
+                   
+                    if (response.success) {
+                        $('#manualAssignShift').val(response.shiftName);
+                        $('#manualAssignShift').data('in', response.inTime);
+                        $('#manualAssignShift').data('out', response.outTime);
+                        $('#manualAssignShift').data('breakTime', response.breakTime);
+                    } else {
+                        $('#manualAssignShift').val('');
+                        $('#manualAssignShift').removeData('in').removeData('out');
+                    }
+                }
+            });
+        }
     });
 
-    // Handle form submission for vertical timeline modal
-    $('#edit_leaves_vertical form').on('submit', function (e) {
-        e.preventDefault();
-        const employeeId = $(this).find('input[name="employeeName"]').val();
-        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
-        savePunchData(employeeId, attendanceDate, punchData);
-        $('#edit_leaves_vertical').modal('hide');
-        GetLoadData(currentPage, pageSize);
+    // On checkbox change
+    $('#manualChkBox').on('change', function () {
+        if (this.checked) {
+            const inTime = $('#manualAssignShift').data('in');
+            const outTime = $('#manualAssignShift').data('out');
+            const breakTime = $('#manualAssignShift').data('breakTime');
+
+            $('#manualActualInTime').val(inTime || '');
+            $('#manualActualOutTime').val(outTime || '');
+            $('#manualBreakInTime').val(breakTime || '');
+        } else {
+            $('#manualActualInTime, #manualActualOutTime').val('');
+        }
     });
+
+    // Submit form
+    $('#manualAtd').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = $(this).serialize();
+        debugger
+        $.ajax({
+            url: '/ManualAttendence/SaveManualAttendance', // change as needed
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                debugger
+                if (response.success) {
+                    toastr.success(response.message)
+                   
+                    var applyModalEl = document.getElementById('apply_leave');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+
+                    clearManualAttendanceFormSeparately()
+
+                } else {
+                    toastr.warning(response.message || 'Error saving attendance.');
+                }
+            }
+        });
+    });
+
+
+    function clearManualAttendanceFormSeparately() {
+        choiceManager.resetChoice('manualEmployeeID');
+       
+        $('#manualAttendanceDate').val(''); // Date reset
+        $('#manualAssignShift').val('');
+        $('#manualChkBox').prop('checked', false); // Checkbox reset
+
+        $('#manualActualInTime').val('');
+        $('#manualActualOutTime').val('');
+        $('#manualBreakInTime').val('');
+    }
+
+
 
     //#endregion
+
+
+    //#region Initialize Flatpickr
+
+    $("#Date").flatpickr({
+        defaultDate: new Date(),
+        disableMobile: true
+    });
+
+    $("#Date2").flatpickr({
+        defaultDate: new Date(),
+        disableMobile: true
+    });
+
+    $(".timepicker-12hr").flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        disableMobile: true,
+        allowInput: true,
+        clickOpens: true,
+        defaultDate: null
+    });
+
+
+
+
+    //$('.datetimepicker').flatpickr({
+    //    enableTime: false,
+    //    dateFormat: "d/m/Y"
+    //});
+
+    //$('.timepicker-12hr').flatpickr({
+    //    enableTime: true,
+    //    noCalendar: true,
+    //    dateFormat: "h:i K",
+    //    time_24hr: true
+    //});
+
+    //#endregion
+
 
     GetLoadData();
     initializeFilters();
