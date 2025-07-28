@@ -351,9 +351,13 @@
     </div>
     <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
         <div class="mb-2">
+
+           
+
             <a href="#" data-bs-toggle="modal" data-bs-target="#apply_leave" class="btn btn-primary d-flex align-items-center">
                 <i class="ti ti-circle-plus me-2"></i>Add Manual Attendance
             </a>
+
         </div>
     </div>
 </div>
@@ -365,7 +369,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">In/Out Time Missing</p>
+                        <p class="mb-1">In Time Missing</p>
                         <h4 id="inTimeMissing">0</h4>
                     </div>
                     <div class="d-flex">
@@ -384,7 +388,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Break Time In/Out Missing</p>
+                        <p class="mb-1">Out Time Missing</p>
                         <h4 id="bTinOutMissing">0</h4>
                     </div>
                     <div class="d-flex">
@@ -403,7 +407,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Double Entry</p>
+                        <p class="mb-1">Overtime</p>
                         <h4 id="doubleEntry">0</h4>
                     </div>
                     <div class="d-flex">
@@ -422,7 +426,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Absent</p>
+                        <p class="mb-1">Duration</p>
                         <h4 id="holidayEntry">0</h4>
                     </div>
                     <div class="d-flex">
@@ -497,6 +501,11 @@
                         <option value="100">100 per page</option>
                     </select>
                 </div>
+                <div class="dropdown me-3">
+                    <button id="btnChecked" class="btn btn-primary d-flex align-items-center">
+                        <i class="ti ti-circle-plus me-2"></i>Mark as Checked
+                    </button>
+                </div>
             </div>
         </div>
         <div class="border-translucent p-3 pt-0">
@@ -507,7 +516,9 @@
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
                                     <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"attendance-body"}' />
+                                        <input class="form-check-input" type="checkbox" id="checkAll" />
+                                        
+
                                     </div>
                                 </th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">Employee</th>
@@ -547,44 +558,51 @@
                 <h4 class="modal-title">Add/Edit Attendance</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form>
+            <form id="manualAtd">
                 <div class="modal-body pb-0">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Employee Name</label>
-                                <input type="text" class="form-control" name="employeeName" disabled>
+                                
+                                <select class="form-select choiceDD" id="manualEmployeeID" name="employeeName" asp-items="@ViewBag.EmployeeDD as SelectList" required>
+
+                                    <option value="">Select Employee</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Date</label>
-                                <input type="text" class="form-control datetimepicker" name="attendanceDate" placeholder="dd/mm/yyyy" disabled>
+                                <input type="text" class="form-control datetimepicker" id="manualAttendanceDate" name="attendanceDate" placeholder="dd/mm/yyyy" >
+                            </div> 
+                            <div class="mb-3">
+                                <label class="form-label">Assign Shift</label>
+                                <input type="text" class="form-control" id="manualAssignShift" name="assignShift"  >
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Add Time As Shift</label>
+                                <input type="checkbox" id="manualChkBox"  name="chkBox"  >
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Actual In Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="actualInTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" id="manualActualInTime" name="actualInTime" type="text" placeholder="hour : minute" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Actual Out Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="actualOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" id="manualActualOutTime" name="actualOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Break In Time</label>
+                                <label class="form-label">Break Time (Add Time)</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="breakInTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" id="manualBreakInTime" name="breakInTime" type="text" placeholder="hour : minute" readonly="readonly" />
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Break Out Time</label>
-                                <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="breakOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -671,6 +689,25 @@
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to Close?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
