@@ -11,6 +11,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.BiDi.Modules.Script;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 {
@@ -47,6 +48,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 });
 
             ViewBag.ViolationTypeList = new SelectList(violationTypeList, "Value", "Text");
+
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new
+            {
+                id = e.EmployeeID,
+                name = e.FirstName + " " + e.LastName
+            }), "id", "name");
 
             return View();
         }
@@ -119,6 +126,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
         private static readonly Dictionary<string, int> _summary = new Dictionary<string, int>
         {
+
             { "inTimeMissing", 29 },
             { "breakTimeMissing", 10 },
             { "doubleEntry", 5 },
@@ -127,11 +135,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
         #endregion
 
-        #region Get Data 
+        #region Get Data table and punch data
 
         [Route("ManualAttendance/GetAllAttendance")]
         [HttpPost]
-       // public async Task<IActionResult> GetAllAttendance(int page, int pageSize, string department, string possibleReason, string dateRange, string search, string sort)
+       
         public async Task<IActionResult> GetAllAttendance(AttendanceFilterViewModel filters)
         {
             int page = filters.Page;
@@ -149,7 +157,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 //var rawData = await _manualAttendenceService.GetAllDataAsync(imgTemFolder);
                 var rawDataList = await _manualAttendenceService.GetAbnormalPunchDataAsync(imgTemFolder);
                 var filteredData = rawDataList.AsQueryable();
+                
 
+
+                var expectedKeys = new List<string> { "Duration", "InMissing", "Overtime", "OutMissing" };
+
+
+                var sunna = await _manualAttendenceService.GetAbnormalTypeCountsAsync(imgTemFolder);
+
+                // Ensure all expected keys are present
+                foreach (var key in expectedKeys)
+                {
+                    if (!sunna.ContainsKey(key))
+                    {
+                        sunna[key] = 0;
+                    }
+                }
 
 
                 // Apply filters
@@ -158,10 +181,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     filteredData = filteredData.Where(a => a.Department == department);
                 }
 
-                //if (!string.IsNullOrEmpty(possibleReason))
-                //{
-                //    filteredData = filteredData.Where(a => a.PossibleReason == possibleReason);
-                //}
+               
 
                 if (!string.IsNullOrEmpty(possibleReason))
                 {
@@ -178,14 +198,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     filteredData = filteredData.Where(a => a.EmployeeName.ToLower().Contains(search.ToLower()));
                 }
 
-                //if (!string.IsNullOrEmpty(dateRange))
-                //{
-                //    var dates = dateRange.Split(" to ");
-                //    if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
-                //    {
-                //        filteredData = filteredData.Where(a => DateTime.Parse(a.AttendanceDate) >= startDate && DateTime.Parse(a.AttendanceDate) <= endDate);
-                //    }
-                //}
+                
 
                 if (!string.IsNullOrEmpty(dateRange) && DateTime.TryParse(dateRange, out var selectedDate))
                 {
@@ -223,13 +236,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     data = filteredData,
                     pagedData = pagedData,
                     totalRecords = totalRecords,
-                    summary = _summary
+                    summary = sunna
                 });
             }
             catch (Exception)
             {
-
-                throw;
+                return Json(new
+                {
+                    success = false
+                });
             }
 
             
@@ -279,6 +294,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                                 }).ToList();
 
             return Json(new { data = punchLogs , empData = empData  });
+        }
+
+        #endregion
+
+        #region Check Cncel
+
+        [HttpPost]
+        public async Task<IActionResult> CheckCancel(string employeeId, string attendanceDate, List<PunchData> punchData)
+        {
+            var deletableItems = punchData.Where(p => p.Deletable).ToList();
+
+            if (deletableItems.Any())
+            {
+                return Json(new { success = true });
+            }
+            return Json(new { success = false });
         }
 
         #endregion
@@ -336,7 +367,10 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     SourceType = "Manual",
                     AttendanceID = attendanceRecord.AttendanceID,
                     CreatedAt = DateTime.Now,
-                    CreatedBy = itemData.CreatedBy
+                    CreatedBy = itemData.CreatedBy,
+                    LIP = itemData.LIP,
+                    LMAC = itemData.LMAC
+                   
                 });
             }
 
@@ -373,40 +407,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         public IActionResult SaveAttendance(string employeeName, string attendanceDate, string actualInTime, string actualOutTime, string breakInTime, string breakOutTime)
         {
 
-
-
-            var record = _attendanceData.FirstOrDefault(a => a.EmployeeName == employeeName && a.AttendanceDate == attendanceDate);
-            if (record != null)
-            {
-                record.ActualInTime = actualInTime;
-                record.ActualOutTime = actualOutTime;
-                record.BreakInTime = breakInTime;
-                record.BreakOutTime = breakOutTime;
-                record.BiometricHits = CalculateBiometricHits(actualInTime, actualOutTime, breakInTime, breakOutTime);
-                record.PossibleReason = CalculatePossibleReason(record.PunchData);
-            }
-            else
-            {
-                var newRecord = new AttendanceRecord
-                {
-                    Id = _attendanceData.Max(a => a.Id) + 1,
-                    EmployeeName = employeeName,
-                    EmployeeRole = "Unknown",
-                    Department = "Unknown",
-                    EmployeeImage = "https://placehold.co/300x200?text=Placeholder",
-                    AttendanceDate = attendanceDate,
-                    ScheduleTime = "09:00 AM - 06:00 PM",
-                    ActualInTime = actualInTime,
-                    ActualOutTime = actualOutTime,
-                    BreakInTime = breakInTime,
-                    BreakOutTime = breakOutTime,
-                    Overtime = "No Overtime",
-                    BiometricHits = CalculateBiometricHits(actualInTime, actualOutTime, breakInTime, breakOutTime),
-                    PossibleReason = CalculatePossibleReason(null),
-                    PunchData = new List<PunchData>()
-                };
-                _attendanceData.Add(newRecord);
-            }
             return Json(new { success = true });
         }
 
@@ -454,6 +454,30 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         #endregion
 
 
+        #region CheckAl 
+
+        [HttpPost]
+        [Route("ManualAttendance/MarkChecked")]
+        public IActionResult MarkSelected([FromBody] List<int> selectedItems)
+        {
+            foreach (var item in selectedItems)
+            {
+                var attendence = _attendanceRepository.All().Where(a => a.AttendanceID == item).FirstOrDefault();
+                if (attendence != null)
+                {
+                    attendence.IsChecked = true; // Assuming IsChecked is a boolean property in Attendance model
+                    _attendanceRepository.UpdateAsync(attendence);
+                }
+
+            }
+
+
+            return Ok(new { success = true });
+        }
+
+
+        #endregion
+
         [Route("ManualAttendence/GetPossibleReason")]
         [HttpPost]
         public async Task<IActionResult> GetPossibleReason(string employeeId, string attendanceDate, List<PunchData> punchData)
@@ -486,98 +510,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 }).ToList();
 
 
-                //var reasons = new List<string>();
-                //string type = "";
-
-
-                //if (record.IsOnFullLeave || record.IsPartialLeave)
-                //{
-                //    int punchCount1 = record.PunchData?.Count(p => !p.NotPunched) ?? 0;
-                //    if (punchCount1 > 0)
-                //    {
-                //        reasons.Add($"Punches recorded during {(record.IsOnFullLeave ? "full" : "partial")} leave");
-                //        type = "LeaveViolation";
-                //    }
-                //}
-
-                //// 2. Punches without Assigned Shift
-                //if (record.ScheduleTime == "N/A" && (record.PunchData?.Count(p => !p.NotPunched) ?? 0) > 0)
-                //{
-                //    reasons.Add("Punch recorded without assigned shift");
-                //    type = type == "" ? "ScheduleViolation" : type;
-                //}
-
-                //int punchCount = record.PunchData?.Count(p => !p.NotPunched) ?? 0;
-
-                //// 3. Odd Punch Count (Detect IN or OUT Missing)
-                //if (punchCount % 2 != 0)
-                //{
-                //    var lastPunch = record.PunchData.LastOrDefault(p => !p.NotPunched);
-                //    bool isLastPunchIn = punchCount % 2 == 1; // Odd count means last punch is IN
-                //    reasons.Add($"Unpaired punch: Last punch is {(isLastPunchIn ? "IN" : "OUT")}");
-                //    type = isLastPunchIn ? "OutMissing" : "InMissing";
-                //}
-
-                //// 4. Late Punch or Early Out
-                //if (punchCount >= 2 && record.ScheduleTime != "N/A")
-                //{
-                //    var validPunches = record.PunchData.Where(p => !p.NotPunched && !string.IsNullOrEmpty(p.Time)).OrderBy(p => DateTime.ParseExact(p.Time, "hh:mm tt", null)).ToList();
-                //    if (validPunches.Any())
-                //    {
-                //        var firstPunchTime = DateTime.ParseExact(validPunches.First().Time, "hh:mm tt", null).TimeOfDay;
-                //        var lastPunchTime = DateTime.ParseExact(validPunches.Last().Time, "hh:mm tt", null).TimeOfDay;
-                //        var scheduleParts = record.ScheduleTime.Split('-');
-                //        if (scheduleParts.Length == 2)
-                //        {
-                //            var shiftStart = TimeSpan.Parse(scheduleParts[0].Trim());
-                //            var shiftEnd = TimeSpan.Parse(scheduleParts[1].Trim());
-
-                //            if (record.GraceTime.HasValue)
-                //            {
-                //                var graceSpan = record.GraceTime.Value.ToTimeSpan();
-                //                if (firstPunchTime > shiftStart + graceSpan)
-                //                {
-                //                    var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
-                //                    reasons.Add($"Late check-in by {lateBy:F0} minutes");
-                //                    type = type == "" ? "Timing" : type;
-                //                }
-                //                if (lastPunchTime < shiftEnd - graceSpan)
-                //                {
-                //                    var earlyBy = (shiftEnd - lastPunchTime).TotalMinutes;
-                //                    reasons.Add($"Early departure by {earlyBy:F0} minutes");
-                //                    type = type == "" ? "Timing" : type;
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
-
-                //// 5. Incomplete Work Hours
-                //if (punchCount >= 2 && punchCount % 2 == 0 && record.MinimumWorkHour.HasValue)
-                //{
-                //    var validPunches = record.PunchData.Where(p => !p.NotPunched && !string.IsNullOrEmpty(p.Time)).OrderBy(p => DateTime.ParseExact(p.Time, "hh:mm tt", null)).ToList();
-                //    if (validPunches.Any())
-                //    {
-                //        var firstPunchTime = DateTime.ParseExact(validPunches.First().Time, "hh:mm tt", null).TimeOfDay;
-                //        var lastPunchTime = DateTime.ParseExact(validPunches.Last().Time, "hh:mm tt", null).TimeOfDay;
-                //        var workDuration = lastPunchTime - firstPunchTime;
-                //        var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
-
-                //        if (workDuration < minWorkSpan)
-                //        {
-                //            reasons.Add($"Work duration too short: {workDuration.TotalHours:F1} hrs vs {minWorkSpan.TotalHours:F1} hrs required");
-                //            type = type == "" ? "Duration" : type;
-                //        }
-                //    }
-                //}
-
-                //// 6. Unauthorized Overtime
-                //if (record.Overtime != "No Overtime" && !record.isOvertimeEligible)
-                //{
-                //    reasons.Add("Unauthorized overtime recorded");
-                //    type = type == "" ? "Overtime" : type;
-                //}
-
+                
 
                 var reasons = new List<string>();
                 string type = "";
@@ -734,6 +667,62 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
             throw new FormatException($"Unrecognized time format: {timeString}");
         }
+
+
+        #region Maula Atend 
+
+        [HttpGet]
+        public IActionResult GetShiftInfo(string employeeId, string attendanceDate)
+        {
+
+            if (!int.TryParse(employeeId, out var empId) || !DateOnly.TryParse(attendanceDate, out var attDate))
+            {
+                return BadRequest(new { message = "Invalid employeeId or attendanceDate" });
+            }
+
+            var shift =  _attendanceRepository.AllActive().Include(o => o.Shift).Include(i => i.Employee)
+                    .Where(x => x.EmployeeID == empId)
+                    .Select(m => new
+                    {
+                        id = m.EmployeeID,
+                        shiftTime = m.Shift.StartTime.Value.ToString("HH:mm") + " - " + m.Shift.EndTime.Value.ToString("HH:mm") + " (" + m.Shift.ShiftName + ")",
+                        shiftInTime = m.Shift.StartTime.Value.ToString("HH:mm") ,
+                        shiftOutTime =  m.Shift.EndTime.Value.ToString("HH:mm") ,
+                        breakTime = m.Shift.MealBreakTime
+                    })
+                    .FirstOrDefault();
+
+            
+          
+
+            if (shift != null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    shiftName = shift.shiftTime,
+                    inTime = shift.shiftInTime,
+                    outTime = shift.shiftOutTime,
+                    breakTime = shift.breakTime
+                });
+            }
+
+            return Json(new { success = false });
+        }
+
+        [HttpPost]
+        public IActionResult SaveManualAttendance(ManualAttendanceViewModel model)
+        {
+            
+
+            var result = _manualAttendenceService.SaveManualAttendance(model).Result;
+            return Ok(result);
+            
+            
+        }
+
+
+        #endregion
 
     }
 }

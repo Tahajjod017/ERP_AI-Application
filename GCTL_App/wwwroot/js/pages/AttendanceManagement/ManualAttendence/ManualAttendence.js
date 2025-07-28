@@ -5,7 +5,7 @@
     let pageSize = 10;
     let totalRecords = 0;
 
-    
+    //#region Timeline Related Code
 
     //#region Function to convert time to 24-hour format for sorting (client-side for timeline)
     function convertTo24Hour(timeStr) {
@@ -235,7 +235,7 @@
                     toastr.success(response.message || "Punch data saved successfully");
 
                     var reason = document.getElementById('possibleText').value;
-                    debugger
+                   
                     if (reason == 'Complete Record') {
                         var applyModalEl = document.getElementById('edit_leaves_horizontal');
                         var applyModal = bootstrap.Modal.getInstance(applyModalEl);
@@ -478,30 +478,73 @@
 
     //#endregion
 
-    //#region Initialize Flatpickr
 
-    $("#Date").flatpickr({
-        defaultDate: new Date(),
-        disableMobile: true
+    //#region Handle form submission for horizontal timeline modal
+
+    $('#edit_leaves_horizontal form').on('submit', function (e) {
+        e.preventDefault();
+        const employeeId = $(this).find('input[name="empId"]').val();
+        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
+        savePunchData(employeeId, attendanceDate, punchData);
+        //$('#edit_leaves_horizontal').modal('hide');
+        GetLoadData(currentPage, pageSize);
     });
 
-    $("#Date2").flatpickr({
-        defaultDate: new Date(),
-        disableMobile: true
-    });
-
-    $(".timepicker-12hr").flatpickr({
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        disableMobile: true,
-        allowInput: true,
-        clickOpens: true,
-        defaultDate: null
+    // Handle form submission for vertical timeline modal
+    $('#edit_leaves_vertical form').on('submit', function (e) {
+        e.preventDefault();
+        const employeeId = $(this).find('input[name="empId"]').val();
+        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
+        savePunchData(employeeId, attendanceDate, punchData);
+        //$('#edit_leaves_vertical').modal('hide');
+        GetLoadData(currentPage, pageSize);
     });
 
     //#endregion
+
+
+    //#region modal off in horizontal timeline
+
+    $('#hoClMo').on('click', function (e) {
+        e.preventDefault(); // prevent Bootstrap auto-dismiss if needed
+
+        //const employeeId = $('input[name="empId"]').val();
+        //const attendanceDate = $('input[name="attendanceDate"]').val();
+
+        const employeeId = $(this).find('input[name="empId"]').val();
+        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
+
+        $.ajax({
+            url: '/ManualAttendence/CheckCancel', // 🔁 Replace with actual URL
+            method: "POST",
+            data: { employeeId: employeeId, attendanceDate: attendanceDate, punchData: punchData },
+            success: function (response) {
+
+                if (response.success) {
+                    // toastr.warning('Modal', 'Are u Sure')
+
+                } else {
+                   // toastr.success('Okay', 'U may Go')
+                }
+
+                
+                
+                GetLoadData(currentPage, pageSize);
+            },
+            error: function (xhr, status, error) {
+                console.error('Cancel action failed:', error);
+                // Optional: show toastr message or retain modal
+            }
+        });
+    });
+
+
+
+    //#endregion
+
+    //#endregion
+
+    //#region Table Related Code
 
     //#region Fetch Table data from controller
 
@@ -550,10 +593,10 @@
     //#endregion
 
     function updateSummaryCards(summary) {
-        document.getElementById('inTimeMissing').textContent = summary.inTimeMissing || 0;
-        document.getElementById('bTinOutMissing').textContent = summary.breakTimeMissing || 0;
-        document.getElementById('doubleEntry').textContent = summary.doubleEntry || 0;
-        document.getElementById('holidayEntry').textContent = summary.absent || 0;
+        document.getElementById('inTimeMissing').textContent = summary.InMissing || 0;
+        document.getElementById('bTinOutMissing').textContent = summary.OutMissing || 0;
+        document.getElementById('doubleEntry').textContent = summary.Overtime || 0;
+        document.getElementById('holidayEntry').textContent = summary.Duration || 0;
     }
 
     //#region Get badge
@@ -747,6 +790,60 @@
 
     //#endregion
 
+    //#region Checkbox and bulk actions
+
+    // Toggle all row checkboxes when 'checkAll' is clicked
+    $('#checkAll').on('change', function () {
+        const isChecked = this.checked;
+        $('#attendance-body input[type="checkbox"]').each(function () {
+            this.checked = isChecked;
+        });
+    });
+
+
+    //#endregion
+
+    //#region check all button clik
+
+    $('#btnChecked').on('click', function () {
+        const selectedItems = [];
+
+        $('#attendance-body input[type="checkbox"]:checked').each(function () {
+            const row = $(this).closest('tr');
+            const id = row.attr('data-id'); // assuming data-id has a unique identifier
+            if (id) {
+                selectedItems.push(id);
+            }
+        });
+
+        if (selectedItems.length === 0) {
+            toastr.warning("Please select at least one entry.");
+            return;
+        }
+        debugger
+        $.ajax({
+            url: '/ManualAttendance/MarkChecked', 
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            contentType: 'application/json',
+            data: JSON.stringify(selectedItems),
+            success: function (response) {
+                toastr.success("Marked successfully.");
+                applyFilters(); // reload table
+            },
+            error: function (xhr) {
+                toastr.error("Error marking entries.");
+            }
+        });
+    });
+
+
+    //#endregion
+
+    //#endregion
+
     //#region Handle form submission for saving attendance data
 
     $('#apply_leave form').on('submit', function (e) {
@@ -766,9 +863,8 @@
             data: formData,
             success: function (response) {
                 
-                toastr.success("Attendance saved successfully");
-                $('#apply_leave').modal('hide');
-                GetLoadData(currentPage, pageSize);
+                
+                //GetLoadData(currentPage, pageSize);
             },
             error: function (xhr) {
                 console.error("Failed to save attendance:", xhr.responseText);
@@ -777,27 +873,141 @@
         });
     });
 
-    // Handle form submission for horizontal timeline modal
-    $('#edit_leaves_horizontal form').on('submit', function (e) {
-        e.preventDefault();
-        const employeeId = $(this).find('input[name="empId"]').val();
-        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
-        savePunchData(employeeId, attendanceDate, punchData);
-        //$('#edit_leaves_horizontal').modal('hide');
-        GetLoadData(currentPage, pageSize);
+    //#endregion
+
+    //#region Manual form
+
+
+    // On employee or date change
+    $('#manualEmployeeID, #manualAttendanceDate').on('change', function () {
+        const employeeId = $('#manualEmployeeID').val();
+        const attendanceDate = $('#manualAttendanceDate').val();
+
+        if (employeeId && attendanceDate) {
+            $.ajax({
+                url: '/ManualAttendence/GetShiftInfo', // change controller name
+                type: 'GET',
+                data: { employeeId: employeeId, attendanceDate: attendanceDate },
+                success: function (response) {
+                   
+                    if (response.success) {
+                        $('#manualAssignShift').val(response.shiftName);
+                        $('#manualAssignShift').data('in', response.inTime);
+                        $('#manualAssignShift').data('out', response.outTime);
+                        $('#manualAssignShift').data('breakTime', response.breakTime);
+                    } else {
+                        $('#manualAssignShift').val('');
+                        $('#manualAssignShift').removeData('in').removeData('out');
+                    }
+                }
+            });
+        }
     });
 
-    // Handle form submission for vertical timeline modal
-    $('#edit_leaves_vertical form').on('submit', function (e) {
-        e.preventDefault();
-        const employeeId = $(this).find('input[name="empId"]').val();
-        const attendanceDate = $(this).find('input[name="attendanceDate"]').val();
-        savePunchData(employeeId, attendanceDate, punchData);
-        //$('#edit_leaves_vertical').modal('hide');
-        GetLoadData(currentPage, pageSize);
+    // On checkbox change
+    $('#manualChkBox').on('change', function () {
+        if (this.checked) {
+            const inTime = $('#manualAssignShift').data('in');
+            const outTime = $('#manualAssignShift').data('out');
+            const breakTime = $('#manualAssignShift').data('breakTime');
+
+            $('#manualActualInTime').val(inTime || '');
+            $('#manualActualOutTime').val(outTime || '');
+            $('#manualBreakInTime').val(breakTime || '');
+        } else {
+            $('#manualActualInTime, #manualActualOutTime').val('');
+        }
     });
+
+    // Submit form
+    $('#manualAtd').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = $(this).serialize();
+        debugger
+        $.ajax({
+            url: '/ManualAttendence/SaveManualAttendance', // change as needed
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                debugger
+                if (response.success) {
+                    toastr.success(response.message)
+                   
+                    var applyModalEl = document.getElementById('apply_leave');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+
+                    clearManualAttendanceFormSeparately()
+
+                } else {
+                    toastr.warning(response.message || 'Error saving attendance.');
+                }
+            }
+        });
+    });
+
+
+    function clearManualAttendanceFormSeparately() {
+        choiceManager.resetChoice('manualEmployeeID');
+       
+        $('#manualAttendanceDate').val(''); // Date reset
+        $('#manualAssignShift').val('');
+        $('#manualChkBox').prop('checked', false); // Checkbox reset
+
+        $('#manualActualInTime').val('');
+        $('#manualActualOutTime').val('');
+        $('#manualBreakInTime').val('');
+    }
+
+
 
     //#endregion
+
+
+    //#region Initialize Flatpickr
+
+    $("#Date").flatpickr({
+        defaultDate: new Date(),
+        disableMobile: true
+    });
+
+    $("#Date2").flatpickr({
+        defaultDate: new Date(),
+        disableMobile: true
+    });
+
+    $(".timepicker-12hr").flatpickr({
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        disableMobile: true,
+        allowInput: true,
+        clickOpens: true,
+        defaultDate: null
+    });
+
+
+
+
+    //$('.datetimepicker').flatpickr({
+    //    enableTime: false,
+    //    dateFormat: "d/m/Y"
+    //});
+
+    //$('.timepicker-12hr').flatpickr({
+    //    enableTime: true,
+    //    noCalendar: true,
+    //    dateFormat: "h:i K",
+    //    time_24hr: true
+    //});
+
+    //#endregion
+
 
     GetLoadData();
     initializeFilters();
