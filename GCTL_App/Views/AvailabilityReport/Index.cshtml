@@ -1,40 +1,303 @@
-﻿<div class="row">
-    <div class="row align-items-center justify-content-between g-3 mb-4">
-        <div class="col-12 col-md-auto">
-            <ul class="nav nav-underline fs-9" id="adminAttendanceReport" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="shift-tab" href="/DailyReport/Index" role="tab" aria-controls="tab-home" aria-selected="true">
-                        <span class="fa-solid far fa-address-card me-2 tab-icon-color"></span>Daily Report
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/MonthlyReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Monthly Report
-                    </a>
-                </li>
+﻿@{
+    var mainTab = "AvailabilityReport";
+  
+}
 
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/YearlyReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Yearly Report
-                    </a>
-                </li>
+<partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
+<div class="mb-9">
 
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/MovementReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Movement Report
-                    </a>
-                </li>
+    <div class="container bg-body-emphasis py-3">
 
-                <li class="nav-item">
-                    <a class="nav-link" id="roster-tab" href="/AvailabilityReport/Index" role="tab" aria-controls="tab-profile" aria-selected="false">
-                        <span class="fa-solid far fa-calendar-alt me-2 tab-icon-color"></span>Availability Report
-                    </a>
-                </li>
 
-            </ul>
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 my-4">
 
-            <div class="tab-content mt-3" id="adminAttendanceReportContent">
+            <h4 class="mb-1 me-3">Employees Availability</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="organizerSingle1" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Company Name</option>
+                        <option>CSL Computer</option>
+                        <option>GCTL</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-multi-select" multiple data-coreui-search="true">
+                        <option value="0">Developer</option>
+                        <option value="1">Manager</option>
+                        <option value="2">Designer</option>
+                        <option value="3">Finance</option>
+                    </select>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                        <optgroup label="Developer">
+                            <option value="2">Alam</option>
+                            <option value="3">Momin</option>
+                        </optgroup>
+                        <optgroup label="Designer">
+                            <option value="4">Name (id)</option>
+                            <option value="5">Name (id)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-phoenix-secondary rounded-3 me-1 mb-1" type="button">
+                        <span class="fas fa-print me-2" data-fa-transform="shrink-3"></span>Print
+                    </button>
+                    <button class="btn btn-phoenix-secondary rounded-3 me-1 mb-1" type="button">
+                        <span class="fas fa-download me-2" data-fa-transform="shrink-3"></span>Report
+                    </button>
+
+                </div>
+
+
+
             </div>
         </div>
+
+        <div class="d-flex justify-content-center my-4 px-2">
+
+            <div class="dropdown">
+                <button class="btn" type="button">
+                    <span class="fas fa-angle-left fs-9"></span>
+                </button>
+                <a class="text-body-secondary dropdown-toggle text-decoration-none dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
+                    Mon, 23 Dec - Sun, 29 Dec <span class="fas fa-angle-down fs-9">
+                </a>
+                <div class="dropdown-menu shadow-sm" style="min-width:25rem">
+                    <div class="card position-relative border-0">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-5 border-right">
+
+                                    <div class="list-group">
+                                        <a class="list-group-item list-group-item-action" href="#!">Next 03 Days</a>
+                                        <a class="list-group-item list-group-item-action" href="#!">Next 07 Days</a>
+                                        <a class="list-group-item list-group-item-action" href="#!">Next 10 Days</a>
+                                        <a class="list-group-item list-group-item-action" href="#!">Next 15 Days</a>
+                                        <a class="list-group-item list-group-item-action" href="#!">Next 30 Days</a>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-7 border-start">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form">From</label>
+                                            <div class="input-icon-end position-relative">
+                                                <input type="text" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form">To</label>
+                                            <div class="input-icon-end position-relative">
+                                                <input type="text" class="form-control datetimepicker" placeholder="dd/mm/yyyy">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-phoenix-info me-1 mb-1" type="button">Apply</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" type="button">
+                    <span class="fas fa-angle-right fs-9"></span>
+                </button>
+            </div>
+
+        </div>
+
+
+        <!-- All Employee availability Report -->
+        <div class="border-translucent p-3">
+            <div class="px-2" id="employeeAvailabilityList" data-list='{"valueNames":["rosterName","rosterType","timeDetails"],"page":10,"pagination":true}'>
+
+                <div class="table-responsive scrollbar mx-n1 px-1">
+
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr style="text-align: center;">
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Employee Name</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">29 Mon</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">30 Tue</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">01 Wed</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">02 Thu</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">03 Fri</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">04 Sat</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">05 Sun</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="all-employee-availability-table">
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="avatar avatar-m avatar-bordered me-2">
+                                            <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                        </div>
+                                        <div class="ms-1">
+                                            <h6 class="fw-bold">Faruk Hasan</h6>
+                                            <span class="fs-12 fw-normal ">Sr. Developer</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px; ">Casual Leave</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        07:00 AM - 03:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px;">Holyday</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        11:00 AM - 07:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px;">Day off</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        09:00 AM - 05:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        09:00 AM - 05:00 PM
+                                    </span>
+                                </td>
+
+                            </tr>
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="avatar avatar-m avatar-bordered me-2">
+                                            <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                        </div>
+                                        <div class="ms-1">
+                                            <h6 class="fw-bold">Anarul Islam</h6>
+                                            <span class="fs-12 fw-normal ">Admin</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px; ">Casual Leave</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        07:00 AM - 03:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px;">Holyday</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        07:00 AM - 03:00 PM
+                                    </span>
+                                </td>
+
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        03:00 PM - 10:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        03:00 PM - 10:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px;">Day off</span>
+                                </td>
+
+                            </tr>
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="avatar avatar-m avatar-bordered me-2">
+                                            <img class="rounded-circle " src="../../assets/img/users/user-01.jpg" alt="" />
+                                        </div>
+                                        <div class="ms-1">
+                                            <h6 class="fw-bold">Kamal Uddin</h6>
+                                            <span class="fs-12 fw-normal ">Marketing officer</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        08:00 AM - 04:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        08:00 AM - 04:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px;">Holyday</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        11:00 AM - 07:00 PM
+                                    </span>
+                                </td>
+
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        09:00 AM - 05:00 PM
+                                    </span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-warning p-2" style="width: 112px;">Day off</span>
+                                </td>
+                                <td class="startTime py-2">
+                                    <span class="badge badge-phoenix badge-phoenix-primary py-2">
+                                        10:00 AM - 06:00 PM
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9 px-2">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+
     </div>
+
 </div>

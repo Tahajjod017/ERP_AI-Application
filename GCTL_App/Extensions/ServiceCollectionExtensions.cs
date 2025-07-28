@@ -79,7 +79,9 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.Employees.EmpTransfer;
+using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Service.AllNotifications;
+
 
 #endregion
 
@@ -171,6 +173,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IProbationSettingService, ProbationSettingService>();
             services.AddScoped<IEmployeeAttendanceReport, EmployeeAttendanceService>();
             services.AddScoped<IDailyReportService, DailyReportService>();
+            services.AddTransient<HolidayHelper>();
+            services.AddTransient<WeekendHelper>();
             #endregion
 
 
