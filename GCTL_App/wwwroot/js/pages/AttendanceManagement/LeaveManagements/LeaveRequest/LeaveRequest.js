@@ -1151,7 +1151,7 @@ let currentSortOrder = '';
 
 $('th.sort').on('click', function () {
     const column = $(this).data('sort');
-
+    debugger
     if (currentSortColumn === column) {
         currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
     } else {

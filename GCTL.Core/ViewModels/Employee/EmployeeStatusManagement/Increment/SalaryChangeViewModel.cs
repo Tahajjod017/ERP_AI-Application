@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment
 {
-    public class SalaryChangeViewModel
+    public class SalaryChangeViewModel : BaseViewModel
     {
         public int EmployeeId { get; set; }
         public int OrganizationId { get; set; }
