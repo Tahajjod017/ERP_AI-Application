@@ -131,6 +131,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmployeeActionTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[EmployeeAdditionalInfo]",
          "ObjectType": 0
       },
@@ -144,6 +148,14 @@
       },
       {
          "Name": "[dbo].[EmployeeBasePaymentModes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeCareerChangeHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeCareerChanges]",
          "ObjectType": 0
       },
       {
@@ -208,6 +220,10 @@
       },
       {
          "Name": "[dbo].[LanguageInd_hi]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LanguageInd_zh]",
          "ObjectType": 0
       },
       {
@@ -396,6 +412,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -403,6 +420,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -414,5 +432,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }
