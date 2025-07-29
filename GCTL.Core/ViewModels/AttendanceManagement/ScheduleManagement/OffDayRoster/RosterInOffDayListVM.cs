@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster
 {
-    public class RosterInOffDaySetupVM : BaseViewModel
+    public class RosterInOffDayListVM : BaseViewModel
     {
         public int RosterInOffDayID { get; set; }
 
-        [Required(ErrorMessage = "Organization is required!")]
         public int? OrganizationID { get; set; }
         public string? OrganizationName { get; set; }
 
@@ -27,14 +26,21 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRos
         public List<int>? EmployeeIDs { get; set; }
         public string? EmployeeName { get; set; }
 
-        [Required(ErrorMessage = "Shift is required!")]
         public int? ShiftID { get; set; }
         public string? ShiftName { get; set; }
 
-        [Required(ErrorMessage = "Date is required!")]
-        public List<DateTime>? DayDate { get; set; }
+        public DateTime? DayDate { get; set; }
 
-        [Required(ErrorMessage = "Compensation Type is required!")]
         public int? CompensationTypeID { get; set; }
+
+        public string? TimeRange { get; set; }
+
+        public Dictionary<DateTime, ShiftVM> ShiftsPerDay { get; set; } = new();
+    }
+
+    public class ShiftVM
+    {
+        public string ShiftName { get; set; }
+        public string TimeRange { get; set; } 
     }
 }
