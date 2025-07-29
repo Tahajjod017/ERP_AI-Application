@@ -11,8 +11,6 @@ public partial class Alerts
 
     public string AlertNote { get; set; }
 
-    public bool? IsChecked { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }

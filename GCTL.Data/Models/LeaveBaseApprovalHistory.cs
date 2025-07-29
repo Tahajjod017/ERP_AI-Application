@@ -45,8 +45,6 @@ public partial class LeaveBaseApprovalHistory
 
     public int? LeaveTypeID { get; set; }
 
-    public int? EmployeeTransferID { get; set; }
-
     public virtual Employees ApproveByNavigation { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

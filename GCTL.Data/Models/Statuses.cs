@@ -35,6 +35,10 @@ public partial class Statuses
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmployeeCareerChangeHistory> EmployeeCareerChangeHistory { get; set; } = new List<EmployeeCareerChangeHistory>();
+
+    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransfer { get; set; } = new List<EmployeeTransfer>();
