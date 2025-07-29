@@ -33,7 +33,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
         public IActionResult Index()
         {
-            SetSmartPageCode(113000);
+            SetSmartPageCode(111400);
 
             var violationTypeList = Enum.GetValues(typeof(ViolationType))
                 .Cast<ViolationType>()

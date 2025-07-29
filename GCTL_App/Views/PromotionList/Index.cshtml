@@ -1,0 +1,252 @@
+﻿<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="my-auto mb-2">
+        <h2 class="mb-1">Employee Promotion</h2>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="#"><i class="ti ti-smart-home"></i></a>
+                </li>
+                <li class="breadcrumb-item">Employee</li>
+                <li class="breadcrumb-item active" aria-current="page">Promotion</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+        <div class="mb-2">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#add_promotion" class="btn btn-primary d-flex align-items-center">
+                <i class="ti ti-circle-plus me-2"></i>Add Promotion
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row my-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-black-le">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-start">
+                        <p class="mb-1">Pending Promotions</p>
+                        <h4 id="pendingPromotions">0</h4>
+                    </div>
+                    <div class="d-flex">
+                        <div class="flex-shrink-0 me-2">
+                            <span class="avatar avatar-md d-flex">
+                                <i class="ti ti-clock fs-5 text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-purple-le">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-start">
+                        <p class="mb-1">Approved Promotions</p>
+                        <h4 id="approvedPromotions">0</h4>
+                    </div>
+                    <div class="d-flex">
+                        <div class="flex-shrink-0 me-2">
+                            <span class="avatar avatar-md d-flex">
+                                <i class="ti ti-check fs-5 text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-pink-le">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-start">
+                        <p class="mb-1">This Month</p>
+                        <h4 id="thisMonthPromotions">0</h4>
+                    </div>
+                    <div class="d-flex">
+                        <div class="flex-shrink-0 me-2">
+                            <span class="avatar avatar-md d-flex">
+                                <i class="ti ti-calendar-month fs-5 text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-blue-le">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-start">
+                        <p class="mb-1">Total Promotions</p>
+                        <h4 id="totalPromotions">0</h4>
+                    </div>
+                    <div class="d-flex">
+                        <div class="flex-shrink-0 me-2">
+                            <span class="avatar avatar-md d-flex">
+                                <i class="ti ti-trending-up fs-5 text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">Employee Promotion List</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="me-3">
+                    <input class="form-control" id="searchInput" type="text" placeholder="Search by Employee Name">
+                </div>
+                <div class="me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y ">
+                    </div>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select" id="departmentFilter" data-choices="data-choices" size="1" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">Select Department</option>
+                        <option>IT</option>
+                        <option>HR</option>
+                        <option>Finance</option>
+                        <option>Marketing</option>
+                        <option>Operations</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="promotionStatusFilter" asp-items="@ViewBag.PromotionStatusList as SelectList">
+                        <option value="">@Html.SmartLocalize("Select Status")</option>
+                    </select>
+                </div>
+
+                <div class="dropdown me-3">
+
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="">Showing</span>
+                        </div>
+                        <select class="form-select" id="pageSizeSelect" data-choices="data-choices" size="1" name="pageSizeSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+        <div class="border-translucent p-3 pt-0">
+            <div id="promotionListTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" id="checkAll" />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">Employee</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department">Department</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentPosition">Current Position</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="promotedPosition">Promoted Position</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="salaryIncrease">Salary Increase</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="promotion-body">
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Promotion Modal -->
+<div class="modal fade" id="add_promotion">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add/Edit Promotion</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="promotionForm">
+                <div class="modal-body pb-0">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Employee Name</label>
+                                <select class="form-select choiceDD" id="promotionEmployeeID" name="employeeName" asp-items="@ViewBag.EmployeeDD as SelectList" required>
+                                    <option value="">Select Employee</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current Position</label>
+                                <input type="text" class="form-control" id="currentPosition" name="currentPosition" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Promoted Position</label>
+                                <select class="form-select choiceDD" id="promotedPosition" name="promotedPosition" asp-items="@ViewBag.PositionDD as SelectList" required>
+                                    <option value="">Select Position</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Department</label>
+                                <select class="form-select choiceDD" id="promotionDepartment" name="department" asp-items="@ViewBag.DepartmentDD as SelectList" required>
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Effective Date</label>
+                                <input type="text" class="form-control datetimepicker" id="effectiveDate" name="effectiveDate" placeholder="dd/mm/yyyy">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current Salary</label>
+                                <input type="number" class="form-control" id="currentSalary" name="currentSalary" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Salary</label>
+                                <input type="number" class="form-control" id="newSalary" name="newSalary" placeholder="Enter new salary">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Remarks</label>
+                                <textarea class="form-control" id="promotionRemarks" name="remarks" rows="3" placeholder="Enter promotion remarks"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
