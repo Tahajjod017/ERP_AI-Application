@@ -63,7 +63,8 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 var query = repositoryEmployeeTransfer.AllActive() .Include(x => x.Employee)
              .Include(x => x.FromOrganization).Include(x => x.ToOrganization)
-             .Include(x => x.FromOrganizationBranch).Include(x => x.ToOrganizationBranch)
+             .Include(x => x.FromOrganizationBranch).Include(x => x.ToOrganizationBranch).Include(x=>x.FromDepartment)
+             .Include(x=>x.ToDepartment).Include(x=>x.FromDesignation).Include(x => x.ToDesignation)
              .OrderByDescending(x => x.EmployeeTransferID).AsQueryable();
                 if (query == null)
                 {
@@ -152,6 +153,7 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 var result = await PaginationService<EmployeeTransfer, EmployeeTransferTableListVM>.GetPaginatedData(
 
+       
 
                     query,
                     pageNumber,
@@ -175,6 +177,9 @@ namespace GCTL.Service.Employees.EmpTransfer
                        ToOrganizationName = b.ToOrganization?.OrganizationName ?? "",
                        FromOrganizationBranchName = b.FromOrganizationBranch?.OrganizationBranchName ?? "",
                        ToOrganizationBranchName = b.ToOrganizationBranch?.OrganizationBranchName ?? "",
+                       FromDepartmentName = b.FromDepartment.DepartmentName,
+                       ToDepartmentName = b.ToDepartment.DepartmentName,
+                       FromDesignationName=b.FromDepartment.DepartmentName, 
                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName ?? ""} {b.Employee.LastName ?? ""}".Trim(): "",
                        EmployeeImage = b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)? url + b.Employee.EmployeeImageFileName : "",
                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),

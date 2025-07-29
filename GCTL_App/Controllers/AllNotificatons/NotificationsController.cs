@@ -1,4 +1,5 @@
-﻿using GCTL.Service.AllNotifications;
+﻿using GCTL.Core.ViewModels.AllNotificastios;
+using GCTL.Service.AllNotifications;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -38,6 +39,16 @@ namespace GCTL_App.Controllers.AllNotificatons
                 Console.WriteLine(ex.Message);
                 return BadRequest(ex.Message);
             }
+        }
+        #endregion
+
+        #region Ichecked Updated
+        [Route("Notifications/IsCheckedUpdated")]
+        [HttpPost]  
+        public async Task<IActionResult> IsCheckedUpdated(IsCheckedVM isCheckedVM)
+        {
+            var data=await notificationsService.IsCheckedAsync(isCheckedVM);
+            return Json(data);
         }
         #endregion
     }

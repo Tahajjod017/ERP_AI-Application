@@ -162,25 +162,25 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     : query.OrderBy(orderByExpression);
 
                 //
-                var data = await query.ToListAsync(); // Load all into memory
+                //var data = await query.ToListAsync(); // Load all into memory
 
                 // Apply Period calculation manually for sorting
-                if (currentSortColumn?.ToLower() == "period")
-                {
-                    data = currentSortOrder == "desc"
-                        ? data.OrderByDescending(b =>
-                            b.IsFullDay
-                                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
-                                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
-                                    : 0).ToList()
-                        : data.OrderBy(b =>
-                            b.IsFullDay
-                                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
-                                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
-                                    : 0).ToList();
-                }
+                //if (currentSortColumn?.ToLower() == "period")
+                //{
+                //    data = currentSortOrder == "desc"
+                //        ? data.OrderByDescending(b =>
+                //            b.IsFullDay
+                //                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
+                //                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
+                //                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
+                //                    : 0).ToList()
+                //        : data.OrderBy(b =>
+                //            b.IsFullDay
+                //                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
+                //                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
+                //                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
+                //                    : 0).ToList();
+                //}
 
                 // For approver Step
                 var approvalStepsMap = await leaveBaseApprovalHistory.AllActive().GroupBy(x => x.LeaveApplicationID).ToDictionaryAsync(g => g.Key, g => g.Select(x => x.ApprovalStep ?? 0).ToList());

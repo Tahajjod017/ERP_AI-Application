@@ -393,6 +393,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
+
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
+
           .HasDiscriminator<string>("Discriminator")
           .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
@@ -406,6 +410,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(o => o.AspNetUsers)
                 .HasForeignKey(u => u.OrganizationID)
                 .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
+
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.TenantInfo)
                 .WithMany(t => t.AspNetUsers)

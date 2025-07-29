@@ -1,5 +1,4 @@
 ﻿
-
 <style>
     input[readonly] {
         background-color: #f4f6f9;
@@ -8,216 +7,90 @@
         color: #6c757d;
     }
 </style>
-
-@* <form method="post" id="employeeTransferForm">
+<form method="post" id="employeeTransferForm">
     <div class="modal-body pb-0">
-        <div class="row">
+        <div class="tab-content mt-1" id="myTabContent">
+            <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+            </div>
+            <div class="tab-pane fade" id="tab2" role="tabpanel">
+            </div>
+            <div class="tab-pane fade" id="tab3" role="tabpanel">
+            </div>
+        </div>
+        <input type="hidden" id="TransferType" />
+
+        <div class="row" id="TransferFormFields">
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label req" for="organizerSingle">Name</label>
                     <select class="form-select choiceDD" id="EmployeeID" required>
                         <option value="">Select Employee</option>
                     </select>
-                  
+
                 </div>
             </div>
-
-       
-
-            <div class="tab-content mt-1" id="myTabContent0">
-                <div class="tab-pane fade show active" id="tab-TransferOrgazation" role="tabpanel" aria-labelledby="TransferOrgazation-tab">
-
-                   
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Organization</label>
-                                <select class="form-select choiceDD" id="FromOrganizationID" required asp-items="@ViewBag.OrganizationDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6" >
-                            <div class="mb-3">
-                                <label class="form-label req">To Organization</label>
-                                <select class="form-select choiceDD" id="ToOrganizationID" required asp-items="@ViewBag.OrganizationDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Organization Branch</label>
-                                <select class="form-select choiceDD" id="FromOrganizationBranchID" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
-                                    <option value="">Select Organization Branch</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Branch</label>
-                                <select class="form-select choiceDD" id="ToOrganizationBranchID" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
-                                    <option value="">Select To Branch</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Department</label>
-                                <select class="form-select choiceDD" id="FromDepartmentID" required asp-items="@ViewBag.DepartmentDD as SelectList">
-                                    <option value="">Select From Department</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Department</label>
-                                <select class="form-select choiceDD" id="ToDepartmentID" required asp-items="@ViewBag.DepartmentDD as SelectList">
-                                    <option value="">Select To  Department</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Designation</label>
-                                <select class="form-select choiceDD" id="FromDesignationID" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="">Select From Deignation</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Designation</label>
-                                <select class="form-select choiceDD" id="ToDesignationID" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="">Select To Designation</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="tab-TransferBranch" role="tabpanel" aria-labelledby="TransferBranch-tab">
-
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Organization Branch</label>
-                                <select class="form-select choiceDD" id="FromOrganizationBranchID" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Branch</label>
-                                <select class="form-select choiceDD" id="ToOrganizationBranchID" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Designation</label>
-                                <select class="form-select choiceDD" id="FroDesignationD" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Designation</label>
-                                <select class="form-select choiceDD" id="ToDesignationID" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Department</label>
-                                <select class="form-select choiceDD" id="FromDepartmentID" required asp-items="@ViewBag.DepartmentDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Department</label>
-                                <select class="form-select choiceDD" id="ToDepartmentID" required asp-items="@ViewBag.DepartmentDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="tab-pane fade" id="tab-Department" role="tabpanel" aria-labelledby="Department-tab">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Designation</label>
-                                <select class="form-select choiceDD" id="FromOrganizationBranchID" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Deignation</label>
-                                <select class="form-select choiceDD" id="ToOrganizationBranchID" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">From Department</label>
-                                <select class="form-select choiceDD" id="FromOrganizationBranchID" required asp-items="@ViewBag.DepartmentDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label req">To Department</label>
-                                <select class="form-select choiceDD" id="ToOrganizationBranchID" required asp-items="@ViewBag.DepartmentDD as SelectList">
-                                    <option value="">Select Organization</option>
-                                </select>
-
-                            </div>
-                        </div>
-                        
-                       
-                    </div>
-
-                </div>
-
+            <!-- Organization Fields -->
+            <div class="col-md-6 mb-3 field-group" data-section="org">
+                <label class="form-label req">From Organization</label>
+                <select class="form-select choiceDD" id="FromOrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
+                    <option value="">Select Organization</option>
+                </select>
             </div>
-           
-            <!-- Divs to Show/Hide -->
+            <div class="col-md-6 mb-3 field-group" data-section="org">
+                <label class="form-label req">To Organization</label>
+                <select class="form-select choiceDD" id="ToOrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                    <option value="">Select Organization</option>
+                </select>
+            </div>
+
+            <!-- Branch Fields -->
+            <div class="col-md-6 mb-3 field-group" data-section="branch org">
+                <label class="form-label req">From Organization Branch</label>
+                <select class="form-select choiceDD" id="FromOrganizationBranchID" asp-items="@ViewBag.OrganizationBranchDD as SelectList" disabled>
+                    <option value="">Select Branch</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3 field-group" data-section="branch org">
+                <label class="form-label req">To Branch</label>
+                <select class="form-select choiceDD" id="ToOrganizationBranchID" asp-items="@ViewBag.OrganizationBranchDD as SelectList">
+                    <option value="">Select Branch</option>
+                </select>
+            </div>
+
+            <!-- Department Fields -->
+            <div class="col-md-6 mb-3 field-group" data-section="dept org branch">
+                <label class="form-label req">From Department</label>
+                <select class="form-select choiceDD" id="FromDepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList" disabled>
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3 field-group" data-section="dept org branch">
+                <label class="form-label req">To Department</label>
+                <select class="form-select choiceDD" id="ToDepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList">
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+
+            <!-- Designation Fields -->
+            <div class="col-md-6 mb-3 field-group" data-section="dept branch org">
+                <label class="form-label req">From Designation</label>
+                <select class="form-select choiceDD" id="FromDesignationID" asp-items="@ViewBag.DesignationDD as SelectList" disabled>
+                    <option value="">Select Designation</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3 field-group" data-section="dept branch org">
+                <label class="form-label req">To Designation</label>
+                <select class="form-select choiceDD" id="ToDesignationID" asp-items="@ViewBag.DesignationDD as SelectList">
+                    <option value="">Select Designation</option>
+                </select>
+            </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">Transfer Date</label>
                     <div class="input-icon-end position-relative">
-                        <input type="text" id="TransferDate"  class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
+                        <input type="text" id="TransferDate" class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
                         <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                       
+
                     </div>
                     <span id="ToDateError" class="text-danger small"></span>
                 </div>
@@ -228,120 +101,12 @@
                     <input id="TransferNote" class="form-control" />
                 </div>
             </div>
-        </div>
-    </div>
-   
-
-    <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
-        <button type="button" id="EmpTransferButtonReset" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button id="EmpTransferButton" class="btn btn-primary">Apply</button>
-    </div>
-
-</form>
-
-
- *@
-
-<form method="post" id="employeeTransferForm">
-    <div class="modal-body pb-0">
-    <div class="tab-content mt-1" id="myTabContent">
-        <div class="tab-pane fade show active" id="tab1" role="tabpanel">
-        </div>
-        <div class="tab-pane fade" id="tab2" role="tabpanel">
-        </div>
-        <div class="tab-pane fade" id="tab3" role="tabpanel">
-        </div>
-    </div>
-        <input type="hidden" id="TransferType"  />
-
-    <div class="row" id="TransferFormFields">
-        <div class="col-md-12">
-            <div class="mb-3">
-                <label class="form-label req" for="organizerSingle">Name</label>
-                <select class="form-select choiceDD" id="EmployeeID" required>
-                    <option value="">Select Employee</option>
-                </select>
-
+            <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
+                <button type="button" id="EmpTransferButtonReset" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button id="EmpTransferButton" class="btn btn-primary">Apply</button>
             </div>
-        </div>
-        <!-- Organization Fields -->
-        <div class="col-md-6 mb-3 field-group" data-section="org">
-            <label class="form-label req">From Organization</label>
-            <select class="form-select choiceDD" id="FromOrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
-                <option value="">Select Organization</option>
-            </select>
-        </div>
-        <div class="col-md-6 mb-3 field-group" data-section="org">
-            <label class="form-label req">To Organization</label>
-            <select class="form-select choiceDD" id="ToOrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                <option value="">Select Organization</option>
-            </select>
-        </div>
 
-        <!-- Branch Fields -->
-        <div class="col-md-6 mb-3 field-group" data-section="branch org">
-            <label class="form-label req">From Organization Branch</label>
-            <select class="form-select choiceDD" id="FromOrganizationBranchID" asp-items="@ViewBag.OrganizationBranchDD as SelectList" disabled>
-                <option value="">Select Branch</option>
-            </select>
         </div>
-        <div class="col-md-6 mb-3 field-group" data-section="branch org">
-            <label class="form-label req">To Branch</label>
-            <select class="form-select choiceDD" id="ToOrganizationBranchID" asp-items="@ViewBag.OrganizationBranchDD as SelectList">
-                <option value="">Select Branch</option>
-            </select>
-        </div>
-
-        <!-- Department Fields -->
-        <div class="col-md-6 mb-3 field-group" data-section="dept org branch">
-            <label class="form-label req">From Department</label>
-            <select class="form-select choiceDD" id="FromDepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList" disabled>
-                <option value="">Select Department</option>
-            </select>
-        </div>
-        <div class="col-md-6 mb-3 field-group" data-section="dept org branch">
-            <label class="form-label req">To Department</label>
-            <select class="form-select choiceDD" id="ToDepartmentID" asp-items="@ViewBag.DepartmentDD as SelectList">
-                <option value="">Select Department</option>
-            </select>
-        </div>
-
-        <!-- Designation Fields -->
-        <div class="col-md-6 mb-3 field-group" data-section="dept branch org">
-            <label class="form-label req">From Designation</label>
-            <select class="form-select choiceDD" id="FromDesignationID" asp-items="@ViewBag.DesignationDD as SelectList" disabled>
-                <option value="">Select Designation</option>
-            </select>
-        </div>
-        <div class="col-md-6 mb-3 field-group" data-section="dept branch org">
-            <label class="form-label req">To Designation</label>
-            <select class="form-select choiceDD" id="ToDesignationID" asp-items="@ViewBag.DesignationDD as SelectList">
-                <option value="">Select Designation</option>
-            </select>
-        </div>
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label req">Transfer Date</label>
-                <div class="input-icon-end position-relative">
-                    <input type="text" id="TransferDate" class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
-                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-
-                </div>
-                <span id="ToDateError" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label">Note</label>
-                <input id="TransferNote" class="form-control" />
-            </div>
-        </div>
-        <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
-            <button type="button" id="EmpTransferButtonReset" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-            <button id="EmpTransferButton" class="btn btn-primary">Apply</button>
-        </div>
-
-    </div>
     </div>
 </form>
 <script>

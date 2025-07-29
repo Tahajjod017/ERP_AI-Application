@@ -17,5 +17,14 @@ namespace GCTL.Core.ViewModels.Employee.EmpTransfer
         public string? TransferDate { get;  set; }
         public string? EmployeeDepartment { get; set; }
         public string? EmployeeImage { get; set; }
+        public string? FromDepartmentName { get; set; }
+
+        public string? FromDesignationName { get; set; }
+
+        public string? ToDepartmentName { get; set; }
+
+        public string? ToDesignationName { get; set; }
+        //
+
     }
 }

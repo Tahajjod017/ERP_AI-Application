@@ -88,6 +88,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
 
         }
         #endregion
+
+
         #region GetBy EmployeeTransferID
         [Route("EmployeeTransferManagement/GetEmployeeTransferByIdAsync")]
         [HttpGet]
