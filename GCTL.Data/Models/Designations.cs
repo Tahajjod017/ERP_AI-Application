@@ -35,6 +35,10 @@ public partial class Designations
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChangesCurentDesignation { get; set; } = new List<EmployeeCareerChanges>();
+
+    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChangesNewDesignation { get; set; } = new List<EmployeeCareerChanges>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromDesignation { get; set; } = new List<EmployeeTransfer>();
