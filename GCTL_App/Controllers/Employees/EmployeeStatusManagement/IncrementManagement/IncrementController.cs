@@ -1,6 +1,8 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment;
 using GCTL.Data.Models;
+using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +19,11 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficialRepository;
         private readonly IGenericRepository<EmployeeSalarySettings> _employeeSalaryRepository;
 
+        private readonly IincrementService _incrementService;
 
 
-        public IncrementController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository) : base(translateService, userProfileService)
+
+        public IncrementController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IincrementService incrementService) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _organizationRepository = organizationRepository;
@@ -27,6 +31,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
             _designationRepository = designationRepository;
             _employeeOfficialRepository = employeeOfficialRepository;
             _employeeSalaryRepository = employeeSalaryRepository;
+            _incrementService = incrementService;
         }
 
         public IActionResult Index()
@@ -67,17 +72,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         #region Save 
 
         [HttpPost]
-        public IActionResult SaveSalaryChange(SalaryChangeViewModel model)
+        public async Task< IActionResult> SaveSalaryChange(SalaryChangeViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid data.");
-            }
-
-            // Use your existing service here
-            //_yourService.SaveSalaryChange(model);
-
-            return Json(new { success = true, message = "Salary change saved successfully." });
+            CommonReturnViewModel result = await _incrementService.SaveSalaryChange(model);
+            return Ok(result);
         }
 
 
