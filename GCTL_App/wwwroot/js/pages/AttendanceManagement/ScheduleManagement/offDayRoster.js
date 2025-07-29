@@ -33,7 +33,8 @@
                     EmployeeIDs: $('#EmployeeIDs').val(),
                     ShiftID: $('#ShiftID').val(),
                     DayDate: $('#DayDate').val().split(','),
-                    CompensationTypeID: $('#CompensationTypeID').val()
+                    CompensationTypeID: $('#CompensationTypeID').val(),
+                    ExchangeDate: $('#ExchangeDate').val().split(',')
                 };
 
                 const id = $('#RosterInHolyDayID').val();

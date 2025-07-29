@@ -21,11 +21,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
         #region Repositories
         private readonly IGenericRepository<RosterInHolyDays> _genericRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
+        private readonly IGenericRepository<CompensationDayExchanges> _compensationDayExchanges;
 
-        public OffDayRosterService(IGenericRepository<RosterInHolyDays> genericRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo) : base(genericRepository)
+        public OffDayRosterService(IGenericRepository<RosterInHolyDays> genericRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo, IGenericRepository<CompensationDayExchanges> compensationDayExchanges) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employeeOfficeInfo = employeeOfficeInfo;
+            _compensationDayExchanges = compensationDayExchanges;
         }
         #endregion
 
@@ -50,6 +52,45 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                                 && x.EmployeeID == employee.EmployeeID
                                 && x.DayDate == date)
                                 .FirstOrDefaultAsync();
+
+                            if (model.ExchangeDate != null && model.ExchangeDate.Count > 0)
+                            {
+                                if (existingEntity != null)
+                                {
+                                    existingEntity.ShiftID = model.ShiftID;
+                                    existingEntity.LIP = model.LIP;
+                                    existingEntity.LMAC = model.LMAC;
+                                    existingEntity.CreatedBy = model.CreatedBy;
+                                    existingEntity.CreatedAt = DateTime.Now;
+
+                                    await _genericRepository.UpdateAsync(existingEntity);
+                                }
+                                else
+                                {
+                                    RosterInHolyDays entity = new RosterInHolyDays();
+                                    entity.OrganizationID = employee.OrganizationID;
+                                    entity.DepartmentID = employee.DepartmentID;
+                                    entity.EmployeeID = employee.EmployeeID;
+                                    entity.ShiftID = model.ShiftID;
+                                    entity.DayDate = date;
+                                    entity.CompensationTypeID = model.CompensationTypeID;
+                                    entity.LIP = model.LIP;
+                                    entity.LMAC = model.LMAC;
+                                    entity.CreatedBy = model.CreatedBy;
+                                    entity.CreatedAt = DateTime.Now;
+                                    await _genericRepository.AddAsync(entity);
+
+                                    foreach(var exDate in model.ExchangeDate)
+                                    {
+                                        CompensationDayExchanges dayExchanges = new CompensationDayExchanges();
+                                        dayExchanges.RosterInHolyDayID = entity.RosterInHolyDayID;
+                                        dayExchanges.SelectDate = date;
+                                        dayExchanges.ExchangeDate = exDate;
+                                        await _compensationDayExchanges.AddAsync(dayExchanges);
+                                    }
+                                }
+                            }
+
                             if (existingEntity != null)
                             {
                                 existingEntity.ShiftID = model.ShiftID;
