@@ -288,51 +288,51 @@ $(document).ready(function () {
         transferType = getTransferTypeFromTabId(tabId);
     });
 
-    
-    //#region Save Data
-  $(document).on('click', '#EmpTransferButton', function (e) {
-      e.preventDefault();
 
-      const data = {
-          EmployeeID: $('#EmployeeID').val(),
-          FromOrganizationID: $('#FromOrganizationID').val(),
-          ToOrganizationID: $('#ToOrganizationID').val(),
-          FromOrganizationBranchID: $('#FromOrganizationBranchID').val(),
-          ToOrganizationBranchID: $('#ToOrganizationBranchID').val(),
-          TransferDate: $('#TransferDate').val(),
-          TransferNote: $('#TransferNote').val(),
-          ToDesignationID: $('#ToDesignationID').val(),
-          FromDesignationID: $('#FromDesignationID').val(),
-          ToDepartmentID: $('#ToDepartmentID').val(),
-          FromDepartmentID: $('#FromDepartmentID').val(),
-          TransferType: transferType
-      };
-     
-      $.ajax({
-          url: '/EmployeeTransferManagement/SaveEmplopyeeTransfer', // 🔁 Change to your correct controller/action
-          type: 'POST',
-          data: data,
-          success: function (response) {
-              if (response.success) {
-                  toastr.success(response.message);
-                  resetForm();
-                  GetAllEmpoyee();
-                  var applyModalEl = document.getElementById('apply_leave');
-                  var applyModal = bootstrap.Modal.getInstance(applyModalEl);
-                  if (!applyModal) {
-                      applyModal = new bootstrap.Modal(applyModalEl);
-                  }
-                  applyModal.hide();
-              } else {
-                  toastr.error(response.message);
-              }
-          },
-          error: function (xhr, status, error) {
-              console.error("AJAX Error:", error);
-              toastr.error(response.message);
-          }
-      });
-  });
+    //#region Save Data
+    $(document).on('click', '#EmpTransferButton', function (e) {
+        e.preventDefault();
+
+        const data = {
+            EmployeeID: $('#EmployeeID').val(),
+            FromOrganizationID: $('#FromOrganizationID').val(),
+            ToOrganizationID: $('#ToOrganizationID').val(),
+            FromOrganizationBranchID: $('#FromOrganizationBranchID').val(),
+            ToOrganizationBranchID: $('#ToOrganizationBranchID').val(),
+            TransferDate: $('#TransferDate').val(),
+            TransferNote: $('#TransferNote').val(),
+            ToDesignationID: $('#ToDesignationID').val(),
+            FromDesignationID: $('#FromDesignationID').val(),
+            ToDepartmentID: $('#ToDepartmentID').val(),
+            FromDepartmentID: $('#FromDepartmentID').val(),
+            TransferType: transferType
+        };
+
+        $.ajax({
+            url: '/EmployeeTransferManagement/SaveEmplopyeeTransfer', // 🔁 Change to your correct controller/action
+            type: 'POST',
+            data: data,
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    resetForm();
+                    GetAllEmpoyee();
+                    var applyModalEl = document.getElementById('apply_leave');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", error);
+                toastr.error(response.message);
+            }
+        });
+    });
 
     function resetForm() {
         $('#employeeTransferForm,#employeeTransferFormEdit')[0].reset();
@@ -353,7 +353,7 @@ $(document).ready(function () {
         let transferId = $(this).data('id');
         console.log('GetByID' + transferId);
         $.ajax({
-            url: '/EmployeeTransferManagement/GetEmployeeTransferByIdAsync', 
+            url: '/EmployeeTransferManagement/GetEmployeeTransferByIdAsync',
             type: 'GET',
             data: { employeeTransferID: transferId },
             success: function (response) {
@@ -386,7 +386,7 @@ $(document).ready(function () {
     $(document).on('click', '#EmpTransferButtonUpdateSubmit', function (e) {
         e.preventDefault();
         const payload = {
-            EmployeeTransferID: parseInt($('#EmployeeTransferID').val()) || 0, 
+            EmployeeTransferID: parseInt($('#EmployeeTransferID').val()) || 0,
             EmployeeIDEdit: parseInt($('#EmployeeIDEdit').val()) || null,
             FromOrganizationIDEdit: parseInt($('#FromOrganizationIDEdit').val()) || null,
             FromOrganizationBranchIDEdit: parseInt($('#FromOrganizationBranchIDEdit').val()) || null,
@@ -396,20 +396,19 @@ $(document).ready(function () {
             ToDepartmentIDEdit: parseInt($('#ToDepartmentIDEdit').val()) || null,
             FromDesignationIDEdit: parseInt($('#FromDesignationIDEdit').val()) || null,
             ToDesignationIDEdit: parseInt($('#ToDesignationIDEdit').val()) || null,
-            TransferDateEdit: $('#TransferDateEdit').val() || null, 
+            TransferDateEdit: $('#TransferDateEdit').val() || null,
             TransferNoteEdit: $('#TransferNoteEdit').val() || "",
             TransferTypeEdit: $('#TransferTypeEdit').val() || ""
         };
 
 
         $.ajax({
-            url: '/EmployeeTransferManagement/UpdateEmployeeTransferAsync', 
+            url: '/EmployeeTransferManagement/UpdateEmployeeTransferAsync',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
-            success: function (response)
-            {
-              
+            success: function (response) {
+
                 if (response.success) {
                     toastr.success(response.message || 'Updated successfully');
                     resetForm();
@@ -419,19 +418,19 @@ $(document).ready(function () {
                         applyModal = new bootstrap.Modal(applyModalEl);
                     }
                     applyModal.hide();
-                  
+
                 } else {
                     toastr.warning(response.message || 'Update failed');
                 }
             },
             error: function () {
-               
+
                 toastr.error('An error occurred while updating.');
             }
         });
     });
 
-   
+
     //#endregion
 
 
@@ -447,12 +446,10 @@ $(document).ready(function () {
                     data: { ids: [id] },
                     success: function (response) {
 
-                        if (response.success)
-                        {
+                        if (response.success) {
                             toastr.success(response.message);
                             loadTableData();
-                        } else
-                        {
+                        } else {
                             toastr.error(response.message);
                         }
                     },
@@ -487,8 +484,7 @@ $(document).ready(function () {
             type: 'GET',
             data: { employeeID: employeeID },
             success: function (response) {
-                if (!response || !response.success || !response.data)
-                {
+                if (!response || !response.success || !response.data) {
                     toastr.warning('Employee data not found.');
                     return;
                 }
@@ -499,7 +495,7 @@ $(document).ready(function () {
                 choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchID);
                 choiceManager.setChoiceValue('FromDepartmentID', data.fromDepartmentID);
                 choiceManager.setChoiceValue('FromDesignationID', data.fromDesignationID);
-                
+
             },
             error: function () {
                 toastr.error('Failed to fetch organization and branch information.');
@@ -545,7 +541,7 @@ $(document).ready(function () {
 
     //#endregion
 
-   
+
 });
 
 // #region 🟣 Get Employee Avatar HTML (Initial or Image)
@@ -690,7 +686,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
 
-                 
+
                     const avatar = getAvatarHtml(item);
                     tableBody.append(`
                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -746,27 +742,21 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                          </td>
                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate || ''}</td>
                        
-                        
-                     <td class="align-middle white-space-nowrap text-end pe-0">
-                          <div class="d-flex justify-content-end align-items-center">
-                         <a
-                               href="#"
-                               title="Edit"
-                               id="EmpTransferButtonEdit"
-                               data-id="${item.employeeTransferID}"
-                               class="btn btn-outline-light btn-icon me-1" 
-                               data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves">
-                               <i class="fas fa-edit text-black"></i>
-                    </a>
-                            <a 
-                              href="#" title="Delete"  data-id="${item.employeeTransferID}"
-                              class="btn btn-outline-light btn-icon"  
-                              id="leaveRequestDelete-singleDelBtn" >
-                              <i class="far fa-trash-alt text-black"></i>
-                            </a>
-                          </div>
+                                 <td class="align-middle white-space-nowrap text-end pe-0 ps-5">
+                      <div class="d-flex  align-items-center">
+                      <a href="#"
+                         title="View"
+                         id="LeaveRequestEditButton"
+                         data-id="${item.employeeTransferID}"
+                         class="btn btn-outline-light btn-icon d-flex align-items-center justify-content-center"
+                         data-bs-toggle="modal"
+                         data-bs-target="#edit_leaves">
+                          <i class="fas fa-eye text-primary"></i>
+                      </a>
+                     </div>
                     </td>
+                        
+                    
 
   
                       </tr>

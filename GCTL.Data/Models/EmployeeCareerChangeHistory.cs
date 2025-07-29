@@ -5,11 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Alerts
+public partial class EmployeeCareerChangeHistory
 {
-    public int AlertID { get; set; }
+    public int EmployeeCareerChangeHistoryID { get; set; }
 
-    public string AlertNote { get; set; }
+    public int? EmployeeCareerChangeID { get; set; }
+
+    public int? EmployeeID { get; set; }
+
+    public int? StatusID { get; set; }
+
+    public int? ApprovalPersonID { get; set; }
+
+    public string Remarks { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,13 +35,17 @@ public partial class Alerts
 
     public int? DeletedBy { get; set; }
 
-    public string AlertTitle { get; set; }
-
-    public virtual ICollection<AlertForEmployee> AlertForEmployee { get; set; } = new List<AlertForEmployee>();
+    public virtual Employees ApprovalPerson { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Employees Employee { get; set; }
+
+    public virtual EmployeeCareerChanges EmployeeCareerChange { get; set; }
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

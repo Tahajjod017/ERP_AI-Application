@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Alerts
+public partial class EmployeeActionTypes
 {
-    public int AlertID { get; set; }
+    public int EmployeeActionTypeID { get; set; }
 
-    public string AlertNote { get; set; }
+    public string EmployeeActionTypeName { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,13 +27,11 @@ public partial class Alerts
 
     public int? DeletedBy { get; set; }
 
-    public string AlertTitle { get; set; }
-
-    public virtual ICollection<AlertForEmployee> AlertForEmployee { get; set; } = new List<AlertForEmployee>();
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -131,6 +131,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmployeeActionTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[EmployeeAdditionalInfo]",
          "ObjectType": 0
       },
@@ -144,6 +148,14 @@
       },
       {
          "Name": "[dbo].[EmployeeBasePaymentModes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeCareerChangeHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmployeeCareerChanges]",
          "ObjectType": 0
       },
       {
@@ -208,6 +220,10 @@
       },
       {
          "Name": "[dbo].[LanguageInd_hi]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LanguageInd_zh]",
          "ObjectType": 0
       },
       {
