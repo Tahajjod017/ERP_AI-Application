@@ -56,6 +56,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         [HttpPost]
         public async Task<IActionResult> Create(RosterInOffDaySetupVM model)
         {
+            if(model.DayDate != null && model.CompensationTypeID == 3 && model.ExchangeDate.Count == 0)
+            {
+                return Json(new { isSuccess = false, message = "Please select Exchange Date!" });
+            }
+
+            if(model.DayDate != null && model.ExchangeDate != null && model.ExchangeDate.Count != model.DayDate.Count)
+            {
+                return Json(new { isSuccess = false, message = "The number of Exchange Dates must match the number of Selected Dates." });
+            }
+
+            for (int i = 0; i < model.ExchangeDate.Count; i++)
+            {
+                if (model.ExchangeDate[i] <= model.DayDate[i])
+                {
+                    return Json(new { isSuccess = false, message = $"Exchange Date at index {i + 1} must be greater than the corresponding Day Date." });
+                }
+            }
+
             try
             {
                 if (ModelState.IsValid)
