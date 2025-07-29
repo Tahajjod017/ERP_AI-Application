@@ -1,4 +1,25 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿<!-- Modal for Day Exchange -->
+<div class="modal fade" id="rosterInOffDay-dayExchangeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dayExchangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dayExchangeLabel">@Html.SmartLocalize("Day Exchange Details")</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Day Exchange For:</p>
+                <span class="badge badge-phoenix badge-phoenix-success">2025/04/12</span>
+                <span class="badge badge-phoenix badge-phoenix-success">2025/04/19</span>
+
+                <div class="mb-3">
+                    <label for="datepicker2" class="form-label">@Html.SmartLocalize("Exchange Date")</label>
+                    <input type="text" class="form-control" id="datepicker2" placeholder="yyy/mm/dd" data-options='{"disableMobile":true,"dateFormat":"Y-m-d"}'>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="submit" class="btn btn-primary" id="exchangeBtn">@Html.SmartLocalize("Exchange")</button>
+            </div>
+        </div>
+    </div>
+</div>

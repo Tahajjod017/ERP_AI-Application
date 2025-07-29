@@ -9,7 +9,7 @@
 
         <div class="row g-3 mb-3">
             @* @Html.AntiForgeryToken() *@
-            <input type="hidden" asp-for="RosterInOffDayID" />
+            <input type="hidden" asp-for="RosterInHolyDayID" />
 
             <div class="col-md">
                 <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
@@ -86,6 +86,12 @@
                 </select>
                 <span id="CompensationTypeIDError" class="text-danger" style="display:none;"></span>
             </div>
+
+            <div class="col-md d-none" id="ExchangeDateDiv">
+                <label class="form-label" asp-for="ExchangeDate">@Html.SmartLocalize("Select Exchange Date")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" asp-for="ExchangeDate" type="text" placeholder="DD/MM/YYYY" />
+                <span id="ExchangeDateError" class="text-danger" style="display:none;"></span>
+            </div>
         </div>
         <div class="col-12">
             <div class="row g-3 justify-content-end">
@@ -96,70 +102,6 @@
                     <button type="submit" class="btn btn-primary px-5 px-sm-10" id="rosterInOffDay-saveBtn">@Html.SmartLocalize("Save")</button>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <!-- Modal for Day Exchange -->
-            <div class="modal fade" id="dayExchangeModal" tabindex="-1" aria-labelledby="dayExchangeModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="dayExchangeModalLabel">Day Exchange Details</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Day Exchange For:</p>
-                            <span class="badge badge-phoenix badge-phoenix-success">2025/04/12</span>
-                            <span class="badge badge-phoenix badge-phoenix-success">2025/04/19</span>
-
-                            <div class="mb-3">
-                                <label for="datepicker2" class="form-label">Exchange Date</label>
-                                <input type="text" class="form-control" id="datepicker2" placeholder="yyy/mm/dd" data-options='{"disableMobile":true,"dateFormat":"Y-m-d"}'>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @* <script>
-                document.getElementById('leaveType').addEventListener('change', function () {
-                  if (this.value === 'dayexchange1') {
-                    const modal = new bootstrap.Modal(document.getElementById('dayExchangeModal'));
-                    modal.show();
-                  }
-                });
-            </script> *@
-
-            <div id="dateSelect" class="">
-                @* <script>
-                    flatpickr("#datepicker2", {
-                      mode: "multiple", // allow multiple selections
-                      dateFormat: "Y-m-d",
-                      enable: [
-                        function(date) {
-                          // Enable only Fridays (Friday = 5)
-                          return date.getDay() !== 5;
-                        }
-                      ]
-                    });
-                </script> *@
-            </div>
-
-            @* <script>
-                const leaveType = document.getElementById('leaveType');
-                const dateSelect = document.getElementById('dateSelect');
-
-                leaveType.addEventListener('change', function () {
-                  if (this.value === 'dayexchange') {
-                    dateSelect.style.display = 'block';
-                  } else {
-                    dateSelect.style.display = 'none';
-                  }
-                });
-            </script> *@
         </div>
     </div>
 </form>

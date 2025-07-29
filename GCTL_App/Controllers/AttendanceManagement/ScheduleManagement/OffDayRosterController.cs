@@ -50,23 +50,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetAll
-        //public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
-        //{
-        //    try
-        //    {
-        //        var result = await _offDayRosterService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
-
-        //        return Json(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { isSuccess = false, message = ex.Message });
-        //    }
-        //}
-        #endregion
-
-
         #region Create
         //[Permission("Create", "OffDayRoster")]
         //[ValidateAntiForgeryToken]
@@ -101,6 +84,37 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region UpdateEmpShiftAsync
+        [Permission("Edit", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [Route("OffDayRoster/UpdateEmpShiftAsync")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOffDayEditVM model)
+        {
+            try
+            {
+                if (model.RosterInHolyDayIdEdit == null || model.RosterInHolyDayIdEdit == 0)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
+
+                var result = await _offDayRosterService.UpdateEmpShiftAsync(model);
+
+                if (result == false)
+                {
+                    return Json(new { isSuccess = false, message = "Something went wrong!" });
+                }
+
+                return Json(new { isSuccess = true, message = "Updated Successfully." });
             }
             catch (Exception ex)
             {
@@ -183,7 +197,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        public async Task<IActionResult> GetRosterData()
+        #region GetWeekDaysByOrganization
+        public async Task<IActionResult> GetWeekDaysByOrganization(int id)
+        {
+            try
+            {
+                var weekDaysSettings = await _commonService.GetWeekDaysByOrganization(id);
+                return Json(weekDaysSettings);
+            }
+            catch (Exception ex)
+            {
+                // Log the error (optional) and return error response
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        #endregion
+
+
+        public async Task<IActionResult> GetAll()
         {
             var (rosterList, uniqueDates) = await _offDayRosterService.GetAll();
 

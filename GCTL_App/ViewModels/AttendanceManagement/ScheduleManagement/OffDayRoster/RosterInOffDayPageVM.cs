@@ -6,6 +6,7 @@ namespace GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRost
     public class RosterInOffDayPageVM : BaseViewModel
     {
         public RosterInOffDaySetupVM Setup { get; set; } = new RosterInOffDaySetupVM();
+        public RosterInOffDayEditVM Edit { get; set; } = new RosterInOffDayEditVM();
         public RosterInOffDaySetupVM List { get; set; } = new RosterInOffDaySetupVM();
     }
 }

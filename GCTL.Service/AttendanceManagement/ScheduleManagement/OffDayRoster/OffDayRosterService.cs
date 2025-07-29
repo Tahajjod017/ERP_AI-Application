@@ -182,8 +182,65 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
         #endregion
 
 
+        #region UpdateEmpShiftAsync
+        public async Task<bool> UpdateEmpShiftAsync(RosterInOffDayEditVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var employees = await _employeeOfficeInfo
+                    .FindAsync(x => x.OrganizationID == model.OrganizationIdEdit
+                    && x.DepartmentID == model.DepartmentIdEdit
+                    && x.EmployeeID == model.EmployeeIdEdit);
+
+                foreach (var employee in employees)
+                {
+                    var existingEntity = await _genericRepository.All()
+                        .Where(x => x.OrganizationID == employee.OrganizationID
+                        && x.DepartmentID == employee.DepartmentID
+                        && x.EmployeeID == employee.EmployeeID
+                        && x.DayDate == model.DayDateEdit)
+                        .FirstOrDefaultAsync();
+                    if (existingEntity != null)
+                    {
+                        existingEntity.ShiftID = model.ShiftIdEdit;
+                        existingEntity.LIP = model.LIP;
+                        existingEntity.LMAC = model.LMAC;
+                        existingEntity.CreatedBy = model.CreatedBy;
+                        existingEntity.CreatedAt = DateTime.Now;
+
+                        await _genericRepository.UpdateAsync(existingEntity);
+                    }
+                    else
+                    {
+                        RosterInHolyDays entity = new RosterInHolyDays();
+                        entity.OrganizationID = employee.OrganizationID;
+                        entity.DepartmentID = employee.DepartmentID;
+                        entity.EmployeeID = employee.EmployeeID;
+                        entity.ShiftID = model.ShiftIdEdit;
+                        entity.DayDate = model.DayDateEdit;
+                        entity.LIP = model.LIP;
+                        entity.LMAC = model.LMAC;
+                        entity.CreatedBy = model.CreatedBy;
+                        entity.CreatedAt = DateTime.Now;
+                        await _genericRepository.AddAsync(entity);
+                    }
+                }
+
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
+        #endregion
+
+
         #region GetAllAsync
-        public async Task<SeparatePaginationResult<RosterInOffDayListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOffDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        public async Task<SeparatePaginationResult<RosterInOffDayListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInHolyDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
         {
             startDate ??= DateTime.Today;
             var endDate = startDate.Value.AddDays(daysToShow);
@@ -247,7 +304,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
 
                 return new RosterInOffDayListVM
                 {
-                    RosterInOffDayID = first.RosterInHolyDayID,
+                    RosterInHolyDayID = first.RosterInHolyDayID,
                     OrganizationID = first.OrganizationID,
                     OrganizationName = org?.OrganizationName ?? "-",
                     DepartmentID = first.DepartmentID,
@@ -309,17 +366,22 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                 .Select(g => new RosterInOffDayListVM
                 {
                     EmployeeID = g.Key ?? 0,
+                    RosterInHolyDayID = g.First().RosterInHolyDayID,
                     EmployeeName = g.First().Employee?.FirstName ?? "",
+                    DepartmentID = g.First().Department?.DepartmentID ?? 0,
                     DepartmentName = g.First().Department?.DepartmentName ?? "",
+                    OrganizationID = g.First().Organization?.OrganizationID ?? 0,
                     OrganizationName = g.First().Organization?.OrganizationName ?? "",
                     ShiftsPerDay = g
                         .Where(x => x.DayDate.HasValue)
                         .ToDictionary(
-                            k => k.DayDate.Value,
+                            k => k.DayDate.Value.ToString("yyyy-MM-dd"),
                             v => new ShiftVM
                             {
+                                ShiftID = v.ShiftID,
                                 ShiftName = v.Shift?.ShiftName ?? "N/A",
-                                TimeRange = $"{v.Shift?.StartTime?.ToString(@"hh\:mm")} - {v.Shift?.EndTime?.ToString(@"hh\:mm")}"
+                                TimeRange = $"{v.Shift?.StartTime?.ToString(@"hh\:mm")} - {v.Shift?.EndTime?.ToString(@"hh\:mm")}",
+                                RosterInHolyDayID = v.RosterInHolyDayID
                             }
                         )
                 })
