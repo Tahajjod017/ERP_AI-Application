@@ -351,9 +351,13 @@
     </div>
     <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
         <div class="mb-2">
+
+           
+
             <a href="#" data-bs-toggle="modal" data-bs-target="#apply_leave" class="btn btn-primary d-flex align-items-center">
                 <i class="ti ti-circle-plus me-2"></i>Add Manual Attendance
             </a>
+
         </div>
     </div>
 </div>
@@ -365,7 +369,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">In/Out Time Missing</p>
+                        <p class="mb-1">In Time Missing</p>
                         <h4 id="inTimeMissing">0</h4>
                     </div>
                     <div class="d-flex">
@@ -384,7 +388,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Break Time In/Out Missing</p>
+                        <p class="mb-1">Out Time Missing</p>
                         <h4 id="bTinOutMissing">0</h4>
                     </div>
                     <div class="d-flex">
@@ -403,7 +407,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Double Entry</p>
+                        <p class="mb-1">Overtime</p>
                         <h4 id="doubleEntry">0</h4>
                     </div>
                     <div class="d-flex">
@@ -422,7 +426,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Absent</p>
+                        <p class="mb-1">Duration</p>
                         <h4 id="holidayEntry">0</h4>
                     </div>
                     <div class="d-flex">
@@ -449,7 +453,7 @@
                 </div>
                 <div class="me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y to d/m/y" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y ">
                     </div>
                 </div>
                 <div class="dropdown me-3">
@@ -463,16 +467,22 @@
                     </select>
                 </div>
                 <div class="dropdown me-3">
-                    <select class="form-select" id="possibleReasonFilter" data-choices="data-choices" size="1" name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">All Possible Reasons</option>
-                        <option value="In Time Missing">In Time Missing</option>
-                        <option value="Out Time Missing">Out Time Missing</option>
-                        <option value="Break In Missing">Break In Missing</option>
-                        <option value="Break Out Missing">Break Out Missing</option>
-                        <option value="Multiple Missing">Multiple Missing</option>
-                        <option value="Over Punching">Over Punching</option>
-                        <option value="Complete Record">Complete Record</option>
+                    @*<select class="form-select" id="possibleReasonFilter" data-choices="data-choices" size="1" name="statusFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">All Possible Reasons</option>
+                            <option value="In Time Missing">In Time Missing</option>
+                            <option value="Out Time Missing">Out Time Missing</option>
+                            <option value="Break In Missing">Break In Missing</option>
+                            <option value="Break Out Missing">Break Out Missing</option>
+                            <option value="Multiple Missing">Multiple Missing</option>
+                            <option value="Over Punching">Over Punching</option>
+                            <option value="Complete Record">Complete Record</option>
+                        </select>*@
+
+
+                    <select class="form-select choiceDD" id="possibleReasonFilter" asp-items="@ViewBag.ViolationTypeList as SelectList">
+                        <option value="">@Html.SmartLocalize("Select Type")</option>
                     </select>
+
                 </div>
                 <div class="dropdown me-3">
                     <select class="form-select" id="sortFilter" data-choices="data-choices" size="1" name="sortFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
@@ -491,6 +501,11 @@
                         <option value="100">100 per page</option>
                     </select>
                 </div>
+                <div class="dropdown me-3">
+                    <button id="btnChecked" class="btn btn-primary d-flex align-items-center">
+                        <i class="ti ti-circle-plus me-2"></i>Mark as Checked
+                    </button>
+                </div>
             </div>
         </div>
         <div class="border-translucent p-3 pt-0">
@@ -501,7 +516,9 @@
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
                                     <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"attendance-body"}' />
+                                        <input class="form-check-input" type="checkbox" id="checkAll" />
+                                        
+
                                     </div>
                                 </th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">Employee</th>
@@ -541,44 +558,51 @@
                 <h4 class="modal-title">Add/Edit Attendance</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form>
+            <form id="manualAtd">
                 <div class="modal-body pb-0">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Employee Name</label>
-                                <input type="text" class="form-control" name="employeeName" disabled>
+                                
+                                <select class="form-select choiceDD" id="manualEmployeeID" name="employeeName" asp-items="@ViewBag.EmployeeDD as SelectList" required>
+
+                                    <option value="">Select Employee</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Date</label>
-                                <input type="text" class="form-control datetimepicker" name="attendanceDate" placeholder="dd/mm/yyyy" disabled>
+                                <input type="text" class="form-control datetimepicker" id="manualAttendanceDate" name="attendanceDate" placeholder="dd/mm/yyyy" >
+                            </div> 
+                            <div class="mb-3">
+                                <label class="form-label">Assign Shift</label>
+                                <input type="text" class="form-control" id="manualAssignShift" name="assignShift"  >
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Add Time As Shift</label>
+                                <input type="checkbox" id="manualChkBox"  name="chkBox"  >
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Actual In Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="actualInTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" id="manualActualInTime" name="actualInTime" type="text" placeholder="hour : minute" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Actual Out Time</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="actualOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" id="manualActualOutTime" name="actualOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Break In Time</label>
+                                <label class="form-label">Break Time (Add Time)</label>
                                 <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="breakInTime" type="text" placeholder="hour : minute" readonly="readonly" />
+                                    <input class="form-control datetimepicker timepicker-12hr" id="manualBreakInTime" name="breakInTime" type="text" placeholder="hour : minute" readonly="readonly" />
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Break Out Time</label>
-                                <div class="input-icon-end position-relative">
-                                    <input class="form-control datetimepicker timepicker-12hr" name="breakOutTime" type="text" placeholder="hour : minute" readonly="readonly" />
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -604,27 +628,36 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-floating">
-                                <input id="empName" type="text" class="form-control" name="employeeName" disabled value="Md Shefain">
+                                <input id="empName" type="text" class="form-control" name="employeeName" disabled>
+                                <input id="empId" type="hidden" name="empId">
                                 <label for="empName" class="form-label">Employee Name</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="flatpickr-input-container">
                                 <div class="form-floating">
-                                    <input id="Date" class="form-control datetimepicker" type="text" name="attendanceDate" placeholder="Date" data-options='{"disableMobile":true}' readonly />
+                                    <input id="Date" class="form-control datetimepicker" type="text" name="attendanceDate" placeholder="Date" data-options='{"disableMobile":true}' disabled style="background: #f4f6f9;" />
                                     <label class="ps-6" for="Date">Date</label>
-                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary" style="color: #8a94ad !important;"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row mb-sm-2 mb-md-0">
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input id="shiftName" type="text" class="form-control" name="shiftName" disabled>
+                                <label for="shiftName" class="form-label">Shift</label>
+                            </div>
+                        </div>
+
                         <div class="col-md-6">
                             <div class="input-group">
                                 <div class="flatpickr-input-container" style="width: 83%;">
                                     <div class="form-floating">
                                         <input id="time" class="form-control datetimepicker timepicker-12hr" type="text" name="actualInTime" placeholder="hour : minute" data-options='{"disableMobile":true}' />
-                                        <label class="ps-6" for="time">Time</label>
+                                        <label class="ps-6" for="time">Add Time</label>
                                         <span class="uil uil-clock flatpickr-icon text-body-tertiary"></span>
                                     </div>
                                 </div>
@@ -642,12 +675,39 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="mt-2">
+                        <div class="form-floating">
+                            <textarea id="possibleText" type="text" class="form-control" name="possibleText" disabled></textarea>
+                            <label for="possibleText" class="form-label">Possible Reason</label>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="hoClMo" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger mb-3" style="color: red;">
+                    <i class="fa fa-trash fs-5"></i>
+                </span>
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <h4 class="modal-title" style="color: red;">Are you sure you want to Close?</h4>
+                <p class="mb-3">This action cannot be undone.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-coreui-dismiss="modal">Cancel</a>
+                    <a class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -678,7 +738,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <div class="form-floating">
-                                    <input id="empName2" type="text" class="form-control" name="employeeName" disabled value="Md Shefain">
+                                    <input id="empName2" type="text" class="form-control" name="employeeName" disabled>
                                     <label for="empName2" class="form-label">Employee Name</label>
                                 </div>
                             </div>
@@ -722,6 +782,6 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/layout/flatpickr/flatpickr.min.js"></script>
-   
+
     <script src="~/js/pages/AttendanceManagement/ManualAttendence/ManualAttendence.js"></script>
 }

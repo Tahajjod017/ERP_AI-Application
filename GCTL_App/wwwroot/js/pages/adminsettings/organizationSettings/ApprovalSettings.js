@@ -216,7 +216,8 @@ $(document).ready(function () {
                     form.trigger("reset");
                     loadTableData();
                     populateOptions();
-                    choicDp();
+                    //choicDp();
+                    choiceManager.resetChoice('OrganizationeID');
                     
                 } else {
                     toastr.error(response.message, 'Error');

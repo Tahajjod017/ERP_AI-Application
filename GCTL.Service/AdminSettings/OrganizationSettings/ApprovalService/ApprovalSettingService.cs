@@ -598,6 +598,122 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             return combinedList;
         }
 
+        public async Task<List<SelectListItem>> GetEmployeeWithApprovalDesignationForEditAsync(int organizationId)
+        {
+            // Fetch Approval Designations
+            var approvalDesignations = await _genericRepositoryApprovalDesignations.All()
+                .Where(ad => ad.DeletedAt == null)
+                .Select(ad => new SelectListItem
+                {
+                    Value = ad.ApprovalDesignationID.ToString() + "_ad",
+                    Text = ad.ApprovalDesignationName
+                })
+                .ToListAsync();
+
+            // Fetch Employees with Designation and Ranking, filtered by organizationId and ordered by rank 1 to 5
+            var employeeWithDesignation = await _genericRepositoryEmployeeOfficeInfo.All()
+                .Where(eoi => eoi.DeletedAt == null)
+                .Join(
+                    _genericRepositoryEmployees.All().Where(emp => emp.DeletedAt == null),
+                    eoi => eoi.EmployeeID,
+                    emp => emp.EmployeeID,
+                    (eoi, emp) => new { eoi, emp }
+                )
+                .Join(
+                    _genericRepositoryDesignations.All().Where(
+                        d => d.DeletedAt == null &&
+                             d.Ranking >= 1 &&
+                             d.Ranking <= 5 &&
+                             d.OrganizationID == organizationId
+                    ),
+                    combined => combined.eoi.DesignationID,
+                    d => d.DesignationID,
+                    (combined, d) => new { combined, d }
+                )
+                .OrderBy(x => x.d.Ranking) // Order employees by their designation rank
+                .Select(x => new SelectListItem
+                {
+                    Value = x.combined.eoi.EmployeeID.ToString(),
+                    Text = $"{x.combined.emp.FirstName} {x.combined.emp.LastName} | {x.d.DesignationName}"
+                })
+                .ToListAsync();
+
+            // If employeeWithDesignation already has data, don't fetch from ApprovalSettings
+            if (employeeWithDesignation.Any())
+            {
+                return employeeWithDesignation.Concat(approvalDesignations).Distinct().ToList();
+            }
+
+            // Fetch approval settings if employeeWithDesignation is empty
+            var approvalSettings = await _genericRepository.All()
+                .Where(aset => aset.OrganizationID == organizationId && aset.DeletedAt == null)
+                .ToListAsync();
+
+            // Add First, Second, and Third Approval Employees (if applicable)
+            foreach (var approvalSetting in approvalSettings)
+            {
+                if (approvalSetting.IsDesignationOrEmpFirstApprovalID && approvalSetting.FirstApprovalID.HasValue)
+                {
+                    var firstApprovalEmployee = await _genericRepositoryEmployees.All()
+                        .Where(emp => emp.EmployeeID == approvalSetting.FirstApprovalID.Value && emp.DeletedAt == null)
+                        .Select(emp => new SelectListItem
+                        {
+                            Value = emp.EmployeeID.ToString(),
+                            Text = $"{emp.FirstName} {emp.LastName}"
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (firstApprovalEmployee != null)
+                    {
+                        approvalDesignations.Add(firstApprovalEmployee);  // Add employee to the list if it's a valid first approval employee
+                    }
+                }
+
+                if (approvalSetting.IsDesignationOrEmpSecondApprovalID && approvalSetting.SecondApprovalID.HasValue)
+                {
+                    var secondApprovalEmployee = await _genericRepositoryEmployees.All()
+                        .Where(emp => emp.EmployeeID == approvalSetting.SecondApprovalID.Value && emp.DeletedAt == null)
+                        .Select(emp => new SelectListItem
+                        {
+                            Value = emp.EmployeeID.ToString(),
+                            Text = $"{emp.FirstName} {emp.LastName}"
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (secondApprovalEmployee != null)
+                    {
+                        approvalDesignations.Add(secondApprovalEmployee);  // Add employee to the list if it's a valid second approval employee
+                    }
+                }
+
+                if (approvalSetting.IsDesignationOrEmpThirdApprovalID && approvalSetting.ThirdApprovalID.HasValue)
+                {
+                    var thirdApprovalEmployee = await _genericRepositoryEmployees.All()
+                        .Where(emp => emp.EmployeeID == approvalSetting.ThirdApprovalID.Value && emp.DeletedAt == null)
+                        .Select(emp => new SelectListItem
+                        {
+                            Value = emp.EmployeeID.ToString(),
+                            Text = $"{emp.FirstName} {emp.LastName}"
+                        })
+                        .FirstOrDefaultAsync();
+
+                    if (thirdApprovalEmployee != null)
+                    {
+                        approvalDesignations.Add(thirdApprovalEmployee);  // Add employee to the list if it's a valid third approval employee
+                    }
+                }
+            }
+
+            // Combine both lists
+            var combinedList = new List<SelectListItem>();
+            combinedList.AddRange(approvalDesignations);
+            combinedList.AddRange(employeeWithDesignation);
+
+            // Ensure no duplicates in the final list
+            return combinedList.Distinct().ToList();
+        }
+
+
         #endregion
 
 

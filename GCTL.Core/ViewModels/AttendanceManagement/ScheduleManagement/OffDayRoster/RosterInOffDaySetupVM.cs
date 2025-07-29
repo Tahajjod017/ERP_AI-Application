@@ -9,7 +9,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRos
 {
     public class RosterInOffDaySetupVM : BaseViewModel
     {
-        public int RosterInOffDayID { get; set; }
+        public int RosterInHolyDayID { get; set; }
 
         [Required(ErrorMessage = "Organization is required!")]
         public int? OrganizationID { get; set; }
@@ -31,12 +31,12 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRos
         public int? ShiftID { get; set; }
         public string? ShiftName { get; set; }
 
-        [Required(ErrorMessage = "Start date is required!")]
-        public DateTime? StartDate { get; set; }
+        [Required(ErrorMessage = "Date is required!")]
+        public List<DateTime>? DayDate { get; set; }
 
-        [Required(ErrorMessage = "End date is required!")]
-        public DateTime? EndDate { get; set; }
+        [Required(ErrorMessage = "Compensation Type is required!")]
+        public int? CompensationTypeID { get; set; }
 
-        public string? TimeRange { get; set; }
+        public List<DateTime>? ExchangeDate { get; set; }
     }
 }

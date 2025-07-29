@@ -59,6 +59,7 @@
   <ItemGroup>
     <Folder Include="ViewModels\ProjectManagements\" />
     <Folder Include="wwwroot\img\companyImages\" />
+    <Folder Include="wwwroot\js\pages\Employees\EmployeeStatus\Promotion\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
     <Folder Include="wwwroot\uploads\employee\signatures\" />
 
@@ -74,10 +75,6 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Update="Views\RolePermission\_PermissionTablePartial.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="wwwroot\js\pages\AttendanceManagement\ManualAttendence\ManualAttendenceBackup.js">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

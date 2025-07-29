@@ -26,16 +26,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             ViewBag.Organizations = await _weekendSettingService.GetOrganizationsAsync(); ;
             ViewBag.Branches = new List<SelectListItem>(); // initially empty
 
-            //ViewBag.WeekendDays = new List<SelectListItem>
-            //                    {
-            //                        new SelectListItem { Value = "0", Text = "Monday" },
-            //                        new SelectListItem { Value = "1", Text = "Tuesday" },
-            //                        new SelectListItem { Value = "2", Text = "Wednesday" },
-            //                        new SelectListItem { Value = "3", Text = "Thursday" },
-            //                        new SelectListItem { Value = "4", Text = "Friday" },
-            //                        new SelectListItem { Value = "5", Text = "Saturday" },
-            //                        new SelectListItem { Value = "6", Text = "Sunday" }
-            //                    };
+            
             ViewBag.WeekendDays = Enum.GetValues(typeof(DayOfWeek))
                                 .Cast<DayOfWeek>()
                                 .Select(d => new SelectListItem

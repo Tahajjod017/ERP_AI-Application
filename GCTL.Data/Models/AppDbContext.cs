@@ -393,13 +393,45 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
+
 .HasDiscriminator<string>("Discriminator")
 .HasValue<ApplicationUser>("ApplicationUser");
+
+          .HasDiscriminator<string>("Discriminator")
+          .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
-        .HasOne(u => u.Employees)
-        .WithMany(e => e.AspNetUsers)
-        .HasForeignKey(u => u.EmployeeId)
-        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+                .HasOne(u => u.Employees)
+                .WithMany(e => e.AspNetUsers)
+                .HasForeignKey(u => u.EmployeeId)
+                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+        modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.Organization)
+                .WithMany(o => o.AspNetUsers)
+                .HasForeignKey(u => u.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
+
+        modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.TenantInfo)
+                .WithMany(t => t.AspNetUsers)
+                .HasForeignKey(u => u.TenantInfoId)
+                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
+        //modelBuilder.Entity<ApplicationRole>()
+        //        .HasDiscriminator<string>("Discriminator")
+        //        .HasValue<ApplicationRole>("ApplicationRole");
+        modelBuilder.Entity<ApplicationRole>()
+                .HasOne(r => r.Organization)
+                .WithMany(o => o.AspNetRoles)
+                .HasForeignKey(r => r.OrganizationID)
+                .IsRequired(false)
+                .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
+        modelBuilder.Entity<ApplicationRole>()
+                .HasOne(r => r.TenantInfo)
+                .WithMany(t => t.AspNetRoles)
+                .HasForeignKey(r => r.TenantInfoId)
+                .IsRequired(false)
+                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {

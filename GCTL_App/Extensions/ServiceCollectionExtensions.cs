@@ -79,6 +79,8 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.Employees.EmpTransfer;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Service.AllNotifications;
 
 #endregion
@@ -142,6 +144,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAddShiftService, AddShiftService>();
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
             services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
+            services.AddScoped<IOffDayRosterService, OffDayRosterService>();
             #endregion
 
 
@@ -171,6 +174,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IProbationSettingService, ProbationSettingService>();
             services.AddScoped<IEmployeeAttendanceReport, EmployeeAttendanceService>();
             services.AddScoped<IDailyReportService, DailyReportService>();
+            services.AddTransient<HolidayHelper>();
+            services.AddTransient<WeekendHelper>();
             #endregion
 
 

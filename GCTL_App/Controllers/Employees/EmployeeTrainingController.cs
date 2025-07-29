@@ -49,6 +49,7 @@ namespace GCTL_App.Controllers.Employees
 
         public async Task< IActionResult> Index(int id)
         {
+            SetSmartPageCode(115000);
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
             if (loggedUser != null)
@@ -76,7 +77,6 @@ namespace GCTL_App.Controllers.Employees
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.Country = _countryRepository.GetActiveSelectListById(c => c.CountryID, c => c.CountryName);
             ViewBag.TrainingYear = _trainingYearsRepository.GetActiveSelectListById(t => t.TrainingYearID, t => t.TrainingYearName);
-            SetSmartPageCode(115000);
 
             
 
