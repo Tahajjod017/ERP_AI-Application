@@ -18,7 +18,7 @@
 <div class="row justify-content-center">
     <div class="col-12">
         <div class="card">
-            
+
             <div class="card-body">
 
 
@@ -30,11 +30,9 @@
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementEmpId" required>
+                                <select class="form-select choiceDD" id="incrementEmpId" asp-items="@ViewBag.EmployeeDD">
                                     <option value="" selected disabled>Select Employee Name</option>
-                                    <option value="1">John Doe</option>
-                                    <option value="2">Jane Smith</option>
-                                    <option value="3">Mike Johnson</option>
+
                                 </select>
                                 <label for="incrementEmpId">Employee Name</label>
                                 <span class="text-danger small"></span>
@@ -42,11 +40,9 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementOrganization" required>
+                                <select class="form-select choiceDD" id="incrementOrganization" asp-items="@ViewBag.OrganizationDD">
                                     <option value="" selected disabled>Select Organization</option>
-                                    <option value="1">ABC Corp</option>
-                                    <option value="2">XYZ Ltd</option>
-                                    <option value="3">Tech Solutions</option>
+
                                 </select>
                                 <label for="incrementOrganization">Organization</label>
                                 <span class="text-danger small"></span>
@@ -54,12 +50,9 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementDesigantion" required>
+                                <select class="form-select choiceDD" id="incrementDesigantion" asp-items="@ViewBag.DesignationDD">
                                     <option value="" selected disabled>Select Designation</option>
-                                    <option value="1">Software Engineer</option>
-                                    <option value="2">Senior Software Engineer</option>
-                                    <option value="3">Team Lead</option>
-                                    <option value="4">Manager</option>
+
                                 </select>
                                 <label for="incrementDesigantion">Designation</label>
                                 <span class="text-danger small"></span>
@@ -67,12 +60,9 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementDepatment" required>
+                                <select class="form-select choiceDD" id="incrementDepatment" asp-items="@ViewBag.DepartmentDD">
                                     <option value="" selected disabled>Select Department</option>
-                                    <option value="1">IT Department</option>
-                                    <option value="2">HR Department</option>
-                                    <option value="3">Finance Department</option>
-                                    <option value="4">Operations</option>
+
                                 </select>
                                 <label for="incrementDepatment">Department</label>
                                 <span class="text-danger small"></span>
@@ -99,7 +89,7 @@
                         <div class="card-body">
                             <!-- Date Field -->
                             <div class="row mb-3">
-                                
+
 
 
                                 <div class="col-md-6">
@@ -168,3 +158,11 @@
     </div>
 </div>
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+<script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementForm.js"></script>
+
+}
