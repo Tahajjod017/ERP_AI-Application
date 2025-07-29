@@ -11,6 +11,10 @@
 
 <partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReportMonthly.cshtml" model="subTab" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Include Month Select Plugin CSS (important to load for correct styling) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
 
 
 
@@ -107,7 +111,10 @@
                                 <option>Nozib-ullah</option>
                             </select>
                         </div>
+                        <div class="">
+                        <input type="text" id="year-month-picker" class="form-control" />
 
+                        </div>
                         <div class="dropdown me-3">
                             <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
                                 <option value="">Select Month</option>
@@ -130,22 +137,22 @@
                 </div>
 
                 <!-- All Employee monthly attendance Table-->
-            <div id="individualEmployeeMonthlyAttendanceTable">
+            <div id="individualEmployeemonthlyAttendanceTable">
                 <div class="table-responsive">
                     <table class="table-bordered text-center p-2">
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <!-- Placeholder for dynamic day columns -->
-                        
-                         </tr>
+                                <!-- The month headers will be dynamically added here -->
+                            </tr>
                         </thead>
-                        <tbody id="individualEmployeeMonthlyAttendanceTable">
-                            <!-- Dynamically generated table rows will be inserted here -->
+                        <tbody>
+                            <!-- The attendance data rows will be dynamically added here -->
                         </tbody>
                     </table>
                 </div>
             </div>
+
 
                @*  <div id="individualEmployeemonthlyAttendanceTable" data-list='{"valueNames":["empName"],"page":3,"pagination":true}'>
                     <div class="table-responsive">
@@ -709,7 +716,34 @@
             </div>
         </div>
     </div>
-
 @section Scripts {
-    <script src="~/js/pages/attendancemanagement/employeereportindividual/monthlyreportindividual.js"></script> 
+    <script src="~/js/pages/attendancemanagement/employeereportindividual/monthlyreportindividual.js"></script>
+    <!-- Include Flatpickr CSS -->
+    
+
+    <!-- Include the Month Select Plugin (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+
+    <!-- Include Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+           $(document).ready(function () {
+            $('#year-month-picker').flatpickr({
+                mode: "single",   // Single selection mode (no day selection)
+                dateFormat: "F Y",  // Display month and year as 'm.y' (e.g., '07.2025')
+                altFormat: "F Y",  // Display full month and year (e.g., 'July 2025')
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: true,  // Use short month names (Jan, Feb, etc.)
+                        dateFormat: "F Y",  // Use month and year format (e.g., '07.2025')
+                        altFormat: "F Y",  // Full month name with year (e.g., 'July 2025')
+                        theme: "light"   // Use the light theme for the calendar (default)
+                    })
+                ],
+                onChange: function (selectedDates, dateStr, instance) {
+                    console.log(dateStr); // Logs selected date to the console
+                }
+            });
+        });
+    </script>
 }
