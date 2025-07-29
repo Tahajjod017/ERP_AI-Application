@@ -21,7 +21,7 @@ $(document).ready(function () {
             if (response.success) {
                 const container = $('#notificationContainer');
                 container.empty(); // Clear any existing notifications
-                debugger
+              
                 response.data.forEach(notification => {
                     const cardHtml = `
                         <div class="px-2 px-sm-3 py-3 notification-card position-relative ${notification.isChecked ? 'read' : 'unread'} border-bottom">

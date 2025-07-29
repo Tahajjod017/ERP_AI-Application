@@ -43,12 +43,12 @@ function getDaysInMonth(month, year) {
 function generateTable() {
     const organizationID = document.getElementById('organizationID').value;
     const departmentID = document.getElementById('departmentID').value;
-    const monthID = document.getElementById('MonthID').value;
-    const yearID = document.getElementById('YearID').value;
+    //const monthID = document.getElementById('MonthID').value;
+    //const yearID = document.getElementById('YearID').value;
 
     if (!monthID || !yearID) return;  // Ensure both month and year are selected
 
-    const daysInMonth = getDaysInMonth(monthID, yearID);  // Get the number of days in the selected month
+    const daysInMonth = getDaysInMonth(1, 1);  // Get the number of days in the selected month
     const tbody = document.getElementById('empMonthlyAll-tbody');
     const thead = document.querySelector('thead tr');
 
