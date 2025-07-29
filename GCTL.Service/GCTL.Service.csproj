@@ -24,8 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Employees\EmployeeStatus\Increment\" />
-    <Folder Include="Employees\EmployeeStatus\Promotion\" />
     <Folder Include="ProjectManagements\" />
   </ItemGroup>
 

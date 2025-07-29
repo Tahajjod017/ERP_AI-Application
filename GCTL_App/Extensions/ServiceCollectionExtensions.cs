@@ -82,6 +82,8 @@ using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Service.AllNotifications;
+using GCTL.Service.Employees.EmployeeStatus.Increment;
+using GCTL.Service.Employees.EmployeeStatus.Promotion;
 
 #endregion
 
@@ -219,6 +221,14 @@ namespace GCTL_App.Extensions
 
             services.AddScoped<IImageFileHandlerService, ImageFileHandlerService>();
             services.AddScoped<IPdfFileHandler, PdfFileHandler>();
+
+            #endregion
+
+            #region Employee Status Management(Increment, Promotion)
+
+            services.AddScoped<IincrementService, IncrementService>();
+            services.AddScoped<IPromotionService, PromotionService>();
+
 
             #endregion
         }

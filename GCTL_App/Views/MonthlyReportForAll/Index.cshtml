@@ -12,6 +12,9 @@
 <partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReportMonthly.cshtml" model="subTab" />
 
+<!-- Include Month Select Plugin CSS (important to load for correct styling) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
 <div class="tab-pane fade show active" id="tab-monthlyReportForAll" role="tabpanel" aria-labelledby="home-tab">
 
 
@@ -40,5 +43,28 @@
 
 @section Scripts {
    <script src="~/js/pages/attendancemanagement/employeereportall/monthlyreportforall.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
+    <!-- Include Flatpickr JS -->
+
+    <script>
+           $(document).ready(function () {
+            $('#year-month-picker').flatpickr({
+                mode: "month",   // Single selection mode (no day selection)
+                dateFormat: "F Y",  // Display month and year as 'm.y' (e.g., '07.2025')
+                altFormat: "F Y",  // Display full month and year (e.g., 'July 2025')
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: true,  // Use short month names (Jan, Feb, etc.)
+                        dateFormat: "F Y",  // Use month and year format (e.g., '07.2025')
+                        altFormat: "F Y",  // Full month name with year (e.g., 'July 2025')
+                        theme: "grey"   // Use the light theme for the calendar (default)
+                    })
+                ],
+                onChange: function (selectedDates, dateStr, instance) {
+                    console.log(dateStr); // Logs selected date to the console
+                }
+            });
+        });
+    </script>
 }
