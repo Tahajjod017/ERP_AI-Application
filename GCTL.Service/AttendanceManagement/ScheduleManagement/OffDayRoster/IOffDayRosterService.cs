@@ -11,6 +11,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
     public interface IOffDayRosterService
     {
         Task<bool> AddAsync(RosterInOffDaySetupVM model);
+        Task<bool> UpdateEmpShiftAsync(RosterInOffDayEditVM model);
         Task<SeparatePaginationResult<RosterInOffDayListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOffDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null);
         Task<(List<RosterInOffDayListVM> rosterList, List<string> uniqueDates)> GetAll();
     }

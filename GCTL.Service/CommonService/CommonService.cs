@@ -375,5 +375,40 @@ namespace GCTL.Service.CommonService
             }
         }
         #endregion
+
+
+        #region GetWeekDaysByOrganization
+        public async Task<IEnumerable<object>> GetWeekDaysByOrganization(int id)
+        {
+            try
+            {
+                // Define the list of all weekdays (0 to 6)
+                var allWeekdays = new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 };
+
+                // Get the weekend settings and filter the weekend days for the given organization
+                var weekendSettings = await _weekendSettings.AllActive()
+                    .Include(ws => ws.Organization)
+                    .Where(ws => ws.OrganizationID == id)
+                    .GroupJoin(
+                        _weekendDays.AllActive(),
+                        ws => ws.WeekendSettingID,
+                        wd => wd.WeekendSettingID,
+                        (ws, days) => new
+                        {
+                            ws.WeekendSettingID,
+                            ws.Organization.OrganizationName,
+                            RemainingWeekdays = string.Join(", ", allWeekdays.Except(days.Select(d => d.WeekdayNumber ?? -1)))
+                        })
+                    .ToListAsync();
+
+                return weekendSettings;
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions appropriately
+                throw new Exception("Error fetching weekend settings", ex);
+            }
+        }
+        #endregion
     }
 }

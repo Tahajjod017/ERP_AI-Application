@@ -6,11 +6,14 @@
             form: '#rosterInOffDay-form',
             saveBtn: '#rosterInOffDay-saveBtn',
             resetBtn: '#rosterInOffDay-resetBtn',
+            editShiftModal: '#rosterInOffDay-editShiftModal',
+            editShiftSaveBtn: '#EditShiftModal-saveShift',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
+        var updateEmpShift = settings.baseUrl + "/UpdateEmpShiftAsync";
         $(() => {
 
 
@@ -24,7 +27,7 @@
 
                 const formData = {
                     //__RequestVerificationToken: token,
-                    RosterInOffDayID: $('#RosterInOffDayID').val(),
+                    RosterInHolyDayID: $('#RosterInHolyDayID').val(),
                     OrganizationID: $('#OrganizationID').val(),
                     DepartmentIDs: $('#DepartmentIDs').val(),
                     EmployeeIDs: $('#EmployeeIDs').val(),
@@ -33,7 +36,7 @@
                     CompensationTypeID: $('#CompensationTypeID').val()
                 };
 
-                const id = $('#RosterInOffDayID').val();
+                const id = $('#RosterInHolyDayID').val();
                 const isEdit = id > 0;
                 const url = isEdit ? updateUrl : createUrl;
 
@@ -115,6 +118,9 @@
 
                 $('#DayDate').prop('disabled', true);
                 flatpickr("#DayDate").destroy();
+                toggleCompensationSelect();
+
+                $('#ExchangeDateDiv').addClass('d-none');
 
                 initOrganizationDD();
                 initShiftDD();
@@ -484,7 +490,7 @@
             // #endregion
 
 
-
+            // #region GetWeekendByOrganization
             $('#OrganizationID').on('change', function () {
                 var selectedId = $(this).val();  // Get the selected OrganizationID
 
@@ -498,6 +504,7 @@
                         success: function (data) {
                             // Prepare an array to store the enabled dates
                             let enabledDates = [];
+                            let disabledDates = [];
 
                             // Loop through the weekend settings data
                             $.each(data, function (index, item) {
@@ -522,6 +529,10 @@
                                             // Format the date as 'Y-m-d' (flatpickr date format)
                                             const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
                                             enabledDates.push(formattedDate);
+                                        } else {
+                                            // Otherwise, it's disabled, add to disabledDates
+                                            const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
+                                            disabledDates.push(formattedDate);
                                         }
                                     }
                                 }
@@ -539,6 +550,17 @@
                                 mode: "multiple",
                                 enable: enabledDates 
                             });
+
+                            flatpickr("#ExchangeDate", {
+                                altInput: true,
+                                altFormat: "d/m/Y",
+                                dateFormat: "Y-m-d",
+                                monthSelectorType: "dropdown",
+                                disableMobile: true,
+                                allowInput: true,
+                                mode: "multiple",
+                                enable: disabledDates 
+                            });
                         },
                         error: function (xhr, status, error) {
                             console.error('Error fetching weekend settings:', error);
@@ -549,7 +571,127 @@
                     flatpickr("#DayDate").destroy();
                 }
             });
+            // #endregion
 
+                        
+            function toggleCompensationSelect() {
+                const dayDateVal = $('#DayDate').val().trim();
+                if (dayDateVal) {
+                    $('#CompensationTypeID').prop('disabled', false);
+                    compensationDD.enable();
+                } else {
+                    $('#CompensationTypeID').prop('disabled', true);
+                    compensationDD.disable();
+                }
+            }
+            toggleCompensationSelect();
+
+            // Recheck on input change
+            $('#DayDate').on('input change blur', function () {
+                toggleCompensationSelect();
+            });
+
+
+            // #region Load shift by opening edit shift modal
+            $(settings.editShiftModal).on('show.bs.modal', function (e) {
+                var btn = $(e.relatedTarget);
+                var rosterInHolyDayIdEdit = btn.data('id');
+                var shiftId = btn.data('shift-id');
+                var organizationId = btn.data('organization-id');
+                var depId = btn.data('dep-id');
+                var empId = btn.data('emp-id');
+                var overrideDate = btn.data('date');
+
+                $('#RosterInHolyDayIdEdit').val(rosterInHolyDayIdEdit);
+                $('#OrganizationIdEdit').val(organizationId);
+                $('#DepartmentIdEdit').val(depId);
+                $('#EmployeeIdEdit').val(empId);
+                $('#DayDateEdit').val(overrideDate);
+
+                $.ajax({
+                    url: '/OffDayRoster/GetShiftByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (shifts) {
+                        const $shiftSelect = $('#ShiftIdEdit');
+
+                        $shiftSelect.empty();
+
+                        // Add default placeholder
+                        $shiftSelect.append(`<option value="">Select Shift...</option>`);
+
+                        // Populate shift options
+                        shifts.forEach(shift => {
+                            const isSelected = shift.id === shiftId;
+                            $shiftSelect.append(
+                                `<option value="${shift.id}" ${isSelected ? 'selected' : ''}>
+                                    ${shift.name}
+                                </option>`
+                            );
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading shifts:', error);
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region Edit
+            $(settings.editShiftSaveBtn).on('click', function (e) {
+                e.preventDefault();
+
+                const $modal = $(settings.editShiftModal);
+                //const token = $('#EditShiftModal-form input[name="__RequestVerificationToken"]').val();
+
+                let formData = new FormData();
+                formData.append("RosterInHolyDayIdEdit", $('#RosterInHolyDayIdEdit').val());
+                formData.append("OrganizationIdEdit", $('#OrganizationIdEdit').val());
+                formData.append("DepartmentIdEdit", $('#DepartmentIdEdit').val());
+                formData.append("EmployeeIdEdit", $('#EmployeeIdEdit').val());
+                formData.append("ShiftIdEdit", $('#ShiftIdEdit').val());
+                formData.append("DayDateEdit", $('#DayDateEdit').val());
+
+                const url = updateEmpShift;
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            toastr.success(response.message);
+
+                            const modalElement = document.getElementById('rosterInOffDay-editShiftModal');
+                            const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                            modalInstance.hide();
+
+                            loadTableData();
+                            //clear();
+                        } else {
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Conflict check failed:', err);
+                    }
+                });
+            });
+            // #endregion
+
+
+
+            $('#CompensationTypeID').on('change', function () {
+                const selectedValue = $(this).val();
+                if (selectedValue === "3") {
+                    $('#ExchangeDateDiv').removeClass('d-none');
+                    //$('#rosterInOffDay-dayExchangeModal').modal('show');
+                }
+            });
+            
 
 
         });
@@ -558,7 +700,7 @@
 
         function loadTableData() {
             $.ajax({
-                url: '/OffDayRoster/GetRosterData',
+                url: gridUrl,
                 type: 'GET',
                 success: function (response) {
                     if (response.success) {
@@ -573,14 +715,17 @@
             });
 
             function buildRosterTable(rosterList, uniqueDates) {
-                let thead = '<tr><th>Employee Name</th>';
+                let thead = '<tr><th class="align-middle text-center text-uppercase text-nowrap">Employee Name</th>';
 
                 uniqueDates.forEach(date => {
                     const d = new Date(date);
                     const displayDate = d.toLocaleDateString('en-GB'); // Format: dd/mm/yyyy
                     const dayName = d.toLocaleDateString('en-GB', { weekday: 'short' }); // e.g., Mon, Tue
 
-                    thead += `<th>${dayName}<br/>${displayDate}</th>`;
+                    thead += `
+                        <th class="align-middle text-center text-uppercase text-nowrap">
+                            ${dayName}<br/>${displayDate}
+                        </th>`;
                 });
 
                 thead += '</tr>';
@@ -589,16 +734,39 @@
                 let tbody = '';
                 rosterList.forEach(emp => {
                     tbody += `<tr>
-                    <td>${emp.employeeName}<br/>${emp.departmentName}<br/>${emp.organizationName}</td>`;
+                    <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
+                        <div class="d-inline-flex flex-column align-items-center justify-content-center">
+                            <h5>${emp.employeeName}<br/></h5>
+                            <p class="fs-9 mb-0">${emp.departmentName}<br/></p>
+                            <p class="fs-9 mb-0">${emp.organizationName}</p>
+                        </div>
+                    </td>`;
 
                     uniqueDates.forEach(date => {
-                        debugger
                         const shift = emp.shiftsPerDay[date];
 
                         if (shift) {
-                            tbody += `<td>${shift.shiftName}<br/><small>${shift.timeRange}</small></td>`;
+                            tbody += `
+                            <td class="holiday-cell align-middle text-center">
+                                <div class="position-relative badge badge-phoenix-primary shift-block px-4 py-2" style="border-left:5px solid #FF6F6F;">
+                                    <p class="fs-10 mb-1">${shift.timeRange}</p>
+                                    <p class="fs-10 mb-1">${shift.shiftName}</p>
+                                    <a href="#" class="btn btn-light btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn"
+                                       data-bs-toggle="modal" id="rosterInOffDay-editBtn"
+                                       data-id="${shift.rosterInHolyDayID}" 
+                                       data-date="${date}" 
+                                       data-shift-id="${shift.shiftID}"
+                                       data-organization-id="${emp.organizationID}" 
+                                       data-dep-id="${emp.departmentID}" 
+                                       data-emp-id="${emp.employeeID}" 
+                                       data-bs-target="#rosterInOffDay-editShiftModal">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            `;
                         } else {
-                            tbody += `<td>-</td>`;
+                            tbody += `<td class="holiday-cell align-middle text-center">-</td>`;
                         }
                     });
 

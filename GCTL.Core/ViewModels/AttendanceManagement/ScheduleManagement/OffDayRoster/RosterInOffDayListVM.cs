@@ -9,7 +9,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRos
 {
     public class RosterInOffDayListVM : BaseViewModel
     {
-        public int RosterInOffDayID { get; set; }
+        public int RosterInHolyDayID { get; set; }
 
         public int? OrganizationID { get; set; }
         public string? OrganizationName { get; set; }
@@ -35,12 +35,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRos
 
         public string? TimeRange { get; set; }
 
-        public Dictionary<DateTime, ShiftVM> ShiftsPerDay { get; set; } = new();
-    }
-
-    public class ShiftVM
-    {
-        public string ShiftName { get; set; }
-        public string TimeRange { get; set; } 
+        //public Dictionary<DateTime, ShiftVM> ShiftsPerDay { get; set; } = new();
+        public Dictionary<string, ShiftVM> ShiftsPerDay { get; set; }
     }
 }
