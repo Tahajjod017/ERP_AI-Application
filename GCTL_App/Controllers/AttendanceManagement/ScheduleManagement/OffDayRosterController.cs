@@ -56,21 +56,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         [HttpPost]
         public async Task<IActionResult> Create(RosterInOffDaySetupVM model)
         {
-            if(model.DayDate != null && model.CompensationTypeID == 3 && model.ExchangeDate.Count == 0)
+            if (model.DayDate != null && model.CompensationTypeID == 3)
             {
-                return Json(new { isSuccess = false, message = "Please select Exchange Date!" });
-            }
-
-            if(model.DayDate != null && model.ExchangeDate != null && model.ExchangeDate.Count != model.DayDate.Count)
-            {
-                return Json(new { isSuccess = false, message = "The number of Exchange Dates must match the number of Selected Dates." });
-            }
-
-            for (int i = 0; i < model.ExchangeDate.Count; i++)
-            {
-                if (model.ExchangeDate[i] <= model.DayDate[i])
+                if (model.ExchangeDate == null || model.ExchangeDate.Count == 0)
                 {
-                    return Json(new { isSuccess = false, message = $"Exchange Date at index {i + 1} must be greater than the corresponding Day Date." });
+                    return Json(new { isSuccess = false, message = "Please select Exchange Date!" });
+                }
+
+                if (model.ExchangeDate.Count != model.DayDate.Count)
+                {
+                    return Json(new { isSuccess = false, message = "The number of Exchange Dates must match the number of Selected Dates." });
+                }
+
+                for (int i = 0; i < model.ExchangeDate.Count; i++)
+                {
+                    if (model.ExchangeDate[i] <= model.DayDate[i])
+                    {
+                        return Json(new { isSuccess = false, message = $"Exchange Date at index {i + 1} must be greater than the corresponding Day Date." });
+                    }
                 }
             }
 
@@ -78,13 +81,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    //// userInfoService.SetUserInfo(model, User, HttpContext);
-                    //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
-                    //if (!uniqueName)
-                    //{
-                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
-                    //}
-
                     await _offDayRosterService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
@@ -231,17 +227,29 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         }
         #endregion
 
-
-        public async Task<IActionResult> GetAll()
+        
+        #region GetAllAsync
+        [Route("OffDayRoster/GetAllAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInHolyDayID", string sortOrder = "desc", int daysToShow = 7)
         {
-            var (rosterList, uniqueDates) = await _offDayRosterService.GetAll();
-
-            return Json(new
+            try
             {
-                success = true,
-                rosterList,
-                uniqueDates
-            });
+                var (data, uniqueDates, pagination) = await _offDayRosterService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+
+                return Json(new
+                {
+                    isSuccess = true,
+                    data,
+                    uniqueDates,
+                    pagination
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
+        #endregion
     }
 }
