@@ -379,6 +379,12 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<LeadStatuses> LeadStatusesCreatedByNavigation { get; set; } = new List<LeadStatuses>();
+
+    public virtual ICollection<LeadStatuses> LeadStatusesDeletedByNavigation { get; set; } = new List<LeadStatuses>();
+
+    public virtual ICollection<LeadStatuses> LeadStatusesUpdatedByNavigation { get; set; } = new List<LeadStatuses>();
+
     public virtual ICollection<LeaveApplications> LeaveApplicationsApprovalPerson { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveApplications> LeaveApplicationsCreatedByNavigation { get; set; } = new List<LeaveApplications>();
@@ -532,6 +538,12 @@ public partial class Employees
     public virtual ICollection<ServiceYears> ServiceYearsDeletedByNavigation { get; set; } = new List<ServiceYears>();
 
     public virtual ICollection<ServiceYears> ServiceYearsUpdatedByNavigation { get; set; } = new List<ServiceYears>();
+
+    public virtual ICollection<Services> ServicesCreatedByNavigation { get; set; } = new List<Services>();
+
+    public virtual ICollection<Services> ServicesDeletedByNavigation { get; set; } = new List<Services>();
+
+    public virtual ICollection<Services> ServicesUpdatedByNavigation { get; set; } = new List<Services>();
 
     public virtual ICollection<Shifts> ShiftsCreatedByNavigation { get; set; } = new List<Shifts>();
 
