@@ -1556,14 +1556,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         {
             entity.HasKey(e => e.EmployeeTransferHistoryID).HasName("PK__Employee__83928F86E6DA257F");
 
+            entity.Property(e => e.ApprovalPersonNote).HasMaxLength(200);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.TransferDate).HasColumnType("datetime");
-            entity.Property(e => e.TransferNote).HasMaxLength(200);
             entity.Property(e => e.TransferType).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
