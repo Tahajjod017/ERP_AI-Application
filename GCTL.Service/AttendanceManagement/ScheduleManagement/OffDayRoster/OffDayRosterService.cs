@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
@@ -80,63 +81,22 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                                     entity.CreatedAt = DateTime.Now;
                                     await _genericRepository.AddAsync(entity);
 
-                                    foreach(var exDate in model.ExchangeDate)
+                                    foreach (var exDate in model.ExchangeDate)
                                     {
                                         CompensationDayExchanges dayExchanges = new CompensationDayExchanges();
                                         dayExchanges.RosterInHolyDayID = entity.RosterInHolyDayID;
                                         dayExchanges.SelectDate = date;
                                         dayExchanges.ExchangeDate = exDate;
+                                        dayExchanges.CreatedAt = DateTime.Now;
+                                        dayExchanges.CreatedBy = model.CreatedBy;
+                                        dayExchanges.LIP = model.LIP;
+                                        dayExchanges.LMAC = model.LMAC;
                                         await _compensationDayExchanges.AddAsync(dayExchanges);
                                     }
                                 }
                             }
-
-                            if (existingEntity != null)
-                            {
-                                existingEntity.ShiftID = model.ShiftID;
-                                existingEntity.LIP = model.LIP;
-                                existingEntity.LMAC = model.LMAC;
-                                existingEntity.CreatedBy = model.CreatedBy;
-                                existingEntity.CreatedAt = DateTime.Now;
-
-                                await _genericRepository.UpdateAsync(existingEntity);
-                            }
                             else
                             {
-                                RosterInHolyDays entity = new RosterInHolyDays();
-                                entity.OrganizationID = employee.OrganizationID;
-                                entity.DepartmentID = employee.DepartmentID;
-                                entity.EmployeeID = employee.EmployeeID;
-                                entity.ShiftID = model.ShiftID;
-                                entity.DayDate = date;
-                                entity.CompensationTypeID = model.CompensationTypeID;
-                                entity.LIP = model.LIP;
-                                entity.LMAC = model.LMAC;
-                                entity.CreatedBy = model.CreatedBy;
-                                entity.CreatedAt = DateTime.Now;
-                                await _genericRepository.AddAsync(entity);
-                            }
-                        }
-                    }
-                }
-                else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
-                {
-                    foreach(var date in model.DayDate)
-                    {
-                        foreach (var depId in model.DepartmentIDs)
-                        {
-                            var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
-                            if (employees == null || !employees.Any())
-                                continue;
-
-                            foreach (var employee in employees)
-                            {
-                                var existingEntity = await _genericRepository.All()
-                                    .Where(x => x.OrganizationID == employee.OrganizationID
-                                    && x.DepartmentID == employee.DepartmentID
-                                    && x.EmployeeID == employee.EmployeeID
-                                    && x.DayDate == date)
-                                    .FirstOrDefaultAsync();
                                 if (existingEntity != null)
                                 {
                                     existingEntity.ShiftID = model.ShiftID;
@@ -166,6 +126,97 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                         }
                     }
                 }
+                else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
+                {
+                    foreach(var date in model.DayDate)
+                    {
+                        foreach (var depId in model.DepartmentIDs)
+                        {
+                            var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
+                            if (employees == null || !employees.Any())
+                                continue;
+
+                            foreach (var employee in employees)
+                            {
+                                var existingEntity = await _genericRepository.All()
+                                    .Where(x => x.OrganizationID == employee.OrganizationID
+                                    && x.DepartmentID == employee.DepartmentID
+                                    && x.EmployeeID == employee.EmployeeID
+                                    && x.DayDate == date)
+                                    .FirstOrDefaultAsync();
+                                if (model.ExchangeDate != null && model.ExchangeDate.Count > 0)
+                                {
+                                    if (existingEntity != null)
+                                    {
+                                        existingEntity.ShiftID = model.ShiftID;
+                                        existingEntity.LIP = model.LIP;
+                                        existingEntity.LMAC = model.LMAC;
+                                        existingEntity.CreatedBy = model.CreatedBy;
+                                        existingEntity.CreatedAt = DateTime.Now;
+
+                                        await _genericRepository.UpdateAsync(existingEntity);
+                                    }
+                                    else
+                                    {
+                                        RosterInHolyDays entity = new RosterInHolyDays();
+                                        entity.OrganizationID = employee.OrganizationID;
+                                        entity.DepartmentID = employee.DepartmentID;
+                                        entity.EmployeeID = employee.EmployeeID;
+                                        entity.ShiftID = model.ShiftID;
+                                        entity.DayDate = date;
+                                        entity.CompensationTypeID = model.CompensationTypeID;
+                                        entity.LIP = model.LIP;
+                                        entity.LMAC = model.LMAC;
+                                        entity.CreatedBy = model.CreatedBy;
+                                        entity.CreatedAt = DateTime.Now;
+                                        await _genericRepository.AddAsync(entity);
+
+                                        foreach (var exDate in model.ExchangeDate)
+                                        {
+                                            CompensationDayExchanges dayExchanges = new CompensationDayExchanges();
+                                            dayExchanges.RosterInHolyDayID = entity.RosterInHolyDayID;
+                                            dayExchanges.SelectDate = date;
+                                            dayExchanges.ExchangeDate = exDate;
+                                            dayExchanges.CreatedAt = DateTime.Now;
+                                            dayExchanges.CreatedBy = model.CreatedBy;
+                                            dayExchanges.LIP = model.LIP;
+                                            dayExchanges.LMAC = model.LMAC;
+                                            await _compensationDayExchanges.AddAsync(dayExchanges);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (existingEntity != null)
+                                    {
+                                        existingEntity.ShiftID = model.ShiftID;
+                                        existingEntity.LIP = model.LIP;
+                                        existingEntity.LMAC = model.LMAC;
+                                        existingEntity.CreatedBy = model.CreatedBy;
+                                        existingEntity.CreatedAt = DateTime.Now;
+
+                                        await _genericRepository.UpdateAsync(existingEntity);
+                                    }
+                                    else
+                                    {
+                                        RosterInHolyDays entity = new RosterInHolyDays();
+                                        entity.OrganizationID = employee.OrganizationID;
+                                        entity.DepartmentID = employee.DepartmentID;
+                                        entity.EmployeeID = employee.EmployeeID;
+                                        entity.ShiftID = model.ShiftID;
+                                        entity.DayDate = date;
+                                        entity.CompensationTypeID = model.CompensationTypeID;
+                                        entity.LIP = model.LIP;
+                                        entity.LMAC = model.LMAC;
+                                        entity.CreatedBy = model.CreatedBy;
+                                        entity.CreatedAt = DateTime.Now;
+                                        await _genericRepository.AddAsync(entity);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 else if (model.EmployeeIDs != null && model.EmployeeIDs.Any())
                 {
                     foreach (var date in model.DayDate)
@@ -182,30 +233,74 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                                     && x.EmployeeID == employee.EmployeeID
                                     && x.DayDate == date)
                                     .FirstOrDefaultAsync();
-                            if (existingEntity != null)
+                            if (model.ExchangeDate != null && model.ExchangeDate.Count > 0)
                             {
-                                existingEntity.ShiftID = model.ShiftID;
-                                existingEntity.LIP = model.LIP;
-                                existingEntity.LMAC = model.LMAC;
-                                existingEntity.CreatedBy = model.CreatedBy;
-                                existingEntity.CreatedAt = DateTime.Now;
+                                if (existingEntity != null)
+                                {
+                                    existingEntity.ShiftID = model.ShiftID;
+                                    existingEntity.LIP = model.LIP;
+                                    existingEntity.LMAC = model.LMAC;
+                                    existingEntity.CreatedBy = model.CreatedBy;
+                                    existingEntity.CreatedAt = DateTime.Now;
 
-                                await _genericRepository.UpdateAsync(existingEntity);
+                                    await _genericRepository.UpdateAsync(existingEntity);
+                                }
+                                else
+                                {
+                                    RosterInHolyDays entity = new RosterInHolyDays();
+                                    entity.OrganizationID = employee.OrganizationID;
+                                    entity.DepartmentID = employee.DepartmentID;
+                                    entity.EmployeeID = employee.EmployeeID;
+                                    entity.ShiftID = model.ShiftID;
+                                    entity.DayDate = date;
+                                    entity.CompensationTypeID = model.CompensationTypeID;
+                                    entity.LIP = model.LIP;
+                                    entity.LMAC = model.LMAC;
+                                    entity.CreatedBy = model.CreatedBy;
+                                    entity.CreatedAt = DateTime.Now;
+                                    await _genericRepository.AddAsync(entity);
+
+                                    foreach (var exDate in model.ExchangeDate)
+                                    {
+                                        CompensationDayExchanges dayExchanges = new CompensationDayExchanges();
+                                        dayExchanges.RosterInHolyDayID = entity.RosterInHolyDayID;
+                                        dayExchanges.SelectDate = date;
+                                        dayExchanges.ExchangeDate = exDate;
+                                        dayExchanges.CreatedAt = DateTime.Now;
+                                        dayExchanges.CreatedBy = model.CreatedBy;
+                                        dayExchanges.LIP = model.LIP;
+                                        dayExchanges.LMAC = model.LMAC;
+                                        await _compensationDayExchanges.AddAsync(dayExchanges);
+                                    }
+                                }
                             }
                             else
                             {
-                                RosterInHolyDays entity = new RosterInHolyDays();
-                                entity.OrganizationID = employee.OrganizationID;
-                                entity.DepartmentID = employee.DepartmentID;
-                                entity.EmployeeID = empId;
-                                entity.ShiftID = model.ShiftID;
-                                entity.DayDate = date;
-                                entity.LIP = model.LIP;
-                                entity.LMAC = model.LMAC;
-                                entity.CreatedBy = model.CreatedBy;
-                                entity.CreatedAt = DateTime.Now;
+                                if (existingEntity != null)
+                                {
+                                    existingEntity.ShiftID = model.ShiftID;
+                                    existingEntity.LIP = model.LIP;
+                                    existingEntity.LMAC = model.LMAC;
+                                    existingEntity.CreatedBy = model.CreatedBy;
+                                    existingEntity.CreatedAt = DateTime.Now;
 
-                                await _genericRepository.AddAsync(entity);
+                                    await _genericRepository.UpdateAsync(existingEntity);
+                                }
+                                else
+                                {
+                                    RosterInHolyDays entity = new RosterInHolyDays();
+                                    entity.OrganizationID = employee.OrganizationID;
+                                    entity.DepartmentID = employee.DepartmentID;
+                                    entity.EmployeeID = empId;
+                                    entity.ShiftID = model.ShiftID;
+                                    entity.DayDate = date;
+                                    entity.LIP = model.LIP;
+                                    entity.LMAC = model.LMAC;
+                                    entity.CreatedBy = model.CreatedBy;
+                                    entity.CreatedAt = DateTime.Now;
+
+                                    await _genericRepository.AddAsync(entity);
+                                }
                             }
                         }
                     }
@@ -281,138 +376,50 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
 
 
         #region GetAllAsync
-        public async Task<SeparatePaginationResult<RosterInOffDayListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInHolyDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        public async Task<(List<RosterInOffDayListVM> Data, List<string> UniqueDates, SeparatePaginationInfo Pagination)> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInHolyDayID", string sortOrder = "desc", int daysToShow = 7)
         {
-            startDate ??= DateTime.Today;
-            var endDate = startDate.Value.AddDays(daysToShow);
-
-            var query = _genericRepository.AllActive().AsNoTracking()
-                .Include(x => x.Shift)
-                .Include(x => x.Organization).ThenInclude(x => x.WeekendSettings).ThenInclude(x => x.WeekendDays)
-                .Include(x => x.Organization).ThenInclude(x => x.Holidays)
-                .Include(x => x.Department)
-                .Include(x => x.Employee).ThenInclude(x => x.EmployeeOfficeInfoEmployee)
-                .Where(x => x.DeletedAt == null && x.DayDate >= startDate || x.DayDate < endDate);
-
-            // Apply search filtering
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                searchTerm = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
-
-                query = query.Where(x =>
-                    EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%")
-                );
-            }
-
-            // Group by EmployeeID
-            var grouped = await query
-                .GroupBy(x => x.EmployeeID)
+            // 1. Get raw flat records first
+            var rawData = await _genericRepository.AllActive()
+                .Where(x => x.DayDate.HasValue)
+                .Select(x => new
+                {
+                    x.EmployeeID,
+                    EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
+                    x.DepartmentID,
+                    DepartmentName = x.Department.DepartmentName,
+                    x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName,
+                    x.DayDate,
+                    x.ShiftID,
+                    ShiftName = x.Shift.ShiftName,
+                    StartTime = x.Shift.StartTime,
+                    EndTime = x.Shift.EndTime,
+                    x.RosterInHolyDayID
+                })
+                .AsNoTracking()
                 .ToListAsync();
 
-            var transformed = grouped.Select(g =>
-            {
-                var first = g.First();
-                var assignedDates = g.Select(x =>
-                    $"{x.DayDate:yyyy-MM-dd}|{x.Shift?.ShiftName ?? "-"}|{(x.Shift != null ? $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}" : "-")}")
-                    .ToList();
-
-                var org = first.Organization;
-                var weekendNumbers = org?.WeekendSettings?
-                    .SelectMany(ws => ws.WeekendDays)
-                    .Select(wd => (int)wd.WeekdayNumber)
-                    .Where(n => n >= 0 && n <= 6)
-                    .Distinct()
-                    .ToList() ?? new List<int>();
-
-                var holidayEntries = org?.Holidays?
-                    .Where(h => h.StartDate <= endDate && h.EndDate >= startDate)
-                    .SelectMany(h =>
-                    {
-                        var entries = new List<(DateTime Date, string Title)>();
-                        for (var date = h.StartDate.Value; date <= h.EndDate.Value; date = date.AddDays(1))
-                        {
-                            entries.Add((date, h.HolidayTitle));
-                        }
-                        return entries;
-                    })
-                    .Where(h => h.Date >= startDate && h.Date < endDate)
-                    .ToList();
-
-                return new RosterInOffDayListVM
-                {
-                    RosterInHolyDayID = first.RosterInHolyDayID,
-                    OrganizationID = first.OrganizationID,
-                    OrganizationName = org?.OrganizationName ?? "-",
-                    DepartmentID = first.DepartmentID,
-                    DepartmentName = first.Department?.DepartmentName ?? "-",
-                    EmployeeID = first.EmployeeID ?? 0,
-                    EmployeeName = $"{first.Employee?.FirstName} {first.Employee?.LastName} ({first.Employee?.EmployeeCode})",
-                    ShiftID = first.ShiftID ?? 0,
-                    ShiftName = first.Shift?.ShiftName ?? "-",
-                    TimeRange = first.Shift != null ? $"{first.Shift.StartTime:hh\\:mm} - {first.Shift.EndTime:hh\\:mm}" : "-",
-                    //DayDate = string.Join(",", DayDate),
-                    //WeekdayNumber = string.Join(",", weekendNumbers),
-                    //HolidayDates = string.Join(",", holidayEntries.Select(h => h.Date.ToString("yyyy-MM-dd"))),
-                    //HolidayTitle = string.Join(",", holidayEntries.Select(h => h.Title))
-                };
-            }).ToList();
-
-            var totalCount = transformed.Count;
-            var pagedData = transformed
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            return new SeparatePaginationResult<RosterInOffDayListVM>
-            {
-                Data = pagedData,
-                TotalCount = totalCount,
-                SeparatePaginationInfo = new SeparatePaginationInfo
-                {
-                    StartItem = (pageNumber - 1) * pageSize + 1,
-                    EndItem = Math.Min(pageNumber * pageSize, totalCount),
-                    TotalItems = totalCount,
-                    CurrentPage = pageNumber,
-                    TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-                    PageNumbers = Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
-                }
-            };
-        }
-        #endregion
-
-
-        public async Task<(List<RosterInOffDayListVM> rosterList, List<string> uniqueDates)> GetAll()
-        {
-            var rosterData = _genericRepository.AllActive()
-                .Include(x => x.Organization)
-                .Include(x => x.Employee)
-                .Include(x => x.Department)
-                .Include(x => x.Shift)
-                .Where(x => x.DayDate.HasValue)
-                .ToList();
-
-            var uniqueDates = rosterData
+            // 2. Extract unique dates
+            var uniqueDates = rawData
+                .Where(x => x.DayDate.Value >= DateTime.Today)
                 .Select(x => x.DayDate.Value.Date.ToString("yyyy-MM-dd"))
                 .Distinct()
                 .OrderBy(d => d)
+                .Take(daysToShow)
                 .ToList();
 
-            var rosterVM = rosterData
+            // 3. Group data in memory (small set after projection)
+            var grouped = rawData
                 .GroupBy(x => x.EmployeeID)
                 .Select(g => new RosterInOffDayListVM
                 {
                     EmployeeID = g.Key ?? 0,
                     RosterInHolyDayID = g.First().RosterInHolyDayID,
-                    EmployeeName = g.First().Employee?.FirstName ?? "",
-                    DepartmentID = g.First().Department?.DepartmentID ?? 0,
-                    DepartmentName = g.First().Department?.DepartmentName ?? "",
-                    OrganizationID = g.First().Organization?.OrganizationID ?? 0,
-                    OrganizationName = g.First().Organization?.OrganizationName ?? "",
+                    EmployeeName = g.First().EmployeeName ?? "",
+                    DepartmentID = g.First().DepartmentID ?? 0,
+                    DepartmentName = g.First().DepartmentName ?? "",
+                    OrganizationID = g.First().OrganizationID ?? 0,
+                    OrganizationName = g.First().OrganizationName ?? "",
                     ShiftsPerDay = g
                         .Where(x => x.DayDate.HasValue)
                         .ToDictionary(
@@ -420,15 +427,67 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                             v => new ShiftVM
                             {
                                 ShiftID = v.ShiftID,
-                                ShiftName = v.Shift?.ShiftName ?? "N/A",
-                                TimeRange = $"{v.Shift?.StartTime?.ToString(@"hh\:mm")} - {v.Shift?.EndTime?.ToString(@"hh\:mm")}",
+                                ShiftName = v.ShiftName ?? "N/A",
+                                TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
                                 RosterInHolyDayID = v.RosterInHolyDayID
-                            }
-                        )
+                            })
                 })
                 .ToList();
 
-            return (rosterVM, uniqueDates);
+            // 4. Apply search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+                grouped = grouped
+                    .Where(x =>
+                        x.EmployeeName.ToLower().Contains(lowerSearch) ||
+                        x.DepartmentName.ToLower().Contains(lowerSearch) ||
+                        x.OrganizationName.ToLower().Contains(lowerSearch))
+                    .ToList();
+            }
+
+            // 5. Apply sorting
+            if (!string.IsNullOrEmpty(sortColumn))
+            {
+                grouped = sortColumn.ToLower() switch
+                {
+                    "employeename" => (sortOrder == "asc"
+                        ? grouped.OrderBy(x => x.EmployeeName)
+                        : grouped.OrderByDescending(x => x.EmployeeName)).ToList(),
+
+                    "departmentname" => (sortOrder == "asc"
+                        ? grouped.OrderBy(x => x.DepartmentName)
+                        : grouped.OrderByDescending(x => x.DepartmentName)).ToList(),
+
+                    "organizationname" => (sortOrder == "asc"
+                        ? grouped.OrderBy(x => x.OrganizationName)
+                        : grouped.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+                    _ => grouped.OrderByDescending(x => x.RosterInHolyDayID).ToList() // default fallback
+                };
+            }
+
+            // 4. Paginate grouped results
+            var totalCount = grouped.Count;
+            var pagedResult = pageSize == 0
+                ? grouped
+                : grouped.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            // 5. Build pagination info
+            var pagination = new SeparatePaginationInfo
+            {
+                StartItem = (pageNumber - 1) * pageSize + 1,
+                EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                TotalItems = totalCount,
+                CurrentPage = pageNumber,
+                TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+                PageNumbers = pageSize == 0
+                    ? new List<int> { 1 }
+                    : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
+            };
+
+            return (pagedResult, uniqueDates, pagination);
         }
+        #endregion
     }
 }
