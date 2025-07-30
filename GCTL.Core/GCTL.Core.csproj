@@ -20,7 +20,6 @@
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\AssignSpiralPattern\" />
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\CreateSpiralPattern\" />
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\EmployeeShiftView\" />
-    <Folder Include="ViewModels\Employee\EmployeeStatusManagement\Promotion\" />
     <Folder Include="ViewModels\ProjectManagements\" />
   </ItemGroup>
 

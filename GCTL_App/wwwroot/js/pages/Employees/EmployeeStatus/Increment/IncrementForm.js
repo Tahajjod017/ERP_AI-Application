@@ -101,4 +101,91 @@
 
     //#endregion
 
+
+    //#region Label Update on Radio Change
+
+    updateIncrementLabel();
+
+    $("input[name='changeType2']").on("change", function () {
+        updateIncrementLabel();
+        updateFromAmount(); // recalculate on change
+    });
+
+    function updateIncrementLabel() {
+        const type = $("input[name='changeType2']:checked").val();
+        const isIncrement = type === "increment";
+
+        const labelText = isIncrement ? "Increment Amount" : "Decrement Amount";
+        const labelPercent = isIncrement ? "Increment Percent" : "Decrement Percent";
+
+        $("label[for='incrementAmt']").text(labelText);
+        $("label[for='incrementPercent']").text(labelPercent);
+    }
+
+    //#endregion
+
+    //#region Amount / Percent / Salary Live Sync
+
+    $("#incrementAmt").on("input", updateFromAmount);
+    $("#incrementPercent").on("input", updateFromPercent);
+    $("#incrementNewSalary").on("input", updateFromNewSalary);
+
+    function getCurrentSalary() {
+        return parseFloat($("#incrementPrevSalary").val()) || 0;
+    }
+
+    function isIncrementMode() {
+        return $("input[name='changeType2']:checked").val() === "increment";
+    }
+
+    function updateFromAmount() {
+        const current = getCurrentSalary();
+        const amount = parseFloat($("#incrementAmt").val()) || 0;
+        const sign = isIncrementMode() ? 1 : -1;
+        const newSalary = current + (amount * sign);
+        const percent = (amount / current) * 100;
+
+        $("#incrementNewSalary").val(newSalary.toFixed(2));
+        $("#incrementPercent").val(percent.toFixed(2));
+    }
+
+    function updateFromPercent() {
+        const current = getCurrentSalary();
+        const percent = parseFloat($("#incrementPercent").val()) || 0;
+        const sign = isIncrementMode() ? 1 : -1;
+        const amount = (current * percent) / 100;
+        const newSalary = current + (amount * sign);
+
+        $("#incrementAmt").val(amount.toFixed(2));
+        $("#incrementNewSalary").val(newSalary.toFixed(2));
+    }
+
+    function updateFromNewSalary() {
+        const current = getCurrentSalary();
+        const newSalary = parseFloat($("#incrementNewSalary").val()) || 0;
+
+        if (!current || !newSalary) return;
+
+        const isInc = isIncrementMode();
+        const isValid =
+            (isInc && newSalary >= current) ||
+            (!isInc && newSalary <= current);
+
+        if (!isValid) {
+            $("#incrementAmt").val("");
+            $("#incrementPercent").val("");
+            return;
+        }
+
+        const amount = Math.abs(newSalary - current);
+        const percent = (amount / current) * 100;
+
+        $("#incrementAmt").val(amount.toFixed(2));
+        $("#incrementPercent").val(percent.toFixed(2));
+    }
+
+    //#endregion
+
+
+
 })
