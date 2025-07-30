@@ -195,7 +195,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementOrganization" asp-items="@ViewBag.OrganizationDD">
+                                <select class="form-select choiceDD" id="incrementOrganization" asp-items="@ViewBag.OrganizationDD" disabled>
                                     <option value="" selected disabled>Select Organization</option>
 
                                 </select>
@@ -205,7 +205,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementDesigantion" asp-items="@ViewBag.DesignationDD">
+                                <select class="form-select choiceDD" id="incrementDesigantion" asp-items="@ViewBag.DesignationDD" disabled>
                                     <option value="" selected disabled>Select Designation</option>
 
                                 </select>
@@ -215,7 +215,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
-                                <select class="form-select choiceDD" id="incrementDepatment" asp-items="@ViewBag.DepartmentDD">
+                                <select class="form-select choiceDD" id="incrementDepatment" asp-items="@ViewBag.DepartmentDD" disabled>
                                     <option value="" selected disabled>Select Department</option>
 
                                 </select>
@@ -266,14 +266,32 @@
 
                             <!-- 2 Input Fields -->
                             <div class="row mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-floating">
                                         <input type="number" class="form-control" id="incrementPrevSalary" placeholder="Current Salary" required>
                                         <label for="incrementPrevSalary">Current Salary</label>
                                     </div>
                                     <span class="text-danger small"></span>
                                 </div>
-                                <div class="col-md-6">
+
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="incrementAmt" placeholder="Increment / Decrement Amount" required>
+                                            <label for="incrementAmt">Increment / Decrement Amount</label>
+                                        </div>
+                                        <span class="text-danger small"></span>
+
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="incrementPercent" placeholder="Increment / Decrement Percent" required>
+                                            <label for="incrementPercent">Increment / Decrement Percent</label>
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-4">
                                     <div class="form-floating">
                                         <input type="number" class="form-control" id="incrementNewSalary" placeholder="New Salary" required>
                                         <label for="incrementNewSalary">New Salary</label>
