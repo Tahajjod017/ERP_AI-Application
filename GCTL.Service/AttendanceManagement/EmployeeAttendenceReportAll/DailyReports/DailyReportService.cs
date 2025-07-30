@@ -26,7 +26,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _genericEmployeeOfficeInfo = genericEmployeeOfficeInfo;
-        }
+        } 
         public async Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetAllEmployee(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
                               string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
         {

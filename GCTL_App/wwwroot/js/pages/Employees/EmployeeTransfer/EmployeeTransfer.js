@@ -260,6 +260,34 @@ $(document).ready(function () {
     initializeDatepickerDMY('TransferDate');
 
 
+    let transferType = null;
+
+    // ✅ Initialize transferType on page load
+    $(document).ready(function () {
+        const defaultActiveTabId = $('#myTab .nav-link.active').attr('id');
+        transferType = getTransferTypeFromTabId(defaultActiveTabId);
+    });
+
+    // ✅ Helper function
+    function getTransferTypeFromTabId(tabId) {
+        switch (tabId) {
+            case 'TransferOrgazation-tab':
+                return 'Organization';
+            case 'TransferBranch-tab':
+                return 'Branch';
+            case 'Department-tab':
+                return 'Department';
+            default:
+                return null;
+        }
+    }
+
+    // ✅ Update transferType on tab click
+    $('a[data-bs-toggle="tab"], button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const tabId = $(e.target).attr('id');
+        transferType = getTransferTypeFromTabId(tabId);
+    });
+
     
     //#region Save Data
   $(document).on('click', '#EmpTransferButton', function (e) {
@@ -272,7 +300,12 @@ $(document).ready(function () {
           FromOrganizationBranchID: $('#FromOrganizationBranchID').val(),
           ToOrganizationBranchID: $('#ToOrganizationBranchID').val(),
           TransferDate: $('#TransferDate').val(),
-          TransferNote: $('#TransferNote').val()
+          TransferNote: $('#TransferNote').val(),
+          ToDesignationID: $('#ToDesignationID').val(),
+          FromDesignationID: $('#FromDesignationID').val(),
+          ToDepartmentID: $('#ToDepartmentID').val(),
+          FromDepartmentID: $('#FromDepartmentID').val(),
+          TransferType: transferType
       };
      
       $.ajax({
@@ -283,6 +316,7 @@ $(document).ready(function () {
               if (response.success) {
                   toastr.success(response.message);
                   resetForm();
+                  GetAllEmpoyee();
                   var applyModalEl = document.getElementById('apply_leave');
                   var applyModal = bootstrap.Modal.getInstance(applyModalEl);
                   if (!applyModal) {
@@ -302,8 +336,8 @@ $(document).ready(function () {
 
     function resetForm() {
         $('#employeeTransferForm,#employeeTransferFormEdit')[0].reset();
-        choiceManager.clearChoice('EmployeeID', 'FromOrganizationID', 'ToOrganizationID', 'FromOrganizationBranchID','ToOrganizationBranchID');
-        choiceManager.clearChoice('EmployeeIDEdit', 'FromOrganizationIDEdit', 'ToOrganizationIDEdit','FromOrganizationBranchIDEdit','ToOrganizationBranchIDEdit');
+        choiceManager.resetChoice('EmployeeID', 'FromOrganizationID', 'ToOrganizationID', 'FromOrganizationBranchID', 'ToOrganizationBranchID', 'FromDepartmentID', 'FromDesignationID', 'ToDepartmentID', 'ToDesignationID');
+        choiceManager.resetChoice('EmployeeIDEdit', 'FromOrganizationIDEdit', 'ToOrganizationIDEdit', 'FromOrganizationBranchIDEdit', 'ToOrganizationBranchIDEdit', 'FromDepartmentIDEdit', 'FromDesignationIDEdit', 'ToDepartmentIDEdit', 'ToDesignationIDEdit');
         loadTableData();
     }
 
@@ -327,15 +361,21 @@ $(document).ready(function () {
                     toastr.warning(response.message || 'Record not found.');
                     return;
                 }
+                debugger
                 const data = response.data;
                 choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                 choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationIDEdit);
                 choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchIDEdit);
                 choiceManager.setChoiceValue('ToOrganizationIDEdit', data.toOrganizationIDEdit);
                 choiceManager.setChoiceValue('ToOrganizationBranchIDEdit', data.toOrganizationBranchIDEdit);
+                choiceManager.setChoiceValue('FromDepartmentIDEdit', data.fromDepartmentIDEdit);
+                choiceManager.setChoiceValue('ToDepartmentIDEdit', data.toDepartmentIDEdit);
+                choiceManager.setChoiceValue('FromDesignationIDEdit', data.fromDesignationIDEdit);
+                choiceManager.setChoiceValue('ToDesignationIDEdit', data.toDesignationIDEdit);
                 $('#TransferDateEdit').val(data.transferDateEdit);
                 $('#TransferNoteEdit').val(data.transferNoteEdit);
                 $('#EmployeeTransferID').val(data.employeeTransferID);
+                $('#TransferTypeEdit').val(data.transferTypeEdit);
                 initializeDatepickerDMY('TransferDateEdit');
             },
             error: function () {
@@ -352,8 +392,13 @@ $(document).ready(function () {
             FromOrganizationBranchIDEdit: parseInt($('#FromOrganizationBranchIDEdit').val()) || null,
             ToOrganizationIDEdit: parseInt($('#ToOrganizationIDEdit').val()) || null,
             ToOrganizationBranchIDEdit: parseInt($('#ToOrganizationBranchIDEdit').val()) || null,
-            TransferDateEdit: $('#TransferDateEdit').val(), 
-            TransferNoteEdit: $('#TransferNoteEdit').val() || ""
+            FromDepartmentIDEdit: parseInt($('#FromDepartmentIDEdit').val()) || null,
+            ToDepartmentIDEdit: parseInt($('#ToDepartmentIDEdit').val()) || null,
+            FromDesignationIDEdit: parseInt($('#FromDesignationIDEdit').val()) || null,
+            ToDesignationIDEdit: parseInt($('#ToDesignationIDEdit').val()) || null,
+            TransferDateEdit: $('#TransferDateEdit').val() || null, 
+            TransferNoteEdit: $('#TransferNoteEdit').val() || "",
+            TransferTypeEdit: $('#TransferTypeEdit').val() || ""
         };
 
 
@@ -362,7 +407,8 @@ $(document).ready(function () {
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
-            success: function (response) {
+            success: function (response)
+            {
               
                 if (response.success) {
                     toastr.success(response.message || 'Updated successfully');
@@ -431,6 +477,8 @@ $(document).ready(function () {
             choiceManager.setChoiceValue('FromOrganizationBranchID', '');
             choiceManager.setChoiceValue('FromOrganizationIDEdit', '');
             choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', '');
+            choiceManager.setChoiceValue('FromDepartmentID', '');
+            choiceManager.setChoiceValue('FromDesignationID', '');
             return;
         }
 
@@ -449,6 +497,9 @@ $(document).ready(function () {
                 choiceManager.setChoiceValue('FromOrganizationBranchID', data.fromOrganizationBranchID);
                 choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationID);
                 choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchID);
+                choiceManager.setChoiceValue('FromDepartmentID', data.fromDepartmentID);
+                choiceManager.setChoiceValue('FromDesignationID', data.fromDesignationID);
+                
             },
             error: function () {
                 toastr.error('Failed to fetch organization and branch information.');
@@ -496,9 +547,6 @@ $(document).ready(function () {
 
    
 });
-
-
-
 
 // #region 🟣 Get Employee Avatar HTML (Initial or Image)
 function getAvatarHtml(employee) {
@@ -666,12 +714,36 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                           </div>
                         </td>
                         
-                     
-                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromOrganizationName || ''}</td>
-                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.fromOrganizationBranchName || ''}</td>
+                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                            <div>${item.fromOrganizationName || ''}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toOrganizationName || 'N/A'}</div>
+                       </td>
 
-                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toOrganizationName || ''}</td>
-                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.toOrganizationBranchName || ''}</td>
+
+                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                       
+                           <div>${item.fromOrganizationBranchName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toOrganizationName || 'N/A'}</div>
+                         </td>
+                        
+                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+
+                           <div>${item.fromDepartmentName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toDepartmentName || 'N/A'}</div>
+                         </td>
+                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+
+                           <div>${item.fromDepartmentName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toDepartmentName || 'N/A'}</div>
+                         </td>
+                      <div>${item.fromDesignationName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.tomDesignationName || 'N/A'}</div>
+                         </td>
                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate || ''}</td>
                        
                         

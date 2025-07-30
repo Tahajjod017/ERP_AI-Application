@@ -81,6 +81,10 @@ public partial class Organization
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromOrganization { get; set; } = new List<EmployeeTransfer>();
 
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryFromOrganization { get; set; } = new List<EmployeeTransferHistory>();
+
+    public virtual ICollection<EmployeeTransferHistory> EmployeeTransferHistoryToOrganization { get; set; } = new List<EmployeeTransferHistory>();
+
     public virtual ICollection<EmployeeTransfer> EmployeeTransferToOrganization { get; set; } = new List<EmployeeTransfer>();
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();

@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace GCTL.Service.CommonService
         Task<List<CommonSelectVM>> GetEmpGroupedByDep();
 
         Task<List<CommonSelectVM>> GetShifts();
+
+        Task<List<CommonSelectVM>> GetCompensation();
         #endregion
 
 
@@ -45,6 +48,12 @@ namespace GCTL.Service.CommonService
 
         #region Load by OrganizationId, BranchId, DepartmentId
         Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds);
+        #endregion
+
+
+        #region GetWeekendByOrganization / GetWeekDaysByOrganization
+        Task<IEnumerable<object>> GetWeekendByOrganization(int id);
+        Task<IEnumerable<object>> GetWeekDaysByOrganization(int id);
         #endregion
     }
 }

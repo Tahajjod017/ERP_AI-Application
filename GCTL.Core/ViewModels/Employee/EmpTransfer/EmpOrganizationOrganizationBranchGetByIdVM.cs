@@ -8,10 +8,12 @@ namespace GCTL.Core.ViewModels.Employee.EmpTransfer
 {
     public class EmpOrganizationOrganizationBranchGetByIdVM
     {
-        public int EmployeeID { get; set; }
+        //public int EmployeeID { get; set; }
         public int? FromOrganizationID { get; set; }
         public int? FromOrganizationBranchID { get; set; }
-        public int? ToOrganizationID { get; set; }
-        public int? ToOrganizationBranchID { get; set; }
+        //public int? ToOrganizationID { get; set; }
+        //public int? ToOrganizationBranchID { get; set; }
+        public int? FromDepartmentID { get; set; }
+        public int? FromDesignationID { get; set; }
     }
 }

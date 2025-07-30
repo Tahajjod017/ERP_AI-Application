@@ -1,60 +1,20 @@
-﻿<style>
-    #hiddenDiv {
-        display: none; /* Initially hidden */
-    }
+﻿@section Styles{
+    <style>
+        .shift-block {
+            background: repeating-linear-gradient( 135deg, #e5e5e5, #e5e5e5 10px, #f7f7f7 10px, #f7f7f7 20px );
+            border-radius: .4rem;
+            padding: 5px 0 5px 0;
+        }
 
-    #div2 {
-        display: none;
-    }
+        .shift-block .edit-shift-btn {
+            display: none; /* Hidden by default */
+        }
 
-    .disabled {
-        pointer-events: none;
-        opacity: 0.5;
-    }
-
-    .shift-cell {
-        position: relative;
-    }
-
-    .add-shift-btn {
-        display: none;
-        align-items: center;
-    }
-
-    .shift-cell:hover .add-shift-btn {
-        display: inline;
-        background-color: white;
-        color: black;
-        /* margin: 5px auto; */
-    }
-
-    .add-shift-btn2 {
-        display: none;
-        align-items: center;
-    }
-
-    .startTime:hover .add-shift-btn2 {
-        display: block;
-        background-color: white;
-        color: black;
-        margin: 5px;
-    }
-
-    .table-container {
-        display: none; /* Hide all tables by default */
-    }
-
-    #dateSelect {
-        display: none;
-    }
-
-    .shift-block {
-        background: repeating-linear-gradient( 135deg, #e5e5e5, #e5e5e5 10px, #f7f7f7 10px, #f7f7f7 20px );
-        border-left: 5px solid #a1f1a1;
-        border-radius: .4rem;
-        padding: 5px 0 5px 0;
-    }
-</style>
+        .shift-block:hover .edit-shift-btn {
+            display: inline-block; /* Show on hover */
+        }
+    </style>
+}
 
 <div class="mb-9 mt-4">
     <div class="card">
@@ -71,7 +31,7 @@
             <div class="tab-content mt-3" id="myTabContent">
                 <div class="tab-pane fade show active">
                     <div class="border-translucent p-3">
-                        <partial name="_Form" />
+                        <partial name="_Form" model="Model.Setup" />
                     </div>
                 </div>
 
@@ -82,9 +42,9 @@
 </div>
 
 <partial name="_AddShiftModal" />
-@* <partial name="_DayExchangeModal" /> *@
+<partial name="_DayExchangeModal" />
 <partial name="_DeleteModal" />
-<partial name="_EditShiftModal" />
+<partial name="_EditShiftModal" model="Model.Edit" />
 @* <partial name="_EmployeeBulkShiftModal" /> *@
 @* <partial name="_ShiftModal" /> *@
 @* <script>

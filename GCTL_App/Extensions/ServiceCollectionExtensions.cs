@@ -79,6 +79,11 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.Employees.EmpTransfer;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using GCTL.Core.Helpers.AttendenceHelper;
+using GCTL.Service.AllNotifications;
+using GCTL.Service.Employees.EmployeeStatus.Increment;
+using GCTL.Service.Employees.EmployeeStatus.Promotion;
 
 #endregion
 
@@ -141,6 +146,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAddShiftService, AddShiftService>();
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
             services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
+            services.AddScoped<IOffDayRosterService, OffDayRosterService>();
             #endregion
 
 
@@ -153,6 +159,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeaveApprovalService , LeaveApprovalService>();
             services.AddScoped<ILeaveHistoryBalancesService, LeaveHistoryBalancesService>();
             services.AddScoped<IEmployeeTransferService, EmployeeTransferService>();
+            services.AddScoped<INotificationsService, NotificationsService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
@@ -169,6 +176,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IProbationSettingService, ProbationSettingService>();
             services.AddScoped<IEmployeeAttendanceReport, EmployeeAttendanceService>();
             services.AddScoped<IDailyReportService, DailyReportService>();
+            services.AddTransient<HolidayHelper>();
+            services.AddTransient<WeekendHelper>();
             #endregion
 
 
@@ -212,6 +221,14 @@ namespace GCTL_App.Extensions
 
             services.AddScoped<IImageFileHandlerService, ImageFileHandlerService>();
             services.AddScoped<IPdfFileHandler, PdfFileHandler>();
+
+            #endregion
+
+            #region Employee Status Management(Increment, Promotion)
+
+            services.AddScoped<IincrementService, IncrementService>();
+            services.AddScoped<IPromotionService, PromotionService>();
+
 
             #endregion
         }

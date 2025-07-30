@@ -16,7 +16,15 @@ namespace GCTL.Core.ViewModels.Employee.EmpTransfer
         public DateTime? TransferDateEdit { get; set; }
         public int? EmployeeIDEdit { get; set; }
         public string? TransferNoteEdit { get; set; }
-       
 
+        public int? FromDepartmentIDEdit { get; set; }
+
+        public int? FromDesignationIDEdit { get; set; }
+
+        public int? ToDepartmentIDEdit { get; set; }
+
+        public int? ToDesignationIDEdit { get; set; }
+
+        public string ? TransferTypeEdit { get; set; }
     }
 }

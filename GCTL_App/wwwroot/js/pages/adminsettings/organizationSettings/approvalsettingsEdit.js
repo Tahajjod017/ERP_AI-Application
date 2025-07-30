@@ -112,7 +112,7 @@ $(document).ready(function () {
     // Function to get approvers by organization name
     function getApproverByOrgName(orgId, callback) {
         $.ajax({
-            url: '/ApprovalSettings/GetDesignation2',  // Endpoint to fetch designations
+            url: '/ApprovalSettings/GetDesignationEdit',  // Endpoint to fetch designations
             type: 'GET',
             data: { organizationId: orgId }, // Pass the selected organization ID
             success: function (data) {

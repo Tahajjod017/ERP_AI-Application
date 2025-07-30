@@ -1,0 +1,144 @@
+﻿@{
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.MultiDropDown>;
+}
+
+<style>
+    #leaveRequest-searchForm {
+        position: relative;
+    }
+
+    #leaveRequest-searchInput {
+        padding-right: 2.25rem; /* Leave space for the icon inside */
+        height: calc(1.5em + 0.75rem + 2px); /* Same as .form-select */
+    }
+
+    .search-box-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+    }
+
+    .date-input {
+        width: 108%;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+    .date-picker-wrapper .footer {
+        display: none !important;
+    }
+
+
+    .date-picker-wrapper {
+        margin-left: 8.2vw !important;
+    }
+
+</style>
+
+<div class="card-body py-0 scrollbar to-do-list-body">
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+        <h4 class="mb-1">Employee Transfer List</h4>
+        <div class="row g-3 justify-content-between align-items-end mb-4">
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center me-3" style="width: auto;">
+                    <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                    <div style="width: 100%;">
+                        <select id="attendance-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                            <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                            <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                            <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                            <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="d-none me-3" id="attendance-bulkSelectActions">
+                        <div class="position-relative">
+                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="attendance-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                        </div>
+                    </div>
+
+                    <div class="me-5">
+                        <div class="position-relative">
+                            <input type="text" id="basic-daterange_belowTable" class="date-input form-control-sm" placeholder="d/m/y to d/m/y">
+
+                            <input type="hidden" id="basic-daterange_fromHidden_belowTable" name="FromDate" />
+                            <input type="hidden" id="basic-daterange_toHidden_belowTable" name="ToDate" />
+
+
+                        </div>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <select class="form-select" data-choices="data-choices" size="1"
+                                id="attendanceStatusFilter"
+                                asp-items="@ViewBag.StatusDD as SelectList"
+                                data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Status</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3" id="attendance-searchBox">
+                        <form class="position-relative" id="attendance-searchForm">
+                            <input class="form-control search-input" id="attendance-searchInput" type="search"
+                                   placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                            <span class="fas fa-search search-box-icon"></span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent">
+                <thead>
+                    <tr>
+                        <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                            <div class="form-check mb-0 fs-8">
+                                <input class="form-check-input" type="checkbox" />
+                            </div>
+                        </th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="employeeName">Employee Name</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="fromOrganization">Organization</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="toOrganization">Branch</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="fromBranch">Department</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="toBranch">Designation</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" data-sort="transferDate">Date</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
+                        <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
+                    </tr>
+                </thead>
+                <tbody id="empTransfer-tBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="attendance-paginationInfo"></p>
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+            </div>
+            <div class="d-flex">
+                <button class="page-link" data-list-pagination="prev" id="attendance-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="attendance-paginationLinks"></ul>
+                <button class="page-link pe-0" data-list-pagination="next" id="attendance-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+    </div>
+</div>

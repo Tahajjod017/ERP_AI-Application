@@ -49,6 +49,8 @@ public partial class Attendance
 
     public decimal? WorkingHour { get; set; }
 
+    public bool? IsChecked { get; set; }
+
     public virtual ICollection<AttendanceLog> AttendanceLog { get; set; } = new List<AttendanceLog>();
 
     public virtual Employees CreatedByNavigation { get; set; }

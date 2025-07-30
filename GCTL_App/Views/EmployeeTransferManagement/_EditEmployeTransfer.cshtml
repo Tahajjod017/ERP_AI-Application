@@ -13,6 +13,7 @@
     <div class="modal-body pb-0">
         <div class="row">
             <input id="EmployeeTransferID"  type="hidden" />
+            <input id="TransferTypeEdit" type="hidden" />
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label req" for="organizerSingle">Name</label>
@@ -25,16 +26,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">From Organization</label>
-                    <select class="form-select choiceDD" id="FromOrganizationIDEdit" required asp-items="@ViewBag.OrganizationDD as SelectList">
-                        <option value="">Select Organization</option>
-                    </select>
-
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label req">From Organization Branch</label>
-                    <select class="form-select choiceDD" id="FromOrganizationBranchIDEdit" required asp-items="@ViewBag.OrganizationBranchDD as SelectList">
+                    <select class="form-select choiceDD" id="FromOrganizationIDEdit" required asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
                         <option value="">Select Organization</option>
                     </select>
 
@@ -49,9 +41,15 @@
 
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label req">From Organization Branch</label>
+                    <select class="form-select choiceDD" id="FromOrganizationBranchIDEdit" required asp-items="@ViewBag.OrganizationBranchDD as SelectList" disabled>
+                        <option value="">Select Organization</option>
+                    </select>
 
-
-
+                </div>
+            </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">To Branch</label>
@@ -60,6 +58,32 @@
                     </select>
 
                 </div>
+            </div>
+            <div class="col-md-6 mb-3 field-group" data-section="dept org branch">
+                <label class="form-label req">From Department</label>
+                <select class="form-select choiceDD" id="FromDepartmentIDEdit" asp-items="@ViewBag.DepartmentDD as SelectList" disabled>
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3 field-group" data-section="dept org branch">
+                <label class="form-label req">To Department</label>
+                <select class="form-select choiceDD" id="ToDepartmentIDEdit" asp-items="@ViewBag.DepartmentDD as SelectList">
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+
+            <!-- Designation Fields -->
+            <div class="col-md-6 mb-3 field-group" data-section="dept branch org">
+                <label class="form-label req">From Designation</label>
+                <select class="form-select choiceDD" id="FromDesignationIDEdit" asp-items="@ViewBag.DesignationDD as SelectList" disabled>
+                    <option value="">Select Designation</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3 field-group" data-section="dept branch org">
+                <label class="form-label req">To Designation</label>
+                <select class="form-select choiceDD" id="ToDesignationIDEdit" asp-items="@ViewBag.DesignationDD as SelectList">
+                    <option value="">Select Designation</option>
+                </select>
             </div>
             <!-- Divs to Show/Hide -->
             <div class="col-md-6">

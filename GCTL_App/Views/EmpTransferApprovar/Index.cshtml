@@ -1,0 +1,43 @@
+﻿
+
+<div class="modal fade" id="edit_leaves">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modify Employee Transfer</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+           @*  @await Html.PartialAsync("_EditEmpTransferApproval") *@
+            <partial name="_EditEmpTransferApproval" />
+
+        </div>
+    </div>
+</div>
+
+<partial name="_BreadCrumPage" />
+
+
+<!-- /All Employees Leaves status Approval Table List-->
+<div class="mb-2">
+    <partial name="_EmpTransferApprovalTableList" />
+
+</div>
+
+<!-- /All Employees Leaves Info List-->
+<div class="mb-2">
+
+    <partial name="_EmpTransferListTable" />
+
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/employees/employeetransfer/emptransferapprovalordecline.js"></script>
+
+}
+
