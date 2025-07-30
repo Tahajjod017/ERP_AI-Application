@@ -392,9 +392,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
 
-        modelBuilder.Entity<ApplicationUser>()
- .HasDiscriminator<string>("Discriminator")
- .HasValue<ApplicationUser>("ApplicationUser");
+
+//        modelBuilder.Entity<ApplicationUser>()
+
+//.HasDiscriminator<string>("Discriminator")
+//.HasValue<ApplicationUser>("ApplicationUser");
+
+//          .HasDiscriminator<string>("Discriminator")
+//          .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)

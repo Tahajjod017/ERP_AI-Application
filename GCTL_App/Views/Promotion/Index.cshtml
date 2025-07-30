@@ -19,186 +19,8 @@
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-12">
-                <div class="card">
 
-                    <div class="card-body">
-
-
-
-
-
-                        <form id="promotionForm">
-                            <!-- 4 Column Header Fields -->
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <div class="form-floating form-floating-advance-select">
-                                        <select class="form-select choiceDD" id="promotionEmployee" asp-items="@ViewBag.EmployeeDD as SelectList">
-                                        </select>
-                                        <label for="promotionEmployee">Employee Name</label>
-                                    </div>
-                                    <span class="text-danger small"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-floating form-floating-advance-select">
-                                        <select class="form-select choiceDD" id="promotionOrganization" required>
-                                            <option value="" selected disabled>Select Organization</option>
-                                            <option value="1">ABC Corp</option>
-                                            <option value="2">XYZ Ltd</option>
-                                            <option value="3">Tech Solutions</option>
-                                        </select>
-                                        <label for="promotionOrganization">Organization</label>
-                                    </div>
-                                    <span class="text-danger small"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-floating form-floating-advance-select">
-                                        <select class="form-select choiceDD" id="promotionDesignation" required>
-                                            <option value="" selected disabled>Select Designation</option>
-                                            <option value="1">Software Engineer</option>
-                                            <option value="2">Senior Software Engineer</option>
-                                            <option value="3">Team Lead</option>
-                                            <option value="4">Manager</option>
-                                        </select>
-                                        <label for="promotionDesignation">Designation</label>
-                                    </div>
-                                    <span class="text-danger small"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-floating form-floating-advance-select">
-                                        <select class="form-select choiceDD" id="promotionDepartment" required>
-                                            <option value="" selected disabled>Select Department</option>
-                                            <option value="1">IT Department</option>
-                                            <option value="2">HR Department</option>
-                                            <option value="3">Finance Department</option>
-                                            <option value="4">Operations</option>
-                                        </select>
-                                        <label for="promotionDepartment">Department</label>
-                                    </div>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-
-                            <!-- Radio Button Section -->
-                            <div class="d-flex mb-3">
-                                <div class="form-check me-4">
-                                    <input class="form-check-input" type="radio" name="changeType" id="promotion" value="promotion" checked>
-                                    <label class="form-check-label" for="promotion">Promotion</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="changeType" id="demotion" value="demotion">
-                                    <label class="form-check-label" for="demotion">Demotion</label>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Change Details Section in Card -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Change Details</h6>
-                                </div>
-                                <div class="card-body">
-                                    <!-- Date Field -->
-                                    <div class="row mb-3">
-
-                                        <div class="col-md-6">
-                                            <div class="flatpickr-input-container">
-                                                <div class="form-floating">
-                                                    <input id="promotionWef" class="form-control datetimepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true}' />
-                                                    <label class="ps-6" id="promotionWef">Effective Date</label>
-                                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
-                                                    <span class="text-danger small"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-
-
-                                    </div>
-
-                                    <!-- 2 Dropdown Fields -->
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating form-floating-advance-select">
-                                                <select class="form-select choiceDD" id="promotionPrevDes" required>
-                                                    <option value="" selected disabled>Select Current Designation</option>
-                                                    <option value="1">Junior Software Engineer</option>
-                                                    <option value="2">Software Engineer</option>
-                                                    <option value="3">Senior Software Engineer</option>
-                                                    <option value="4">Team Lead</option>
-                                                </select>
-                                                <label>Current Designation</label>
-                                            </div>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating form-floating-advance-select">
-                                                <select class="form-select choiceDD" id="promotionNewDes" required>
-                                                    <option value="" selected disabled>Select New Designation</option>
-                                                    <option value="1">Software Engineer</option>
-                                                    <option value="2">Senior Software Engineer</option>
-                                                    <option value="3">Team Lead</option>
-                                                    <option value="4">Manager</option>
-                                                    <option value="5">Senior Manager</option>
-                                                </select>
-                                                <label>New Designation</label>
-                                            </div>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- 2 Input Fields -->
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="promotionPrevSalary" placeholder="Current Salary" required>
-                                                <label>Current Salary</label>
-                                            </div>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="promotionNewSalary" placeholder="New Salary" required>
-                                                <label>New Salary</label>
-                                            </div>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Remarks -->
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <div class="form-floating">
-                                                <textarea class="form-control" rows="3" id="promotionRemark" placeholder="Reason / Remarks" style="height: 100px;"></textarea>
-                                                <label>Reason / Remarks</label>
-                                            </div>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-
-                            </div>
-
-
-
-
-
-                        </form>
-                    </div>
-
-
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-end gap-2 mt-3">
-                            <button type="button" id="btnPromotionCancel" class="btn btn-light">Cancel Button</button>
-                            <button type="submit" id="btnPromotionSubmit" class="btn btn-primary">Submit Button</button>
-                        </div>
-                    </div>
-
-                </div>
-
+                @await Html.PartialAsync("_PromotionForm")
 
             </div>
         </div>
@@ -206,3 +28,12 @@
 </div>
 
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionForm.js"></script>
+    
+
+}
