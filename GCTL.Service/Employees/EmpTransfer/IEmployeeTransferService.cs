@@ -24,5 +24,6 @@ namespace GCTL.Service.Employees.EmpTransfer
         Task<CommonReturnViewModel> GetEmpOrganizationBranchId(int employeeID);
         Task<CommonReturnViewModel> GetEmpBranchId(int toOrganizationID);
         Task<CommonReturnViewModel> SoftDeleteEmpTransfer(DeleteRequestVM deleteRequestVM);
+        Task<List<PersonTransferStepVM>> GetByPersonTransferStepVM(int employeeTransferID);
     }
 }

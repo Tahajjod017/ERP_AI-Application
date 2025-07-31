@@ -24,6 +24,7 @@ namespace GCTL.Core.ViewModels.Employee.EmpTransfer
         public string? ToDepartmentName { get; set; }
 
         public string? ToDesignationName { get; set; }
+        public string? StatusName { get; set; }
         //
 
     }

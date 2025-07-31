@@ -237,26 +237,25 @@ $(document).ready(function () {
     //
     //
     //Get Employee according to LoginID
-    GetAllEmpoyee();
-    function GetAllEmpoyee() {
-        $.ajax({
-            url: '/LeaveRequest/GetEmployee',
-            type: 'GET',
-            success: function (data) {
+    //GetAllEmpoyee();
+    //function GetAllEmpoyee() {
+    //    $.ajax({
+    //        url: '/EmpTransferApprovar/GetEmployee',
+    //        type: 'GET',
+    //        success: function (data) {
 
-                choiceManager.populateDropdown('EmployeeID', data);
-                choiceManager.populateDropdown('EmployeeIDEdit', data);
-                if (data.length === 1) {
-                    var firstData = data[0];
-                    choiceManager.setChoiceValue('EmployeeID', firstData.id);
-                }
+    //            choiceManager.populateDropdown('EmployeeIDEdit', data);
+    //            if (data.length === 1) {
+    //                var firstData = data[0];
+    //                choiceManager.setChoiceValue('EmployeeIDEdit', firstData.id);
+    //            }
 
-            },
-            error: function () {
-                toastr.error('Failed to retrieve employee data.');
-            }
-        });
-    }
+    //        },
+    //        error: function () {
+    //            toastr.error('Failed to retrieve employee data.');
+    //        }
+    //    });
+    //}
     initializeDatepickerDMY('TransferDate');
 
 
@@ -290,53 +289,9 @@ $(document).ready(function () {
 
 
     //#region Save Data
-    $(document).on('click', '#EmpTransferButton', function (e) {
-        e.preventDefault();
-
-        const data = {
-            EmployeeID: $('#EmployeeID').val(),
-            FromOrganizationID: $('#FromOrganizationID').val(),
-            ToOrganizationID: $('#ToOrganizationID').val(),
-            FromOrganizationBranchID: $('#FromOrganizationBranchID').val(),
-            ToOrganizationBranchID: $('#ToOrganizationBranchID').val(),
-            TransferDate: $('#TransferDate').val(),
-            TransferNote: $('#TransferNote').val(),
-            ToDesignationID: $('#ToDesignationID').val(),
-            FromDesignationID: $('#FromDesignationID').val(),
-            ToDepartmentID: $('#ToDepartmentID').val(),
-            FromDepartmentID: $('#FromDepartmentID').val(),
-            TransferType: transferType
-        };
-
-        $.ajax({
-            url: '/EmployeeTransferManagement/SaveEmplopyeeTransfer', // 🔁 Change to your correct controller/action
-            type: 'POST',
-            data: data,
-            success: function (response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    resetForm();
-                    GetAllEmpoyee();
-                    var applyModalEl = document.getElementById('apply_leave');
-                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
-                    if (!applyModal) {
-                        applyModal = new bootstrap.Modal(applyModalEl);
-                    }
-                    applyModal.hide();
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error("AJAX Error:", error);
-                toastr.error(response.message);
-            }
-        });
-    });
-
+  
     function resetForm() {
         $('#employeeTransferForm,#employeeTransferFormEdit')[0].reset();
-        choiceManager.resetChoice('EmployeeID', 'FromOrganizationID', 'ToOrganizationID', 'FromOrganizationBranchID', 'ToOrganizationBranchID', 'FromDepartmentID', 'FromDesignationID', 'ToDepartmentID', 'ToDesignationID');
         choiceManager.resetChoice('EmployeeIDEdit', 'FromOrganizationIDEdit', 'ToOrganizationIDEdit', 'FromOrganizationBranchIDEdit', 'ToOrganizationBranchIDEdit', 'FromDepartmentIDEdit', 'FromDesignationIDEdit', 'ToDepartmentIDEdit', 'ToDesignationIDEdit');
         loadTableData();
     }
@@ -349,11 +304,11 @@ $(document).ready(function () {
     //#region GetBy EmpoyeeTransfer
     $(document).on('click', '#EmpTransferButtonEdit', function (e) {
         e.preventDefault();
-
+      
         let transferId = $(this).data('id');
         console.log('GetByID' + transferId);
         $.ajax({
-            url: '/EmployeeTransferManagement/GetEmployeeTransferByIdAsync',
+            url: '/EmpTransferApprovar/GetEmployeeTransferByIdAsync',
             type: 'GET',
             data: { employeeTransferID: transferId },
             success: function (response) {
@@ -361,7 +316,7 @@ $(document).ready(function () {
                     toastr.warning(response.message || 'Record not found.');
                     return;
                 }
-                debugger
+             
                 const data = response.data;
                 choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                 choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationIDEdit);
@@ -383,8 +338,32 @@ $(document).ready(function () {
             }
         });
     });
-    $(document).on('click', '#EmpTransferButtonUpdateSubmit', function (e) {
+
+    //
+    $(document).on('change', 'input[name="ApprovalStatus"]', function () {
+        const isApproved = $(this).val() === 'true';
+        const $button = $('#ApplyTransferSubmitButtonApproval');
+
+        if (isApproved) {
+            $button
+                .removeClass('d-none btn-danger')
+                .addClass('btn-primary')
+                .text('APPROVE');
+        } else {
+            $button
+                .removeClass('d-none btn-primary')
+                .addClass('btn-danger')
+                .text('DECLINE');
+        }
+    });
+    $(document).ready(function () {
+        $('#ApplyTransferSubmitButtonApproval').addClass('d-none');
+    });
+    //
+    $(document).on('click', '#ApplyTransferSubmitButtonApproval', function (e) {
         e.preventDefault();
+        const approvalStatus = $('input[name="ApprovalStatus"]:checked').val();
+        const isApproved = approvalStatus === "true";
         const payload = {
             EmployeeTransferID: parseInt($('#EmployeeTransferID').val()) || 0,
             EmployeeIDEdit: parseInt($('#EmployeeIDEdit').val()) || null,
@@ -398,12 +377,14 @@ $(document).ready(function () {
             ToDesignationIDEdit: parseInt($('#ToDesignationIDEdit').val()) || null,
             TransferDateEdit: $('#TransferDateEdit').val() || null,
             TransferNoteEdit: $('#TransferNoteEdit').val() || "",
-            TransferTypeEdit: $('#TransferTypeEdit').val() || ""
+            TransferTypeEdit: $('#TransferTypeEdit').val() || "",
+            Approved: isApproved,
+            Declined: !isApproved,
         };
 
 
         $.ajax({
-            url: '/EmployeeTransferManagement/UpdateEmployeeTransferAsync',
+            url: '/EmpTransferApprovar/UpdateEmployeeTransferAsync',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
@@ -441,7 +422,7 @@ $(document).ready(function () {
         if (id) {
             showDeleteModal(function () {
                 $.ajax({
-                    url: '/EmployeeTransferManagement/SoftDeleteEmpTransfer',
+                    url: '/EmpTransferApprovar/SoftDeleteEmpTransfer',
                     method: 'POST',
                     data: { ids: [id] },
                     success: function (response) {
@@ -480,7 +461,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: '/EmployeeTransferManagement/GetEmpOrganizationBranchId',
+            url: '/EmpTransferApprovar/GetEmpOrganizationBranchId',
             type: 'GET',
             data: { employeeID: employeeID },
             success: function (response) {
@@ -653,7 +634,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
     console.log("From: " + fromDate + " | To: " + toDate);
 
     $.ajax({
-        url: '/EmployeeTransferManagement/GetAllTableListAsync',
+        url: '/EmpTransferApprovar/GetAllTableListAsync',
         method: 'GET',
         traditional: true,
         data: {
@@ -671,7 +652,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
         success: function (response) {
 
 
-
+          
             console.log("Datassssss", response);
             var tableBody = $("#leaveRequest-tBody");
             tableBody.empty();
@@ -746,7 +727,7 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                       <div class="d-flex  align-items-center">
                       <a href="#"
                          title="View"
-                         id="LeaveRequestEditButton"
+                         id="EmpTransferButtonEdit"
                          data-id="${item.employeeTransferID}"
                          class="btn btn-outline-light btn-icon d-flex align-items-center justify-content-center"
                          data-bs-toggle="modal"
@@ -815,3 +796,254 @@ $(document).on('click', '.page-btn', function () {
     loadTableData();
 });
 //#endregion
+
+// for Below Table 
+
+$(document).ready(function () {
+    var attendPage = 1;
+    var attendPageSize = 5;
+    let attendSortColumn = '';
+    let attendSortOrder = '';
+
+    loadAttendanceTable();
+
+    $('#attendance-pageSizeSelect').on('change', function () {
+        var selectedSize = $(this).val();
+        if (selectedSize) {
+            attendPageSize = parseInt(selectedSize, 10);
+            attendPage = 1;
+            loadAttendanceTable();
+        }
+    });
+
+    $("#attendance-searchInput").on("input", function () {
+        attendPage = 1;
+        loadAttendanceTable();
+    });
+
+    $("#attendance-prevPageBtn").on('click', function () {
+        if (attendPage > 1) {
+            attendPage--;
+            loadAttendanceTable();
+        }
+    });
+
+    $("#attendance-nextPageBtn").on('click', function () {
+        attendPage++;
+        loadAttendanceTable();
+    });
+
+    $('th.attend-sort').on('click', function () {
+        const column = $(this).data('sort');
+
+        if (attendSortColumn === column) {
+            attendSortOrder = attendSortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            attendSortColumn = column;
+            attendSortOrder = 'asc';
+        }
+
+        loadAttendanceTable(attendSortColumn, attendSortOrder);
+        updateAttendSortIcons(column, attendSortOrder);
+    });
+
+    $(document).on("change", "#attendanceStatusFilter,#attendanceTypeFilter", function () {
+        attendPage = 1;
+        loadAttendanceTable();
+    });
+
+    $(document).ready(function () {
+        initializeGlobalDateRangePicker(
+            'basic-daterange_belowTable',                    // visible input
+            'basic-daterange_fromHidden_belowTable',         // hidden FromDate
+            'basic-daterange_toHidden_belowTable',           // hidden ToDate
+            function () {
+                attendPage = 1;
+                loadAttendanceTable(); // You can change this function name if needed
+            }
+        );
+    });
+
+
+
+    $(document).on('click', '.attend-page-btn', function () {
+        const page = $(this).data('page');
+        attendPage = page;
+        loadAttendanceTable();
+    });
+
+    function getBadgeClass(status) {
+        if (!status || status.trim() === '') return 'text-bg-success';
+
+        switch (status.trim().toUpperCase()) {
+            case 'DECLINED':
+                return 'badge-phoenix badge-phoenix-danger';
+            case 'APPROVED':
+                return 'badge-phoenix badge-phoenix-success';
+            case 'PENDING':
+                return 'badge-phoenix-warning';
+            default:
+                return 'text-bg-success';
+        }
+    }
+    function loadAttendanceTable(sortCol, sortOrder) {
+        var keyword = $("#attendance-searchInput").val();
+        var typeID = $('#attendanceTypeFilter').val();
+        var statusID = $('#attendanceStatusFilter').val();
+        var fromDate = $('#basic-daterange_fromHidden_belowTable').val();
+        var toDate = $('#basic-daterange_toHidden_belowTable').val();
+
+
+        $.ajax({
+            url: '/EmpTransferApprovar/GetAllTableListAsyncBelow',
+            method: 'GET',
+            data: {
+                pageNumber: attendPage,
+                pageSize: attendPageSize,
+                searchTerm: keyword,
+                currentSortColumn: sortCol,
+                currentSortOrder: sortOrder,
+                attendanceTypeID: typeID,
+                attendanceStatusID: statusID,
+                fromDate: fromDate,
+                toDate: toDate
+            },
+            success: function (response) {
+                var tbody = $("#empTransferBelow");
+                tbody.empty();
+                var total = response.paginationInfo.totalItems;
+
+                if (response.data.length > 0) {
+                    response.data.forEach(function (item, index) {
+                        let rowIndex = sortOrder === 'asc'
+                            ? (attendPage - 1) * attendPageSize + index + 1
+                            : total - ((attendPage - 1) * attendPageSize + index);
+                        let avatar = getAvatarHtml(item);
+
+                        tbody.append(`
+
+                      
+
+                         <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                        <td class="fs-9 align-middle py-0">
+                          <div class="form-check mb-0 fs-8">
+                            <input class="form-check-input" data-id="${item.employeeTransferID}" type="checkbox" />
+                          </div>
+                        </td>
+  
+                        
+                        <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                          <div class="d-flex align-items-center file-name-icon">
+                            <div class="avatar avatar-m avatar-bordered me-2">
+                             ${avatar}
+                            </div>
+                            <div class="ms-1">
+                              <h6 class="fw-bold">${item.employeeName}</h6>
+                              <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        
+                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                            <div>${item.fromOrganizationName || ''}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toOrganizationName || 'N/A'}</div>
+                       </td>
+
+
+                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                       
+                           <div>${item.fromOrganizationBranchName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toOrganizationName || 'N/A'}</div>
+                         </td>
+                        
+                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+
+                           <div>${item.fromDepartmentName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toDepartmentName || 'N/A'}</div>
+                         </td>
+                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+
+                           <div>${item.fromDepartmentName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.toDepartmentName || 'N/A'}</div>
+                         </td>
+                      <div>${item.fromDesignationName || 'N/A'}</div>
+                            <div class="text-muted small fw-bold"><b>to</b></div>
+                            <div>${item.tomDesignationName || 'N/A'}</div>
+                         </td>
+                        <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate || ''}</td>
+                       <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+                          <span class="badge ${getBadgeClass(item.statusName)}">${item.statusName || 'NEW'}</span>
+                        </td>
+                       
+                   </tr>`);
+                    });
+                } else {
+                    tbody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
+                }
+
+                let pageInfo = response.paginationInfo;
+                $("#attendance-paginationInfo").text(`Showing ${pageInfo.startItem} to ${pageInfo.endItem} of ${pageInfo.totalItems}`);
+                $("#attendance-totalCount").text(`(${pageInfo.totalItems})`);
+
+                updateAttendPagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
+            }
+        });
+    }
+
+    function updateAttendSortIcons() {
+        $('th.attend-sort').each(function () {
+            const $th = $(this);
+            const col = $th.data('sort');
+            $th.find('.sort-icon').remove();
+
+            const iconClass = col === attendSortColumn
+                ? (attendSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down')
+                : 'fa-sort';
+
+            $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
+        });
+    }
+
+    function updateAttendPagination(pageNumbers, currentPage, totalPages) {
+        const pager = $("#attendance-paginationLinks");
+        pager.empty();
+        const win = 1;
+
+        const pageBtn = (p) => `<li class="page-item ${p === currentPage ? 'active' : ''}">
+            <button class="page-link attend-page-btn" data-page="${p}">${p}</button>
+        </li>`;
+
+        const ellipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+
+        if (currentPage > win + 1) {
+            pager.append(pageBtn(1), ellipsis());
+        }
+
+        const start = Math.max(1, currentPage - win);
+        const end = Math.min(totalPages, currentPage + win);
+        for (let i = start; i <= end; i++) {
+            pager.append(pageBtn(i));
+        }
+
+        if (currentPage < totalPages - win) {
+            pager.append(ellipsis(), pageBtn(totalPages));
+        }
+
+        $("#attendance-prevPageBtn").prop('disabled', currentPage === 1);
+        $("#attendance-nextPageBtn").prop('disabled', currentPage === totalPages);
+    }
+
+    function renderAttendAvatar(user) {
+        if (user.employeeImage && user.employeeImage !== '') {
+            return `<img src="${user.employeeImage}" class="rounded-circle" alt="${user.employeeName}" />`;
+        } else {
+            const first = user.employeeName?.charAt(0).toUpperCase() || '?';
+            return `<div class="avatar-placeholder bg-info text-white rounded-circle d-flex align-items-center justify-content-center">${first}</div>`;
+        }
+    }
+});

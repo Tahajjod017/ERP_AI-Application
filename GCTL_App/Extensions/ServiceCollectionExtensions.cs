@@ -160,6 +160,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeaveHistoryBalancesService, LeaveHistoryBalancesService>();
             services.AddScoped<IEmployeeTransferService, EmployeeTransferService>();
             services.AddScoped<INotificationsService, NotificationsService>();
+            services.AddScoped<IEmpTransferApprovedOrDeclineService, EmpTransferApprovedOrDeclineService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
