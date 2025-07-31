@@ -1,14 +1,14 @@
 ﻿(function ($) {
-    $.gender = function (options) {
+    $.service = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#gender-form',
-            saveBtn: '#gender-saveBtn',
-            editBtn: '#gender-editBtn',
-            resetBtn: '#gender-resetBtn',
-            bulkDelBtn: '#gender-bulkDelBtn',
-            singleDeleteBtn: '#gender-singleDelBtn',
+            form: '#service-form',
+            saveBtn: '#service-saveBtn',
+            editBtn: '#service-editBtn',
+            resetBtn: '#service-resetBtn',
+            bulkDelBtn: '#service-bulkDelBtn',
+            singleDeleteBtn: '#service-singleDelBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -19,25 +19,25 @@
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
 
-            $('#gender-saveBtn').on('click', function (e) {
+            $('#service-saveBtn').on('click', function (e) {
                 e.preventDefault();
 
-                var token = $('#gender-form input[name="__RequestVerificationToken"]').val();
+                var token = $('#service-form input[name="__RequestVerificationToken"]').val();
 
                 var formData = {
                     __RequestVerificationToken: token,
-                    GenderID: $('#GenderID').val(),
-                    GenderName: $('#GenderName').val(),
+                    ServiceID: $('#ServiceID').val(),
+                    ServiceName: $('#ServiceName').val(),
                 }
 
                 validateName();
 
-                var id = $('#gender-form #GenderID').val();
+                var id = $('#service-form #ServiceID').val();
                 var url = '';
                 if (id > 0) {
-                    url = '/Genders/Update';
+                    url = '/services/Update';
                 } else {
-                    url = '/Genders/Create';
+                    url = '/services/Create';
                 }
 
                 $.ajax({
@@ -59,22 +59,23 @@
             });
 
 
-            $(document).on('click', '#gender-edit', function (e) {
+            $(document).on('click', '#service-edit', function (e) {
                 e.preventDefault();
-
+                
                 var id = $(this).data('id');
+                
 
                 $.ajax({
-                    url: '/Genders/GetById',
+                    url: '/services/GetById',
                     method: 'GET',
                     data: { id: id },
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#gender-form #GenderID').val(data.genderID);
-                            $('#gender-form #GenderName').val(data.genderName);
+                            $('#service-form #ServiceID').val(data.serviceID);
+                            $('#service-form #ServiceName').val(data.serviceName);
 
-                            $('#gender-form #gender-saveBtn').text('Update');
+                            $('#service-form #service-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
                         }
@@ -84,8 +85,8 @@
 
 
 
-            $("#gender-delSel").on('click', function () {
-                var selectedItems = $(".gender-selectItem:checked");
+            $("#service-delSel").on('click', function () {
+                var selectedItems = $(".service-selectItem:checked");
                 var selectedIds = [];
 
                 selectedItems.each(function () {
@@ -95,7 +96,7 @@
                 if (selectedIds.length > 0) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/Genders/SoftDelete',
+                            url: '/services/SoftDelete',
                             method: 'POST',
                             data: { ids: selectedIds },
                             success: function (response) {
@@ -116,16 +117,18 @@
                 }
             });
 
-            $(document).on('click', '#gender-single-delete', function () {
+            $(document).on('click', '#service-single-delete', function () {
                 var id = $(this).data('id');
+                
 
                 if (id) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/Genders/SoftDelete',
+                            url: '/services/SoftDelete',
                             method: 'POST',
                             data: { ids: [id] },
                             success: function (response) {
+                                
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
                                     clear();
@@ -146,13 +149,13 @@
 
 
 
-            $('#gender-resetBtn').on('click', function () {
+            $('#service-resetBtn').on('click', function () {
                 clear();
             })
 
             function clear() {
-                $('#gender-form')[0].reset();
-                $('#GenderID').val('0');
+                $('#service-form')[0].reset();
+                $('#ServiceID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -160,26 +163,26 @@
                         $(this).css('border-color', '#ccc');
                     }
                 });
-                $('#gender-form #gender-saveBtn').text('Save');
-                $("#gender-check-all").prop('checked', false);
-                $('.gender-selectItem').prop('checked', false);
+                $('#service-form #service-saveBtn').text('Save');
+                $("#service-check-all").prop('checked', false);
+                $('.service-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
             }
 
 
-            $('#GenderName').on('input', function () {
+            $('#ServiceName').on('input', function () {
                 validateName();
             });
 
 
             function validateName() {
-                var name = $('#GenderName').val().trim();
+                var name = $('#ServiceName').val().trim();
 
                 if (name === '') {
-                    $('#GenderName').css('border', '1px solid red');
+                    $('#ServiceName').css('border', '1px solid red');
                 } else {
-                    $('#GenderName').css('border', '1px solid #ccc');
+                    $('#ServiceName').css('border', '1px solid #ccc');
                 }
             }
 
@@ -189,20 +192,20 @@
             });
 
             function checkNameUnique() {
-                $('#GenderName').on('input', function () {
+                $('#ServiceName').on('input', function () {
                     var value = $(this).val();
 
                     $.ajax({
-                        url: '/Genders/CheckNameUnique',
+                        url: '/services/CheckNameUnique',
                         type: 'POST',
                         data: { name: value },
                         success: function (response) {
                             if (response === true) {
                                 $('#nameError').hide();
-                                $('input[name="GenderName"]').removeClass('is-invalid');
+                                $('input[name="ServiceName"]').removeClass('is-invalid');
                             } else {
                                 $('#nameError').text(response).show();
-                                $('input[name="GenderName"]').addClass('is-invalid');
+                                $('input[name="ServiceName"]').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -217,38 +220,38 @@
 
 
             $(document).ready(function () {
-                $('#gender-check-all').on('change', function () {
+                $('#service-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
-                    $('.gender-selectItem').prop('checked', isChecked);
+                    $('.service-selectItem').prop('checked', isChecked);
 
                     toggleBulkActions();
                 });
 
-                $(document).on('change', '.gender-selectItem', function () {
+                $(document).on('change', '.service-selectItem', function () {
                     toggleBulkActions();
                 });
             });
 
             function toggleBulkActions() {
-                const allItems = $('.gender-selectItem');
-                const checkedItems = $('.gender-selectItem:checked');
+                const allItems = $('.service-selectItem');
+                const checkedItems = $('.service-selectItem:checked');
 
                 const allChecked = allItems.length === checkedItems.length;
                 const someChecked = checkedItems.length > 0 && !allChecked;
 
-                $('#gender-check-all').prop('checked', allChecked);
-                $('#gender-check-all').prop('indeterminate', someChecked);
+                $('#service-check-all').prop('checked', allChecked);
+                $('#service-check-all').prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
-                    $('#gender-bulkSelectActions').removeClass('d-none');
-                    $('#gender-searchBox').addClass('d-none');
-                    $('.gender-bulkDelete').addClass('disabled');
-                    $('.gender-bulkEdit').addClass('disabled');
+                    $('#service-bulkSelectActions').removeClass('d-none');
+                    $('#service-searchBox').addClass('d-none');
+                    $('.service-bulkDelete').addClass('disabled');
+                    $('.service-bulkEdit').addClass('disabled');
                 } else {
-                    $('#gender-bulkSelectActions').addClass('d-none');
-                    $('#gender-searchBox').removeClass('d-none');
-                    $('.gender-bulkDelete').removeClass('disabled');
-                    $('.gender-bulkEdit').removeClass('disabled');
+                    $('#service-bulkSelectActions').addClass('d-none');
+                    $('#service-searchBox').removeClass('d-none');
+                    $('.service-bulkDelete').removeClass('disabled');
+                    $('.service-bulkEdit').removeClass('disabled');
                 }
             }
 
@@ -260,7 +263,7 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('#gender-pageSizeSelect').on('change', function () {
+        $('#service-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
 
             if (selectedSize) {
@@ -274,26 +277,26 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#gender-searchInput").on("input", function () {
+            $("#service-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#gender-prevPageBtn").on('click', function () {
+            $("#service-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#gender-nextPageBtn").on('click', function () {
+            $("#service-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
         });
 
 
-        let currentSortColumn = 'GenderName';
+        let currentSortColumn = 'ServiceName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -328,10 +331,10 @@
 
 
         function loadTableData(sortColumn, sortOrder) {
-            var searchTerm = $("#gender-searchInput").val();
+            var searchTerm = $("#service-searchInput").val();
 
             $.ajax({
-                url: '/Genders/GetAll',
+                url: '/services/GetAll',
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
@@ -341,7 +344,7 @@
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    var tableBody = $("#gender-tBody");
+                    var tableBody = $("#service-tBody");
                     tableBody.empty();
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
@@ -349,14 +352,14 @@
                             tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input gender-selectItem" data-id="${item.genderID}" />
+                                <input type="checkbox" class="form-check-input service-selectItem" data-id="${item.serviceID}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.genderName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.serviceName}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 gender-bulkDelete" href="#!" id="gender-edit" data-id="${item.genderID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 gender-bulkEdit" href="#!" id="gender-single-delete" data-id="${item.genderID}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 service-bulkDelete" href="#!" id="service-edit" data-id="${item.serviceID}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 service-bulkEdit" href="#!" id="service-single-delete" data-id="${item.serviceID}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -368,8 +371,8 @@
 
                     var paginationInfo = response.paginationInfo;
 
-                    $("#gender-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                    $("#gender-totalCount").text(`(${paginationInfo.totalItems})`);
+                    $("#service-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#service-totalCount").text(`(${paginationInfo.totalItems})`);
 
                     updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
                 },
@@ -380,7 +383,7 @@
         }
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#gender-paginationLinks");
+            const paginationLinks = $("#service-paginationLinks");
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
@@ -406,8 +409,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons
-            $("#gender-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#gender-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#service-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#service-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         $(document).on('click', '.page-btn', function () {

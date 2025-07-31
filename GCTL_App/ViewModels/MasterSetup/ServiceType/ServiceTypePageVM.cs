@@ -3,9 +3,9 @@ using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 
 namespace GCTL_App.ViewModels.MasterSetup.ServiceType
 {
-    public class ServicTypePageVM : BaseViewModel
+    public class ServicePageVM : BaseViewModel
     {
-        public ServiceTypeVM Setup { get; set; } = new ServiceTypeVM();
-        public List<ServiceTypeVM> List { get; set; } = new List<ServiceTypeVM>();
+        public ServiceVM Setup { get; set; } = new ServiceVM();
+        public List<ServiceVM> List { get; set; } = new List<ServiceVM>();
     }
 }

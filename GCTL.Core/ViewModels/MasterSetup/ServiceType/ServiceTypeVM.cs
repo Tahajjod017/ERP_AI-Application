@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.MasterSetup.ServiceType
 {
-    public class ServiceTypeVM : BaseViewModel
+    public class ServiceVM : BaseViewModel
     {
-        public int ServiceTypeID { get; set; }
+        public int ServiceID { get; set; }
 
-        public string ServiceTypeName { get; set; }
+        public string ServiceName { get; set; }
     }
 }

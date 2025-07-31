@@ -1,4 +1,4 @@
-﻿@model GCTL_App.ViewModels.MasterSetup.ServiceType.ServicTypePageVM
+﻿@model GCTL_App.ViewModels.MasterSetup.ServiceType.ServicePageVM
 
 @{
     // ViewData["Title"] = @Html.SmartLocalize("Add Gender");
@@ -35,17 +35,17 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="~/js/pages/mastersetup/gender.js"></script>
+    <script src="~/js/pages/mastersetup/serviceType.js"></script>
     <script type="text/javascript">
         $(function () {
             var options = {
-                baseUrl: '@Url.Action("", "Genders")'
+                baseUrl: '@Url.Action("", "Services")'
             };
             options.load = () => {
 
             };
 
-            $.gender(options);
+            $.service(options);
         });
     </script>
 }

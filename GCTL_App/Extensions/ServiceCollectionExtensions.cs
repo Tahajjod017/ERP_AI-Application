@@ -84,6 +84,7 @@ using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Service.AllNotifications;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
+using GCTL.Service.MasterSetup.ServiceType;
 
 #endregion
 
@@ -230,6 +231,10 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPromotionService, PromotionService>();
 
 
+            #endregion
+
+            #region e43
+            services.AddScoped<IServiceTypeService, ServiceTypeService>();
             #endregion
         }
     }
