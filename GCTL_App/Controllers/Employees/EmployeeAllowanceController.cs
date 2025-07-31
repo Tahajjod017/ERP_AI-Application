@@ -65,8 +65,8 @@ namespace GCTL_App.Controllers.Employees
 
                 var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
 
-                var menuTabs = (from rp in _rolePermissionRepository.All()
-                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                var menuTabs = (from rp in _rolePermissionRepository.AllActive()
+                                join mt in _menuTabRepository.AllActive() on rp.MenuTabId equals mt.MenuTabId
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
 
@@ -116,12 +116,12 @@ namespace GCTL_App.Controllers.Employees
 
 
             ViewBag.OrganizationDD = new SelectList(
-                _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+                _organizationRepository.AllActive().Select(o => new { o.OrganizationID, o.OrganizationName }),
                 "OrganizationID",
                 "OrganizationName"
             );
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
 
             ViewBag.HouseRentAllowanceDD = new SelectList(new List<SelectListItem>

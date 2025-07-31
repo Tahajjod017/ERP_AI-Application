@@ -72,11 +72,7 @@
         items.forEach(item => {
             tbody.append(`
             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                <td class="align-middle ps-0">
-                    <div class="form-check mb-0 fs-8">
-                        <input class="form-check-input" type="checkbox" data-id="${item.id}" />
-                    </div>
-                </td>
+                
                 <td class="align-middle text-nowrap">${item.employeeName}</td>
                 <td class="align-middle text-nowrap">${item.department}</td>
                 <td class="align-middle text-nowrap">${item.currentDesignation}</td>

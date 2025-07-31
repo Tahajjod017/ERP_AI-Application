@@ -10,7 +10,12 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 {
     public interface IPromotionService
     {
+        Task<List<PromotionApproveViewModel>> GetAllPromotionPendingList();
+        Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter);
         Task GetPagedPromotionListAsync(PromotionListFilterViewModel filters);
+        Task<PromotionApproveViewModel> GetPendingPromotionDetailsByID(int id);
         Task<CommonReturnViewModel> SaveAsync(PromotionViewModel model);
+
+
     }
 }

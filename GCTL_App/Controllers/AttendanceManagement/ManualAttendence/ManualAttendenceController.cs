@@ -49,7 +49,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
             ViewBag.ViolationTypeList = new SelectList(violationTypeList, "Value", "Text");
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new
             {
                 id = e.EmployeeID,
                 name = e.FirstName + " " + e.LastName
@@ -462,7 +462,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
         {
             foreach (var item in selectedItems)
             {
-                var attendence = _attendanceRepository.All().Where(a => a.AttendanceID == item).FirstOrDefault();
+                var attendence = _attendanceRepository.AllActive().Where(a => a.AttendanceID == item).FirstOrDefault();
                 if (attendence != null)
                 {
                     attendence.IsChecked = true; // Assuming IsChecked is a boolean property in Attendance model
