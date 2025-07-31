@@ -548,6 +548,187 @@ $(document).ready(function () {
    
 });
 
+//
+
+//#region TooTip Modal
+//
+let hideTooltipTimer;
+// 1. Create the tooltip only once and append to <body>
+let $tooltip = $('<div class="custom-tooltip-box"></div>').css({
+    position: 'fixed',
+    top: '0px',
+    left: '1258px',
+    zIndex: 9999999,
+    backgroundColor: 'rgb(255 247 209)',
+    border: '1px solid #ccc',
+    padding: '10px',
+    minWidth: '250px',
+    maxWidth: '400px',
+    maxHeight: '300px',
+    overflowY: 'auto',
+    boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+    display: 'none',
+    fontSize: '13px',
+    borderRadius: '4px'
+});
+$('body').append($tooltip);
+
+// 2. Show tooltip on hover
+$(document).on('mouseenter', '.custom-tooltip-container', function () {
+    const $container = $(this);
+    const $button = $container.find('.info-button');
+    const employeeTransferID = $button.data('id2');
+    const offset = $button.offset();
+
+    clearTimeout(hideTooltipTimer);
+
+    // Show loading state
+    $tooltip.html('<div style="text-align: center; color: #666;">Loading...</div>').css({
+        top: offset.top + 25,
+        left: offset.left - 100
+    }).fadeIn(200);
+
+    $.ajax({
+        url: '/EmployeeTransferManagement/GetByPersonTransferStepVM',
+        type: 'GET',
+        data: { employeeTransferID: employeeTransferID },
+        dataType: 'json',
+        success: function (data) {
+            const steps = Array.isArray(data) ? data : [data];
+            let html = '';
+
+            if (steps.length > 0) {
+                steps.forEach((item, index) => {
+                    const approverStep = item.approverStep ?? '';
+                    const statusName = item.statusName ?? '';
+                    const author = item.approvarPerson ?? '';
+                    const statusDescription = item.approvarNote ?? '';
+                    const approvedOrDeclineDate = item.approvedOrDeclineDate ?? '';
+
+                    html += `
+                <div class="timeline-item" style="margin-bottom:1px>
+                    <div class="timeline-item position-relative">
+                        <div class="row g-md-3">
+                            <div class="col-12 col-md-auto d-flex">
+                                <div class="timeline-item-date order-1 order-md-0 me-md-4">
+                                    <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
+                                        ${approverStep} 
+                                    </p>
+                                </div>
+
+                                <div class="timeline-item-bar position-md-relative me-3 me-md-0">
+                                    <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle">
+                                        <span class="fa-solid far fa-file-alt text-primary-dark fs-10"></span>
+                                    </div>
+                                    <span class="timeline-bar border-end border-dashed"></span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="timeline-item-content ps-6 ps-md-3">
+                                    <h5 class="fs-9 lh-sm">${statusName}</h5>
+                                    <p class="fs-9 mb-0">by <a class="fw-semibold" href="#!">${author}</a></p>
+                                    <h5 class="fs-9 lh-sm">${approvedOrDeclineDate}</h5>
+                                    <p class="fs-9 text-body-secondary">${statusDescription}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> `;
+                });
+            } else {
+                html = '<div class="text-muted" style="color: #999;">No approval steps found</div>';
+            }
+
+            $tooltip.html(html);
+        }
+        ,
+        error: function () {
+            $tooltip.html('<div class="text-danger" style="color: #d32f2f;">Error loading data</div>');
+        }
+    });
+});
+
+// 3. Hide tooltip on mouse leave from container
+$(document).on('mouseleave', '.custom-tooltip-container', function () {
+    hideTooltipTimer = setTimeout(() => {
+        $tooltip.fadeOut(200);
+    }, 300);
+});
+
+// 4. Handle tooltip hover to prevent hiding when mouse moves to tooltip
+$tooltip.on('mouseenter', function () {
+    clearTimeout(hideTooltipTimer);
+}).on('mouseleave', function () {
+    hideTooltipTimer = setTimeout(() => {
+        $tooltip.fadeOut(200);
+    }, 300);
+});
+
+// 5. Optional: Hide tooltip when clicking elsewhere
+$(document).on('click', function (e) {
+    if (!$(e.target).closest('.custom-tooltip-container, .custom-tooltip-box').length) {
+        clearTimeout(hideTooltipTimer);
+        $tooltip.fadeOut(200);
+    }
+});
+
+//#endregion
+
+
+
+// #region 🔵 Get Badge Class Based on Status
+function getBadgeClass(status) {
+    if (!status || status.trim() === '') return 'text-bg-success';
+
+    switch (status.trim().toUpperCase()) {
+        case 'DECLINED':
+            return 'badge-phoenix badge-phoenix-danger';
+        case 'APPROVED':
+            return 'badge-phoenix badge-phoenix-success';
+        case 'PENDING':
+        case 'WAITING FOR APPROVAL':
+            return 'badge-phoenix badge-phoenix-warning';
+        case 'NEW':
+            return 'badge-phoenix text-bg-success';
+        case 'ONGOING':
+            return 'badge-phoenix badge-phoenix-primary';
+        default:
+            return 'text-bg-success';
+    }
+}
+// #endregion
+
+// #region 🟡 Get Status Text Based on Approver Steps & Timing
+function getStatusText(item) {
+    const rawStatus = item.statusName?.trim().toUpperCase();
+    const isNewStatus = !rawStatus || rawStatus === 'NEW';
+    if (item.approverStep === 1 || item.approverStep === 2) {
+        return 'OnGoing';
+    } else if (item.approverStep === 3) {
+        return 'APPROVED';
+    }
+
+    if (isNewStatus && item.applicationDate) {
+
+        const applicationDate = new Date(item.applicationDate);
+        const now = new Date();
+        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
+
+        if (hoursPassed >= 24) {
+            return 'Waiting for Approval';
+        }
+        return 'New';
+    }
+    return rawStatus || '<i class="text-success"></i> New';
+}
+// #endregion
+
+// #region 🟠 Check Whether to Show Info Icon
+function shouldShowInfoIcon(item) {
+    const status = getStatusText(item)?.trim().toUpperCase();
+    return !(status === 'NEW' || status === 'WAITING FOR APPROVAL');
+}
+// #endregion
 // #region 🟣 Get Employee Avatar HTML (Initial or Image)
 function getAvatarHtml(employee) {
     if (employee.employeeImage && employee.employeeImage !== '') {
@@ -690,86 +871,99 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
                     }
 
-                 
+                    let status = item.statusName; // Assuming this is your status value
+                    let isDisabled = status && (status.toUpperCase() === 'APPROVED' || status.toUpperCase() === 'DECLINED');
                     const avatar = getAvatarHtml(item);
                     tableBody.append(`
-                       <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        
-                        <td class="fs-9 align-middle py-0">
-                          <div class="form-check mb-0 fs-8">
-                            <input class="form-check-input" data-id="${item.employeeTransferID}" type="checkbox" />
-                          </div>
-                        </td>
-  
-                        
-                        <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                          <div class="d-flex align-items-center file-name-icon">
-                            <div class="avatar avatar-m avatar-bordered me-2">
-                             ${avatar}
-                            </div>
-                            <div class="ms-1">
-                              <h6 class="fw-bold">${item.employeeName}</h6>
-                              <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
-                            </div>
-                          </div>
-                        </td>
-                        
-                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                            <div>${item.fromOrganizationName || ''}</div>
-                            <div class="text-muted small fw-bold"><b>to</b></div>
-                            <div>${item.toOrganizationName || 'N/A'}</div>
-                       </td>
-
-
-                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                       
-                           <div>${item.fromOrganizationBranchName || 'N/A'}</div>
-                            <div class="text-muted small fw-bold"><b>to</b></div>
-                            <div>${item.toOrganizationName || 'N/A'}</div>
-                         </td>
-                        
-                         <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-
-                           <div>${item.fromDepartmentName || 'N/A'}</div>
-                            <div class="text-muted small fw-bold"><b>to</b></div>
-                            <div>${item.toDepartmentName || 'N/A'}</div>
-                         </td>
-                          <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-
-                           <div>${item.fromDepartmentName || 'N/A'}</div>
-                            <div class="text-muted small fw-bold"><b>to</b></div>
-                            <div>${item.toDepartmentName || 'N/A'}</div>
-                         </td>
-                      <div>${item.fromDesignationName || 'N/A'}</div>
-                            <div class="text-muted small fw-bold"><b>to</b></div>
-                            <div>${item.tomDesignationName || 'N/A'}</div>
-                         </td>
-                        <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate || ''}</td>
-                       
-                        
-                     <td class="align-middle white-space-nowrap text-end pe-0">
-                          <div class="d-flex justify-content-end align-items-center">
-                         <a
-                               href="#"
-                               title="Edit"
-                               id="EmpTransferButtonEdit"
-                               data-id="${item.employeeTransferID}"
-                               class="btn btn-outline-light btn-icon me-1" 
-                               data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves">
-                               <i class="fas fa-edit text-black"></i>
-                    </a>
-                            <a 
-                              href="#" title="Delete"  data-id="${item.employeeTransferID}"
-                              class="btn btn-outline-light btn-icon"  
-                              id="leaveRequestDelete-singleDelBtn" >
-                              <i class="far fa-trash-alt text-black"></i>
-                            </a>
-                          </div>
-                    </td>
-
-  
-                      </tr>
+                   <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+            
+                <td class="fs-9 align-middle py-0">
+                    <div class="form-check mb-0 fs-8">
+                        <input class="form-check-input" data-id="${item.employeeTransferID}" type="checkbox" />
+                    </div>
+                </td>
+            
+            
+                <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                    <div class="d-flex align-items-center file-name-icon">
+                        <div class="avatar avatar-m avatar-bordered me-2">
+                            ${avatar}
+                        </div>
+                        <div class="ms-1">
+                            <h6 class="fw-bold">${item.employeeName}</h6>
+                            <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
+                        </div>
+                    </div>
+                </td>
+            
+                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                    <div>${item.fromOrganizationName || ''}</div>
+                    <div class="text-muted small fw-bold"><b>to</b></div>
+                    <div>${item.toOrganizationName || 'N/A'}</div>
+                </td>
+            
+            
+                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+            
+                    <div>${item.fromOrganizationBranchName || 'N/A'}</div>
+                    <div class="text-muted small fw-bold"><b>to</b></div>
+                    <div>${item.toOrganizationName || 'N/A'}</div>
+                </td>
+            
+                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+            
+                    <div>${item.fromDepartmentName || 'N/A'}</div>
+                    <div class="text-muted small fw-bold"><b>to</b></div>
+                    <div>${item.toDepartmentName || 'N/A'}</div>
+                </td>
+                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+            
+                    <div>${item.fromDepartmentName || 'N/A'}</div>
+                    <div class="text-muted small fw-bold"><b>to</b></div>
+                    <div>${item.toDepartmentName || 'N/A'}</div>
+                </td>
+                <div>${item.fromDesignationName || 'N/A'}</div>
+                <div class="text-muted small fw-bold"><b>to</b></div>
+                <div>${item.tomDesignationName || 'N/A'}</div>
+                </td>
+                <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.transferDate || ''}</td>
+            
+                <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
+                    <span class="badge ${getBadgeClass(getStatusText(item))}">${getStatusText(item)} </span>
+                    ${shouldShowInfoIcon(item) ? `
+                    <div class="custom-tooltip-container position-relative d-inline-block">
+                        <i class="fa-solid fa-circle-info info-button"
+                           data-id2="${item.employeeTransferID}"
+                           style="cursor: pointer; font-size: 14px; color: #007bff;"></i>
+                    </div>` : ''}
+                </td>
+            
+            
+                <td class="align-middle white-space-nowrap text-end pe-0">
+                    <div class="d-flex justify-content-end align-items-center">
+            
+            
+                        <a href="#"
+                           title="Edit"
+                           id="EmpTransferButtonEdit"
+                           data-id="${item.employeeTransferID}"
+                           class="btn btn-outline-light btn-icon me-1 ${isDisabled ? 'disabled' : ''}"
+                           data-bs-toggle="modal"
+                           data-bs-target="#edit_leaves"
+                           ${isDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
+                            <i class="fas fa-edit text-black"></i>
+                        </a>
+            
+                        <a href="#" title="Delete" data-id="${item.employeeTransferID}"
+                           class="btn btn-outline-light btn-icon"
+                           id="leaveRequestDelete-singleDelBtn">
+                            <i class="far fa-trash-alt text-black"></i>
+                        </a>
+                    </div>
+                </td>
+            
+            
+            </tr>
                    `);
                 });
             } else {
