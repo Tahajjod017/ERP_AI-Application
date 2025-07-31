@@ -164,7 +164,7 @@
         </div>
 
         <div class="border-translucent p-3">
-            <div id="promotionApprovalTable" data-list='{"valueNames":["employeeName","currentPosition","proposedPosition","currentSalary","proposedSalary","effectiveDate","status"],"page":10,"pagination":true}'>
+            <div id="promotionApprovalTable" >
                 <div class="table-responsive scrollbar mx-n1 px-1">
                     <table class="table table-sm fs-9 leads-table">
                         <thead>
@@ -181,11 +181,11 @@
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary">Proposed Salary</th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision">Decision</th>
-                                <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+
                             </tr>
                         </thead>
-                        <tbody class="list" id="promotion-approval-body">
-                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <tbody class="list" id="pending-promotion-body">
+                            @*<tr class="hover-actions-trigger btn-reveal-trigger position-static">
                                 <td class="fs-9 align-middle py-0">
                                     <div class="form-check mb-0 fs-8">
                                         <input class="form-check-input" type="checkbox" />
@@ -221,16 +221,6 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -269,16 +259,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -317,16 +298,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -365,16 +337,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -413,17 +376,9 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+
+                            </tr>*@
+
                         </tbody>
                     </table>
                 </div>
@@ -503,7 +458,7 @@
         </div>
 
         <div class="border-translucent p-3">
-            <div id="approvedPromotionTable" >
+            <div id="approvedPromotionTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
                     <table class="table table-sm fs-9 leads-table">
                         <thead>
@@ -520,11 +475,12 @@
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary">Proposed Salary</th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
                                 <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision">Decision</th>
-                                <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+
                             </tr>
                         </thead>
-                        <tbody class="list" id="promotion-approval-body">
-                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <tbody class="list" id="approved-promotion-body">
+
+                            @*<tr class="hover-actions-trigger btn-reveal-trigger position-static">
                                 <td class="fs-9 align-middle py-0">
                                     <div class="form-check mb-0 fs-8">
                                         <input class="form-check-input" type="checkbox" />
@@ -560,16 +516,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -608,16 +555,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -656,16 +594,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -704,16 +633,7 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
+
                             </tr>
 
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -752,17 +672,9 @@
                                     </a>
                                 </td>
 
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+
+                            </tr>*@
+
                         </tbody>
                     </table>
                 </div>
@@ -862,11 +774,49 @@
                     <textarea class="form-control" rows="3" placeholder="Add your comments here..."></textarea>
                 </div>
             </div>
-            <div class="modal-footer">
+
+            @*<div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-danger me-2">Decline</button>
                 <button type="button" class="btn btn-success">Approve</button>
+            </div>*@
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger me-2" data-action="decline" data-promotion-id="">Decline</button>
+                <button type="button" class="btn btn-success" data-action="approve" data-promotion-id="">Approve</button>
             </div>
         </div>
     </div>
 </div>
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmation_modal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmation_message">Are you sure you want to <span id="confirmation_action"></span> this promotion?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm_action">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionApprove.js"></script>
+
+}
