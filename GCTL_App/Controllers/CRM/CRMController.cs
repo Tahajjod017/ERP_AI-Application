@@ -15,10 +15,5 @@ namespace GCTL_App.Controllers.CRM
             SetSmartPageCode(600000);
             return View();
         }
-        public IActionResult Create()
-        {
-            SetSmartPageCode(600100);
-            return View();
-        }
     }
 }
