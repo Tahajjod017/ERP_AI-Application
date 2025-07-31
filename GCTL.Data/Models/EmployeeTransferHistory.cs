@@ -29,9 +29,7 @@ public partial class EmployeeTransferHistory
 
     public int? ApprovalPersonID { get; set; }
 
-    public DateTime? TransferDate { get; set; }
-
-    public string TransferNote { get; set; }
+    public string ApprovalPersonNote { get; set; }
 
     public int? StatusID { get; set; }
 
