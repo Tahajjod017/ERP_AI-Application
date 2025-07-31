@@ -128,8 +128,64 @@
 
                     </div>
                 </div> *@
-
-                <!-- All Employee yearly attendance Table-->
+            <!-- All Employee yearly attendance Table-->
+            <div id="allEmployeeYearlyAttendanceTable">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center fw-bold">
+                        <thead>
+                            <tr>
+                                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="ms-1">
+                                            <h5 class="fw-bold">Month</h5>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th>01</th>
+                                <th>02</th>
+                                <th>03</th>
+                                <th>04</th>
+                                <th>05</th>
+                                <th>06</th>
+                                <th>07</th>
+                                <th>08</th>
+                                <th>09</th>
+                                <th>10</th>
+                                <th>11</th>
+                                <th>12</th>
+                                <th>13</th>
+                                <th>14</th>
+                                <th>15</th>
+                                <th>16</th>
+                                <th>17</th>
+                                <th>18</th>
+                                <th>19</th>
+                                <th>20</th>
+                                <th>21</th>
+                                <th>22</th>
+                                <th>23</th>
+                                <th>24</th>
+                                <th>25</th>
+                                <th>26</th>
+                                <th>27</th>
+                                <th>28</th>
+                                <th>29</th>
+                                <th>30</th>
+                                <th>31&nbsp;</th>
+                                <th>Total Present</th>
+                                <th>Total Absence</th>
+                                <th>Total Leave</th>
+                                <th>Total Weekend</th>
+                                <th>Total Holiday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Rows will be dynamically added here using AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+               @*  <!-- All Employee yearly attendance Table-->
                 <div id="allEmployeeYearlyAttendanceTable">
                     <div class="table-responsive">
                         <table class="table table-bordered text-center fw-bold">
@@ -711,7 +767,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </div> *@
                 <!-- Leave Explaination-->
                 <div class="d-flex my-3 flex-wrap border-bottom ">
                     <div class="full-present me-2">
@@ -744,3 +800,63 @@
         </div>
     </div>
 
+@section Scripts{
+    <script>
+        $(document).ready(function() {
+            // Make an AJAX request to the backend
+            $.ajax({
+                    url: '/YearlyReport/GetYearlySpecialDaysReport', // Replace with your actual endpoint
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    debugger
+                    // Iterate over the response and generate table rows
+                    data.forEach(function(monthData) {
+                        var rowHtml = '<tr>';
+                        rowHtml += '<td class="empName align-middle fw-semibold text-body-emphasis ps-2 py-1">' + monthData.month + '</td>';
+
+                        // Loop through each day's data for the month
+                        monthData.specialDays.forEach(function(day) {
+                            var dayClass = '';
+                            switch (day.specialDays) {
+                                case 'Present':
+                                    dayClass = 'bg-success';
+                                    break;
+                                case 'Absent':
+                                    dayClass = 'bg-danger';
+                                    break;
+                                case 'Leave':
+                                    dayClass = 'bg-warning';
+                                    break;
+                                case 'Weekend':
+                                    dayClass = 'bg-warning-subtle';
+                                    break;
+                                case 'Holiday':
+                                    dayClass = 'bg-primary';
+                                    break;
+                                default:
+                                    dayClass = 'bg-secondary';
+                            }
+
+                            rowHtml += '<td class="' + dayClass + '">' + day.specialDays.charAt(0) + '</td>';
+                        });
+
+                        // Add the total counts for the month
+                        rowHtml += '<td>' + monthData.totalPresent + '</td>';
+                        rowHtml += '<td>' + monthData.totalAbsent + '</td>';
+                        rowHtml += '<td>' + monthData.totalLeave + '</td>';
+                        rowHtml += '<td>' + monthData.totalWeekend + '</td>';
+                        rowHtml += '<td>' + monthData.totalHoliday + '</td>';
+                        rowHtml += '</tr>';
+
+                        // Append the generated row to the table body
+                        $('#attendanceTableBody').append(rowHtml);
+                    });
+                },
+                error: function(err) {
+                    console.error('Error fetching data:', err);
+                }
+            });
+        });
+    </script>
+}
