@@ -17,8 +17,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 
 <style>
-    /* Custom CSS to display months in 3 columns, only for a specific Flatpickr instance */
-    /* Make the container display in 3 columns */
+    
     .flatpickr-monthSelect-months {
         display: grid;
         grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
@@ -202,7 +201,7 @@
                 </div>
 
                 <!-- All Employee monthly attendance Table-->
-            <div id="individualEmployeemonthlyAttendanceTable">
+            @* <div id="individualEmployeemonthlyAttendanceTable">
                 <div class="table-responsive">
                     <table class="table-bordered text-center p-2">
                         <thead>
@@ -216,10 +215,24 @@
                         </tbody>
                     </table>
                 </div>
+            </div> *@
+            <div id="individualEmployeemonthlyAttendanceTable">
+                <div class="table-responsive">
+                    <table class="table-bordered text-center p-2">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <!-- Days will be populated dynamically here -->
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Rows for check-in, check-out, etc. will be populated dynamically here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-
-               @*  <div id="individualEmployeemonthlyAttendanceTable" data-list='{"valueNames":["empName"],"page":3,"pagination":true}'>
+              @* <div id="individualEmployeemonthlyAttendanceTable">
                     <div class="table-responsive">
                         <table class=" table-bordered text-center p-2">
                             <thead>
@@ -750,7 +763,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div> *@
+                </div>  *@
                 <!-- Leave Explaination-->
                 <div class="d-flex my-3 flex-wrap border-bottom ">
                     <div class="full-present me-2">

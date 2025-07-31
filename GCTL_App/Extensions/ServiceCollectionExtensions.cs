@@ -84,6 +84,7 @@ using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Service.AllNotifications;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
+using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
 
 #endregion
 
@@ -178,6 +179,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IDailyReportService, DailyReportService>();
             services.AddTransient<HolidayHelper>();
             services.AddTransient<WeekendHelper>();
+            services.AddTransient<LeaveHelper>();
+            services.AddScoped<IMonthlyReportService, MonthlyReportService>();
             #endregion
 
 

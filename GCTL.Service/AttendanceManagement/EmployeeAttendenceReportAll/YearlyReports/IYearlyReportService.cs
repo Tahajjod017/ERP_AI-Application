@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.YearlyRe
 {
     public interface IYearlyReportService
     {
-
+        Task<List<YearlySpecialDayReportVM>> GetYearlySpecialDaysReport(int? departmentId, int? organizationId, int? employeeId, int year);
     }
 }
