@@ -10,6 +10,11 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls
     {
         public string Month { get; set; }
         public List<SpecialDay> SpecialDays { get; set; }
+        public int TotalPresent { get; set; }
+        public int TotalAbsent { get; set; }
+        public int TotalLeave { get; set; }
+        public int TotalWeekend { get; set; }
+        public int TotalHoliday { get; set; }
     }
     public class SpecialDay
     {

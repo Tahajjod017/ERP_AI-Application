@@ -45,7 +45,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
             var monthyear = "2025-07"; // Example month-year string
             var dataOfMonth = _monthlyReportService.GetMonthlyAttendanceReport(departmentId, organizationId, employeeId, monthyear);
 
-            return View(dataOfMonth);
+            return Json(dataOfMonth);
         }
 
 
