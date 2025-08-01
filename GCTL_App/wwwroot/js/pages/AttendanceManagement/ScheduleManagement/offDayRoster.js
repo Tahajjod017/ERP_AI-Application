@@ -708,6 +708,7 @@
         let currentSortColumn = 'RosterInHolyDayID';
         let currentSortOrder = 'desc';
         let daysToShow = 7;
+        let columnStartDate = new Date(); 
 
         $('#rosterInOffDay-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
@@ -737,16 +738,28 @@
                 currentPage++;
                 loadTableData();
             });
+
+            $('#chevron-right').on('click', function () {
+                columnStartDate.setDate(columnStartDate.getDate() + parseInt(daysToShow));
+                loadTableData();
+            });
+
+            $('#chevron-left').on('click', function () {
+                columnStartDate.setDate(columnStartDate.getDate() - parseInt(daysToShow));
+                loadTableData();
+            });
         });
 
         $('#timeFrame').on('change', function () {
             daysToShow = $(this).val();
+            columnStartDate = new Date();
             currentPage = 1;
             loadTableData();
         });
 
         function loadTableData(sortColumn, sortOrder) {
             var searchTerm = $("#rosterInOffDay-searchInput").val();
+            const formattedStartDate = columnStartDate.toISOString();
             $.ajax({
                 url: gridUrl,
                 type: 'GET',
@@ -756,11 +769,30 @@
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
                     sortOrder: sortOrder,
-                    daysToShow: daysToShow 
+                    daysToShow: daysToShow,
+                    startDate: formattedStartDate
                 },
                 success: function (response) {
                     if (response.isSuccess) {
                         buildRosterTable(response.data, response.uniqueDates);
+
+                        // 👇 NEW CODE: Set date range label
+                        if (response.uniqueDates && response.uniqueDates.length > 0) {
+                            const first = new Date(response.uniqueDates[0]);
+                            const last = new Date(response.uniqueDates[response.uniqueDates.length - 1]);
+
+                            const format = (date) =>
+                                date.toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                });
+
+                            const rangeText = `${format(first)} - ${format(last)}`;
+                            $(".date-range-label").text(rangeText);
+                        } else {
+                            $(".date-range-label").text("No dates available");
+                        }
 
                         const pageInfo = response.pagination;
 

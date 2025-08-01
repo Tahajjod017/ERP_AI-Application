@@ -231,11 +231,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #region GetAllAsync
         [Route("OffDayRoster/GetAllAsync")]
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInHolyDayID", string sortOrder = "desc", int daysToShow = 7)
+        public async Task<IActionResult> GetAllAsync(
+            int pageNumber = 1, 
+            int pageSize = 5, 
+            string searchTerm = "", 
+            string sortColumn = "RosterInHolyDayID", 
+            string sortOrder = "desc", 
+            int daysToShow = 7,
+            DateTime? startDate = null)
         {
             try
             {
-                var (data, uniqueDates, pagination) = await _offDayRosterService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow);
+                var (data, uniqueDates, pagination) = await _offDayRosterService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
 
                 return Json(new
                 {

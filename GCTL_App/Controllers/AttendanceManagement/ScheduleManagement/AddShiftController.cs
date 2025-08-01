@@ -83,8 +83,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    if (model.OrganizationIDs == null || model.OrganizationIDs.Count <= 0) return Json(new { isSuccess = false, message = "Please Select a Company!" });
-
                     foreach (var orgId in model.OrganizationIDs)
                     {
                         if (orgId > 0)
@@ -101,8 +99,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                     await _addShiftService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
                 }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
 
+                var orderedKeys = new[] { "ShiftName", "OrganizationIDs" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)
