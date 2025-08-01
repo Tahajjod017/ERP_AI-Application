@@ -9,14 +9,15 @@
     <div class="row">
         <div class="col-md-4">
             <div class="mb-3 one">
-                <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Company")</label>
+                <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Select Organization")<span style="color:red;">&nbsp;*</span></label>
                 <select class="form-multi-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" 
                     data-coreui-multiple="false" 
                     data-coreui-search="true"
-                    data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
-                    <option value="">@Html.SmartLocalize("Select Company")...</option>
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Organization")...">
+                    <option value="">@Html.SmartLocalize("Select Organization")...</option>
                 </select>
             </div>
+            <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
         </div>
 
         <div class="col-md-4">
@@ -54,10 +55,12 @@
 
         <div id="div" class=" p-3 rounded mb-3">
             <div class="col-md-12">
+                <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Select Shift")<span style="color:red;">&nbsp;*</span></label>
                 <select class="form-select" asp-for="ShiftID" asp-items="ViewBag.ShiftDD as SelectList">
                     <option value="">@Html.SmartLocalize("Select Shift")</option>
                 </select>
             </div>
+            <span id="ShiftIDError" class="text-danger" style="display:none;"></span>
         </div>
     </div>
 

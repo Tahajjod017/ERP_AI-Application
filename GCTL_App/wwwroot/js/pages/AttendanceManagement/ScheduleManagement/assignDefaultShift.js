@@ -43,9 +43,15 @@
                     url: checkConflictsUrl,
                     type: 'POST',
                     data: formData,
-                    success: function (data) {
-                        if (data.hasConflicts) {
-                            populateConflictModal(data.conflicts);
+                    success: function (response) {
+                        const allFields = ["OrganizationID", "ShiftID"];
+
+                        allFields.forEach(function (fieldId) {
+                            validateField(fieldId, response);
+                        });
+
+                        if (response.hasConflicts) {
+                            populateConflictModal(response.conflicts);
                             $('#assignDefaultShift-confirm-modal').modal('show');
                         } else {
                             postDefaultShift(url, formData);

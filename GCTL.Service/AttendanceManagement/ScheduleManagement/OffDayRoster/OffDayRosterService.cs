@@ -376,7 +376,14 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
 
 
         #region GetAllAsync
-        public async Task<(List<RosterInOffDayListVM> Data, List<string> UniqueDates, SeparatePaginationInfo Pagination)> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInHolyDayID", string sortOrder = "desc", int daysToShow = 7)
+        public async Task<(List<RosterInOffDayListVM> Data, List<string> UniqueDates, SeparatePaginationInfo Pagination)> GetAllAsync(
+            int pageNumber = 1, 
+            int pageSize = 5, 
+            string searchTerm = "", 
+            string sortColumn = "RosterInHolyDayID", 
+            string sortOrder = "desc", 
+            int daysToShow = 7,
+            DateTime? startDate = null)
         {
             // 1. Get raw flat records first
             var rawData = await _genericRepository.AllActive()
@@ -400,8 +407,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                 .ToListAsync();
 
             // 2. Extract unique dates
+            var startFrom = startDate ?? DateTime.Today;
+
             var uniqueDates = rawData
-                .Where(x => x.DayDate.Value >= DateTime.Today)
+                .Where(x => x.DayDate.Value >= startDate)
                 .Select(x => x.DayDate.Value.Date.ToString("yyyy-MM-dd"))
                 .Distinct()
                 .OrderBy(d => d)

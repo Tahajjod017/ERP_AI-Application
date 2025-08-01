@@ -51,8 +51,8 @@
                     MealBreakTime: $('#MealBreakTime').val(),
                 }
 
-                validateName();
-                validateCompany();
+                //validateName();
+                //validateCompany();
 
                 var id = $(settings.updateform).find('#UpdateShiftID').val();
                 var url = '';
@@ -66,12 +66,18 @@
                     url: url,
                     type: 'POST',
                     data: formData,
-                    success: function (data) {
-                        if (data.isSuccess) {
+                    success: function (response) {
+                        const allFields = ["ShiftName", "OrganizationIDs"];
+
+                        allFields.forEach(function (fieldId) {
+                            validateField(fieldId, response);
+                        });
+
+                        if (response.isSuccess) {
                             clear();
-                            toastr.success(data.message);
+                            toastr.success(response.message);
                         } else {
-                            toastr.info(data.message);
+                            toastr.info(response.message);
                         }
                     },
                     error: function (err) {
@@ -304,9 +310,9 @@
 
 
 
-            $('#ShiftName').on('input', function () {
-                validateName();
-            });
+            //$('#ShiftName').on('input', function () {
+            //    validateName();
+            //});
 
 
             function validateName() {
@@ -343,7 +349,7 @@
 
                 $('#OrganizationIDs').on('hidden.coreui.multi-select', function () {
                     checkNameUnique();
-                    validateCompany();
+                    //validateCompany();
                 });                
             });
 
@@ -599,117 +605,117 @@
 
 
 
-            // #region CoreUI Multiselect with Pagination
-            const selectEl = document.getElementById('OrganizationIDs');
-            if (!selectEl) return;
+            //// #region CoreUI Multiselect with Pagination
+            //const selectEl = document.getElementById('OrganizationIDs');
+            //if (!selectEl) return;
 
-            const apiUrl = '/AddShift/SearchOrganizations';
-            const pageSize = 10;
+            //const apiUrl = '/AddShift/SearchOrganizations';
+            //const pageSize = 10;
 
-            let currentPage = 1;
-            let currentSearch = '';
-            let hasMore = true;
-            let loading = false;
-            let debounceTimer = null;
+            //let currentPage = 1;
+            //let currentSearch = '';
+            //let hasMore = true;
+            //let loading = false;
+            //let debounceTimer = null;
 
-            const coreUiSelect = coreui.MultiSelect.getInstance(selectEl) || new coreui.MultiSelect(selectEl);
-            console.log('MultiSelect initialized');
+            //const coreUiSelect = coreui.MultiSelect.getInstance(selectEl) || new coreui.MultiSelect(selectEl);
+            //console.log('MultiSelect initialized');
 
-            // Load options from server
-            async function loadOptions(search, page, append = false) {
-                if (loading || (!hasMore && append)) return;
+            //// Load options from server
+            //async function loadOptions(search, page, append = false) {
+            //    if (loading || (!hasMore && append)) return;
 
-                loading = true;
-                try {
-                    const res = await fetch(`${apiUrl}?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
-                    const data = await res.json();
+            //    loading = true;
+            //    try {
+            //        const res = await fetch(`${apiUrl}?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+            //        const data = await res.json();
 
-                    const wrapper = selectEl.nextElementSibling;
-                    const optionsContainer = wrapper.querySelector('.form-multi-select-options');
+            //        const wrapper = selectEl.nextElementSibling;
+            //        const optionsContainer = wrapper.querySelector('.form-multi-select-options');
 
-                    if (!append) {
-                        optionsContainer.innerHTML = '';
-                        currentPage = 1;
-                    }
+            //        if (!append) {
+            //            optionsContainer.innerHTML = '';
+            //            currentPage = 1;
+            //        }
 
-                    if (data.items && data.items.length) {
-                        data.items.forEach(item => {
-                            const opt = document.createElement('div');
-                            opt.className = 'form-multi-select-option';
-                            opt.dataset.value = item.value;
-                            opt.innerText = item.label;
-                            optionsContainer.appendChild(opt);
-                        });
-                    } else if (!append) {
-                        optionsContainer.innerHTML = '<div class="form-multi-select-options-empty">No results found</div>';
-                    }
+            //        if (data.items && data.items.length) {
+            //            data.items.forEach(item => {
+            //                const opt = document.createElement('div');
+            //                opt.className = 'form-multi-select-option';
+            //                opt.dataset.value = item.value;
+            //                opt.innerText = item.label;
+            //                optionsContainer.appendChild(opt);
+            //            });
+            //        } else if (!append) {
+            //            optionsContainer.innerHTML = '<div class="form-multi-select-options-empty">No results found</div>';
+            //        }
 
-                    hasMore = data.hasMore;
-                    if (append) currentPage++;
-                } catch (err) {
-                    console.error('Fetch error:', err);
-                } finally {
-                    loading = false;
-                }
-            }
+            //        hasMore = data.hasMore;
+            //        if (append) currentPage++;
+            //    } catch (err) {
+            //        console.error('Fetch error:', err);
+            //    } finally {
+            //        loading = false;
+            //    }
+            //}
 
-            // On dropdown open
-            selectEl.addEventListener('shown.coreui.multi-select', function () {
-                const wrapper = selectEl.nextElementSibling;
-                const searchInput = wrapper?.querySelector('.form-multi-select-search');
-                const optionsBox = wrapper?.querySelector('.form-multi-select-options');
+            //// On dropdown open
+            //selectEl.addEventListener('shown.coreui.multi-select', function () {
+            //    const wrapper = selectEl.nextElementSibling;
+            //    const searchInput = wrapper?.querySelector('.form-multi-select-search');
+            //    const optionsBox = wrapper?.querySelector('.form-multi-select-options');
 
-                if (!searchInput || !optionsBox) return;
+            //    if (!searchInput || !optionsBox) return;
 
-                // Reset state on open
-                currentPage = 1;
-                hasMore = true;
-                currentSearch = '';
-                optionsBox.innerHTML = '<div class="form-multi-select-options-empty">Type 3 or more characters</div>';
+            //    // Reset state on open
+            //    currentPage = 1;
+            //    hasMore = true;
+            //    currentSearch = '';
+            //    optionsBox.innerHTML = '<div class="form-multi-select-options-empty">Type 3 or more characters</div>';
 
-                // Only attach once
-                if (!searchInput.dataset.listenerAttached) {
-                    searchInput.dataset.listenerAttached = "true";
+            //    // Only attach once
+            //    if (!searchInput.dataset.listenerAttached) {
+            //        searchInput.dataset.listenerAttached = "true";
 
-                    searchInput.addEventListener('input', function (e) {
-                        const term = e.target.value;
-                        currentSearch = term;
+            //        searchInput.addEventListener('input', function (e) {
+            //            const term = e.target.value;
+            //            currentSearch = term;
 
-                        clearTimeout(debounceTimer);
+            //            clearTimeout(debounceTimer);
 
-                        if (term.length < 3) {
-                            optionsBox.innerHTML = '<div class="form-multi-select-options-empty">Type 3 or more characters</div>';
-                            return;
-                        }
+            //            if (term.length < 3) {
+            //                optionsBox.innerHTML = '<div class="form-multi-select-options-empty">Type 3 or more characters</div>';
+            //                return;
+            //            }
 
-                        debounceTimer = setTimeout(() => {
-                            currentPage = 1;
-                            hasMore = true;
-                            loadOptions(term, currentPage);
-                        }, 500);
-                    });
+            //            debounceTimer = setTimeout(() => {
+            //                currentPage = 1;
+            //                hasMore = true;
+            //                loadOptions(term, currentPage);
+            //            }, 500);
+            //        });
 
-                    // Scroll to load more
-                    optionsBox.addEventListener('scroll', () => {
-                        if (optionsBox.scrollTop + optionsBox.clientHeight >= optionsBox.scrollHeight - 10) {
-                            if (hasMore && !loading) {
-                                loadOptions(currentSearch, currentPage + 1, true);
-                            }
-                        }
-                    });
+            //        // Scroll to load more
+            //        optionsBox.addEventListener('scroll', () => {
+            //            if (optionsBox.scrollTop + optionsBox.clientHeight >= optionsBox.scrollHeight - 10) {
+            //                if (hasMore && !loading) {
+            //                    loadOptions(currentSearch, currentPage + 1, true);
+            //                }
+            //            }
+            //        });
 
-                    // Option click
-                    optionsBox.addEventListener('click', function (e) {
-                        const opt = e.target.closest('.form-multi-select-option');
-                        if (opt) {
-                            const value = opt.dataset.value;
-                            const label = opt.innerText;
-                            coreUiSelect.add(value, label); // Add to selection
-                        }
-                    });
-                }
-            });
-            // #endregion
+            //        // Option click
+            //        optionsBox.addEventListener('click', function (e) {
+            //            const opt = e.target.closest('.form-multi-select-option');
+            //            if (opt) {
+            //                const value = opt.dataset.value;
+            //                const label = opt.innerText;
+            //                coreUiSelect.add(value, label); // Add to selection
+            //            }
+            //        });
+            //    }
+            //});
+            //// #endregion
 
             
             
