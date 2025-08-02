@@ -1,4 +1,6 @@
-﻿using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -42,6 +44,42 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
             return View(model);
         }
+
+
+        #region Create
+        //[Permission("Create", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateSpiralPatternVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _createSpiralPatternService.AddAsync(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "OrganizationID", "SpiralPatternTypeID", "SpiralWeeklyPatternName" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
 
 
         #region GetShiftByOrganization

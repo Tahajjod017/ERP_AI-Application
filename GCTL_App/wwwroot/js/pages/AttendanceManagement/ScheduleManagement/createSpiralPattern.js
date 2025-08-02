@@ -3,10 +3,60 @@
         // Default options
         var settings = $.extend({
             baseUrl: '/',
+            form: '#createSpiralPattern-form',
+            saveBtn: '#createSpiralPattern-saveBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
+        var createUrl = settings.baseUrl + "/Create";
+        var updateUrl = settings.baseUrl + "/Update";
         $(() => {
+
+
+
+            // #region Save
+            $(settings.saveBtn).on('click', function (e) {
+                e.preventDefault();
+
+                //const token = $('#createSpiralPattern-form input[name="__RequestVerificationToken"]').val();
+
+                const formData = {
+                    //__RequestVerificationToken: token,
+                    SpiralWeeklyPatternID: $('#SpiralWeeklyPatternID').val(),
+                    OrganizationID: $('#OrganizationID').val(),
+                    SpiralPatternTypeID: $('#SpiralPatternTypeID').val(),
+                    SpiralWeeklyPatternName: $('#SpiralWeeklyPatternName').val(),
+                };
+
+                const id = $('#SpiralWeeklyPatternID').val();
+                const isEdit = id > 0;
+                const url = isEdit ? updateUrl : createUrl;
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        const allFields = ["OrganizationID", "SpiralPatternTypeID", "SpiralWeeklyPatternName"];
+
+                        allFields.forEach(function (fieldId) {
+                            validateField(fieldId, response);
+                        });
+
+                        if (response.isSuccess) {
+                            toastr.success(response.message);
+                            clear();
+                            loadTableData();
+                        } else {
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Conflict check failed:', err);
+                    }
+                });
+            });
+            // #endregion
 
 
             $('#SpiralPatternTypeID').val(1);
