@@ -67,7 +67,7 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 // 🔹 Step 3: Base query with includes
 
-                var query = repositoryEmployeeTransfer.AllActive().Where(x=>x.ApprovalPersonID==employeeId).Include(x => x.Employee)
+                var query = repositoryEmployeeTransfer.AllActive().Where(x=>x.ApprovalPersonID==employeeId && x.UpdatedBy != x.ApprovalPersonID).Include(x => x.Employee)
              .Include(x => x.FromOrganization).Include(x => x.ToOrganization)
              .Include(x => x.FromOrganizationBranch).Include(x => x.ToOrganizationBranch).Include(x => x.FromDepartment)
              .Include(x => x.ToDepartment).Include(x => x.FromDesignation).Include(x => x.ToDesignation)
