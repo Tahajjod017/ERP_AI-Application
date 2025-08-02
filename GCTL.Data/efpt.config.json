@@ -236,6 +236,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LeadSources]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LeadStatuses]",
          "ObjectType": 0
       },

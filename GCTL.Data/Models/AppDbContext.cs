@@ -39,7 +39,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -124,6 +123,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<LanguageLists> LanguageLists { get; set; }
 
     public virtual DbSet<LanguageMainTables> LanguageMainTables { get; set; }
+
+    public virtual DbSet<LeadSources> LeadSources { get; set; }
 
     public virtual DbSet<LeadStatuses> LeadStatuses { get; set; }
 
@@ -408,93 +409,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
-
-        //modelBuilder.Entity<AspNetRoleClaims>(entity =>
-        //{
-        //    entity.Property(e => e.RoleId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
-        //});
-
-        //modelBuilder.Entity<AspNetRoles>(entity =>
-        //{
-        //    entity.Property(e => e.Discriminator)
-        //        .IsRequired()
-        //        .HasMaxLength(21);
-        //    entity.Property(e => e.Name).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
-
-        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetRoles)
-        //        .HasForeignKey(d => d.OrganizationID)
-        //        .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-
-        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetRoles)
-        //        .HasForeignKey(d => d.TenantInfoId)
-        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-        //});
-
-        //modelBuilder.Entity<AspNetUserClaims>(entity =>
-        //{
-        //    entity.Property(e => e.UserId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
-        //});
-
-        //modelBuilder.Entity<AspNetUserLogins>(entity =>
-        //{
-        //    entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
-
-        //    entity.Property(e => e.UserId)
-        //        .IsRequired()
-        //        .HasMaxLength(450);
-
-        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
-        //});
-
-        //modelBuilder.Entity<AspNetUserTokens>(entity =>
-        //{
-        //    entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
-
-        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
-        //});
-
-        //modelBuilder.Entity<AspNetUsers>(entity =>
-        //{
-        //    entity.Property(e => e.Discriminator)
-        //        .IsRequired()
-        //        .HasMaxLength(21);
-        //    entity.Property(e => e.Email).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
-        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
-        //    entity.Property(e => e.UserName).HasMaxLength(256);
-
-        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.EmployeeId)
-        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.OrganizationID)
-        //        .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-
-        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetUsers)
-        //        .HasForeignKey(d => d.TenantInfoId)
-        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-
-        //    entity.HasMany(d => d.Role).WithMany(p => p.User)
-        //        .UsingEntity<Dictionary<string, object>>(
-        //            "AspNetUserRoles",
-        //            r => r.HasOne<AspNetRoles>().WithMany().HasForeignKey("RoleId"),
-        //            l => l.HasOne<AspNetUsers>().WithMany().HasForeignKey("UserId"),
-        //            j =>
-        //            {
-        //                j.HasKey("UserId", "RoleId");
-        //            });
-        //});
-
 
         modelBuilder.Entity<ApplicationUser>()
 
@@ -1069,6 +983,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<EmployeeActionTypes>(entity =>
         {
             entity.HasKey(e => e.EmployeeActionTypeID).HasName("PK__Employee__C81C9EA17680E064");
+
+            entity.HasIndex(e => e.EmployeeActionTypeName, "UQ_EmployeeActionTypeName").IsUnique();
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -2057,6 +1973,31 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         {
             entity.Property(e => e.EnglishText).IsRequired();
             entity.Property(e => e.TextCode).IsRequired();
+        });
+
+        modelBuilder.Entity<LeadSources>(entity =>
+        {
+            entity.HasKey(e => e.LeadSourceID).HasName("PK__LeadSour__9FB37DB359916DED");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LeadSourceName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadSourcesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeadSourc__Creat__7FD5EEA5");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadSourcesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeadSourc__Delet__02B25B50");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadSourcesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeadSourc__Updat__00CA12DE");
         });
 
         modelBuilder.Entity<LeadStatuses>(entity =>

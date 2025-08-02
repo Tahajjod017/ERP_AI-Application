@@ -13,6 +13,7 @@ public partial class Employees
 
     public string LastName { get; set; }
 
+
     public string FatherName { get; set; }
 
     public string MotherName { get; set; }
@@ -378,6 +379,12 @@ public partial class Employees
     public virtual ICollection<Employees> InverseDeletedByNavigation { get; set; } = new List<Employees>();
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
+
+    public virtual ICollection<LeadSources> LeadSourcesCreatedByNavigation { get; set; } = new List<LeadSources>();
+
+    public virtual ICollection<LeadSources> LeadSourcesDeletedByNavigation { get; set; } = new List<LeadSources>();
+
+    public virtual ICollection<LeadSources> LeadSourcesUpdatedByNavigation { get; set; } = new List<LeadSources>();
 
     public virtual ICollection<LeadStatuses> LeadStatusesCreatedByNavigation { get; set; } = new List<LeadStatuses>();
 

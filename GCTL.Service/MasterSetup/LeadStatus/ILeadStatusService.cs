@@ -10,7 +10,7 @@ namespace GCTL.Service.MasterSetup.LeadStatuses
         #region CRUD
         Task<bool> AddAsync(LeadStatusVM model);
         Task<PaginationService<GCTL.Data.Models.LeadStatuses, LeadStatusVM>.PaginationResult<LeadStatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "ServiceName", string sortOrder = "asc");
+        string sortColumn = "LeadStatusName", string sortOrder = "asc");
         Task<LeadStatusVM> GetByIdAsync(int id);
         Task<bool> UpdateAsync(LeadStatusVM model);
         Task<LeadStatusVM> SoftDeleteAsync(DeleteRequestVM requestVM);

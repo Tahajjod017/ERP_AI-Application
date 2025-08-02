@@ -61,6 +61,7 @@ using GCTL.Service.MasterSetup.EmployeeTypes;
 using GCTL.Service.MasterSetup.EmploymentNatures;
 using GCTL.Service.MasterSetup.Gender;
 using GCTL.Service.MasterSetup.Grades;
+using GCTL.Service.MasterSetup.LeadSource;
 using GCTL.Service.MasterSetup.LeadStatus;
 using GCTL.Service.MasterSetup.LeadStatuses;
 using GCTL.Service.MasterSetup.LicenceType;
@@ -236,6 +237,7 @@ namespace GCTL_App.Extensions
             #region e43
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
             services.AddScoped<ILeadStatusService, LeadStatusService>();
+            services.AddScoped<ILeadSourceService, LeadSourceService>();
             #endregion
         }
     }

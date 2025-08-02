@@ -1,19 +1,20 @@
 ﻿
 using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
+using GCTL.Core.ViewModels.MasterSetup.LeadSource;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.MasterSetup.LeadStatuses;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
-namespace GCTL.Service.MasterSetup.LeadStatus
+
+namespace GCTL.Service.MasterSetup.LeadSource
 {
-    public class LeadStatusService : AppService<GCTL.Data.Models.LeadStatuses>, ILeadStatusService
+    public class LeadSourceService : AppService<GCTL.Data.Models.LeadSources>, ILeadSourceService
     {
-        #region Repositories & GCTL.Data.Models.LeadStatuses
+        #region Repositories & GCTL.Data.Models.LeadSources
         private readonly IUserInfoService _userInfoService;
-        private readonly IGenericRepository<GCTL.Data.Models.LeadStatuses> _genericRepository;
-        public LeadStatusService(IGenericRepository<GCTL.Data.Models.LeadStatuses> genericRepository, IUserInfoService userInfoService) : base(genericRepository)
+        private readonly IGenericRepository<GCTL.Data.Models.LeadSources> _genericRepository;
+        public LeadSourceService(IGenericRepository<GCTL.Data.Models.LeadSources> genericRepository, IUserInfoService userInfoService) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
@@ -21,39 +22,39 @@ namespace GCTL.Service.MasterSetup.LeadStatus
         #endregion
 
         #region add
-        public async Task<bool> AddAsync(LeadStatusVM model)
+        public async Task<bool> AddAsync(LeadSourceVM model)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var existingEntity = await _genericRepository.FindAsync(b => b.LeadStatusName == model.LeadStatusName && b.DeletedAt != null);
+                var existingEntity = await _genericRepository.FindAsync(b => b.LeadSourceName == model.LeadSourceName && b.DeletedAt != null);
                 if (existingEntity.Any())
                 {
                     var entityToRestore = existingEntity.FirstOrDefault();
 
-                    entityToRestore.LeadStatusName = model.LeadStatusName;
+                    entityToRestore.LeadSourceName = model.LeadSourceName;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
-                    entityToRestore.LIP = model.LIP;
+                    //entityToRestore.LIP = model.LIP;
                     entityToRestore.LMAC = model.LMAC;
 
                     entityToRestore.DeletedAt = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
-                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadStatuses", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadStatusID, model);
+                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadSources", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadSourceID, model);
                 }
                 else
                 {
-                    GCTL.Data.Models.LeadStatuses entity = new GCTL.Data.Models.LeadStatuses();
-                    entity.LeadStatusName = model.LeadStatusName;
+                    GCTL.Data.Models.LeadSources entity = new GCTL.Data.Models.LeadSources();
+                    entity.LeadSourceName = model.LeadSourceName;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
-                    entity.LIP = model.LIP;
+                    //entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
 
                     await _genericRepository.AddAsync(entity);
-                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadStatuses", ActionName.DataAdd, null, entity, entity.LeadStatusID, model);
+                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadSources", ActionName.DataAdd, null, entity, entity.LeadSourceID, model);
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -70,7 +71,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
         #endregion
 
         #region GetAllAsync
-        public async Task<PaginationService<GCTL.Data.Models.LeadStatuses, LeadStatusVM>.PaginationResult<LeadStatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadStatusName", string sortOrder = "asc")
+        public async Task<PaginationService<GCTL.Data.Models.LeadSources, LeadSourceVM>.PaginationResult<LeadSourceVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadSourceName", string sortOrder = "asc")
         {
             var query = _genericRepository.All();
             query = query.Where(x => x.DeletedAt == null);
@@ -79,18 +80,18 @@ namespace GCTL.Service.MasterSetup.LeadStatus
             {
                 query = sortColumn switch
                 {
-                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadStatusID) : query.OrderBy(x => x.LeadStatusID),
-                    "GenderName" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadStatusName) : query.OrderBy(x => x.LeadStatusName),
-                    _ => query.OrderBy(x => x.LeadStatusID)
+                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadSourceID) : query.OrderBy(x => x.LeadSourceID),
+                    "GenderName" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadSourceName) : query.OrderBy(x => x.LeadSourceName),
+                    _ => query.OrderBy(x => x.LeadSourceID)
                 };
             }
 
-            return await PaginationService<GCTL.Data.Models.LeadStatuses, LeadStatusVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                term => x => EF.Functions.Like(x.LeadStatusName, $"%{term}%"),
-                x => new LeadStatusVM
+            return await PaginationService<GCTL.Data.Models.LeadSources, LeadSourceVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+                term => x => EF.Functions.Like(x.LeadSourceName, $"%{term}%"),
+                x => new LeadSourceVM
                 {
-                    LeadStatusID = x.LeadStatusID,
-                    LeadStatusName = x.LeadStatusName ?? "-",
+                    LeadSourceID = x.LeadSourceID,
+                    LeadSourceName = x.LeadSourceName ?? "-",
                 });
         }
         #endregion
@@ -98,9 +99,9 @@ namespace GCTL.Service.MasterSetup.LeadStatus
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.LeadStatusName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.LeadSourceName != null);
 
-            var nameList = existingNames.Select(b => b.LeadStatusName);
+            var nameList = existingNames.Select(b => b.LeadSourceName);
 
             return !DuplicateChecker.IsDuplicate(name, nameList);
         }
@@ -108,17 +109,17 @@ namespace GCTL.Service.MasterSetup.LeadStatus
 
 
         #region Get
-        public async Task<LeadStatusVM> GetByIdAsync(int id)
+        public async Task<LeadSourceVM> GetByIdAsync(int id)
         {
             try
             {
                 var data = await _genericRepository.GetByIdAsync(id);
                 if (data == null) return null;
 
-                return new LeadStatusVM
+                return new LeadSourceVM
                 {
-                    LeadStatusID = data.LeadStatusID,
-                    LeadStatusName = data.LeadStatusName,
+                    LeadSourceID = data.LeadSourceID,
+                    LeadSourceName = data.LeadSourceName,
                 };
             }
             catch (Exception ex)
@@ -131,29 +132,29 @@ namespace GCTL.Service.MasterSetup.LeadStatus
 
 
         #region Update
-        public async Task<bool> UpdateAsync(LeadStatusVM model)
+        public async Task<bool> UpdateAsync(LeadSourceVM model)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var entity = await _genericRepository.GetByIdAsync(model.LeadStatusID);
+                var entity = await _genericRepository.GetByIdAsync(model.LeadSourceID);
                 if (entity == null)
                 {
                     return false;
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity));
+                //var beforeEntity = JsonConvert.DeserializeObject<LeadSourceVM>(JsonConvert.SerializeObject(entity));
 
-                entity.LeadStatusName = model.LeadStatusName;
+                entity.LeadSourceName = model.LeadSourceName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
-                entity.LIP = model.LIP;
+                //entity.LIP = model.LIP;
                 entity.LMAC = model.LMAC;
 
                 await _genericRepository.UpdateAsync(entity);
 
-                //var afterEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Service", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadStatusID, model);
+                //var afterEntity = JsonConvert.DeserializeObject<LeadSourceVM>(JsonConvert.SerializeObject(entity));
+                //await _userInfoService.ActionLogAsync("Service", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadSourceID, model);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -168,28 +169,28 @@ namespace GCTL.Service.MasterSetup.LeadStatus
         #endregion
 
         #region Soft Delete
-        public async Task<LeadStatusVM> SoftDeleteAsync(DeleteRequestVM requestVM)
+        public async Task<LeadSourceVM> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.LeadStatusID));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.LeadSourceID));
                 if (data == null || data.Count == 0)
                 {
-                    return new LeadStatusVM
+                    return new LeadSourceVM
                     {
                         Message = "No data found to soft delete."
                     };
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<List<LeadStatusVM>>(JsonConvert.SerializeObject(data));
-                var targetIds = data.Select(x => (int?)x.LeadStatusID).ToList();
+                //var beforeEntity = JsonConvert.DeserializeObject<List<LeadSourceVM>>(JsonConvert.SerializeObject(data));
+                var targetIds = data.Select(x => (int?)x.LeadSourceID).ToList();
 
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
                     item.DeletedBy = requestVM.DeletedBy;
-                    item.LIP = requestVM.LIP;
+                    //item.LIP = requestVM.LIP;
                     item.LMAC = requestVM.LMAC;
                 }
 
@@ -199,7 +200,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
 
                 await _genericRepository.CommitTransactionAsync();
 
-                return new LeadStatusVM
+                return new LeadSourceVM
                 {
                     Message = $"{data.Count} data(s) deleted successfully."
                 };

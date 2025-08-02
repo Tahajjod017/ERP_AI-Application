@@ -1,14 +1,14 @@
 ﻿(function ($) {
-    $.leadStatus = function (options) {
+    $.leadSource = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#leadStatus-form',
-            saveBtn: '#leadStatus-saveBtn',
-            editBtn: '#leadStatus-editBtn',
-            resetBtn: '#leadStatus-resetBtn',
-            bulkDelBtn: '#leadStatus-bulkDelBtn',
-            singleDeleteBtn: '#leadStatus-singleDelBtn',
+            form: '#leadSource-form',
+            saveBtn: '#leadSource-saveBtn',
+            editBtn: '#leadSource-editBtn',
+            resetBtn: '#leadSource-resetBtn',
+            bulkDelBtn: '#leadSource-bulkDelBtn',
+            singleDeleteBtn: '#leadSource-singleDelBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -19,25 +19,25 @@
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
 
-            $('#leadStatus-saveBtn').on('click', function (e) {
+            $('#leadSource-saveBtn').on('click', function (e) {
                 e.preventDefault();
 
-                var token = $('#leadStatus-form input[name="__RequestVerificationToken"]').val();
+                var token = $('#leadSource-form input[name="__RequestVerificationToken"]').val();
 
                 var formData = {
                     __RequestVerificationToken: token,
-                    LeadStatusID: $('#LeadStatusID').val(),
-                    LeadStatusName: $('#LeadStatusName').val(),
+                    LeadSourceID: $('#LeadSourceID').val(),
+                    LeadSourceName: $('#LeadSourceName').val(),
                 }
 
                 validateName();
 
-                var id = $('#leadStatus-form #LeadStatusID').val();
+                var id = $('#leadSource-form #LeadSourceID').val();
                 var url = '';
                 if (id > 0) {
-                    url = '/LeadStatuses/Update';
+                    url = '/LeadSources/Update';
                 } else {
-                    url = '/LeadStatuses/Create';
+                    url = '/LeadSources/Create';
                 }
 
                 $.ajax({
@@ -59,23 +59,23 @@
             });
 
 
-            $(document).on('click', '#leadStatus-edit', function (e) {
+            $(document).on('click', '#leadSource-edit', function (e) {
                 e.preventDefault();
 
                 var id = $(this).data('id');
 
 
                 $.ajax({
-                    url: '/LeadStatuses/GetById',
+                    url: '/LeadSources/GetById',
                     method: 'GET',
                     data: { id: id },
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#leadStatus-form #LeadStatusID').val(data.leadStatusID);
-                            $('#leadStatus-form #LeadStatusName').val(data.leadStatusName);
+                            $('#leadSource-form #LeadSourceID').val(data.leadSourceID);
+                            $('#leadSource-form #LeadSourceName').val(data.leadSourceName);
 
-                            $('#leadStatus-form #leadStatus-saveBtn').text('Update');
+                            $('#leadSource-form #leadSource-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
                         }
@@ -85,8 +85,8 @@
 
 
 
-            $("#leadStatus-delSel").on('click', function () {
-                var selectedItems = $(".leadStatus-selectItem:checked");
+            $("#leadSource-delSel").on('click', function () {
+                var selectedItems = $(".leadSource-selectItem:checked");
                 var selectedIds = [];
 
                 selectedItems.each(function () {
@@ -96,7 +96,7 @@
                 if (selectedIds.length > 0) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/LeadStatuses/SoftDelete',
+                            url: '/LeadSources/SoftDelete',
                             method: 'POST',
                             data: { ids: selectedIds },
                             success: function (response) {
@@ -117,14 +117,14 @@
                 }
             });
 
-            $(document).on('click', '#leadStatus-single-delete', function () {
+            $(document).on('click', '#leadSource-single-delete', function () {
                 var id = $(this).data('id');
 
 
                 if (id) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/LeadStatuses/SoftDelete',
+                            url: '/LeadSources/SoftDelete',
                             method: 'POST',
                             data: { ids: [id] },
                             success: function (response) {
@@ -149,13 +149,13 @@
 
 
 
-            $('#leadStatus-resetBtn').on('click', function () {
+            $('#leadSource-resetBtn').on('click', function () {
                 clear();
             })
 
             function clear() {
-                $('#leadStatus-form')[0].reset();
-                $('#LeadStatusID').val('0');
+                $('#leadSource-form')[0].reset();
+                $('#LeadSourceID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -163,26 +163,26 @@
                         $(this).css('border-color', '#ccc');
                     }
                 });
-                $('#leadStatus-form #leadStatus-saveBtn').text('Save');
-                $("#leadStatus-check-all").prop('checked', false);
-                $('.leadStatus-selectItem').prop('checked', false);
+                $('#leadSource-form #leadSource-saveBtn').text('Save');
+                $("#leadSource-check-all").prop('checked', false);
+                $('.leadSource-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
             }
 
 
-            $('#LeadStatusName').on('input', function () {
+            $('#LeadSourceName').on('input', function () {
                 validateName();
             });
 
 
             function validateName() {
-                var name = $('#LeadStatusName').val().trim();
+                var name = $('#LeadSourceName').val().trim();
 
                 if (name === '') {
-                    $('#LeadStatusName').css('border', '1px solid red');
+                    $('#LeadSourceName').css('border', '1px solid red');
                 } else {
-                    $('#LeadStatusName').css('border', '1px solid #ccc');
+                    $('#LeadSourceName').css('border', '1px solid #ccc');
                 }
             }
 
@@ -192,20 +192,20 @@
             });
 
             function checkNameUnique() {
-                $('#LeadStatusName').on('input', function () {
+                $('#LeadSourceName').on('input', function () {
                     var value = $(this).val();
 
                     $.ajax({
-                        url: '/LeadStatuses/CheckNameUnique',
+                        url: '/LeadSources/CheckNameUnique',
                         type: 'POST',
                         data: { name: value },
                         success: function (response) {
                             if (response === true) {
                                 $('#nameError').hide();
-                                $('input[name="LeadStatusName"]').removeClass('is-invalid');
+                                $('input[name="LeadSourceName"]').removeClass('is-invalid');
                             } else {
                                 $('#nameError').text(response).show();
-                                $('input[name="LeadStatusName"]').addClass('is-invalid');
+                                $('input[name="LeadSourceName"]').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -220,38 +220,38 @@
 
 
             $(document).ready(function () {
-                $('#leadStatus-check-all').on('change', function () {
+                $('#leadSource-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
-                    $('.leadStatus-selectItem').prop('checked', isChecked);
+                    $('.leadSource-selectItem').prop('checked', isChecked);
 
                     toggleBulkActions();
                 });
 
-                $(document).on('change', '.leadStatus-selectItem', function () {
+                $(document).on('change', '.leadSource-selectItem', function () {
                     toggleBulkActions();
                 });
             });
 
             function toggleBulkActions() {
-                const allItems = $('.leadStatus-selectItem');
-                const checkedItems = $('.leadStatus-selectItem:checked');
+                const allItems = $('.leadSource-selectItem');
+                const checkedItems = $('.leadSource-selectItem:checked');
 
                 const allChecked = allItems.length === checkedItems.length;
                 const someChecked = checkedItems.length > 0 && !allChecked;
 
-                $('#leadStatus-check-all').prop('checked', allChecked);
-                $('#leadStatus-check-all').prop('indeterminate', someChecked);
+                $('#leadSource-check-all').prop('checked', allChecked);
+                $('#leadSource-check-all').prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
-                    $('#leadStatus-bulkSelectActions').removeClass('d-none');
-                    $('#leadStatus-searchBox').addClass('d-none');
-                    $('.leadStatus-bulkDelete').addClass('disabled');
-                    $('.leadStatus-bulkEdit').addClass('disabled');
+                    $('#leadSource-bulkSelectActions').removeClass('d-none');
+                    $('#leadSource-searchBox').addClass('d-none');
+                    $('.leadSource-bulkDelete').addClass('disabled');
+                    $('.leadSource-bulkEdit').addClass('disabled');
                 } else {
-                    $('#leadStatus-bulkSelectActions').addClass('d-none');
-                    $('#leadStatus-searchBox').removeClass('d-none');
-                    $('.leadStatus-bulkDelete').removeClass('disabled');
-                    $('.leadStatus-bulkEdit').removeClass('disabled');
+                    $('#leadSource-bulkSelectActions').addClass('d-none');
+                    $('#leadSource-searchBox').removeClass('d-none');
+                    $('.leadSource-bulkDelete').removeClass('disabled');
+                    $('.leadSource-bulkEdit').removeClass('disabled');
                 }
             }
 
@@ -263,7 +263,7 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('#leadStatus-pageSizeSelect').on('change', function () {
+        $('#leadSource-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
 
             if (selectedSize) {
@@ -277,26 +277,26 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#leadStatus-searchInput").on("input", function () {
+            $("#leadSource-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#leadStatus-prevPageBtn").on('click', function () {
+            $("#leadSource-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#leadStatus-nextPageBtn").on('click', function () {
+            $("#leadSource-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
         });
 
 
-        let currentSortColumn = 'LeadStatusName';
+        let currentSortColumn = 'leadSourceName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -331,10 +331,10 @@
 
 
         function loadTableData(sortColumn, sortOrder) {
-            var searchTerm = $("#leadStatus-searchInput").val();
+            var searchTerm = $("#leadSource-searchInput").val();
 
             $.ajax({
-                url: '/LeadStatuses/GetAll',
+                url: '/LeadSources/GetAll',
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
@@ -344,7 +344,7 @@
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    var tableBody = $("#leadStatus-tBody");
+                    var tableBody = $("#leadSource-tBody");
                     tableBody.empty();
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
@@ -352,14 +352,14 @@
                             tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input leadStatus-selectItem" data-id="${item.leadStatusID}" />
+                                <input type="checkbox" class="form-check-input leadSource-selectItem" data-id="${item.leadSourceID}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.leadStatusName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.leadSourceName}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadStatus-bulkDelete" href="#!" id="leadStatus-edit" data-id="${item.leadStatusID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 leadStatus-bulkEdit" href="#!" id="leadStatus-single-delete" data-id="${item.leadStatusID}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadSource-bulkDelete" href="#!" id="leadSource-edit" data-id="${item.leadSourceID}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 leadSource-bulkEdit" href="#!" id="leadSource-single-delete" data-id="${item.leadSourceID}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -371,8 +371,8 @@
 
                     var paginationInfo = response.paginationInfo;
 
-                    $("#leadStatus-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                    $("#leadStatus-totalCount").text(`(${paginationInfo.totalItems})`);
+                    $("#leadSource-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#leadSource-totalCount").text(`(${paginationInfo.totalItems})`);
 
                     updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
                 },
@@ -383,7 +383,7 @@
         }
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#leadStatus-paginationLinks");
+            const paginationLinks = $("#leadSource-paginationLinks");
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
@@ -409,8 +409,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons
-            $("#leadStatus-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#leadStatus-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#leadSource-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#leadSource-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         $(document).on('click', '.page-btn', function () {
