@@ -86,6 +86,7 @@ using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.YearlyReports;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 
 #endregion
 
@@ -149,6 +150,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAssignDefaultShiftService, AssignDefaultShiftService>();
             services.AddScoped<IOfficeDayRosterService, OfficeDayRosterService>();
             services.AddScoped<IOffDayRosterService, OffDayRosterService>();
+            services.AddScoped<ICreateSpiralPatternService, CreateSpiralPatternService>();
             #endregion
 
 
