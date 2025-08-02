@@ -106,11 +106,11 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             return await query.ToListAsync();
         }
 
-        #region Pending Table
-        public async Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter)
+
+        public async Task<object> GetFilteredApprovePromotionsAsync(PromotionFilterModel filter, string imgLink)
         {
             // Start with a queryable instead of loading all data into memory
-            var query = await GetPromotionQueryAsync();
+            var query = await GetPromotionQueryAsync(true , imgLink);
 
             // Apply filters at database level
             query = ApplyFilters(query, filter);
@@ -134,7 +134,39 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             return new { TotalPages = totalPages, TotalItems = totalItems, Promotions = paginatedPromotions };
         }
 
-        private async Task<IQueryable<PromotionApproveViewModel>> GetPromotionQueryAsync()
+
+
+
+
+        #region Pending Table
+        public async Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter, string imgLink)
+        {
+            // Start with a queryable instead of loading all data into memory
+            var query = await GetPromotionQueryAsync(false, imgLink);
+
+            // Apply filters at database level
+            query = ApplyFilters(query, filter);
+
+            // Apply sorting at database level
+            query = ApplySorting(query, filter);
+
+            // Get total count before pagination
+            var totalItems = await query.CountAsync();
+
+            // Apply pagination at database level
+            int page = filter.Page > 0 ? filter.Page : 1;
+            int pageSize = filter.PageSize > 0 ? filter.PageSize : 10;
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var paginatedPromotions = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new { TotalPages = totalPages, TotalItems = totalItems, Promotions = paginatedPromotions };
+        }
+
+        private async Task<IQueryable<PromotionApproveViewModel>> GetPromotionQueryAsync(bool IsApprove, string imgLink)
         {
             var matches = new[] { "promotion", "demotion" };
             var proDemoIDs = await _employeeActionTypeRepository.AllActive()
@@ -142,8 +174,16 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 .Select(x => x.EmployeeActionTypeID)
                 .ToListAsync();
 
+
+
             var query = from ecc in _employeeCarrerCngRepository.All()
-                        where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0)
+                        where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0) 
+                        && (
+                               ecc.IsFinalApproved == IsApprove ||
+                               (!IsApprove && ecc.IsFinalApproved == null)
+                           )
+
+
 
                         join emp in _employeeRepository.All()
                             on ecc.EmployeeID equals emp.EmployeeID
@@ -197,7 +237,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                             Justification = ecc.Remarks ?? "N/A",
                             AvatarUrl = string.IsNullOrEmpty(emp.EmployeeImageFileName)
                                 ? "../../assets/img/users/user-01.jpg"
-                                : emp.EmployeeImageFileName,
+                                : imgLink + emp.EmployeeImageFileName,
                             Status = status != null ? status.StatusName : "Pending",
                         };
 
@@ -606,5 +646,144 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<CommonReturnViewModel> ApprovePromotionAsync(PromotionActionModel action)
+        {
+            try
+            {
+                if (action == null || action.PromotionId <= 0 || string.IsNullOrEmpty(action.Action))
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Invalid action model"
+                    };
+                }
+
+                var carrer = await _employeeCarrerCngRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == action.PromotionId);
+                if (carrer == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Promotion not found"
+                    };
+                }
+
+                if (carrer.IsFinalApproved == true)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Promotion already approved"
+                    };
+                }
+
+                if (carrer.ApprovalPersonID != action.CreatedBy)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "You are not authorized to approve this promotion"
+                    };
+                }
+
+                if (action.Action == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Action cannot be null"
+                    };
+
+                }
+
+
+                if (action.Action == "approve")
+                {
+
+                    var status = await _statusRepository.AllActive()
+                        .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "approved");
+                    if (status == null)
+                    {
+                        status = new Statuses
+                        {
+                            StatusName = "Approved",
+                            StatusType = "EmployeeCareerChange",
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = action.CreatedBy,
+                            LIP = action.LIP,
+                            LMAC = action.LMAC
+                        };
+                        await _statusRepository.AddAsync(status);
+                    }
+                    carrer.StatusID = status.StatusID;
+                }
+                else
+                {
+
+
+                    var status = await _statusRepository.AllActive()
+                        .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "decline");
+                    if (status == null)
+                    {
+                        status = new Statuses
+                        {
+                            StatusName = "Decline",
+                            StatusType = "EmployeeCareerChange",
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = action.CreatedBy,
+                            LIP = action.LIP,
+                            LMAC = action.LMAC
+                        };
+                        await _statusRepository.AddAsync(status);
+                    }
+                    carrer.StatusID = status.StatusID;
+                }
+
+
+
+
+                carrer.IsFinalApproved = true; // Mark as final approved
+                carrer.UpdatedAt = DateTime.UtcNow;
+                carrer.UpdatedBy = action.UpdatedBy;
+                carrer.LIP = action.LIP;
+                carrer.LMAC = action.LMAC;
+                await _employeeCarrerCngRepository.UpdateAsync(carrer);
+                // Add to history
+                var history = new EmployeeCareerChangeHistory
+                {
+                    EmployeeCareerChangeID = carrer.EmployeeCareerChangeID,
+                    EmployeeID = carrer.EmployeeID,
+                    StatusID = carrer.StatusID,
+                    ApprovalPersonID = carrer.ApprovalPersonID,
+                    Remarks = action.Comments,
+                    LIP = action.LIP,
+                    LMAC = action.LMAC,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = action.CreatedBy
+                };
+                await _employeeCarrerCngHistoryRepository.AddAsync(history);
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Promotion action completed successfully"
+                };
+            }
+            catch (Exception)
+            {
+               
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while processing the promotion action"
+                };
+
+               
+            }
+            
+            
+            
+        }
     }
 }

@@ -10,6 +10,15 @@
     $("#promotionForm").on("submit", function (e) {
         e.preventDefault();
 
+        const newDesignation = $("#promotionNewDes").val();
+        const effectiveDate = $("#promotionWef").val();
+
+        if (!newDesignation || !effectiveDate) {
+            toastr.error("New Designation and Effective Date are required.");
+            return; // Stop form submission
+        }
+
+
         const formData = new FormData();
         formData.append("EmployeeID", $("#promotionEmployee").val());
         formData.append("OrganizationID", $("#promotionOrganization").val());
