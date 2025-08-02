@@ -13,6 +13,7 @@ public partial class Employees
 
     public string LastName { get; set; }
 
+
     public string FatherName { get; set; }
 
     public string MotherName { get; set; }
