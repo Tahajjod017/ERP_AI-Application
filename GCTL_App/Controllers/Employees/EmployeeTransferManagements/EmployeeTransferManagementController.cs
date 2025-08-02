@@ -41,9 +41,6 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
 
         public async Task<IActionResult> Index()
         {
-
-           
-
             ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
