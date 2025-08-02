@@ -21,7 +21,7 @@ namespace GCTL.Data.Models
         public virtual Organization? Organization { get; set; }
         public int? EmployeeId { get; set; }
 
-        public virtual Employees? Employees { get; set; } // check for add application user/Role to employee
+        public virtual Employees? Employees { get; set; } // hrm project ,, reverse engine disi, user
 
     }
 
