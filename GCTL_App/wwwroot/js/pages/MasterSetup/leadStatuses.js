@@ -221,6 +221,7 @@
 
             $(document).ready(function () {
                 $('#leadStatus-check-all').on('change', function () {
+                    console.log("called");
                     var isChecked = $(this).prop('checked');
                     $('.leadStatus-selectItem').prop('checked', isChecked);
 
@@ -353,7 +354,7 @@
                             tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input leadstatus-selectItem" data-id="${item.leadStatusID}" />
+                                <input type="checkbox" class="form-check-input leadStatus-selectItem" data-id="${item.leadStatusID}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.leadStatusName}</td>
