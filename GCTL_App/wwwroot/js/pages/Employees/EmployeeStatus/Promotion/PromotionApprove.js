@@ -198,13 +198,16 @@
                             <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.currentSalary}</td>
                             <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.proposedSalary}</td>
                             <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.effectiveDate}</td>
-                            <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                <a href="#" class="nav-item mx-2 review-promotion" data-promotion-id="${promotion.id}" data-bs-toggle="modal" data-bs-target="#promotion_approval_modal" title="Review Promotion">
-                                    <i class="fas fa-eye text-primary"></i>
-                                </a>
-                            </td>
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.status}</td>
+                            
                         </tr>
                     `);
+
+                    //<td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                    //    <a href="#" class="nav-item mx-2 review-promotion" data-promotion-id="${promotion.id}" data-bs-toggle="modal" data-bs-target="#promotion_approval_modal" title="Review Promotion">
+                    //        <i class="fas fa-eye text-primary"></i>
+                    //    </a>
+                    //</td>
                 });
                 //updatePagination("#approved-promotion-pagination", data.totalPages, page, loadApprovedPromotions);
                 updatePagination("#approvedPromotionTable", data.totalPages, data.totalItems, page, loadApprovedPromotions);
@@ -297,15 +300,26 @@
         });
     });
 
-    // Handle approve/decline button clicks
+
+
+
     $(document).on("click", "[data-action='approve'], [data-action='decline']", function () {
         const action = $(this).data("action");
         const promotionId = $(this).data("promotion-id");
         $("#confirmation_action").text(action.charAt(0).toUpperCase() + action.slice(1));
         $("#confirm_action").data("action", action);
         $("#confirm_action").data("promotion-id", promotionId);
+
+        // Hide the promotion approval modal before showing confirmation
+        const approvalModalEl = document.getElementById('promotion_approval_modal');
+        const approvalModal = bootstrap.Modal.getInstance(approvalModalEl);
+        if (approvalModal) {
+            approvalModal.hide();
+        }
+
         $("#confirmation_modal").modal("show");
     });
+
 
     // Handle confirmation modal OK button
     $("#confirm_action").on("click", function () {
@@ -324,14 +338,31 @@
             data: formData,
             processData: false,
             contentType: false,
-            success: function () {
+            success: function (response) {
+                if (response.success) {
+
+                    loadPendingPromotions(pendingPage);
+                    loadApprovedPromotions(approvedPage);
+                    loadPromotionCards();
+                    toastr.success(response.message || `Promotion ${action}d successfully!`);
+                }
+                else {
+                    
+
+                   
+
+                    toastr.warning(response.message || `Promotion ${action}d failed!`);
+                }
+                
+
                 $("#confirmation_modal").modal("hide");
-                $("#promotion_approval_modal").modal("hide");
-                loadPendingPromotions(pendingPage);
-                loadApprovedPromotions(approvedPage);
-                loadPromotionCards();
+
+                
+
             },
             error: function () {
+                toastr.error(response.message || `Promotion ${action}d failed!`);
+                $("#confirmation_modal").modal("hide");
                 console.error(`Failed to ${action} promotion`);
             }
         });

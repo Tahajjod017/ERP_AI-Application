@@ -40,7 +40,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
             return View();
         }
 
-        // Static data simulating a database
+        #region Static Data for Testing
         private static readonly List<PromotionApproveViewModel> PendingPromotions = new List<PromotionApproveViewModel>
         {
             new PromotionApproveViewModel
@@ -153,8 +153,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
                 Status = "Approved"
             }
         };
+        #endregion
 
-        
         [HttpGet]
         public IActionResult GetPromotionCards()
         {
@@ -178,7 +178,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         {
             try
             {
-                var result = await _promotionService.GetFilteredPromotionsAsync(filter);
+                var imgLink = GetEmployeePictureURL(true);
+
+                var result = await _promotionService.GetFilteredPromotionsAsync(filter, imgLink);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -278,94 +280,106 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
 
 
         [HttpPost]
-        public IActionResult GetApprovedPromotions([FromForm] PromotionFilterModel filter)
+        public async Task<IActionResult> GetApprovedPromotions([FromForm] PromotionFilterModel filter)
         {
-            var promotions = ApprovedPromotions.AsQueryable();
+            try
+            {
+                var imgLink = GetEmployeePictureURL(true);
+                var result = await _promotionService.GetFilteredApprovePromotionsAsync(filter , imgLink);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
 
-            // Apply filters
-            if (!string.IsNullOrEmpty(filter.Department))
-            {
-                promotions = promotions.Where(p => p.Department.Contains(filter.Department, StringComparison.OrdinalIgnoreCase));
-            }
-            if (!string.IsNullOrEmpty(filter.Employee))
-            {
-                promotions = promotions.Where(p => p.EmployeeName.Contains(filter.Employee, StringComparison.OrdinalIgnoreCase));
-            }
-            if (!string.IsNullOrEmpty(filter.PromotionType))
-            {
-                promotions = promotions.Where(p => p.ProposedPosition.Contains(filter.PromotionType, StringComparison.OrdinalIgnoreCase));
-            }
-            if (!string.IsNullOrEmpty(filter.DateRange))
-            {
-                var dates = filter.DateRange.Split(" to ");
-                if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
-                {
-                    promotions = promotions.Where(p => DateTime.Parse(p.EffectiveDate) >= startDate && DateTime.Parse(p.EffectiveDate) <= endDate);
-                }
+                return StatusCode(500, "An error occurred while processing your request");
             }
 
-            // Apply sorting
-            if (!string.IsNullOrEmpty(filter.SortBy))
-            {
-                switch (filter.SortBy)
-                {
-                    case "Recently Added":
-                        promotions = promotions.OrderByDescending(p => p.Id);
-                        break;
-                    case "Ascending":
-                        promotions = promotions.OrderBy(p => p.EmployeeName);
-                        break;
-                    case "Descending":
-                        promotions = promotions.OrderByDescending(p => p.EmployeeName);
-                        break;
-                    case "Last Month":
-                        promotions = promotions.Where(p => DateTime.Parse(p.EffectiveDate) >= DateTime.Now.AddMonths(-1));
-                        break;
-                    case "Last 7 days":
-                        promotions = promotions.Where(p => DateTime.Parse(p.EffectiveDate) >= DateTime.Now.AddDays(-7));
-                        break;
-                }
-            }
+            //var promotions = ApprovedPromotions.AsQueryable();
 
-            // Apply sorting
-            if (!string.IsNullOrEmpty(filter.SortColumn))
-            {
-                bool isAscending = filter.SortDirection?.ToLower() != "desc";
-                switch (filter.SortColumn)
-                {
-                    case "employeeName":
-                        promotions = isAscending ? promotions.OrderBy(p => p.EmployeeName) : promotions.OrderByDescending(p => p.EmployeeName);
-                        break;
-                    case "currentPosition":
-                        promotions = isAscending ? promotions.OrderBy(p => p.CurrentPosition) : promotions.OrderByDescending(p => p.CurrentPosition);
-                        break;
-                    case "proposedPosition":
-                        promotions = isAscending ? promotions.OrderBy(p => p.ProposedPosition) : promotions.OrderByDescending(p => p.ProposedPosition);
-                        break;
-                    case "currentSalary":
-                        promotions = isAscending ? promotions.OrderBy(p => p.CurrentSalary) : promotions.OrderByDescending(p => p.CurrentSalary);
-                        break;
-                    case "proposedSalary":
-                        promotions = isAscending ? promotions.OrderBy(p => p.ProposedSalary) : promotions.OrderByDescending(p => p.ProposedSalary);
-                        break;
-                    case "effectiveDate":
-                        promotions = isAscending ? promotions.OrderBy(p => DateTime.Parse(p.EffectiveDate)) : promotions.OrderByDescending(p => DateTime.Parse(p.EffectiveDate));
-                        break;
-                    default:
-                        promotions = promotions.OrderBy(p => p.Id);
-                        break;
-                }
-            }
+            //// Apply filters
+            //if (!string.IsNullOrEmpty(filter.Department))
+            //{
+            //    promotions = promotions.Where(p => p.Department.Contains(filter.Department, StringComparison.OrdinalIgnoreCase));
+            //}
+            //if (!string.IsNullOrEmpty(filter.Employee))
+            //{
+            //    promotions = promotions.Where(p => p.EmployeeName.Contains(filter.Employee, StringComparison.OrdinalIgnoreCase));
+            //}
+            //if (!string.IsNullOrEmpty(filter.PromotionType))
+            //{
+            //    promotions = promotions.Where(p => p.ProposedPosition.Contains(filter.PromotionType, StringComparison.OrdinalIgnoreCase));
+            //}
+            //if (!string.IsNullOrEmpty(filter.DateRange))
+            //{
+            //    var dates = filter.DateRange.Split(" to ");
+            //    if (dates.Length == 2 && DateTime.TryParse(dates[0], out var startDate) && DateTime.TryParse(dates[1], out var endDate))
+            //    {
+            //        promotions = promotions.Where(p => DateTime.Parse(p.EffectiveDate) >= startDate && DateTime.Parse(p.EffectiveDate) <= endDate);
+            //    }
+            //}
 
-            // Apply pagination
-            int page = filter.Page > 0 ? filter.Page : 1;
-            int pageSize = filter.PageSize > 0 ? filter.PageSize : 10;
-            var totalItems = promotions.Count();
-            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-            var paginatedPromotions = promotions.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            //// Apply sorting
+            //if (!string.IsNullOrEmpty(filter.SortBy))
+            //{
+            //    switch (filter.SortBy)
+            //    {
+            //        case "Recently Added":
+            //            promotions = promotions.OrderByDescending(p => p.Id);
+            //            break;
+            //        case "Ascending":
+            //            promotions = promotions.OrderBy(p => p.EmployeeName);
+            //            break;
+            //        case "Descending":
+            //            promotions = promotions.OrderByDescending(p => p.EmployeeName);
+            //            break;
+            //        case "Last Month":
+            //            promotions = promotions.Where(p => DateTime.Parse(p.EffectiveDate) >= DateTime.Now.AddMonths(-1));
+            //            break;
+            //        case "Last 7 days":
+            //            promotions = promotions.Where(p => DateTime.Parse(p.EffectiveDate) >= DateTime.Now.AddDays(-7));
+            //            break;
+            //    }
+            //}
 
-            //return Ok(new { TotalPages = totalPages, Promotions = paginatedPromotions });
-            return Ok(new { TotalPages = totalPages, TotalItems = totalItems, Promotions = paginatedPromotions });
+            //// Apply sorting
+            //if (!string.IsNullOrEmpty(filter.SortColumn))
+            //{
+            //    bool isAscending = filter.SortDirection?.ToLower() != "desc";
+            //    switch (filter.SortColumn)
+            //    {
+            //        case "employeeName":
+            //            promotions = isAscending ? promotions.OrderBy(p => p.EmployeeName) : promotions.OrderByDescending(p => p.EmployeeName);
+            //            break;
+            //        case "currentPosition":
+            //            promotions = isAscending ? promotions.OrderBy(p => p.CurrentPosition) : promotions.OrderByDescending(p => p.CurrentPosition);
+            //            break;
+            //        case "proposedPosition":
+            //            promotions = isAscending ? promotions.OrderBy(p => p.ProposedPosition) : promotions.OrderByDescending(p => p.ProposedPosition);
+            //            break;
+            //        case "currentSalary":
+            //            promotions = isAscending ? promotions.OrderBy(p => p.CurrentSalary) : promotions.OrderByDescending(p => p.CurrentSalary);
+            //            break;
+            //        case "proposedSalary":
+            //            promotions = isAscending ? promotions.OrderBy(p => p.ProposedSalary) : promotions.OrderByDescending(p => p.ProposedSalary);
+            //            break;
+            //        case "effectiveDate":
+            //            promotions = isAscending ? promotions.OrderBy(p => DateTime.Parse(p.EffectiveDate)) : promotions.OrderByDescending(p => DateTime.Parse(p.EffectiveDate));
+            //            break;
+            //        default:
+            //            promotions = promotions.OrderBy(p => p.Id);
+            //            break;
+            //    }
+            //}
+
+            //// Apply pagination
+            //int page = filter.Page > 0 ? filter.Page : 1;
+            //int pageSize = filter.PageSize > 0 ? filter.PageSize : 10;
+            //var totalItems = promotions.Count();
+            //var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            //var paginatedPromotions = promotions.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            ////return Ok(new { TotalPages = totalPages, Promotions = paginatedPromotions });
+            //return Ok(new { TotalPages = totalPages, TotalItems = totalItems, Promotions = paginatedPromotions });
         }
 
         
@@ -385,28 +399,11 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
 
         
         [HttpPost]
-        public IActionResult PerformPromotionAction([FromForm] PromotionActionModel action1)
+        public async Task< IActionResult> PerformPromotionAction([FromForm] PromotionActionModel action1)
         {
-            var promotion = PendingPromotions.FirstOrDefault(p => p.Id == action1.PromotionId);
-            if (promotion == null)
-            {
-                return NotFound();
-            }
-
-            if (action1.Action == "approve")
-            {
-                promotion.Status = "Approved";
-                PendingPromotions.Remove(promotion);
-                ApprovedPromotions.Add(promotion);
-            }
-            else if (action1.Action == "decline")
-            {
-                promotion.Status = "Declined";
-                PendingPromotions.Remove(promotion);
-            }
-
-            // In a real scenario, save comments to a database or log
-            return Ok();
+           
+            var result = await _promotionService.ApprovePromotionAsync(action1);
+            return Ok(result);
         }
 
         // POST: api/promotions/export

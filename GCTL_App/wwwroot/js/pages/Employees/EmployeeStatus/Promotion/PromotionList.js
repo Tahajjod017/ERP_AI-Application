@@ -71,16 +71,38 @@
 
         items.forEach(item => {
             tbody.append(`
+           
+
             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                
-                <td class="align-middle text-nowrap">${item.employeeName}</td>
-                <td class="align-middle text-nowrap">${item.department}</td>
-                <td class="align-middle text-nowrap">${item.currentDesignation}</td>
-                <td class="align-middle text-nowrap">${item.newDesignation}</td>
-                <td class="align-middle text-nowrap">${item.effectiveDate}</td>
-                <td class="align-middle text-nowrap">${item.salaryChange}</td>
-                <td class="align-middle text-nowrap">${item.status}</td>
-            </tr>
+                            
+                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                                <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle" src="${item.avatarUrl}" alt="" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold">${item.employeeName}</h6>
+                                        <span class="fs-12 fw-normal">${item.department}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="currentPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <p class="fs-14 fw-medium d-flex align-items-center mb-0">${item.department}</p>
+                            </td>
+                             <td class="currentPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                                <p class="fs-14 fw-medium d-flex align-items-center mb-0">${item.currentDesignation}</p>
+                            </td>
+
+
+                            <td class="proposedPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.newDesignation}</td>
+                       
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.effectiveDate}</td>
+                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.salaryChange}</td>
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.status}</td>
+                            
+                        </tr>
+
+
         `);
         });
     }

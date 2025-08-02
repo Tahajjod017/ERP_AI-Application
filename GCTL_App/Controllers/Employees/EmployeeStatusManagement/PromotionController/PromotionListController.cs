@@ -74,6 +74,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         {
             try
             {
+                var imgLink = GetEmployeePictureURL(true);
+
                 var matches = new[] { "promotion", "demotion" };
 
                 var proDemoIDs = _empActionRepository.AllActive()
@@ -81,14 +83,6 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
                     .Select(x => x.EmployeeActionTypeID)
                     .ToList();
 
-                //var proDemoIDss = _empActionRepository.AllActive()
-                //    .Where(x => x.EmployeeActionTypeName != null && matches.Any(m => x.EmployeeActionTypeName.ToLower().Contains(m)))
-                //    .Select(x => x.EmployeeActionTypeID)
-                //    .ToList();
-
-                //var pomID = _empActionRepository.AllActive().Where(e => e.EmployeeActionTypeName.ToLower() == "promotion").Select(r => r.EmployeeActionTypeID).FirstOrDefault();
-                //var demID = _empActionRepository.AllActive().Where(e => e.EmployeeActionTypeName.ToLower() == "demotion").Select(r => r.EmployeeActionTypeID).FirstOrDefault();
-               
 
                 var query = _empCarrerRepository.AllActive().Include(x => x.Employee)
                     .ThenInclude(navigationPropertyPath => navigationPropertyPath.EmployeeOfficeInfoEmployee)
@@ -123,12 +117,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
                      query = query.Where(x => x.EffectiveDate == startDate );
 
 
-                    //var dates = filters.DateRange.Split(" - ");
-                    //if (DateTime.TryParse(dates[0], out DateTime startDate) &&
-                    //    DateTime.TryParse(dates[1], out DateTime endDate))
-                    //{
-                    //    query = query.Where(x => x.EffectiveDate >= startDate && x.EffectiveDate <= endDate);
-                    //}
+                   
                 }
 
                 // Total record count before pagination
@@ -168,13 +157,13 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
                     {
                         id = x.EmployeeCareerChangeID,
                         employeeName = x.Employee.FirstName + " " + x.Employee.LastName,
-                       
                         department = x.Employee.EmployeeOfficeInfoEmployee.OrderBy(ofc => ofc.EmployeeOfficeInfoID).Select(ofc => ofc.Department.DepartmentName).FirstOrDefault(),
                         currentDesignation = x.CurentDesignation.DesignationName,
                         newDesignation = x.NewDesignation.DesignationName,
                         effectiveDate = x.EffectiveDate.Value.ToString("dd-MM-yyyy"),
                         salaryChange = $"{x.CurrentSalary ?? 0:#,0} → {x.NewSalary ?? 0:#,0}",
-                        status = x.Status.StatusName
+                        status = x.Status.StatusName,
+                        avatarUrl = imgLink + x.Employee.EmployeeImageFileName
                     })
                     .ToListAsync();
 
