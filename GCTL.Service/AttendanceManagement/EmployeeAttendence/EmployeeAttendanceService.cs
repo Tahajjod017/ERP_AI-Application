@@ -221,7 +221,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         {
             var currentDate = DateTime.Today.AddDays(-1); // Yesterday’s date
 
-            var attendanceData = await _genericRepository.All()
+            var attendanceData = await _genericRepository.All()  //attendence table
                 .Where(a => a.AttendanceID==5 && a.DeletedAt == null)
                 .OrderByDescending(a => a.AttendanceDate)
                 .FirstOrDefaultAsync();

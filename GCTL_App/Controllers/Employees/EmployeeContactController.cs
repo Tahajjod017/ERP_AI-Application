@@ -45,7 +45,7 @@ namespace GCTL_App.Controllers.Employees
         public async Task<IActionResult> Index(int id)
         {
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             SetSmartPageCode(117000);
 
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
@@ -60,8 +60,8 @@ namespace GCTL_App.Controllers.Employees
 
                 var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
 
-                var menuTabs = (from rp in _rolePermissionRepository.All()
-                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                var menuTabs = (from rp in _rolePermissionRepository.AllActive()
+                                join mt in _menuTabRepository.AllActive() on rp.MenuTabId equals mt.MenuTabId
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
 
@@ -225,7 +225,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public IActionResult GetContactSuggestions(string term, int id)
         {
-            var contacts = _employeeFamilyInfoRepository.All().Where(e=>e.EmployeeID == id).ToList().Select(e => new ContactSuggestionViewModel
+            var contacts = _employeeFamilyInfoRepository.AllActive().Where(e=>e.EmployeeID == id).ToList().Select(e => new ContactSuggestionViewModel
             {
                 Id = e.EmployeeFamilyInfoID,
                 Name = e.FullName,

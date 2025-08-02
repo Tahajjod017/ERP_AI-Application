@@ -10,7 +10,7 @@
             editShiftSaveBtn: '#EditShiftModal-saveShift',
         }, options);
 
-        var gridUrl = settings.baseUrl + "/GetAll";
+        var gridUrl = settings.baseUrl + "/GetAllAsync";
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
         var updateEmpShift = settings.baseUrl + "/UpdateEmpShiftAsync";
@@ -23,7 +23,7 @@
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
-                //const token = $('#rosterInOfficeDays-form input[name="__RequestVerificationToken"]').val();
+                //const token = $('#rosterInOffDay-form input[name="__RequestVerificationToken"]').val();
 
                 const formData = {
                     //__RequestVerificationToken: token,
@@ -34,8 +34,13 @@
                     ShiftID: $('#ShiftID').val(),
                     DayDate: $('#DayDate').val().split(','),
                     CompensationTypeID: $('#CompensationTypeID').val(),
-                    ExchangeDate: $('#ExchangeDate').val().split(',')
+                    //ExchangeDate: $('#ExchangeDate').val().split(',')
                 };
+
+                const exchangeDateValue = $('#ExchangeDate').val();
+                if (exchangeDateValue) {
+                    formData.ExchangeDate = exchangeDateValue.split(',');
+                }
 
                 const id = $('#RosterInHolyDayID').val();
                 const isEdit = id > 0;
@@ -697,15 +702,105 @@
 
         });
 
+        // #region
+        var currentPage = 1;
+        var pageSize = 5;
+        let currentSortColumn = 'RosterInHolyDayID';
+        let currentSortOrder = 'desc';
+        let daysToShow = 7;
+        let columnStartDate = new Date(); 
 
+        $('#rosterInOffDay-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+            if (selectedSize) {
+                pageSize = parseInt(selectedSize, 10);
+                currentPage = 1;
+                loadTableData();
+            }
+        });
 
-        function loadTableData() {
+        $(document).ready(function () {
+            loadTableData();
+
+            $("#rosterInOffDay-searchInput").on("input", function () {
+                currentPage = 1;
+                loadTableData();
+            });
+
+            $("#rosterInOffDay-prevPageBtn").on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadTableData();
+                }
+            });
+
+            $("#rosterInOffDay-nextPageBtn").on('click', function () {
+                currentPage++;
+                loadTableData();
+            });
+
+            $('#chevron-right').on('click', function () {
+                columnStartDate.setDate(columnStartDate.getDate() + parseInt(daysToShow));
+                loadTableData();
+            });
+
+            $('#chevron-left').on('click', function () {
+                columnStartDate.setDate(columnStartDate.getDate() - parseInt(daysToShow));
+                loadTableData();
+            });
+        });
+
+        $('#timeFrame').on('change', function () {
+            daysToShow = $(this).val();
+            columnStartDate = new Date();
+            currentPage = 1;
+            loadTableData();
+        });
+
+        function loadTableData(sortColumn, sortOrder) {
+            var searchTerm = $("#rosterInOffDay-searchInput").val();
+            const formattedStartDate = columnStartDate.toISOString();
             $.ajax({
                 url: gridUrl,
                 type: 'GET',
+                data: {
+                    pageNumber: currentPage,
+                    pageSize: pageSize,
+                    searchTerm: searchTerm,
+                    sortColumn: sortColumn,
+                    sortOrder: sortOrder,
+                    daysToShow: daysToShow,
+                    startDate: formattedStartDate
+                },
                 success: function (response) {
-                    if (response.success) {
-                        buildRosterTable(response.rosterList, response.uniqueDates);
+                    if (response.isSuccess) {
+                        buildRosterTable(response.data, response.uniqueDates);
+
+                        // 👇 NEW CODE: Set date range label
+                        if (response.uniqueDates && response.uniqueDates.length > 0) {
+                            const first = new Date(response.uniqueDates[0]);
+                            const last = new Date(response.uniqueDates[response.uniqueDates.length - 1]);
+
+                            const format = (date) =>
+                                date.toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                });
+
+                            const rangeText = `${format(first)} - ${format(last)}`;
+                            $(".date-range-label").text(rangeText);
+                        } else {
+                            $(".date-range-label").text("No dates available");
+                        }
+
+                        const pageInfo = response.pagination;
+
+                        $('#startItem').text(response.pagination.startItem);
+                        $('#endItem').text(response.pagination.endItem);
+                        $('#totalItems').text(response.pagination.totalItems);
+
+                        updatePagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
                     } else {
                         alert("Failed to get data.");
                     }
@@ -714,27 +809,28 @@
                     alert('Failed to load roster data.');
                 }
             });
+        }
 
-            function buildRosterTable(rosterList, uniqueDates) {
-                let thead = '<tr><th class="align-middle text-center text-uppercase text-nowrap">Employee Name</th>';
+        function buildRosterTable(rosterList, uniqueDates) {
+            let thead = '<tr><th class="align-middle text-center text-uppercase text-nowrap">Employee Name</th>';
 
-                uniqueDates.forEach(date => {
-                    const d = new Date(date);
-                    const displayDate = d.toLocaleDateString('en-GB'); // Format: dd/mm/yyyy
-                    const dayName = d.toLocaleDateString('en-GB', { weekday: 'short' }); // e.g., Mon, Tue
+            uniqueDates.forEach(date => {
+                const d = new Date(date);
+                const displayDate = d.toLocaleDateString('en-GB');
+                const dayName = d.toLocaleDateString('en-GB', { weekday: 'short' });
 
-                    thead += `
-                        <th class="align-middle text-center text-uppercase text-nowrap">
-                            ${dayName}<br/>${displayDate}
-                        </th>`;
-                });
+                thead += `
+                    <th class="align-middle text-center text-uppercase text-nowrap">
+                        ${dayName}<br/>${displayDate}
+                    </th>`;
+            });
 
-                thead += '</tr>';
-                $('#rosterTableHead').html(thead);
+            thead += '</tr>';
+            $('#rosterTableHead').html(thead);
 
-                let tbody = '';
-                rosterList.forEach(emp => {
-                    tbody += `<tr>
+            let tbody = '';
+            rosterList.forEach(emp => {
+                tbody += `<tr>
                     <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
                         <div class="d-inline-flex flex-column align-items-center justify-content-center">
                             <h5>${emp.employeeName}<br/></h5>
@@ -743,40 +839,77 @@
                         </div>
                     </td>`;
 
-                    uniqueDates.forEach(date => {
-                        const shift = emp.shiftsPerDay[date];
-
-                        if (shift) {
-                            tbody += `
-                            <td class="holiday-cell align-middle text-center">
-                                <div class="position-relative badge badge-phoenix-primary shift-block px-4 py-2" style="border-left:5px solid #FF6F6F;">
-                                    <p class="fs-10 mb-1">${shift.timeRange}</p>
-                                    <p class="fs-10 mb-1">${shift.shiftName}</p>
-                                    <a href="#" class="btn btn-light btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn"
-                                       data-bs-toggle="modal" id="rosterInOffDay-editBtn"
-                                       data-id="${shift.rosterInHolyDayID}" 
-                                       data-date="${date}" 
-                                       data-shift-id="${shift.shiftID}"
-                                       data-organization-id="${emp.organizationID}" 
-                                       data-dep-id="${emp.departmentID}" 
-                                       data-emp-id="${emp.employeeID}" 
-                                       data-bs-target="#rosterInOffDay-editShiftModal">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                </div>
-                            </td>
-                            `;
-                        } else {
-                            tbody += `<td class="holiday-cell align-middle text-center">-</td>`;
-                        }
-                    });
-
-                    tbody += '</tr>';
+                uniqueDates.forEach(date => {
+                    const shift = emp.shiftsPerDay[date];
+                    if (shift) {
+                        tbody += `
+                        <td class="holiday-cell align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary shift-block px-4 py-2" style="border-left:5px solid #FF6F6F;">
+                                <p class="fs-10 mb-1">${shift.timeRange}</p>
+                                <p class="fs-10 mb-1">${shift.shiftName}</p>
+                                <a href="#" class="btn btn-light btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn"
+                                   data-bs-toggle="modal" id="rosterInOffDay-editBtn"
+                                   data-id="${shift.rosterInHolyDayID}" 
+                                   data-date="${date}" 
+                                   data-shift-id="${shift.shiftID}"
+                                   data-organization-id="${emp.organizationID}" 
+                                   data-dep-id="${emp.departmentID}" 
+                                   data-emp-id="${emp.employeeID}" 
+                                   data-bs-target="#rosterInOffDay-editShiftModal">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>`;
+                    } else {
+                        tbody += `<td class="holiday-cell align-middle text-center">-</td>`;
+                    }
                 });
 
-                $('#rosterTableBody').html(tbody);
-            }
+                tbody += '</tr>';
+            });
+
+            $('#rosterTableBody').html(tbody);
         }
+
+
+        function updatePagination(pageNumbers, currentPage, totalPages) {
+            const paginationLinks = $("#rosterInOffDay-paginationLinks");
+            paginationLinks.empty();
+            const windowSize = 1;
+
+            const createPageButton = (page) => `
+            <li class="page-item ${page === currentPage ? 'active' : ''}">
+                <button class="page-link page-btn" data-page="${page}">${page}</button>
+            </li>`;
+
+            const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+
+            if (currentPage > windowSize + 1) {
+                paginationLinks.append(createPageButton(1), addEllipsis());
+            }
+
+            const startPage = Math.max(1, currentPage - windowSize);
+            const endPage = Math.min(totalPages, currentPage + windowSize);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationLinks.append(createPageButton(i));
+            }
+
+            if (currentPage < totalPages - windowSize) {
+                paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+            }
+
+            $("#rosterInOffDay-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#rosterInOffDay-nextPageBtn").prop('disabled', currentPage === totalPages);
+        }
+
+        // 🔁 Page button click
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
+            currentPage = page;
+            loadTableData(currentSortColumn, currentSortOrder);
+        });
+
+        // #endregion
 
     }
 }(jQuery));
