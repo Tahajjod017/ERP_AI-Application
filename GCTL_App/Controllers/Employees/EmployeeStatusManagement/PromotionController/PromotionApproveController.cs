@@ -178,9 +178,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         {
             try
             {
+                var loggedID = await GetCurrentEmployeeIdAsync();
                 var imgLink = GetEmployeePictureURL(true);
 
-                var result = await _promotionService.GetFilteredPromotionsAsync(filter, imgLink);
+                var result = await _promotionService.GetFilteredPromotionsAsync(filter, imgLink, loggedID);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -284,8 +285,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         {
             try
             {
+                var loggedID = await GetCurrentEmployeeIdAsync();
                 var imgLink = GetEmployeePictureURL(true);
-                var result = await _promotionService.GetFilteredApprovePromotionsAsync(filter , imgLink);
+                var result = await _promotionService.GetFilteredApprovePromotionsAsync(filter , imgLink , loggedID);
                 return Ok(result);
             }
             catch (Exception ex)

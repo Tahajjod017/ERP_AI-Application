@@ -85,7 +85,9 @@
                         choiceManager.setChoiceValue('incrementDesigantion', res.data.designationId);
                         choiceManager.setChoiceValue('incrementDepatment', res.data.departmentId);
                         $('#incrementPrevSalary').val(res.data.currentSalary);
-                       
+
+                      
+
                     } else {
                         alert("Employee data not found.");
                     }
