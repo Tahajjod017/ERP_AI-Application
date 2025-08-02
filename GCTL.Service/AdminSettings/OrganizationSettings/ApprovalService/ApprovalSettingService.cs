@@ -709,6 +709,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService
             combinedList.AddRange(approvalDesignations);
             combinedList.AddRange(employeeWithDesignation);
 
+
             // Ensure no duplicates in the final list
             return combinedList.Distinct().ToList();
         }
