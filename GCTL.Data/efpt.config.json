@@ -235,6 +235,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LeadSources]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LeadStatuses]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LeaveApplications]",
          "ObjectType": 0
       },
@@ -339,6 +347,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Services]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ServiceYears]",
          "ObjectType": 0
       },
@@ -399,6 +411,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[aa]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
          "ObjectType": 1
       },
@@ -412,6 +428,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -430,5 +447,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }

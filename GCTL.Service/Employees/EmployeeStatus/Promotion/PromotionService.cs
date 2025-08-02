@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Promotion;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -107,10 +108,14 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
         }
 
 
-        public async Task<object> GetFilteredApprovePromotionsAsync(PromotionFilterModel filter, string imgLink)
+        #region Pending And Approval Table
+
+        #region Pending List
+
+        public async Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter, string imgLink, int? loggedID)
         {
             // Start with a queryable instead of loading all data into memory
-            var query = await GetPromotionQueryAsync(true , imgLink);
+            var query = await GetPromotionQueryAsync(true, imgLink , loggedID);
 
             // Apply filters at database level
             query = ApplyFilters(query, filter);
@@ -135,14 +140,13 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
         }
 
 
+        #endregion
 
-
-
-        #region Pending Table
-        public async Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter, string imgLink)
+        #region Approve List
+        public async Task<object> GetFilteredApprovePromotionsAsync(PromotionFilterModel filter, string imgLink, int? loggedID)
         {
             // Start with a queryable instead of loading all data into memory
-            var query = await GetPromotionQueryAsync(false, imgLink);
+            var query = await GetPromotionQueryAsync(false , imgLink, loggedID);
 
             // Apply filters at database level
             query = ApplyFilters(query, filter);
@@ -166,7 +170,13 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             return new { TotalPages = totalPages, TotalItems = totalItems, Promotions = paginatedPromotions };
         }
 
-        private async Task<IQueryable<PromotionApproveViewModel>> GetPromotionQueryAsync(bool IsApprove, string imgLink)
+        #endregion
+
+
+        #region Common
+
+
+        private async Task<IQueryable<PromotionApproveViewModel>> GetPromotionQueryAsync(bool IsPending, string imgLink, int? loggedID)
         {
             var matches = new[] { "promotion", "demotion" };
             var proDemoIDs = await _employeeActionTypeRepository.AllActive()
@@ -174,15 +184,23 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 .Select(x => x.EmployeeActionTypeID)
                 .ToListAsync();
 
+            
+                var staPending1 = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "pending").Select(s => s.StatusID).ToListAsync().Result;
+            
+                var staPending = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "approve" || s.StatusName.ToLower() == "decline").Select(s => s.StatusID).ToListAsync().Result;
+            
+
+            
+
 
 
             var query = from ecc in _employeeCarrerCngRepository.All()
                         where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0) 
-                        && (
-                               ecc.IsFinalApproved == IsApprove ||
-                               (!IsApprove && ecc.IsFinalApproved == null)
-                           )
-
+                        //&& (
+                        //       ecc.IsFinalApproved == IsApprove ||
+                        //       (!IsApprove && ecc.IsFinalApproved == null)
+                        //   )
+                        && ecc.ApprovalPersonID == loggedID
 
 
                         join emp in _employeeRepository.All()
@@ -213,6 +231,10 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                         join status in _statusRepository.AllActive()
                             on ecc.StatusID equals status.StatusID into statusGroup
                         from status in statusGroup.DefaultIfEmpty()
+
+                        where status != null &&
+                              (IsPending ? status.StatusName.ToLower() == "pending" :
+                              (status.StatusName.ToLower() == "approved" || status.StatusName.ToLower() == "decline"))
 
                         select new PromotionApproveViewModel
                         {
@@ -341,6 +363,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
         #endregion
 
+        #endregion
+
         public Task GetPagedPromotionListAsync(PromotionListFilterViewModel filters)
         {
             throw new NotImplementedException();
@@ -400,8 +424,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
             #region Approve Hunt
 
-            var employee = await _empOfficialRepository.AllActive()
-                    .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
+            var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
 
             if (employee == null)
             {
@@ -582,6 +605,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
         #endregion
 
+        #region Get Promotion Details By ID
         public async Task<PromotionApproveViewModel> GetPendingPromotionDetailsByID(int id)
         {
             var matches = new[] { "promotion", "demotion" };
@@ -645,6 +669,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
             return await query.FirstOrDefaultAsync();
         }
+        #endregion
+
+        #region Approve or Decline Promotion
 
         public async Task<CommonReturnViewModel> ApprovePromotionAsync(PromotionActionModel action)
         {
@@ -675,6 +702,15 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                     {
                         Success = false,
                         Message = "Promotion already approved"
+                    };
+                }
+
+                if (carrer.IsDecline == true)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Promotion has been declined"
                     };
                 }
 
@@ -717,6 +753,95 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                         await _statusRepository.AddAsync(status);
                     }
                     carrer.StatusID = status.StatusID;
+
+
+                    int secondApproverID = 0;
+
+                    #region Second Approve Hunt
+
+                    var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == carrer.EmployeeID);
+
+                    if (employee == null)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Employee Official not found"
+                        };
+                    }
+
+
+                    var approvalType = await _approvalTypeRepository.AllActive().Where(a => a.ApprovalTypeName.ToLower() == "promotion approval").FirstOrDefaultAsync();
+
+                    if (approvalType != null)
+                    {
+                        var approvalSettings = await _approvalSettingRepository.AllActive().Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+                                            && a.OrganizationID == employee.OrganizationID && a.OrganizationBranchID == employee.OrganizationBranchID).FirstOrDefaultAsync();
+
+
+                        if (approvalSettings != null && approvalSettings.IsEnableSecondApproval)
+                        {
+                            if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
+                            {
+                                var secondApprovalDesig = _approvalDesignationRepository.AllActive()
+                                    .Where(e => e.ApprovalDesignationID == approvalSettings.SecondApprovalID)
+                                    .FirstOrDefault();
+
+                                switch (secondApprovalDesig?.Code)
+                                {
+                                    case 1:
+                                        secondApproverID = employee.ImmediateSupervisorId ?? 0;
+                                        break;
+                                    case 2:
+                                        secondApproverID = employee.SeniorSupervisorId ?? 0;
+                                        break;
+                                    case 3:
+                                        secondApproverID = employee.HeadOfDepartmentId ?? 0;
+                                        break;
+                                    default:
+                                        secondApproverID = 0;
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                // When it's employee-based SecondApprovalID (not designation)
+                                if (approvalSettings.SecondApprovalID == employee.EmployeeID)
+                                {
+                                    if ((bool)approvalSettings.AllowSelfApproval)
+                                    {
+                                        bool IsSelfApproval = true;
+                                        secondApproverID = (int)employee.EmployeeID;
+                                    }
+                                    else
+                                    {
+                                        secondApproverID = approvalSettings.SelfExceptionApprovalID ?? 0;
+                                    }
+                                }
+                                else
+                                {
+                                    secondApproverID = approvalSettings.SecondApprovalID ?? 0;
+                                }
+                            }
+                        }
+                    }
+
+                    #endregion
+
+                    if (secondApproverID != 0)
+                    {
+                        carrer.ApprovalPersonID = secondApproverID; // Set the next approver
+                        carrer.IsFinalApproved = false; // Mark as not final approved yet
+                    }
+                    else
+                    {
+                        carrer.IsFinalApproved = true; // If no second approver, mark as final approved
+                    }
+
+
+
+
+
                 }
                 else
                 {
@@ -738,6 +863,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                         await _statusRepository.AddAsync(status);
                     }
                     carrer.StatusID = status.StatusID;
+                    carrer.IsDecline = true;
                 }
 
 
@@ -785,5 +911,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             
             
         }
+
+        #endregion
+
+
     }
 }

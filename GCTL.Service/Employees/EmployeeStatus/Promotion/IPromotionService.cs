@@ -12,8 +12,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
     {
         Task<CommonReturnViewModel> ApprovePromotionAsync(PromotionActionModel action);
         Task<List<PromotionApproveViewModel>> GetAllPromotionPendingList();
-        Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter, string imgLink);
-        Task<object> GetFilteredApprovePromotionsAsync(PromotionFilterModel filter, string imgLink);
+        Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter, string imgLink, int? loggedID);
+        Task<object> GetFilteredApprovePromotionsAsync(PromotionFilterModel filter, string imgLink, int? loggedID);
         Task GetPagedPromotionListAsync(PromotionListFilterViewModel filters);
         Task<PromotionApproveViewModel> GetPendingPromotionDetailsByID(int id);
         Task<CommonReturnViewModel> SaveAsync(PromotionViewModel model);
