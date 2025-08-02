@@ -105,6 +105,10 @@ public partial class Organization
 
     public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
 
+    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; } = new List<SpiralBioWeeklyPattern>();
+
+    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPattern { get; set; } = new List<SpiralWeeklyPattern>();
+
     public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
