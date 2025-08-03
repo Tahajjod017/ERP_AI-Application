@@ -240,7 +240,8 @@ namespace GCTL.Core.Repository
         {
             var transaction = _context.Database.CurrentTransaction;
             if (transaction == null) return;
-
+            
+            
             await transaction.CommitAsync();
             await transaction.DisposeAsync();
         }
