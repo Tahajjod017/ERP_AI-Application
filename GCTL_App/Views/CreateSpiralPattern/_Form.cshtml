@@ -4,7 +4,7 @@
     <div class="container mt-4">
         <form asp-controller="CreateSpiralPattern" asp-action="Create" id="createSpiralPattern-form" enctype="multipart/form-data">
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <h3>Create Spiral Pattern</h3>
+                <h3>@Html.SmartLocalize("Create Spiral Pattern")</h3>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <div class="col-md-3">
@@ -12,12 +12,14 @@
                     <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                         <option value="">@Html.SmartLocalize("Select Organization")...</option>
                     </select>
+                    <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
                 </div>
                 <div class="col-md-3">
                     <label asp-for="SpiralPatternTypeID" class="form-label">@Html.SmartLocalize("Select Pattern Type")</label>
                     <select class="form-select" asp-for="SpiralPatternTypeID" asp-items="@ViewBag.SpiralPatternTypeDD as SelectList">
                         <option value="">@Html.SmartLocalize("Select Pattern Type")...</option>
                     </select>
+                    <span id="SpiralPatternTypeIDError" class="text-danger" style="display:none;"></span>
                 </div>
             </div>
 
@@ -26,22 +28,22 @@
                     <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
                         <thead>
                             <tr>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Spiral Pattern Name</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Saturday</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Sunday</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Monday</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Tuesday</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Wednesday</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Thursday</th>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Friday</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Saturday")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Sunday")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Monday")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Tuesday")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Wednesday")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Thursday")</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Friday")</th>
                             </tr>
                         </thead>
-                        <tbody class="list" id="rosterTable" id="purchasers-sellers-body">
+                        <tbody class="list" id="rosterTable">
                             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                                 <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
                                     <div class="d-flex align-items-center file-name-icon">
                                         <div class="ms-1">
-                                            <input type="text" class="form-control" placeholder="Enter Spiral Pattern Name">
+                                            <input type="text" class="form-control" asp-for="SpiralWeeklyPatternName" placeholder="@Html.SmartLocalize("Enter Spiral Pattern Name")">
                                         </div>
                                     </div>
                                 </td>
@@ -118,21 +120,21 @@
                     <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
                         <thead>
                             <tr>
-                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Spiral Pattern Name</th>
-                                <th>Day 1</th>
-                                <th>Day 2</th>
-                                <th>Day 3</th>
-                                <th>Day 4</th>
-                                <th>Day 5</th>
-                                <th>Day 6</th>
-                                <th>Day 7</th>
-                                <th>Day 8</th>
-                                <th>Day 9</th>
-                                <th>Day 10</th>
-                                <th>Day 11</th>
-                                <th>Day 12</th>
-                                <th>Day 13</th>
-                                <th>Day 14</th>
+                                <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                                <th>@Html.SmartLocalize("Day 01")</th>
+                                <th>@Html.SmartLocalize("Day 02")</th>
+                                <th>@Html.SmartLocalize("Day 03")</th>
+                                <th>@Html.SmartLocalize("Day 04")</th>
+                                <th>@Html.SmartLocalize("Day 05")</th>
+                                <th>@Html.SmartLocalize("Day 06")</th>
+                                <th>@Html.SmartLocalize("Day 07")</th>
+                                <th>@Html.SmartLocalize("Day 08")</th>
+                                <th>@Html.SmartLocalize("Day 09")</th>
+                                <th>@Html.SmartLocalize("Day 10")</th>
+                                <th>@Html.SmartLocalize("Day 11")</th>
+                                <th>@Html.SmartLocalize("Day 12")</th>
+                                <th>@Html.SmartLocalize("Day 13")</th>
+                                <th>@Html.SmartLocalize("Day 14")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,7 +142,7 @@
                                 <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
                                     <div class="d-flex align-items-center file-name-icon">
                                         <div class="ms-1">
-                                            <input type="text" class="form-control" placeholder="Enter Spiral Pattern Name">
+                                            <input type="text" class="form-control" placeholder="@Html.SmartLocalize("Enter Spiral Pattern Name")">
                                         </div>
                                     </div>
                                 </td>
@@ -452,10 +454,13 @@
                     </table>
                 </div>
 
-                <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-                    <div class="d-flex my-xl-auto right-content flex-wrap row-gap-3">
-                        <div class="dropdown">
-                            <button id="createSpiralPattern-saveBtn" class="btn btn-primary mb-3">Create Spiral Pattern</button>
+                <div class="col-12">
+                    <div class="row g-3 justify-content-end">
+                        <div class="col-auto">
+                            <button type="reset" class="btn btn-phoenix-primary px-5" id="createSpiralPattern-resetBtn">@Html.SmartLocalize("Reset")</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-5 px-sm-10" id="createSpiralPattern-saveBtn">@Html.SmartLocalize("Create Spiral Pattern")</button>
                         </div>
                     </div>
                 </div>
