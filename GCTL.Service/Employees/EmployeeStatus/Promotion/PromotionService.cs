@@ -115,7 +115,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
         public async Task<object> GetFilteredPromotionsAsync(PromotionFilterModel filter, string imgLink, int? loggedID)
         {
             // Start with a queryable instead of loading all data into memory
-            var query = await GetPromotionQueryAsync(true, imgLink , loggedID);
+            var query = await GetPendingPromotionQueryAsync( imgLink , loggedID);
 
             // Apply filters at database level
             query = ApplyFilters(query, filter);
@@ -146,7 +146,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
         public async Task<object> GetFilteredApprovePromotionsAsync(PromotionFilterModel filter, string imgLink, int? loggedID)
         {
             // Start with a queryable instead of loading all data into memory
-            var query = await GetPromotionQueryAsync(false , imgLink, loggedID);
+            var query = await GetApprovePromotionQueryAsync( imgLink, loggedID);
 
             // Apply filters at database level
             query = ApplyFilters(query, filter);
@@ -176,100 +176,222 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
         #region Common
 
 
-        private async Task<IQueryable<PromotionApproveViewModel>> GetPromotionQueryAsync(bool IsPending, string imgLink, int? loggedID)
+        private async Task<IQueryable<PromotionApproveViewModel>> GetPendingPromotionQueryAsync( string imgLink, int? loggedID)
         {
-            var matches = new[] { "promotion", "demotion" };
-            var proDemoIDs = await _employeeActionTypeRepository.AllActive()
-                .Where(x => matches.Contains(x.EmployeeActionTypeName.ToLower()))
-                .Select(x => x.EmployeeActionTypeID)
-                .ToListAsync();
+            try
+            {
+                var matches = new[] { "promotion", "demotion" };
+                var proDemoIDs = await _employeeActionTypeRepository.AllActive()
+                    .Where(x => matches.Contains(x.EmployeeActionTypeName.ToLower()))
+                    .Select(x => x.EmployeeActionTypeID)
+                    .ToListAsync();
 
-            
+
                 var staPending1 = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "pending").Select(s => s.StatusID).ToListAsync().Result;
-            
+
                 var staPending = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "approve" || s.StatusName.ToLower() == "decline").Select(s => s.StatusID).ToListAsync().Result;
+
+
+
+
+
+
+                var query = from ecc in _employeeCarrerCngRepository.All()
+                            where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0)
+                            && (ecc.IsDecline == null  || ecc.IsDecline == false)
+                            && (ecc.IsFinalApproved == null || ecc.IsFinalApproved == false)
+                            && ecc.ApprovalPersonID == loggedID
+
+
+                            join emp in _employeeRepository.All()
+                                on ecc.EmployeeID equals emp.EmployeeID
+
+                            join off in _empOfficialRepository.AllActive()
+                                on emp.EmployeeID equals off.EmployeeID into empOfficeGroup
+                            from office in empOfficeGroup.DefaultIfEmpty()
+
+                            join desg in _desigRepository.AllActive()
+                                on office.DesignationID equals desg.DesignationID into desgGroup
+                            from designation in desgGroup.DefaultIfEmpty()
+
+                            join dept in _deptRepository.AllActive()
+                                on office.DepartmentID equals dept.DepartmentID into deptGroup
+                            from department in deptGroup.DefaultIfEmpty()
+
+                            join currDesg in _desigRepository.AllActive()
+                                on ecc.CurentDesignationID equals currDesg.DesignationID into currDesgGroup
+                            from currDesignation in currDesgGroup.DefaultIfEmpty()
+
+                            join proposedDesg in _desigRepository.AllActive()
+                                on ecc.NewDesignationID equals proposedDesg.DesignationID into propDesgGroup
+                            from proposedDesignation in propDesgGroup.DefaultIfEmpty()
+
+
+
+                            join status in _statusRepository.AllActive()
+                                on ecc.StatusID equals status.StatusID into statusGroup
+                            from status in statusGroup.DefaultIfEmpty()
+
+                            //where status != null &&
+                            //      (IsPending ? status.StatusName.ToLower() == "pending" :
+                            //      (status.StatusName.ToLower() == "approved" || status.StatusName.ToLower() == "decline"))
+
+                            select new PromotionApproveViewModel
+                            {
+                                Id = ecc.EmployeeCareerChangeID,
+                                EmployeeName = emp.FirstName + " " + emp.LastName,
+                                Department = department.DepartmentName ?? "N/A",
+                                CurrentPosition = currDesignation.DesignationName ?? "N/A",
+                                ProposedPosition = proposedDesignation.DesignationName ?? "N/A",
+                                CurrentSalary = ecc.CurrentSalary.HasValue
+                                    ? ecc.CurrentSalary.Value.ToString("C")
+                                    : "N/A",
+                                ProposedSalary = ecc.NewSalary.HasValue
+                                    ? ecc.NewSalary.Value.ToString("C")
+                                    : "N/A",
+                                EffectiveDate = ecc.EffectiveDate.HasValue
+                                    ? ecc.EffectiveDate.Value.ToString("dd MMM yyyy")
+                                    : "N/A",
+                                EffectiveDateRaw = ecc.EffectiveDate, // Add raw date for filtering/sorting
+                                YearsOfExperience = office.JoiningDate.HasValue
+                                ? $"{(DateTime.Today.Year - office.JoiningDate.Value.Year):F1} Years"
+                                : "N/A",
+                                Justification = ecc.Remarks ?? "N/A",
+                                AvatarUrl = string.IsNullOrEmpty(emp.EmployeeImageFileName)
+                                    ? "../../assets/img/users/user-01.jpg"
+                                    : imgLink + emp.EmployeeImageFileName,
+                                Status = status != null ? status.StatusName : "Pending",
+                            };
+
+
+                var a = query.ToListAsync().Result;
+
+                return query;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new List<PromotionApproveViewModel>().AsQueryable(); // Return an empty queryable on error
+            }
             
-
-            
-
-
-
-            var query = from ecc in _employeeCarrerCngRepository.All()
-                        where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0) 
-                        //&& (
-                        //       ecc.IsFinalApproved == IsApprove ||
-                        //       (!IsApprove && ecc.IsFinalApproved == null)
-                        //   )
-                        && ecc.ApprovalPersonID == loggedID
-
-
-                        join emp in _employeeRepository.All()
-                            on ecc.EmployeeID equals emp.EmployeeID
-
-                        join off in _empOfficialRepository.AllActive()
-                            on emp.EmployeeID equals off.EmployeeID into empOfficeGroup
-                        from office in empOfficeGroup.DefaultIfEmpty()
-
-                        join desg in _desigRepository.AllActive()
-                            on office.DesignationID equals desg.DesignationID into desgGroup
-                        from designation in desgGroup.DefaultIfEmpty()
-
-                        join dept in _deptRepository.AllActive()
-                            on office.DepartmentID equals dept.DepartmentID into deptGroup
-                        from department in deptGroup.DefaultIfEmpty()
-
-                        join currDesg in _desigRepository.AllActive()
-                            on ecc.CurentDesignationID equals currDesg.DesignationID into currDesgGroup
-                        from currDesignation in currDesgGroup.DefaultIfEmpty()
-
-                        join proposedDesg in _desigRepository.AllActive()
-                            on ecc.NewDesignationID equals proposedDesg.DesignationID into propDesgGroup
-                        from proposedDesignation in propDesgGroup.DefaultIfEmpty()
-
-                        
-
-                        join status in _statusRepository.AllActive()
-                            on ecc.StatusID equals status.StatusID into statusGroup
-                        from status in statusGroup.DefaultIfEmpty()
-
-                        where status != null &&
-                              (IsPending ? status.StatusName.ToLower() == "pending" :
-                              (status.StatusName.ToLower() == "approved" || status.StatusName.ToLower() == "decline"))
-
-                        select new PromotionApproveViewModel
-                        {
-                            Id = ecc.EmployeeCareerChangeID,
-                            EmployeeName = emp.FirstName + " " + emp.LastName,
-                            Department = department.DepartmentName ?? "N/A",
-                            CurrentPosition = currDesignation.DesignationName ?? "N/A",
-                            ProposedPosition = proposedDesignation.DesignationName ?? "N/A",
-                            CurrentSalary = ecc.CurrentSalary.HasValue
-                                ? ecc.CurrentSalary.Value.ToString("C")
-                                : "N/A",
-                            ProposedSalary = ecc.NewSalary.HasValue
-                                ? ecc.NewSalary.Value.ToString("C")
-                                : "N/A",
-                            EffectiveDate = ecc.EffectiveDate.HasValue
-                                ? ecc.EffectiveDate.Value.ToString("dd MMM yyyy")
-                                : "N/A",
-                            EffectiveDateRaw = ecc.EffectiveDate, // Add raw date for filtering/sorting
-                            YearsOfExperience = office.JoiningDate.HasValue
-                            ? $"{(DateTime.Today.Year - office.JoiningDate.Value.Year):F1} Years"
-                            : "N/A",
-                            Justification = ecc.Remarks ?? "N/A",
-                            AvatarUrl = string.IsNullOrEmpty(emp.EmployeeImageFileName)
-                                ? "../../assets/img/users/user-01.jpg"
-                                : imgLink + emp.EmployeeImageFileName,
-                            Status = status != null ? status.StatusName : "Pending",
-                        };
-
-
-            var a = query.ToListAsync().Result;
-
-            return query;
 
            
         }
+
+        private async Task<IQueryable<PromotionApproveViewModel>> GetApprovePromotionQueryAsync( string imgLink, int? loggedID)
+        {
+            try
+            {
+                var matches = new[] { "promotion", "demotion" };
+                var proDemoIDs = await _employeeActionTypeRepository.AllActive()
+                    .Where(x => matches.Contains(x.EmployeeActionTypeName.ToLower()))
+                    .Select(x => x.EmployeeActionTypeID)
+                    .ToListAsync();
+
+
+                var staPending1 = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "pending").Select(s => s.StatusID).ToListAsync().Result;
+
+                var staPending = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "approve" || s.StatusName.ToLower() == "decline").Select(s => s.StatusID).ToListAsync().Result;
+
+
+                var test = (from ecHis in _employeeCarrerCngHistoryRepository.All()
+                            join ecc in _employeeCarrerCngRepository.All()
+                                 on ecHis.EmployeeCareerChangeID equals ecc.EmployeeCareerChangeID
+
+                            where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0)
+
+                            && ecHis.ApprovalPersonID == loggedID
+                            select new { ecHis, ecc }).ToList();
+
+
+
+                var query = from ecHis in _employeeCarrerCngHistoryRepository.All()
+                            join ecc in _employeeCarrerCngRepository.All()
+                                on ecHis.EmployeeCareerChangeID equals ecc.EmployeeCareerChangeID
+
+                            where proDemoIDs.Contains(ecc.EmployeeActionTypeID ?? 0)
+
+                            // && (ecc.IsDecline == true
+                            //|| ecc.IsFinalApproved == true)
+
+                            && ecHis.ApprovalPersonID == loggedID
+
+
+                            join emp in _employeeRepository.All()
+                                on ecc.EmployeeID equals emp.EmployeeID
+
+                            join off in _empOfficialRepository.AllActive()
+                                on emp.EmployeeID equals off.EmployeeID into empOfficeGroup
+                            from office in empOfficeGroup.DefaultIfEmpty()
+
+                            join desg in _desigRepository.AllActive()
+                                on office.DesignationID equals desg.DesignationID into desgGroup
+                            from designation in desgGroup.DefaultIfEmpty()
+
+                            join dept in _deptRepository.AllActive()
+                                on office.DepartmentID equals dept.DepartmentID into deptGroup
+                            from department in deptGroup.DefaultIfEmpty()
+
+                            join currDesg in _desigRepository.AllActive()
+                                on ecc.CurentDesignationID equals currDesg.DesignationID into currDesgGroup
+                            from currDesignation in currDesgGroup.DefaultIfEmpty()
+
+                            join proposedDesg in _desigRepository.AllActive()
+                                on ecc.NewDesignationID equals proposedDesg.DesignationID into propDesgGroup
+                            from proposedDesignation in propDesgGroup.DefaultIfEmpty()
+
+
+
+                            join status in _statusRepository.AllActive()
+                                on ecc.StatusID equals status.StatusID into statusGroup
+                            from status in statusGroup.DefaultIfEmpty()
+
+                                //where status != null &&
+                                //      (IsPending ? status.StatusName.ToLower() == "pending" :
+                                //      (status.StatusName.ToLower() == "approved" || status.StatusName.ToLower() == "decline"))
+
+                            select new PromotionApproveViewModel
+                            {
+                                Id = ecc.EmployeeCareerChangeID,
+                                EmployeeName = emp.FirstName + " " + emp.LastName,
+                                Department = department.DepartmentName ?? "N/A",
+                                CurrentPosition = currDesignation.DesignationName ?? "N/A",
+                                ProposedPosition = proposedDesignation.DesignationName ?? "N/A",
+                                CurrentSalary = ecc.CurrentSalary.HasValue
+                                    ? ecc.CurrentSalary.Value.ToString("C")
+                                    : "N/A",
+                                ProposedSalary = ecc.NewSalary.HasValue
+                                    ? ecc.NewSalary.Value.ToString("C")
+                                    : "N/A",
+                                EffectiveDate = ecc.EffectiveDate.HasValue
+                                    ? ecc.EffectiveDate.Value.ToString("dd MMM yyyy")
+                                    : "N/A",
+                                EffectiveDateRaw = ecc.EffectiveDate, // Add raw date for filtering/sorting
+                                YearsOfExperience = office.JoiningDate.HasValue
+                                ? $"{(DateTime.Today.Year - office.JoiningDate.Value.Year):F1} Years"
+                                : "N/A",
+                                Justification = ecc.Remarks ?? "N/A",
+                                AvatarUrl = string.IsNullOrEmpty(emp.EmployeeImageFileName)
+                                    ? "../../assets/img/users/user-01.jpg"
+                                    : imgLink + emp.EmployeeImageFileName,
+                                Status = status != null ? status.StatusName : "Pending",
+                            };
+
+
+                var a = query.ToListAsync().Result;
+
+                return query;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new List<PromotionApproveViewModel>().AsQueryable(); // Return an empty queryable on error
+            }
+
+
+
+        }
+
 
         private IQueryable<PromotionApproveViewModel> ApplyFilters(IQueryable<PromotionApproveViewModel> query, PromotionFilterModel filter)
         {
@@ -585,6 +707,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
                 await _employeeCarrerCngRepository.AddAsync(promotion);
 
+
                 return new CommonReturnViewModel
                 {
                     Success = true,
@@ -675,241 +798,210 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
         public async Task<CommonReturnViewModel> ApprovePromotionAsync(PromotionActionModel action)
         {
+            if (action == null || action.PromotionId <= 0 || string.IsNullOrEmpty(action.Action))
+            {
+                return new CommonReturnViewModel { Success = false, Message = "Invalid action model" };
+            }
+
             try
             {
-                if (action == null || action.PromotionId <= 0 || string.IsNullOrEmpty(action.Action))
+               // using var transaction = await _employeeCarrerCngRepository.BeginTransactionAsync();
+
+                var career = await _employeeCarrerCngRepository.AllActive()
+                    .FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == action.PromotionId);
+                if (career == null)
                 {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Invalid action model"
-                    };
+                    return new CommonReturnViewModel { Success = false, Message = "Promotion not found" };
                 }
 
-                var carrer = await _employeeCarrerCngRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == action.PromotionId);
-                if (carrer == null)
+                if (career.IsFinalApproved == true)
                 {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Promotion not found"
-                    };
+                    return new CommonReturnViewModel { Success = false, Message = "Promotion already approved" };
                 }
 
-                if (carrer.IsFinalApproved == true)
+                if (career.IsDecline == true)
                 {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Promotion already approved"
-                    };
+                    return new CommonReturnViewModel { Success = false, Message = "Promotion has been declined" };
                 }
 
-                if (carrer.IsDecline == true)
+                if (career.ApprovalPersonID != action.CreatedBy)
                 {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Promotion has been declined"
-                    };
+                    return new CommonReturnViewModel { Success = false, Message = "You are not authorized to approve this promotion" };
                 }
 
-                if (carrer.ApprovalPersonID != action.CreatedBy)
+                var status = await GetOrCreateStatusAsync(action.Action.ToLower(), action);
+                if (status == null)
                 {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "You are not authorized to approve this promotion"
-                    };
+                    return new CommonReturnViewModel { Success = false, Message = "Failed to retrieve or create status" };
                 }
 
-                if (action.Action == null)
+                career.StatusID = status.StatusID;
+                bool isDecline = action.Action.ToLower() == "decline";
+                career.IsDecline = isDecline;
+
+                if (!isDecline)
                 {
-                    return new CommonReturnViewModel
+                    career.ApprovalStage = (career.ApprovalStage ?? 0) + 1;
+                    int nextApproverID = await ResolveNextApproverAsync(career);
+                    if (nextApproverID != 0)
                     {
-                        Success = false,
-                        Message = "Action cannot be null"
-                    };
-
-                }
-
-
-                if (action.Action == "approve")
-                {
-
-                    var status = await _statusRepository.AllActive()
-                        .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "approved");
-                    if (status == null)
-                    {
-                        status = new Statuses
-                        {
-                            StatusName = "Approved",
-                            StatusType = "EmployeeCareerChange",
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = action.CreatedBy,
-                            LIP = action.LIP,
-                            LMAC = action.LMAC
-                        };
-                        await _statusRepository.AddAsync(status);
-                    }
-                    carrer.StatusID = status.StatusID;
-
-
-                    int secondApproverID = 0;
-
-                    #region Second Approve Hunt
-
-                    var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == carrer.EmployeeID);
-
-                    if (employee == null)
-                    {
-                        return new CommonReturnViewModel
-                        {
-                            Success = false,
-                            Message = "Employee Official not found"
-                        };
-                    }
-
-
-                    var approvalType = await _approvalTypeRepository.AllActive().Where(a => a.ApprovalTypeName.ToLower() == "promotion approval").FirstOrDefaultAsync();
-
-                    if (approvalType != null)
-                    {
-                        var approvalSettings = await _approvalSettingRepository.AllActive().Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
-                                            && a.OrganizationID == employee.OrganizationID && a.OrganizationBranchID == employee.OrganizationBranchID).FirstOrDefaultAsync();
-
-
-                        if (approvalSettings != null && approvalSettings.IsEnableSecondApproval)
-                        {
-                            if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
-                            {
-                                var secondApprovalDesig = _approvalDesignationRepository.AllActive()
-                                    .Where(e => e.ApprovalDesignationID == approvalSettings.SecondApprovalID)
-                                    .FirstOrDefault();
-
-                                switch (secondApprovalDesig?.Code)
-                                {
-                                    case 1:
-                                        secondApproverID = employee.ImmediateSupervisorId ?? 0;
-                                        break;
-                                    case 2:
-                                        secondApproverID = employee.SeniorSupervisorId ?? 0;
-                                        break;
-                                    case 3:
-                                        secondApproverID = employee.HeadOfDepartmentId ?? 0;
-                                        break;
-                                    default:
-                                        secondApproverID = 0;
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                // When it's employee-based SecondApprovalID (not designation)
-                                if (approvalSettings.SecondApprovalID == employee.EmployeeID)
-                                {
-                                    if ((bool)approvalSettings.AllowSelfApproval)
-                                    {
-                                        bool IsSelfApproval = true;
-                                        secondApproverID = (int)employee.EmployeeID;
-                                    }
-                                    else
-                                    {
-                                        secondApproverID = approvalSettings.SelfExceptionApprovalID ?? 0;
-                                    }
-                                }
-                                else
-                                {
-                                    secondApproverID = approvalSettings.SecondApprovalID ?? 0;
-                                }
-                            }
-                        }
-                    }
-
-                    #endregion
-
-                    if (secondApproverID != 0)
-                    {
-                        carrer.ApprovalPersonID = secondApproverID; // Set the next approver
-                        carrer.IsFinalApproved = false; // Mark as not final approved yet
+                        career.ApprovalPersonID = nextApproverID;
+                        career.IsFinalApproved = false;
                     }
                     else
                     {
-                        carrer.IsFinalApproved = true; // If no second approver, mark as final approved
+                        career.IsFinalApproved = true; // No further approvers needed
                     }
-
-
-
-
-
                 }
                 else
                 {
-
-
-                    var status = await _statusRepository.AllActive()
-                        .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "decline");
-                    if (status == null)
-                    {
-                        status = new Statuses
-                        {
-                            StatusName = "Decline",
-                            StatusType = "EmployeeCareerChange",
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = action.CreatedBy,
-                            LIP = action.LIP,
-                            LMAC = action.LMAC
-                        };
-                        await _statusRepository.AddAsync(status);
-                    }
-                    carrer.StatusID = status.StatusID;
-                    carrer.IsDecline = true;
+                    career.IsFinalApproved = false; // Declined promotions are not final
+                    career.ApprovalStage = career.ApprovalStage ?? 1;
                 }
 
+                career.UpdatedAt = DateTime.UtcNow;
+                career.UpdatedBy = action.UpdatedBy;
+                career.LIP = action.LIP;
+                career.LMAC = action.LMAC;
 
+                await _employeeCarrerCngRepository.UpdateAsync(career);
+                await LogCareerChangeHistoryAsync(career, action);
 
+               // await transaction.CommitAsync();
 
-                carrer.IsFinalApproved = true; // Mark as final approved
-                carrer.UpdatedAt = DateTime.UtcNow;
-                carrer.UpdatedBy = action.UpdatedBy;
-                carrer.LIP = action.LIP;
-                carrer.LMAC = action.LMAC;
-                await _employeeCarrerCngRepository.UpdateAsync(carrer);
-                // Add to history
-                var history = new EmployeeCareerChangeHistory
-                {
-                    EmployeeCareerChangeID = carrer.EmployeeCareerChangeID,
-                    EmployeeID = carrer.EmployeeID,
-                    StatusID = carrer.StatusID,
-                    ApprovalPersonID = carrer.ApprovalPersonID,
-                    Remarks = action.Comments,
-                    LIP = action.LIP,
-                    LMAC = action.LMAC,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = action.CreatedBy
-                };
-                await _employeeCarrerCngHistoryRepository.AddAsync(history);
-
-                return new CommonReturnViewModel
-                {
-                    Success = true,
-                    Message = "Promotion action completed successfully"
-                };
+                return new CommonReturnViewModel { Success = true, Message = "Promotion action completed successfully" };
             }
-            catch (Exception)
+            catch (DbUpdateException ex)
             {
-               
-                return new CommonReturnViewModel
-                {
-                    Success = false,
-                    Message = "An error occurred while processing the promotion action"
-                };
-
-               
+                // Log exception (e.g., using ILogger)
+                return new CommonReturnViewModel { Success = false, Message = "Database error occurred while processing the promotion action" };
             }
-            
-            
-            
+            catch (Exception ex)
+            {
+                // Log exception
+                return new CommonReturnViewModel { Success = false, Message = "An unexpected error occurred while processing the promotion action" };
+            }
+        }
+
+        private async Task<Statuses> GetOrCreateStatusAsync(string action, PromotionActionModel actionModel)
+        {
+            string statusName = action == "approve" ? "Approved" : "Decline";
+            var status = await _statusRepository.AllActive()
+                .FirstOrDefaultAsync(s => s.StatusName.ToLower() == statusName.ToLower());
+
+            if (status == null)
+            {
+                status = new Statuses
+                {
+                    StatusName = statusName,
+                    StatusType = "EmployeeCareerChange",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = actionModel.CreatedBy,
+                    LIP = actionModel.LIP,
+                    LMAC = actionModel.LMAC
+                };
+                await _statusRepository.AddAsync(status);
+            }
+
+            return status;
+        }
+
+        private async Task<int> ResolveNextApproverAsync(EmployeeCareerChanges career)
+        {
+            if (career.EmployeeID == null || career.ApprovalStage == null)
+                return 0;
+
+            var employee = await _empOfficialRepository.AllActive()
+                .FirstOrDefaultAsync(e => e.EmployeeID == career.EmployeeID);
+            if (employee == null)
+                return 0;
+
+            var approvalType = await _approvalTypeRepository.AllActive()
+                .FirstOrDefaultAsync(a => a.ApprovalTypeName.ToLower() == "promotion approval");
+            if (approvalType == null)
+                return 0;
+
+            var approvalSettings = await _approvalSettingRepository.AllActive()
+                .FirstOrDefaultAsync(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+                    && a.OrganizationID == employee.OrganizationID
+                    && a.OrganizationBranchID == employee.OrganizationBranchID);
+            if (approvalSettings == null)
+                return 0;
+
+            int currentStage = career.ApprovalStage.Value;
+            if (currentStage == 1 && approvalSettings.IsEnableSecondApproval)
+            {
+                return await ResolveApproverAsync(approvalSettings, employee, 2);
+            }
+            else if (currentStage == 2 && approvalSettings.IsEnableThirdApproval)
+            {
+                return await ResolveApproverAsync(approvalSettings, employee, 3);
+            }
+
+            return 0; // No further approvers needed
+        }
+
+        private async Task<int> ResolveApproverAsync(ApprovalSettings settings, EmployeeOfficeInfo employee, int stage)
+        {
+            bool isDesignationBased;
+            int? approverID;
+            bool allowSelfApproval = settings.AllowSelfApproval ?? false;
+            int? selfExceptionID = settings.SelfExceptionApprovalID;
+
+            if (stage == 2)
+            {
+                if (!settings.IsEnableSecondApproval) return 0;
+                isDesignationBased = settings.IsDesignationOrEmpSecondApprovalID;
+                approverID = settings.SecondApprovalID;
+            }
+            else if (stage == 3)
+            {
+                if (!settings.IsEnableThirdApproval) return 0;
+                isDesignationBased = settings.IsDesignationOrEmpThirdApprovalID;
+                approverID = settings.ThirdApprovalID;
+            }
+            else
+            {
+                return 0; // Unsupported stage
+            }
+
+            if (!approverID.HasValue)
+                return 0;
+
+            if (isDesignationBased)
+            {
+                var approvalDesig = await _approvalDesignationRepository.AllActive()
+                    .FirstOrDefaultAsync(e => e.ApprovalDesignationID == approverID);
+                return approvalDesig?.Code switch
+                {
+                    1 => employee.ImmediateSupervisorId ?? 0,
+                    2 => employee.SeniorSupervisorId ?? 0,
+                    3 => employee.HeadOfDepartmentId ?? 0,
+                    _ => 0
+                };
+            }
+
+            if (approverID == employee.EmployeeID && allowSelfApproval)
+                return employee.EmployeeID ?? 0;
+
+            return selfExceptionID ?? approverID ?? 0;
+        }
+
+        private async Task LogCareerChangeHistoryAsync(EmployeeCareerChanges career, PromotionActionModel action)
+        {
+            var history = new EmployeeCareerChangeHistory
+            {
+                EmployeeCareerChangeID = career.EmployeeCareerChangeID,
+                EmployeeID = career.EmployeeID,
+                StatusID = career.StatusID,
+                ApprovalPersonID = action.CreatedBy,
+                Remarks = action.Comments,
+                LIP = action.LIP,
+                LMAC = action.LMAC,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = action.CreatedBy
+            };
+            await _employeeCarrerCngHistoryRepository.AddAsync(history);
         }
 
         #endregion

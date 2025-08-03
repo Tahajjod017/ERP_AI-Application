@@ -408,7 +408,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
             return Ok(result);
         }
 
-        // POST: api/promotions/export
+       
         [HttpPost]
         public IActionResult ExportPromotions([FromForm] string format)
         {
