@@ -1,4 +1,53 @@
 ﻿
+function employeeDropdown() {
+    $.ajax({
+        url: '/DailyIndividualReport/GetEmployees',
+        type: 'GET',
+        success: function (data) {
+           
+        },
+        error: function () {
+            console.error('Error fetching employees');
+        }
+    });
+}
+
+$(document).ready(function () {
+    // AJAX call to fetch employee data
+    $.ajax({
+        url: '/DailyIndividualReport/GetEmployeeData', // Replace with your actual endpoint
+        type: 'GET', // Or 'POST' depending on your requirement
+        success: function (response) {
+            // Assuming response contains data like:
+            // { "developers": [{ "id": 2, "name": "Alam" }, { "id": 3, "name": "Momin" }],
+            //   "designers": [{ "id": 4, "name": "Name" }, { "id": 5, "name": "Name" }] }
+
+            // Empty the select first
+            $('#multiple-emp-select').empty();
+
+            // Create optgroups dynamically
+            if (response.developers && response.developers.length > 0) {
+                var developerGroup = $('<optgroup label="Developer">');
+                response.developers.forEach(function (dev) {
+                    developerGroup.append('<option value="' + dev.id + '">' + dev.name + ' (id)</option>');
+                });
+                $('#multiple-emp-select').append(developerGroup);
+            }
+
+            if (response.designers && response.designers.length > 0) {
+                var designerGroup = $('<optgroup label="Designer">');
+                response.designers.forEach(function (des) {
+                    designerGroup.append('<option value="' + des.id + '">' + des.name + ' (id)</option>');
+                });
+                $('#multiple-emp-select').append(designerGroup);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error loading data:', error);
+        }
+    });
+});
+
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 
@@ -75,7 +124,7 @@ $(document).ready(function () {
     function loadTableData(sortColumn, sortOrder) {
         var searchTerm = $("#empAttendencindividual-searchInput").val();
         $.ajax({
-            url: '/DailyIndividual/GetEmployeeAttendance',
+            url: '/DailyIndividualReport/GetEmployeeAttendance',
             method: 'GET',
             data: {
                 pageNumber: currentPage,
