@@ -346,6 +346,8 @@ $(document).ready(function () {
     });
     //#endregion
 
+   
+
     //#region GetBy EmpoyeeTransfer
     $(document).on('click', '#EmpTransferButtonEdit', function (e) {
         e.preventDefault();
