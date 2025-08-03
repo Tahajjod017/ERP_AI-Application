@@ -22,6 +22,8 @@ namespace GCTL.Service.CommonService
         Task<List<CommonSelectVM>> GetShifts();
 
         Task<List<CommonSelectVM>> GetCompensation();
+
+        Task<List<CommonSelectVM>> GetSpiralPatternTypes();
         #endregion
 
 

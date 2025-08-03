@@ -1,0 +1,289 @@
+﻿<div class="card mt-4">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>List of weekly Spiral Pattern</h3>
+
+
+        </div>
+
+        <div class="d-flex my-xl-auto justify-content-end align-items-center flex-wrap row-gap-3">
+
+            <div class="dropdown me-3">
+                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Company...</option>
+                    <option>CSL</option>
+                    <option>GCTL</option>
+                </select>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                    <option value="">Select Department</option>
+                    <option>Developer</option>
+                    <option>Designer</option>
+                    <option>Finance</option>
+                </select>
+            </div>
+
+            <div class="dropdown me-3">
+                <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                    <optgroup label="Developer">
+                        <option value="2">Alam</option>
+                        <option value="3">Momin</option>
+                    </optgroup>
+                    <optgroup label="Designer">
+                        <option value="4">Name (id)</option>
+                        <option value="5">Name (id)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Spiral Pattern Name...</option>
+                    <option>Spiral Pattern 1</option>
+                    <option>Spiral Pattern 2</option>
+                    <option>Spiral Pattern 3</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="table-responsive scrollbar mx-n1 px-1">
+        </div>
+
+        <div id="weekly" class=" my-4">
+            <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+                <thead>
+
+                    <tr>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Spiral Pattern Name</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Saturday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Sunday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Monday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Tuesday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Wednesday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Thursday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Friday</th>
+                    </tr>
+
+                </thead>
+                <tbody class="list" id="rosterTable" id="purchasers-sellers-body">
+
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                        <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                            <h6>Spiral Pattern 1</h6>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">Off Day</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                        <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                            <h6>Spiral Pattern 2</h6>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">10:00 - 18:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">Off Day</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">15:00 - 23:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">11:00 - 19:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="startTime py-1">
+                            <div class="badge  badge-phoenix-primary  p-2">
+                                <p class="my-2 fs-10">09:00 - 17:00</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
