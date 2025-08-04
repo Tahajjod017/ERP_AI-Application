@@ -500,16 +500,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
        
         modelBuilder.Entity<ApplicationUser>()
-<<<<<<< HEAD
+
          .HasDiscriminator<string>("Discriminator")
          .HasValue<ApplicationUser>("ApplicationUser");
-=======
-
-        .HasDiscriminator<string>("Discriminator")
-
-        .HasValue<ApplicationUser>("ApplicationUser");
-
->>>>>>> a24de6a353a53437ece5dc04195b2a49e895d353
 
         modelBuilder.Entity<ApplicationUser>()
 
@@ -521,13 +514,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
                 .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
-<<<<<<< HEAD
-        //modelBuilder.Entity<ApplicationUser>()
-        //            .HasOne(us => us.UserSession)
-        //            .WithOne(u => u.User)
-        //            .HasForeignKey<UserSessions>(us => us.UserId)
-        //            .HasConstraintName("FK_UserSessions_AspNetUsers_UserId");
-=======
+
         modelBuilder.Entity<ApplicationUser>()
 
                 .HasOne(u => u.Organization)
@@ -578,7 +565,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
 
->>>>>>> a24de6a353a53437ece5dc04195b2a49e895d353
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
