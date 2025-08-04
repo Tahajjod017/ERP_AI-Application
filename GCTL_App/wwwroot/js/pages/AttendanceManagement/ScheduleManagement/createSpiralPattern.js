@@ -20,20 +20,23 @@
 
                 //const token = $('#createSpiralPattern-form input[name="__RequestVerificationToken"]').val();
 
-                const formData = {
-                    //__RequestVerificationToken: token,
-                    SpiralWeeklyPatternID: $('#SpiralWeeklyPatternID').val(),
-                    OrganizationID: $('#OrganizationID').val(),
-                    SpiralPatternTypeID: $('#SpiralPatternTypeID').val(),
-                    SpiralWeeklyPatternName: $('#SpiralWeeklyPatternName').val(),
-                };
+                //const formData = {
+                //    //__RequestVerificationToken: token,
+                //    SpiralWeeklyPatternID: $('#SpiralWeeklyPatternID').val(),
+                //    OrganizationID: $('#OrganizationID').val(),
+                //    SpiralPatternTypeID: $('#SpiralPatternTypeID').val(),
+                //    SpiralWeeklyPatternName: $('#SpiralWeeklyPatternName').val(),
+                //};
 
-                const id = $('#SpiralWeeklyPatternID').val();
-                const isEdit = id > 0;
-                const url = isEdit ? updateUrl : createUrl;
+                //const id = $('#SpiralWeeklyPatternID').val();
+                //const isEdit = id > 0;
+                //const url = isEdit ? updateUrl : createUrl;
+                var form = $('#createSpiralPattern-form');
+                var formData = form.serialize();
 
                 $.ajax({
-                    url: url,
+                    //url: url,
+                    url: form.attr('action'),
                     type: 'POST',
                     data: formData,
                     success: function (response) {
@@ -45,8 +48,8 @@
 
                         if (response.isSuccess) {
                             toastr.success(response.message);
-                            clear();
-                            loadTableData();
+                            //clear();
+                            //loadTableData();
                         } else {
                             toastr.info(response.message);
                         }
@@ -95,7 +98,7 @@
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (shifts) {
-                        $('.AddShiftModalShiftID').each(function () {
+                        $('.shift-dropdown').each(function () {
                             const $dropdown = $(this);
                             $dropdown.empty();
 
