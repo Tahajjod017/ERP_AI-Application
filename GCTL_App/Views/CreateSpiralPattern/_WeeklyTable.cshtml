@@ -1,13 +1,10 @@
 ﻿<div class="card mt-4">
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3>List of weekly Spiral Pattern</h3>
-
-
+            <h3>@Html.SmartLocalize("List of weekly Spiral Pattern")</h3>
         </div>
 
         <div class="d-flex my-xl-auto justify-content-end align-items-center flex-wrap row-gap-3">
-
             <div class="dropdown me-3">
                 <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                     <option value="">Select Company...</option>
@@ -46,33 +43,25 @@
                     <option>Spiral Pattern 3</option>
                 </select>
             </div>
-
-        </div>
-
-        <div class="table-responsive scrollbar mx-n1 px-1">
         </div>
 
         <div id="weekly" class=" my-4">
             <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
                 <thead>
-
                     <tr>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Spiral Pattern Name</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Saturday</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Sunday</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Monday</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Tuesday</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Wednesday</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Thursday</th>
-                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Friday</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Saturday")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Sunday")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Monday")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Tuesday")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Wednesday")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Thursday")</th>
+                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Friday")</th>
                     </tr>
-
                 </thead>
-                <tbody class="list" id="rosterTable" id="purchasers-sellers-body">
-
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                        <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                <tbody id="weeklyTblBody">
+                    @* <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
                             <h6>Spiral Pattern 1</h6>
                         </td>
 
@@ -175,9 +164,7 @@
                         </td>
 
                     </tr>
-
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
                         <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
                             <h6>Spiral Pattern 2</h6>
                         </td>
@@ -279,9 +266,7 @@
                                 </div>
                             </div>
                         </td>
-
-                    </tr>
-
+                    </tr> *@
                 </tbody>
             </table>
         </div>

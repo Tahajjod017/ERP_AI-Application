@@ -16,5 +16,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
         public byte DayOfWeek { get; set; }
 
         public int? ShiftID { get; set; }
+
+        public string ShiftTime { get; set; }
     }
 }
