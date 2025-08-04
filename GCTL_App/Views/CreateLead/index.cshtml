@@ -16,7 +16,7 @@
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
-                    <div class="col-sm-12 col-md-6">
+                    <div class="col-sm-12 customerDiv col-md-6">
                         <div class="form-floating mbs-4">
                             <input type="text" id="ContactNameSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
                             <label for="floatingSelectLitigation">@Html.SmartLocalize("Customer Search")</label>
@@ -42,57 +42,23 @@
                     </div>
 
 
-                    <div class="col-sm-12 col-md-6">
+                    @* <div class="col-sm-12 col-md-6">
                         <div class="form-floating">
-                            <select class="form-multi-select choiceDD" id="ms1" name="Services" multiple asp-items="@ViewBag.ServiceDD as SelectList">
+                            <select class="" id="" >
+                            </select>
+                        </div>
+                    </div> *@
+                    <div class="col-md-6">
+                        <div class="form-floating form-floating-advance-select">
+                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Services")</label>
+                            <select class="form-multi-select choiceDD focus-color-disable" id="ms1" name="Services" multiple asp-items="@ViewBag.ServiceDD as SelectList">
+                                <option value="">@Html.SmartLocalize("Select Company")</option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-12 col-md-6">
-
-                        <div class="form-floating mbs-4">
-                            <input type="text" id="ContactNameSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
-                            <label for="floatingSelectLitigation">@Html.SmartLocalize("Contact Name")</label>
-
-                        </div>
-
-                        <div class="search-results card" id="searchResults">
-                            <div class="list-group" id="contactNameList">
-                                <!-- ContactName items will be populated here by JavaScript -->
-                            </div>
-                            <div class="no-results" id="noResults" style="display: none;">
-                                @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                <button class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Company")</button>
-                                <span>Or</span>
-                                <button class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
-                            </div>
-                        </div>
-
-                    </div>
-
 
                     <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <div class="form-floating form-floating-advance-select">
-                                    <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Country code")</label>
-                                    <select class="form-select form-select-sm" id="organizerSingle2">
-                                        <option value="">@Html.SmartLocalize("Select code")</option>
-                                        <option>+91</option>
-                                        <option>+92</option>
-                                        <option>+880</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-md-7">
-                                <div class="form-floating">
-                                    <input class="form-control" id="exampleFormControlInput" type="text" placeholder="" />
-                                    <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Phone Number")</label>
-                                </div>
-                            </div>
-                        </div>
-
+                        <input class="form-control" id="phone" name="FullPhone" type="tel" placeholder="Mobiel Number" />
                     </div>
 
                     <div class="col-md-6">
@@ -174,7 +140,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-light me-2">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>
@@ -191,12 +157,12 @@
                     <ul class="nav nav-tabs mb-4" id="statusChangeTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active px-6" id="promotion-tab" data-bs-toggle="tab" data-bs-target="#promotion" type="button" role="tab">
-                                Company
+                                <i class="fa fa-building" aria-hidden="true"></i>&nbsp;&nbsp; Company
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link px-6" id="increment-tab" data-bs-toggle="tab" data-bs-target="#increment" type="button" role="tab">
-                                Person
+                                <i class="fa fa-user" aria-hidden="true"></i>&nbsp;&nbsp; Person
                             </button>
                         </li>
                     </ul>
@@ -219,7 +185,7 @@
                                             
                                             <div class="col-md-12">
                                                 <div class="mb-3 form-floating">
-                                                    <input type="text" class="form-control" placeholder="Customer name" required>
+                                                    <input type="text" id="autocomplete" class="form-control" autocomplete="off" placeholder="Full Address" required>
                                                     <label class="form-label req">Full Address</label>
                                                     <span class="text-danger small"></span>
                                                 </div>
@@ -228,14 +194,14 @@
                                                 <div class="row">
                                                     <div class="col-md-6 pe-1 col-sm-6">
                                                         <div class="mb-3 form-floating">
-                                                            <input type="text" class="form-control" placeholder="Street" required>
+                                                            <input type="text" id="customerStreet" class="form-control" placeholder="Street" required>
                                                             <label class="form-label req">Street</label>
                                                             <span class="text-danger small"></span>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 ps-1 col-sm-6">
                                                         <div class="mb-3 form-floating">
-                                                            <input type="text" class="form-control" placeholder="City" required>
+                                                            <input type="text" id="companyCity" class="form-control" placeholder="City" required>
                                                             <label class="form-label req">City</label>
                                                             <span class="text-danger small"></span>
                                                         </div>
@@ -253,7 +219,7 @@
                                                     </div>
                                                     <div class="col-md-6 ps-1 col-sm-6">
                                                         <div class="mb-3 form-floating">
-                                                            <input type="text" class="form-control" placeholder="" required>
+                                                            <input id="companyState" type="text" class="form-control" placeholder="" required>
                                                             <label class="form-label req">State/Province</label>
                                                             <span class="text-danger small"></span>
                                                         </div>
@@ -271,7 +237,7 @@
                                                     </div>
                                                     <div class="col-md-6 ps-1 col-sm-6">
                                                         <div class="mb-3 form-floating">
-                                                            <input type="text" class="form-control" placeholder="" required>
+                                                            <input id="companyContry" type="text" class="form-control" placeholder="" required>
                                                             <label class="form-label req">Country</label>
                                                             <span class="text-danger small"></span>
                                                         </div>
@@ -282,14 +248,14 @@
                                                 <div class="row">
                                                     <div class="col-md-6 pe-1 col-sm-6">
                                                         <div class="mb-3 form-floating">
-                                                            <input type="text" class="form-control" placeholder="" required>
+                                                            <input id="customerLatitude" type="text" class="form-control" placeholder="" required>
                                                             <label class="form-label req">Latitude</label>
                                                             <span class="text-danger small"></span>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 ps-1 col-sm-6">
                                                         <div class="mb-3 form-floating">
-                                                            <input type="text" class="form-control" placeholder="" required>
+                                                            <input id="customerLongitude" type="text" class="form-control" placeholder="" required>
                                                             <label class="form-label req">Longitude</label>
                                                             <span class="text-danger small"></span>
                                                         </div>
@@ -319,24 +285,10 @@
                                                 </div>
                                             </div>
                                             <div class="col-12 mb-3">
-                                              <div class="input-group">
-                                                    <span class="input-group-text" id="btnGroupAddon2"><img src="~/img/bd_flag.png" width="30px" alt="Alternate Text" /></span>
-                                                <div class="form-floating">
-                                                    <input type="text" class="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon2">
-                                                    <label class="form-label req">Phone</label>
-                                                    <span class="text-danger small"></span>
-                                                </div>
-                                              </div>
+                                                <input class="form-control" id="phone1" type="tel" placeholder="Phone Number" />
                                             </div>
                                             <div class="col-12 mb-3">
-                                              <div class="input-group">
-                                                    <span class="input-group-text" id="btnGroupAddon2"><img src="~/img/bd_flag.png" width="30px" alt="Alternate Text" /></span>
-                                                <div class="form-floating">
-                                                    <input type="text" class="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon2">
-                                                    <label class="form-label req">Other</label>
-                                                    <span class="text-danger small"></span>
-                                                </div>
-                                              </div>
+                                                <input class="form-control" id="phone2" type="tel" placeholder="Other Phone" />
                                             </div>
                                             <div class="col-12">
                                                 <div class="mb-3 form-floating">
@@ -348,8 +300,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Google Map Container -->
+                                <div class="col-md-12">
+                                    <div id="map" style="height: 400px; width: 100%;"></div> <!-- Set a height for the map -->
+                                </div>
                                 <div class="d-flex justify-content-end gap-2 mt-3">
-                                    <button type="button" class="btn btn-light">Cancel</button>
+                                    <button type="button" class="btn btn-light" id="closeModal">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </form>
@@ -465,25 +421,12 @@
                                         <div class="row">
                                             
                                             <div class="col-12 mb-3">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="btnGroupAddon2"><img src="~/img/bd_flag.png" width="30px" alt="Alternate Text" /></span>
-                                                    <div class="form-floating">
-                                                        <input type="text" class="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon2">
-                                                        <label class="form-label req">Phone</label>
-                                                        <span class="text-danger small"></span>
-                                                    </div>
-                                                </div>
+                                                <input class="form-control" id="phone3" type="tel" placeholder="Phone Number" />
                                             </div>
                                             <div class="col-12 mb-3">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="btnGroupAddon2"><img src="~/img/bd_flag.png" width="30px" alt="Alternate Text" /></span>
-                                                    <div class="form-floating">
-                                                        <input type="text" class="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon2">
-                                                        <label class="form-label req">Other</label>
-                                                        <span class="text-danger small"></span>
-                                                    </div>
-                                                </div>
+                                                <input class="form-control" id="phone4" type="tel" placeholder="Other Phone" />
                                             </div>
+
                                             <div class="col-12">
                                                 <div class="mb-3 form-floating">
                                                     <input type="text" class="form-control" placeholder="" required>
@@ -495,7 +438,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end gap-2 mt-3">
-                                    <button type="button" class="btn btn-light">Cancel</button>
+                                    <button type="button" class="btn btn-light" id="closeModal1">Cancel</button>
                                     <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </form>
@@ -510,29 +453,85 @@
 
 
 @section Scripts{
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script>
-
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script> *@
+    
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInput.min.js"></script>
     <script src="~/js/pages/CRM/createLead.js"></script>
+    <script src="~/js/pages/CRM/companyMap.js"></script>
+    <script async
+            defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places&callback=initAutocomplete">
+    </script>
     <script type="text/javascript">
-        
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.querySelector("#phone");
 
-        
-        // When modal is fully shown, activate the correct tab
-                $('#addNationalityModal').on('shown.bs.modal', function () {
-            console.log('Modal shown:', targetTab);
+            const iti = window.intlTelInput(input, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+                separateDialCode: true,
+                initialCountry: "bd",
+                preferredCountries: ["bd", "in", "us"]
+            });
 
-            if (targetTab === 'company') {
-                $('#increment-tab').removeClass('active');
-                $('#increment').removeClass('active show');
-                $('#promotion-tab').addClass('active');
-                $('#promotion').addClass('active show');
-            } else {
-                $('#promotion-tab').removeClass('active');
-                $('#promotion').removeClass('active show');
-                $('#increment-tab').addClass('active');
-                $('#increment').addClass('active show');
-            }
+            // Optional: log the number on blur
+            input.addEventListener("blur", function () {
+                console.log("Phone:", iti.getNumber());
+            });
         });
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.querySelector("#phone1");
 
+            const iti = window.intlTelInput(input, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+                separateDialCode: true,
+                initialCountry: "bd",
+                preferredCountries: ["bd", "in", "us"]
+            });
+
+            // Optional: log the number on blur
+            input.addEventListener("blur", function () {
+                console.log("Phone:", iti.getNumber());
+            });
+       
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.querySelector("#phone2");
+            const iti = window.intlTelInput(input, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+                separateDialCode: true,
+                initialCountry: "bd",
+                preferredCountries: ["bd", "in", "us"]
+            });
+            // Optional: log the number on blur
+            input.addEventListener("blur", function () {
+                console.log("Phone:", iti.getNumber());
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.querySelector("#phone3");
+            const iti = window.intlTelInput(input, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+                separateDialCode: true,
+                initialCountry: "bd",
+                preferredCountries: ["bd", "in", "us"]
+            });
+            // Optional: log the number on blur
+            input.addEventListener("blur", function () {
+                console.log("Phone:", iti.getNumber());
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.querySelector("#phone4");
+            const iti = window.intlTelInput(input, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+                separateDialCode: true,
+                initialCountry: "bd",
+                preferredCountries: ["bd", "in", "us"]
+            });
+            // Optional: log the number on blur
+            input.addEventListener("blur", function () {
+                console.log("Phone:", iti.getNumber());
+            });
+        });
     </script>
 }
