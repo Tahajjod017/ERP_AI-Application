@@ -12,7 +12,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
     public class CreateSpiralPatternController : BaseController
     {
-        #region 
+        #region Services
         private readonly ICreateSpiralPatternService _createSpiralPatternService;
         private readonly ICommonService _commonService;
 
@@ -29,6 +29,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region Index
         public async Task<IActionResult> Index()
         {
             CreateSpiralPatternPageVM model = new CreateSpiralPatternPageVM();
@@ -44,6 +45,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
             return View(model);
         }
+        #endregion
 
 
         #region Create
@@ -61,7 +63,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 }
 
                 // Custom ordered validation message 
-                var orderedKeys = new[] { "OrganizationID", "SpiralPatternTypeID", "SpiralWeeklyPatternName" };
+                var orderedKeys = new[] { "OrganizationID", "SpiralPatternTypeID", "SpiralPatternName" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -88,6 +90,29 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         {
             var result = await _commonService.GetShiftsByOrgId(id);
             return Json(result);
+        }
+        #endregion
+
+
+        #region GetAllSpiralWeeklyPatternAsync
+        [Route("/CreateSpiralPattern/GetAllSpiralWeeklyPatternAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllSpiralWeeklyPatternAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "SpiralWeeklyPatternID", string sortOrder = "desc")
+        {
+            try
+            {
+                var (data, pagination) = await _createSpiralPatternService.GetAllSpiralWeeklyPatternAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+                return Json(new
+                {
+                    isSuccess = true,
+                    data,
+                    pagination
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
     }

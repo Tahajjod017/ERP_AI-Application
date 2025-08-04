@@ -51,17 +51,16 @@
                     type: 'POST',
                     data: formData,
                     success: function (response) {
-                        const allFields = ["OrganizationID", "ShiftID", "DayDate", "CompensationTypeID"];
-
-                        allFields.forEach(function (fieldId) {
-                            validateField(fieldId, response);
-                        });
-
-                        if (response.isSuccess) {
+                        if (response.isSuccess === true) {
                             toastr.success(response.message);
                             clear();
                             loadTableData();
                         } else {
+                            const allFields = ["OrganizationID", "ShiftID", "DayDate", "CompensationTypeID"];
+
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
                             toastr.info(response.message);
                         }
                     },

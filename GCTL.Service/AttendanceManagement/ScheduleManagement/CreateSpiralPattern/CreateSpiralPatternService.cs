@@ -1,10 +1,13 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
+using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern
@@ -30,6 +33,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
         }
         #endregion
 
+
+        #region AddAsync
         public async Task<bool> AddAsync(CreateSpiralPatternVM model)
         {
             await _genericRepository.BeginTransactionAsync();
@@ -38,7 +43,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 if (model.SpiralPatternTypeID == 1)
                 {
                     SpiralWeeklyPattern spiralWeeklyPattern = new SpiralWeeklyPattern();
-                    spiralWeeklyPattern.SpiralWeeklyPatternName = model.SpiralWeeklyPatternName;
+                    spiralWeeklyPattern.SpiralWeeklyPatternName = model.SpiralPatternName;
                     spiralWeeklyPattern.OrganizationID = model.OrganizationID;
                     spiralWeeklyPattern.CreatedAt = DateTime.Now;
                     spiralWeeklyPattern.CreatedBy = model.CreatedBy;
@@ -62,7 +67,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 else if(model.SpiralPatternTypeID == 2)
                 {
                     SpiralBioWeeklyPattern spiralBioWeeklyPattern = new SpiralBioWeeklyPattern();
-                    spiralBioWeeklyPattern.SpiralBioWeeklyPatternName = model.SpiralBioWeeklyPatternName;
+                    spiralBioWeeklyPattern.SpiralBioWeeklyPatternName = model.SpiralPatternName;
                     spiralBioWeeklyPattern.OrganizationID = model.OrganizationID;
                     spiralBioWeeklyPattern.CreatedAt = DateTime.Now;
                     spiralBioWeeklyPattern.CreatedBy = model.CreatedBy;
@@ -86,7 +91,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 else if(model.SpiralPatternTypeID == 3)
                 {
                     SpiralMonthlyPattern spiralMonthlyPattern = new SpiralMonthlyPattern();
-                    spiralMonthlyPattern.SpiralMonthlyPatternName = model.SpiralMonthlyPatternName;
+                    spiralMonthlyPattern.SpiralMonthlyPatternName = model.SpiralPatternName;
                     spiralMonthlyPattern.OrganizationID = model.OrganizationID;
                     spiralMonthlyPattern.CreatedAt = DateTime.Now;
                     spiralMonthlyPattern.CreatedBy = model.CreatedBy;
@@ -116,5 +121,88 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 return false;
             }
         }
+        #endregion
+
+
+        #region Get Spiral Weekly Patterns List
+        public async Task<(List<SpiralWeeklyPatternList> Data, SeparatePaginationInfo Pagination)> GetAllSpiralWeeklyPatternAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "SpiralWeeklyPatternID",
+            string sortOrder = "desc")
+        {
+            var rawData = await _genericRepository.AllActive()
+                .Select(x => new
+                {
+                    x.SpiralWeeklyPatternID,
+                    x.SpiralWeeklyPatternName,
+                    x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName,
+                    SpiralWeeklyPatternDetailsVMs = x.SpiralWeeklyPatternDetails.Select(d => new SpiralWeeklyPatternDetailsVM
+                    {
+                        SpiralWeeklyPatternDetailID = d.SpiralWeeklyPatternDetailID,
+                        DayOfWeek = d.DayOfWeek,
+                        ShiftID = d.ShiftID,
+                        ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
+                    }).ToList()
+                }).AsNoTracking().ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+                rawData = rawData
+                    .Where(x =>
+                        x.SpiralWeeklyPatternName.ToLower().Contains(lowerSearch) ||
+                        x.OrganizationName.ToLower().Contains(lowerSearch))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(sortColumn))
+            {
+                rawData = sortColumn.ToLower() switch
+                {
+                    "spiralweeklypatternname" => (sortOrder == "asc"
+                        ? rawData.OrderBy(x => x.SpiralWeeklyPatternName)
+                        : rawData.OrderByDescending(x => x.SpiralWeeklyPatternName)).ToList(),
+
+                    "organizationname" => (sortOrder == "asc"
+                        ? rawData.OrderBy(x => x.OrganizationName)
+                        : rawData.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+                    _ => rawData.OrderByDescending(x => x.SpiralWeeklyPatternID).ToList()
+                };
+            }
+
+            var totalCount = rawData.Count;
+            var pagedResult = pageSize == 0
+                ? rawData
+                : rawData.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            // Map anonymous type to SpiralWeeklyPatternList
+            var mappedResult = pagedResult.Select(x => new SpiralWeeklyPatternList
+            {
+                SpiralWeeklyPatternID = x.SpiralWeeklyPatternID,
+                SpiralPatternName = x.SpiralWeeklyPatternName,
+                OrganizationID = x.OrganizationID,
+                OrganizationName = x.OrganizationName,
+                SpiralWeeklyPatternDetailsVMs = x.SpiralWeeklyPatternDetailsVMs
+            }).ToList();
+
+            var pagination = new SeparatePaginationInfo
+            {
+                StartItem = (pageNumber - 1) * pageSize + 1,
+                EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                TotalItems = totalCount,
+                CurrentPage = pageNumber,
+                TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+                PageNumbers = pageSize == 0
+                    ? new List<int> { 1 }
+                    : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
+            };
+
+            return (mappedResult, pagination);
+        }
+        #endregion
     }
 }
