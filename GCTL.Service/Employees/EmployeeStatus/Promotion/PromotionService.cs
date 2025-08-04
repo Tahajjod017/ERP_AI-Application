@@ -9,6 +9,7 @@ using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Promotion;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using static System.Collections.Specialized.BitVector32;
 
 namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 {
@@ -192,8 +193,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 var staPending = _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "approve" || s.StatusName.ToLower() == "decline").Select(s => s.StatusID).ToListAsync().Result;
 
 
-
-
+                
 
 
                 var query = from ecc in _employeeCarrerCngRepository.All()
@@ -201,7 +201,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                             && (ecc.IsDecline == null  || ecc.IsDecline == false)
                             && (ecc.IsFinalApproved == null || ecc.IsFinalApproved == false)
                             && ecc.ApprovalPersonID == loggedID
-
+                            && ecc.ApprovalPersonID != ecc.UpdatedBy
 
                             join emp in _employeeRepository.All()
                                 on ecc.EmployeeID equals emp.EmployeeID
@@ -260,7 +260,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                                 AvatarUrl = string.IsNullOrEmpty(emp.EmployeeImageFileName)
                                     ? "../../assets/img/users/user-01.jpg"
                                     : imgLink + emp.EmployeeImageFileName,
-                                Status = status != null ? status.StatusName : "Pending",
+                                //Status = status != null ? status.StatusName : "Pending",
+                                Status =  status.StatusName,
                             };
 
 
@@ -495,9 +496,438 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
         #region Save Method
 
+        //public async Task<CommonReturnViewModel> SaveAsync(PromotionViewModel model)
+        //{
+
+        //    if (model == null)
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "Invalid model"
+        //        };
+        //    }
+
+        //    #region Action Type and Status Setup
+        //    // Ensure EmployeeActionType exists (Promotion/Demotion)
+        //    var actionType = await _employeeActionTypeRepository.AllActive()
+        //        .FirstOrDefaultAsync(e => e.EmployeeActionTypeName.ToLower() == model.ChangeType.ToLower());
+
+        //    if (actionType == null)
+        //    {
+        //        actionType = new EmployeeActionTypes
+        //        {
+        //            EmployeeActionTypeName = model.ChangeType,
+        //            CreatedAt = DateTime.UtcNow,
+        //            CreatedBy = model.CreatedBy,
+        //            LIP = model.LIP,
+        //            LMAC = model.LMAC
+        //        };
+        //        await _employeeActionTypeRepository.AddAsync(actionType);
+        //    }
+
+        //    // Ensure "Pending" Status exists
+        //    var status = await _statusRepository.AllActive()
+        //        .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "pending");
+
+        //    if (status == null)
+        //    {
+        //        status = new Statuses
+        //        {
+        //            StatusName = "Pending",
+        //            StatusType = "EmployeeCareerChange",
+        //            CreatedAt = DateTime.UtcNow,
+        //            CreatedBy = model.CreatedBy,
+        //            LIP = model.LIP,
+        //            LMAC = model.LMAC
+        //        };
+        //        await _statusRepository.AddAsync(status);
+        //    }
+        //    #endregion
+
+        //    #region Approve Hunt
+
+        //    var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
+
+        //    if (employee == null)
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "Employee Official not found"
+        //        };
+        //    }
+
+        //    bool isDesig = false;
+
+        //    bool IsSelfApproval = false; // Default value for self-approval
+        //    int approvelPersonID = 0; 
+
+        //    var approvalType = await _approvalTypeRepository.AllActive().Where(a => a.ApprovalTypeName.ToLower() == "promotion approval").FirstOrDefaultAsync();
+
+        //    if (approvalType != null)
+        //    {
+        //        var approvalSettings = await _approvalSettingRepository.AllActive().Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+        //        && a.OrganizationID == employee.OrganizationID && a.OrganizationBranchID == employee.OrganizationBranchID).FirstOrDefaultAsync();
+
+        //        if (approvalSettings != null && approvalSettings.IsEnableSecondApproval)
+        //        {
+        //            if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
+        //            {
+        //                var approvaldesig = _approvalDesignationRepository.AllActive().Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID).FirstOrDefault();
+
+        //                switch (approvaldesig?.Code)
+        //                {
+        //                    case 1:
+        //                        approvelPersonID = employee.ImmediateSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
+        //                        break;
+        //                    case 2:
+        //                        approvelPersonID = employee.SeniorSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
+
+        //                        break;
+        //                    case 3:
+        //                        approvelPersonID = employee.HeadOfDepartmentId ?? 0; // Assuming ReportingManagerID is the first approver
+
+        //                        break;
+        //                    default:
+        //                        approvelPersonID = 0; // Default case if no valid designation is found
+        //                        break;
+        //                }
+
+        //            }
+        //            else
+        //            {
+        //                if (approvalSettings.FirstApprovalID == employee.EmployeeID)
+        //                {
+        //                    if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
+        //                    {
+        //                        var approvaldesig = _approvalDesignationRepository.AllActive().Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID).FirstOrDefault();
+
+        //                        isDesig = true;
+
+        //                        switch (approvaldesig?.Code)
+        //                        {
+        //                            case 1:
+        //                                approvelPersonID = employee.ImmediateSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
+        //                                break;
+        //                            case 2:
+        //                                approvelPersonID = employee.SeniorSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
+
+        //                                break;
+        //                            case 3:
+        //                                approvelPersonID = employee.HeadOfDepartmentId ?? 0; // Assuming ReportingManagerID is the first approver
+
+        //                                break;
+        //                            default:
+        //                                approvelPersonID = 0; // Default case if no valid designation is found
+        //                                break;
+        //                        }
+
+        //                    }
+        //                    else
+        //                    {
+        //                        approvelPersonID = approvalSettings.SecondApprovalID ?? 0;
+        //                    }
+        //                }
+        //                approvelPersonID = approvalSettings.FirstApprovalID ?? 0; // Assuming FirstApprovalID is the first approver
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (approvalSettings != null && approvalSettings.IsDesignationOrEmpFirstApprovalID)
+        //            {
+        //                var approvaldesig = _approvalDesignationRepository.AllActive().Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID).FirstOrDefault();
+
+        //                isDesig = true; 
+
+        //                switch (approvaldesig?.Code)
+        //                {
+        //                    case 1:
+        //                        approvelPersonID = employee.ImmediateSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
+        //                        break;
+        //                    case 2:
+        //                        approvelPersonID = employee.SeniorSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
+
+        //                        break;
+        //                    case 3:
+        //                        approvelPersonID = employee.HeadOfDepartmentId ?? 0; // Assuming ReportingManagerID is the first approver
+
+        //                        break;
+        //                    default:
+        //                        approvelPersonID = 0; // Default case if no valid designation is found
+        //                        break;
+        //                }
+
+        //            }
+        //            else
+        //            {
+        //                if (approvalSettings != null && approvalSettings.FirstApprovalID == employee.EmployeeID)
+        //                {
+        //                    if (approvalSettings.AllowSelfApproval == true)
+        //                    {
+        //                        IsSelfApproval = true; // Self-approval is allowed
+        //                    }
+        //                    else
+        //                    {
+        //                        approvelPersonID = approvalSettings.SelfExceptionApprovalID ?? 0; // Assuming SelfExceptionApprovalID is the next approver if self-approval is not allowed
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    return new CommonReturnViewModel
+        //                    {
+        //                        Success = false,
+        //                        Message = "First approver not found in the approval settings for this employee's organization and branch."
+        //                    };
+        //                }
+        //                //approvelPersonID = approvalSettings.FirstApprovalID ?? 0; // Assuming FirstApprovalID is the first approver
+        //            }
+        //        }
+
+
+        //    }
+
+        //    else
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "Approval type not found for Promotion"
+        //        };
+        //    }
+
+        //    if (approvelPersonID == 0 && !IsSelfApproval)
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "No approver found for this promotion"
+        //        };
+        //    }
+
+
+
+        //    #endregion
+
+        //    try
+        //    {
+
+
+        //        var promotion = new EmployeeCareerChanges
+        //        {
+        //            EmployeeID = model.EmployeeID,
+        //            EmployeeActionTypeID = actionType.EmployeeActionTypeID,
+        //            CurentDesignationID = model.CurrentDesignationID,
+        //            NewDesignationID = model.NewDesignationID,
+
+        //            EffectiveDate = model.EffectiveDate,
+        //            Remarks = model.Remarks,
+        //            CurrentSalary = model.CurrentSalary,
+        //            NewSalary = model.NewSalary,
+        //            StatusID = status.StatusID,
+        //            CreatedAt = DateTime.UtcNow,
+        //            CreatedBy = model.CreatedBy,
+        //            LIP = model.LIP,
+        //            LMAC = model.LMAC
+        //        };
+
+        //        if (approvelPersonID != 0)
+        //        {
+        //            promotion.ApprovalPersonID = approvelPersonID;
+        //        }
+        //        if (IsSelfApproval)
+        //        {
+        //            promotion.IsFinalApproved = true;
+        //        }
+
+        //        await _employeeCarrerCngRepository.AddAsync(promotion);
+
+        //        if (promotion.ApprovalPersonID == promotion.EmployeeID ) 
+        //        {
+
+
+        //            var history = new EmployeeCareerChangeHistory
+        //            {
+        //                EmployeeCareerChangeID = promotion.EmployeeCareerChangeID,
+        //                ApprovalPersonID = promotion.ApprovalPersonID,
+        //                StatusID = promotion.StatusID,
+        //                Remarks = "Auto Approved (First Stage)",
+        //                CreatedAt = DateTime.UtcNow,
+        //                CreatedBy = model.CreatedBy,
+        //                LIP = model.LIP,
+        //                LMAC = model.LMAC
+        //            };
+        //            await _employeeCarrerCngHistoryRepository.AddAsync(history); // Save the history record
+
+        //            // Check for additional approval stages
+        //            var approvalSettings = await _approvalSettingRepository.AllActive()
+        //                .Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+        //                    && a.OrganizationID == employee.OrganizationID
+        //                    && a.OrganizationBranchID == employee.OrganizationBranchID)
+        //                .FirstOrDefaultAsync();
+
+        //            if (approvalSettings?.IsEnableSecondApproval == true)
+        //            {
+        //                // Determine the next approver for the second stage
+        //                int nextApproverId = 0;
+        //                if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
+        //                {
+        //                    var secondApprovalDesig = await _approvalDesignationRepository.AllActive()
+        //                        .Where(e => e.ApprovalDesignationID == approvalSettings.SecondApprovalID)
+        //                        .FirstOrDefaultAsync();
+        //                    switch (secondApprovalDesig?.Code)
+        //                    {
+        //                        case 1:
+        //                            nextApproverId = employee.ImmediateSupervisorId ?? 0;
+        //                            break;
+        //                        case 2:
+        //                            nextApproverId = employee.SeniorSupervisorId ?? 0;
+        //                            break;
+        //                        case 3:
+        //                            nextApproverId = employee.HeadOfDepartmentId ?? 0;
+        //                            break;
+        //                        default:
+        //                            nextApproverId = 0;
+        //                            break;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    nextApproverId = approvalSettings.SecondApprovalID ?? 0;
+        //                }
+
+        //                if (nextApproverId != 0)
+        //                {
+        //                    // If the second approver is the same as the first, auto-approve and log history
+        //                    if (nextApproverId == promotion.ApprovalPersonID && IsSelfApproval)
+        //                    {
+        //                        var secondHistory = new EmployeeCareerChangeHistory
+        //                        {
+        //                            EmployeeCareerChangeID = promotion.EmployeeCareerChangeID,
+        //                            ApprovalPersonID = nextApproverId,
+        //                            StatusID = promotion.StatusID,
+        //                            Remarks = "Auto Approved (Second Stage)",
+        //                            CreatedAt = DateTime.UtcNow,
+        //                            CreatedBy = model.CreatedBy,
+        //                            LIP = model.LIP,
+        //                            LMAC = model.LMAC
+        //                        };
+        //                        await _employeeCarrerCngHistoryRepository.AddAsync(secondHistory); // Save second stage history
+        //                    }
+        //                    else
+        //                    {
+        //                        // Move to the second approval stage
+        //                        promotion.ApprovalPersonID = nextApproverId;
+        //                        promotion.IsFinalApproved = false; // Reset for next stage
+        //                        await _employeeCarrerCngRepository.UpdateAsync(promotion);
+
+        //                        // Ensure status is "Pending" for the next stage
+        //                        var pendingStatus = await _statusRepository.AllActive()
+        //                            .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "pending");
+        //                        if (pendingStatus != null)
+        //                        {
+        //                            promotion.StatusID = pendingStatus.StatusID;
+        //                            await _employeeCarrerCngRepository.UpdateAsync(promotion);
+        //                        }
+        //                    }
+
+        //                    // Check for a third approval stage (if applicable)
+        //                    if (approvalSettings.IsEnableThirdApproval == true) // Assuming IsEnableThirdApproval exists
+        //                    {
+        //                        int thirdApproverId = 0;
+        //                        if (approvalSettings.IsDesignationOrEmpThirdApprovalID) // Assuming this field exists
+        //                        {
+        //                            var thirdApprovalDesig = await _approvalDesignationRepository.AllActive()
+        //                                .Where(e => e.ApprovalDesignationID == approvalSettings.ThirdApprovalID)
+        //                                .FirstOrDefaultAsync();
+        //                            switch (thirdApprovalDesig?.Code)
+        //                            {
+        //                                case 1:
+        //                                    thirdApproverId = employee.ImmediateSupervisorId ?? 0;
+        //                                    break;
+        //                                case 2:
+        //                                    thirdApproverId = employee.SeniorSupervisorId ?? 0;
+        //                                    break;
+        //                                case 3:
+        //                                    thirdApproverId = employee.HeadOfDepartmentId ?? 0;
+        //                                    break;
+        //                                default:
+        //                                    thirdApproverId = 0;
+        //                                    break;
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            thirdApproverId = approvalSettings.ThirdApprovalID ?? 0;
+        //                        }
+
+        //                        if (thirdApproverId != 0)
+        //                        {
+        //                            // If the third approver is the same as the current approver, auto-approve and log history
+        //                            if (thirdApproverId == nextApproverId && IsSelfApproval)
+        //                            {
+        //                                var thirdHistory = new EmployeeCareerChangeHistory
+        //                                {
+        //                                    EmployeeCareerChangeID = promotion.EmployeeCareerChangeID,
+        //                                    ApprovalPersonID = thirdApproverId,
+        //                                    StatusID = promotion.StatusID,
+        //                                    Remarks = "Auto Approved (Third Stage)",
+        //                                    CreatedAt = DateTime.UtcNow,
+        //                                    CreatedBy = model.CreatedBy,
+        //                                    LIP = model.LIP,
+        //                                    LMAC = model.LMAC
+        //                                };
+        //                                await _employeeCarrerCngHistoryRepository.AddAsync(thirdHistory); // Save third stage history
+        //                            }
+        //                            else
+        //                            {
+        //                                // Move to the third approval stage
+        //                                promotion.ApprovalPersonID = thirdApproverId;
+        //                                promotion.IsFinalApproved = false; // Reset for next stage
+        //                                await _employeeCarrerCngRepository.UpdateAsync(promotion);
+
+        //                                // Ensure status is "Pending" for the next stage
+        //                                var pendingStatus = await _statusRepository.AllActive()
+        //                                    .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "pending");
+        //                                if (pendingStatus != null)
+        //                                {
+        //                                    promotion.StatusID = pendingStatus.StatusID;
+        //                                    await _employeeCarrerCngRepository.UpdateAsync(promotion);
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    return new CommonReturnViewModel
+        //                    {
+        //                        Success = false,
+        //                        Message = "No valid second approver found for this promotion"
+        //                    };
+        //                }
+        //            }
+        //        }
+
+
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = true,
+        //            Message = "Promotion saved successfully"
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new CommonReturnViewModel
+        //        {
+        //            Success = false,
+        //            Message = "An error occurred while saving the promotion: " + ex.Message
+        //        };
+        //    }
+        //}
+
         public async Task<CommonReturnViewModel> SaveAsync(PromotionViewModel model)
         {
-         
             if (model == null)
             {
                 return new CommonReturnViewModel
@@ -508,10 +938,10 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             }
 
             #region Action Type and Status Setup
+
             // Ensure EmployeeActionType exists (Promotion/Demotion)
             var actionType = await _employeeActionTypeRepository.AllActive()
                 .FirstOrDefaultAsync(e => e.EmployeeActionTypeName.ToLower() == model.ChangeType.ToLower());
-
             if (actionType == null)
             {
                 actionType = new EmployeeActionTypes
@@ -528,7 +958,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             // Ensure "Pending" Status exists
             var status = await _statusRepository.AllActive()
                 .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "pending");
-
             if (status == null)
             {
                 status = new Statuses
@@ -544,10 +973,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             }
             #endregion
 
-            #region Approve Hunt
+            #region Employee Validation
 
             var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
-
             if (employee == null)
             {
                 return new CommonReturnViewModel
@@ -556,156 +984,257 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                     Message = "Employee Official not found"
                 };
             }
-            bool IsSelfApproval = false; // Default value for self-approval
-            int approvelPersonID = 0; 
-
-            var approvalType = await _approvalTypeRepository.AllActive().Where(a => a.ApprovalTypeName.ToLower() == "promotion approval").FirstOrDefaultAsync();
-
-            if (approvalType != null)
-            {
-                var approvalSettings = await _approvalSettingRepository.AllActive().Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
-                && a.OrganizationID == employee.OrganizationID && a.OrganizationBranchID == employee.OrganizationBranchID).FirstOrDefaultAsync();
-
-                if (approvalSettings != null && approvalSettings.IsEnableSecondApproval)
-                {
-                    if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
-                    {
-                        var approvaldesig = _approvalDesignationRepository.AllActive().Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID).FirstOrDefault();
-
-                        switch (approvaldesig?.Code)
-                        {
-                            case 1:
-                                approvelPersonID = employee.ImmediateSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
-                                break;
-                            case 2:
-                                approvelPersonID = employee.SeniorSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
-
-                                break;
-                            case 3:
-                                approvelPersonID = employee.HeadOfDepartmentId ?? 0; // Assuming ReportingManagerID is the first approver
-
-                                break;
-                            default:
-                                approvelPersonID = 0; // Default case if no valid designation is found
-                                break;
-                        }
-
-                    }
-                    else
-                    {
-                        if (approvalSettings.FirstApprovalID == employee.EmployeeID)
-                        {
-                            if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
-                            {
-                                var approvaldesig = _approvalDesignationRepository.AllActive().Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID).FirstOrDefault();
-
-                                switch (approvaldesig?.Code)
-                                {
-                                    case 1:
-                                        approvelPersonID = employee.ImmediateSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
-                                        break;
-                                    case 2:
-                                        approvelPersonID = employee.SeniorSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
-
-                                        break;
-                                    case 3:
-                                        approvelPersonID = employee.HeadOfDepartmentId ?? 0; // Assuming ReportingManagerID is the first approver
-
-                                        break;
-                                    default:
-                                        approvelPersonID = 0; // Default case if no valid designation is found
-                                        break;
-                                }
-
-                            }
-                            else
-                            {
-                                approvelPersonID = approvalSettings.SecondApprovalID ?? 0;
-                            }
-                        }
-                        approvelPersonID = approvalSettings.FirstApprovalID ?? 0; // Assuming FirstApprovalID is the first approver
-                    }
-                }
-                else
-                {
-                    if (approvalSettings != null && approvalSettings.IsDesignationOrEmpFirstApprovalID)
-                    {
-                        var approvaldesig = _approvalDesignationRepository.AllActive().Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID).FirstOrDefault();
-
-                        switch (approvaldesig?.Code)
-                        {
-                            case 1:
-                                approvelPersonID = employee.ImmediateSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
-                                break;
-                            case 2:
-                                approvelPersonID = employee.SeniorSupervisorId ?? 0; // Assuming ReportingManagerID is the first approver
-
-                                break;
-                            case 3:
-                                approvelPersonID = employee.HeadOfDepartmentId ?? 0; // Assuming ReportingManagerID is the first approver
-
-                                break;
-                            default:
-                                approvelPersonID = 0; // Default case if no valid designation is found
-                                break;
-                        }
-
-                    }
-                    else
-                    {
-                        if (approvalSettings != null && approvalSettings.FirstApprovalID == employee.EmployeeID)
-                        {
-                            if (approvalSettings.AllowSelfApproval == true)
-                            {
-                                IsSelfApproval = true; // Self-approval is allowed
-                            }
-                            else
-                            {
-                                approvelPersonID = approvalSettings.SelfExceptionApprovalID ?? 0; // Assuming SelfExceptionApprovalID is the next approver if self-approval is not allowed
-                            }
-                        }
-                        approvelPersonID = approvalSettings.FirstApprovalID ?? 0; // Assuming FirstApprovalID is the first approver
-                    }
-                }
-
-                
-            }
-
-
             #endregion
 
             try
             {
-                
+                // Fetch approval type
+                var approvalType = await _approvalTypeRepository.AllActive()
+                    .Where(a => a.ApprovalTypeName.ToLower() == "promotion approval")
+                    .FirstOrDefaultAsync();
+                if (approvalType == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Approval type not found for Promotion"
+                    };
+                }
 
+                // Fetch approval settings
+                var approvalSettings = await _approvalSettingRepository.AllActive()
+                    .Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+                        && a.OrganizationID == employee.OrganizationID
+                        && a.OrganizationBranchID == employee.OrganizationBranchID)
+                    .FirstOrDefaultAsync();
+                if (approvalSettings == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Approval settings not found for this employee's organization and branch."
+                    };
+                }
+
+                // Resolve first approver
+                int firstApproverId = 0;
+                if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
+                {
+                    var approvalDesig = await _approvalDesignationRepository.AllActive()
+                        .Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID)
+                        .FirstOrDefaultAsync();
+                    firstApproverId = approvalDesig?.Code switch
+                    {
+                        1 => employee.ImmediateSupervisorId ?? 0,
+                        2 => employee.SeniorSupervisorId ?? 0,
+                        3 => employee.HeadOfDepartmentId ?? 0,
+                        _ => 0
+                    };
+                }
+                else
+                {
+                    firstApproverId = approvalSettings.FirstApprovalID ?? 0;
+                }
+
+                if (firstApproverId == 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "No valid first approver found for this promotion."
+                    };
+                }
+
+                // Initialize promotion object
                 var promotion = new EmployeeCareerChanges
                 {
                     EmployeeID = model.EmployeeID,
                     EmployeeActionTypeID = actionType.EmployeeActionTypeID,
                     CurentDesignationID = model.CurrentDesignationID,
                     NewDesignationID = model.NewDesignationID,
-                    
                     EffectiveDate = model.EffectiveDate,
                     Remarks = model.Remarks,
                     CurrentSalary = model.CurrentSalary,
                     NewSalary = model.NewSalary,
                     StatusID = status.StatusID,
+                    ApprovalPersonID = firstApproverId,
+                    ApprovalStage = 1, // Start at stage 1
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = model.CreatedBy,
                     LIP = model.LIP,
                     LMAC = model.LMAC
                 };
 
-                if (approvelPersonID != 0)
+                // Save the promotion
+                await _employeeCarrerCngRepository.AddAsync(promotion);
+
+                // Process auto-approval for stages where the approver is the employee and self-approval is allowed
+                bool isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
+                int currentStage = promotion.ApprovalStage.Value;
+                int currentApproverId = promotion.ApprovalPersonID.Value;
+
+                // applicant id and approval match then auto approve
+
+                while (currentApproverId == promotion.EmployeeID && isSelfApproval)
                 {
-                    promotion.ApprovalPersonID = approvelPersonID;
-                }
-                if (IsSelfApproval)
-                {
-                    promotion.IsFinalApproved = true;
+                    // Auto-approve the current stage
+                    var actionModel = new PromotionActionModel
+                    {
+                        CreatedBy = model.CreatedBy,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
+                        Comments = $"Auto Approved (Stage {currentStage})"
+                    };
+                    var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
+                    promotion.StatusID = approvedStatus.StatusID;
+
+                    // Log history for the current stage
+                    await LogCareerChangeHistoryAsync(promotion, actionModel, true);
+
+                    // Check for the next approver
+                    int nextApproverId = await ResolveNextApproverAsync(promotion);
+                    if (nextApproverId == 0)
+                    {
+                        // No more approvers, mark as final approved
+                        promotion.IsFinalApproved = true;
+                        await _employeeCarrerCngRepository.UpdateAsync(promotion);
+                        break;
+                    }
+
+                    // Move to the next stage
+                    promotion.ApprovalPersonID = nextApproverId;
+                    promotion.ApprovalStage = currentStage + 1;
+                    promotion.IsFinalApproved = false;
+                    var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
+                    promotion.StatusID = pendingStatus.StatusID;
+                    await _employeeCarrerCngRepository.UpdateAsync(promotion);
+
+                    // Update current stage and approver for the next iteration
+                    currentStage = promotion.ApprovalStage.Value;
+                    currentApproverId = nextApproverId;
                 }
 
-                await _employeeCarrerCngRepository.AddAsync(promotion);
+
+
+                // login id and approval match then auto approve
+
+                bool isCreated = false;
+
+                while (currentApproverId == promotion.CreatedBy && isSelfApproval)
+                {
+                    isCreated = true;
+                    // Auto-approve the current stage
+                    var actionModel = new PromotionActionModel
+                    {
+                        CreatedBy = model.CreatedBy,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
+                        Comments = $"Auto Approved (Stage {currentStage})"
+                    };
+                    var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
+                    promotion.StatusID = approvedStatus.StatusID;
+
+                    // Log history for the current stage
+                    await LogCareerChangeHistoryAsync(promotion, actionModel, true);
+
+                    // Check for the next approver
+                    int nextApproverId = await ResolveNextApproverAsync(promotion);
+                    if (nextApproverId == 0)
+                    {
+                        // No more approvers, mark as final approved
+                        promotion.IsFinalApproved = true;
+                        await _employeeCarrerCngRepository.UpdateAsync(promotion);
+                        break;
+                    }
+
+                    // Move to the next stage
+                    promotion.ApprovalPersonID = nextApproverId;
+                    promotion.ApprovalStage = currentStage + 1;
+                    promotion.IsFinalApproved = false;
+                    var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
+                    promotion.StatusID = pendingStatus.StatusID;
+                    await _employeeCarrerCngRepository.UpdateAsync(promotion);
+
+                    // Update current stage and approver for the next iteration
+                    currentStage = promotion.ApprovalStage.Value;
+                    currentApproverId = nextApproverId;
+                }
+
+
+                //post approval for next matrix ,, if next approver is same as Applicant then auto approve
+
+                if (isCreated)
+                {
+                    #region AfterSave Approval
+
+                   
+
+
+
+                    if (employee != null && approvalType != null)
+                    {
+                        var career = await _employeeCarrerCngRepository.AllActive()
+                   .FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == promotion.EmployeeCareerChangeID);
+
+                        if (career != null)
+                        {
+                             isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
+                             currentStage = career.ApprovalStage ?? 1;
+                             currentApproverId = career.ApprovalPersonID ?? 0;
+
+                            //using (var transaction = await _employeeCarrerCngRepository.BeginTransactionAsync())
+                            //{
+                            while (currentApproverId == career.EmployeeID && isSelfApproval)
+                            {
+                                // Auto-approve the current stage
+                                var actionModel = new PromotionActionModel
+                                {
+                                    CreatedBy = model.CreatedBy,
+                                    LIP = model.LIP,
+                                    LMAC = model.LMAC,
+                                    Comments = $"Auto Approved (Stage {currentStage})",
+                                    PromotionId = career.EmployeeCareerChangeID // Ensure PromotionId is set
+                                };
+                                var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
+                                career.StatusID = approvedStatus.StatusID;
+
+                                // Log history for the current stage
+                                await LogCareerChangeHistoryAsync(career, actionModel, true);
+
+                                // Check for the next approver
+                                career.ApprovalStage = currentStage + 1;
+                                int nextApproverId = await ResolveNextApproverAsync(career);
+                                if (nextApproverId == 0)
+                                {
+                                    // No more approvers, mark as final approved
+                                    career.IsFinalApproved = true;
+                                    await _employeeCarrerCngRepository.UpdateAsync(career);
+                                    break;
+                                }
+
+                                // Move to the next stage
+                                career.ApprovalPersonID = nextApproverId;
+                                career.IsFinalApproved = false;
+                                var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
+                                career.StatusID = pendingStatus.StatusID;
+                                await _employeeCarrerCngRepository.UpdateAsync(career);
+
+                                // Update current stage and approver for the next iteration
+                                currentStage = career.ApprovalStage.Value;
+                                currentApproverId = nextApproverId;
+                            }
+                        }
+
+                        
+
+                           
+                        
+                    }
+
+
+                    #endregion
+                }
+
 
 
                 return new CommonReturnViewModel
@@ -723,8 +1252,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 };
             }
         }
-
-
 
         #endregion
 
@@ -805,7 +1332,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
             try
             {
-               // using var transaction = await _employeeCarrerCngRepository.BeginTransactionAsync();
+
+
+                // using var transaction = await _employeeCarrerCngRepository.BeginTransactionAsync();
 
                 var career = await _employeeCarrerCngRepository.AllActive()
                     .FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == action.PromotionId);
@@ -841,7 +1370,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
                 if (!isDecline)
                 {
-                    career.ApprovalStage = (career.ApprovalStage ?? 0) + 1;
+                    career.ApprovalStage = (career.ApprovalStage ?? 0); // + 1;
                     int nextApproverID = await ResolveNextApproverAsync(career);
                     if (nextApproverID != 0)
                     {
@@ -867,10 +1396,95 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 await _employeeCarrerCngRepository.UpdateAsync(career);
                 await LogCareerChangeHistoryAsync(career, action);
 
-               // await transaction.CommitAsync();
+                // await transaction.CommitAsync();
+
+                #region AfterSave Approval
+
+                #region Employee Validation
+
+                var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == career.EmployeeID);
+
+                #endregion
+
+
+                var approvalType = await _approvalTypeRepository.AllActive()
+                  .Where(a => a.ApprovalTypeName.ToLower() == "promotion approval")
+                  .FirstOrDefaultAsync();
+
+                if (employee != null && approvalType != null)
+                {
+                    if (!isDecline)
+                    {
+                        var approvalSettings = await _approvalSettingRepository.AllActive()
+                            .FirstOrDefaultAsync(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+                                && a.OrganizationID == employee.OrganizationID
+                                && a.OrganizationBranchID == employee.OrganizationBranchID);
+                        if (approvalSettings == null)
+                        {
+                            return new CommonReturnViewModel { Success = false, Message = "Approval settings not found." };
+                        }
+
+                        bool isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
+                        int currentStage = career.ApprovalStage ?? 1;
+                        int currentApproverId = career.ApprovalPersonID ?? 0;
+
+                        //using (var transaction = await _employeeCarrerCngRepository.BeginTransactionAsync())
+                        //{
+                        while (currentApproverId == career.EmployeeID && isSelfApproval)
+                        {
+                            // Auto-approve the current stage
+                            var actionModel = new PromotionActionModel
+                            {
+                                CreatedBy = action.CreatedBy,
+                                LIP = action.LIP,
+                                LMAC = action.LMAC,
+                                Comments = $"Auto Approved (Stage {currentStage})",
+                                PromotionId = career.EmployeeCareerChangeID // Ensure PromotionId is set
+                            };
+                            var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
+                            career.StatusID = approvedStatus.StatusID;
+
+                            // Log history for the current stage
+                            await LogCareerChangeHistoryAsync(career, actionModel , true);
+
+                            // Check for the next approver
+                            career.ApprovalStage = currentStage + 1;
+                            int nextApproverId = await ResolveNextApproverAsync(career);
+                            if (nextApproverId == 0)
+                            {
+                                // No more approvers, mark as final approved
+                                career.IsFinalApproved = true;
+                                await _employeeCarrerCngRepository.UpdateAsync(career);
+                                break;
+                            }
+
+                            // Move to the next stage
+                            career.ApprovalPersonID = nextApproverId;
+                            career.IsFinalApproved = false;
+                            var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
+                            career.StatusID = pendingStatus.StatusID;
+                            await _employeeCarrerCngRepository.UpdateAsync(career);
+
+                            // Update current stage and approver for the next iteration
+                            currentStage = career.ApprovalStage.Value;
+                            currentApproverId = nextApproverId;
+                        }
+
+                        //    await transaction.CommitAsync();
+                        //}
+                    }
+                }
+
+
+                #endregion
 
                 return new CommonReturnViewModel { Success = true, Message = "Promotion action completed successfully" };
             }
+
+
+
+
+
             catch (DbUpdateException ex)
             {
                 // Log exception (e.g., using ILogger)
@@ -881,6 +1495,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 // Log exception
                 return new CommonReturnViewModel { Success = false, Message = "An unexpected error occurred while processing the promotion action" };
             }
+
+
         }
 
         private async Task<Statuses> GetOrCreateStatusAsync(string action, PromotionActionModel actionModel)
@@ -987,14 +1603,16 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             return selfExceptionID ?? approverID ?? 0;
         }
 
-        private async Task LogCareerChangeHistoryAsync(EmployeeCareerChanges career, PromotionActionModel action)
+        private async Task LogCareerChangeHistoryAsync(EmployeeCareerChanges career, PromotionActionModel action, bool isAuto = false)
         {
             var history = new EmployeeCareerChangeHistory
             {
                 EmployeeCareerChangeID = career.EmployeeCareerChangeID,
                 EmployeeID = career.EmployeeID,
                 StatusID = career.StatusID,
-                ApprovalPersonID = action.CreatedBy,
+                ApprovalPersonID = isAuto ? career.ApprovalPersonID : action.CreatedBy,
+               // ApprovalPersonID = career.ApprovalPersonID,
+                //ApprovalPersonID = action.CreatedBy,
                 Remarks = action.Comments,
                 LIP = action.LIP,
                 LMAC = action.LMAC,

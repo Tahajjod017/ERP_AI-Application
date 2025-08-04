@@ -41,10 +41,22 @@
             processData: false,
             contentType: false,
             success: function (res) {
-                toastr.success("Promotion saved!");
-                clearPromotionForm();
-                $("#add_promotion").modal("hide");
-                loadPromotionList(); // reload table
+                if (res.success) {
+                    toastr.success(res.message || "Promotion saved!");
+                    clearPromotionForm();
+                    $("#add_promotion").modal("hide");
+                    loadPromotionList(); // reload table
+                } else {
+                    toastr.warning(res.message || "Promotion Not saved!");
+                }
+
+                var applyModalEl = document.getElementById('add_promotion');
+                var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                if (!applyModal) {
+                    applyModal = new bootstrap.Modal(applyModalEl);
+                }
+                applyModal.hide();
+                
             },
             error: function (xhr) {
                 toastr.error("Error saving promotion");
