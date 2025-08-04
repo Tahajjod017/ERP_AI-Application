@@ -15,7 +15,7 @@ using static Dapper.SqlMapper;
 
 namespace GCTL.Service.Employees.EmpTransfer
 {
-    public class EmpTransferApprovedOrDeclineService:AppService<EmployeeTransfer>, IEmpTransferApprovedOrDeclineService
+    public class EmpTransferApprovedOrDeclineService : AppService<EmployeeTransfer>, IEmpTransferApprovedOrDeclineService
     {
         private readonly IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
@@ -31,7 +31,8 @@ namespace GCTL.Service.Employees.EmpTransfer
         private readonly IGenericRepository<AlertForEmployee> alertForEmployeeRepository;
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
         private readonly IGenericRepository<Statuses> statusRepository;
-        public EmpTransferApprovedOrDeclineService(IGenericRepository<EmployeeTransfer> genericRepository, IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<OrganizationBranches> organizationBranch, IGenericRepository<Alerts> alertsRepository, IGenericRepository<EmployeeTransferHistory> transferhistoryRepository, IGenericRepository<AlertForEmployee> alertForEmployeeRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> statusRepository = null) : base(genericRepository)
+        private readonly IGenericRepository<EmployeeTransferHistory> transferHistory;
+        public EmpTransferApprovedOrDeclineService(IGenericRepository<EmployeeTransfer> genericRepository, IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<OrganizationBranches> organizationBranch, IGenericRepository<Alerts> alertsRepository, IGenericRepository<EmployeeTransferHistory> transferhistoryRepository, IGenericRepository<AlertForEmployee> alertForEmployeeRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> statusRepository = null, IGenericRepository<EmployeeTransferHistory> transferHistory = null) : base(genericRepository)
         {
             this.repositoryEmployeeTransfer = repositoryEmployeeTransfer;
             this.employee = employee;
@@ -47,6 +48,7 @@ namespace GCTL.Service.Employees.EmpTransfer
             this.alertForEmployeeRepository = alertForEmployeeRepository;
             this.approvaldesignation = approvaldesignation;
             this.statusRepository = statusRepository;
+            this.transferHistory = transferHistory;
         }
 
 
@@ -67,7 +69,9 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 // 🔹 Step 3: Base query with includes
 
-                var query = repositoryEmployeeTransfer.AllActive().Where(x=>x.ApprovalPersonID==employeeId && x.UpdatedBy != x.ApprovalPersonID).Include(x => x.Employee)
+                var query = repositoryEmployeeTransfer.AllActive().Where(x => x.ApprovalPersonID == employeeId && x.UpdatedBy != x.ApprovalPersonID && x.Status.StatusName !="DECLINED")
+             .Include(x => x.Employee)
+             .Include(x => x.Status)
              .Include(x => x.FromOrganization).Include(x => x.ToOrganization)
              .Include(x => x.FromOrganizationBranch).Include(x => x.ToOrganizationBranch).Include(x => x.FromDepartment)
              .Include(x => x.ToDepartment).Include(x => x.FromDesignation).Include(x => x.ToDesignation)
@@ -82,7 +86,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                 //{
                 //    query = query.Where(x => x.EmployeeID == employeeId);
                 //}
-                
+
 
 
                 // Get all EmployeeOfficeInfo for filtering
@@ -224,7 +228,7 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 // 🔹 Step 3: Base query with includes
 
-                var query = repositoryEmployeeTransfer.AllActive().Where(x => x.EmployeeTransferHistory.Any(h => h.ApprovalPersonID == employeeId)).Include(x=>x.Status).Include(x => x.Employee)
+                var query = repositoryEmployeeTransfer.AllActive().Where(x => x.EmployeeTransferHistory.Any(h => h.ApprovalPersonID == employeeId)).Include(x => x.Status).Include(x => x.Employee)
              .Include(x => x.FromOrganization).Include(x => x.ToOrganization)
              .Include(x => x.FromOrganizationBranch).Include(x => x.ToOrganizationBranch).Include(x => x.FromDepartment)
              .Include(x => x.ToDepartment).Include(x => x.FromDesignation).Include(x => x.ToDesignation)
@@ -347,7 +351,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName ?? ""} {b.Employee.LastName ?? ""}".Trim() : "",
                        EmployeeImage = b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
-                       StatusName=b.Status !=null ? b.Status.StatusName  : ""   
+                       StatusName = b.Status != null ? b.Status.StatusName : ""
                    });
 
                 return result;
@@ -431,7 +435,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                         Message = "Transfer record not found"
                     };
                 }
-
+                var baseHistoryNote = await transferHistory.AllActive().Where(x => x.EmployeeTransferID == employeeTransferID).OrderByDescending(x=>x.EmployeeTransferHistoryID).Select(x=>x.ApprovalPersonNote).LastOrDefaultAsync();
                 var viewModel = new EmployeeTransferApproveOrDecEditVM
                 {
                     EmployeeTransferID = existenceEntity.EmployeeTransferID,
@@ -447,6 +451,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                     ToDesignationIDEdit = existenceEntity.ToDesignationID,
                     FromDesignationIDEdit = existenceEntity.FromDesignationID,
                     TransferTypeEdit = existenceEntity.TransferType,
+                    TransferBaseHistoryNoteEdit = baseHistoryNote  ?? "",
                 };
 
                 return new CommonReturnViewModel
@@ -525,13 +530,6 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 if (offf == null)
                     return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
-
-                //var approvalSettings = await approvalSettingsRepository.AllActive()
-                //    .Include(x => x.ApprovalType).Where(x =>
-                //        x.OrganizationID == offf.OrganizationID &&
-                //        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                //        x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
-
                 var approvalSettings = await approvalSettingsRepository.AllActive()
                  .Include(x => x.ApprovalType).Where(x =>
                      x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
@@ -584,15 +582,12 @@ namespace GCTL.Service.Employees.EmpTransfer
                         Message = "Approval or Decline must be selected."
                     };
                 }
-                //
                 var approvalFlow = new List<(int? id, bool isDesignation)>
-{
-    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-};
-
-                //
+                    {
+                        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+                        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+                        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                    };
                 bool isFinalApproval = false;
                 bool isFirstApprover = false;
                 bool isSecondApprover = false;
@@ -601,34 +596,39 @@ namespace GCTL.Service.Employees.EmpTransfer
                 int? approvalPersonId = null;
                 if (!approvalSettings.IsDesignationOrEmpFirstApprovalID || !approvalSettings.IsDesignationOrEmpSecondApprovalID || !approvalSettings.IsDesignationOrEmpThirdApprovalID)
                 {
-                     isFirstApprover = approvalSettings != null && approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
-                     isSecondApprover = approvalSettings != null && approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
-                     isThirdApprover = approvalSettings != null && approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
-                     allowSelfApprover = approvalSettings != null && approvalSettings.SelfExceptionApprovalID == entityVM.UpdatedBy;
-                } else if (approvalSettings.IsDesignationOrEmpFirstApprovalID || approvalSettings.IsDesignationOrEmpSecondApprovalID || approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                    isFirstApprover = approvalSettings != null && approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
+                    isSecondApprover = approvalSettings != null && approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
+                    isThirdApprover = approvalSettings != null && approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
+                    allowSelfApprover = approvalSettings != null && approvalSettings.SelfExceptionApprovalID == entityVM.UpdatedBy;
+                }
+                else if (approvalSettings.IsDesignationOrEmpFirstApprovalID || approvalSettings.IsDesignationOrEmpSecondApprovalID || approvalSettings.IsDesignationOrEmpThirdApprovalID)
                 {
 
                     int? resolvedFirst = await ResolveApprovalAsync(approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID, offf);
                     int? resolvedSecond = await ResolveApprovalAsync(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID, offf);
                     int? resolvedThird = await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf);
 
-                     isFirstApprover = resolvedFirst == entityVM.UpdatedBy;
-                     isSecondApprover = resolvedSecond == entityVM.UpdatedBy;
-                     isThirdApprover = resolvedThird == entityVM.UpdatedBy;
+                    isFirstApprover = resolvedFirst == entityVM.UpdatedBy;
+                    isSecondApprover = resolvedSecond == entityVM.UpdatedBy;
+                    isThirdApprover = resolvedThird == entityVM.UpdatedBy;
                     if (isFirstApprover)
                     {
                         approvalPersonId = resolvedSecond;
-                    } else if(isSecondApprover)
+                    }
+                    else if (isSecondApprover)
                     {
                         approvalPersonId = resolvedThird;
-                        
+
                     }
                     else
                     {
                         approvalPersonId = resolvedThird;
-                        isFinalApproval = true;
+                        if (entityVM.Approved)
+                        {
+                            isFinalApproval = true;
+                        }
                     }
-                        
+
                 }
 
                 int approvalStep = 0;
@@ -638,16 +638,13 @@ namespace GCTL.Service.Employees.EmpTransfer
                     // Direct employee approvals
                     approvalStep = isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : allowSelfApprover ? 4 : 0;
                 }
-                else if (approvalSettings !=null &&  (approvalSettings.IsDesignationOrEmpFirstApprovalID ||
+                else if (approvalSettings != null && (approvalSettings.IsDesignationOrEmpFirstApprovalID ||
                          approvalSettings.IsDesignationOrEmpSecondApprovalID ||
                          approvalSettings.IsDesignationOrEmpThirdApprovalID))
                 {
-                    //isFirstApprover = approvalSettings != null && offf?.ImmediateSupervisorId == entityVM.UpdatedBy;
-                    //isSecondApprover = approvalSettings != null && offf?.SeniorSupervisorId == entityVM.UpdatedBy;
-                    //isThirdApprover = approvalSettings != null && offf?.HeadOfDepartmentId == entityVM.UpdatedBy;
 
                     approvalStep = isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : 0;
-                    
+
                 }
                 if (!isFirstApprover && !isSecondApprover && !isThirdApprover && !allowSelfApprover)
                 {
@@ -658,8 +655,6 @@ namespace GCTL.Service.Employees.EmpTransfer
                     };
                 }
                 //
-
-
                 if (isFirstApprover && approvalSettings.IsEnableSecondApproval && entityVM.Approved && !approvalSettings.IsDesignationOrEmpFirstApprovalID)
                 {
 
@@ -667,24 +662,30 @@ namespace GCTL.Service.Employees.EmpTransfer
                 }
                 else if (isSecondApprover && approvalSettings.IsEnableThirdApproval && entityVM.Approved && !approvalSettings.IsDesignationOrEmpSecondApprovalID)
                 {
-              
+
                     approvalPersonId = approvalSettings.ThirdApprovalID;
                 }
                 else if (isThirdApprover && !approvalSettings.IsDesignationOrEmpThirdApprovalID)
                 {
                     approvalPersonId = approvalSettings.ThirdApprovalID;
-                    isFinalApproval = true;
+                    if(entityVM.Approved)
+                    {
+                        isFinalApproval = true;
+                    }
+                    
                 }
                 else if (allowSelfApprover && approvalSettings.AllowSelfApproval.HasValue && !approvalSettings.AllowSelfApproval.Value && entityVM.Approved)
                 {
-                    
+
                     approvalPersonId = approvalSettings.SelfExceptionApprovalID;
-                    isFinalApproval = true;
+                    if (entityVM.Approved)
+                    {
+                        isFinalApproval = true;
+                    }
 
                 }
                 existingEntity.StatusID = statusId;
-                existingEntity.ApprovalPersonID= approvalPersonId;
-                existingEntity.TransferNote = entityVM.TransferNoteEdit;
+                existingEntity.ApprovalPersonID = approvalPersonId;
                 existingEntity.IsFinalApproved = isFinalApproval;
                 existingEntity.UpdatedAt = DateTime.Now;
                 existingEntity.UpdatedBy = entityVM.UpdatedBy;
@@ -701,7 +702,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                     FromDepartmentID = entityVM.FromDepartmentIDEdit,
                     ToDepartmentID = entityVM.ToDepartmentIDEdit,
                     TransferType = "Transfer Approval",
-                    ApprovalPersonNote = entityVM.TransferNoteEdit,
+                    ApprovalPersonNote = entityVM.TransferBaseHistoryNoteEdit,
                     ApprovalStep = approvalStep,
                     StatusID = statusId,
                     EmployeeTransferID = existingEntity.EmployeeTransferID,
@@ -714,7 +715,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                 await transferhistoryRepository.AddAsync(empTransferHistory);
 
                 // Step 3: Update employee official info
-                if (isFinalApproval && isFinalApproval)
+                if (isFinalApproval)
                 {
                     var getByIdEmpoffi = await empoffi.AllActive().FirstOrDefaultAsync(x => x.EmployeeID == entityVM.EmployeeIDEdit);
 
@@ -764,13 +765,6 @@ namespace GCTL.Service.Employees.EmpTransfer
             }
         }
 
-
-        //
-
-
-
-
-        //
         #endregion
     }
 }

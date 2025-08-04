@@ -183,13 +183,13 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                        EmployeeTransferID = b.EmployeeTransferID,
                        TransferDate = DateTimeHelpers.FormatDateTime(b.TransferDate),
-                       FromOrganizationName = b.FromOrganization?.OrganizationName ?? "",
-                       ToOrganizationName = b.ToOrganization?.OrganizationName ?? "",
-                       FromOrganizationBranchName = b.FromOrganizationBranch?.OrganizationBranchName ?? "",
-                       ToOrganizationBranchName = b.ToOrganizationBranch?.OrganizationBranchName ?? "",
-                       FromDepartmentName = b.FromDepartment.DepartmentName,
-                       ToDepartmentName = b.ToDepartment.DepartmentName,
-                       FromDesignationName=b.FromDepartment.DepartmentName, 
+                       FromOrganizationName =b.FromOrganization !=null ? b.FromOrganization?.OrganizationName : "",
+                       ToOrganizationName = b.ToOrganization != null ? b.ToOrganization?.OrganizationName : "",
+                       FromOrganizationBranchName = b.FromOrganizationBranch != null ? b.FromOrganizationBranch?.OrganizationBranchName : "",
+                       ToOrganizationBranchName = b.ToOrganizationBranch != null ? b.ToOrganizationBranch?.OrganizationBranchName : "",
+                       FromDepartmentName =b.FromDepartment  !=null ? b.FromDepartment.DepartmentName : "",
+                       ToDepartmentName =b.ToDepartment !=null ? b.ToDepartment.DepartmentName : "",
+                       FromDesignationName= b.FromDepartment != null ? b.FromDepartment.DepartmentName : "", 
                        StatusName = b.Status !=null ? b.Status.StatusName : "",
                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName ?? ""} {b.Employee.LastName ?? ""}".Trim(): "",
                        EmployeeImage = b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)? url + b.Employee.EmployeeImageFileName : "",
@@ -303,7 +303,7 @@ namespace GCTL.Service.Employees.EmpTransfer
         {
             await repositoryEmployeeTransfer.BeginTransactionAsync();
             // Check Rul
-            
+
             if (entityVM == null || entityVM.EmployeeID == 0)
             {
                 return new CommonReturnViewModel { Success = false, Message = "Invalid data." };
@@ -329,113 +329,6 @@ namespace GCTL.Service.Employees.EmpTransfer
 
             try
             {
-                //
-                //var offf = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeID)
-                //                                       .Select(x => new
-                //                                       {
-                //                                           x.EmployeeID,
-                //                                           x.OrganizationID,
-                //                                           x.OrganizationBranchID,
-                //                                           x.SeniorSupervisorId,
-                //                                           x.ImmediateSupervisorId,
-                //                                           x.HeadOfDepartmentId
-                //                                       }).FirstOrDefaultAsync();
-
-                //if (offf == null)
-                //    return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
-
-                //var approvalSettings = await approvalSettingsRepository.AllActive()
-                //    .Include(x => x.ApprovalType).Where(x =>
-                //        x.OrganizationID == offf.OrganizationID &&
-                //        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                //        x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
-
-
-                //if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Transfer  Approval settings found." };
-
-                //var approvalFlow = new List<(int? id, bool isDesignation)>
-                //{
-                //    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-                //    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-                //    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-                //};
-                //if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Transfer Approval  settings found." };
-                //int? approvalPersonId = null;
-                //// Get which approver the employee is
-                //bool isFirstApprover = approvalSettings.FirstApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpFirstApprovalID;
-                //bool isSecondApprover = approvalSettings.SecondApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpSecondApprovalID && approvalSettings.IsEnableSecondApproval;
-                //bool isThirdApprover = approvalSettings.ThirdApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpThirdApprovalID && approvalSettings.IsEnableThirdApproval;
-
-                //if (isFirstApprover)
-                //{
-                //    // Go to second approver if available
-                //    if (approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
-                //    {
-                //        approvalPersonId = approvalSettings.SecondApprovalID.Value;
-                //    }
-                //    else if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
-                //    {
-                //        approvalPersonId = approvalSettings.ThirdApprovalID.Value;
-                //    }
-                //    else if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
-                //    {
-                //        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-                //    }
-                //}
-                //else if (isSecondApprover)
-                //{
-                //    // Go to third approver
-                //    if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
-                //    {
-                //        approvalPersonId = approvalSettings.ThirdApprovalID.Value;
-                //    }
-                //    else if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
-                //    {
-                //        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-                //    }
-                //}
-                //else if (isThirdApprover)
-                //{
-                //    if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
-                //    {
-                //        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-                //    }
-                //}
-                //else
-                //{
-                //    // General Employee - start with First Approver
-                //    approvalPersonId = approvalSettings.FirstApprovalID ?? 0;
-                //}
-
-                //// Handle if no valid approver found
-                //if (approvalPersonId == null)
-                //{
-                //    return new CommonReturnViewModel
-                //    {
-                //        Success = false,
-                //        Message = "No valid approver found. Transfer request cannot be self-approved."
-                //    };
-                //}
-                //// Step 3: Normal approval flow (fallback logic)
-                //foreach (var (id, isDesignation) in approvalFlow)
-                //{
-                //    var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
-
-                //    // Skip if resolved is the applicant
-                //    if (resolvedId == entityVM.CreatedBy)
-                //    {
-                //        continue;
-                //    }
-
-                //}
-                //// Final step: Process leave
-                //if (approvalPersonId == null)
-                //{
-                //    return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
-                //}
-
-                //
-
                 // Get office info
                 var offf = await empoffi.AllActive()
                     .Where(x => x.EmployeeID == entityVM.EmployeeID)
@@ -463,12 +356,12 @@ namespace GCTL.Service.Employees.EmpTransfer
                     return new CommonReturnViewModel { Success = false, Message = "No active Transfer Approval settings found." };
 
                 // Build approval flow
-                var approvalFlow = new List<(int? id, bool isDesignation)>
-{
-    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-};
+                 var approvalFlow = new List<(int? id, bool isDesignation)>
+                    {
+                        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+                        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+                        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                    };
 
                 int? approvalPersonId = null;
                 // Determine if the current employee is already an approver
@@ -522,10 +415,6 @@ namespace GCTL.Service.Employees.EmpTransfer
                         Message = "No valid approver found. Transfer request cannot be self-approved."
                     };
                 }
-
-                // Continue with process using approvalPersonId...
-
-                //
                 // Step 1: Save transfer record
                 int employeeTransferID = 0;
                 var entity = new EmployeeTransfer
@@ -537,12 +426,12 @@ namespace GCTL.Service.Employees.EmpTransfer
                     ToOrganizationBranchID = entityVM.ToOrganizationBranchID,
                     TransferNote = entityVM.TransferNote,
                     TransferDate = entityVM.TransferDate,
-                    FromDepartmentID= entityVM.FromDepartmentID,
-                    FromDesignationID= entityVM.FromDesignationID,
-                    ToDepartmentID= entityVM.ToDepartmentID,
-                    ToDesignationID= entityVM.ToDesignationID,
+                    FromDepartmentID = entityVM.FromDepartmentID,
+                    FromDesignationID = entityVM.FromDesignationID,
+                    ToDepartmentID = entityVM.ToDepartmentID,
+                    ToDesignationID = entityVM.ToDesignationID,
                     TransferType = entityVM.TransferType ?? "",
-                    ApprovalPersonID=approvalPersonId,
+                    ApprovalPersonID = approvalPersonId,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -551,55 +440,6 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 await repositoryEmployeeTransfer.AddAsync(entity);
                 employeeTransferID = entity.EmployeeTransferID;
-                // Step 2: Update EmployeeOfficeInfo
-                //var getByIdEmpoffi = await empoffi.AllActive() .FirstOrDefaultAsync(x => x.EmployeeID == entityVM.EmployeeID);
-
-                //if (getByIdEmpoffi == null)
-                //{
-                //    await repositoryEmployeeTransfer.RollbackTransactionAsync();
-                //    return new CommonReturnViewModel
-                //    {
-                //        Success = false,
-                //        Message = "Employee not found in official info table"
-                //    };
-                //}
-                
-                //if (entityVM.TransferType == "Organization")
-                //{
-                //    getByIdEmpoffi.OrganizationID = entityVM.ToOrganizationID;
-                //    getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
-                //}
-                //else if (entityVM.TransferType == "Branch")
-                //{
-                //    getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
-                //}
-                //getByIdEmpoffi.DesignationID = entityVM.ToDesignationID;
-                //getByIdEmpoffi.DepartmentID = entityVM.ToDepartmentID;
-                //await empoffi.UpdateAsync(getByIdEmpoffi);  
-
-                //var empTransferHistory = new EmployeeTransferHistory
-                //{
-                    
-                //    FromOrganizationID = entityVM.FromOrganizationID,
-                //    ToOrganizationID = entityVM.ToOrganizationID,
-                //    FromOrganizationBranchID = entityVM.FromOrganizationBranchID,
-                //    ToOrganizationBranchID = entityVM.ToOrganizationBranchID,
-                //    FromDesignationID = entityVM.FromDesignationID,
-                //    ToDesignationID = entityVM.ToDesignationID,
-                //    FromDepartmentID = entityVM.FromDepartmentID,
-                //    ToDepartmentID = entityVM.ToDepartmentID,
-                //    TransferType = "Transfer Approval",
-                //    ApprovalPersonNote =entityVM.TransferNote,
-                //    ApprovalStep=0,
-                //    //StatusID=4,
-                //    EmployeeTransferID= employeeTransferID, 
-                //    LIP=entityVM.LIP,
-                //    LMAC=entityVM.LIP,
-                //    CreatedAt=DateTime.Now,
-                //    CreatedBy=entityVM.CreatedBy,
-                //    ApprovalPersonID=approvalPersonId,
-                //};
-                //await transferhistoryRepository.AddAsync(empTransferHistory);
                 await CheckIfEmployeeHasApprovalRoleAsync(entityVM, approvalPersonId);   // Role Checked
                 await repositoryEmployeeTransfer.CommitTransactionAsync();
                 return new CommonReturnViewModel { Success = true, Message = "Saved Successfully" };
@@ -715,12 +555,9 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 var approvalSettings = await approvalSettingsRepository.AllActive()
                     .Include(x => x.ApprovalType).Where(x =>
-                        x.OrganizationID == offf.OrganizationID &&
-                        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
                         x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
 
                 //if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
-
                 //
                 // Step 1: Find existing transfer record
                 var existingEntity = await repositoryEmployeeTransfer.AllActive()
@@ -746,18 +583,19 @@ namespace GCTL.Service.Employees.EmpTransfer
                         x.ToOrganizationID == entityVM.ToOrganizationIDEdit &&
                         x.ToOrganizationBranchID == entityVM.ToOrganizationBranchIDEdit &&
                         x.TransferDate == entityVM.TransferDateEdit &&
-                        x.EmployeeTransferID != existingEntity.EmployeeTransferID // exclude current
+                        x.EmployeeTransferID != existingEntity.EmployeeTransferID &&
+                        x.Status.StatusName !="DECLINED"
                     );
 
-                if (isDuplicate)
-                {
-                    await repositoryEmployeeTransfer.RollbackTransactionAsync();
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Duplicate transfer record already exists."
-                    };
-                }
+                //if (isDuplicate)
+                //{
+                //    await repositoryEmployeeTransfer.RollbackTransactionAsync();
+                //    return new CommonReturnViewModel
+                //    {
+                //        Success = false,
+                //        Message = "Duplicate transfer record already exists."
+                //    };
+                //}
 
                 // Step 2: Update transfer fields
                 existingEntity.FromOrganizationID = entityVM.FromOrganizationIDEdit;
