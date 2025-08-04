@@ -400,19 +400,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<ApplicationUser>()
 
-<<<<<<< HEAD
-         .HasDiscriminator<string>("Discriminator")
-         .HasValue<ApplicationUser>("ApplicationUser");
-=======
 
         .HasDiscriminator<string>("Discriminator")
 
         .HasValue<ApplicationUser>("ApplicationUser");
 
 
-   .HasDiscriminator<string>("Discriminator")
-   .HasValue<ApplicationUser>("ApplicationUser");
->>>>>>> 3698ce62ef6254e6dbd02beeb789a0554eadc8bc
+   
+
 
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employees)
@@ -420,11 +415,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(u => u.EmployeeId)
                 .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
-<<<<<<< HEAD
-
-        modelBuilder.Entity<ApplicationUser>()
-=======
->>>>>>> 3698ce62ef6254e6dbd02beeb789a0554eadc8bc
 
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Organization)

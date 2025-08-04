@@ -231,7 +231,7 @@ namespace GCTL.Service.Employees.EmpTransfer
                 x.SeniorSupervisorId == entityVM.EmployeeID ||
                 x.ImmediateSupervisorId == entityVM.EmployeeID ||
                 x.HeadOfDepartmentId == entityVM.EmployeeID
-            // DO NOT check EmploymentStatus here unless it's a navigation property loaded
+            
             );
 
             if (hasRoleInApprovalSettings || hasRoleInOfficeInfo)
@@ -330,83 +330,190 @@ namespace GCTL.Service.Employees.EmpTransfer
             try
             {
                 //
-                var offf = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeID)
-                                                       .Select(x => new
-                                                       {
-                                                           x.EmployeeID,
-                                                           x.OrganizationID,
-                                                           x.OrganizationBranchID,
-                                                           x.SeniorSupervisorId,
-                                                           x.ImmediateSupervisorId,
-                                                           x.HeadOfDepartmentId
-                                                       }).FirstOrDefaultAsync();
+                //var offf = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeID)
+                //                                       .Select(x => new
+                //                                       {
+                //                                           x.EmployeeID,
+                //                                           x.OrganizationID,
+                //                                           x.OrganizationBranchID,
+                //                                           x.SeniorSupervisorId,
+                //                                           x.ImmediateSupervisorId,
+                //                                           x.HeadOfDepartmentId
+                //                                       }).FirstOrDefaultAsync();
+
+                //if (offf == null)
+                //    return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
+
+                //var approvalSettings = await approvalSettingsRepository.AllActive()
+                //    .Include(x => x.ApprovalType).Where(x =>
+                //        x.OrganizationID == offf.OrganizationID &&
+                //        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
+                //        x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
+
+
+                //if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Transfer  Approval settings found." };
+
+                //var approvalFlow = new List<(int? id, bool isDesignation)>
+                //{
+                //    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+                //    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+                //    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                //};
+                //if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Transfer Approval  settings found." };
+                //int? approvalPersonId = null;
+                //// Get which approver the employee is
+                //bool isFirstApprover = approvalSettings.FirstApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpFirstApprovalID;
+                //bool isSecondApprover = approvalSettings.SecondApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpSecondApprovalID && approvalSettings.IsEnableSecondApproval;
+                //bool isThirdApprover = approvalSettings.ThirdApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpThirdApprovalID && approvalSettings.IsEnableThirdApproval;
+
+                //if (isFirstApprover)
+                //{
+                //    // Go to second approver if available
+                //    if (approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
+                //    {
+                //        approvalPersonId = approvalSettings.SecondApprovalID.Value;
+                //    }
+                //    else if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
+                //    {
+                //        approvalPersonId = approvalSettings.ThirdApprovalID.Value;
+                //    }
+                //    else if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
+                //    {
+                //        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
+                //    }
+                //}
+                //else if (isSecondApprover)
+                //{
+                //    // Go to third approver
+                //    if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
+                //    {
+                //        approvalPersonId = approvalSettings.ThirdApprovalID.Value;
+                //    }
+                //    else if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
+                //    {
+                //        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
+                //    }
+                //}
+                //else if (isThirdApprover)
+                //{
+                //    if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
+                //    {
+                //        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
+                //    }
+                //}
+                //else
+                //{
+                //    // General Employee - start with First Approver
+                //    approvalPersonId = approvalSettings.FirstApprovalID ?? 0;
+                //}
+
+                //// Handle if no valid approver found
+                //if (approvalPersonId == null)
+                //{
+                //    return new CommonReturnViewModel
+                //    {
+                //        Success = false,
+                //        Message = "No valid approver found. Transfer request cannot be self-approved."
+                //    };
+                //}
+                //// Step 3: Normal approval flow (fallback logic)
+                //foreach (var (id, isDesignation) in approvalFlow)
+                //{
+                //    var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+
+                //    // Skip if resolved is the applicant
+                //    if (resolvedId == entityVM.CreatedBy)
+                //    {
+                //        continue;
+                //    }
+
+                //}
+                //// Final step: Process leave
+                //if (approvalPersonId == null)
+                //{
+                //    return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
+                //}
+
+                //
+
+                // Get office info
+                var offf = await empoffi.AllActive()
+                    .Where(x => x.EmployeeID == entityVM.EmployeeID)
+                    .Select(x => new
+                    {
+                        x.EmployeeID,
+                        x.OrganizationID,
+                        x.OrganizationBranchID,
+                        x.SeniorSupervisorId,
+                        x.ImmediateSupervisorId,
+                        x.HeadOfDepartmentId
+                    }).FirstOrDefaultAsync();
 
                 if (offf == null)
                     return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
 
+                // Get approval settings
                 var approvalSettings = await approvalSettingsRepository.AllActive()
-                    .Include(x => x.ApprovalType).Where(x =>
-                        x.OrganizationID == offf.OrganizationID &&
-                        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                        x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
+                    .Include(x => x.ApprovalType)
+                    .Where(x =>
+                        x.ApprovalType.ApprovalTypeName == "Transfer Approval")
+                    .FirstOrDefaultAsync();
 
-                if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Transfer  Approval settings found." };
+                if (approvalSettings == null)
+                    return new CommonReturnViewModel { Success = false, Message = "No active Transfer Approval settings found." };
 
+                // Build approval flow
                 var approvalFlow = new List<(int? id, bool isDesignation)>
-                {
-                    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
-                    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
-                    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
-                };
-                if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Transfer Approval  settings found." };
+{
+    (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+    (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+    (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+};
+
                 int? approvalPersonId = null;
-                // Get which approver the employee is
+                // Determine if the current employee is already an approver
                 bool isFirstApprover = approvalSettings.FirstApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpFirstApprovalID;
                 bool isSecondApprover = approvalSettings.SecondApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpSecondApprovalID && approvalSettings.IsEnableSecondApproval;
                 bool isThirdApprover = approvalSettings.ThirdApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpThirdApprovalID && approvalSettings.IsEnableThirdApproval;
 
+                // Determine next approver
                 if (isFirstApprover)
                 {
-                    // Go to second approver if available
-                    if (approvalSettings.IsEnableSecondApproval && approvalSettings.SecondApprovalID.HasValue)
-                    {
-                        approvalPersonId = approvalSettings.SecondApprovalID.Value;
-                    }
-                    else if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
-                    {
-                        approvalPersonId = approvalSettings.ThirdApprovalID.Value;
-                    }
-                    else if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
-                    {
-                        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-                    }
+                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID, offf)
+                        ?? await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf)
+                        ?? (approvalSettings.AllowSelfApproval == false
+                            ? await ResolveApprovalAsync(approvalSettings.SelfExceptionApprovalID, false, offf)
+                            : null);
                 }
                 else if (isSecondApprover)
                 {
-                    // Go to third approver
-                    if (approvalSettings.IsEnableThirdApproval && approvalSettings.ThirdApprovalID.HasValue)
-                    {
-                        approvalPersonId = approvalSettings.ThirdApprovalID.Value;
-                    }
-                    else if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
-                    {
-                        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-                    }
+                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf)
+                        ?? (approvalSettings.AllowSelfApproval == false
+                            ? await ResolveApprovalAsync(approvalSettings.SelfExceptionApprovalID, false, offf)
+                            : null);
                 }
                 else if (isThirdApprover)
                 {
-                    if (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
-                    {
-                        approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-                    }
+                    approvalPersonId = (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
+                        ? await ResolveApprovalAsync(approvalSettings.SelfExceptionApprovalID, false, offf)
+                        : null;
                 }
                 else
                 {
-                    // General Employee - start with First Approver
-                    approvalPersonId = approvalSettings.FirstApprovalID ?? 0;
+                    // General Employee - start from top of the flow
+                    foreach (var (id, isDesignation) in approvalFlow)
+                    {
+                        var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+
+                        if (resolvedId.HasValue && resolvedId != entityVM.CreatedBy)
+                        {
+                            approvalPersonId = resolvedId;
+                            break;
+                        }
+                    }
                 }
 
-                // Handle if no valid approver found
+                // Final fallback
                 if (approvalPersonId == null)
                 {
                     return new CommonReturnViewModel
@@ -415,24 +522,10 @@ namespace GCTL.Service.Employees.EmpTransfer
                         Message = "No valid approver found. Transfer request cannot be self-approved."
                     };
                 }
-                // Step 3: Normal approval flow (fallback logic)
-                foreach (var (id, isDesignation) in approvalFlow)
-                {
-                    var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
 
-                    // Skip if resolved is the applicant
-                    if (resolvedId == entityVM.CreatedBy)
-                    {
-                        continue;
-                    }
+                // Continue with process using approvalPersonId...
 
-                }
-                // Final step: Process leave
-                if (approvalPersonId == null)
-                {
-                    return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
-                }
-              
+                //
                 // Step 1: Save transfer record
                 int employeeTransferID = 0;
                 var entity = new EmployeeTransfer
