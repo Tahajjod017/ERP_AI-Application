@@ -1,0 +1,775 @@
+﻿
+<style>
+    
+
+    .dashboard-container {
+   
+        margin-top: 90px !important;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        height:85px;
+    }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+            .card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .card-body {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        padding-right: 0px;
+    }
+
+
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        background: linear-gradient(135deg, var(--card-color), var(--card-color-light));
+        flex-shrink: 0; /* Prevents icon from shrinking */
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    /* Color schemes for different cards */
+    .card:nth-child(1) {
+        --card-color: #3498db;
+        --card-color-light: #5dade2;
+    }
+
+    .card:nth-child(2) {
+        --card-color: #2ecc71;
+        --card-color-light: #58d68d;
+    }
+
+    .card:nth-child(3) {
+        --card-color: #e74c3c;
+        --card-color-light: #ec7063;
+    }
+
+    .card:nth-child(4) {
+        --card-color: #f39c12;
+        --card-color-light: #f7dc6f;
+    }
+
+    .card:nth-child(5) {
+        --card-color: #9b59b6;
+        --card-color-light: #bb8fce;
+    }
+
+    .card:nth-child(6) {
+        --card-color: #1abc9c;
+        --card-color-light: #5dbeaa;
+    }
+
+    .card:nth-child(7) {
+        --card-color: #34495e;
+        --card-color-light: #5d6d7e;
+    }
+
+    .card:nth-child(8) {
+        --card-color: #e67e22;
+        --card-color-light: #f0ad4e;
+    }
+
+    .card:nth-child(9) {
+        --card-color: #8e44ad;
+        --card-color-light: #a569bd;
+    }
+
+    .card:nth-child(10) {
+        --card-color: #27ae60;
+        --card-color-light: #52c882;
+    }
+
+    .card:nth-child(11) {
+        --card-color: #2980b9;
+        --card-color-light: #5499c7;
+    }
+
+    .card:nth-child(12) {
+        --card-color: #c0392b;
+        --card-color-light: #cd6155;
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0%
+
+    {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+
+    }
+</style>
+
+    <div class="dashboard-container mb-2">
+        <div class="dashboard-grid">
+            <div class="card" onclick="navigateTo('company-info')">
+                <div class="card-body">
+                    <div class="card-icon">🏢</div>
+                    <div class="card-content">
+                        <div class="card-title">Company Info</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('branch')">
+                <div class="card-body">
+                    <div class="card-icon">🏪</div>
+                    <div class="card-content">
+                        <div class="card-title">Branch</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('email-config')">
+                <div class="card-body">
+                    <div class="card-icon">📧</div>
+                    <div class="card-content">
+                        <div class="card-title">Email Config</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('currency')">
+                <div class="card-body">
+                    <div class="card-icon">💰</div>
+                    <div class="card-content">
+                    <div class="card-title"><a href="/Currencys/Index">Manage Currency</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('payment-type')">
+                <div class="card-body">
+                    <div class="card-icon">💳</div>
+                    <div class="card-content">
+                    <div class="card-title"><a href="/PaymentModes/Index">Payment Type</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('customer-type')">
+                <div class="card-body">
+                    <div class="card-icon">👥</div>
+                    <div class="card-content">
+                        <div class="card-title">Customer Type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('vat-percentage')">
+                <div class="card-body">
+                    <div class="card-icon">📊</div>
+                    <div class="card-content">
+                        <div class="card-title">VAT Percentage</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('categories')">
+                <div class="card-body">
+                    <div class="card-icon">📂</div>
+                    <div class="card-content">
+                        <div class="card-title">Manage Categories</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('units')">
+                <div class="card-body">
+                    <div class="card-icon">📏</div>
+                    <div class="card-content">
+                        <div class="card-title">Units of Measure</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('expense-type')">
+                <div class="card-body">
+                    <div class="card-icon">💸</div>
+                    <div class="card-content">
+                        <div class="card-title">Expense Type</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('user-roles')">
+                <div class="card-body">
+                    <div class="card-icon">🛡️</div>
+                    <div class="card-content">
+                        <div class="card-title">Manage User Roles</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="navigateTo('departments')">
+                <div class="card-body">
+                    <div class="card-icon">🏛️</div>
+                    <div class="card-content">
+                    <div class="card-title"><a href="/Departments/Index"> Department</a></div>
+                    </div>
+                </div>
+            </div>
+        <div class="card" onclick="navigateTo('designations')">
+            <div class="card-body">
+                <div class="card-icon">👔</div>
+                <div class="card-content">
+                    <div class="card-title"> <a href="/Designations/Index">Designations</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" onclick="navigateTo('education-boards')">
+            <div class="card-body">
+                <div class="card-icon">🏫</div>
+                <div class="card-content">
+                    <div class="card-title"><a href="/EducationBoards/Index">Education Boards</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" onclick="navigateTo('education-levels')">
+            <div class="card-body">
+                <div class="card-icon">🎓</div>
+                <div class="card-content">
+                    <div class="card-title"><a href="/EducationLevels/Index">Education Levels</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" onclick="navigateTo('education-levels')">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">🌍</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/Countrys/Index">Countries</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Genders -->
+        <div class="card" onclick="navigateTo('genders')">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">🚻</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/Genders/Index">Genders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marital Status -->
+        <div class="card" onclick="navigateTo('marital-status')">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon " >💍</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/MaritalStatus/Index">Marital Status</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organizations -->
+        <div class="card" onclick="navigateTo('organizations')">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon" >🏢</div>
+                <div class="card-content">
+                    <div class="card-title ">
+                        <a href="/Organizations/Index">Organizations</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yearly End Bonus Type -->
+        <div class="card" onclick="navigateTo('yearly-end-bonus')">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/YearlyEndBonusType/Index">Yearly End Bonus Type</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            console.log('Navigating to:', page);
+            // Add your navigation logic here
+        }
+    </script>
+
+ 
+
+
+@*     <style>
+       
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .card-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .card-info p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Individual card colors */
+        .company-info .icon-wrapper {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .branch .icon-wrapper {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .email-config .icon-wrapper {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .currency .icon-wrapper {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .payment-type .icon-wrapper {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .customer-type .icon-wrapper {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .vat .icon-wrapper {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+        }
+
+        .categories .icon-wrapper {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .measure .icon-wrapper {
+            background: linear-gradient(135deg, #ff8a80 0%, #ea4c89 100%);
+            color: white;
+        }
+
+        .partner-type .icon-wrapper {
+            background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%);
+            color: #333;
+        }
+
+        .user-roles .icon-wrapper {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+
+        .manage-roles .icon-wrapper {
+            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+            color: white;
+        }
+
+        .department .icon-wrapper {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+        }
+
+        .sub-department .icon-wrapper {
+            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+            color: white;
+        }
+
+        .supplier .icon-wrapper {
+            background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%);
+            color: white;
+        }
+
+        .customer-info .icon-wrapper {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+        }
+
+        /* Decorative elements */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0 16px 0 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+            .header h1 {
+                font-size: 32px;
+                font-weight: 700;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                color: #666;
+                font-size: 16px;
+            }
+
+        @@media (max-width: 768px) {
+            .dashboard-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+    </style>
+
+    <div class="dashboard">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <p>Manage your system settings and configurations</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card company-info">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        🏢
+                    </div>
+                    <div class="card-info">
+                        <h3>Company Info</h3>
+                        <p>Manage company details</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card branch">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        🏪
+                    </div>
+                    <div class="card-info">
+                        <h3>Branch</h3>
+                        <p>Branch management</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card email-config">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        📧
+                    </div>
+                    <div class="card-info">
+                        <h3>Email Config</h3>
+                        <p>Configure email settings</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card currency">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        💰
+                    </div>
+                    <div class="card-info">
+                        <h3>Manage Currency</h3>
+                        <p>Currency settings</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card payment-type">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        💳
+                    </div>
+                    <div class="card-info">
+                        <h3>Payment Type</h3>
+                        <p>Payment methods</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card customer-type">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        👥
+                    </div>
+                    <div class="card-info">
+                        <h3>Customer Type</h3>
+                        <p>Customer categories</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card vat">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        📊
+                    </div>
+                    <div class="card-info">
+                        <h3>Vat Percentage</h3>
+                        <p>Tax configuration</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card categories">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        📂
+                    </div>
+                    <div class="card-info">
+                        <h3>Manage Categories</h3>
+                        <p>Product categories</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card measure">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        📏
+                    </div>
+                    <div class="card-info">
+                        <h3>Units of Measure</h3>
+                        <p>Measurement units</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card partner-type">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        🤝
+                    </div>
+                    <div class="card-info">
+                        <h3>Partner Type</h3>
+                        <p>Business partners</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card user-roles">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        🛡️
+                    </div>
+                    <div class="card-info">
+                        <h3>Manage User Roles</h3>
+                        <p>User permissions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card manage-roles">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        ⚙️
+                    </div>
+                    <div class="card-info">
+                        <h3>Manage User Roles</h3>
+                        <p>Role configuration</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card department">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        🏛️
+                    </div>
+                    <div class="card-info">
+                        <h3>Department</h3>
+                        <p>Organization structure</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card sub-department">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        🏢
+                    </div>
+                    <div class="card-info">
+                        <h3>Sub Department</h3>
+                        <p>Department subdivisions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card supplier">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        📦
+                    </div>
+                    <div class="card-info">
+                        <h3>Supplier</h3>
+                        <p>Supplier management</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card customer-info">
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        👤
+                    </div>
+                    <div class="card-info">
+                        <h3>Customer Info</h3>
+                        <p>Customer database</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> *@
