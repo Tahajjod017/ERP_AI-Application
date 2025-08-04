@@ -46,7 +46,7 @@ function generateTable() {
     //const monthID = document.getElementById('MonthID').value;
     //const yearID = document.getElementById('YearID').value;
 
-    if (!monthID || !yearID) return;  // Ensure both month and year are selected
+   // if (!monthID || !yearID) return;  // Ensure both month and year are selected
 
     const daysInMonth = getDaysInMonth(1, 1);  // Get the number of days in the selected month
     const tbody = document.getElementById('empMonthlyAll-tbody');
@@ -109,8 +109,8 @@ function generateTable() {
 // Listen for changes in the dropdowns
 document.getElementById('organizationID').addEventListener('change', generateTable);
 document.getElementById('departmentID').addEventListener('change', generateTable);
-document.getElementById('MonthID').addEventListener('change', generateTable);
-document.getElementById('YearID').addEventListener('change', generateTable);
+//document.getElementById('MonthID').addEventListener('change', generateTable);
+//document.getElementById('YearID').addEventListener('change', generateTable);
 
 
 // Initial call to populate the table when the page loads
@@ -118,26 +118,6 @@ generateTable();
 
 // Assuming you have the monthSelectPlugin library included in your project
 
-$(document).ready(function () {
-    // Initialize flatpickr for the Month Dropdown
-    $("#MonthID").flatpickr({
-        plugins: [
-            new monthSelectPlugin({
-                shorthand: true, // Display shortened month names (e.g., Jan, Feb, Mar)
-                dateFormat: "m.y", // Format as MM.YYYY (e.g., 01.2023)
-                altFormat: "F Y", // Alternative display format (e.g., January 2023)
-                theme: "dark" // Set the theme to dark
-            })
-        ]
-    });
 
-    // You can also add flatpickr to Year dropdown if needed
-    $("#YearID").flatpickr({
-        minDate: "2021-01-01", // Start date
-        maxDate: "2025-12-31", // End date
-        dateFormat: "Y", // Format as YYYY
-        theme: "dark" // Set the theme to dark
-    });
-});
 
 

@@ -65,7 +65,7 @@
                             </select>
                         </div>
                     <div class="dropdown">
-                        <button class="btn btn-phoenix-secondary rounded-3 me-1 mb-1" type="button">
+                        <button id="printButton" class="btn btn-phoenix-secondary rounded-3 me-1 mb-1" type="button">
                             <span class="fas fa-print me-2" data-fa-transform="shrink-3"></span>Print
                         </button>
                     </div>
@@ -862,6 +862,26 @@
                     console.error('Error fetching data:', err);
                 }
             });
+            // Print button functionality
+         // Print button functionality
+        $('#printButton').on('click', function() {
+            printTable();
+        });
+
+        // Function to print the table
+        // function printTable() {
+        //     var printWindow = window.open('', '', 'height=500,width=800');
+        //     printWindow.document.write('<html><head><title>Yearly Special Days Report</title>');
+        //     printWindow.document.write('<link rel="stylesheet" type="text/css" href="path/to/your/styles.css">'); // Optional: Add your custom styles
+        //     printWindow.document.write('</head><body>');
+        //     printWindow.document.write('<h1>Yearly Special Days Report</h1>');
+        //     printWindow.document.write('<table border="1" style="width: 100%;">');
+        //     printWindow.document.write($('#attendanceTableBody').closest('table').prop('outerHTML'));
+        //     printWindow.document.write('</table>');
+        //     printWindow.document.write('</body></html>');
+        //     printWindow.document.close(); // Close the document
+        //     printWindow.print(); // Trigger the print dialog
+        // }
         });
     </script>
 }
