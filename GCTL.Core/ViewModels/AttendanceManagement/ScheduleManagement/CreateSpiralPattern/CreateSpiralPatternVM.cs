@@ -11,15 +11,27 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
     {
         public int SpiralWeeklyPatternID { get; set; }
 
+        [Required(ErrorMessage = "Pattern name is required!")]
+        public string SpiralWeeklyPatternName { get; set; }
+
         [Required(ErrorMessage = "Organization is required!")]
         public int OrganizationID { get; set; }
 
         [Required(ErrorMessage = "Pattern type is required!")]
         public int SpiralPatternTypeID { get; set; }
 
-        [Required(ErrorMessage = "Pattern name is required!")]
-        public string SpiralWeeklyPatternName { get; set; }
+        public int SpiralBioWeeklyPatternID { get; set; }
 
-        public ICollection<SpiralWeeklyPatternDetailsVM>? SpiralWeeklyPatternDetails { get; set; } = new List<SpiralWeeklyPatternDetailsVM>();
+        [Required(ErrorMessage = "Pattern Name is required!")]
+        public string SpiralBioWeeklyPatternName { get; set; }
+
+        public int SpiralMonthlyPatternID { get; set; }
+
+        [Required(ErrorMessage = "Pattern Name is required!")]
+        public string SpiralMonthlyPatternName { get; set; }
+
+        public ICollection<SpiralWeeklyPatternDetailsVM>? SpiralWeeklyPatternDetailsVMs { get; set; } = new List<SpiralWeeklyPatternDetailsVM>();
+        public ICollection<SpiralBioWeeklyPatternDetailsVM>? SpiralBioWeeklyPatternDetailsVMs { get; set; } = new List<SpiralBioWeeklyPatternDetailsVM>();
+        public ICollection<SpiralMonthlyPatternDetailsVM>? SpiralMonthlyPatternDetailsVMs { get; set; } = new List<SpiralMonthlyPatternDetailsVM>();
     }
 }
