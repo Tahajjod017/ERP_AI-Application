@@ -11,7 +11,7 @@ public partial class SpiralMonthlyPatternDetails
 
     public int? SpiralMonthlyPatternID { get; set; }
 
-    public byte DayOfMonth { get; set; }
+    public int DayOfMonth { get; set; }
 
     public int? ShiftID { get; set; }
 
