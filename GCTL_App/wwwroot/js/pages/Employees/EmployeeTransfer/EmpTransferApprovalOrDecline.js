@@ -1,239 +1,239 @@
 ﻿
 $(document).ready(function () {
 
-    $('.one').on('changed.coreui.multi-select', function (event) {
-        const target = event.target;
+    //$('.one').on('changed.coreui.multi-select', function (event) {
+    //    const target = event.target;
 
-        if (target && target.id === 'OrganizationID') {
-            const selectedOrgId = $(target).val();
-            if (selectedOrgId) {
-                loadDepartmentsByCompany(selectedOrgId);
-                loadEmplooyeesByCompany(selectedOrgId);
-                currentPage = 1;
-                loadTableData();
-            } else {
-                currentPage = 1;
-                loadTableData();
-            }
-        }
-    });
+    //    if (target && target.id === 'OrganizationID') {
+    //        const selectedOrgId = $(target).val();
+    //        if (selectedOrgId) {
+    //            loadDepartmentsByCompany(selectedOrgId);
+    //            loadEmplooyeesByCompany(selectedOrgId);
+    //            currentPage = 1;
+    //            loadTableData();
+    //        } else {
+    //            currentPage = 1;
+    //            loadTableData();
+    //        }
+    //    }
+    //});
 
-    function loadDepartmentsByCompany(organizationId) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: '/LeaveRequest/GetDepartmentByCompany',
-                type: 'GET',
-                data: { id: organizationId },
-                success: function (departments) {
-                    recreateDepartmentDropdown(departments);
-                    //resolve(); 
-                    setTimeout(() => resolve(), 100);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading departments:', error);
-                    reject(error);
-                }
-            });
-        });
-    }
-    function loadDepartmentsByCompany(organizationId) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: '/LeaveRequest/GetDepartmentByCompany',
-                type: 'GET',
-                data: { id: organizationId },
-                success: function (departments) {
-                    recreateDepartmentDropdown(departments);
-                    //resolve(); 
-                    setTimeout(() => resolve(), 100);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading departments:', error);
-                    reject(error);
-                }
-            });
-        });
-    }
-    function loadEmplooyeesByCompany(organizationId) {
-        $.ajax({
-            url: '/LeaveRequest/GetEmployeeByCompany',
-            type: 'GET',
-            data: { id: organizationId },
-            success: function (data) {
-                updateEmployeeDropdown(data);
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading employees:', error);
-            }
-        });
-    }
+    //function loadDepartmentsByCompany(organizationId) {
+    //    return new Promise((resolve, reject) => {
+    //        $.ajax({
+    //            url: '/LeaveRequest/GetDepartmentByCompany',
+    //            type: 'GET',
+    //            data: { id: organizationId },
+    //            success: function (departments) {
+    //                recreateDepartmentDropdown(departments);
+    //                //resolve(); 
+    //                setTimeout(() => resolve(), 100);
+    //            },
+    //            error: function (xhr, status, error) {
+    //                console.error('Error loading departments:', error);
+    //                reject(error);
+    //            }
+    //        });
+    //    });
+    //}
+    //function loadDepartmentsByCompany(organizationId) {
+    //    return new Promise((resolve, reject) => {
+    //        $.ajax({
+    //            url: '/LeaveRequest/GetDepartmentByCompany',
+    //            type: 'GET',
+    //            data: { id: organizationId },
+    //            success: function (departments) {
+    //                recreateDepartmentDropdown(departments);
+    //                //resolve(); 
+    //                setTimeout(() => resolve(), 100);
+    //            },
+    //            error: function (xhr, status, error) {
+    //                console.error('Error loading departments:', error);
+    //                reject(error);
+    //            }
+    //        });
+    //    });
+    //}
+    //function loadEmplooyeesByCompany(organizationId) {
+    //    $.ajax({
+    //        url: '/LeaveRequest/GetEmployeeByCompany',
+    //        type: 'GET',
+    //        data: { id: organizationId },
+    //        success: function (data) {
+    //            updateEmployeeDropdown(data);
+    //        },
+    //        error: function (xhr, status, error) {
+    //            console.error('Error loading employees:', error);
+    //        }
+    //    });
+    //}
 
-    function updateEmployeeDropdown(data, employeeIDs = []) {
-        var $empSelect = $('#EmployeeIDs');
-        $empSelect.empty();
+    //function updateEmployeeDropdown(data, employeeIDs = []) {
+    //    var $empSelect = $('#EmployeeIDs');
+    //    $empSelect.empty();
 
-        if (!Array.isArray(data) || data.length === 0) {
-            $empSelect.append('<option disabled>No employees found</option>');
-            refreshCoreUIMultiSelect();
-            return;
-        }
+    //    if (!Array.isArray(data) || data.length === 0) {
+    //        $empSelect.append('<option disabled>No employees found</option>');
+    //        refreshCoreUIMultiSelect();
+    //        return;
+    //    }
 
-        // Group employees by department name
-        const grouped = {};
-        data.forEach(emp => {
-            const dept = emp.departmentName || 'No Department';
-            if (!grouped[dept]) grouped[dept] = [];
-            grouped[dept].push(emp);
-        });
+    //    // Group employees by department name
+    //    const grouped = {};
+    //    data.forEach(emp => {
+    //        const dept = emp.departmentName || 'No Department';
+    //        if (!grouped[dept]) grouped[dept] = [];
+    //        grouped[dept].push(emp);
+    //    });
 
-        // Append optgroups and options
-        Object.entries(grouped).forEach(([dept, employees]) => {
-            const $optgroup = $('<optgroup>').attr('label', dept);
-            employees.forEach(emp => {
-                const $option = $('<option>')
-                    .val(emp.employeeID)
-                    .text(emp.employeeName);
+    //    // Append optgroups and options
+    //    Object.entries(grouped).forEach(([dept, employees]) => {
+    //        const $optgroup = $('<optgroup>').attr('label', dept);
+    //        employees.forEach(emp => {
+    //            const $option = $('<option>')
+    //                .val(emp.employeeID)
+    //                .text(emp.employeeName);
 
-                // Pre-select if employeeID is in employeeIDs
-                if (employeeIDs.includes(emp.employeeID.toString())) {
-                    $option.prop('selected', true);
-                }
+    //            // Pre-select if employeeID is in employeeIDs
+    //            if (employeeIDs.includes(emp.employeeID.toString())) {
+    //                $option.prop('selected', true);
+    //            }
 
-                $option.appendTo($optgroup);
-            });
-            $empSelect.append($optgroup);
-        });
+    //            $option.appendTo($optgroup);
+    //        });
+    //        $empSelect.append($optgroup);
+    //    });
 
-        // Refresh CoreUI multi-select
-        refreshCoreUIMultiSelect();
+    //    // Refresh CoreUI multi-select
+    //    refreshCoreUIMultiSelect();
 
-        // Ensure CoreUI reflects the pre-selected values
-        if (employeeIDs.length > 0) {
-            setMultiSelectValues('EmployeeIDs', employeeIDs);
-        }
-    }
+    //    // Ensure CoreUI reflects the pre-selected values
+    //    if (employeeIDs.length > 0) {
+    //        setMultiSelectValues('EmployeeIDs', employeeIDs);
+    //    }
+    //}
 
-    function setMultiSelectValues(selectId, values) {
-        return new Promise(resolve => {
-            const select = document.getElementById(selectId);
-            if (!select) return resolve();
+    //function setMultiSelectValues(selectId, values) {
+    //    return new Promise(resolve => {
+    //        const select = document.getElementById(selectId);
+    //        if (!select) return resolve();
 
-            const valueArray = Array.isArray(values) ? values.map(v => v.toString()) : [values.toString()];
+    //        const valueArray = Array.isArray(values) ? values.map(v => v.toString()) : [values.toString()];
 
-            for (const option of select.options) {
-                option.selected = valueArray.includes(option.value);
-            }
+    //        for (const option of select.options) {
+    //            option.selected = valueArray.includes(option.value);
+    //        }
 
-            const multiSelect = coreui.MultiSelect.getInstance(select);
-            if (multiSelect) {
-                multiSelect.update();
-            }
+    //        const multiSelect = coreui.MultiSelect.getInstance(select);
+    //        if (multiSelect) {
+    //            multiSelect.update();
+    //        }
 
-            // Small timeout to ensure UI is fully refreshed
-            setTimeout(() => resolve(), 50);
-        });
-    }
-    function refreshCoreUIMultiSelect() {
-        const empSelect = document.getElementById('EmployeeIDs');
+    //        // Small timeout to ensure UI is fully refreshed
+    //        setTimeout(() => resolve(), 50);
+    //    });
+    //}
+    //function refreshCoreUIMultiSelect() {
+    //    const empSelect = document.getElementById('EmployeeIDs');
 
-        // Dispose existing CoreUI MultiSelect instance
-        const existingInstance = coreui.MultiSelect.getInstance(empSelect);
-        if (existingInstance) {
-            existingInstance.dispose();
-        }
+    //    // Dispose existing CoreUI MultiSelect instance
+    //    const existingInstance = coreui.MultiSelect.getInstance(empSelect);
+    //    if (existingInstance) {
+    //        existingInstance.dispose();
+    //    }
 
-        // Remove previously generated UI dropdown manually
-        const generatedDropdown = empSelect.nextElementSibling;
-        if (generatedDropdown && generatedDropdown.classList.contains('form-multi-select')) {
-            generatedDropdown.remove();
-        }
+    //    // Remove previously generated UI dropdown manually
+    //    const generatedDropdown = empSelect.nextElementSibling;
+    //    if (generatedDropdown && generatedDropdown.classList.contains('form-multi-select')) {
+    //        generatedDropdown.remove();
+    //    }
 
-        // Reinitialize CoreUI MultiSelect
-        coreui.MultiSelect.getOrCreateInstance(empSelect);
-    }
-    document.querySelector('.two').addEventListener('changed.coreui.multi-select', function (event) {
-        const target = event.target;
+    //    // Reinitialize CoreUI MultiSelect
+    //    coreui.MultiSelect.getOrCreateInstance(empSelect);
+    //}
+    //document.querySelector('.two').addEventListener('changed.coreui.multi-select', function (event) {
+    //    const target = event.target;
 
-        if (target.id === 'DepartmentIDs') {
-            loadFilteredEmployees();
-            currentPage = 1;
-            loadTableData();
-        }
-    });
-    function recreateDepartmentDropdown(departments) {
-        const container = document.querySelector('.two'); // The div with class "two"
-        const originalSelect = document.getElementById('DepartmentIDs');
+    //    if (target.id === 'DepartmentIDs') {
+    //        loadFilteredEmployees();
+    //        currentPage = 1;
+    //        loadTableData();
+    //    }
+    //});
+    //function recreateDepartmentDropdown(departments) {
+    //    const container = document.querySelector('.two'); // The div with class "two"
+    //    const originalSelect = document.getElementById('DepartmentIDs');
 
-        // ✅ Step 1: Dispose existing MultiSelect instance
-        const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
-        if (existingInstance) {
-            existingInstance.dispose();
-        }
+    //    // ✅ Step 1: Dispose existing MultiSelect instance
+    //    const existingInstance = coreui.MultiSelect.getInstance(originalSelect);
+    //    if (existingInstance) {
+    //        existingInstance.dispose();
+    //    }
 
-        // ✅ Step 2: Store original attributes
-        const originalAttributes = {
-            id: originalSelect.id,
-            name: originalSelect.name,
-            className: originalSelect.className,
-            multiple: originalSelect.multiple
-        };
+    //    // ✅ Step 2: Store original attributes
+    //    const originalAttributes = {
+    //        id: originalSelect.id,
+    //        name: originalSelect.name,
+    //        className: originalSelect.className,
+    //        multiple: originalSelect.multiple
+    //    };
 
-        // ✅ Step 3: Remove the entire content and recreate
-        container.innerHTML = `
-                    <label class="form-label" for="DepartmentIDs">${container.querySelector('label').textContent}</label>
-                    <select class="form-multi-select" 
-                            id="${originalAttributes.id}" 
-                            name="${originalAttributes.name}" 
-                            multiple 
-                            data-coreui-multiple="true" 
-                            data-coreui-selection-type="counter" 
-                            data-coreui-search="true">
-                    </select>
-                `;
+    //    // ✅ Step 3: Remove the entire content and recreate
+    //    container.innerHTML = `
+    //                <label class="form-label" for="DepartmentIDs">${container.querySelector('label').textContent}</label>
+    //                <select class="form-multi-select" 
+    //                        id="${originalAttributes.id}" 
+    //                        name="${originalAttributes.name}" 
+    //                        multiple 
+    //                        data-coreui-multiple="true" 
+    //                        data-coreui-selection-type="counter" 
+    //                        data-coreui-search="true">
+    //                </select>
+    //            `;
 
-        // ✅ Step 4: Get the new select element and populate it
-        const newSelect = container.querySelector('select');
+    //    // ✅ Step 4: Get the new select element and populate it
+    //    const newSelect = container.querySelector('select');
 
-        if (!departments || departments.length === 0) {
-            const option = new Option('No departments found', '', false, false);
-            option.disabled = true;
-            newSelect.appendChild(option);
-        } else {
-            departments.forEach(dep => {
-                const option = new Option(dep.departmentName, dep.departmentID, false, false);
-                newSelect.appendChild(option);
-            });
-        }
+    //    if (!departments || departments.length === 0) {
+    //        const option = new Option('No departments found', '', false, false);
+    //        option.disabled = true;
+    //        newSelect.appendChild(option);
+    //    } else {
+    //        departments.forEach(dep => {
+    //            const option = new Option(dep.departmentName, dep.departmentID, false, false);
+    //            newSelect.appendChild(option);
+    //        });
+    //    }
 
-        // ✅ Step 5: Initialize MultiSelect
-        new coreui.MultiSelect(newSelect, {
-            multiple: true,
-            search: true,
-            selectionType: 'counter'
-        });
-    }
+    //    // ✅ Step 5: Initialize MultiSelect
+    //    new coreui.MultiSelect(newSelect, {
+    //        multiple: true,
+    //        search: true,
+    //        selectionType: 'counter'
+    //    });
+    //}
 
 
 
-    function loadFilteredEmployees(employeeIDs = []) {
-        var deptIds = $('#DepartmentIDs').val() || [];
+    //function loadFilteredEmployees(employeeIDs = []) {
+    //    var deptIds = $('#DepartmentIDs').val() || [];
 
-        if (!Array.isArray(deptIds)) deptIds = [deptIds];
+    //    if (!Array.isArray(deptIds)) deptIds = [deptIds];
 
-        $.ajax({
-            url: '/LeaveRequest/GetEmployeeByDepartment',
-            type: 'GET',
-            data: {
-                departmentIds: deptIds.join(',')
-            },
-            success: function (data) {
-                updateEmployeeDropdown(data, employeeIDs);
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading employees:', error);
-            }
-        });
-    }
+    //    $.ajax({
+    //        url: '/LeaveRequest/GetEmployeeByDepartment',
+    //        type: 'GET',
+    //        data: {
+    //            departmentIds: deptIds.join(',')
+    //        },
+    //        success: function (data) {
+    //            updateEmployeeDropdown(data, employeeIDs);
+    //        },
+    //        error: function (xhr, status, error) {
+    //            console.error('Error loading employees:', error);
+    //        }
+    //    });
+    //}
     //
     //
     //Get Employee according to LoginID

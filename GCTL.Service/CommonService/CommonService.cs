@@ -23,6 +23,7 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<CompensationTypes> _compensationTypes;
         private readonly IGenericRepository<WeekendSettings> _weekendSettings;
         private readonly IGenericRepository<WeekendDays> _weekendDays;
+        private readonly IGenericRepository<SpiralPatternTypes> _spiralPatternTypes;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -33,7 +34,8 @@ namespace GCTL.Service.CommonService
             IGenericRepository<Shifts> shifts,
             IGenericRepository<CompensationTypes> compensationTypes,
             IGenericRepository<WeekendSettings> weekendSettings,
-            IGenericRepository<WeekendDays> weekendDays)
+            IGenericRepository<WeekendDays> weekendDays,
+            IGenericRepository<SpiralPatternTypes> spiralPatternTypes)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -44,6 +46,7 @@ namespace GCTL.Service.CommonService
             _compensationTypes = compensationTypes;
             _weekendSettings = weekendSettings;
             _weekendDays = weekendDays;
+            _spiralPatternTypes = spiralPatternTypes;
         }
         #endregion
 
@@ -156,13 +159,27 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetShifts
+        #region GetCompensation
         public async Task<List<CommonSelectVM>> GetCompensation()
         {
             var result = await _compensationTypes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.CompensationTypeID,
                 Name = $"{x.CompensationTypeName}"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetSpiralPatternTypes
+        public async Task<List<CommonSelectVM>> GetSpiralPatternTypes()
+        {
+            var result = await _spiralPatternTypes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.SpiralPatternTypeID,
+                Name = x.SpiralPatternTypeName
             }).ToListAsync();
 
             return result;

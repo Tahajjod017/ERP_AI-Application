@@ -361,7 +361,7 @@ $(document).ready(function () {
                     toastr.warning(response.message || 'Record not found.');
                     return;
                 }
-                debugger
+         
                 const data = response.data;
                 choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                 choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationIDEdit);

@@ -330,17 +330,16 @@ namespace GCTL.Service.Employees.EmpTransfer
             try
             {
                 //
-                var offf = await empoffi.AllActive()
-    .Where(x => x.EmployeeID == entityVM.EmployeeID)
-    .Select(x => new
-    {
-        x.EmployeeID,
-        x.OrganizationID,
-        x.OrganizationBranchID,
-        x.SeniorSupervisorId,
-        x.ImmediateSupervisorId,
-        x.HeadOfDepartmentId
-    }).FirstOrDefaultAsync();
+                var offf = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeID)
+                                                       .Select(x => new
+                                                       {
+                                                           x.EmployeeID,
+                                                           x.OrganizationID,
+                                                           x.OrganizationBranchID,
+                                                           x.SeniorSupervisorId,
+                                                           x.ImmediateSupervisorId,
+                                                           x.HeadOfDepartmentId
+                                                       }).FirstOrDefaultAsync();
 
                 if (offf == null)
                     return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
@@ -633,8 +632,8 @@ namespace GCTL.Service.Employees.EmpTransfer
                 // Step 1: Find existing transfer record
                 var existingEntity = await repositoryEmployeeTransfer.AllActive()
                     .FirstOrDefaultAsync(x =>
-                        x.EmployeeID == entityVM.EmployeeIDEdit &&
-                        x.TransferDate == entityVM.TransferDateEdit
+                        x.EmployeeID == entityVM.EmployeeIDEdit
+                       
                     );
 
                 if (existingEntity == null)
@@ -680,31 +679,6 @@ namespace GCTL.Service.Employees.EmpTransfer
                 existingEntity.UpdatedAt = DateTime.Now;
                 existingEntity.UpdatedBy = entityVM.UpdatedBy;
                 await repositoryEmployeeTransfer.UpdateAsync(existingEntity);
-
-                //// Step 3: Update employee official info
-                //var empOfficialInfo = await empoffi.AllActive()
-                //    .FirstOrDefaultAsync(x => x.EmployeeID == entityVM.EmployeeIDEdit);
-
-                //if (empOfficialInfo != null)
-                //{
-                //    if (entityVM.TransferTypeEdit == "Organization")
-                //    {
-                //        empOfficialInfo.OrganizationID = entityVM.ToOrganizationIDEdit;
-                //        empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
-                //    }
-                //    else if (entityVM.TransferTypeEdit == "Branch")
-                //    {
-                //        empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
-                //    }
-                //    empOfficialInfo.DesignationID = entityVM.ToDesignationIDEdit;
-                //    empOfficialInfo.DepartmentID = entityVM.ToDepartmentIDEdit;
-                //    await empoffi.UpdateAsync(empOfficialInfo);
-                //}
-
-                //
-                
-                //
-                // Step 4: Commit transaction
                 await repositoryEmployeeTransfer.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
