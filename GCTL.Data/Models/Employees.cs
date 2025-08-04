@@ -77,6 +77,8 @@ public partial class Employees
 
     public string EmployeeCode { get; set; }
 
+    public bool? IsActive { get; set; }
+
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
     public virtual ICollection<AlertForEmployee> AlertForEmployeeCreatedByNavigation { get; set; } = new List<AlertForEmployee>();
@@ -568,6 +570,18 @@ public partial class Employees
     public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
 
     public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternUpdatedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();
+
+    public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPatternCreatedByNavigation { get; set; } = new List<SpiralMonthlyPattern>();
+
+    public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPatternDeletedByNavigation { get; set; } = new List<SpiralMonthlyPattern>();
+
+    public virtual ICollection<SpiralMonthlyPatternDetails> SpiralMonthlyPatternDetailsCreatedByNavigation { get; set; } = new List<SpiralMonthlyPatternDetails>();
+
+    public virtual ICollection<SpiralMonthlyPatternDetails> SpiralMonthlyPatternDetailsDeletedByNavigation { get; set; } = new List<SpiralMonthlyPatternDetails>();
+
+    public virtual ICollection<SpiralMonthlyPatternDetails> SpiralMonthlyPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralMonthlyPatternDetails>();
+
+    public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPatternUpdatedByNavigation { get; set; } = new List<SpiralMonthlyPattern>();
 
     public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesCreatedByNavigation { get; set; } = new List<SpiralPatternTypes>();
 

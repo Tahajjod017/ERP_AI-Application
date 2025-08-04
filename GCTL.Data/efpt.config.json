@@ -371,6 +371,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[SpiralMonthlyPattern]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralMonthlyPatternDetails]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[SpiralPatternTypes]",
          "ObjectType": 0
       },
