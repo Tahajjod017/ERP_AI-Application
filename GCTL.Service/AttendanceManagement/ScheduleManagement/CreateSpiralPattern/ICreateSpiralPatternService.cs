@@ -18,5 +18,17 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
             string searchTerm = "",
             string sortColumn = "SpiralWeeklyPatternID",
             string sortOrder = "desc");
+        Task<(List<SpiralBioWeeklyPatternListVM> Data, SeparatePaginationInfo Pagination)> GetAllSpiralFortnightlyPatternAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "SpiralBioWeeklyPatternID",
+            string sortOrder = "desc");
+        Task<(List<SpiralMonthlyPatternListVM> Data, SeparatePaginationInfo Pagination)> GetAllSpiralMonthlyPatternAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "SpiralMonthlyPatternID",
+            string sortOrder = "desc");
     }
 }

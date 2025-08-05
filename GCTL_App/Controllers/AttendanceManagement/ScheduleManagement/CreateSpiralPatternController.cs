@@ -1,5 +1,4 @@
 ﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
@@ -102,6 +101,52 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             try
             {
                 var (data, pagination) = await _createSpiralPatternService.GetAllSpiralWeeklyPatternAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+                return Json(new
+                {
+                    isSuccess = true,
+                    data,
+                    pagination
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region GetAllSpiralFortnightlyPatternAsync
+        [Route("/CreateSpiralPattern/GetAllSpiralFortnightlyPatternAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllSpiralFortnightlyPatternAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "SpiralBioWeeklyPatternID", string sortOrder = "desc")
+        {
+            try
+            {
+                var (data, pagination) = await _createSpiralPatternService.GetAllSpiralFortnightlyPatternAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+                return Json(new
+                {
+                    isSuccess = true,
+                    data,
+                    pagination
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region GetAllSpiralMonthlyPatternAsync
+        [Route("/CreateSpiralPattern/GetAllSpiralMonthlyPatternAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllSpiralMonthlyPatternAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "SpiralMonthlyPatternID", string sortOrder = "desc")
+        {
+            try
+            {
+                var (data, pagination) = await _createSpiralPatternService.GetAllSpiralMonthlyPatternAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
                 return Json(new
                 {
                     isSuccess = true,

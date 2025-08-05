@@ -801,11 +801,11 @@
 
                         updatePagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
                     } else {
-                        alert("Failed to get data.");
+                        console.log("Failed to get data.");
                     }
                 },
                 error: function () {
-                    alert('Failed to load roster data.');
+                    console.log('Failed to load roster data.');
                 }
             });
         }

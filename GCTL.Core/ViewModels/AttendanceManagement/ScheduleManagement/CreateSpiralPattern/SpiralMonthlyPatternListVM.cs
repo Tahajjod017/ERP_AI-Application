@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern
 {
-    public class SpiralWeeklyPatternList
+    public class SpiralMonthlyPatternListVM : BaseViewModel
     {
-        public int SpiralWeeklyPatternID { get; set; }
-        public string SpiralPatternName { get; set; }
+        public int SpiralMonthlyPatternID { get; set; }
+
+        public string SpiralMonthlyPatternName { get; set; }
+
         public int? OrganizationID { get; set; }
+
         public string OrganizationName { get; set; }
+
         public int SpiralPatternTypeID { get; set; }
+        
         public string SpiralPatternTypeName { get; set; }
-        public ICollection<SpiralWeeklyPatternDetailsListVM>? SpiralWeeklyPatternDetailsListVMs { get; set; } = new List<SpiralWeeklyPatternDetailsListVM>();
+        
+        public ICollection<SpiralMonthlyPatternDetailsListVM>? SpiralMonthlyPatternDetailsListVMs { get; set; } = new List<SpiralMonthlyPatternDetailsListVM>();
     }
 }

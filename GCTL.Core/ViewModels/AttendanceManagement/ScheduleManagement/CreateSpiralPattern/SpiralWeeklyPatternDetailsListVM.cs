@@ -1,5 +1,4 @@
-﻿using GCTL.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern
 {
-    public class SpiralWeeklyPatternDetailsVM : BaseViewModel
+    public class SpiralWeeklyPatternDetailsListVM : BaseViewModel
     {
         public int SpiralWeeklyPatternDetailID { get; set; }
 
@@ -16,5 +15,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
         public byte DayOfWeek { get; set; }
 
         public int? ShiftID { get; set; }
+
+        public string ShiftTime { get; set; }
     }
 }

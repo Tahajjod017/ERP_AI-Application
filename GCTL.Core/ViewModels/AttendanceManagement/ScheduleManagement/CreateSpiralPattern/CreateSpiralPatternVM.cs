@@ -22,13 +22,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
 
         public int SpiralBioWeeklyPatternID { get; set; }
 
-        //[Required(ErrorMessage = "Pattern Name is required!")]
-        //public string SpiralBioWeeklyPatternName { get; set; }
-
         public int SpiralMonthlyPatternID { get; set; }
-
-        //[Required(ErrorMessage = "Pattern Name is required!")]
-        //public string SpiralMonthlyPatternName { get; set; }
 
         public ICollection<SpiralWeeklyPatternDetailsVM>? SpiralWeeklyPatternDetailsVMs { get; set; } = new List<SpiralWeeklyPatternDetailsVM>();
         public ICollection<SpiralBioWeeklyPatternDetailsVM>? SpiralBioWeeklyPatternDetailsVMs { get; set; } = new List<SpiralBioWeeklyPatternDetailsVM>();

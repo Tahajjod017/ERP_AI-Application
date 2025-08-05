@@ -9,6 +9,8 @@
         }, options);
 
         var weeklyListUrl = settings.baseUrl + "/GetAllSpiralWeeklyPatternAsync";
+        var bioWeeklyListUrl = settings.baseUrl + '/GetAllSpiralFortnightlyPatternAsync';
+        var monthlyListUrl = settings.baseUrl + '/GetAllSpiralMonthlyPatternAsync';
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
         $(() => {
@@ -45,7 +47,7 @@
                         if (response.isSuccess === true) {
                             toastr.success(response.message);
                             clear();
-                            //loadTableData();
+                            loadSpiralWeeklyPatterns();
                         } else {
                             const allFields = ["OrganizationID", "SpiralPatternTypeID", "SpiralPatternName"];
 
@@ -240,21 +242,59 @@
 
 
 
-        // #region
-        function loadSpiralWeeklyPatterns(pageNumber = 1, pageSize = 5, searchTerm = "", sortColumn = "SpiralWeeklyPatternID", sortOrder = "desc") {
+        // #region loadSpiralWeeklyPatterns
+        var currentPage = 1;
+        var pageSize = 5;
+        let currentSortColumn = 'SpiralWeeklyPatternID';
+        let currentSortOrder = 'desc';
+
+        $(document).ready(function () {
+            loadSpiralWeeklyPatterns();
+
+            $("#createSpiralPattern-searchInput").on("input", function () {
+                currentPage = 1;
+                loadSpiralWeeklyPatterns();
+            });
+
+            $("#createSpiralPattern-prevPageBtn").on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadSpiralWeeklyPatterns();
+                }
+            });
+
+            $("#createSpiralPattern-nextPageBtn").on('click', function () {
+                currentPage++;
+                loadSpiralWeeklyPatterns();
+            });
+        });
+
+        function loadSpiralWeeklyPatterns(sortColumn, sortOrder) {
+            var searchTerm = $("#createSpiralPattern-searchInput").val();
             $.ajax({
                 url: weeklyListUrl,
                 type: 'GET',
                 data: {
-                    pageNumber: pageNumber,
+                    pageNumber: currentPage,
                     pageSize: pageSize,
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    renderSpiralWeeklyPatternTable(response.data);
-                    // You can handle pagination info from response.pagination if needed
+                    if (response.isSuccess === true) {
+                        renderSpiralWeeklyPatternTable(response.data);
+
+                        const pageInfo = response.pagination;
+
+                        $('#startItem').text(pageInfo.startItem);
+                        $('#endItem').text(pageInfo.endItem);
+                        $('#totalItems').text(pageInfo.totalItems);
+
+                        spiralWeeklyPatternsUpdatePagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
+                    } else {
+                        console.log('Something went wrong!');
+                    }
                 },
                 error: function (err) {
                     console.error('Failed to load Spiral Weekly Patterns:', err);
@@ -281,7 +321,7 @@
 
                 // Loop for 7 days (0 = Saturday, 6 = Friday)
                 for (var day = 0; day < 7; day++) {
-                    var shiftDetail = pattern.spiralWeeklyPatternDetailsVMs.find(d => d.dayOfWeek === day);
+                    var shiftDetail = pattern.spiralWeeklyPatternDetailsListVMs.find(d => d.dayOfWeek === day);
                     if (shiftDetail) {
                         // Example: you need to format Shift Time here (hardcoded now)
                         row += `<td class="startTime py-1">
@@ -318,6 +358,349 @@
                 $tableBody.append(row);
             });
         }
+
+        function spiralWeeklyPatternsUpdatePagination(pageNumbers, currentPage, totalPages) {
+            const paginationLinks = $("#createSpiralPattern-paginationLinks");
+            paginationLinks.empty();
+            const windowSize = 1;
+
+            const createPageButton = (page) => `
+            <li class="page-item ${page === currentPage ? 'active' : ''}">
+                <button class="page-link page-btn" data-page="${page}">${page}</button>
+            </li>`;
+
+            const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+
+            if (currentPage > windowSize + 1) {
+                paginationLinks.append(createPageButton(1), addEllipsis());
+            }
+
+            const startPage = Math.max(1, currentPage - windowSize);
+            const endPage = Math.min(totalPages, currentPage + windowSize);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationLinks.append(createPageButton(i));
+            }
+
+            if (currentPage < totalPages - windowSize) {
+                paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+            }
+
+            $("#createSpiralPattern-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#createSpiralPattern-nextPageBtn").prop('disabled', currentPage === totalPages);
+        }
+
+        // 🔁 Page button click
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
+            currentPage = page;
+            loadSpiralWeeklyPatterns(currentSortColumn, currentSortOrder);
+        });
+        // #endregion
+
+
+        // #region loadSpiralBioWeeklyPatterns
+        let currentSortColumnBioWeekly = 'SpiralBioWeeklyPatternID';
+
+        $(document).ready(function () {
+            loadSpiralBioWeeklyPatterns();
+
+            $("#createFortnightlySpiralPattern-searchInput").on("input", function () {
+                currentPage = 1;
+                loadSpiralBioWeeklyPatterns();
+            });
+
+            $("#createFortnightlySpiralPattern-prevPageBtn").on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadSpiralBioWeeklyPatterns();
+                }
+            });
+
+            $("#createFortnightlySpiralPattern-nextPageBtn").on('click', function () {
+                currentPage++;
+                loadSpiralBioWeeklyPatterns();
+            });
+        });
+
+        function loadSpiralBioWeeklyPatterns(sortColumn, sortOrder) {
+            var searchTerm = $("#createFortnightlySpiralPattern-searchInput").val();
+            $.ajax({
+                url: bioWeeklyListUrl,
+                type: 'GET',
+                data: {
+                    pageNumber: currentPage,
+                    pageSize: pageSize,
+                    searchTerm: searchTerm,
+                    sortColumn: sortColumn,
+                    sortOrder: sortOrder
+                },
+                success: function (response) {
+                    if (response.isSuccess === true) {
+                        renderSpiralBioWeeklyPatternTable(response.data);
+
+                        const pageInfo = response.pagination;
+
+                        $('#createFortnightlySpiralPattern-startItem').text(pageInfo.startItem);
+                        $('#createFortnightlySpiralPattern-endItem').text(pageInfo.endItem);
+                        $('#createFortnightlySpiralPattern-totalItems').text(pageInfo.totalItems);
+
+                        spiralBioWeeklyPatternsUpdatePagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
+                    } else {
+                        console.log('Something went wrong!');
+                    }
+                },
+                error: function (err) {
+                    console.error('Failed to load Spiral Bio Weekly Patterns:', err);
+                }
+            });
+        }
+
+        function renderSpiralBioWeeklyPatternTable(data) {
+            var $tableBody = $('#fortnightlyTblBody');
+            $tableBody.empty(); // Clear existing rows
+
+            if (data.length === 0) {
+                $tableBody.append('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                return;
+            }
+
+            data.forEach(function (pattern) {
+                var row = '<tr class="hover-actions-trigger btn-reveal-trigger position-static">';
+                row += `<td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                    <h5>${pattern.spiralBioWeeklyPatternName}</h5></ br>
+                    <p class="fs-9 mb-0">${pattern.organizationName}</p>
+
+                </td>`;
+
+                // Loop for 7 days (0 = Saturday, 6 = Friday)
+                for (var day = 0; day < 14; day++) {
+                    var shiftDetail = pattern.spiralBioWeeklyPatternDetailsListVMs.find(d => d.dayOfMonth === day);
+                    if (shiftDetail) {
+                        // Example: you need to format Shift Time here (hardcoded now)
+                        row += `<td class="startTime py-1">
+                            <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>`;
+                    } else {
+                        row += `<td class="startTime py-1">
+                            <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">Off Day</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>`;
+                    }
+                }
+
+                row += '</tr>';
+                $tableBody.append(row);
+            });
+        }
+
+        function spiralBioWeeklyPatternsUpdatePagination(pageNumbers, currentPage, totalPages) {
+            const paginationLinks = $("#createFortnightlySpiralPattern-paginationLinks");
+            paginationLinks.empty();
+            const windowSize = 1;
+
+            const createPageButton = (page) => `
+            <li class="page-item ${page === currentPage ? 'active' : ''}">
+                <button class="page-link page-btn" data-page="${page}">${page}</button>
+            </li>`;
+
+            const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+
+            if (currentPage > windowSize + 1) {
+                paginationLinks.append(createPageButton(1), addEllipsis());
+            }
+
+            const startPage = Math.max(1, currentPage - windowSize);
+            const endPage = Math.min(totalPages, currentPage + windowSize);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationLinks.append(createPageButton(i));
+            }
+
+            if (currentPage < totalPages - windowSize) {
+                paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+            }
+
+            $("#createFortnightlySpiralPattern-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#createFortnightlySpiralPattern-nextPageBtn").prop('disabled', currentPage === totalPages);
+        }
+
+        // 🔁 Page button click
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
+            currentPage = page;
+            loadSpiralBioWeeklyPatterns(currentSortColumnBioWeekly, currentSortOrder);
+        });
+        // #endregion
+
+
+        // #region loadSpiralMonthlyPatterns
+        let currentSortColumnMonthly = 'SpiralMonthlyPatternID';
+
+        $(document).ready(function () {
+            loadSpiralMonthlyPatterns();
+
+            $("#createMonthlySpiralPattern-searchInput").on("input", function () {
+                currentPage = 1;
+                loadSpiralMonthlyPatterns();
+            });
+
+            $("#createMonthlySpiralPattern-prevPageBtn").on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadSpiralMonthlyPatterns();
+                }
+            });
+
+            $("#createMonthlySpiralPattern-nextPageBtn").on('click', function () {
+                currentPage++;
+                loadSpiralMonthlyPatterns();
+            });
+        });
+
+        function loadSpiralMonthlyPatterns(sortColumn, sortOrder) {
+            var searchTerm = $("#createMonthlySpiralPattern-searchInput").val();
+            $.ajax({
+                url: monthlyListUrl,
+                type: 'GET',
+                data: {
+                    pageNumber: currentPage,
+                    pageSize: pageSize,
+                    searchTerm: searchTerm,
+                    sortColumn: sortColumn,
+                    sortOrder: sortOrder
+                },
+                success: function (response) {
+                    if (response.isSuccess === true) {
+                        renderSpiralMonthlyPatternTable(response.data);
+
+                        const pageInfo = response.pagination;
+
+                        $('#createMonthlySpiralPattern-startItem').text(pageInfo.startItem);
+                        $('#createMonthlySpiralPattern-endItem').text(pageInfo.endItem);
+                        $('#createMonthlySpiralPattern-totalItems').text(pageInfo.totalItems);
+
+                        spiralMonthlyPatternsUpdatePagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
+                    } else {
+                        console.log('Something went wrong!');
+                    }
+                },
+                error: function (err) {
+                    console.error('Failed to load Spiral Monthly Patterns:', err);
+                }
+            });
+        }
+
+        function renderSpiralMonthlyPatternTable(data) {
+            var $tableBody = $('#monthlyTblBody');
+            $tableBody.empty(); // Clear existing rows
+
+            if (data.length === 0) {
+                $tableBody.append('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                return;
+            }
+
+            data.forEach(function (pattern) {
+                var row = '<tr class="hover-actions-trigger btn-reveal-trigger position-static">';
+                row += `<td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                    <h5>${pattern.spiralMonthlyPatternName}</h5></ br>
+                    <p class="fs-9 mb-0">${pattern.organizationName}</p>
+
+                </td>`;
+
+                // Loop for 7 days (0 = Saturday, 6 = Friday)
+                for (var day = 0; day < 30; day++) {
+                    var shiftDetail = pattern.spiralMonthlyPatternDetailsListVMs.find(d => d.dayOfMonth === day);
+                    if (shiftDetail) {
+                        // Example: you need to format Shift Time here (hardcoded now)
+                        row += `<td class="startTime py-1">
+                            <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>`;
+                    } else {
+                        row += `<td class="startTime py-1">
+                            <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">Off Day</p>
+                                <div class="add-shift-btn2">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                        <i class="fas fa-edit text-success"></i>
+                                    </a>
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>`;
+                    }
+                }
+
+                row += '</tr>';
+                $tableBody.append(row);
+            });
+        }
+
+        function spiralMonthlyPatternsUpdatePagination(pageNumbers, currentPage, totalPages) {
+            const paginationLinks = $("#createMonthlySpiralPattern-paginationLinks");
+            paginationLinks.empty();
+            const windowSize = 1;
+
+            const createPageButton = (page) => `
+            <li class="page-item ${page === currentPage ? 'active' : ''}">
+                <button class="page-link page-btn" data-page="${page}">${page}</button>
+            </li>`;
+
+            const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+
+            if (currentPage > windowSize + 1) {
+                paginationLinks.append(createPageButton(1), addEllipsis());
+            }
+
+            const startPage = Math.max(1, currentPage - windowSize);
+            const endPage = Math.min(totalPages, currentPage + windowSize);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationLinks.append(createPageButton(i));
+            }
+
+            if (currentPage < totalPages - windowSize) {
+                paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+            }
+
+            $("#createMonthlySpiralPattern-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#createMonthlySpiralPattern-nextPageBtn").prop('disabled', currentPage === totalPages);
+        }
+
+        // 🔁 Page button click
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
+            currentPage = page;
+            loadSpiralMonthlyPatterns(currentSortColumnMonthly, currentSortOrder);
+        });
         // #endregion
     }
 }(jQuery));
