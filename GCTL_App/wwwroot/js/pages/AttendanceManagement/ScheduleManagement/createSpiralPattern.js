@@ -6,6 +6,7 @@
             form: '#createSpiralPattern-form',
             saveBtn: '#createSpiralPattern-saveBtn',
             resetBtn: '#createSpiralPattern-resetBtn',
+            editShiftModal: '#editShiftModal',
         }, options);
 
         var weeklyListUrl = settings.baseUrl + "/GetAllSpiralWeeklyPatternAsync";
@@ -14,8 +15,6 @@
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
         $(() => {
-
-            loadSpiralWeeklyPatterns();
 
 
             // #region Save
@@ -47,7 +46,6 @@
                         if (response.isSuccess === true) {
                             toastr.success(response.message);
                             clear();
-                            loadSpiralWeeklyPatterns();
                         } else {
                             const allFields = ["OrganizationID", "SpiralPatternTypeID", "SpiralPatternName"];
 
@@ -158,6 +156,10 @@
                 spiralPatternTypeDD.setChoiceByValue('1');
                 $('#Weekly').removeClass('d-none');
                 toggleSpiralPattern();
+
+                loadSpiralWeeklyPatterns();
+                loadSpiralBioWeeklyPatterns();
+                loadSpiralMonthlyPatterns();
             }
             // #endregion
 
@@ -186,55 +188,56 @@
             // #endregion
 
 
+            // #region Load shift by opening edit shift modal
+            $(settings.editShiftModal).on('show.bs.modal', function (e) {
+                var btn = $(e.relatedTarget);
+                var detailID = btn.data('id');
+                var organizationId = btn.data('organization-id');
+                var shiftId = btn.data('shift-id');
+                //var depId = btn.data('dep-id');
+                //var empId = btn.data('emp-id');
+                //var overrideDate = btn.data('date');
+
+                $('#RosterInHolyDayIdEdit').val(detailID);
+                $('#OrganizationIdEdit').val(organizationId);
+                //$('#DepartmentIdEdit').val(depId);
+                //$('#EmployeeIdEdit').val(empId);
+                //$('#DayDateEdit').val(overrideDate);
+
+                $.ajax({
+                    url: '/CreateSpiralPattern/GetShiftByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (shifts) {
+                        const $shiftSelect = $('#editShiftModalShiftID');
+
+                        $shiftSelect.empty();
+
+                        // Add default placeholder
+                        $shiftSelect.append(`<option value="">Select Shift...</option>`);
+
+                        // Populate shift options
+                        shifts.forEach(shift => {
+                            const isSelected = shift.id === shiftId;
+                            $shiftSelect.append(
+                                `<option value="${shift.id}" ${isSelected ? 'selected' : ''}>
+                                    ${shift.name}
+                                </option>`
+                            );
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading shifts:', error);
+                    }
+                });
+            });
+            // #endregion
             
-                       
 
-            let $activeShiftButton = null;
-
-            $(document).on('click', '.add-shift-btn', function () {
-                $activeShiftButton = $(this); // Save reference to clicked button
-            });
-
-            $('#saveShift').on('click', function () {
-                const $select = $('#AddShiftModalShiftID');
-                const selectedOption = $select.find('option:selected');
-                const shiftName = selectedOption.text();
-                const shiftId = selectedOption.val();
-
-                if (!shiftId) {
-                    alert('Please select a shift.');
-                    return;
-                }
-
-                // ⬇ Get dynamic time range from selected option
-                const startTime = selectedOption.data('start');
-                const endTime = selectedOption.data('end');
-                const timeRange = `${startTime} - ${endTime}`;
-
-                const badgeHtml = `
-        <div class="badge badge-phoenix-primary p-2">
-            <p class="my-2 fs-10">${timeRange}</p>
-            <div class="add-shift-btn2">
-                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
-                    <i class="fas fa-edit text-success"></i>
-                </a>
-                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                    <i class="fas fa-trash text-danger"></i>
-                </a>
-            </div>
-        </div>
-    `;
-
-                if ($activeShiftButton) {
-                    const $td = $activeShiftButton.closest('td');
-                    $td.html(badgeHtml);
-                    $activeShiftButton = null;
-                }
-
-                // Close the modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addShiftModal'));
-                modal.hide();
-            });
+            //// Close the modal
+            //const modal = bootstrap.Modal.getInstance(document.getElementById('addShiftModal'));
+            //modal.hide();
+            
 
 
             
@@ -323,12 +326,15 @@
                 for (var day = 0; day < 7; day++) {
                     var shiftDetail = pattern.spiralWeeklyPatternDetailsListVMs.find(d => d.dayOfWeek === day);
                     if (shiftDetail) {
-                        // Example: you need to format Shift Time here (hardcoded now)
                         row += `<td class="startTime py-1">
                             <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
                                 <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal" 
+                                        data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                        data-organization-id="${pattern.organizationID}"
+                                        data-shift-id="${shiftDetail.shiftID}">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
                                     <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
@@ -340,14 +346,8 @@
                     } else {
                         row += `<td class="startTime py-1">
                             <div class="badge badge-phoenix-primary p-2">
-                                <p class="my-2 fs-10">Off Day</p>
                                 <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
+                                    
                                 </div>
                             </div>
                         </td>`;
@@ -479,9 +479,13 @@
                         // Example: you need to format Shift Time here (hardcoded now)
                         row += `<td class="startTime py-1">
                             <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
                                 <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                        data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                        data-organization-id="${pattern.organizationID}"
+                                        data-shift-id="${shiftDetail.shiftID}">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
                                     <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
@@ -632,9 +636,13 @@
                         // Example: you need to format Shift Time here (hardcoded now)
                         row += `<td class="startTime py-1">
                             <div class="badge badge-phoenix-primary p-2">
+                                <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
                                 <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                        data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                        data-organization-id="${pattern.organizationID}"
+                                        data-shift-id="${shiftDetail.shiftID}">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
                                     <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">

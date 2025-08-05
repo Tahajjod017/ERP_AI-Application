@@ -144,6 +144,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                         SpiralWeeklyPatternDetailID = d.SpiralWeeklyPatternDetailID,
                         DayOfWeek = d.DayOfWeek,
                         ShiftID = d.ShiftID,
+                        ShiftName =d.Shift.ShiftName,
                         ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
                     }).ToList()
                 }).AsNoTracking().ToListAsync();
@@ -226,6 +227,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                         SpiralBioWeeklyPatternDetailID = d.SpiralBioWeeklyPatternDetailID,
                         DayOfMonth = d.DayOfMonth,
                         ShiftID = d.ShiftID,
+                        ShiftName = d.Shift.ShiftName,
                         ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
                     }).ToList()
                 }).AsNoTracking().ToListAsync();
@@ -308,6 +310,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                         SpiralMonthlyPatternDetailID = d.SpiralMonthlyPatternDetailID,
                         DayOfMonth = d.DayOfMonth,
                         ShiftID = d.ShiftID,
+                        ShiftName = d.Shift.ShiftName,
                         ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
                     }).ToList()
                 }).AsNoTracking().ToListAsync();

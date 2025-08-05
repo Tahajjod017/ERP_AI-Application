@@ -701,7 +701,7 @@
 
         });
 
-        // #region
+        // #region loadTableData
         var currentPage = 1;
         var pageSize = 5;
         let currentSortColumn = 'RosterInHolyDayID';
