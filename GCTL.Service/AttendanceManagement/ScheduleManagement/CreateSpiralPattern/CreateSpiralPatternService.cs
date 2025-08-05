@@ -139,7 +139,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.SpiralWeeklyPatternName,
                     x.OrganizationID,
                     OrganizationName = x.Organization.OrganizationName,
-                    SpiralWeeklyPatternDetailsVMs = x.SpiralWeeklyPatternDetails.Select(d => new SpiralWeeklyPatternDetailsVM
+                    SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetails.Select(d => new SpiralWeeklyPatternDetailsListVM
                     {
                         SpiralWeeklyPatternDetailID = d.SpiralWeeklyPatternDetailID,
                         DayOfWeek = d.DayOfWeek,
@@ -186,7 +186,171 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 SpiralPatternName = x.SpiralWeeklyPatternName,
                 OrganizationID = x.OrganizationID,
                 OrganizationName = x.OrganizationName,
-                SpiralWeeklyPatternDetailsVMs = x.SpiralWeeklyPatternDetailsVMs
+                SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetailsListVMs
+            }).ToList();
+
+            var pagination = new SeparatePaginationInfo
+            {
+                StartItem = (pageNumber - 1) * pageSize + 1,
+                EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                TotalItems = totalCount,
+                CurrentPage = pageNumber,
+                TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+                PageNumbers = pageSize == 0
+                    ? new List<int> { 1 }
+                    : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
+            };
+
+            return (mappedResult, pagination);
+        }
+        #endregion
+
+
+        #region Get Spiral Fortnightly Patterns List
+        public async Task<(List<SpiralBioWeeklyPatternListVM> Data, SeparatePaginationInfo Pagination)> GetAllSpiralFortnightlyPatternAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "SpiralBioWeeklyPatternID",
+            string sortOrder = "desc")
+        {
+            var rawData = await _spiralBioWeeklyPattern.AllActive()
+                .Select(x => new
+                {
+                    x.SpiralBioWeeklyPatternID,
+                    x.SpiralBioWeeklyPatternName,
+                    x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName,
+                    SpiralBioWeeklyPatternDetailsListVMs = x.SpiralBioWeeklyPatternDetails.Select(d => new SpiralBioWeeklyPatternDetailsListVM
+                    {
+                        SpiralBioWeeklyPatternDetailID = d.SpiralBioWeeklyPatternDetailID,
+                        DayOfMonth = d.DayOfMonth,
+                        ShiftID = d.ShiftID,
+                        ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
+                    }).ToList()
+                }).AsNoTracking().ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+                rawData = rawData
+                    .Where(x =>
+                        x.SpiralBioWeeklyPatternName.ToLower().Contains(lowerSearch) ||
+                        x.OrganizationName.ToLower().Contains(lowerSearch))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(sortColumn))
+            {
+                rawData = sortColumn.ToLower() switch
+                {
+                    "spiralbioweeklypatternname" => (sortOrder == "asc"
+                        ? rawData.OrderBy(x => x.SpiralBioWeeklyPatternName)
+                        : rawData.OrderByDescending(x => x.SpiralBioWeeklyPatternName)).ToList(),
+
+                    "organizationname" => (sortOrder == "asc"
+                        ? rawData.OrderBy(x => x.OrganizationName)
+                        : rawData.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+                    _ => rawData.OrderByDescending(x => x.SpiralBioWeeklyPatternID).ToList()
+                };
+            }
+
+            var totalCount = rawData.Count;
+            var pagedResult = pageSize == 0
+                ? rawData
+                : rawData.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            // Map anonymous type to SpiralBioWeeklyPatternListVM
+            var mappedResult = pagedResult.Select(x => new SpiralBioWeeklyPatternListVM
+            {
+                SpiralBioWeeklyPatternID = x.SpiralBioWeeklyPatternID,
+                SpiralBioWeeklyPatternName = x.SpiralBioWeeklyPatternName,
+                OrganizationID = x.OrganizationID,
+                OrganizationName = x.OrganizationName,
+                SpiralBioWeeklyPatternDetailsListVMs = x.SpiralBioWeeklyPatternDetailsListVMs
+            }).ToList();
+
+            var pagination = new SeparatePaginationInfo
+            {
+                StartItem = (pageNumber - 1) * pageSize + 1,
+                EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                TotalItems = totalCount,
+                CurrentPage = pageNumber,
+                TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+                PageNumbers = pageSize == 0
+                    ? new List<int> { 1 }
+                    : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
+            };
+
+            return (mappedResult, pagination);
+        }
+        #endregion
+
+
+        #region Get Spiral Fortnightly Patterns List
+        public async Task<(List<SpiralMonthlyPatternListVM> Data, SeparatePaginationInfo Pagination)> GetAllSpiralMonthlyPatternAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "SpiralMonthlyPatternID",
+            string sortOrder = "desc")
+        {
+            var rawData = await _spiralMonthlyPattern.AllActive()
+                .Select(x => new
+                {
+                    x.SpiralMonthlyPatternID,
+                    x.SpiralMonthlyPatternName,
+                    x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName,
+                    SpiralMonthlyPatternDetailsListVMs = x.SpiralMonthlyPatternDetails.Select(d => new SpiralMonthlyPatternDetailsListVM
+                    {
+                        SpiralMonthlyPatternDetailID = d.SpiralMonthlyPatternDetailID,
+                        DayOfMonth = d.DayOfMonth,
+                        ShiftID = d.ShiftID,
+                        ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
+                    }).ToList()
+                }).AsNoTracking().ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+                rawData = rawData
+                    .Where(x =>
+                        x.SpiralMonthlyPatternName.ToLower().Contains(lowerSearch) ||
+                        x.OrganizationName.ToLower().Contains(lowerSearch))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(sortColumn))
+            {
+                rawData = sortColumn.ToLower() switch
+                {
+                    "spiralmonthlypatternname" => (sortOrder == "asc"
+                        ? rawData.OrderBy(x => x.SpiralMonthlyPatternName)
+                        : rawData.OrderByDescending(x => x.SpiralMonthlyPatternName)).ToList(),
+
+                    "organizationname" => (sortOrder == "asc"
+                        ? rawData.OrderBy(x => x.OrganizationName)
+                        : rawData.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+                    _ => rawData.OrderByDescending(x => x.SpiralMonthlyPatternID).ToList()
+                };
+            }
+
+            var totalCount = rawData.Count;
+            var pagedResult = pageSize == 0
+                ? rawData
+                : rawData.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+            // Map anonymous type to SpiralMonthlyPatternListVM
+            var mappedResult = pagedResult.Select(x => new SpiralMonthlyPatternListVM
+            {
+                SpiralMonthlyPatternID = x.SpiralMonthlyPatternID,
+                SpiralMonthlyPatternName = x.SpiralMonthlyPatternName,
+                OrganizationID = x.OrganizationID,
+                OrganizationName = x.OrganizationName,
+                SpiralMonthlyPatternDetailsListVMs = x.SpiralMonthlyPatternDetailsListVMs
             }).ToList();
 
             var pagination = new SeparatePaginationInfo
