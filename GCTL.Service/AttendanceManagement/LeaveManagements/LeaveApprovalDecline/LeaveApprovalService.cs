@@ -35,7 +35,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         private readonly IGenericRepository<Statuses> status;
         private readonly IGenericRepository<ApprovalSettings> approvalSettingsRepository;
         private readonly IGenericRepository<ApprovalTypes> approvalTypesRepository;
-        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService, IGenericRepository<LeaveBalances> leaveBalance, IGenericRepository<LeaveTypes> leaveTypesRepository, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseAprovalHistory, IGenericRepository<Statuses> status, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository) : base(leaveRequest)
+        private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
+        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService, IGenericRepository<LeaveBalances> leaveBalance, IGenericRepository<LeaveTypes> leaveTypesRepository, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseAprovalHistory, IGenericRepository<Statuses> status, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation = null) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.appDb = appDb;
@@ -48,12 +49,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             this.status = status;
             this.approvalSettingsRepository = approvalSettingsRepository;
             this.approvalTypesRepository = approvalTypesRepository;
+            this.approvaldesignation = approvaldesignation;
         }
 
 
         #region  Get Data All  Leave  Requyest above table 
 
-  
+
 
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>>
     GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, DateOnly? fromDate = null, DateOnly? toDate = null)
@@ -380,7 +382,37 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         }
 
 
+        private async Task<int?> ResolveApprovalAsync(int? approvalId, bool isDesignation, dynamic offf)
+        {
+            try
+            {
+                if (!approvalId.HasValue) return null;
 
+                if (isDesignation)
+                {
+                    var code = await approvaldesignation.AllActive()
+                        .Where(x => x.ApprovalDesignationID == approvalId)
+                        .Select(x => x.Code).FirstOrDefaultAsync();
+
+                    return code switch
+                    {
+                        1 => offf.ImmediateSupervisorId,
+                        2 => offf.SeniorSupervisorId,
+                        3 => offf.HeadOfDepartmentId,
+                        _ => null
+                    };
+                }
+
+                return approvalId;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+
+        }
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
         {
             if (entityVM == null)
@@ -413,9 +445,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 //
                 // Get employee office info
                 var offf = await empoffi.AllActive()
-                    .Where(x => x.EmployeeID == entityVM.CreatedBy)
-                    .Select(x => new { x.EmployeeID, x.OrganizationID, x.OrganizationBranchID, x.DepartmentID, x.DesignationID })
-                    .FirstOrDefaultAsync();
+                    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                    .Select(x => new { x.EmployeeID, x.OrganizationID, x.OrganizationBranchID, x.DepartmentID, x.DesignationID, x.ImmediateSupervisorId, x.SeniorSupervisorId, x.HeadOfDepartmentId }).FirstOrDefaultAsync();
 
                 if (offf == null)
                 {
@@ -425,19 +456,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "Employee office info not found."
                     };
                 }
-
-                // Get approval type
-                var approvalTypes = await approvalTypesRepository.AllActive()
-                    .Where(x => x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID)
-                    .Select(x => new { x.ApprovalTypeID, x.ApprovalTypeName }).FirstOrDefaultAsync();
-
-                if (approvalTypes == null)
-                    return null;
-
                 // Get approval settings
-                var approvalSettings = await approvalSettingsRepository.AllActive().FirstOrDefaultAsync(x =>
-                        (x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                        x.ApprovalTypeID == approvalTypes.ApprovalTypeID);
+                var approvalSettings = await approvalSettingsRepository.AllActive().Include(x => x.ApprovalType).FirstOrDefaultAsync(x =>
+                        (x.OrganizationID == offf.OrganizationID || x.OrganizationBranchID == offf.OrganizationBranchID) && x.ApprovalType.ApprovalTypeName == "Leave Request Approval");
                 if (approvalSettings == null)
                 {
                     return new CommonReturnViewModel
@@ -446,27 +467,66 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "Your Company Does not Exists in Approver Settings."
                     };
                 }
-                // Determine approver level
-                bool isFirstApprover = approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
-                bool isSecondApprover = approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
-                bool isThirdApprover = approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
-                bool allowSelfApprover= approvalSettings.SelfExceptionApprovalID == entityVM.UpdatedBy;
-
-                // Get status IDs
-                int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
-                int? leavStatusDecline = await GetIdByNameAsync("DECLINED");
-
-                int? statusId = entityVM.Approved ? leavStatusApproved : leavStatusDecline ;
-                if (statusId == 0)
-                {
-                    return new CommonReturnViewModel
+                var approvalFlow = new List<(int? id, bool isDesignation)>
                     {
-                        Success = false,
-                        Message = "Approval or Decline must be selected."
+                        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+                        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+                        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
                     };
-                }
 
-                // 🔹 Authorization check
+                bool isFinalApproval = false;
+                bool isFirstApprover = false;
+                bool isSecondApprover = false;
+                bool isThirdApprover = false;
+                bool allowSelfApprover = false;
+                int? approvalPersonId = null;
+                if (!approvalSettings.IsDesignationOrEmpFirstApprovalID || !approvalSettings.IsDesignationOrEmpSecondApprovalID || !approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                {
+                    isFirstApprover = approvalSettings != null && approvalSettings?.FirstApprovalID == entityVM.UpdatedBy;
+                    isSecondApprover = approvalSettings != null && approvalSettings?.SecondApprovalID == entityVM.UpdatedBy;
+                    isThirdApprover = approvalSettings != null && approvalSettings?.ThirdApprovalID == entityVM.UpdatedBy;
+                    allowSelfApprover = approvalSettings != null && approvalSettings.SelfExceptionApprovalID == entityVM.UpdatedBy;
+                }
+                else if (approvalSettings.IsDesignationOrEmpFirstApprovalID || approvalSettings.IsDesignationOrEmpSecondApprovalID || approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                {
+
+                    int? resolvedFirst = await ResolveApprovalAsync(approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID, offf);
+                    int? resolvedSecond = await ResolveApprovalAsync(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID, offf);
+                    int? resolvedThird = await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf);
+                    isFirstApprover = resolvedFirst == entityVM.UpdatedBy;
+                    isSecondApprover = resolvedSecond == entityVM.UpdatedBy;
+                    isThirdApprover = resolvedThird == entityVM.UpdatedBy;
+                    if (isFirstApprover)
+                    {
+                        approvalPersonId = resolvedSecond;
+                    }
+                    else if (isSecondApprover)
+                    {
+                        approvalPersonId = resolvedThird;
+                    }
+                    else
+                    {
+                        approvalPersonId = resolvedThird;
+                        if (entityVM.Approved)
+                        {
+                            isFinalApproval = true;
+                        }
+                    }
+                }
+                int approvalStep = 0;
+                if (approvalSettings != null && !approvalSettings.IsDesignationOrEmpFirstApprovalID &&
+                    !approvalSettings.IsDesignationOrEmpSecondApprovalID && !approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                {
+                    approvalStep = isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : allowSelfApprover ? 4 : 0;
+                }
+                else if (approvalSettings != null && (approvalSettings.IsDesignationOrEmpFirstApprovalID ||
+                         approvalSettings.IsDesignationOrEmpSecondApprovalID ||
+                         approvalSettings.IsDesignationOrEmpThirdApprovalID))
+                {
+
+                    approvalStep = isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : 0;
+
+                }
                 if (!isFirstApprover && !isSecondApprover && !isThirdApprover && !allowSelfApprover)
                 {
                     return new CommonReturnViewModel
@@ -475,34 +535,48 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "You are not authorized to approve this leave request."
                     };
                 }
+                // Get status IDs
+                int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
+                int? leavStatusDecline = await GetIdByNameAsync("DECLINED");
+                int? statusId = entityVM.Approved ? leavStatusApproved : leavStatusDecline;
+                if (!statusId.HasValue)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Approval or Decline must be selected."
+                    };
+                }
+                // 🔹 Authorization chec
 
-                // 🔹 Approval step and status decision (NEW)
-                int approvalStep = isFirstApprover ? 1 : isSecondApprover ? 2 : isThirdApprover ? 3 : allowSelfApprover ? 4: 0;
-                bool isFinalApproval = false;
+                if (isFirstApprover && approvalSettings.IsEnableSecondApproval && !approvalSettings.IsDesignationOrEmpFirstApprovalID)
+                {
 
-                if (isFirstApprover && approvalSettings.IsEnableSecondApproval && entityVM.Approved)
-                {
-                  
-                    entity.StatusID = statusId;
-                    entity.ApprovalPersonID = approvalSettings.SecondApprovalID;
+                    approvalPersonId = approvalSettings.SecondApprovalID;
                 }
-                else if (isSecondApprover && approvalSettings.IsEnableThirdApproval && entityVM.Approved)
+                else if (isSecondApprover && approvalSettings.IsEnableThirdApproval && !approvalSettings.IsDesignationOrEmpSecondApprovalID)
                 {
-                    entity.StatusID = statusId;
-                    entity.ApprovalPersonID = approvalSettings.ThirdApprovalID;
+                    approvalPersonId = approvalSettings.ThirdApprovalID;
                 }
-                else if (allowSelfApprover && approvalSettings.AllowSelfApproval.HasValue && !approvalSettings.AllowSelfApproval.Value && entityVM.Approved)
+                else if (isThirdApprover && !approvalSettings.IsDesignationOrEmpThirdApprovalID)
                 {
-                    entity.StatusID = statusId;
-                    entity.ApprovalPersonID = approvalSettings.SelfExceptionApprovalID;
-                    isFinalApproval = true;
+                    approvalPersonId = approvalSettings.ThirdApprovalID;
+                    if (entityVM.Approved)
+                    {
+                        isFinalApproval = true;
+                    }
+
                 }
-                else
+                else if (allowSelfApprover && approvalSettings.AllowSelfApproval.HasValue && !approvalSettings.AllowSelfApproval.Value)
                 {
-                    entity.StatusID = statusId;
-                    entity.ApprovalPersonID = entityVM.CreatedBy;  
-                    isFinalApproval = true;
+                    approvalPersonId = approvalSettings.SelfExceptionApprovalID;
+                    if (entityVM.Approved)
+                    {
+                        isFinalApproval = true;
+                    }
+
                 }
+
                 // 🔹 Update full-day or partial-day
                 entity.IsFullDay = entityVM.IsFullDayEdit;
                 if (entityVM.IsFullDayEdit)
@@ -520,9 +594,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     entity.PartialFromTime = entityVM.PartialFromTimeEdit;
                     entity.PartialToTime = entityVM.PartialToTimeEdit;
                 }
-
                 // 🔹 Update leave balance only if final approval (CHANGED)
-                if (isFinalApproval && entityVM.Approved==true)
+                if (isFinalApproval && entityVM.Approved == true)
                 {
                     var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
                         .Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit)
@@ -547,7 +620,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         }
                         existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                         existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
-                  
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.UpdatedAt = DateTime.Now;
@@ -572,15 +644,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                         await leaveBalance.AddAsync(newBalance);
                     }
-                   
+
                 }
-               if (isFinalApproval && entityVM.Approved == true)
-                {
-                    entity.IsFinalApproved = true;   // only Final apprved
-                }else
-                {
-                    entity.IsFinalApproved = false;   // only Final apprved
-                }
+                entity.ApprovalPersonID = approvalPersonId;
+                entity.StatusID = statusId;
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
