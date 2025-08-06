@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    const developmentMode = true;
+    const developmentMode = false;
 
     if (developmentMode) {
         toastr.info("Welcome to the Promotion Form!");
@@ -41,21 +41,28 @@
             processData: false,
             contentType: false,
             success: function (res) {
+               
                 if (res.success) {
                     toastr.success(res.message || "Promotion saved!");
                     clearPromotionForm();
-                    $("#add_promotion").modal("hide");
-                    loadPromotionList(); // reload table
+
+                    loadPromotionList(1); // reload table
+
+                    var applyModalEl = document.getElementById('add_promotion');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+
+                    
+
+
                 } else {
                     toastr.warning(res.message || "Promotion Not saved!");
                 }
 
-                var applyModalEl = document.getElementById('add_promotion');
-                var applyModal = bootstrap.Modal.getInstance(applyModalEl);
-                if (!applyModal) {
-                    applyModal = new bootstrap.Modal(applyModalEl);
-                }
-                applyModal.hide();
+                
                 
             },
             error: function (xhr) {

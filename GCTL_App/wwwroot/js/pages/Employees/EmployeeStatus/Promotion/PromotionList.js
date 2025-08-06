@@ -19,6 +19,7 @@
     $('#departmentFilter, #promotionStatusFilter, #dateRangePicker, #pageSizeSelect').on('change', () => loadPromotionList(1));
 
     function loadPromotionList(page = 1) {
+        debugger
         currentPage = page;
 
         const formData = new FormData();

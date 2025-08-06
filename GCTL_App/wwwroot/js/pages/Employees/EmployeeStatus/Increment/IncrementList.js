@@ -73,7 +73,19 @@
             tbody.append(`
                 <tr class= "hover-actions-trigger btn-reveal-trigger position-static">
                     
-                    <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.employeeName}</td>
+                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                        <div class="d-flex align-items-center file-name-icon">
+                            <div class="avatar avatar-m avatar-bordered me-4">
+                                <img class="rounded-circle" src="${item.avatarUrl}" alt="" />
+                            </div>
+                            <div class="ms-1">
+                                <h6 class="fw-bold">${item.employeeName}</h6>
+                                <span class="fs-12 fw-normal">${item.department}</span>
+                            </div>
+                        </div>
+                    </td>
+
+                    
                     <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.department}</td>
                     <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.currentSalary}</td>
                     <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.incrementAmount}</td>
