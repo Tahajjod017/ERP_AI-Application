@@ -988,6 +988,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
             try
             {
+
+                #region top first layer
                 // Fetch approval type
                 var approvalType = await _approvalTypeRepository.AllActive()
                     .Where(a => a.ApprovalTypeName.ToLower() == "promotion approval")
@@ -1044,6 +1046,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                         Message = "No valid first approver found for this promotion."
                     };
                 }
+                #endregion
 
                 // Initialize promotion object
                 var promotion = new EmployeeCareerChanges
@@ -1067,6 +1070,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
                 // Save the promotion
                 await _employeeCarrerCngRepository.AddAsync(promotion);
+
+                #region apporve
 
                 // Process auto-approval for stages where the approver is the employee and self-approval is allowed
                 bool isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
@@ -1235,7 +1240,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                     #endregion
                 }
 
-
+                #endregion
 
                 return new CommonReturnViewModel
                 {

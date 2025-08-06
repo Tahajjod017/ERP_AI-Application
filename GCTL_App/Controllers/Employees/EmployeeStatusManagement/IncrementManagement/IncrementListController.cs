@@ -64,8 +64,11 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
        
 
         [HttpPost]
-        public IActionResult GetIncrementList(string searchTerm, int? departmentId, string incrementType, string dateRange, int pageSize = 10, int pageNumber = 1, string sortColumn = "effectiveDate", string sortDirection = "desc" )
+        public IActionResult GetIncrementList(string searchTerm, int? departmentId, string incrementType, string dateRange, 
+            int pageSize = 10, int pageNumber = 1, string sortColumn = "effectiveDate", string sortDirection = "desc" )
         {
+            var imgLink = GetEmployeePictureURL(true);
+
             // Base query with necessary joins
             var query = from ecc in _empCarrerRepository.AllActive().Where(x => x.EmployeeID != null)
                         join emp in _employeeRepository.AllActive() on ecc.EmployeeID.Value equals emp.EmployeeID
@@ -113,6 +116,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
                     query = query.Where(x => x.ecc.EffectiveDate >= startDate && x.ecc.EffectiveDate <= endDate);
                 }
             }
+
+            var list = query.ToList();
 
             // 🔀 Apply sorting
             switch (sortColumn?.ToLower())
@@ -177,6 +182,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
                 .Take(pageSize)
                 .Select(x => new
                 {
+                    id = x.ecc.EmployeeCareerChangeID,
                     employeeName = x.emp.FirstName + " " + x.emp.LastName,
                     department = x.dept.DepartmentName,
                     currentSalary = x.ecc.CurrentSalary,
@@ -184,7 +190,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
                     newSalary = x.ecc.NewSalary,
                     effectiveDate = x.ecc.EffectiveDate.Value.ToString("dd-MM-yyyy"),
                     incrementType = x.ecc.EmployeeActionTypeID == 1 ? "Increment" : "Decrement",
-                    status = x.ecc.Status != null ? x.ecc.Status.StatusName : "N/A"
+                    status = x.ecc.Status != null ? x.ecc.Status.StatusName : "N/A",
+                    avatarUrl = imgLink + x.emp.EmployeeImageFileName
                 })
                 .ToList();
 
