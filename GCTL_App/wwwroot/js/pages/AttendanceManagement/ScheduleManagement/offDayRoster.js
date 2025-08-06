@@ -51,17 +51,16 @@
                     type: 'POST',
                     data: formData,
                     success: function (response) {
-                        const allFields = ["OrganizationID", "ShiftID", "DayDate", "CompensationTypeID"];
-
-                        allFields.forEach(function (fieldId) {
-                            validateField(fieldId, response);
-                        });
-
-                        if (response.isSuccess) {
+                        if (response.isSuccess === true) {
                             toastr.success(response.message);
                             clear();
                             loadTableData();
                         } else {
+                            const allFields = ["OrganizationID", "ShiftID", "DayDate", "CompensationTypeID"];
+
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
                             toastr.info(response.message);
                         }
                     },
@@ -702,7 +701,7 @@
 
         });
 
-        // #region
+        // #region loadTableData
         var currentPage = 1;
         var pageSize = 5;
         let currentSortColumn = 'RosterInHolyDayID';
@@ -802,11 +801,11 @@
 
                         updatePagination(pageInfo.pageNumbers, pageInfo.currentPage, pageInfo.totalPages);
                     } else {
-                        alert("Failed to get data.");
+                        console.log("Failed to get data.");
                     }
                 },
                 error: function () {
-                    alert('Failed to load roster data.');
+                    console.log('Failed to load roster data.');
                 }
             });
         }

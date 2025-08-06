@@ -331,6 +331,7 @@ $(document).ready(function () {
                 $('#TransferNoteEdit').val(data.transferNoteEdit);
                 $('#EmployeeTransferID').val(data.employeeTransferID);
                 $('#TransferTypeEdit').val(data.transferTypeEdit);
+                $('#TransferBaseHistoryNoteEdit').val(data.transferBaseHistoryNoteEdit);
                 initializeDatepickerDMY('TransferDateEdit');
             },
             error: function () {
@@ -361,6 +362,7 @@ $(document).ready(function () {
     });
     //
     $(document).on('click', '#ApplyTransferSubmitButtonApproval', function (e) {
+        
         e.preventDefault();
         const approvalStatus = $('input[name="ApprovalStatus"]:checked').val();
         const isApproved = approvalStatus === "true";
@@ -378,6 +380,7 @@ $(document).ready(function () {
             TransferDateEdit: $('#TransferDateEdit').val() || null,
             TransferNoteEdit: $('#TransferNoteEdit').val() || "",
             TransferTypeEdit: $('#TransferTypeEdit').val() || "",
+            TransferBaseHistoryNoteEdit: $('#TransferBaseHistoryNoteEdit').val() || '',
             Approved: isApproved,
             Declined: !isApproved,
         };
