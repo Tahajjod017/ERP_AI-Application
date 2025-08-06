@@ -1,5 +1,54 @@
-﻿
+﻿let itiMap = {};
+document.addEventListener("DOMContentLoaded", function () {
+
+    console.log("phone running");
+    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
+
+    phoneIds.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (!input) return;
+
+        const iti = window.intlTelInput(input, {
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+            separateDialCode: true,
+            initialCountry: "bd",
+            preferredCountries: ["bd", "in", "us"]
+        });
+        itiMap[selector] = iti;
+
+    });
+
+    console.log("Phone fields initialized", itiMap);
+});
+
+
 $(document).ready(function () {
+
+    
+
+
+    $("#submitBtn").on('click', function (e) {
+        debugger
+        e.preventDefault();
+        const input = document.querySelector("#phone");
+        const iti = window.intlTelInput.getInstance(input);
+        if (!iti) {
+            console.error("intlTelInput instance not found");
+            return;
+        }
+
+        iti.promise.then(() => {
+            if (iti.isValidNumber()) {
+                const phoneNumber = iti.getNumber(intlTelInputUtils.numberFormat.E164);
+                console.log("Phone Number:", phoneNumber);
+            } else {
+                console.warn("Invalid phone number.");
+            }
+        });
+
+    });
+
+
 
     //#region Auto suggest
 
@@ -67,19 +116,25 @@ $(document).ready(function () {
     $('#addNewContactNameBtn').on('click', function () {
         targetTab = 'company'; // set desired tab
         $('#addNationalityModal').modal('show');
-        $('#increment-tab').removeClass('active');
-        $('#increment').removeClass('active show');
-        $('#promotion-tab').addClass('active');
-        $('#promotion').addClass('active show');
+        $('#person-tab').removeClass('active');
+        $('#person').removeClass('active show');
+        $('#company-tab').addClass('active');
+        $('#company').addClass('active show');
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
     });
 
     $('#addNewContactNameBtn2').on('click', function () {
         targetTab = 'person';
         $('#addNationalityModal').modal('show');
-        $('#promotion-tab').removeClass('active');
-        $('#promotion').removeClass('active show');
-        $('#increment-tab').addClass('active');
-        $('#increment').addClass('active show');
+        $('#company-tab').removeClass('active');
+        $('#company').removeClass('active show');
+        $('#person-tab').addClass('active');
+        $('#person').addClass('active show');
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
     });
 
     $("#closeModal").on('click', function () {
@@ -88,31 +143,189 @@ $(document).ready(function () {
     $("#closeModal1").on('click', function () {
         $('#addNationalityModal').modal('hide');
     });
+    let autocomplete;
+    const idMap = {
+        company: {
+            autocomplete: 'autocompleteCompany',
+            street: 'streetCompany',
+            city: 'cityCompany',
+            state: 'stateCompany',
+            country: 'countryCompany',
+            postal_code: 'postalCodeCompany',
+            latitude: 'latitudeCompany',
+            longitude: 'longitudeCompany'
+        },
+        person: {
+            autocomplete: 'autocompletePerson',
+            street: 'streetPerson',
+            city: 'cityPerson',
+            state: 'statePerson',
+            country: 'countryPerson',
+            postal_code: 'postalCodePerson',
+            latitude: 'latitudePerson',
+            longitude: 'longitudePerson',
+        }
+    };
+    function initAutocomplete() {
+        const ids = idMap[targetTab] || {};
+        const input = document.getElementById(ids.autocomplete);;
 
+        if (!input) return;
 
-    // Call initMap when the script is loaded
-    //window.initMap = initMap;
-    //console.log("initMap is running2");
+        autocomplete = new google.maps.places.Autocomplete(input, {
+            //types: ["address"],
+            types: ["establishment"],
+            fields: ["place_id", "name", "address_components", "geometry"],
+        });
 
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            let street_number = "", city = "", state = "", country = "", postal_code = "", route = "";
 
+            for (const component of place.address_components) {
+                if (component.types.includes("street_number")) street_number = component.long_name;
+                if (component.types.includes("route")) route = component.long_name; 
+                if (component.types.includes("postal_code")) postal_code = component.long_name;
+                if (component.types.includes("locality")) city = component.long_name;
+                if (component.types.includes("administrative_area_level_1")) state = component.short_name;
+                if (component.types.includes("country")) country = component.long_name;
+            }
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const fullStreet = `${street_number} ${route}`.trim();
 
-//$('#confirmAddNationalityBtn').on('click', function () {
-//    const newNationality = $('#newNationalityName').val().trim();
-//    if (newNationality && !nationalities.includes(newNationality)) {
-//        nationalities.push(newNationality);
-//        $('#ContactNameSearch').val(newNationality);
-//        $('#searchResults').hide();
-//        $('#removeContactNameBtn').show();
-//        $('#addNationalityModal').modal('hide');
-//    }
-//});
+            // e.g. "#company" or "#person"
+            console.log(`terget tab: ${targetTab}`);
+            if (targetTab === 'company') {
+                const company_name = place.name || "";
+                document.getElementById("companyName").value = company_name
 
-// Optional: hide suggestion list when clicking outside
-$(document).on('click', function (e) {
-    if (!$(e.target).closest('#ContactNameSearch, #searchResults').length) {
-        $('#searchResults').hide();
+                // get mobile number
+                const service = new google.maps.places.PlacesService(document.createElement('div'));
+
+                service.getDetails({
+                    placeId: place.place_id,
+                    fields: ['formatted_phone_number']
+                }, (details, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        const phone = details.formatted_phone_number || '';
+                        document.getElementById("phone1").value = phone;
+                    }
+                });
+            } 
+            document.getElementById(ids.city).value = city;
+            document.getElementById(ids.state).value = state;
+            document.getElementById(ids.country).value = country;
+            document.getElementById(ids.postal_code).value = postal_code;
+            document.getElementById(ids.latitude).value = lat;
+            document.getElementById(ids.longitude).value = lng;
+            document.getElementById(ids.street).value = fullStreet;
+        });
     }
-});
+    $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function (e) {
+        const newTab = $(e.target).data('bs-target'); // e.g. "#company" or "#person"
+        if (newTab === '#company') {
+            targetTab = 'company'
+        } else if (newTab === '#person'){
+            targetTab = 'person';
+        }
+        console.log('Activated tab:', newTab);
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
+        console.log(targetTab);
+    });
+    
+    // Optional: hide suggestion list when clicking outside
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#ContactNameSearch, #searchResults').length) {
+            $('#searchResults').hide();
+        }
+    });
+
+
+
+
+    //document.addEventListener("DOMContentLoaded", function () {
+    //    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
+
+    //    phoneIds.forEach(selector => {
+    //        const input = document.querySelector(selector);
+    //        if (!input) return;
+
+    //        const iti = window.intlTelInput(input, {
+    //            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+    //            separateDialCode: true,
+    //            initialCountry: "bd",
+    //            preferredCountries: ["bd", "in", "us"]
+    //        });
+
+    //        input.addEventListener("blur", function () {
+    //            console.log(`${selector} Phone:`, iti.getNumber());
+    //        });
+    //    });
+    //});
+
+
+    //document.addEventListener("DOMContentLoaded", function () {
+    //    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
+
+    //    phoneIds.forEach(selector => {
+    //        const input = document.querySelector(selector);
+    //        if (!input) return;
+
+    //        const iti = window.intlTelInput(input, {
+    //            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+    //            separateDialCode: true,
+    //            initialCountry: "bd",
+    //            preferredCountries: ["bd", "in", "us"]
+    //        });
+
+    //        input.addEventListener("blur", function () {
+    //            console.log(`${selector} Phone:`, iti.getNumber());
+    //        });
+    //    });
+    //});
+    // phone field value insert
+    //let itiMap = {};
+    //document.addEventListener("DOMContentLoaded", function () {
+    //    debugger;
+    //    console.log("phone running");
+    //    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
+    //    debugger;
+    //    phoneIds.forEach(selector => {
+    //        const input = document.querySelector(selector);
+    //        if (!input) return;
+
+    //        const iti = window.intlTelInput(input, {
+    //            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
+    //            separateDialCode: true,
+    //            initialCountry: "bd",
+    //            preferredCountries: ["bd", "in", "us"]
+    //        });
+    //        itiMap[selector] = iti;
+    //        let phoneInit = itiMap["#phone"];
+    //        input.addEventListener("blur", function () {
+    //            console.log(`${selector} Phone:`, phoneInit.getNumber());
+    //        });
+    //    });
+
+    //    console.log("Phone fields initialized", itiMap);
+    //});
+
+    // submit button
+    //$("#submitBtn").on('click', function (e) {
+    //    debugger
+    //    e.preventDefault();
+    //    console.log("Phone fields initialized", itiMap);
+
+    //    const iti = itiMap["#phone"];
+    //    if (iti) {
+    //        const phoneNumber = iti.getNumber();
+    //        console.log(`Phone Number: ${phoneNumber}`);
+    //    }
+        
+    //});
 
 
 //#endregion

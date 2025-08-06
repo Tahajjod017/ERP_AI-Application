@@ -84,3 +84,24 @@ body {
 .iti__tel-input {
     height: 46px;
 }
+
+
+/*for fixing modal google map loading problem*/
+div.pac-container {
+    z-index: 99999999999 !important;
+}
+/*
+.pac-container {
+    background-color: #fff;
+    z-index: 2000 !important;
+    position: fixed;
+}
+
+.modal {
+    z-index: 1051 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+*/
