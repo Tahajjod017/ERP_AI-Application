@@ -27,5 +27,9 @@ namespace GCTL.Service.MenuTabs
         #region Others
         Task<bool> IsNameUniqueAsync(string name);
         #endregion
+
+        #region Dynamic Menutab category
+        Task <List<MasterSetupCategoryVM>> GetMasterSetupCategoriesAsync();
+        #endregion
     }
 }
