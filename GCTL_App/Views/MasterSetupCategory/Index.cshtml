@@ -11,6 +11,15 @@
         box-shadow: 0 5px 30px rgba(0, 0, 0, 0.05);
     }
 
+
+
+    .setting-link {
+        text-decoration: none;
+        color: inherit;
+        display: inline-block;
+        width: 100%; /* Optional: full width click area */
+    }
+
     .setting-item {
         display: flex;
         align-items: flex-start;
@@ -18,6 +27,7 @@
         padding: 10px;
         transition: background-color 0.2s;
     }
+
 
         .setting-item:hover {
             background-color: #f0f0f0;
@@ -67,13 +77,15 @@
                         const title = item.title || 'Untitled';
                         const controller = item.controllerName || '#';
                         const html = `
-                            <div class="setting-item">
-                                <div class="setting-icon"><i class="${iconClass}"></i></div>
-                                <div class="setting-text">
-                                    <div class="setting-title"><a href="/${controller}/Index">${title}</a></div>
+                             <a href="/${controller}/Index" class="setting-link">
+        <div class="setting-item">
+            <div class="setting-icon"><i class="${iconClass}"></i></div>
+            <div class="setting-text mt-2">
+                <div class="setting-title">${title}</div>
+            </div>
+        </div>
+    </a>
 
-                                </div>
-                            </div>
                         `;
                         $('#settingsContainer').append(html);
                     });
