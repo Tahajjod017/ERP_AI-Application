@@ -26,6 +26,7 @@ body {
 
 
 /*create lead customer command person modal */
+
 .nav-tabs .nav-link.active {
     color: #0d6efd;
     border-color: #0d6efd;
@@ -86,22 +87,75 @@ body {
 }
 
 
+/*#companySubTab ul li a .fa-solid {
+    padding-right: 54px !important;
+}*/
 /*for fixing modal google map loading problem*/
+
 div.pac-container {
     z-index: 99999999999 !important;
 }
-/*
-.pac-container {
-    background-color: #fff;
-    z-index: 2000 !important;
-    position: fixed;
+
+
+/*createLead table subtab*/
+/* Sidebar container */
+#customeInnerDiv {
+    border-top: 1px;
+    border-bottom: 1px;
+    border-right: 0;
+    border-left: 0;
+    border-style: solid;
+    border-color: rgb(203, 208, 221);
+    margin-bottom: -1px;
+}
+#customeSubTab {
+    padding-top: 1rem;
 }
 
-.modal {
-    z-index: 1051 !important;
+.custom-sidebar li a {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6c757d; 
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    transition: all 0.15s ease-in-out;
+    border: 1px solid rgb(203, 208, 221);
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: -1px;
+    margin-right: -1px;
+    margin-bottom: -1px;
 }
 
-.modal-backdrop {
-    z-index: 1050 !important;
+.custom-sidebar li a .svg-inline--fa {
+    margin-right: 6px;
+    width: 20px;
+    text-align: center;
 }
-*/
+.custom-sidebar a:hover {
+    background-color: #e9ecef;
+    color: #000;
+}
+
+
+.custom-sidebar a:not(.active) .svg-inline--fa {
+    color: rgb(203, 208, 221);
+}
+.custom-sidebar a.active, .custom-sidebar li a .svg-inline--fa {
+    color: #000;
+    font-weight: 700;
+}
+
+.iti__selected-country{
+
+   
+    padding-left: 8% !important;
+}
+.iti__country-container {
+    padding-left: 3% !important;
+}
+.iti__tel-input{
+    padding-left: 11%;
+}
+

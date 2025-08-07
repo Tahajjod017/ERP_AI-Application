@@ -1,7 +1,7 @@
 ﻿let itiMap = {};
+
 document.addEventListener("DOMContentLoaded", function () {
 
-    console.log("phone running");
     const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
 
     phoneIds.forEach(selector => {
@@ -9,13 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!input) return;
 
         const iti = window.intlTelInput(input, {
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
             separateDialCode: true,
-            initialCountry: "bd",
-            preferredCountries: ["bd", "in", "us"]
+            initialCountry: 'bd',
+            preferredCountries: ['bd', 'in', 'us'],
+            utilsScript: "js/utils.js"
         });
-        itiMap[selector] = iti;
 
+        itiMap[selector] = iti;
     });
 
     console.log("Phone fields initialized", itiMap);
@@ -24,28 +24,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
 $(document).ready(function () {
 
-    
+    const list = document.getElementById("contactNameList");
+    const list2 = document.getElementById("searchResults");
+    const list3 = document.getElementById("no-results");
+
+    if (list.children.length === 0 || list3.children.length === 0) {
+        list2.style.display = "none";
+    } else {
+        list2.style.display = "block";
+    }
 
 
-    $("#submitBtn").on('click', function (e) {
-        debugger
+    $("#submitBtn").on("click", function (e) {
         e.preventDefault();
-        const input = document.querySelector("#phone");
-        const iti = window.intlTelInput.getInstance(input);
-        if (!iti) {
-            console.error("intlTelInput instance not found");
-            return;
+        let anyValid = false;
+        let lastValidNumber = "";
+
+        for (const selector in itiMap) {
+            const iti = itiMap[selector];
+            if (iti && iti.isValidNumber()) {
+                anyValid = true;
+                lastValidNumber = iti.getNumber();
+                break; // if you want to stop at first valid input
+            }
         }
 
-        iti.promise.then(() => {
-            if (iti.isValidNumber()) {
-                const phoneNumber = iti.getNumber(intlTelInputUtils.numberFormat.E164);
-                console.log("Phone Number:", phoneNumber);
-            } else {
-                console.warn("Invalid phone number.");
-            }
-        });
-
+        if (anyValid) {
+            console.log(lastValidNumber);
+        } else {
+            console.log('Invalid number!');
+        }
     });
 
 

@@ -1,0 +1,161 @@
+﻿
+<div class="tab-pane fade show p-0" id="person" role="tabpanel">
+    <div id="customeInnerDiv">
+        <form id="promotionForm">
+            <div class="row">
+                <div class="col-md-2 border-end p-0" id="customeSubTab">
+                    <ul class="nav flex-column nav-pills custom-sidebar" role="tablist">
+                        <li>
+                            <a class="active" data-bs-toggle="pill" data-bs-target="#create-person" role="tab">
+                                <i class="fa-solid fa-tag"></i> Create Person
+                            </a>
+                        </li>
+                        <li>
+                            <a data-bs-toggle="pill" data-bs-target="#create-company2" role="tab">
+                                <i class="fa-solid fa-code-branch"></i> Add Shiping Address
+                            </a>
+                        </li>
+                       
+                    </ul>
+                </div>
+
+                <div class="tab-content col-md-10">
+                    <div class="tab-pane fade show active" id="create-person">
+                        <h4 class="fs-7 my-3">Create Person</h4>
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-6 pe-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">First Name</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 ps-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">Last Name</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="autocompletePerson" class="form-control" placeholder="Customer name" required>
+                                            <label class="form-label req">Full Address</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-6 pe-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" id="streetPerson" class="form-control" placeholder="Street" required>
+                                                    <label class="form-label req">Street</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 ps-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" id="cityPerson" class="form-control" placeholder="City" required>
+                                                    <label class="form-label req">City</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-6 pe-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">Additional Address</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 ps-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" id="statePerson" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">State/Province</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-6 pe-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input id="postalCodePerson" type="text" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">Zip/Postal Code</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 ps-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input id="countryPerson" type="text" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">Country</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-6 pe-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" id="latitudePerson" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">Latitude</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 ps-1 col-sm-6">
+                                                <div class="mb-3 form-floating">
+                                                    <input type="text" id="longitudePerson" class="form-control" placeholder="" required>
+                                                    <label class="form-label req">Longitude</label>
+                                                    <span class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="row">
+
+                                    <div class="col-12 mb-3">
+                                        <input class="form-control" id="phone3" type="tel" placeholder="Phone Number" />
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <input class="form-control" id="phone4" type="tel" placeholder="Other Phone" />
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" class="form-control" placeholder="" required>
+                                            <label class="form-label req">Email</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade row" id="create-company2">Hello</div>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-light" id="closeModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</div>
