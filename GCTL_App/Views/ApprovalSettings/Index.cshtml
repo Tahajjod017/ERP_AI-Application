@@ -10,16 +10,24 @@
     .custom-padding-left {
         padding-left: 4.5em;
         margin-bottom: -0.656rem;
-        padding-top:1rem;
+        padding-top: 1rem;
     }
 </style>
 
 <div class="col-xl-12 mt-3">
     <div class="card mb-4">
         <div class="card-body">
-            <div class="border-bottom d-flex align-items-center pb-3 mb-3">
-                <h4>Approval Settings</h4>
+
+
+            <div class="border-bottom d-flex align-items-center justify-content-between pb-3 mb-3">
+                <h4 class="mb-0">Approval Settings</h4>
+                <button class="btn " data-bs-toggle="modal" data-bs-target="#manualModal">
+                    <i class="fas fa-info-circle"></i>
+                </button>
             </div>
+
+
+
 
             <!-- Start Approval Settings Form -->
             <form id="aprovalSettingsForm" asp-controller="ApprovalSettings" asp-action="Create" method="post">
@@ -33,7 +41,7 @@
                                         <div class="mb-3 mt-1">
                                             <label class="form-label">Organization Name</label>
                                             <select class="form-select choiceDD" id="OrganizationID" name="OrganizationID" required>
-                                                <option value="" >Select Organization</option>
+                                                <option value="">Select Organization</option>
                                                 @foreach (var org in ViewBag.Organizations)
                                                 {
                                                     var isSelected = org.Selected ? "selected" : "";
@@ -57,7 +65,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                   
+
 
                                     <!-- Approver Sections (First, Second, Third Approver) -->
                                     <div class="col-md-4">
@@ -65,15 +73,15 @@
                                             <div class="row">
                                                 <!-- First Approvers Checkbox -->
                                                 <div class="form-check form-switch col-12 custom-padding-left">
-                                                    <input class="form-check-input" id="chkFirst" type="checkbox" required/>
+                                                    <input class="form-check-input" id="chkFirst" type="checkbox" required />
                                                     <label class="form-check-label" for="chkFirst">First Approver</label>
                                                 </div>
                                             </div>
 
                                             <!-- Select Dropdown (Below Checkbox) -->
                                             <div class="mt-3">
-                                                <select class="form-select choiceDD" id="selFirst"  name="FirstApprovalID" required></select>
-                                               
+                                                <select class="form-select choiceDD" id="selFirst" name="FirstApprovalID" required></select>
+
                                             </div>
                                         </div>
                                     </div>
@@ -91,7 +99,7 @@
 
                                             <!-- Select Dropdown (Below Checkbox) -->
                                             <div class="mt-3">
-                                                <select class="form-select choiceDD" id="selSecond"  name="SecondApprovalID"></select>
+                                                <select class="form-select choiceDD" id="selSecond" name="SecondApprovalID"></select>
                                             </div>
                                         </div>
                                     </div>
@@ -109,42 +117,43 @@
 
                                             <!-- Select Dropdown (Below Checkbox) -->
                                             <div class="mt-3">
-                                                <select class="form-select choiceDD" id="selThird"  name="ThirdApprovalID"></select>
+                                                <select class="form-select choiceDD" id="selThird" name="ThirdApprovalID"></select>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Checkbox for AllowSelfApproval (Initially hidden) -->
                                     <div class="col-md-4" id="selfApprovalSection">
-                                        
+
                                         <div class="mb-3">
                                             <div class="row">
                                                 <div class="form-check form-switch col-12 custom-padding-left">
-                                                    <input class="form-check-input" type="checkbox" id="chkSelfApproval" name="AllowSelfApproval"/>
-                                                    <label class="form-check-label" for="chkSelfApproval">Allow Self-Approval</label>
+                                                    <input class="form-check-input" type="checkbox" id="chkSelfApproval" name="AllowSelfApproval" />
+                                                    <label class="form-check-label" for="chkSelfApproval">Self-Approval</label>
                                                 </div>
                                             </div>
 
                                             <!-- Select Dropdown (Below Checkbox) -->
                                             @* <div class="mt-3">
-                                                <select class="form-select choiceDD" id="selSelfApproval" name="SelfExceptionApprovalID" required>
-                                                    <option value="">Select Self Approver</option>
-                                                    <!-- Options will be populated dynamically -->
-                                                </select>
-                                            </div> *@
+                                                    <select class="form-select choiceDD" id="selSelfApproval" name="SelfExceptionApprovalID" required>
+                                                        <option value="">Select Self Approver</option>
+                                                        <!-- Options will be populated dynamically -->
+                                                    </select>
+                                                </div> *@
                                             <div class="mt-3">
                                                 <select class="form-select choiceDD"
                                                         id="selSelfApproval"
-                                                        name="SelfExceptionApprovalID"
-                                                        >
-                                                    <option value="">Select Self Approver</option>
+                                                        name="SelfExceptionApprovalID">
+                                                    <option value="">
+                                                        Select Higher authority in case of Self approval
+                                                    </option>
                                                 </select>
                                             </div>
 
                                         </div>
                                     </div>
 
-                                 
+
 
                                 </div>
                             </div>
@@ -159,23 +168,245 @@
                 </div>
             </form>
 
-           
+
             <!-- End Approval Settings Form -->
 
         </div>
     </div>
 
 
-    
 
 
- 
-   
 
-    <partial name="_ApprovalSettingsTable"/>
+
+
+
+    <partial name="_ApprovalSettingsTable" />
     <partial name="_editApprovalSettings" />
     <partial name="_ConfirmDelete" />
 </div>
+
+
+
+<style>
+    .modal-header {
+        background: #2c7be5;
+    }
+
+    .step-box {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .step-number {
+        background: #2c7be5;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+
+    .alert-simple {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+
+    .alert-blue {
+        background: #e3f2fd;
+        border-left: 4px solid #2c7be5;
+        color: #1976d2;
+    }
+
+    .alert-yellow {
+        background: #fff8e1;
+        border-left: 4px solid #ff9800;
+        color: #f57c00;
+    }
+
+    .simple-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .flow-step {
+        text-align: center;
+        padding: 15px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin: 10px;
+    }
+</style>
+
+
+<div class="modal fade" id="manualModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-book me-2"></i>Approval Settings Help
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- What is this? -->
+                <div class="simple-card">
+                    <h5><i class="fas fa-question-circle text-primary me-2"></i>এটা কি?</h5>
+                    <p>এখানে আপনি বিভিন্ন ধরনের request এর জন্য approval system setup করতে পারবেন। যেমন leave request, purchase request ইত্যাদি।</p>
+                </div>
+
+                <!-- How to setup -->
+                <h5 class="mb-3">কিভাবে Setup করবেন:</h5>
+
+                <div class="step-box">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number">1</span>
+                        <div>
+                            <h6>Organization নির্বাচন করুন</h6>
+                            <p class="mb-0">প্রথমে Organization Name dropdown থেকে আপনার organization select করুন।</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number">2</span>
+                        <div>
+                            <h6>Approval Type নির্বাচন করুন</h6>
+                            <p class="mb-0">কি ধরনের request এর জন্য approval চান সেটা select করুন (যেমন Leave, Purchase ইত্যাদি)।</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number">3</span>
+                        <div>
+                            <h6>First Approver সেট করুন (আবশ্যক)</h6>
+                            <p class="mb-0">First Approver এর checkbox টিক দিন এবং কে approve করবে সেটা select করুন। এটা অবশ্যই করতে হবে।</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number">4</span>
+                        <div>
+                            <h6>Second/Third Approver (প্রয়োজনে)</h6>
+                            <p class="mb-0">যদি একাধিক level এ approval লাগে, তাহলে Second বা Third Approver enable করে select করুন।</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number">5</span>
+                        <div>
+                            <h6>Self-Approval (যদি প্রয়োজন হয়)</h6>
+                            <p class="mb-0">যদি user নিজেই approve করতে পারে, তাহলে Self-Approval enable করুন। <strong>তবে অবশ্যই Higher Authority select করতে হবে।</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Flow -->
+                <h5 class="mt-4 mb-3">কিভাবে Approval কাজ করে:</h5>
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="flow-step">
+                            <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                            <p class="mb-0"><small>Request Submit</small></p>
+                        </div>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="flow-step">
+                            <i class="fas fa-user-tie fa-2x text-success mb-2"></i>
+                            <p class="mb-0"><small>First Approver</small></p>
+                        </div>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="flow-step">
+                            <i class="fas fa-user-cog fa-2x text-warning mb-2"></i>
+                            <p class="mb-0"><small>Second Approver (optional)</small></p>
+                        </div>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-arrow-right text-muted"></i>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="flow-step">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <p class="mb-0"><small>Approved</small></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Self Approval Explanation -->
+                <div class="alert-blue alert-simple mt-4">
+                    <h6><i class="fas fa-user-check me-2"></i>Self-Approval কি?</h6>
+                    <p><strong>সহজ ভাষায়:</strong> যদি কোনো user নিজের request নিজেই approve করতে পারে, সেটাই Self-Approval।</p>
+                    <p><strong>কিন্তু:</strong> যদি সেই user unavailable থাকে বা কোনো সমস্যা হয়, তাহলে Higher Authority approve করবে।</p>
+                    <p class="mb-0"><strong>তাই:</strong> Self-Approval enable করলে অবশ্যই Higher Authority select করতে হবে।</p>
+                </div>
+
+                <!-- Examples -->
+                <h5 class="mt-4 mb-3">কিছু উদাহরণ:</h5>
+
+                <div class="simple-card">
+                    <h6>Leave Application:</h6>
+                    <p class="mb-0">শুধু manager এর approval লাগে → First Approver এ manager select করুন।</p>
+                </div>
+
+                <div class="simple-card">
+                    <h6>Purchase Request:</h6>
+                    <p class="mb-0">Department Head → Finance Manager → CEO → তিনটা level enable করুন।</p>
+                </div>
+
+                <div class="simple-card">
+                    <h6>Team Lead এর Timesheet:</h6>
+                    <p class="mb-0">নিজেই approve করতে পারে, কিন্তু Higher Authority হিসেবে Department Head রাখুন।</p>
+                </div>
+
+                <!-- Important Notes -->
+                <div class="alert-yellow alert-simple">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>মনে রাখবেন:</h6>
+                    <ul class="mb-0">
+                        <li>First Approver অবশ্যই select করতে হবে</li>
+                        <li>Self-Approval enable করলে Higher Authority select করা জরুরি</li>
+                        <li>Setup এর পর Save বাটন টিপতে ভুলবেন না</li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 
 @section Scripts {
     <script src="~/js/pages/adminsettings/organizationsettings/approvalsettings.js"></script>
