@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+#region using directives
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,12 +12,16 @@ using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
+
+#endregion
+
 namespace GCTL.Service.Employees.EmployeeStatus.Increment
 {
 
 
     public class IncrementService : IincrementService
     {
+        #region CTOR
         private readonly IGenericRepository<EmployeeActionTypes> _employeeActionTypeRepository;
         private readonly IGenericRepository<EmployeeCareerChangeHistory> _employeeCarrerCngHistoryRepository;
         private readonly IGenericRepository<EmployeeCareerChanges> _employeeCarrerCngRepository;
@@ -52,6 +59,10 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             _approvalDesignationRepository = approvalDesignationRepository;
             _employeeRepository = employeeRepository;
         }
+
+        #endregion
+
+        #region Get Table and Card
 
         public async Task<List<IncrementApproveViewModel>> GetAllIncrementPendingList()
         {
@@ -375,6 +386,11 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             return query;
         }
 
+        #endregion
+
+        #region Entry Save
+
+
         public async Task<CommonReturnViewModel> SaveAsync(SalaryChangeViewModel model)
         {
             if (model == null)
@@ -385,7 +401,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                     Message = "Invalid model"
                 };
             }
-
             #region Action Type and Status Setup
             var actionType = await _employeeActionTypeRepository.AllActive()
                 .FirstOrDefaultAsync(e => e.EmployeeActionTypeName.ToLower() == model.ChangeType.ToLower());
@@ -401,7 +416,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 };
                 await _employeeActionTypeRepository.AddAsync(actionType);
             }
-
             var status = await _statusRepository.AllActive()
                 .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "pending");
             if (status == null)
@@ -418,7 +432,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 await _statusRepository.AddAsync(status);
             }
             #endregion
-
             #region Employee Validation
             var employee = await _empOfficialRepository.AllActive()
                 .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeId);
@@ -431,9 +444,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 };
             }
             #endregion
-
             try
             {
+                #region get approval person Id
                 var approvalType = await _approvalTypeRepository.AllActive()
                     .Where(a => a.ApprovalTypeName.ToLower() == "increment approval")
                     .FirstOrDefaultAsync();
@@ -445,7 +458,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                         Message = "Approval type not found for Increment"
                     };
                 }
-
                 var approvalSettings = await _approvalSettingRepository.AllActive()
                     .Where(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
                         && a.OrganizationID == employee.OrganizationID
@@ -459,27 +471,128 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                         Message = "Approval settings not found for this employee's organization and branch."
                     };
                 }
+                int initialApproverId = 0;
+                int initialStage = 1;
+                bool isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
 
-                int firstApproverId = 0;
+                // Helper function to get designation name for comments
+                async Task<string> GetDesignationName(int? approvalDesignationId)
+                {
+                    if (approvalDesignationId.HasValue)
+                    {
+                        var approvalDesig = await _approvalDesignationRepository.AllActive()
+                            .FirstOrDefaultAsync(e => e.ApprovalDesignationID == approvalDesignationId);
+                        return approvalDesig?.Code switch
+                        {
+                            1 => "Immediate Supervisor",
+                            2 => "Senior Supervisor",
+                            3 => "Head of Department",
+                            _ => "Approver"
+                        };
+                    }
+                    return "Approver";
+                }
+
+                // Determine if CreatedBy is in the approval matrix and set initial stage
                 if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
                 {
                     var approvalDesig = await _approvalDesignationRepository.AllActive()
                         .Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID)
                         .FirstOrDefaultAsync();
-                    firstApproverId = approvalDesig?.Code switch
+                    initialApproverId = approvalDesig?.Code switch
                     {
                         1 => employee.ImmediateSupervisorId ?? 0,
                         2 => employee.SeniorSupervisorId ?? 0,
                         3 => employee.HeadOfDepartmentId ?? 0,
                         _ => 0
                     };
+                    if (initialApproverId == model.CreatedBy)
+                    {
+                        initialStage = 1;
+                    }
                 }
-                else
+                else if (approvalSettings.FirstApprovalID == model.CreatedBy)
                 {
-                    firstApproverId = approvalSettings.FirstApprovalID ?? 0;
+                    initialApproverId = approvalSettings.FirstApprovalID ?? 0;
+                    initialStage = 1;
                 }
 
-                if (firstApproverId == 0)
+                if (initialApproverId == 0 && approvalSettings.IsEnableSecondApproval)
+                {
+                    if (approvalSettings.IsDesignationOrEmpSecondApprovalID)
+                    {
+                        var approvalDesig = await _approvalDesignationRepository.AllActive()
+                            .Where(e => e.ApprovalDesignationID == approvalSettings.SecondApprovalID)
+                            .FirstOrDefaultAsync();
+                        initialApproverId = approvalDesig?.Code switch
+                        {
+                            1 => employee.ImmediateSupervisorId ?? 0,
+                            2 => employee.SeniorSupervisorId ?? 0,
+                            3 => employee.HeadOfDepartmentId ?? 0,
+                            _ => 0
+                        };
+                        if (initialApproverId == model.CreatedBy)
+                        {
+                            initialStage = 2;
+                        }
+                    }
+                    else if (approvalSettings.SecondApprovalID == model.CreatedBy)
+                    {
+                        initialApproverId = approvalSettings.SecondApprovalID ?? 0;
+                        initialStage = 2;
+                    }
+                }
+
+                if (initialApproverId == 0 && approvalSettings.IsEnableThirdApproval)
+                {
+                    if (approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                    {
+                        var approvalDesig = await _approvalDesignationRepository.AllActive()
+                            .Where(e => e.ApprovalDesignationID == approvalSettings.ThirdApprovalID)
+                            .FirstOrDefaultAsync();
+                        initialApproverId = approvalDesig?.Code switch
+                        {
+                            1 => employee.ImmediateSupervisorId ?? 0,
+                            2 => employee.SeniorSupervisorId ?? 0,
+                            3 => employee.HeadOfDepartmentId ?? 0,
+                            _ => 0
+                        };
+                        if (initialApproverId == model.CreatedBy)
+                        {
+                            initialStage = 3;
+                        }
+                    }
+                    else if (approvalSettings.ThirdApprovalID == model.CreatedBy)
+                    {
+                        initialApproverId = approvalSettings.ThirdApprovalID ?? 0;
+                        initialStage = 3;
+                    }
+                }
+
+                // If CreatedBy is not in the matrix, default to first approver
+                if (initialApproverId == 0)
+                {
+                    if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
+                    {
+                        var approvalDesig = await _approvalDesignationRepository.AllActive()
+                            .Where(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID)
+                            .FirstOrDefaultAsync();
+                        initialApproverId = approvalDesig?.Code switch
+                        {
+                            1 => employee.ImmediateSupervisorId ?? 0,
+                            2 => employee.SeniorSupervisorId ?? 0,
+                            3 => employee.HeadOfDepartmentId ?? 0,
+                            _ => 0
+                        };
+                    }
+                    else
+                    {
+                        initialApproverId = approvalSettings.FirstApprovalID ?? 0;
+                    }
+                    initialStage = 1;
+                }
+
+                if (initialApproverId == 0)
                 {
                     return new CommonReturnViewModel
                     {
@@ -487,7 +600,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                         Message = "No valid first approver found for this increment."
                     };
                 }
-
+                #endregion
+                #region save Method
                 var increment = new EmployeeCareerChanges
                 {
                     EmployeeID = model.EmployeeId,
@@ -497,34 +611,69 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                     CurrentSalary = model.CurrentSalary,
                     NewSalary = model.NewSalary,
                     StatusID = status.StatusID,
-                    ApprovalPersonID = firstApproverId,
-                    ApprovalStage = 1,
+                    ApprovalPersonID = initialApproverId,
+                    ApprovalStage = initialStage,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = model.CreatedBy,
                     LIP = model.LIP,
                     LMAC = model.LMAC
                 };
-
                 await _employeeCarrerCngRepository.AddAsync(increment);
-
-                bool isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
+                #endregion
+                #region Log Skipped Stages
+                var approvedStatus = await GetOrCreateStatusAsync("approve", new IncrementActionModel
+                {
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC
+                });
+                // Log history for skipped stages
+                for (int stage = 1; stage < initialStage; stage++)
+                {
+                    int skippedApproverId = await ResolveApproverAsync(approvalSettings, employee, stage);
+                    if (skippedApproverId == 0) continue; // Skip if no valid approver
+                    string designationName = await GetDesignationName(stage == 1 ? approvalSettings.FirstApprovalID :
+                                                                     stage == 2 ? approvalSettings.SecondApprovalID : approvalSettings.ThirdApprovalID);
+                    bool isDesignationBased = stage == 1 ? approvalSettings.IsDesignationOrEmpFirstApprovalID :
+                                              stage == 2 ? approvalSettings.IsDesignationOrEmpSecondApprovalID :
+                                                           approvalSettings.IsDesignationOrEmpThirdApprovalID;
+                    string comment = isDesignationBased ? $"Auto Approved for {designationName}" : $"Auto Approved (Stage {stage})";
+                    var history = new EmployeeCareerChangeHistory
+                    {
+                        EmployeeCareerChangeID = increment.EmployeeCareerChangeID,
+                        EmployeeID = increment.EmployeeID,
+                        StatusID = approvedStatus.StatusID,
+                        ApprovalPersonID = skippedApproverId,
+                        Remarks = comment,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = model.CreatedBy
+                    };
+                    await _employeeCarrerCngHistoryRepository.AddAsync(history);
+                }
+                #endregion
+                #region Auto Approval for Matrix Start
                 int currentStage = increment.ApprovalStage.Value;
                 int currentApproverId = increment.ApprovalPersonID.Value;
-
-                while (currentApproverId == increment.EmployeeID && isSelfApproval)
+                while ((currentApproverId == increment.EmployeeID || currentApproverId == increment.CreatedBy) && isSelfApproval)
                 {
+                    string designationName = await GetDesignationName(currentStage == 1 ? approvalSettings.FirstApprovalID :
+                                                                     currentStage == 2 ? approvalSettings.SecondApprovalID : approvalSettings.ThirdApprovalID);
+                    bool isDesignationBased = currentStage == 1 ? approvalSettings.IsDesignationOrEmpFirstApprovalID :
+                                              currentStage == 2 ? approvalSettings.IsDesignationOrEmpSecondApprovalID :
+                                                           approvalSettings.IsDesignationOrEmpThirdApprovalID;
+                    string comment = isDesignationBased ? $"Auto Approved for {designationName}" : $"Auto Approved (Stage {currentStage})";
                     var actionModel = new IncrementActionModel
                     {
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
                         LMAC = model.LMAC,
-                        Comments = $"Auto Approved (Stage {currentStage})"
+                        Comments = comment,
+                        IncrementId = increment.EmployeeCareerChangeID
                     };
-                    var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
                     increment.StatusID = approvedStatus.StatusID;
-
                     await LogCareerChangeHistoryAsync(increment, actionModel, true);
-
                     int nextApproverId = await ResolveNextApproverAsync(increment);
                     if (nextApproverId == 0)
                     {
@@ -532,99 +681,16 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                         await _employeeCarrerCngRepository.UpdateAsync(increment);
                         break;
                     }
-
                     increment.ApprovalPersonID = nextApproverId;
                     increment.ApprovalStage = currentStage + 1;
                     increment.IsFinalApproved = false;
                     var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
                     increment.StatusID = pendingStatus.StatusID;
                     await _employeeCarrerCngRepository.UpdateAsync(increment);
-
                     currentStage = increment.ApprovalStage.Value;
                     currentApproverId = nextApproverId;
                 }
-
-                bool isCreated = false;
-                while (currentApproverId == increment.CreatedBy && isSelfApproval)
-                {
-                    isCreated = true;
-                    var actionModel = new IncrementActionModel
-                    {
-                        CreatedBy = model.CreatedBy,
-                        LIP = model.LIP,
-                        LMAC = model.LMAC,
-                        Comments = $"Auto Approved (Stage {currentStage})"
-                    };
-                    var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
-                    increment.StatusID = approvedStatus.StatusID;
-
-                    await LogCareerChangeHistoryAsync(increment, actionModel, true);
-
-                    int nextApproverId = await ResolveNextApproverAsync(increment);
-                    if (nextApproverId == 0)
-                    {
-                        increment.IsFinalApproved = true;
-                        await _employeeCarrerCngRepository.UpdateAsync(increment);
-                        break;
-                    }
-
-                    increment.ApprovalPersonID = nextApproverId;
-                    increment.ApprovalStage = currentStage + 1;
-                    increment.IsFinalApproved = false;
-                    var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
-                    increment.StatusID = pendingStatus.StatusID;
-                    await _employeeCarrerCngRepository.UpdateAsync(increment);
-
-                    currentStage = increment.ApprovalStage.Value;
-                    currentApproverId = nextApproverId;
-                }
-
-                if (isCreated)
-                {
-                    var career = await _employeeCarrerCngRepository.AllActive()
-                        .FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == increment.EmployeeCareerChangeID);
-                    if (career != null)
-                    {
-                        isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
-                        currentStage = career.ApprovalStage ?? 1;
-                        currentApproverId = career.ApprovalPersonID ?? 0;
-
-                        while (currentApproverId == career.EmployeeID && isSelfApproval)
-                        {
-                            var actionModel = new IncrementActionModel
-                            {
-                                CreatedBy = model.CreatedBy,
-                                LIP = model.LIP,
-                                LMAC = model.LMAC,
-                                Comments = $"Auto Approved (Stage {currentStage})",
-                                IncrementId = career.EmployeeCareerChangeID
-                            };
-                            var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
-                            career.StatusID = approvedStatus.StatusID;
-
-                            await LogCareerChangeHistoryAsync(career, actionModel, true);
-
-                            career.ApprovalStage = currentStage + 1;
-                            int nextApproverId = await ResolveNextApproverAsync(career);
-                            if (nextApproverId == 0)
-                            {
-                                career.IsFinalApproved = true;
-                                await _employeeCarrerCngRepository.UpdateAsync(career);
-                                break;
-                            }
-
-                            career.ApprovalPersonID = nextApproverId;
-                            career.IsFinalApproved = false;
-                            var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
-                            career.StatusID = pendingStatus.StatusID;
-                            await _employeeCarrerCngRepository.UpdateAsync(career);
-
-                            currentStage = career.ApprovalStage.Value;
-                            currentApproverId = nextApproverId;
-                        }
-                    }
-                }
-
+                #endregion
                 return new CommonReturnViewModel
                 {
                     Success = true,
@@ -641,6 +707,11 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             }
         }
 
+
+
+        #endregion
+
+        #region Edit Save
         public async Task<IncrementApproveViewModel> GetPendingIncrementDetailsByID(int id)
         {
             var matches = new[] { "increment", "decrement" };
@@ -830,6 +901,10 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             }
         }
 
+        #endregion
+
+        #region Helper
+
         private async Task<Statuses> GetOrCreateStatusAsync(string action, IncrementActionModel actionModel)
         {
             string statusName = action == "approve" ? "Approved" : "Decline";
@@ -949,409 +1024,12 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             await _employeeCarrerCngHistoryRepository.AddAsync(history);
         }
 
-        //public async Task<CommonReturnViewModel> SaveSalaryChange(SalaryChangeViewModel model)
-        //{
-        //    if (model == null)
-        //    {
-        //        return new CommonReturnViewModel
-        //        {
-        //            Success = false,
-        //            Message = "Invalid model"
-        //        };
-        //    }
+        #endregion
 
-        //    #region Action Type and Status Setup
-        //    // Ensure EmployeeActionType exists (e.g., Increment)
-        //    var actionType = await _employeeActionTypeRepository.AllActive()
-        //        .FirstOrDefaultAsync(e => e.EmployeeActionTypeName.ToLower() == model.ChangeType.ToLower());
-        //    if (actionType == null)
-        //    {
-        //        actionType = new EmployeeActionTypes
-        //        {
-        //            EmployeeActionTypeName = model.ChangeType,
-        //            CreatedAt = DateTime.UtcNow,
-        //            CreatedBy = model.CreatedBy,
-        //            LIP = model.LIP,
-        //            LMAC = model.LMAC
-        //        };
-        //        await _employeeActionTypeRepository.AddAsync(actionType);
-        //    }
-
-        //    // Ensure "Pending" Status exists
-        //    var status = await _statusRepository.AllActive()
-        //        .FirstOrDefaultAsync(s => s.StatusName.ToLower() == "pending");
-        //    if (status == null)
-        //    {
-        //        status = new Statuses
-        //        {
-        //            StatusName = "Pending",
-        //            StatusType = "EmployeeCareerChange",
-        //            CreatedAt = DateTime.UtcNow,
-        //            CreatedBy = model.CreatedBy,
-        //            LIP = model.LIP,
-        //            LMAC = model.LMAC
-        //        };
-        //        await _statusRepository.AddAsync(status);
-        //    }
-        //    #endregion
-
-        //    #region Employee Validation
-        //    var employee = await _empOfficialRepository.AllActive()
-        //        .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeId);
-        //    if (employee == null)
-        //    {
-        //        return new CommonReturnViewModel
-        //        {
-        //            Success = false,
-        //            Message = "Employee Official not found"
-        //        };
-        //    }
-        //    #endregion
-
-        //    try
-        //    {
-        //        #region Approval Setup
-        //        // Fetch approval type
-        //        var approvalType = await _approvalTypeRepository.AllActive()
-        //            .FirstOrDefaultAsync(a => a.ApprovalTypeName.ToLower() == "increment approval");
-        //        if (approvalType == null)
-        //        {
-        //            return new CommonReturnViewModel
-        //            {
-        //                Success = false,
-        //                Message = "Approval type not found for Increment"
-        //            };
-        //        }
-
-        //        // Fetch approval settings
-        //        var approvalSettings = await _approvalSettingRepository.AllActive()
-        //            .FirstOrDefaultAsync(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
-        //                && a.OrganizationID == employee.OrganizationID
-        //                && a.OrganizationBranchID == employee.OrganizationBranchID);
-        //        if (approvalSettings == null)
-        //        {
-        //            return new CommonReturnViewModel
-        //            {
-        //                Success = false,
-        //                Message = "Approval settings not found for this employee's organization and branch."
-        //            };
-        //        }
-
-        //        // Resolve first approver
-        //        int firstApproverId = 0;
-        //        if (approvalSettings.IsDesignationOrEmpFirstApprovalID)
-        //        {
-        //            var approvalDesig = await _approvalDesignationRepository.AllActive()
-        //                .FirstOrDefaultAsync(e => e.ApprovalDesignationID == approvalSettings.FirstApprovalID);
-        //            firstApproverId = approvalDesig?.Code switch
-        //            {
-        //                1 => employee.ImmediateSupervisorId ?? 0,
-        //                2 => employee.SeniorSupervisorId ?? 0,
-        //                3 => employee.HeadOfDepartmentId ?? 0,
-        //                _ => 0
-        //            };
-        //        }
-        //        else
-        //        {
-        //            firstApproverId = approvalSettings.FirstApprovalID ?? 0;
-        //        }
-
-        //        if (firstApproverId == 0)
-        //        {
-        //            return new CommonReturnViewModel
-        //            {
-        //                Success = false,
-        //                Message = "No valid first approver found for this increment."
-        //            };
-        //        }
-        //        #endregion
-
-        //        // Initialize increment object
-        //        var increment = new EmployeeCareerChanges
-        //        {
-        //            EmployeeID = model.EmployeeId,
-        //            EmployeeActionTypeID = actionType.EmployeeActionTypeID,
-        //            CurrentSalary = model.CurrentSalary,
-        //            NewSalary = model.NewSalary,
-        //            EffectiveDate = model.EffectiveDate,
-        //            Remarks = model.Remarks,
-        //            StatusID = status.StatusID,
-        //            ApprovalPersonID = firstApproverId,
-        //            ApprovalStage = 1, // Start at stage 1
-        //            CreatedAt = DateTime.UtcNow,
-        //            CreatedBy = model.CreatedBy,
-        //            LIP = model.LIP,
-        //            LMAC = model.LMAC
-        //        };
-
-        //        // Save the increment
-        //        await _employeeCarrerCngRepository.AddAsync(increment);
-
-        //        #region Approval Processing
-        //        // Process auto-approval for stages where the approver is the employee and self-approval is allowed
-        //        bool isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
-        //        int currentStage = increment.ApprovalStage.Value;
-        //        int currentApproverId = increment.ApprovalPersonID.Value;
-
-        //        // Auto-approve if the approver is the employee
-        //        while (currentApproverId == increment.EmployeeID && isSelfApproval)
-        //        {
-        //            var actionModel = new IncrementActionModel
-        //            {
-        //                CreatedBy = model.CreatedBy,
-        //                LIP = model.LIP,
-        //                LMAC = model.LMAC,
-        //                Comments = $"Auto Approved (Stage {currentStage})",
-        //                IncrementId = increment.EmployeeCareerChangeID
-        //            };
-        //            var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
-        //            increment.StatusID = approvedStatus.StatusID;
-
-        //            // Log history for the current stage
-        //            await LogCareerChangeHistoryAsync(increment, actionModel, true);
-
-        //            // Check for the next approver
-        //            int nextApproverId = await ResolveNextApproverAsync(increment);
-        //            if (nextApproverId == 0)
-        //            {
-        //                // No more approvers, mark as final approved
-        //                increment.IsFinalApproved = true;
-        //                await _employeeCarrerCngRepository.UpdateAsync(increment);
-        //                break;
-        //            }
-
-        //            // Move to the next stage
-        //            increment.ApprovalPersonID = nextApproverId;
-        //            increment.ApprovalStage = currentStage + 1;
-        //            increment.IsFinalApproved = false;
-        //            var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
-        //            increment.StatusID = pendingStatus.StatusID;
-        //            await _employeeCarrerCngRepository.UpdateAsync(increment);
-
-        //            // Update current stage and approver for the next iteration
-        //            currentStage = increment.ApprovalStage.Value;
-        //            currentApproverId = nextApproverId;
-        //        }
-
-        //        // Auto-approve if the approver is the creator
-        //        bool isCreated = false;
-        //        while (currentApproverId == increment.CreatedBy && isSelfApproval)
-        //        {
-        //            isCreated = true;
-        //            var actionModel = new IncrementActionModel
-        //            {
-        //                CreatedBy = model.CreatedBy,
-        //                LIP = model.LIP,
-        //                LMAC = model.LMAC,
-        //                Comments = $"Auto Approved (Stage {currentStage})",
-        //                IncrementId = increment.EmployeeCareerChangeID
-        //            };
-        //            var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
-        //            increment.StatusID = approvedStatus.StatusID;
-
-        //            // Log history for the current stage
-        //            await LogCareerChangeHistoryAsync(increment, actionModel, true);
-
-        //            // Check for the next approver
-        //            int nextApproverId = await ResolveNextApproverAsync(increment);
-        //            if (nextApproverId == 0)
-        //            {
-        //                // No more approvers, mark as final approved
-        //                increment.IsFinalApproved = true;
-        //                await _employeeCarrerCngRepository.UpdateAsync(increment);
-        //                break;
-        //            }
-
-        //            // Move to the next stage
-        //            increment.ApprovalPersonID = nextApproverId;
-        //            increment.ApprovalStage = currentStage + 1;
-        //            increment.IsFinalApproved = false;
-        //            var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
-        //            increment.StatusID = pendingStatus.StatusID;
-        //            await _employeeCarrerCngRepository.UpdateAsync(increment);
-
-        //            // Update current stage and approver for the next iteration
-        //            currentStage = increment.ApprovalStage.Value;
-        //            currentApproverId = nextApproverId;
-        //        }
-
-        //        // Post-approval for next matrix if creator auto-approved
-        //        if (isCreated)
-        //        {
-        //            #region AfterSave Approval
-        //            if (employee != null && approvalType != null)
-        //            {
-        //                var career = await _employeeCarrerCngRepository.AllActive()
-        //                    .FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == increment.EmployeeCareerChangeID);
-        //                if (career != null)
-        //                {
-        //                    isSelfApproval = (bool)approvalSettings.AllowSelfApproval;
-        //                    currentStage = career.ApprovalStage ?? 1;
-        //                    currentApproverId = career.ApprovalPersonID ?? 0;
-
-        //                    while (currentApproverId == career.EmployeeID && isSelfApproval)
-        //                    {
-        //                        var actionModel = new IncrementActionModel
-        //                        {
-        //                            CreatedBy = model.CreatedBy,
-        //                            LIP = model.LIP,
-        //                            LMAC = model.LMAC,
-        //                            Comments = $"Auto Approved (Stage {currentStage})",
-        //                            IncrementId = career.EmployeeCareerChangeID
-        //                        };
-        //                        var approvedStatus = await GetOrCreateStatusAsync("approve", actionModel);
-        //                        career.StatusID = approvedStatus.StatusID;
-
-        //                        // Log history for the current stage
-        //                        await LogCareerChangeHistoryAsync(career, actionModel, true);
-
-        //                        // Check for the next approver
-        //                        career.ApprovalStage = currentStage + 1;
-        //                        int nextApproverId = await ResolveNextApproverAsync(career);
-        //                        if (nextApproverId == 0)
-        //                        {
-        //                            // No more approvers, mark as final approved
-        //                            career.IsFinalApproved = true;
-        //                            await _employeeCarrerCngRepository.UpdateAsync(career);
-        //                            break;
-        //                        }
-
-        //                        // Move to the next stage
-        //                        career.ApprovalPersonID = nextApproverId;
-        //                        career.IsFinalApproved = false;
-        //                        var pendingStatus = await GetOrCreateStatusAsync("pending", actionModel);
-        //                        career.StatusID = pendingStatus.StatusID;
-        //                        await _employeeCarrerCngRepository.UpdateAsync(career);
-
-        //                        // Update current stage and approver for the next iteration
-        //                        currentStage = career.ApprovalStage.Value;
-        //                        currentApproverId = nextApproverId;
-        //                    }
-        //                }
-        //            }
-        //            #endregion
-        //        }
-        //        #endregion
-
-        //        return new CommonReturnViewModel
-        //        {
-        //            Success = true,
-        //            Message = "Increment saved successfully"
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new CommonReturnViewModel
-        //        {
-        //            Success = false,
-        //            Message = "An error occurred while saving the increment: " + ex.Message
-        //        };
-        //    }
-        //}
     }
 }
 
 
-//public async Task<CommonReturnViewModel> SaveSalaryChange(SalaryChangeViewModel model)
-//{
-//    if (model == null)
-//    {
-//        return new CommonReturnViewModel
-//        {
-//            Success = false,
-//            Message = "Invalid model"
-//        };
-//    }
-
-//    var actionType = await _employeeActionTypeRepository.AllActive().Where(e => e.EmployeeActionTypeName.ToLower().Contains(model.ChangeType)).FirstOrDefaultAsync();
-
-//    if (actionType == null)
-//    {
-//        actionType = new EmployeeActionTypes()
-//        {
-//            EmployeeActionTypeName = model.ChangeType,
-//            CreatedAt = DateTime.UtcNow,
-//            LIP = model.LIP,
-//            LMAC = model.LMAC,
-//            CreatedBy = model.CreatedBy,
-
-//        };
-//        await _employeeActionTypeRepository.AddAsync(actionType);
-//    }
-
-//    var status = await _statusRepository.AllActive().Where(s => s.StatusName.ToLower() == "pending").FirstOrDefaultAsync();
-
-//    if (status == null)
-//    {
-//        status = new Statuses()
-//        {
-//            StatusName = "Pending",
-//            CreatedAt = DateTime.UtcNow,
-//            LIP = model.LIP,
-//            LMAC = model.LMAC,
-//            CreatedBy = model.CreatedBy,
-//            StatusType = "EmployeeCareerChange"
-//        };
-//        await _statusRepository.AddAsync(status);
-//    }
-
-//    try
-//    {
-//        // Create a new EmployeeCareerChanges entity
-//        var careerChange = new EmployeeCareerChanges
-//        {
-//            EmployeeID = model.EmployeeId,
-//            EmployeeActionTypeID = actionType.EmployeeActionTypeID,
-//            EffectiveDate = model.EffectiveDate,
-//            Remarks = model.Remarks,
-//            NewSalary = model.NewSalary,
-//            CurrentSalary = model.CurrentSalary,
-//            StatusID = status.StatusID,
-//            CreatedAt = DateTime.UtcNow,
-//            LIP = model.LIP,
-//            LMAC = model.LMAC,
-//            CreatedBy = model.CreatedBy, // Assuming you have a CreatedBy field in the model
-
-
-
-//        };
-//        // Add the new career change to the repository
-//        await _employeeCarrerCngRepository.AddAsync(careerChange);
-
-//        return new CommonReturnViewModel
-//        {
-//            Success = true,
-//            Message = "Salary change saved successfully"
-//        };
-//    }
-//    catch (Exception ex)
-//    {
-//        return new CommonReturnViewModel
-//        {
-//            Success = false,
-//            Message = "An error occurred while saving the salary change: " + ex.Message
-//        };
-//    }
-//}
-
-
-
-
-
-//public class IncrementService : IincrementService
-//{
-//    private readonly IGenericRepository<EmployeeActionTypes> _employeeActionTypeRepository;
-//    private readonly IGenericRepository<EmployeeCareerChangeHistory> _employeeCarrerCngHistoryRepository;
-//    private readonly IGenericRepository<EmployeeCareerChanges> _employeeCarrerCngRepository;
-//    private readonly IGenericRepository<Statuses> _statusRepository;
-
-//    public IncrementService(IGenericRepository<EmployeeActionTypes> employeeActionTypeRepository, IGenericRepository<EmployeeCareerChangeHistory> employeeCarrerCngHistoryRepository, IGenericRepository<EmployeeCareerChanges> employeeCarrerCngRepository, IGenericRepository<Statuses> statusRepository)
-//    {
-//        _employeeActionTypeRepository = employeeActionTypeRepository;
-//        _employeeCarrerCngHistoryRepository = employeeCarrerCngHistoryRepository;
-//        _employeeCarrerCngRepository = employeeCarrerCngRepository;
-//        _statusRepository = statusRepository;
-//    }
 
 
 

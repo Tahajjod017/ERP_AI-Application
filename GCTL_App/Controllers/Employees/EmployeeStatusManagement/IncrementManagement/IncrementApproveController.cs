@@ -10,10 +10,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
     {
         private readonly IincrementService _incrementService;
 
-        public IncrementApproveController(
-            ITranslateService translateService,
-            IUserProfileService userProfileService,
-            IincrementService incrementService)
+        public IncrementApproveController( ITranslateService translateService, IUserProfileService userProfileService, IincrementService incrementService)
             : base(translateService, userProfileService)
         {
             _incrementService = incrementService;
@@ -73,9 +70,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         }
 
         [HttpPost]
-        public async Task<IActionResult> PerformIncrementAction([FromForm] IncrementActionModel action)
+        public async Task<IActionResult> PerformIncrementAction([FromForm] IncrementActionModel model)
         {
-            var result = await _incrementService.ApproveIncrementAsync(action);
+            var result = await _incrementService.ApproveIncrementAsync(model);
             return Json(result);
         }
 
