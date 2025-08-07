@@ -4,6 +4,8 @@
         toastr.info("Welcome to the Increment Approval Page!");
     }
 
+    //#region flatpick
+
     flatpickr("#timepicker2", {
         mode: "range",
         dateFormat: "d/m/y",
@@ -16,6 +18,8 @@
         disableMobile: true
     });
 
+    //#endregion
+
     let pendingPage = 1;
     let approvedPage = 1;
     const pageSize = 10;
@@ -24,6 +28,7 @@
     let approvedSortColumn = "employeeName";
     let approvedSortDirection = "asc";
 
+    //#region LoadInc func Card/Pending/Approved
     function loadIncrementCards() {
         $.ajax({
             url: "/IncrementApprove/GetIncrementCards",
@@ -193,6 +198,10 @@
         });
     }
 
+    //#endregion
+
+    //#region Table sort and Pagination
+
     $("#incrementApprovalTable .sort").on("click", function () {
         const column = $(this).data("sort");
         if (pendingSortColumn === column) {
@@ -246,6 +255,10 @@
         $(containerId).find("[data-list-info]").text(`Showing ${startItem} to ${endItem} of ${totalItems} entries`);
     }
 
+    //#endregion
+
+    //#region get by id  and Populate
+
     $(document).on("click", ".review-increment", function () {
         const incrementId = $(this).data("increment-id");
         $.ajax({
@@ -269,6 +282,10 @@
             }
         });
     });
+
+    //#endregion
+
+    //#region approve and decline button 
 
     $(document).on("click", "[data-action='approve'], [data-action='decline']", function () {
         const action = $(this).data("action");
@@ -320,6 +337,10 @@
         });
     });
 
+    //#endregion
+
+    //#region export
+
     $(".export-pdf, .export-excel").on("click", function () {
         const format = $(this).hasClass("export-pdf") ? "pdf" : "excel";
         const formData = new FormData();
@@ -347,6 +368,10 @@
         });
     });
 
+    //#endregion
+
+    //#region On change load increment table
+
     $("#incrementType, #statusSelect, #timepicker2").on("change", function () {
         pendingPage = 1;
         loadPendingIncrements(pendingPage);
@@ -366,6 +391,8 @@
         const page = $(this).data("page") || ($(this).text() === "Previous" ? approvedPage - 1 : approvedPage + 1);
         loadApprovedIncrements(page);
     });
+
+    //#endregion
 
     loadIncrementCards();
     loadPendingIncrements(pendingPage);
