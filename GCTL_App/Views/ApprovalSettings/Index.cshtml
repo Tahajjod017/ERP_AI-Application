@@ -122,7 +122,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Checkbox for AllowSelfApproval (Initially hidden) -->
+                                    <!-- 
                                     <div class="col-md-4" id="selfApprovalSection">
 
                                         <div class="mb-3">
@@ -133,7 +133,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Select Dropdown (Below Checkbox) -->
+                                           
                                             @* <div class="mt-3">
                                                     <select class="form-select choiceDD" id="selSelfApproval" name="SelfExceptionApprovalID" required>
                                                         <option value="">Select Self Approver</option>
@@ -152,6 +152,31 @@
 
                                         </div>
                                     </div>
+                                     -->
+                                   
+                                    <div class="col-md-4" id="selfApprovalSection">
+                                        <div class="mb-3">
+                                            <div class="row">
+                                                <div class="col-12 custom-padding-left d-flex align-items-center">
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input" type="radio" name="AllowSelfApproval" id="enableSelfApproval" value="true" checked />
+                                                        <label class="form-check-label" for="enableSelfApproval">Enable Self Approval</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="AllowSelfApproval" id="disableSelfApproval" value="false" />
+                                                        <label class="form-check-label" for="disableSelfApproval">Disable Self Approval</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Select Dropdown (Below Radio Buttons) -->
+                                            <div class="mt-3">
+                                                <select class="form-select choiceDD" id="selSelfApproval" name="SelfExceptionApprovalID" disabled>
+                                                    <option value="">Select Higher authority incase of Self-approval</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
 
 
 
@@ -613,4 +638,42 @@
 @section Scripts {
     <script src="~/js/pages/adminsettings/organizationsettings/approvalsettings.js"></script>
     <script src="~/js/pages/adminsettings/organizationsettings/approvalsettingsEdit.js"></script>
+
+    <script>
+        // Keep all your existing JavaScript code, only replace the self-approval logic
+        function handleSelfApprovalDisplay() {
+            const enableSelfApproval = $('#enableSelfApproval').is(':checked');
+            const selfSelect = $('#selSelfApproval');
+            const selfWrapper = selfSelect.closest('.mt-3');
+            if (enableSelfApproval) {
+                selfWrapper.hide();
+               // selfSelect.prop('disabled', true);
+                choiceManager.disableChoice('selSelfApproval')
+                selfSelect.removeAttr('required');
+            } else {
+                selfWrapper.show();
+               // selfSelect.prop('disabled', false);
+                choiceManager.enableChoice('selSelfApproval');
+                selfSelect.attr('required', 'required');
+            }
+        }
+
+        // Replace the self-approval event listener
+        $('input[name="AllowSelfApproval"]').on('change', function () {
+            handleSelfApprovalDisplay();
+        });
+
+        const orgId = $('#OrganizationID').val();
+        populateOptions($('#selSelfApproval'), designationsUrl, orgId, [], function () {
+            handleSelfApprovalDisplay();
+        });
+
+        // Safe cleanup before form submit to avoid focus errors
+        $('#aprovalSettingsForm').on('submit', function () {
+            $(':input:disabled').removeAttr('required');
+        });
+        // Rest of your existing JavaScript code remains unchanged
+    </script>
+
+
 }
