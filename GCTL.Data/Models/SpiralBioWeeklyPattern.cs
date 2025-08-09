@@ -29,6 +29,8 @@ public partial class SpiralBioWeeklyPattern
 
     public int? OrganizationID { get; set; }
 
+    public int? SpiralPatternTypeID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -36,6 +38,8 @@ public partial class SpiralBioWeeklyPattern
     public virtual Organization Organization { get; set; }
 
     public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
+
+    public virtual SpiralPatternTypes SpiralPatternType { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

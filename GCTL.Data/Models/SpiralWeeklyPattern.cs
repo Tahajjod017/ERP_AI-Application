@@ -29,11 +29,15 @@ public partial class SpiralWeeklyPattern
 
     public int? OrganizationID { get; set; }
 
+    public int? SpiralPatternTypeID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Organization Organization { get; set; }
+
+    public virtual SpiralPatternTypes SpiralPatternType { get; set; }
 
     public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetails { get; set; } = new List<SpiralWeeklyPatternDetails>();
 
