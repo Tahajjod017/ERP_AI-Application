@@ -83,6 +83,42 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region Update
+        //[Permission("Update", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateSpiralPatternVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _createSpiralPatternService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Update Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "UpdateOrganizationID", "UpdateShiftID" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
         #region GetShiftByOrganization
         [HttpGet]
         public async Task<IActionResult> GetShiftByOrganization(int? id)

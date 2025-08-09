@@ -12,6 +12,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
     public interface ICreateSpiralPatternService
     {
         Task<bool> AddAsync(CreateSpiralPatternVM model);
+        Task<bool> UpdateAsync(UpdateSpiralPatternVM model);
         Task<(List<SpiralWeeklyPatternList> Data, SeparatePaginationInfo Pagination)> GetAllSpiralWeeklyPatternAsync(
             int pageNumber = 1,
             int pageSize = 5,

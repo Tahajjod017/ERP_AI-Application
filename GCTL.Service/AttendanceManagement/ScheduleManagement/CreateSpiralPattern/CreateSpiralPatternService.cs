@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -110,6 +111,69 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                         spiralMonthlyPatternDetails.LIP = model.LIP;
                         spiralMonthlyPatternDetails.LMAC = model.LMAC;
                         await _spiralMonthlyPatternDetails.AddAsync(spiralMonthlyPatternDetails);
+                    }
+                }
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
+        #endregion
+
+
+        #region Update
+        public async Task<bool> UpdateAsync(UpdateSpiralPatternVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                if (model.UpdateSpiralPatternTypeID == 1)
+                {
+                    var spiralWeeklyPattern = await _spiralWeeklyPatternDetailsRepository.GetByIdAsync(model.UpdateSpiralPatternDetailID);
+                    if (spiralWeeklyPattern != null)
+                    {
+                        spiralWeeklyPattern.SpiralWeeklyPatternID = model.UpdateSpiralPatternID;
+                        spiralWeeklyPattern.DayOfWeek = model.DayOfWeek;
+                        spiralWeeklyPattern.ShiftID = model.UpdateShiftID;
+                        spiralWeeklyPattern.UpdatedAt = DateTime.Now;
+                        spiralWeeklyPattern.UpdatedBy = model.UpdatedBy;
+                        spiralWeeklyPattern.LIP = model.LIP;
+                        spiralWeeklyPattern.LMAC = model.LMAC;
+                        await _spiralWeeklyPatternDetailsRepository.UpdateAsync(spiralWeeklyPattern);
+                    }
+                }
+                else if (model.UpdateSpiralPatternTypeID == 2)
+                {
+                    var spiralBioWeeklyPattern = await _spiralBioWeeklyPatternDetails.GetByIdAsync(model.UpdateSpiralPatternDetailID);
+                    if (spiralBioWeeklyPattern != null)
+                    {
+                        spiralBioWeeklyPattern.SpiralBioWeeklyPatternID = model.UpdateSpiralPatternID;
+                        spiralBioWeeklyPattern.DayOfMonth = model.DayOfMonth;
+                        spiralBioWeeklyPattern.ShiftID = model.UpdateShiftID;
+                        spiralBioWeeklyPattern.UpdatedAt = DateTime.Now;
+                        spiralBioWeeklyPattern.UpdatedBy = model.UpdatedBy;
+                        spiralBioWeeklyPattern.LIP = model.LIP;
+                        spiralBioWeeklyPattern.LMAC = model.LMAC;
+                        await _spiralBioWeeklyPatternDetails.UpdateAsync(spiralBioWeeklyPattern);
+                    }
+                }
+                else if (model.UpdateSpiralPatternTypeID == 3)
+                {
+                    var spiralMonthlyPattern = await _spiralMonthlyPatternDetails.GetByIdAsync(model.UpdateSpiralPatternDetailID);
+                    if (spiralMonthlyPattern != null)
+                    {
+                        spiralMonthlyPattern.SpiralMonthlyPatternID = model.UpdateSpiralPatternID;
+                        spiralMonthlyPattern.DayOfMonth = model.DayOfMonth;
+                        spiralMonthlyPattern.ShiftID = model.UpdateShiftID;
+                        spiralMonthlyPattern.UpdatedAt = DateTime.Now;
+                        spiralMonthlyPattern.UpdatedBy = model.UpdatedBy;
+                        spiralMonthlyPattern.LIP = model.LIP;
+                        spiralMonthlyPattern.LMAC = model.LMAC;
+                        await _spiralMonthlyPatternDetails.UpdateAsync(spiralMonthlyPattern);
                     }
                 }
                 await _genericRepository.CommitTransactionAsync();
