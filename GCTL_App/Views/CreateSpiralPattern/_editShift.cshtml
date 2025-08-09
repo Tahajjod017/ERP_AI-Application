@@ -13,6 +13,8 @@
                     <input type="hidden" asp-for="UpdateSpiralPatternDetailID" />
                     <input type="hidden" asp-for="UpdateOrganizationID" />
                     <input type="hidden" asp-for="UpdateSpiralPatternTypeID" />
+                    <input type="hidden" asp-for="UpdateDayOfWeek" />
+                    <input type="hidden" asp-for="UpdateDayOfMonth" />
                     <p id="shiftModalDetails" class="mb-3 text-muted"></p>
                     <div class="row mb-3">
                         <div class="col">
@@ -20,6 +22,7 @@
                             <select class="form-select" asp-for="UpdateShiftID" asp-items="@ViewBag.ShiftDD as SelectList">
                                 <option value="">@Html.SmartLocalize("Select Shift")...</option>
                             </select>
+                            <span id="UpdateShiftIDError" class="text-danger" style="display:none;"></span>
                         </div>
                     </div>
                 </form>

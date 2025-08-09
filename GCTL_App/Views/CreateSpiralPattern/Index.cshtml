@@ -20,34 +20,43 @@
             opacity: 0.5;
         }
 
-        .shift-cell {
-            position: relative;
-        }
-
         .add-shift-btn {
             display: none;
             align-items: center;
         }
 
-
-
-        .shift-cell:hover .add-shift-btn {
-            display: block;
-            background-color: white;
-            color: black;
-            margin: 5px auto;
+        .day-block {
+            background: repeating-linear-gradient( 135deg, #e5e5e5, #e5e5e5 10px, #f7f7f7 10px, #f7f7f7 20px );
+            border-radius: .4rem;
+            padding: 5px 0 5px 0;
         }
 
-        .add-shift-btn2 {
+        .editBtn {
             display: none;
             align-items: center;
         }
 
-        .startTime:hover .add-shift-btn2 {
-            display: block;
+            .deleteBtn {
+                display: none;
+                align-items: center;
+            }
+
+        .startTime:hover .editBtn {
+            display: inline-block;
             background-color: white;
             color: black;
-            margin: 5px;
+        }
+
+        .startTime:hover .deleteBtn {
+            display: inline-block;
+            background-color: white;
+            color: black;
+        }
+
+        .startTime:hover .add-shift-btn {
+            display: inline-block;
+            background-color: white;
+            color: black;
         }
 
     </style>
@@ -60,11 +69,12 @@
 	<partial name="_MonthlyTable" />
 </div>
 
-<partial name="_createBulkShift" />
-<partial name="_addShift" />
-<partial name="_addNewShift" />
+@* <partial name="_createBulkShift" /> *@
+<partial name="_addShift" model="Model.AddWeekly" />
+<partial name="_addFortMonthlyShift" model="Model.AddSpiralFortMonthly" />
+@* <partial name="_addNewShift" /> *@
 <partial name="_editShift" model="Model.Edit" /> 
-<partial name="_deleteModal" />
+<partial name="_ConfirmDelete" />
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

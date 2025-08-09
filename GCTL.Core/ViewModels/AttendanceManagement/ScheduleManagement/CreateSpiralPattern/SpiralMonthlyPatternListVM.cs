@@ -16,7 +16,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
 
         public string OrganizationName { get; set; }
 
-        public int SpiralPatternTypeID { get; set; }
+        public int? SpiralPatternTypeID { get; set; }
         
         public string SpiralPatternTypeName { get; set; }
         
