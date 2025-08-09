@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
+using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,16 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Services> _serviceTypeRepository;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesTypeRepository;
+        private readonly IGenericRepository<Customers> _customersRepository;
+        private readonly ILeadCreateService _leadCreateService;
         #endregion
-        public CreateLeadController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null) : base(translateService, userProfileService)
+        public CreateLeadController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
             _leadStatusesTypeRepository = leadStatusesTypeRepository;
+            _customersRepository = customersRepository;
+            _leadCreateService = leadCreateService;
         }
 
         public async Task<IActionResult> index()
@@ -48,6 +53,39 @@ namespace GCTL_App.Controllers.CRM
                 .ToList();
 
             return Json(nationalities);
+        }
+
+
+        [HttpPost]
+        public IActionResult createPerson([FromBody] PersonLeadVM createLeadVM)
+        {
+            if (ModelState.IsValid)
+            {
+                Customers customer = createLeadVM.Customers;
+                if (customer.CustomerID == 0) 
+                {
+                    var result = _leadCreateService.SaveLead(customer);
+
+                    return Ok(result);
+                }
+            }
+            //return Json(new { Received = createLeadVM.Customers, ModelValid = ModelState.IsValid, Errors = ModelState });
+            // Extract a clean list of errors with property name + message
+            var errors = ModelState
+                .Where(x => x.Value.Errors.Any())
+                .Select(x => new
+                {
+                    Field = x.Key,
+                    Messages = x.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                })
+                .ToList();
+
+            return BadRequest(new
+            {
+                Received = createLeadVM.Customers,
+                ModelValid = false,
+                Errors = errors
+            });
         }
 
     }

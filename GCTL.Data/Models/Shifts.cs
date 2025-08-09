@@ -73,6 +73,8 @@ public partial class Shifts
 
     public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
 
+    public virtual ICollection<SpiralMonthlyPatternDetails> SpiralMonthlyPatternDetails { get; set; } = new List<SpiralMonthlyPatternDetails>();
+
     public virtual ICollection<SpiralWeeklyPatternDetails> SpiralWeeklyPatternDetails { get; set; } = new List<SpiralWeeklyPatternDetails>();
 
     public virtual Employees UpdatedByNavigation { get; set; }

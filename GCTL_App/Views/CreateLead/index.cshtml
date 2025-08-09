@@ -154,37 +154,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="addNationalityModal" tabindex="-1" aria-labelledby="addNationalityModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs mb-4" id="statusChangeTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active px-6" id="company-tab" data-bs-toggle="tab" data-bs-target="#company" type="button" role="tab">
-                                <i class="fa fa-building" aria-hidden="true"></i>&nbsp;&nbsp; Company
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link px-6" id="person-tab" data-bs-toggle="tab" data-bs-target="#person" type="button" role="tab">
-                                <i class="fa fa-user" aria-hidden="true"></i>&nbsp;&nbsp; Person
-                            </button>
-                        </li>
-                    </ul>
-
-                    <!-- Tab content -->
-                    <div class="tab-content" id="statusChangeTabContent">
-                        <!-- Promotion/Demotion Tab -->
-                        @* <partial name="_Form" model="Model.Setup" /> *@
-                        <partial name="_companyView" />
-
-                        <!-- Increment/Decrement Tab -->
-                        <partial name="_person" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <partial name="_companyView" />
 </div>
 
 

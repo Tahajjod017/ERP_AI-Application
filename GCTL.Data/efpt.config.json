@@ -100,6 +100,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Customers]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[DefaultShifts]",
          "ObjectType": 0
       },
@@ -369,6 +373,14 @@
       },
       {
          "Name": "[dbo].[SpiralBioWeeklyPatternDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralMonthlyPattern]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SpiralMonthlyPatternDetails]",
          "ObjectType": 0
       },
       {

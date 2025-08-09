@@ -55,6 +55,10 @@ public partial class EmployeeTransfer
 
     public int? ApprovalPersonID { get; set; }
 
+    public bool? IsDecline { get; set; }
+
+    public int? ApprovalStage { get; set; }
+
     public virtual Employees ApprovalPerson { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

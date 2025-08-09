@@ -122,11 +122,41 @@ $(document).ready(function () {
     let targetTab = 'company';
 
     $('#addNewContactNameBtn').on('click', function () {
-        targetTab = 'company'; // set desired tab
+        targetTab = 'company';
         $('#addNationalityModal').modal('show');
+        //remove
+        
         $('#person-tab').removeClass('active');
+        $('#tab-Personal').removeClass('active show');
         $('#person').removeClass('active show');
+        $('#shippingAddressTabContent').removeClass('active show');
+        $('#addBranchTabContent').removeClass('active show');
+        $('#addWarehouseTabContent').removeClass('active show');
+        $('#addBranchTab').removeClass('active');
+        $('#addWarehouseTab').removeClass('active');
+        //active
         $('#company-tab').addClass('active');
+        $('#addCompanyTab').addClass('active');
+        $('#tab-Company').addClass('active show');
+        $('#company').addClass('active show');
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
+    });
+    $("#company-tab").on("click", function () {
+        targetTab = 'company';
+        $('#person-tab').removeClass('active');
+        $('#tab-Personal').removeClass('active show');
+        $('#person').removeClass('active show');
+        $('#shippingAddressTabContent').removeClass('active show');
+        $('#addBranchTabContent').removeClass('active show');
+        $('#addWarehouseTabContent').removeClass('active show');
+        $('#addBranchTab').removeClass('active');
+        $('#addWarehouseTab').removeClass('active');
+        //active
+        $('#company-tab').addClass('active');
+        $('#addCompanyTab').addClass('active');
+        $('#tab-Company').addClass('active show');
         $('#company').addClass('active show');
         setTimeout(() => {
             initAutocomplete();
@@ -136,9 +166,38 @@ $(document).ready(function () {
     $('#addNewContactNameBtn2').on('click', function () {
         targetTab = 'person';
         $('#addNationalityModal').modal('show');
+        //remove
         $('#company-tab').removeClass('active');
+        $('#tab-Company').removeClass('active show');
         $('#company').removeClass('active show');
+        $('#addBranchTabContent').removeClass('active show');
+        $('#addWarehouseTabContent').removeClass('active show');
+        $('#shippingAddressTabContent').removeClass('active show');
+        $('#shippingAddressTab').removeClass('active');
+        //active
         $('#person-tab').addClass('active');
+        $('#tab-Personal').addClass('active show');
+        $('#addCustommerTab').addClass('active');
+        $('#person').addClass('active show');
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
+    });
+
+    $("#person-tab").on("click", function () {
+        targetTab = 'person';
+        //remove
+        $('#company-tab').removeClass('active');
+        $('#tab-Company').removeClass('active show');
+        $('#company').removeClass('active show');
+        $('#addBranchTabContent').removeClass('active show');
+        $('#addWarehouseTabContent').removeClass('active show');
+        $('#shippingAddressTabContent').removeClass('active show');
+        $('#shippingAddressTab').removeClass('active');
+        //active
+        $('#person-tab').addClass('active');
+        $('#tab-Personal').addClass('active show');
+        $('#addCustommerTab').addClass('active');
         $('#person').addClass('active show');
         setTimeout(() => {
             initAutocomplete();
@@ -148,12 +207,16 @@ $(document).ready(function () {
     $("#closeModal").on('click', function () {
         $('#addNationalityModal').modal('hide');
     });
-    $("#closeModal1").on('click', function () {
+    $("#closeModal2").on('click', function () {
         $('#addNationalityModal').modal('hide');
     });
     let autocomplete;
     const idMap = {
         company: {
+            customerID: 'personID',
+            firstName: 'firstNamePerson',
+            lastName: 'lastNamePerson',
+
             autocomplete: 'autocompleteCompany',
             street: 'streetCompany',
             city: 'cityCompany',
@@ -161,17 +224,28 @@ $(document).ready(function () {
             country: 'countryCompany',
             postal_code: 'postalCodeCompany',
             latitude: 'latitudeCompany',
-            longitude: 'longitudeCompany'
+            longitude: 'longitudeCompany',
+
+            Phone: 'phone3',
+            otherPhone: 'phone4',
+            email: 'emailPerson',
         },
         person: {
-            autocomplete: 'autocompletePerson',
+            customerID: 'personID',
+            firstName: 'firstNamePerson',
+            lastName: 'lastNamePerson',
+            autocomplete: 'autocompletePerson', // full address
             street: 'streetPerson',
             city: 'cityPerson',
             state: 'statePerson',
+            additionalAddress : 'additionalAddressPerson',
             country: 'countryPerson',
             postal_code: 'postalCodePerson',
             latitude: 'latitudePerson',
             longitude: 'longitudePerson',
+            phone: 'phone3',
+            otherPhone: 'phone4',
+            email: 'emailPerson',
         }
     };
     function initAutocomplete() {
@@ -183,7 +257,7 @@ $(document).ready(function () {
         autocomplete = new google.maps.places.Autocomplete(input, {
             //types: ["address"],
             types: ["establishment"],
-            fields: ["place_id", "name", "address_components", "geometry"],
+            fields: ["place_id", "name", "formatted_address", "address_components", "geometry"],
         });
 
         autocomplete.addListener("place_changed", () => {
@@ -251,6 +325,68 @@ $(document).ready(function () {
         }
     });
 
+    function getPhoneNumber(selector) {
+        console.log(selector);
+        const iti = itiMap[selector];
+        if (iti && iti.isValidNumber()) {
+            anyValid = true;
+            lastValidNumber = iti.getNumber();
+            return lastValidNumber;
+        }
+        return null;
+    }
+
+    // save data
+    $("#modalSaveBtn").on("click", function (e) {
+        debugger;
+        e.preventDefault();
+        if (targetTab === 'company') {
+            console.log("company tab open");
+        } else if (targetTab === 'person') {
+            console.log("Person tab open");
+        }
+        
+        const ids = idMap[targetTab] || {};
+        console.log(ids.phone);
+        var data = {
+            customers: {
+                CustomerID: document.getElementById(ids.customerID).value
+                    ? parseInt(document.getElementById(ids.customerID).value, 10)
+                    : 0,
+                FirstName: document.getElementById(ids.firstName).value,
+                LastName: document.getElementById(ids.lastName).value,
+                FullAddress: document.getElementById(ids.autocomplete).value,
+                Street: document.getElementById(ids.street).value,
+                City: document.getElementById(ids.city).value,
+                State: document.getElementById(ids.state).value,
+                Additionaladdress: document.getElementById(ids.additionalAddress).value,
+                PostalCode: document.getElementById(ids.postal_code).value,
+              //  CountryID: 1,
+                CountryID: document.getElementById(ids.country).value,
+                Latitude: document.getElementById(ids.latitude).value || null,
+                Longitude: document.getElementById(ids.longitude).value || null,
+                Phone: getPhoneNumber(`#${ids.phone}`),
+                OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
+                Email: document.getElementById(ids.email).value,
+            }
+            
+        }
+        console.log(data);
+        $.ajax({
+            url: '/CreateLead/createPerson', // <-- Update with your actual route
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (response) {
+                if (response.success) {
+                    console.log(response.success);
+                }
+            },
+            error: function (xhr) {
+                alert('Error saving nationality: ' + xhr.responseText);
+            }
+        });
+    });
 
 
 
