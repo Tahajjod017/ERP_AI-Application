@@ -4,7 +4,9 @@
         var settings = $.extend({
             baseUrl: '/',
             form: '#createSpiralPattern-form',
+            updateForm: '#update-form',
             saveBtn: '#createSpiralPattern-saveBtn',
+            updateBtn: '#updateShiftBtn',
             resetBtn: '#createSpiralPattern-resetBtn',
             editShiftModal: '#editShiftModal',
         }, options);
@@ -60,6 +62,38 @@
                     }
                 });
             });
+            // #endregion
+
+
+            // #region Update
+            $(settings.updateBtn).on('click', function (e) {
+                e.preventDefault();
+
+                var form = $(settings.updateForm);
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.isSuccess === true) {
+                            toastr.success(response.message);
+                            $(settings.updateForm)[0].reset();
+                            $(settings.editShiftModal).modal('hide');
+                        } else {
+                            const allFields = ["UpdateOrganizationID", "UpdateShiftID"];
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Update failed:', err);
+                    }
+                })
+            })
             // #endregion
 
 
@@ -193,23 +227,19 @@
                 var btn = $(e.relatedTarget);
                 var detailID = btn.data('id');
                 var organizationId = btn.data('organization-id');
+                var patternTypeID = btn.data('patterntype-id');
                 var shiftId = btn.data('shift-id');
-                //var depId = btn.data('dep-id');
-                //var empId = btn.data('emp-id');
-                //var overrideDate = btn.data('date');
 
-                $('#RosterInHolyDayIdEdit').val(detailID);
-                $('#OrganizationIdEdit').val(organizationId);
-                //$('#DepartmentIdEdit').val(depId);
-                //$('#EmployeeIdEdit').val(empId);
-                //$('#DayDateEdit').val(overrideDate);
+                $('#UpdateSpiralPatternDetailID').val(detailID);
+                $('#UpdateOrganizationID').val(organizationId);
+                $('#UpdateSpiralPatternTypeID').val(patternTypeID);
 
                 $.ajax({
                     url: '/CreateSpiralPattern/GetShiftByOrganization',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (shifts) {
-                        const $shiftSelect = $('#editShiftModalShiftID');
+                        const $shiftSelect = $('#UpdateShiftID');
 
                         $shiftSelect.empty();
 
@@ -334,6 +364,7 @@
                                     <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal" 
                                         data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
                                         data-organization-id="${pattern.organizationID}"
+                                        data-patterntype-id="${pattern.spiralPatternTypeID}"
                                         data-shift-id="${shiftDetail.shiftID}">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
@@ -485,6 +516,7 @@
                                     <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal"
                                         data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
                                         data-organization-id="${pattern.organizationID}"
+                                        data-patterntype-id="${pattern.spiralPatternTypeID}"
                                         data-shift-id="${shiftDetail.shiftID}">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
@@ -642,6 +674,7 @@
                                     <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal"
                                         data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
                                         data-organization-id="${pattern.organizationID}"
+                                        data-patterntype-id="${pattern.spiralPatternTypeID}"
                                         data-shift-id="${shiftDetail.shiftID}">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>

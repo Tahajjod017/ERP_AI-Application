@@ -1,4 +1,6 @@
-﻿<!-- Modal  for edit shift  used-->
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern.UpdateSpiralPatternVM
+
+<!-- Modal  for edit shift  used-->
 <div class="modal fade" id="editShiftModal" tabindex="-1" aria-labelledby="editShiftModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -7,20 +9,24 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input type="hidden" id="OrganizationIdEdit" />
-                <p id="shiftModalDetails" class="mb-3 text-muted"></p>
-                <div class="row mb-3">
-                    <div class="col">
-                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Select Shift")</label>
-                        <select class="form-select" id="editShiftModalShiftID" asp-items="@ViewBag.ShiftDD as SelectList">
-                            <option value="">@Html.SmartLocalize("Select Shift")...</option>
-                        </select>
+                <form asp-controller="CreateSpiralPattern" asp-action="Update" id="update-form" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="UpdateSpiralPatternDetailID" />
+                    <input type="hidden" asp-for="UpdateOrganizationID" />
+                    <input type="hidden" asp-for="UpdateSpiralPatternTypeID" />
+                    <p id="shiftModalDetails" class="mb-3 text-muted"></p>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label" asp-for="UpdateShiftID">@Html.SmartLocalize("Select Shift")</label>
+                            <select class="form-select" asp-for="UpdateShiftID" asp-items="@ViewBag.ShiftDD as SelectList">
+                                <option value="">@Html.SmartLocalize("Select Shift")...</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
-                <button type="button" class="btn btn-primary" id="saveShift">@Html.SmartLocalize("Update Shift")</button>
+                <button type="button" class="btn btn-primary" id="updateShiftBtn">@Html.SmartLocalize("Update Shift")</button>
             </div>
         </div>
     </div>
