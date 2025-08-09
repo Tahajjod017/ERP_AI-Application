@@ -1,27 +1,34 @@
-﻿
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern.AddSpiralWeeklyPatternVM
 
 <!-- Modal  for add shift  used-->
 <div class="modal fade" id="addShiftModal" tabindex="-1" aria-labelledby="addShiftModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="shiftModalLabel">Add shift into Roster</h5>
+                <h5 class="modal-title" id="shiftModalLabel">@Html.SmartLocalize("Add shift into Roster")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p id="shiftModalDetails" class="mb-3 text-muted"></p>
-                <div class="row mb-3">
-                    <div class="col">
-                        <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Select Shift")...</label>
-                        <select class="form-select" id="AddShiftModalShiftID" asp-items="@ViewBag.ShiftDD as SelectList">
-                            <option value="">@Html.SmartLocalize("Select Shift")...</option>
-                        </select>
+                <form asp-controller="CreateSpiralPattern" asp-action="AddShift" id="add-form" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="AddSpiralPatternDetailID" />
+                    <input type="hidden" asp-for="AddOrganizationID" />
+                    <input type="hidden" asp-for="AddSpiralPatternTypeID" />
+                    <input type="hidden" asp-for="AddDayOfWeek" />
+                    <p id="shiftModalDetails" class="mb-3 text-muted"></p>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label" asp-for="AddShiftID">@Html.SmartLocalize("Select Shift")...</label>
+                            <select class="form-select" asp-for="AddShiftID" asp-items="@ViewBag.ShiftDD as SelectList">
+                                <option value="">@Html.SmartLocalize("Select Shift")...</option>
+                            </select>
+                            <span id="AddShiftIDError" class="text-danger" style="display:none;"></span>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveShift">Save shift</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-primary" id="saveShift">@Html.SmartLocalize("Save shift")</button>
             </div>
         </div>
     </div>

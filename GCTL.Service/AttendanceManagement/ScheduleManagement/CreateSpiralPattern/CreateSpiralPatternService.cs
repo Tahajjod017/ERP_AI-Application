@@ -1,5 +1,7 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +48,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     SpiralWeeklyPattern spiralWeeklyPattern = new SpiralWeeklyPattern();
                     spiralWeeklyPattern.SpiralWeeklyPatternName = model.SpiralPatternName;
                     spiralWeeklyPattern.OrganizationID = model.OrganizationID;
+                    spiralWeeklyPattern.SpiralPatternTypeID = model.SpiralPatternTypeID;
                     spiralWeeklyPattern.CreatedAt = DateTime.Now;
                     spiralWeeklyPattern.CreatedBy = model.CreatedBy;
                     spiralWeeklyPattern.LIP = model.LIP;
@@ -70,6 +73,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     SpiralBioWeeklyPattern spiralBioWeeklyPattern = new SpiralBioWeeklyPattern();
                     spiralBioWeeklyPattern.SpiralBioWeeklyPatternName = model.SpiralPatternName;
                     spiralBioWeeklyPattern.OrganizationID = model.OrganizationID;
+                    spiralBioWeeklyPattern.SpiralPatternTypeID = model.SpiralPatternTypeID;
                     spiralBioWeeklyPattern.CreatedAt = DateTime.Now;
                     spiralBioWeeklyPattern.CreatedBy = model.CreatedBy;
                     spiralBioWeeklyPattern.LIP = model.LIP;
@@ -94,6 +98,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     SpiralMonthlyPattern spiralMonthlyPattern = new SpiralMonthlyPattern();
                     spiralMonthlyPattern.SpiralMonthlyPatternName = model.SpiralPatternName;
                     spiralMonthlyPattern.OrganizationID = model.OrganizationID;
+                    spiralMonthlyPattern.SpiralPatternTypeID = model.SpiralPatternTypeID;
                     spiralMonthlyPattern.CreatedAt = DateTime.Now;
                     spiralMonthlyPattern.CreatedBy = model.CreatedBy;
                     spiralMonthlyPattern.LIP = model.LIP;
@@ -125,6 +130,94 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
         #endregion
 
 
+        #region AddShift
+        public async Task<bool> AddShift(AddSpiralWeeklyPatternVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                if (model.AddSpiralPatternTypeID == 1)
+                {
+                    var spiralWeeklyPattern = await _spiralWeeklyPatternDetailsRepository.GetByIdAsync(model.AddSpiralPatternDetailID);
+                    if (spiralWeeklyPattern != null)
+                    {
+                        spiralWeeklyPattern.DayOfWeek = (byte)model.AddDayOfWeek;
+                        spiralWeeklyPattern.ShiftID = model.AddShiftID;
+                        spiralWeeklyPattern.UpdatedAt = DateTime.Now;
+                        spiralWeeklyPattern.UpdatedBy = model.UpdatedBy;
+                        spiralWeeklyPattern.LIP = model.LIP;
+                        spiralWeeklyPattern.LMAC = model.LMAC;
+                        await _spiralWeeklyPatternDetailsRepository.UpdateAsync(spiralWeeklyPattern);
+                    }
+                }
+                else
+                {
+                    await _genericRepository.RollbackTransactionAsync();
+                    return false;
+                }
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
+        #endregion
+
+
+        #region AddFortMonthlyShift
+        public async Task<bool> AddFortMonthlyShift(AddSpiralFortMonthlyPatternVM model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                if (model.AddSpiralPatternTypeIDFortMonthly == 2)
+                {
+                    var spiralBioWeeklyPattern = await _spiralBioWeeklyPatternDetails.GetByIdAsync(model.AddSpiralPatternDetailIDFortMonthly);
+                    if (spiralBioWeeklyPattern != null)
+                    {
+                        spiralBioWeeklyPattern.DayOfMonth = model.AddDayOfMonthFortMonthly;
+                        spiralBioWeeklyPattern.ShiftID = model.AddShiftIDFortMonthly;
+                        spiralBioWeeklyPattern.UpdatedAt = DateTime.Now;
+                        spiralBioWeeklyPattern.UpdatedBy = model.UpdatedBy;
+                        spiralBioWeeklyPattern.LIP = model.LIP;
+                        spiralBioWeeklyPattern.LMAC = model.LMAC;
+                        await _spiralBioWeeklyPatternDetails.UpdateAsync(spiralBioWeeklyPattern);
+                    }
+                }
+                else if (model.AddSpiralPatternTypeIDFortMonthly == 3)
+                {
+                    var spiralMonthlyPattern = await _spiralMonthlyPatternDetails.GetByIdAsync(model.AddSpiralPatternDetailIDFortMonthly);
+                    if (spiralMonthlyPattern != null)
+                    {
+                        spiralMonthlyPattern.DayOfMonth = model.AddDayOfMonthFortMonthly;
+                        spiralMonthlyPattern.ShiftID = model.AddShiftIDFortMonthly;
+                        spiralMonthlyPattern.UpdatedAt = DateTime.Now;
+                        spiralMonthlyPattern.UpdatedBy = model.UpdatedBy;
+                        spiralMonthlyPattern.LIP = model.LIP;
+                        spiralMonthlyPattern.LMAC = model.LMAC;
+                        await _spiralMonthlyPatternDetails.UpdateAsync(spiralMonthlyPattern);
+                    }
+                }
+                else
+                {
+                    await _genericRepository.RollbackTransactionAsync();
+                    return false;
+                }
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return false;
+            }
+        }
+        #endregion
+
+
         #region Update
         public async Task<bool> UpdateAsync(UpdateSpiralPatternVM model)
         {
@@ -136,8 +229,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     var spiralWeeklyPattern = await _spiralWeeklyPatternDetailsRepository.GetByIdAsync(model.UpdateSpiralPatternDetailID);
                     if (spiralWeeklyPattern != null)
                     {
-                        spiralWeeklyPattern.SpiralWeeklyPatternID = model.UpdateSpiralPatternID;
-                        spiralWeeklyPattern.DayOfWeek = model.DayOfWeek;
+                        //spiralWeeklyPattern.SpiralWeeklyPatternID = model.UpdateSpiralPatternID;
+                        spiralWeeklyPattern.DayOfWeek = model.UpdateDayOfWeek;
                         spiralWeeklyPattern.ShiftID = model.UpdateShiftID;
                         spiralWeeklyPattern.UpdatedAt = DateTime.Now;
                         spiralWeeklyPattern.UpdatedBy = model.UpdatedBy;
@@ -151,8 +244,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     var spiralBioWeeklyPattern = await _spiralBioWeeklyPatternDetails.GetByIdAsync(model.UpdateSpiralPatternDetailID);
                     if (spiralBioWeeklyPattern != null)
                     {
-                        spiralBioWeeklyPattern.SpiralBioWeeklyPatternID = model.UpdateSpiralPatternID;
-                        spiralBioWeeklyPattern.DayOfMonth = model.DayOfMonth;
+                        //spiralBioWeeklyPattern.SpiralBioWeeklyPatternID = model.UpdateSpiralPatternID;
+                        spiralBioWeeklyPattern.DayOfMonth = model.UpdateDayOfMonth;
                         spiralBioWeeklyPattern.ShiftID = model.UpdateShiftID;
                         spiralBioWeeklyPattern.UpdatedAt = DateTime.Now;
                         spiralBioWeeklyPattern.UpdatedBy = model.UpdatedBy;
@@ -166,8 +259,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     var spiralMonthlyPattern = await _spiralMonthlyPatternDetails.GetByIdAsync(model.UpdateSpiralPatternDetailID);
                     if (spiralMonthlyPattern != null)
                     {
-                        spiralMonthlyPattern.SpiralMonthlyPatternID = model.UpdateSpiralPatternID;
-                        spiralMonthlyPattern.DayOfMonth = model.DayOfMonth;
+                        //spiralMonthlyPattern.SpiralMonthlyPatternID = model.UpdateSpiralPatternID;
+                        spiralMonthlyPattern.DayOfMonth = model.UpdateDayOfMonth;
                         spiralMonthlyPattern.ShiftID = model.UpdateShiftID;
                         spiralMonthlyPattern.UpdatedAt = DateTime.Now;
                         spiralMonthlyPattern.UpdatedBy = model.UpdatedBy;
@@ -188,6 +281,41 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
         #endregion
 
 
+        #region SoftDeleteAsync
+        public async Task<bool> SoftDeleteFortnightly(DeleteRequestVM requestVM)
+        {
+            await _spiralBioWeeklyPatternDetails.BeginTransactionAsync();
+            try
+            {
+                var data = await _spiralBioWeeklyPatternDetails.FindAsync(x => requestVM.Ids.Contains(x.SpiralBioWeeklyPatternDetailID));
+                if (data == null || data.Count == 0)
+                {
+                    return false;
+                }
+
+                foreach (var item in data)
+                {
+                    item.DeletedAt = DateTime.Now;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy ?? null;
+                }
+
+                await _spiralBioWeeklyPatternDetails.UpdateRangeAsync(data);
+
+                await _spiralBioWeeklyPatternDetails.CommitTransactionAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _spiralBioWeeklyPatternDetails.RollbackTransactionAsync();
+                throw new Exception("Error occurred during the deletion of data.", ex);
+            }
+        }
+        #endregion
+
+
         #region Get Spiral Weekly Patterns List
         public async Task<(List<SpiralWeeklyPatternList> Data, SeparatePaginationInfo Pagination)> GetAllSpiralWeeklyPatternAsync(
             int pageNumber = 1,
@@ -202,6 +330,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.SpiralWeeklyPatternID,
                     x.SpiralWeeklyPatternName,
                     x.OrganizationID,
+                    x.SpiralPatternTypeID,
                     OrganizationName = x.Organization.OrganizationName,
                     SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetails.Select(d => new SpiralWeeklyPatternDetailsListVM
                     {
@@ -250,6 +379,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 SpiralWeeklyPatternID = x.SpiralWeeklyPatternID,
                 SpiralPatternName = x.SpiralWeeklyPatternName,
                 OrganizationID = x.OrganizationID,
+                SpiralPatternTypeID = x.SpiralPatternTypeID,
                 OrganizationName = x.OrganizationName,
                 SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetailsListVMs
             }).ToList();
@@ -285,6 +415,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.SpiralBioWeeklyPatternID,
                     x.SpiralBioWeeklyPatternName,
                     x.OrganizationID,
+                    x.SpiralPatternTypeID,
                     OrganizationName = x.Organization.OrganizationName,
                     SpiralBioWeeklyPatternDetailsListVMs = x.SpiralBioWeeklyPatternDetails.Select(d => new SpiralBioWeeklyPatternDetailsListVM
                     {
@@ -334,6 +465,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 SpiralBioWeeklyPatternName = x.SpiralBioWeeklyPatternName,
                 OrganizationID = x.OrganizationID,
                 OrganizationName = x.OrganizationName,
+                SpiralPatternTypeID = x.SpiralPatternTypeID,
                 SpiralBioWeeklyPatternDetailsListVMs = x.SpiralBioWeeklyPatternDetailsListVMs
             }).ToList();
 
@@ -368,6 +500,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.SpiralMonthlyPatternID,
                     x.SpiralMonthlyPatternName,
                     x.OrganizationID,
+                    x.SpiralPatternTypeID,
                     OrganizationName = x.Organization.OrganizationName,
                     SpiralMonthlyPatternDetailsListVMs = x.SpiralMonthlyPatternDetails.Select(d => new SpiralMonthlyPatternDetailsListVM
                     {
@@ -417,6 +550,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                 SpiralMonthlyPatternName = x.SpiralMonthlyPatternName,
                 OrganizationID = x.OrganizationID,
                 OrganizationName = x.OrganizationName,
+                SpiralPatternTypeID = x.SpiralPatternTypeID,
                 SpiralMonthlyPatternDetailsListVMs = x.SpiralMonthlyPatternDetailsListVMs
             }).ToList();
 

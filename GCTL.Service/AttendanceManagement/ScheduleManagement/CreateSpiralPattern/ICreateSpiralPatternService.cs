@@ -1,5 +1,5 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.Pagination;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
     public interface ICreateSpiralPatternService
     {
         Task<bool> AddAsync(CreateSpiralPatternVM model);
+        Task<bool> AddShift(AddSpiralWeeklyPatternVM model);
+        Task<bool> AddFortMonthlyShift(AddSpiralFortMonthlyPatternVM model);
         Task<bool> UpdateAsync(UpdateSpiralPatternVM model);
+        Task<bool> SoftDeleteFortnightly(DeleteRequestVM requestVM);
         Task<(List<SpiralWeeklyPatternList> Data, SeparatePaginationInfo Pagination)> GetAllSpiralWeeklyPatternAsync(
             int pageNumber = 1,
             int pageSize = 5,

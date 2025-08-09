@@ -10,10 +10,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
     {
         public int UpdateSpiralPatternDetailID { get; set; }
         public int UpdateOrganizationID { get; set; }
-        public int UpdateSpiralPatternID { get; set; }
         public int UpdateSpiralPatternTypeID { get; set; }
-        public byte DayOfWeek { get; set; }
-        public int? DayOfMonth { get; set; }
+        public byte UpdateDayOfWeek { get; set; }
+        public int? UpdateDayOfMonth { get; set; }
         public int UpdateShiftID { get; set; }
     }
 }
