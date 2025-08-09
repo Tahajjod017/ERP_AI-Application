@@ -404,8 +404,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-            .HasDiscriminator<string>("Discriminator")
-            .HasValue<ApplicationUser>("ApplicationUser");
+           .HasDiscriminator<string>("Discriminator")
+           .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employees)
                 .WithMany(e => e.AspNetUsers)
@@ -2900,6 +2900,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.OrganizationID)
                 .HasConstraintName("FK_Organization_OrganizationID_SpiralBioWeeklyPattern");
 
+            entity.HasOne(d => d.SpiralPatternType).WithMany(p => p.SpiralBioWeeklyPattern)
+                .HasForeignKey(d => d.SpiralPatternTypeID)
+                .HasConstraintName("FK_SpiralPatternTypes_SpiralPatternTypeID_SpiralBioWeeklyPattern");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralBioWeeklyPatternUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__SpiralBio__Updat__1293BD5E");
@@ -2963,6 +2967,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.OrganizationID)
                 .HasConstraintName("FK_Organization_OrganizationID_SpiralMonthlyPattern");
 
+            entity.HasOne(d => d.SpiralPatternType).WithMany(p => p.SpiralMonthlyPattern)
+                .HasForeignKey(d => d.SpiralPatternTypeID)
+                .HasConstraintName("FK_SpiralPatternTypes_SpiralPatternTypeID_SpiralMonthlyPattern");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralMonthlyPatternUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__SpiralMon__Updat__26EFBBC6");
@@ -2970,7 +2978,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<SpiralMonthlyPatternDetails>(entity =>
         {
-            entity.HasKey(e => e.SpiralMonthlyPatternDetailID).HasName("PK__SpiralMo__71B1663F2893AF9F");
+            entity.HasKey(e => e.SpiralMonthlyPatternDetailID).HasName("PK__SpiralMo__71B1663F376495E3");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -2982,23 +2990,23 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SpiralMonthlyPatternDetailsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__SpiralMon__Creat__2BB470E3");
+                .HasConstraintName("FK__SpiralMon__Creat__3AF6B473");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SpiralMonthlyPatternDetailsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__SpiralMon__Delet__2CA8951C");
+                .HasConstraintName("FK__SpiralMon__Delet__3BEAD8AC");
 
             entity.HasOne(d => d.Shift).WithMany(p => p.SpiralMonthlyPatternDetails)
                 .HasForeignKey(d => d.ShiftID)
-                .HasConstraintName("FK__SpiralMon__Shift__2D9CB955");
+                .HasConstraintName("FK__SpiralMon__Shift__3CDEFCE5");
 
             entity.HasOne(d => d.SpiralMonthlyPattern).WithMany(p => p.SpiralMonthlyPatternDetails)
                 .HasForeignKey(d => d.SpiralMonthlyPatternID)
-                .HasConstraintName("FK__SpiralMon__Spira__2E90DD8E");
+                .HasConstraintName("FK__SpiralMon__Spira__3DD3211E");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralMonthlyPatternDetailsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__SpiralMon__Updat__2F8501C7");
+                .HasConstraintName("FK__SpiralMon__Updat__3EC74557");
         });
 
         modelBuilder.Entity<SpiralPatternTypes>(entity =>
@@ -3049,6 +3057,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Organization).WithMany(p => p.SpiralWeeklyPattern)
                 .HasForeignKey(d => d.OrganizationID)
                 .HasConstraintName("FK_Organization_OrganizationID_SpiralWeeklyPattern");
+
+            entity.HasOne(d => d.SpiralPatternType).WithMany(p => p.SpiralWeeklyPattern)
+                .HasForeignKey(d => d.SpiralPatternTypeID)
+                .HasConstraintName("FK_SpiralPatternTypes_SpiralPatternTypeID_SpiralWeeklyPattern");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SpiralWeeklyPatternUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
