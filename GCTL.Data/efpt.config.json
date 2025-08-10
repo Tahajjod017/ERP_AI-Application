@@ -16,6 +16,22 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[Customer].[Addresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[AddressTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[IndividualAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[Individuals]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ActionLogs]",
          "ObjectType": 0
       },
@@ -422,14 +438,6 @@
       {
          "Name": "[dbo].[YearlyEndBonusTypes]",
          "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
-         "ObjectType": 1
-      },
-      {
-         "Name": "[dbo].[Prc_GetEmployeesPaged]",
-         "ObjectType": 1
       }
    ],
    "UiHint": null,

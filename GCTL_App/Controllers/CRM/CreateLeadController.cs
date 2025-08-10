@@ -57,35 +57,19 @@ namespace GCTL_App.Controllers.CRM
 
 
         [HttpPost]
-        public IActionResult createPerson([FromBody] PersonLeadVM createLeadVM)
-        {
+        public async Task<IActionResult> createPerson([FromBody] CustomerVM customerVM)
+          {
             if (ModelState.IsValid)
             {
-                Customers customer = createLeadVM.Customers;
-                if (customer.CustomerID == 0) 
+                if (customerVM.PrimaryID == 0) 
                 {
-                    var result = _leadCreateService.SaveLead(customer);
+                    var result = await _leadCreateService.SaveLead(customerVM);
 
-                    return Ok(result);
+                    return Json(new { success = true, message = "Saved successfully" });
                 }
             }
-            //return Json(new { Received = createLeadVM.Customers, ModelValid = ModelState.IsValid, Errors = ModelState });
-            // Extract a clean list of errors with property name + message
-            var errors = ModelState
-                .Where(x => x.Value.Errors.Any())
-                .Select(x => new
-                {
-                    Field = x.Key,
-                    Messages = x.Value.Errors.Select(e => e.ErrorMessage).ToList()
-                })
-                .ToList();
+            return Json(new { MessageContent = "Error" });
 
-            return BadRequest(new
-            {
-                Received = createLeadVM.Customers,
-                ModelValid = false,
-                Errors = errors
-            });
         }
 
     }

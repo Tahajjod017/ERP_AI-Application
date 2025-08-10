@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
+    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6"];
 
     phoneIds.forEach(selector => {
         const input = document.querySelector(selector);
@@ -203,6 +203,14 @@ $(document).ready(function () {
             initAutocomplete();
         }, 300);
     });
+    //shiping tab code
+    $("#shippingAddressTab").on("click", function () {
+        console.log("shipping tag clicked");
+        targetTab = 'shiping';
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
+    });
 
     $("#closeModal").on('click', function () {
         $('#addNationalityModal').modal('hide');
@@ -213,7 +221,7 @@ $(document).ready(function () {
     let autocomplete;
     const idMap = {
         company: {
-            customerID: 'personID',
+            primaryID: 'personID',
             firstName: 'firstNamePerson',
             lastName: 'lastNamePerson',
 
@@ -222,6 +230,7 @@ $(document).ready(function () {
             city: 'cityCompany',
             state: 'stateCompany',
             country: 'countryCompany',
+            countryCode: 'countryCodeCompany',
             postal_code: 'postalCodeCompany',
             latitude: 'latitudeCompany',
             longitude: 'longitudeCompany',
@@ -231,7 +240,7 @@ $(document).ready(function () {
             email: 'emailPerson',
         },
         person: {
-            customerID: 'personID',
+            primaryID: 'personID',
             firstName: 'firstNamePerson',
             lastName: 'lastNamePerson',
             autocomplete: 'autocompletePerson', // full address
@@ -240,12 +249,31 @@ $(document).ready(function () {
             state: 'statePerson',
             additionalAddress : 'additionalAddressPerson',
             country: 'countryPerson',
+            countryCode: 'countryCodePerson',
             postal_code: 'postalCodePerson',
             latitude: 'latitudePerson',
             longitude: 'longitudePerson',
             phone: 'phone3',
             otherPhone: 'phone4',
             email: 'emailPerson',
+        },
+        shiping: {
+            primaryID: 'shipingID',
+            firstName: 'firstNameShiping',
+            lastName: 'lastNamePerson',
+            autocomplete: 'autocompleteShiping', // full address
+            street: 'streetShiping',
+            city: 'cityShiping',
+            state: 'stateShiping',
+            additionalAddress: 'additionalAddressShiping',
+            country: 'countryShiping',
+            countryCode: 'countryCodeShiping',
+            postal_code: 'postalCodeShiping',
+            latitude: 'latitudeShiping',
+            longitude: 'longitudeShiping',
+            phone: 'phone5',
+            otherPhone: 'phone6',
+            email: 'emailShiping',
         }
     };
     function initAutocomplete() {
@@ -262,7 +290,7 @@ $(document).ready(function () {
 
         autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace();
-            let street_number = "", city = "", state = "", country = "", postal_code = "", route = "";
+            let street_number = "", city = "", state = "", country = "", postal_code = "", route = "", countryCode = "";
 
             for (const component of place.address_components) {
                 if (component.types.includes("street_number")) street_number = component.long_name;
@@ -271,6 +299,7 @@ $(document).ready(function () {
                 if (component.types.includes("locality")) city = component.long_name;
                 if (component.types.includes("administrative_area_level_1")) state = component.short_name;
                 if (component.types.includes("country")) country = component.long_name;
+                if (component.types.includes("country")) countryCode = component.short_name;
             }
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
@@ -298,6 +327,7 @@ $(document).ready(function () {
             document.getElementById(ids.city).value = city;
             document.getElementById(ids.state).value = state;
             document.getElementById(ids.country).value = country;
+            document.getElementById(ids.countryCode).value = countryCode;
             document.getElementById(ids.postal_code).value = postal_code;
             document.getElementById(ids.latitude).value = lat;
             document.getElementById(ids.longitude).value = lng;
@@ -349,41 +379,43 @@ $(document).ready(function () {
         const ids = idMap[targetTab] || {};
         console.log(ids.phone);
         var data = {
-            customers: {
-                CustomerID: document.getElementById(ids.customerID).value
-                    ? parseInt(document.getElementById(ids.customerID).value, 10)
-                    : 0,
-                FirstName: document.getElementById(ids.firstName).value,
-                LastName: document.getElementById(ids.lastName).value,
-                FullAddress: document.getElementById(ids.autocomplete).value,
-                Street: document.getElementById(ids.street).value,
-                City: document.getElementById(ids.city).value,
-                State: document.getElementById(ids.state).value,
-                Additionaladdress: document.getElementById(ids.additionalAddress).value,
-                PostalCode: document.getElementById(ids.postal_code).value,
-              //  CountryID: 1,
-                CountryID: document.getElementById(ids.country).value,
-                Latitude: document.getElementById(ids.latitude).value || null,
-                Longitude: document.getElementById(ids.longitude).value || null,
-                Phone: getPhoneNumber(`#${ids.phone}`),
-                OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
-                Email: document.getElementById(ids.email).value,
-            }
-            
+            TabName : targetTab,
+            PrimaryID: document.getElementById(ids.primaryID).value
+                ? parseInt(document.getElementById(ids.primaryID).value, 10)
+                : 0,
+            FirstName: document.getElementById(ids.firstName).value,
+            LastName: document.getElementById(ids.lastName).value,
+            FullAddress: document.getElementById(ids.autocomplete).value,
+            Street: document.getElementById(ids.street).value,
+            City: document.getElementById(ids.city).value,
+            State: document.getElementById(ids.state).value,
+            Additionaladdress: document.getElementById(ids.additionalAddress).value,
+            PostalCode: document.getElementById(ids.postal_code).value,
+            //  CountryID: 1,
+            CountryName: document.getElementById(ids.country).value,
+            CountryCode: document.getElementById(ids.countryCode).value,
+            Latitude: parseFloat(document.getElementById(ids.latitude).value) || null,
+            Longitude: parseFloat(document.getElementById(ids.longitude).value) || null,
+            Phone: getPhoneNumber(`#${ids.phone}`),
+            OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
+            Email: document.getElementById(ids.email).value,
         }
         console.log(data);
         $.ajax({
-            url: '/CreateLead/createPerson', // <-- Update with your actual route
+            url: '/CreateLead/createPerson',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(data),
             success: function (response) {
+                console.log(response);
                 if (response.success) {
+                    alert("Saved Successfully");
                     console.log(response.success);
                 }
             },
             error: function (xhr) {
-                alert('Error saving nationality: ' + xhr.responseText);
+                console.log(xhr);
+                alert('Error saving person: ' + xhr.responseText);
             }
         });
     });
