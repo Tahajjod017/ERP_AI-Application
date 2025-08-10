@@ -56,7 +56,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 }
 
                 // Custom ordered validation message 
-                var orderedKeys = new[] { "OrganizationID", "SpiralPatternTypeID", "SpiralPatternName" };
+                var orderedKeys = new[] { "OrganizationID", "SpiralPatternTypeID", "SpiralPatternID", "StartDate", "EndDate" };
 
                 foreach (var key in orderedKeys)
                 {

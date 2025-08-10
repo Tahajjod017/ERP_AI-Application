@@ -3,12 +3,43 @@
         // Default options
         var settings = $.extend({
             baseUrl: '/',
+            saveBtn: '#assignSpiralPattern-saveBtn',
+            saveForm: '#assignSpiralPattern-form',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
         $(() => {
 
 
+            // #region Save
+            $(settings.saveBtn).on('click', function (e) {
+                e.preventDefault();
+
+                var form = $(settings.saveForm);
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.isSuccess === true) {
+                            toastr.success(response.message);
+                        } else {
+                            const allFields = ["OrganizationID", "SpiralPatternTypeID", "SpiralPatternID", "StartDate", "EndDate"];
+
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Conflict check failed:', err);
+                    }
+                });
+            });
+            // #endregion
 
 
             // #region OrganizationID on change
