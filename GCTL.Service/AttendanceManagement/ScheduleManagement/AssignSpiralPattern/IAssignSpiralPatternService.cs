@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
 {
     public interface IAssignSpiralPatternService
     {
-
+        Task<bool> AddAsync(AssignSpiralPatternSetupVM model);
     }
 }
