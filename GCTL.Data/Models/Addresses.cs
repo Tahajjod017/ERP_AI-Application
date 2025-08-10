@@ -5,11 +5,33 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class SpiralPatternTypes
+public partial class Addresses
 {
-    public int SpiralPatternTypeID { get; set; }
+    public int AddressID { get; set; }
 
-    public string SpiralPatternTypeName { get; set; }
+    public string FullAddress { get; set; }
+
+    public string Street { get; set; }
+
+    public string City { get; set; }
+
+    public string State { get; set; }
+
+    public string Additionaladdress { get; set; }
+
+    public string PostalCode { get; set; }
+
+    public int? CountryID { get; set; }
+
+    public string Phone { get; set; }
+
+    public string OtherPhone { get; set; }
+
+    public string Email { get; set; }
+
+    public decimal? Latitude { get; set; }
+
+    public decimal? Longitude { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,13 +53,7 @@ public partial class SpiralPatternTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; } = new List<SpiralBioWeeklyPattern>();
-
-    public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPattern { get; set; } = new List<SpiralMonthlyPattern>();
-
-    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignList { get; set; } = new List<SpiralPatternAssignList>();
-
-    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPattern { get; set; } = new List<SpiralWeeklyPattern>();
+    public virtual ICollection<IndividualAddresses> IndividualAddresses { get; set; } = new List<IndividualAddresses>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

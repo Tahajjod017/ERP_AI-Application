@@ -15,6 +15,22 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[Customer].[Addresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[AddressTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[IndividualAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[Individuals]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ActionLogs]",
          "ObjectType": 0
       },
@@ -96,6 +112,10 @@
       },
       {
          "Name": "[dbo].[Currencies]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Customers]",
          "ObjectType": 0
       },
       {
@@ -379,6 +399,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[SpiralPatternAssignList]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[SpiralPatternTypes]",
          "ObjectType": 0
       },
@@ -419,6 +443,30 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[SalaryTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[DateFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Localizations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[TimeFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Timezones]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[aa]",
          "ObjectType": 1
       },
@@ -436,7 +484,6 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
-   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -444,7 +491,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -456,6 +502,5 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false,
-   "UseT4Split": false
+   "UseT4": false
 }

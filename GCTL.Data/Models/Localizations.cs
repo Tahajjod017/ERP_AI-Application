@@ -5,11 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class SpiralPatternTypes
+public partial class Localizations
 {
-    public int SpiralPatternTypeID { get; set; }
+    public int LocalizationID { get; set; }
 
-    public string SpiralPatternTypeName { get; set; }
+    public int? OrganizationID { get; set; }
+
+    public int? LanguageID { get; set; }
+
+    public int? TimezoneID { get; set; }
+
+    public int? DateFormatID { get; set; }
+
+    public int? TimeFormatID { get; set; }
+
+    public int? CurrencyID { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,15 +39,19 @@ public partial class SpiralPatternTypes
 
     public virtual Employees CreatedByNavigation { get; set; }
 
+    public virtual Currencies Currency { get; set; }
+
+    public virtual DateFormats DateFormat { get; set; }
+
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; } = new List<SpiralBioWeeklyPattern>();
+    public virtual LanguageLists Language { get; set; }
 
-    public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPattern { get; set; } = new List<SpiralMonthlyPattern>();
+    public virtual Organization Organization { get; set; }
 
-    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignList { get; set; } = new List<SpiralPatternAssignList>();
+    public virtual TimeFormats TimeFormat { get; set; }
 
-    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPattern { get; set; } = new List<SpiralWeeklyPattern>();
+    public virtual Timezones Timezone { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

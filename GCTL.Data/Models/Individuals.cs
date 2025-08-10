@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class SpiralPatternTypes
+public partial class Individuals
 {
-    public int SpiralPatternTypeID { get; set; }
+    public int IndividualID { get; set; }
 
-    public string SpiralPatternTypeName { get; set; }
+    public string FirstName { get; set; }
+
+    public string LastName { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,13 +33,7 @@ public partial class SpiralPatternTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; } = new List<SpiralBioWeeklyPattern>();
-
-    public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPattern { get; set; } = new List<SpiralMonthlyPattern>();
-
-    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignList { get; set; } = new List<SpiralPatternAssignList>();
-
-    public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPattern { get; set; } = new List<SpiralWeeklyPattern>();
+    public virtual ICollection<IndividualAddresses> IndividualAddresses { get; set; } = new List<IndividualAddresses>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

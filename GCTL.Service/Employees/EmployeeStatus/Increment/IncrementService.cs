@@ -916,7 +916,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
 
         private async Task<int> ResolveApproverAsync(ApprovalSettings settings, EmployeeOfficeInfo employee, int stage)
         {
-            bool isDesignationBased;
+            bool isDesignationBased=false;
             int? approverID;
             bool allowSelfApproval = settings.AllowSelfApproval ?? false;
             int? selfExceptionID = settings.SelfExceptionApprovalID;
