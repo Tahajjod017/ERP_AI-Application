@@ -175,7 +175,7 @@ function loadTableData(sortColumn, sortOrder) {
                              <td class="align-middle white-space-nowrap ">${item.elementKeys}</td>
                              <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
-                         <a
+                          <a
                                href="#"
                                title="Edit"
                                id="LeaveRequestEditButton"
@@ -185,7 +185,7 @@ function loadTableData(sortColumn, sortOrder) {
                                data-bs-target="#edit_leaves"
                               >
                                <i class="fas fa-edit text-black"></i>
-                        </a>
+                            </a>
                             <a 
                               href="#" title="Delete"  data-id="${item.id}"
                               class="btn btn-outline-light btn-icon"  

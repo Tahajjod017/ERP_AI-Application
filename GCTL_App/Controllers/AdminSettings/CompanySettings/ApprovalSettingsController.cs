@@ -3,10 +3,12 @@ using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class ApprovalSettingsController : BaseController
     {
         private readonly IApprovalSettingService _approvalSettingService;
