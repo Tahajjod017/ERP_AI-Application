@@ -1,9 +1,11 @@
 ﻿using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class LanguageSettingsController : BaseController
     {
         public LanguageSettingsController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)

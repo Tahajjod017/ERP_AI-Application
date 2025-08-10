@@ -3,10 +3,12 @@ using GCTL.Core.ViewModels.MasterSetup.Designations;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class DesignationSettingsController : BaseController
     {
         private readonly IDesignationSettingService _designationSettingService;
