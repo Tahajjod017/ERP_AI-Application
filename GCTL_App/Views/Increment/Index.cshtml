@@ -1,14 +1,15 @@
 ﻿
+
 <div class=" ps-3 d-md-flex d-block align-items-center justify-content-between page-breadcrumb">
     <div class="my-auto mb-2">
-        <h2 class="mb-0">Employee Increment/Decrement</h2>
+        <h2 class="mb-0">@Html.SmartLocalize("Employee Increment/Decrement")</h2>
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
                     <a href="#"><i class="ti ti-smart-home"></i></a>
                 </li>
-                <li class="breadcrumb-item">Employee</li>
-                <li class="breadcrumb-item active" aria-current="page">Status</li>
+                <li class="breadcrumb-item">@Html.SmartLocalize("Employee")</li>
+                <li class="breadcrumb-item active" aria-current="page">@Html.SmartLocalize("Status")</li>
             </ol>
         </nav>
     </div>
@@ -31,40 +32,40 @@
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
                                 <select class="form-select choiceDD" id="incrementEmpId" asp-items="@ViewBag.EmployeeDD">
-                                    <option value="" selected disabled>Select Employee Name</option>
+                                    <option value="" selected disabled>@Html.SmartLocalize("Select Employee Name")</option>
 
                                 </select>
-                                <label for="incrementEmpId">Employee Name</label>
+                                <label for="incrementEmpId">@Html.SmartLocalize("Employee Name")</label>
                                 <span class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
                                 <select class="form-select choiceDD" id="incrementOrganization" asp-items="@ViewBag.OrganizationDD" disabled>
-                                    <option value="" selected disabled>Select Organization</option>
+                                    <option value="" selected disabled>@Html.SmartLocalize("Select Organization")</option>
 
                                 </select>
-                                <label for="incrementOrganization">Organization</label>
+                                <label for="incrementOrganization">@Html.SmartLocalize("Organization")</label>
                                 <span class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
                                 <select class="form-select choiceDD" id="incrementDesigantion" asp-items="@ViewBag.DesignationDD" disabled>
-                                    <option value="" selected disabled>Select Designation</option>
+                                    <option value="" selected disabled>@Html.SmartLocalize("Select Designation")</option>
 
                                 </select>
-                                <label for="incrementDesigantion">Designation</label>
+                                <label for="incrementDesigantion">@Html.SmartLocalize("Designation")</label>
                                 <span class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-floating form-floating-advance-select">
                                 <select class="form-select choiceDD" id="incrementDepatment" asp-items="@ViewBag.DepartmentDD" disabled>
-                                    <option value="" selected disabled>Select Department</option>
+                                    <option value="" selected disabled>@Html.SmartLocalize("Select Department")</option>
 
                                 </select>
-                                <label for="incrementDepatment">Department</label>
+                                <label for="incrementDepatment">@Html.SmartLocalize("Department")</label>
                                 <span class="text-danger small"></span>
                             </div>
                         </div>
@@ -74,17 +75,17 @@
                     <div class="d-flex mb-3">
                         <div class="form-check me-4">
                             <input class="form-check-input" type="radio" name="changeType2" id="incrementRadio" value="increment" checked>
-                            <label class="form-check-label" for="increment">Increment</label>
+                            <label class="form-check-label" for="increment">@Html.SmartLocalize("Increment")</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="changeType2" id="decrementRadio" value="decrement">
-                            <label class="form-check-label" for="decrement">Decrement</label>
+                            <label class="form-check-label" for="decrement">@Html.SmartLocalize("Decrement")</label>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0">Change Details</h5>
+                            <h5 class="mb-0">@Html.SmartLocalize("Change Details")</h5>
                         </div>
                         <div class="card-body">
                             <!-- Date Field -->
@@ -96,7 +97,7 @@
                                     <div class="flatpickr-input-container">
                                         <div class="form-floating">
                                             <input id="incrementWef" class="form-control datetimepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true}' />
-                                            <label class="ps-6" id="incrementWef">Effective Date</label>
+                                            <label class="ps-6" id="incrementWef">@Html.SmartLocalize("Effective Date")</label>
                                             <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                             <span class="text-danger small"></span>
                                         </div>
@@ -109,48 +110,48 @@
 
 
 
-                            <!-- 2 Input Fields -->
+
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <div class="form-floating">
                                         <input type="number" class="form-control" id="incrementPrevSalary" placeholder="Current Salary" required readonly>
-                                        <label for="incrementPrevSalary">Current Salary</label>
+                                        <label for="incrementPrevSalary">@Html.SmartLocalize("Current Salary")</label>
                                     </div>
                                     <span class="text-danger small"></span>
                                 </div>
-                                
+
                                 <div class="col-md-4">
                                     <div class="input-group">
                                         <div class="form-floating">
                                             <input type="number" class="form-control" id="incrementAmt" placeholder="Increment / Decrement Amount" required>
-                                            <label for="incrementAmt">Increment / Decrement Amount</label>
+                                            <label for="incrementAmt">@Html.SmartLocalize("Increment / Decrement Amount")</label>
                                         </div>
                                         <span class="text-danger small"></span>
 
                                         <div class="form-floating">
                                             <input type="number" class="form-control" id="incrementPercent" placeholder="Increment / Decrement Percent" required>
-                                            <label for="incrementPercent">Increment / Decrement Percent</label>
+                                            <label for="incrementPercent">@Html.SmartLocalize("Increment / Decrement Percent")</label>
                                         </div>
                                         <span class="text-danger small"></span>
                                     </div>
-                                    
+
                                 </div>
 
                                 <div class="col-md-4">
                                     <div class="form-floating">
                                         <input type="number" class="form-control" id="incrementNewSalary" placeholder="New Salary" required>
-                                        <label for="incrementNewSalary">New Salary</label>
+                                        <label for="incrementNewSalary">@Html.SmartLocalize("New Salary")</label>
                                     </div>
                                     <span class="text-danger small"></span>
                                 </div>
                             </div>
 
-                            <!-- Remarks -->
+
                             <div class="row mb-3">
                                 <div class="col-md-12">
                                     <div class="form-floating">
                                         <textarea class="form-control" rows="3" id="incrementRemark" placeholder="Reason / Remarks" style="height: 100px;"></textarea>
-                                        <label for="incrementRemark">Reason / Remarks</label>
+                                        <label for="incrementRemark">@Html.SmartLocalize("Reason / Remarks")</label>
                                     </div>
                                     <span class="text-danger small"></span>
                                 </div>
@@ -159,8 +160,8 @@
 
                         <div class="card-footer">
                             <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button type="button" id="btnIncrementCancel" class="btn btn-light">Cancel Button</button>
-                                <button type="submit" id="btnIncrementSubmit" class="btn btn-primary">Submit Button</button>
+                                <button type="button" id="btnIncrementCancel" class="btn btn-light">@Html.SmartLocalize("Cancel Button")</button>
+                                <button type="submit" id="btnIncrementSubmit" class="btn btn-primary">@Html.SmartLocalize("Submit Button")</button>
                             </div>
                         </div>
 
@@ -181,6 +182,197 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-<script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementForm.js"></script>
+    <script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementForm.js"></script>
 
 }
+
+
+
+
+
+
+@*<div class=" ps-3 d-md-flex d-block align-items-center justify-content-between page-breadcrumb">
+        <div class="my-auto mb-2">
+            <h2 class="mb-0">Employee Increment/Decrement</h2>
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="#"><i class="ti ti-smart-home"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Employee</li>
+                    <li class="breadcrumb-item active" aria-current="page">Status</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card">
+
+                <div class="card-body">
+
+
+
+
+
+                    <form id="incrementForm">
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-floating form-floating-advance-select">
+                                    <select class="form-select choiceDD" id="incrementEmpId" asp-items="@ViewBag.EmployeeDD">
+                                        <option value="" selected disabled>Select Employee Name</option>
+
+                                    </select>
+                                    <label for="incrementEmpId">Employee Name</label>
+                                    <span class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating form-floating-advance-select">
+                                    <select class="form-select choiceDD" id="incrementOrganization" asp-items="@ViewBag.OrganizationDD" disabled>
+                                        <option value="" selected disabled>Select Organization</option>
+
+                                    </select>
+                                    <label for="incrementOrganization">Organization</label>
+                                    <span class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating form-floating-advance-select">
+                                    <select class="form-select choiceDD" id="incrementDesigantion" asp-items="@ViewBag.DesignationDD" disabled>
+                                        <option value="" selected disabled>Select Designation</option>
+
+                                    </select>
+                                    <label for="incrementDesigantion">Designation</label>
+                                    <span class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating form-floating-advance-select">
+                                    <select class="form-select choiceDD" id="incrementDepatment" asp-items="@ViewBag.DepartmentDD" disabled>
+                                        <option value="" selected disabled>Select Department</option>
+
+                                    </select>
+                                    <label for="incrementDepatment">Department</label>
+                                    <span class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="d-flex mb-3">
+                            <div class="form-check me-4">
+                                <input class="form-check-input" type="radio" name="changeType2" id="incrementRadio" value="increment" checked>
+                                <label class="form-check-label" for="increment">Increment</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="changeType2" id="decrementRadio" value="decrement">
+                                <label class="form-check-label" for="decrement">Decrement</label>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Change Details</h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="row mb-3">
+
+
+
+                                    <div class="col-md-6">
+                                        <div class="flatpickr-input-container">
+                                            <div class="form-floating">
+                                                <input id="incrementWef" class="form-control datetimepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true}' />
+                                                <label class="ps-6" id="incrementWef">Effective Date</label>
+                                                <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+
+
+
+
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="incrementPrevSalary" placeholder="Current Salary" required readonly>
+                                            <label for="incrementPrevSalary">Current Salary</label>
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="incrementAmt" placeholder="Increment / Decrement Amount" required>
+                                                <label for="incrementAmt">Increment / Decrement Amount</label>
+                                            </div>
+                                            <span class="text-danger small"></span>
+
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="incrementPercent" placeholder="Increment / Decrement Percent" required>
+                                                <label for="incrementPercent">Increment / Decrement Percent</label>
+                                            </div>
+                                            <span class="text-danger small"></span>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="incrementNewSalary" placeholder="New Salary" required>
+                                            <label for="incrementNewSalary">New Salary</label>
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <div class="form-floating">
+                                            <textarea class="form-control" rows="3" id="incrementRemark" placeholder="Reason / Remarks" style="height: 100px;"></textarea>
+                                            <label for="incrementRemark">Reason / Remarks</label>
+                                        </div>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <button type="button" id="btnIncrementCancel" class="btn btn-light">Cancel Button</button>
+                                    <button type="submit" id="btnIncrementSubmit" class="btn btn-primary">Submit Button</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+    <script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementForm.js"></script>
+
+    }*@

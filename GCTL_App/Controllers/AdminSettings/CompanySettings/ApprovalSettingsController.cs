@@ -17,6 +17,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         public async Task<IActionResult> Index()
         {
+            SmartLocalizeText("585585568");
             ViewBag.Organizations = await _approvalSettingService.GetOrganizationsAsync();
             ViewBag.ApprovalTypes = await _approvalSettingService.GetApprovalTypesAsync();
             //ViewBag.Employees = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync();
