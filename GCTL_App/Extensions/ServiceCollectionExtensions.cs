@@ -124,6 +124,7 @@ using GCTL.Service.Employees.EmployeeStatus.Promotion;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.YearlyReports;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Service.PayRollManagements.PayRollPolicy;
 
 #endregion
 
@@ -202,6 +203,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeTransferService, EmployeeTransferService>();
             services.AddScoped<INotificationsService, NotificationsService>();
             services.AddScoped<IEmpTransferApprovedOrDeclineService, EmpTransferApprovedOrDeclineService>();
+            services.AddScoped<IEmployeeBenefitsService, EmployeeBenefitsService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
