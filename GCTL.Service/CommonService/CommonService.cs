@@ -244,7 +244,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region 
+        #region GetSpiralPatternsByOrgPatternType
         public async Task<List<CommonSelectVM>> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId)
         {
             var weekly = await _spiralWeeklyPatterns.AllActive().Include(x => x.SpiralPatternType)

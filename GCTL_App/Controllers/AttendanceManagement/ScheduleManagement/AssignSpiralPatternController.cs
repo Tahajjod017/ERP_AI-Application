@@ -1,4 +1,7 @@
-﻿using GCTL.Service.CommonService;
+﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
@@ -9,12 +12,16 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
     public class AssignSpiralPatternController : BaseController
     {
+        #region Services & Repositories
         private readonly ICommonService _commonService;
+        private readonly IAssignSpiralPatternService _assignSpiralPatternService;
 
-        public AssignSpiralPatternController(ITranslateService translateService, IUserProfileService userProfileService, ICommonService commonService) : base(translateService, userProfileService)
+        public AssignSpiralPatternController(ITranslateService translateService, IUserProfileService userProfileService, ICommonService commonService, IAssignSpiralPatternService assignSpiralPatternService) : base(translateService, userProfileService)
         {
             _commonService = commonService;
+            _assignSpiralPatternService = assignSpiralPatternService;
         }
+        #endregion
 
 
         #region Index
@@ -30,6 +37,42 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             ViewBag.SpiralPatternDD = await _commonService.GetSpiralPatterns();
 
             return View(model);
+        }
+        #endregion
+
+
+        #region Create
+        //[Permission("Create", "AssignSpiralPattern")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Create(AssignSpiralPatternSetupVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _assignSpiralPatternService.AddAsync(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "OrganizationID", "SpiralPatternTypeID", "SpiralPatternName" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
 
