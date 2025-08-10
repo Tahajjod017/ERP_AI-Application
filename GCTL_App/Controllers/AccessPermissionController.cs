@@ -15,7 +15,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers 
 {
-   
+    [Authorize]
     public class AccessPermissionController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
