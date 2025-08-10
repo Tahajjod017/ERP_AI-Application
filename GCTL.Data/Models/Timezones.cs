@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LanguageLists
+public partial class Timezones
 {
-    public int ID { get; set; }
+    public int TimezoneID { get; set; }
 
-    public string LanguageCode { get; set; }
+    public string TimezoneName { get; set; }
 
-    public string LanguageName { get; set; }
+    public string TimezoneValue { get; set; }
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
 }
