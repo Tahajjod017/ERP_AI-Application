@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
 
-    const developmentMode = true; 
+    const developmentMode = false; 
 
     if (developmentMode) {
         toastr.info("Welcome to the Promotion List!");
@@ -18,40 +18,6 @@
     $('#searchInput').on('input', () => loadPromotionList(1));
     $('#departmentFilter, #promotionStatusFilter, #dateRangePicker, #pageSizeSelect').on('change', () => loadPromotionList(1));
 
-    function loadPromotionList(page = 1) {
-        debugger
-        currentPage = page;
-
-        const formData = new FormData();
-        formData.append("searchTerm", $('#searchInput').val());
-        formData.append("departmentId", $('#departmentFilter').val());
-        formData.append("status", $('#promotionStatusFilter').val());
-        formData.append("dateRange", $('#dateRangePicker').val());
-        formData.append("pageSize", $('#pageSizeSelect').val());
-        formData.append("pageNumber", page);
-        formData.append("sortColumn", currentSortColumn);
-        formData.append("sortDirection", currentSortDirection);
-
-        $.ajax({
-            url: '/PromotionList/GetPromotionList',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                if (res.success) {
-                    populatePromotionTable(res.data.items);
-                    updatePromotionPagination(res.data.pagination);
-                    updatePromotionResultCount(res.data.pagination);
-                } else {
-                    $('#promotion-body').html('<tr><td colspan="8">No data found.</td></tr>');
-                }
-            },
-            error: function () {
-                alert("Failed to load promotion list.");
-            }
-        });
-    }
 
     $(document).on('click', 'th.sort', function () {
         const clickedColumn = $(this).data('sort');
@@ -66,12 +32,60 @@
         loadPromotionList(1);
     });
 
-    function populatePromotionTable(items) {
-        const tbody = $('#promotion-body');
-        tbody.empty();
+    
 
-        items.forEach(item => {
-            tbody.append(`
+    //#endregion
+
+    
+})
+
+
+
+function loadPromotionList(page = 1) {
+    debugger
+    currentPage = page;
+
+    const formData = new FormData();
+    formData.append("searchTerm", $('#searchInput').val());
+    formData.append("departmentId", $('#departmentFilter').val());
+    formData.append("status", $('#promotionStatusFilter').val());
+    formData.append("dateRange", $('#dateRangePicker').val());
+    formData.append("pageSize", $('#pageSizeSelect').val());
+    formData.append("pageNumber", page);
+    formData.append("sortColumn", currentSortColumn);
+    formData.append("sortDirection", currentSortDirection);
+
+    $.ajax({
+        url: '/PromotionList/GetPromotionList',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+            if (res.success) {
+                populatePromotionTable(res.data.items);
+                updatePromotionPagination(res.data.pagination);
+                updatePromotionResultCount(res.data.pagination);
+            } else {
+                $('#promotion-body').html('<tr><td colspan="8">No data found.</td></tr>');
+            }
+        },
+        error: function () {
+            alert("Failed to load promotion list.");
+        }
+    });
+}
+
+
+
+
+
+function populatePromotionTable(items) {
+    const tbody = $('#promotion-body');
+    tbody.empty();
+
+    items.forEach(item => {
+        tbody.append(`
            
 
             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -105,28 +119,23 @@
 
 
         `);
-        });
-    }
+    });
+}
 
-    function updatePromotionPagination(pagination) {
-        const paginationUl = $('.pagination');
-        paginationUl.empty();
+function updatePromotionPagination(pagination) {
+    const paginationUl = $('.pagination');
+    paginationUl.empty();
 
-        for (let i = 1; i <= pagination.totalPages; i++) {
-            paginationUl.append(`
+    for (let i = 1; i <= pagination.totalPages; i++) {
+        paginationUl.append(`
             <li class="page-item ${i === pagination.currentPage ? 'active' : ''}">
                 <a class="page-link" href="#" onclick="loadPromotionList(${i})">${i}</a>
             </li>
         `);
-        }
     }
+}
 
-    function updatePromotionResultCount(pagination) {
-        const infoText = `Showing ${pagination.startRecord} - ${pagination.endRecord} of ${pagination.totalRecords} results`;
-        $('[data-list-info]').text(infoText);
-    }
-
-    //#endregion
-
-    
-})
+function updatePromotionResultCount(pagination) {
+    const infoText = `Showing ${pagination.startRecord} - ${pagination.endRecord} of ${pagination.totalRecords} results`;
+    $('[data-list-info]').text(infoText);
+}

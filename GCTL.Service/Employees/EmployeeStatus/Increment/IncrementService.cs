@@ -388,11 +388,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
 
         #endregion
 
-        #region Entry Save
-
-
-
-        #region Entry Save
+       #region Entry Save
 
         public async Task<CommonReturnViewModel> SaveAsync(SalaryChangeViewModel model)
         {
@@ -412,6 +408,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             try
             {
                 #region Action Type and Status Setup
+
                 var actionType = await _employeeActionTypeRepository.AllActive()
                     .FirstOrDefaultAsync(e => e.EmployeeActionTypeName.ToLower() == model.ChangeType.ToLower());
                 if (actionType == null)
@@ -644,7 +641,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                     if ( !AllowSelfApproval)
                     {
                         increment.ApprovalPersonID = selfApprovalExceptionId;
-                        increment.ApprovalStage = 2;
+                        increment.ApprovalStage = 4;
                     }
                     else
                     {
@@ -652,6 +649,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                     }
                     await _employeeCarrerCngRepository.UpdateAsync(increment);
                 }
+
 
                 #endregion
 
@@ -709,7 +707,6 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
      
 
 
-        #endregion
 
         #region Edit Save
         public async Task<IncrementApproveViewModel> GetPendingIncrementDetailsByID(int id)
@@ -818,8 +815,12 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                     else
                     {
                         
-                        career.IsFinalApproved = true;
-                        career.ApprovalStage = career.ApprovalStage + 1;
+                        
+                            career.IsFinalApproved = true;
+                            career.ApprovalStage = career.ApprovalStage + 1;
+                        
+                        
+                        
                     }
                 }
                 else
@@ -906,10 +907,10 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             {
                 return await ResolveApproverAsync(approvalSettings, employee, 3);
             }
-            else if (currentStage == 3 && ((bool)!approvalSettings.AllowSelfApproval))
-            {
-                return await ResolveApproverAsync(approvalSettings, employee, 4);
-            }
+            //else if (currentStage == 3 && ((bool)!approvalSettings.AllowSelfApproval))
+            //{
+            //    return await ResolveApproverAsync(approvalSettings, employee, 4);
+            //}
 
             return 0;
         }
@@ -935,11 +936,11 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 isDesignationBased = settings.IsDesignationOrEmpThirdApprovalID;
                 approverID = settings.ThirdApprovalID;
             }
-            else if (stage == 4)
-            {
-                if ((bool)settings.AllowSelfApproval) return 0;
-                approverID = settings.SelfExceptionApprovalID;
-            }
+            //else if (stage == 4)
+            //{
+            //    if ((bool)settings.AllowSelfApproval) return 0;
+            //    approverID = settings.SelfExceptionApprovalID;
+            //}
             else
             {
                 return 0;

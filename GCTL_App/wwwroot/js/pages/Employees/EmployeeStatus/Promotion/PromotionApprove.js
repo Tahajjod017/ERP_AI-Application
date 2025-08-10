@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    const developmentMode = true;
+    const developmentMode = false;
 
     if (developmentMode) {
         toastr.info("Welcome to the Promotion Approval Page!");

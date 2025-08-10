@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    toastr.info("Increment List Loaded");
+   
 
     let currentPage = 1;
     let currentSortColumn = "effectiveDate"; // Default sort column

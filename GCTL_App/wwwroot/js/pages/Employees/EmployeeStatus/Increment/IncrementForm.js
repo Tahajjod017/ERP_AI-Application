@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    toastr.info("Increment Form Loaded");
+    
 
 
     //#region Form Submit
