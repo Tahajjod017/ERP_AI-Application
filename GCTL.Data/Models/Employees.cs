@@ -81,6 +81,18 @@ public partial class Employees
 
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
+    public virtual ICollection<AddressTypes> AddressTypesCreatedByNavigation { get; set; } = new List<AddressTypes>();
+
+    public virtual ICollection<AddressTypes> AddressTypesDeletedByNavigation { get; set; } = new List<AddressTypes>();
+
+    public virtual ICollection<AddressTypes> AddressTypesUpdatedByNavigation { get; set; } = new List<AddressTypes>();
+
+    public virtual ICollection<Addresses> AddressesCreatedByNavigation { get; set; } = new List<Addresses>();
+
+    public virtual ICollection<Addresses> AddressesDeletedByNavigation { get; set; } = new List<Addresses>();
+
+    public virtual ICollection<Addresses> AddressesUpdatedByNavigation { get; set; } = new List<Addresses>();
+
     public virtual ICollection<AlertForEmployee> AlertForEmployeeCreatedByNavigation { get; set; } = new List<AlertForEmployee>();
 
     public virtual ICollection<AlertForEmployee> AlertForEmployeeDeletedByNavigation { get; set; } = new List<AlertForEmployee>();
@@ -167,6 +179,12 @@ public partial class Employees
 
     public virtual ICollection<Currencies> CurrenciesUpdatedByNavigation { get; set; } = new List<Currencies>();
 
+    public virtual ICollection<Customers> CustomersCreatedByNavigation { get; set; } = new List<Customers>();
+
+    public virtual ICollection<Customers> CustomersDeletedByNavigation { get; set; } = new List<Customers>();
+
+    public virtual ICollection<Customers> CustomersUpdatedByNavigation { get; set; } = new List<Customers>();
+
     public virtual ICollection<DefaultShifts> DefaultShiftsCreatedByNavigation { get; set; } = new List<DefaultShifts>();
 
     public virtual ICollection<DefaultShifts> DefaultShiftsDeletedByNavigation { get; set; } = new List<DefaultShifts>();
@@ -250,6 +268,12 @@ public partial class Employees
     public virtual ICollection<EmployeeBasePaymentModes> EmployeeBasePaymentModesEmployee { get; set; } = new List<EmployeeBasePaymentModes>();
 
     public virtual ICollection<EmployeeBasePaymentModes> EmployeeBasePaymentModesUpdatedByNavigation { get; set; } = new List<EmployeeBasePaymentModes>();
+
+    public virtual ICollection<EmployeeBenefits> EmployeeBenefitsCreatedByNavigation { get; set; } = new List<EmployeeBenefits>();
+
+    public virtual ICollection<EmployeeBenefits> EmployeeBenefitsDeletedByNavigation { get; set; } = new List<EmployeeBenefits>();
+
+    public virtual ICollection<EmployeeBenefits> EmployeeBenefitsUpdatedByNavigation { get; set; } = new List<EmployeeBenefits>();
 
     public virtual ICollection<EmployeeCareerChangeHistory> EmployeeCareerChangeHistoryApprovalPerson { get; set; } = new List<EmployeeCareerChangeHistory>();
 
@@ -375,6 +399,18 @@ public partial class Employees
 
     public virtual ICollection<Holidays> HolidaysUpdatedByNavigation { get; set; } = new List<Holidays>();
 
+    public virtual ICollection<IndividualAddresses> IndividualAddressesCreatedByNavigation { get; set; } = new List<IndividualAddresses>();
+
+    public virtual ICollection<IndividualAddresses> IndividualAddressesDeletedByNavigation { get; set; } = new List<IndividualAddresses>();
+
+    public virtual ICollection<IndividualAddresses> IndividualAddressesUpdatedByNavigation { get; set; } = new List<IndividualAddresses>();
+
+    public virtual ICollection<Individuals> IndividualsCreatedByNavigation { get; set; } = new List<Individuals>();
+
+    public virtual ICollection<Individuals> IndividualsDeletedByNavigation { get; set; } = new List<Individuals>();
+
+    public virtual ICollection<Individuals> IndividualsUpdatedByNavigation { get; set; } = new List<Individuals>();
+
     public virtual ICollection<Employees> InverseCreatedByNavigation { get; set; } = new List<Employees>();
 
     public virtual ICollection<Employees> InverseDeletedByNavigation { get; set; } = new List<Employees>();
@@ -436,6 +472,12 @@ public partial class Employees
     public virtual ICollection<LicenceTypes> LicenceTypesDeletedByNavigation { get; set; } = new List<LicenceTypes>();
 
     public virtual ICollection<LicenceTypes> LicenceTypesUpdatedByNavigation { get; set; } = new List<LicenceTypes>();
+
+    public virtual ICollection<Localizations> LocalizationsCreatedByNavigation { get; set; } = new List<Localizations>();
+
+    public virtual ICollection<Localizations> LocalizationsDeletedByNavigation { get; set; } = new List<Localizations>();
+
+    public virtual ICollection<Localizations> LocalizationsUpdatedByNavigation { get; set; } = new List<Localizations>();
 
     public virtual MaritalStatus MaritalStatus { get; set; }
 
@@ -541,6 +583,12 @@ public partial class Employees
 
     public virtual ICollection<SMSSettings> SMSSettingsUpdatedByNavigation { get; set; } = new List<SMSSettings>();
 
+    public virtual ICollection<SalaryTypes> SalaryTypesCreatedByNavigation { get; set; } = new List<SalaryTypes>();
+
+    public virtual ICollection<SalaryTypes> SalaryTypesDeletedByNavigation { get; set; } = new List<SalaryTypes>();
+
+    public virtual ICollection<SalaryTypes> SalaryTypesUpdatedByNavigation { get; set; } = new List<SalaryTypes>();
+
     public virtual ICollection<ServiceYears> ServiceYearsCreatedByNavigation { get; set; } = new List<ServiceYears>();
 
     public virtual ICollection<ServiceYears> ServiceYearsDeletedByNavigation { get; set; } = new List<ServiceYears>();
@@ -582,6 +630,14 @@ public partial class Employees
     public virtual ICollection<SpiralMonthlyPatternDetails> SpiralMonthlyPatternDetailsUpdatedByNavigation { get; set; } = new List<SpiralMonthlyPatternDetails>();
 
     public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPatternUpdatedByNavigation { get; set; } = new List<SpiralMonthlyPattern>();
+
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignListCreatedByNavigation { get; set; } = new List<SpiralPatternAssignList>();
+
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignListDeletedByNavigation { get; set; } = new List<SpiralPatternAssignList>();
+
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignListEmployee { get; set; } = new List<SpiralPatternAssignList>();
+
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignListUpdatedByNavigation { get; set; } = new List<SpiralPatternAssignList>();
 
     public virtual ICollection<SpiralPatternTypes> SpiralPatternTypesCreatedByNavigation { get; set; } = new List<SpiralPatternTypes>();
 

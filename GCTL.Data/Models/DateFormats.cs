@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LanguageLists
+public partial class DateFormats
 {
-    public int ID { get; set; }
+    public int DateFormatID { get; set; }
 
-    public string LanguageCode { get; set; }
+    public string FormatCode { get; set; }
 
-    public string LanguageName { get; set; }
+    public string Description { get; set; }
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
 }

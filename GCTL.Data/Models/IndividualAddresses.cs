@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Currencies
+public partial class IndividualAddresses
 {
-    public int CurrencyID { get; set; }
+    public int IndividualAddressID { get; set; }
 
-    public string CurrencyCode { get; set; }
+    public int? AddressTypeID { get; set; }
 
-    public string CurrencyName { get; set; }
+    public int? AddressID { get; set; }
 
-    public string Symbol { get; set; }
+    public int? IndividualID { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,13 +31,15 @@ public partial class Currencies
 
     public int? DeletedBy { get; set; }
 
+    public virtual Addresses Address { get; set; }
+
+    public virtual AddressTypes AddressType { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettings { get; set; } = new List<EmployeeSalarySettings>();
-
-    public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
+    public virtual Individuals Individual { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
