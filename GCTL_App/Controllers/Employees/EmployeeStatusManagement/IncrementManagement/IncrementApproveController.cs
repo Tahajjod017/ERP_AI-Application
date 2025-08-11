@@ -84,17 +84,5 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         }
     }
 
-    //public class IncrementApproveController : BaseController
-    //{
-    //    public IncrementApproveController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
-    //    {
-    //    }
-
-    //    public IActionResult Index()
-    //    {
-    //        SetSmartPageCode(121900);
-
-    //        return View();
-    //    }
-    //}
+   
 }

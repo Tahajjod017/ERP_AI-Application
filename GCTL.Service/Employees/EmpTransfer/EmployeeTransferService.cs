@@ -31,8 +31,8 @@ namespace GCTL.Service.Employees.EmpTransfer
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly IGenericRepository<OrganizationBranches> organizationBranch;
-        private readonly IGenericRepository<Alerts> alertsRepository;
         private readonly IGenericRepository<EmployeeTransferHistory> transferhistoryRepository;
+        private readonly IGenericRepository<Alerts> alertsRepository;
         private readonly IGenericRepository<AlertForEmployee> alertForEmployeeRepository;
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
         private readonly IGenericRepository<Statuses> statusRepository;

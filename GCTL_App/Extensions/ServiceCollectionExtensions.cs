@@ -124,6 +124,7 @@ using GCTL.Service.Employees.EmployeeStatus.Promotion;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.YearlyReports;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Service.Employees.EmployeeResign;
 
 #endregion
 
@@ -269,10 +270,11 @@ namespace GCTL_App.Extensions
 
             #endregion
 
-            #region Employee Status Management(Increment, Promotion)
+            #region Employee Status Management(Increment, Promotion , Termination , Resignation)
 
             services.AddScoped<IincrementService, IncrementService>();
             services.AddScoped<IPromotionService, PromotionService>();
+            services.AddScoped<IEmployeeResign, EmployeeResignService>();
 
 
             #endregion

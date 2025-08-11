@@ -168,7 +168,7 @@
         <div class="border-translucent p-3">
             <div id="incrementApprovalTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="pendingTblDy" >
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -176,13 +176,13 @@
                                         <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"increment-approval-body"}' />
                                     </div>
                                 </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">@Html.SmartLocalize("Employee Name")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType">@Html.SmartLocalize("Increment Type")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary">@Html.SmartLocalize("Current Salary")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary">@Html.SmartLocalize("Proposed Salary")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount">@Html.SmartLocalize("Increment Amount")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">@Html.SmartLocalize("Effective Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision">@Html.SmartLocalize("Decision")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType" data-column="1">@Html.SmartLocalize("Increment Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary" data-column="2">@Html.SmartLocalize("Current Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary" data-column="3">@Html.SmartLocalize("Proposed Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount" data-column="4">@Html.SmartLocalize("Increment Amount")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate" data-column="5">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision" data-column="6">@Html.SmartLocalize("Decision")</th>
 
                             </tr>
                         </thead>
@@ -268,7 +268,7 @@
         <div class="border-translucent p-3">
             <div id="approvedIncrementTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="approvedTblDy">
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -276,14 +276,14 @@
                                         <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"approved-increment-body"}' />
                                     </div>
                                 </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">@Html.SmartLocalize("Employee Name")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType">@Html.SmartLocalize("Increment Type")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary">@Html.SmartLocalize("Current Salary")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary">@Html.SmartLocalize("New Salary")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount">@Html.SmartLocalize("Increment Amount")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">@Html.SmartLocalize("Effective Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approvedDate">@Html.SmartLocalize("Approved Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">@Html.SmartLocalize("Status")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType" data-column="1">@Html.SmartLocalize("Increment Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary" data-column="2">@Html.SmartLocalize("Current Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary" data-column="3">@Html.SmartLocalize("New Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount" data-column="4">@Html.SmartLocalize("Increment Amount")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate" data-column="5">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approvedDate" data-column="6">@Html.SmartLocalize("Approved Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="7">@Html.SmartLocalize("Status")</th>
 
                             </tr>
                         </thead>

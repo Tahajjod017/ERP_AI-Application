@@ -113,7 +113,7 @@
                                     <input class="form-check-input" type="checkbox" />
                                 </div>
                             </td>
-                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
                                 <div class="d-flex align-items-center file-name-icon">
                                     <div class="avatar avatar-m avatar-bordered me-4">
                                         <img class="rounded-circle" src="${promotion.avatarUrl}" alt="" />
@@ -124,14 +124,14 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="currentPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                            <td class="currentPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="1">
                                 <p class="fs-14 fw-medium d-flex align-items-center mb-0">${promotion.currentPosition}</p>
                             </td>
-                            <td class="proposedPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.proposedPosition}</td>
-                            <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.currentSalary}</td>
-                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.proposedSalary}</td>
-                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.effectiveDate}</td>
-                            <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                            <td class="proposedPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="2">${promotion.proposedPosition}</td>
+                            <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="3">${promotion.currentSalary}</td>
+                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="4">${promotion.proposedSalary}</td>
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="5">${promotion.effectiveDate}</td>
+                            <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="6">
                                 <a href="#" class="nav-item mx-2 review-promotion" data-promotion-id="${promotion.id}" data-bs-toggle="modal" data-bs-target="#promotion_approval_modal" title="Review Promotion">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
@@ -139,6 +139,10 @@
                         </tr>
                     `);
                 });
+
+                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('promPending'), 'promPending');
+
+
                 // updatePagination("#pending-promotion-pagination", data.totalPages, page, loadPendingPromotions);
                 updatePagination("#promotionApprovalTable", data.totalPages, data.totalItems, page, loadPendingPromotions);
                 pendingPage = page;
@@ -180,7 +184,7 @@
                                     <input class="form-check-input" type="checkbox" />
                                 </div>
                             </td>
-                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
                                 <div class="d-flex align-items-center file-name-icon">
                                     <div class="avatar avatar-m avatar-bordered me-4">
                                         <img class="rounded-circle" src="${promotion.avatarUrl}" alt="" />
@@ -191,14 +195,14 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="currentPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
+                            <td class="currentPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="1">
                                 <p class="fs-14 fw-medium d-flex align-items-center mb-0">${promotion.currentPosition}</p>
                             </td>
-                            <td class="proposedPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.proposedPosition}</td>
-                            <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.currentSalary}</td>
-                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.proposedSalary}</td>
-                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.effectiveDate}</td>
-                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${promotion.status}</td>
+                            <td class="proposedPosition align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="2">${promotion.proposedPosition}</td>
+                            <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="3">${promotion.currentSalary}</td>
+                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="4">${promotion.proposedSalary}</td>
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="5">${promotion.effectiveDate}</td>
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="6">${promotion.status}</td>
                             
                         </tr>
                     `);
@@ -209,6 +213,11 @@
                     //    </a>
                     //</td>
                 });
+
+                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('promApprove'), 'promApprove');
+
+
+
                 //updatePagination("#approved-promotion-pagination", data.totalPages, page, loadApprovedPromotions);
                 updatePagination("#approvedPromotionTable", data.totalPages, data.totalItems, page, loadApprovedPromotions);
                 approvedPage = page;
