@@ -79,7 +79,7 @@
                     <div class="d-flex align-items-center me-3" style="width: auto;">
                         <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
                         <div style="width: 100%;">
-                            <select id="bloodGroup-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                            <select id="assignSpiralPattern-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
                                 <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
                                 <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
                                 <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
@@ -93,15 +93,15 @@
 
                 <div class="col-12 col-sm-auto">
                     <div class="d-flex align-items-center">
-                        <div class="d-none me-3" id="bloodGroup-bulkSelectActions">
+                        <div class="d-none me-3" id="assignSpiralPattern-bulkSelectActions">
                             <div class="position-relative">
-                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="bloodGroup-delSel">@Html.SmartLocalize("Delete")</button>
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="assignSpiralPattern-delSel">@Html.SmartLocalize("Delete")</button>
                             </div>
                         </div>
 
-                        <div class="search-box me-3" id="bloodGroup-searchBox">
-                            <form class="position-relative" id="bloodGroup-searchForm">
-                                <input class="form-control search-input search" id="bloodGroup-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                        <div class="search-box me-3" id="assignSpiralPattern-searchBox">
+                            <form class="position-relative" id="assignSpiralPattern-searchForm">
+                                <input class="form-control search-input search" id="assignSpiralPattern-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
                                 <span class="fas fa-search search-box-icon"></span>
                             </form>
                         </div>
@@ -113,18 +113,18 @@
                 <table class="table table-bordered table-sm fs-9 leads-table">
                     <thead>
                         <tr>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Company Name")</th>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Department Name")</th>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Employee Name")</th>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Type")</th>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Start Date")</th>
-                            <th class=" align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("End Date")</th>
-                            <th class=" text-end align-middle pe-0 ps-5"></th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="OrganizationName">@Html.SmartLocalize("Organization Name")</th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="ShiftName">@Html.SmartLocalize("Department Name")</th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="EmployeeName">@Html.SmartLocalize("Employee Name")</th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="SpiralPatternTypeName">@Html.SmartLocalize("Spiral Pattern Type")</th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="SpiralPatternName">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="StartDate">@Html.SmartLocalize("Start Date")</th>
+                            <th class="sort align-middle ps-3 text-uppercase text-nowrap" data-sort="EndDate">@Html.SmartLocalize("End Date")</th>
+                            <th class="align-middle ps-3 text-uppercase text-nowrap">@Html.SmartLocalize("Action")</th>
                         </tr>
                     </thead>
-                    <tbody class="list" id="roster-assign-employee">
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                    <tbody id="assignSpiralPattern-tBody">
+                        @* <tr class="hover-actions-trigger btn-reveal-trigger position-static">
 
                             <td class="compName align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
                                 <h5>GCTL</h5>
@@ -157,7 +157,7 @@
                                     </a>
                                 </div>
                             </td>
-                        </tr>
+                        </tr> *@
                     </tbody>
                 </table>
             </div>

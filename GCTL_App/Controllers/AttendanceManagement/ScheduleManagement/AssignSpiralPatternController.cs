@@ -105,5 +105,43 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             return Json(result);
         }
         #endregion
+
+
+        #region GetAllAsync
+        [Route("AssignSpiralPattern/GetAllAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "SpiralPatternAssignListID", string sortOrder = "desc")
+        {
+            try
+            {
+                var result = await _assignSpiralPatternService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        public async Task<IActionResult> GetSpiralPatternDetails(int typeId, int id)
+        {
+            object result = null;
+            if(typeId == 1)
+            {
+                result = await _assignSpiralPatternService.GetAllSpiralWeeklyPatternAsync(id);
+            }
+            else if (typeId == 2)
+            {
+                result = await _assignSpiralPatternService.GetAllSpiralFortnightlyPatternAsync(id);
+            }
+            else if (typeId == 3)
+            {
+                result = await _assignSpiralPatternService.GetAllSpiralMonthlyPatternAsync(id);
+            }
+
+            return Json(result);
+        }
     }
 }
