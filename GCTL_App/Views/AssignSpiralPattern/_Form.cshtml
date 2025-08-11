@@ -1,0 +1,128 @@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern.AssignSpiralPatternSetupVM
+
+@{
+    var departments = ViewBag.DepartmentDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var spiralPatterns = ViewBag.SpiralPatternDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+}
+
+<div class="mb-5 mt-3">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+            <h4 class="mb-1">Assign Spiral Pattern to Employee</h4>
+        </div>
+
+        <div class="border-translucent p-3">
+            <form asp-controller="AssignSpiralPattern" asp-action="Create" id="assignSpiralPattern-form" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="OrganizationID" class="form-label">@Html.SmartLocalize("Select Organization")<span style="color: red;">&nbsp;*</span></label>
+                            <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                                <option value="">@Html.SmartLocalize("Select Organization")...</option>
+                            </select>
+                            <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Select Department")</label>
+                            <select class="form-multi-select" asp-for="DepartmentIDs"
+                                    multiple data-coreui-selection-type="counter"
+                                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
+                                    data-coreui-search="true">
+                                @foreach (var group in departments.GroupBy(e => e.GroupName))
+                                {
+                                    <optgroup label="@group.Key">
+                                        @foreach (var emp in group)
+                                        {
+                                            <option value="@emp.Id">@emp.Name</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Select Employee")</label>
+                            <select class="form-multi-select" asp-for="EmployeeIDs"
+                                    multiple data-coreui-selection-type="counter"
+                                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
+                                    data-coreui-search="true">
+                                @foreach (var group in employees.GroupBy(e => e.GroupName))
+                                {
+                                    <optgroup label="@group.Key">
+                                        @foreach (var emp in group)
+                                        {
+                                            <option value="@emp.Id">@emp.Name</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="SpiralPatternTypeID">@Html.SmartLocalize("Spiral Pattern Type")<span style="color: red;">&nbsp;*</span></label>
+                            <select class="form-select" asp-for="SpiralPatternTypeID" asp-items="@ViewBag.SpiralPatternTypeDD">
+                                <option value="">@Html.SmartLocalize("Select Spiral Pattern Type")...</option>
+                            </select>
+                            <span id="SpiralPatternTypeIDError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="SpiralPatternID">@Html.SmartLocalize("Spiral Pattern")<span style="color: red;">&nbsp;*</span></label>
+                            <select class="form-select" asp-for="SpiralPatternID">
+                                <option value="">@Html.SmartLocalize("Select Spiral Pattern")...</option>
+                                @foreach (var group in spiralPatterns.GroupBy(e => e.GroupName))
+                                {
+                                    <optgroup label="@group.Key">
+                                        @foreach (var emp in group)
+                                        {
+                                            <option value="@emp.Id">@emp.Name</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                            <span id="SpiralPatternIDError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 flatpickr-input-container">
+                        <label class="form-label" asp-for="StartDate">@Html.SmartLocalize("Start Date")<span style="color: red;">&nbsp;*</span></label>
+                        <div class="input-icon-end position-relative flatpickr">
+                            <input class="form-control datetimepicker" asp-for="StartDate" type="text" placeholder="dd/mm/yyyy" />
+                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                            <span id="StartDateError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 flatpickr-input-container">
+                        <label class="form-label" asp-for="EndDate">@Html.SmartLocalize("End Date")<span style="color: red;">&nbsp;*</span></label>
+                        <div class="input-icon-end position-relative flatpickr">
+                            <input class="form-control datetimepicker" asp-for="EndDate" type="text" placeholder="dd/mm/yyyy" />
+                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                            <span id="EndDateError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 pb-2 pt-3">
+                    <div class="row g-3 justify-content-end">
+                        <div class="col-auto">
+                            <button type="reset" class="btn btn-phoenix-primary px-5" id="assignSpiralPattern-resetBtn">@Html.SmartLocalize("Reset")</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-5 px-sm-10" id="assignSpiralPattern-saveBtn">@Html.SmartLocalize("Assing Spiral Pattern")</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

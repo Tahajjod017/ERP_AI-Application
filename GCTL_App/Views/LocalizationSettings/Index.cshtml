@@ -7,19 +7,19 @@
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavGeneralSettingsPartial.cshtml" model="subTab" />
 
 <div class="col-xl-12 mt-3">
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-body">
             <div class="border-bottom mb-3 pb-3">
                 <h4>Localization</h4>
             </div>
-            <form action="settings-ui.html">
-                <div class="border-bottom mb-3">
+            <form >
+                <div class="mb-3">
                     <div class="row">
 
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerSingleCompany">Company</label>
-                                <select class="form-multi-select" multiple data-coreui-search="true">
+                                <label class="form-label" for="organizerSingleCompany">Organization</label>
+                                <select class="form-select choiceDD">
                                     <option value="1">CSL</option>
                                     <option value="2">GCTL</option>
                                 </select>
@@ -29,7 +29,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Language</label>
-                                <select class="form-select" aria-label="Default select example">
+                                <select class="form-select choiceDD" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>English</option>
                                     <option>French</option>
@@ -41,7 +41,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Timezone</label>
-                                <select class="form-select" aria-label="Default select example">
+                                <select class="form-select choiceDD" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>(UTC +5:30)</option>
                                     <option>(UTC+11:00) INR</option>
@@ -52,7 +52,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Date Format</label>
-                                <select class="form-select" aria-label="Default select example">
+                                <select class="form-select choiceDD" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>YYYY-MM-DD</option>
                                     <option>MM/DD/YYYY</option>
@@ -65,7 +65,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Time Format</label>
-                                <select class="form-select" aria-label="Default select example">
+                                <select class="form-select choiceDD" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>12 Hours</option>
                                     <option>24 Hours</option>
@@ -76,7 +76,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Currency</label>
-                                <select class="form-select" aria-label="Default select example">
+                                <select class="form-select choiceDD" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>USD</option>
                                     <option>EURO</option>
@@ -88,7 +88,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Currency Symbol</label>
-                                <select class="form-select" aria-label="Default select example">
+                                <select class="form-select choiceDD" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>$</option>
                                     <option>€</option>
@@ -102,10 +102,15 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-end">
-                    <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                    <button type="button" class="btn btn-light border me-3">Reset</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
         </div>
     </div>
+    <partial name="_localizationListTable" />
 </div>
+
+@section Scripts {
+    <script src="~/js/pages/adminsettings/generalsettings/localizationsettings.js"></script>
+}

@@ -1,0 +1,338 @@
+﻿<!-- Spiral Pattern Details -->
+<div class="modal fade" id="spiral_pattern_details">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Spiral Pattern Details</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+                <div class="modal-body pb-0">
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <div id="weekly" class=" my-4">
+                            <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+                                <thead>
+                                    <tr>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Saturday")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Sunday")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Monday")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Tuesday")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Wednesday")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Thursday")</th>
+                                        <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Friday")</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weeklyTblBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <div id="fortnightly" class=" my-4">
+                            <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 01")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 02")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 03")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 04")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 05")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 06")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 07")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 08")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 09")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 10")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 11")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 12")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 13")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 14")</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fortnightlyTblBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <div id="monthly" class=" my-4">
+                            <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 01")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 02")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 03")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 04")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 05")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 06")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 07")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 08")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 09")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 10")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 11")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 12")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 13")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 14")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 15")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 16")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 17")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 18")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 19")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 20")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 21")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 22")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 23")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 24")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 25")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 26")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 27")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 28")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 29")</th>
+                                        <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 30")</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthlyTblBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@* <div class="table-responsive scrollbar mx-n1 px-1">
+    <div id="biweekly" class=" my-4">
+        <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th class=" align-middle ps-3 pe-5 text-uppercase text-nowrap">Spiral Pattern Name</th>
+                    <th>Day 01</th>
+                    <th>Day 02</th>
+                    <th>Day 03</th>
+                    <th>Day 04</th>
+                    <th>Day 05</th>
+                    <th>Day 06</th>
+                    <th>Day 07</th>
+                    <th>Day 08</th>
+                    <th>Day 09</th>
+                    <th>Day 10</th>
+                    <th>Day 11</th>
+                    <th>Day 12</th>
+                    <th>Day 13</th>
+                    <th>Day 14</th>
+                </tr>
+            </thead>
+            <tbody class="list" id="rosterTable" id="purchasers-sellers-body">
+                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                    <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                        <h6>Spiral Pattern 1</h6>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">10:00 - 18:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">09:00 - 17:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">Off Day</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">15:00 - 23:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">09:00 - 17:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">11:00 - 19:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">09:00 - 17:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">10:00 - 18:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">09:00 - 17:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">Off Day</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">15:00 - 23:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">09:00 - 17:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">11:00 - 19:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="startTime py-1">
+                        <div class="badge  badge-phoenix-primary  p-2">
+                            <p class="my-2 fs-10">09:00 - 17:00</p>
+                            <div class="add-shift-btn2">
+                                <a href="#" class="nav-item mx-2 " data-bs-toggle="modal" data-bs-target="#editShiftModal">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div> *@

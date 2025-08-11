@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,9 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<WeekendSettings> _weekendSettings;
         private readonly IGenericRepository<WeekendDays> _weekendDays;
         private readonly IGenericRepository<SpiralPatternTypes> _spiralPatternTypes;
+        private readonly IGenericRepository<SpiralWeeklyPattern> _spiralWeeklyPatterns;
+        private readonly IGenericRepository<SpiralBioWeeklyPattern> _spiralBioWeeklyPattern;
+        private readonly IGenericRepository<SpiralMonthlyPattern> _spiralMonthlyPattern;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -35,7 +39,10 @@ namespace GCTL.Service.CommonService
             IGenericRepository<CompensationTypes> compensationTypes,
             IGenericRepository<WeekendSettings> weekendSettings,
             IGenericRepository<WeekendDays> weekendDays,
-            IGenericRepository<SpiralPatternTypes> spiralPatternTypes)
+            IGenericRepository<SpiralPatternTypes> spiralPatternTypes,
+            IGenericRepository<SpiralWeeklyPattern> spiralWeeklyPatterns,
+            IGenericRepository<SpiralBioWeeklyPattern> spiralBioWeeklyPattern,
+            IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPattern)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -47,6 +54,9 @@ namespace GCTL.Service.CommonService
             _weekendSettings = weekendSettings;
             _weekendDays = weekendDays;
             _spiralPatternTypes = spiralPatternTypes;
+            _spiralWeeklyPatterns = spiralWeeklyPatterns;
+            _spiralBioWeeklyPattern = spiralBioWeeklyPattern;
+            _spiralMonthlyPattern = spiralMonthlyPattern;
         }
         #endregion
 
@@ -112,11 +122,17 @@ namespace GCTL.Service.CommonService
         #region GetDepartments
         public async Task<List<CommonSelectVM>> GetDepartments()
         {
-            var result = await _departments.AllActive().AsNoTracking().Select(x => new CommonSelectVM
-            {
-                Id = x.DepartmentID,
-                Name = x.DepartmentName
-            }).ToListAsync();
+            var result = await (from dep in _departments.AllActive().AsNoTracking()
+
+                                join org in _organization.AllActive().AsNoTracking() on dep.OrganizationID equals org.OrganizationID into orgGroup
+                                from org in orgGroup.DefaultIfEmpty()
+
+                                select new CommonSelectVM
+                                {
+                                    Id = dep.DepartmentID,
+                                    Name = dep.DepartmentName,
+                                    GroupName = org.OrganizationName
+                                }).ToListAsync();
 
             return result;
         }
@@ -187,6 +203,91 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
+        #region GetSpiralPatterns
+        public async Task<List<CommonSelectVM>> GetSpiralPatterns()
+        {
+            var weekly = await _spiralWeeklyPatterns.AllActive().Include(x => x.SpiralPatternType)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.SpiralWeeklyPatternID,
+                    Name = x.SpiralWeeklyPatternName,
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                })
+                .ToListAsync();
+
+            var biWeekly = await _spiralBioWeeklyPattern.AllActive().Include(x => x.SpiralPatternType)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.SpiralBioWeeklyPatternID,
+                    Name = x.SpiralBioWeeklyPatternName,
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                })
+                .ToListAsync();
+
+            var monthly = await _spiralMonthlyPattern.AllActive().Include(x => x.SpiralPatternType)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.SpiralMonthlyPatternID,
+                    Name = x.SpiralMonthlyPatternName,
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                })
+                .ToListAsync();
+
+            // Combine all into one list
+            var allPatterns = weekly
+                .Concat(biWeekly)
+                .Concat(monthly)
+                .ToList();
+
+            return allPatterns;
+        }
+        #endregion
+
+
+        #region GetSpiralPatternsByOrgPatternType
+        public async Task<List<CommonSelectVM>> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId)
+        {
+            var weekly = await _spiralWeeklyPatterns.AllActive().Include(x => x.SpiralPatternType)
+                .Where(x => x.OrganizationID == orgId && (!typeId.HasValue || x.SpiralPatternTypeID == typeId))
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.SpiralWeeklyPatternID,
+                    Name = x.SpiralWeeklyPatternName,
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                })
+                .ToListAsync();
+
+            var biWeekly = await _spiralBioWeeklyPattern.AllActive().Include(x => x.SpiralPatternType)
+                .Where(x => x.OrganizationID == orgId && (!typeId.HasValue || x.SpiralPatternTypeID == typeId))
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.SpiralBioWeeklyPatternID,
+                    Name = x.SpiralBioWeeklyPatternName,
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                })
+                .ToListAsync();
+
+            var monthly = await _spiralMonthlyPattern.AllActive().Include(x => x.SpiralPatternType)
+                .Where(x => x.OrganizationID == orgId && (!typeId.HasValue || x.SpiralPatternTypeID == typeId))
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.SpiralMonthlyPatternID,
+                    Name = x.SpiralMonthlyPatternName,
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                })
+                .ToListAsync();
+
+            // Combine all into one list
+            var allPatterns = weekly
+                .Concat(biWeekly)
+                .Concat(monthly)
+                .ToList();
+
+            return allPatterns;
+        }
+        #endregion
+
+
         #region GetBranches
         public async Task<List<CommonSelectVM>> GetBranchesByOrgId(int? orgId)
         {
@@ -206,19 +307,22 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetDepartments
+        #region GetDepartmentsByOrgId
         public async Task<List<CommonSelectVM>> GetDepartmentsByOrgId(int? orgId)
         {
-            var query = _departments.AllActive().AsNoTracking();
+            var result = await (from dep in _departments.AllActive().AsNoTracking()
 
-            if (orgId.HasValue && orgId.Value != 0)
-                query = query.Where(d => d.OrganizationID == orgId.Value);
+                                join org in _organization.AllActive().AsNoTracking() on dep.OrganizationID equals org.OrganizationID into orgGroup
+                                from org in orgGroup.DefaultIfEmpty()
 
-            var result = await query.Select(d => new CommonSelectVM
-            {
-                Id = d.DepartmentID,
-                Name = d.DepartmentName
-            }).ToListAsync();
+                                where dep.OrganizationID == orgId
+
+                                select new CommonSelectVM
+                                {
+                                    Id = dep.DepartmentID,
+                                    Name = dep.DepartmentName,
+                                    GroupName = org.OrganizationName
+                                }).ToListAsync();
 
             return result;
         }

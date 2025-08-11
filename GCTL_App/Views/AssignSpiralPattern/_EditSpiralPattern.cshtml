@@ -1,0 +1,115 @@
+﻿@{
+    var editDepartments = ViewBag.DepartmentDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var editEmployees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var editSpiralPatterns = ViewBag.SpiralPatternDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+}
+
+<!-- Edit Spiral Pattern -->
+<div class="modal fade" id="edit_spiral_pattern">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Spiral Pattern</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="">
+                <div class="modal-body pb-0">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label id="OrganizationID" class="form-label">@Html.SmartLocalize("Select Organization")</label>
+                                <select class="form-select" id="organizerSingle" asp-items="@ViewBag.OrganizationDD as SelectList" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                    <option value="">@Html.SmartLocalize("Select Organization")...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" id="DepartmentID">@Html.SmartLocalize("Select Department")</label>
+                                <select class="form-multi-select" id="DepartmentID"
+                                        multiple data-coreui-selection-type="counter"
+                                        data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
+                                        data-coreui-search="true">
+                                    @foreach (var group in editDepartments.GroupBy(e => e.GroupName))
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var emp in group)
+                                            {
+                                                <option value="@emp.Id">@emp.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label" id="EmployeeID">@Html.SmartLocalize("Select Employee")</label>
+                                <select class="form-multi-select" id="EmployeeID"
+                                        multiple data-coreui-selection-type="counter"
+                                        data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
+                                        data-coreui-search="true">
+                                    @foreach (var group in editEmployees.GroupBy(e => e.GroupName))
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var emp in group)
+                                            {
+                                                <option value="@emp.Id">@emp.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" id="SpiralPatternTypeID">@Html.SmartLocalize("Spiral Patern Type")</label>
+                                <select class="form-select" id="organizerSingle" asp-items="@ViewBag.SpiralPatternTypeDD" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                    <option value="">@Html.SmartLocalize("Select Spiral Patern Type")...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" id="SpiralPatternID">@Html.SmartLocalize("Spiral Patern")</label>
+                                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                    <option value="">@Html.SmartLocalize("Select Spiral Patern")...</option>
+                                    @foreach (var group in editSpiralPatterns.GroupBy(e => e.GroupName))
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var emp in group)
+                                            {
+                                                <option value="@emp.Id">@emp.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" id="StartDate">@Html.SmartLocalize("Start Date")</label>
+                                <input class="form-control datetimepicker" id="StartDate" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" id="EndDate">@Html.SmartLocalize("End Date")</label>
+                                <input class="form-control datetimepicker" id="EndDate" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">@Html.SmartLocalize("Cancel")</button>
+                    <button type="submit" class="btn btn-primary">@Html.SmartLocalize("Update")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

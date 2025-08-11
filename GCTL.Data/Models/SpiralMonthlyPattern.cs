@@ -29,6 +29,8 @@ public partial class SpiralMonthlyPattern
 
     public int? DeletedBy { get; set; }
 
+    public int? SpiralPatternTypeID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -36,6 +38,8 @@ public partial class SpiralMonthlyPattern
     public virtual Organization Organization { get; set; }
 
     public virtual ICollection<SpiralMonthlyPatternDetails> SpiralMonthlyPatternDetails { get; set; } = new List<SpiralMonthlyPatternDetails>();
+
+    public virtual SpiralPatternTypes SpiralPatternType { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

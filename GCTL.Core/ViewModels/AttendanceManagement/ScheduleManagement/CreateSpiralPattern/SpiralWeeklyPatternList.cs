@@ -13,7 +13,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
         public string SpiralPatternName { get; set; }
         public int? OrganizationID { get; set; }
         public string OrganizationName { get; set; }
-        public int SpiralPatternTypeID { get; set; }
+        public int? SpiralPatternTypeID { get; set; }
         public string SpiralPatternTypeName { get; set; }
         public ICollection<SpiralWeeklyPatternDetailsListVM>? SpiralWeeklyPatternDetailsListVMs { get; set; } = new List<SpiralWeeklyPatternDetailsListVM>();
     }

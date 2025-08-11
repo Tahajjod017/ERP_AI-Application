@@ -77,7 +77,6 @@
             // #endregion
 
 
-
             // #region Single add from modal
             $(settings.addShiftSaveBtn).on('click', function (e) {
                 e.preventDefault();
@@ -127,7 +126,6 @@
                 });
             });
             // #endregion
-
 
 
             // #region Edit
@@ -181,7 +179,6 @@
             // #endregion
 
 
-
             // #region Delete
             $(document).on('click', settings.delBtn, function () {
                 selectedId = $(this).data('id');
@@ -219,7 +216,6 @@
                 }
             });
             // #endregion
-            
             
 
             // #region clear
@@ -273,7 +269,6 @@
             // #endregion
 
 
-
             // #region Dropdown
             //function initOrganizationDD() {
             //    organizationDD = new Choices('#OrganizationID', {
@@ -306,7 +301,6 @@
             // #endregion
 
 
-
             // #region OrganizationID on change
             $('#OrganizationID').on('change', function (e) {
                 e.preventDefault();
@@ -318,7 +312,6 @@
                 loadShiftByOrg(organizationId);
             });
             // #endregion
-
 
 
             // #region loadBranchByOrganization
@@ -355,7 +348,6 @@
                 })
             }
             // #endregion
-
 
 
             // #region loadDepartmentsByOrganization
@@ -402,7 +394,6 @@
                 });
             }
             // #endregion
-
 
 
             // #region loadEmpByOrg
@@ -453,7 +444,6 @@
             // #endregion
 
 
-
             // #region loadShiftByOrg
             function loadShiftByOrg(organizationId, selectedShiftId = null) {
                 return new Promise((resolve, reject) => {
@@ -487,7 +477,6 @@
             // #endregion
 
 
-
             // #region BranchID on change
             document.getElementById('BranchIDs')
                 .addEventListener('changed.coreui.multi-select', function (event) {
@@ -499,7 +488,6 @@
                     loadEmpByOrgBranchId(orgId, branchIds);
                 });
             // #endregion
-
 
 
             // #region loadEmpByOrgBranchId/GetEmployeeByBranch
@@ -554,7 +542,6 @@
             // #endregion
 
 
-
             // #region DepartmentIDs on change
             document.getElementById('DepartmentIDs')
                 .addEventListener('changed.coreui.multi-select', function (event) {
@@ -567,7 +554,6 @@
                     loadEmployeesByBranch(orgId, branchIds, ids);
                 });
             // #endregion
-
 
 
             // #region loadEmployeesByBranch/GetEmployeeByDepartment
@@ -623,7 +609,6 @@
             // #endregion
 
 
-
             // #region Load shift by opening add shift modal
             $(settings.addShiftModal).on('show.bs.modal', function (e) {
                 var btn = $(e.relatedTarget);
@@ -666,7 +651,6 @@
                 });
             });
             // #endregion
-
 
 
             // #region Load shift by opening edit shift modal
@@ -715,7 +699,6 @@
             // #endregion
 
 
-
             // #region flatpicker DatePicker
             flatpickr(".datetimepicker", {
                 altInput: true,
@@ -726,7 +709,6 @@
                 allowInput: true 
             });
             // #endregion
-
 
 
             // #region For Range Date
@@ -750,7 +732,6 @@
             //    });
             //});
             // #endregion
-
 
 
             // #region Choice with Pagination have delay
@@ -812,7 +793,6 @@
             });
             // #endregion
         });
-
 
                         
         // #region Table With Pagination

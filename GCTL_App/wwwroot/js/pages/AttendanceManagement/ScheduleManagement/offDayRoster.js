@@ -88,12 +88,12 @@
                 const deptInstance = coreui.MultiSelect.getInstance(deptSelect);
                 const branchInstance = coreui.MultiSelect.getInstance(branchSelect);
 
-                if (branchInstance) {
-                    branchInstance.deselectAll();
-                }
-
                 if (deptInstance) {
                     deptInstance.deselectAll();
+                }
+
+                if (branchInstance) {
+                    branchInstance.deselectAll();
                 }
 
                 const empSelect = document.getElementById('EmployeeIDs');

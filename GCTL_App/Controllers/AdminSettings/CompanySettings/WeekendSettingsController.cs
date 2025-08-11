@@ -5,6 +5,7 @@ using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class WeekendSettingsController : BaseController
     {
         private readonly IWeekendSettingService _weekendSettingService;

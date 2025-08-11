@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
@@ -74,6 +75,141 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region AddShift
+        //[Permission("Update", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> AddShift(AddSpiralWeeklyPatternVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _createSpiralPatternService.AddShift(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "AddOrganizationID", "AddShiftID" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region AddFortMonthlyShift
+        //[Permission("Update", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> AddFortMonthlyShift(AddSpiralFortMonthlyPatternVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _createSpiralPatternService.AddFortMonthlyShift(model);
+                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "AddOrganizationIDFortMonthly", "AddShiftIDFortMonthly" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Update", "OffDayRoster")]
+        //[ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateSpiralPatternVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await _createSpiralPatternService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Update Successfully." });
+                }
+
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "UpdateOrganizationID", "UpdateShiftID" };
+
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region SoftDeleteFortnightly
+        [HttpPost]
+        public async Task<IActionResult> SoftDeleteFortnightly(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No data selected to delete!" });
+                }
+
+                var result = await _createSpiralPatternService.SoftDeleteFortnightly(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No data found to delete!" });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
             }
             catch (Exception ex)
             {

@@ -77,6 +77,8 @@ public partial class Organization
 
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
+    public virtual ICollection<EmployeeBenefits> EmployeeBenefits { get; set; } = new List<EmployeeBenefits>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromOrganization { get; set; } = new List<EmployeeTransfer>();
@@ -90,6 +92,8 @@ public partial class Organization
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
+
+    public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
 
     public virtual ICollection<OTPSettings> OTPSettings { get; set; } = new List<OTPSettings>();
 
@@ -108,6 +112,8 @@ public partial class Organization
     public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; } = new List<SpiralBioWeeklyPattern>();
 
     public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPattern { get; set; } = new List<SpiralMonthlyPattern>();
+
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignList { get; set; } = new List<SpiralPatternAssignList>();
 
     public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPattern { get; set; } = new List<SpiralWeeklyPattern>();
 

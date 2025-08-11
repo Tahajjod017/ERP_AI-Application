@@ -12,4 +12,6 @@ public partial class LanguageLists
     public string LanguageCode { get; set; }
 
     public string LanguageName { get; set; }
+
+    public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
 }

@@ -4,8 +4,16 @@
         var settings = $.extend({
             baseUrl: '/',
             form: '#createSpiralPattern-form',
+            shiftForm: '#add-form',
+            shiftFortMonthlyForm: '#add-fortMonthly-form',
+            updateForm: '#update-form',
             saveBtn: '#createSpiralPattern-saveBtn',
+            saveWeeklyShiftBtn: '#saveShift',
+            saveFortMonthlyShiftBtn: '#saveFortMonthlyShift',
+            updateBtn: '#updateShiftBtn',
             resetBtn: '#createSpiralPattern-resetBtn',
+            addShiftModal: '#addShiftModal',
+            addFortMonthlyShiftModal: '#addFortMonthlyShiftModal',
             editShiftModal: '#editShiftModal',
         }, options);
 
@@ -60,6 +68,108 @@
                     }
                 });
             });
+            // #endregion
+
+
+            // #region Add Weekly Shift
+            $(settings.saveWeeklyShiftBtn).on('click', function (e) {
+                e.preventDefault();
+
+                var form = $(settings.shiftForm);
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.isSuccess === true) {
+                            toastr.success(response.message);
+                            clear();
+                            // Close the modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addShiftModal'));
+                            modal.hide();
+                        } else {
+                            const allFields = ["AddOrganizationID", "AddShiftID"];
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Add Shift failed:', err);
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region Add Fort Monthly Shift
+            $(settings.saveFortMonthlyShiftBtn).on('click', function (e) {
+                e.preventDefault();
+
+                var form = $(settings.shiftFortMonthlyForm);
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.isSuccess === true) {
+                            toastr.success(response.message);
+                            clear();
+                            // Close the modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addFortMonthlyShiftModal'));
+                            modal.hide();
+                        } else {
+                            const allFields = ["AddOrganizationIDFortMonthly", "AddShiftIDFortMonthly"];
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Add Shift failed:', err);
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region Update
+            $(settings.updateBtn).on('click', function (e) {
+                e.preventDefault();
+
+                var form = $(settings.updateForm);
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.isSuccess === true) {
+                            toastr.success(response.message);
+                            clear();
+                            // Close the modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editShiftModal'));
+                            modal.hide();
+                        } else {
+                            const allFields = ["UpdateOrganizationID", "UpdateShiftID"];
+                            allFields.forEach(function (fieldId) {
+                                validateField(fieldId, response);
+                            });
+                            toastr.info(response.message);
+                        }
+                    },
+                    error: function (err) {
+                        console.error('Update failed:', err);
+                    }
+                })
+            })
             // #endregion
 
 
@@ -135,6 +245,9 @@
 
             function clear() {
                 $(settings.form)[0].reset();
+                $(settings.updateForm)[0].reset();
+                $(settings.shiftForm)[0].reset();
+                $(settings.shiftFortMonthlyForm)[0].reset();
 
                 if (organizationDD) {
                     organizationDD.destroy();
@@ -188,28 +301,28 @@
             // #endregion
 
 
-            // #region Load shift by opening edit shift modal
+            // #region Load edit shift by opening edit shift modal
             $(settings.editShiftModal).on('show.bs.modal', function (e) {
                 var btn = $(e.relatedTarget);
                 var detailID = btn.data('id');
                 var organizationId = btn.data('organization-id');
+                var patternTypeID = btn.data('patterntype-id');
+                var dayOfWeek = btn.data('dayofweek');
+                var dayOfMonth = btn.data('dayofmonth')
                 var shiftId = btn.data('shift-id');
-                //var depId = btn.data('dep-id');
-                //var empId = btn.data('emp-id');
-                //var overrideDate = btn.data('date');
 
-                $('#RosterInHolyDayIdEdit').val(detailID);
-                $('#OrganizationIdEdit').val(organizationId);
-                //$('#DepartmentIdEdit').val(depId);
-                //$('#EmployeeIdEdit').val(empId);
-                //$('#DayDateEdit').val(overrideDate);
+                $('#UpdateSpiralPatternDetailID').val(detailID);
+                $('#UpdateOrganizationID').val(organizationId);
+                $('#UpdateSpiralPatternTypeID').val(patternTypeID);
+                $('#UpdateDayOfWeek').val(dayOfWeek);
+                $('#UpdateDayOfMonth').val(dayOfMonth);
 
                 $.ajax({
                     url: '/CreateSpiralPattern/GetShiftByOrganization',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (shifts) {
-                        const $shiftSelect = $('#editShiftModalShiftID');
+                        const $shiftSelect = $('#UpdateShiftID');
 
                         $shiftSelect.empty();
 
@@ -232,14 +345,156 @@
                 });
             });
             // #endregion
-            
-
-            //// Close the modal
-            //const modal = bootstrap.Modal.getInstance(document.getElementById('addShiftModal'));
-            //modal.hide();
-            
 
 
+            // #region on editShiftModal close modal
+            $(settings.editShiftModal).on('dismiss.bs.modal', function () {
+                $(settings.updateForm)[0].reset();
+            })
+            // #endregion
+
+
+            // #region Load Weekly shift by opening add shift modal
+            $(settings.addShiftModal).on('show.bs.modal', function (e) {
+                var btn = $(e.relatedTarget);
+                var detailID = btn.data('id');
+                var organizationId = btn.data('organization-id');
+                var patternTypeID = btn.data('patterntype-id');
+                var dayOfWeek = btn.data('dayofweek');
+
+                $('#AddSpiralPatternDetailID').val(detailID);
+                $('#AddOrganizationID').val(organizationId);
+                $('#AddSpiralPatternTypeID').val(patternTypeID);
+                $('#AddDayOfWeek').val(dayOfWeek);
+
+                $.ajax({
+                    url: '/CreateSpiralPattern/GetShiftByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (shifts) {
+                        const $shiftSelect = $('#AddShiftID');
+
+                        $shiftSelect.empty();
+
+                        // Add default placeholder
+                        $shiftSelect.append(`<option value="">Select Shift...</option>`);
+
+                        // Populate shift options
+                        shifts.forEach(shift => {
+                            $shiftSelect.append(
+                                `<option value="${shift.id}">
+                                    ${shift.name}
+                                </option>`
+                            );
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading shifts:', error);
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region on weekly shift close modal
+            $(settings.addShiftModal).on('hide.bs.modal', function () {
+                $(settings.shiftForm)[0].reset();
+
+                ["AddOrganizationID", "AddShiftID"].forEach(function (fieldId) {
+                    $('#' + fieldId).removeClass('is-valid is-invalid');
+                    $('#' + fieldId + 'Error').hide().text('');
+                    $('#' + fieldId).val('');
+                });
+            })
+            // #endregion
+
+
+            // #region Load FortMonthly shift by opening add shift modal
+            $(settings.addFortMonthlyShiftModal).on('show.bs.modal', function (e) {
+                var btn = $(e.relatedTarget);
+                var detailID = btn.data('id');
+                var organizationId = btn.data('organization-id');
+                var patternTypeID = btn.data('patterntype-id');
+                var dayOfMonth = btn.data('dayofmonth')
+
+                $('#AddSpiralPatternDetailIDFortMonthly').val(detailID);
+                $('#AddOrganizationIDFortMonthly').val(organizationId);
+                $('#AddSpiralPatternTypeIDFortMonthly').val(patternTypeID);
+                $('#AddDayOfMonthFortMonthly').val(dayOfMonth);
+
+                $.ajax({
+                    url: '/CreateSpiralPattern/GetShiftByOrganization',
+                    type: 'GET',
+                    data: { id: organizationId },
+                    success: function (shifts) {
+                        const $shiftSelect = $('#AddShiftIDFortMonthly');
+
+                        $shiftSelect.empty();
+
+                        // Add default placeholder
+                        $shiftSelect.append(`<option value="">Select Shift...</option>`);
+
+                        // Populate shift options
+                        shifts.forEach(shift => {
+                            $shiftSelect.append(
+                                `<option value="${shift.id}">
+                                    ${shift.name}
+                                </option>`
+                            );
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading shifts:', error);
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region on addFortMonthlyShiftModal close modal
+            $(settings.addFortMonthlyShiftModal).on('hide.bs.modal', function () {
+                $(settings.shiftFortMonthlyForm)[0].reset();
+
+                ["AddOrganizationIDFortMonthly", "AddShiftIDFortMonthly"].forEach(function (fieldId) {
+                    $('#' + fieldId).removeClass('is-valid is-invalid');
+                    $('#' + fieldId + 'Error').hide().text('');
+                    $('#' + fieldId).val('');
+                });
+            })
+            // #endregion
+
+
+            // #region SoftDeleteFortnightly
+            $(document).on('click', '.deleteBtn', function () {
+                var id = $(this).data('id');
+
+                if (id) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: '/CreateSpiralPattern/SoftDeleteFortnightly',
+                            method: 'POST',
+                            data: { ids: [id] },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    clear();
+
+                                    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'));
+                                    modal.hide();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.error("Invalid action.");
+                }
+            });
+            // #endregion
             
         });
 
@@ -325,31 +580,30 @@
                 // Loop for 7 days (0 = Saturday, 6 = Friday)
                 for (var day = 0; day < 7; day++) {
                     var shiftDetail = pattern.spiralWeeklyPatternDetailsListVMs.find(d => d.dayOfWeek === day);
-                    if (shiftDetail) {
-                        row += `<td class="startTime py-1">
-                            <div class="badge badge-phoenix-primary p-2">
+                    if (shiftDetail && shiftDetail.shiftID > 0) {
+                        row += `<td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
                                 <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
-                                <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal" 
-                                        data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
-                                        data-organization-id="${pattern.organizationID}"
-                                        data-shift-id="${shiftDetail.shiftID}">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                    data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                    data-organization-id="${pattern.organizationID}"
+                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                    data-dayofweek="${shiftDetail.dayOfWeek}"
+                                    data-shift-id="${shiftDetail.shiftID}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
                             </div>
                         </td>`;
                     } else {
-                        row += `<td class="startTime py-1">
-                            <div class="badge badge-phoenix-primary p-2">
-                                <div class="add-shift-btn2">
-                                    
-                                </div>
-                            </div>
+                        row += `<td class="startTime align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal"
+                                data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                data-organization-id="${pattern.organizationID}" 
+                                data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                data-dayofweek="${shiftDetail.dayOfWeek}" >
+                                <i class="fa fa-plus"></i>
+                            </a>
                         </td>`;
                     }
                 }
@@ -460,7 +714,7 @@
             $tableBody.empty(); // Clear existing rows
 
             if (data.length === 0) {
-                $tableBody.append('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                $tableBody.append('<tr><td colspan="15" class="text-center">No Data Found</td></tr>');
                 return;
             }
 
@@ -475,38 +729,31 @@
                 // Loop for 7 days (0 = Saturday, 6 = Friday)
                 for (var day = 0; day < 14; day++) {
                     var shiftDetail = pattern.spiralBioWeeklyPatternDetailsListVMs.find(d => d.dayOfMonth === day);
-                    if (shiftDetail) {
+                    if (shiftDetail && shiftDetail.shiftID) {
                         // Example: you need to format Shift Time here (hardcoded now)
-                        row += `<td class="startTime py-1">
-                            <div class="badge badge-phoenix-primary p-2">
+                        row += `<td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
                                 <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
-                                <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal"
-                                        data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
-                                        data-organization-id="${pattern.organizationID}"
-                                        data-shift-id="${shiftDetail.shiftID}">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                    data-id="${shiftDetail.spiralBioWeeklyPatternDetailID}" 
+                                    data-organization-id="${pattern.organizationID}"
+                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                    data-dayofmonth="${shiftDetail.dayOfMonth}"
+                                    data-shift-id="${shiftDetail.shiftID}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
                             </div>
                         </td>`;
                     } else {
-                        row += `<td class="startTime py-1">
-                            <div class="badge badge-phoenix-primary p-2">
-                                <p class="my-2 fs-10">Off Day</p>
-                                <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
-                            </div>
+                        row += `<td class="startTime align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addFortMonthlyShiftModal"
+                                data-id="${shiftDetail.spiralBioWeeklyPatternDetailID}" 
+                                data-organization-id="${pattern.organizationID}" 
+                                data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                data-dayofmonth="${shiftDetail.dayOfMonth}">
+                                <i class="fa fa-plus"></i>
+                            </a>
                         </td>`;
                     }
                 }
@@ -617,7 +864,7 @@
             $tableBody.empty(); // Clear existing rows
 
             if (data.length === 0) {
-                $tableBody.append('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                $tableBody.append('<tr><td colspan="30" class="text-center">No Data Found</td></tr>');
                 return;
             }
 
@@ -632,38 +879,31 @@
                 // Loop for 7 days (0 = Saturday, 6 = Friday)
                 for (var day = 0; day < 30; day++) {
                     var shiftDetail = pattern.spiralMonthlyPatternDetailsListVMs.find(d => d.dayOfMonth === day);
-                    if (shiftDetail) {
+                    if (shiftDetail && shiftDetail.shiftID) {
                         // Example: you need to format Shift Time here (hardcoded now)
-                        row += `<td class="startTime py-1">
-                            <div class="badge badge-phoenix-primary p-2">
+                        row += `<td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
                                 <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
-                                <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal"
-                                        data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
-                                        data-organization-id="${pattern.organizationID}"
-                                        data-shift-id="${shiftDetail.shiftID}">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                    data-id="${shiftDetail.spiralMonthlyPatternDetailID}" 
+                                    data-organization-id="${pattern.organizationID}"
+                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                    data-dayofmonth="${shiftDetail.dayOfMonth}"
+                                    data-shift-id="${shiftDetail.shiftID}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
                             </div>
                         </td>`;
                     } else {
-                        row += `<td class="startTime py-1">
-                            <div class="badge badge-phoenix-primary p-2">
-                                <p class="my-2 fs-10">Off Day</p>
-                                <div class="add-shift-btn2">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#editShiftModal">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-                                </div>
-                            </div>
+                        row += `<td class="startTime align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addFortMonthlyShiftModal"
+                                data-id="${shiftDetail.spiralMonthlyPatternDetailID}" 
+                                data-organization-id="${pattern.organizationID}" 
+                                data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                data-dayofmonth="${shiftDetail.dayOfMonth}">
+                                <i class="fa fa-plus"></i>
+                            </a>
                         </td>`;
                     }
                 }

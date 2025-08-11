@@ -33,8 +33,15 @@ $(document).ready(function () {
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error("Unexpected error: " + error, 'Server Error');
+                // Handle Access Denied error (403)
+                if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+                    // Redirect to AccessDenied page
+                    window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
+                } else {
+                    toastr.error("Unexpected error: " + error, 'Server Error');
+                }
             }
+
         });
     });
 });

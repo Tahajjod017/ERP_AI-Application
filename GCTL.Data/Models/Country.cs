@@ -31,6 +31,8 @@ public partial class Country
 
     public virtual Employees CreatedByNavigation { get; set; }
 
+    public virtual ICollection<Customers> Customers { get; set; } = new List<Customers>();
+
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeTranningInfo> EmployeeTranningInfo { get; set; } = new List<EmployeeTranningInfo>();

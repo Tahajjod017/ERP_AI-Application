@@ -3,11 +3,13 @@ using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class BranchSettingsController : BaseController
     {
         private readonly IBranchSettingService _branchSettingService;
