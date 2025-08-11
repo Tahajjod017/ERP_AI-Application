@@ -49,6 +49,10 @@ public partial class Addresses
 
     public int? DeletedBy { get; set; }
 
+    public string FirstName { get; set; }
+
+    public string LastName { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

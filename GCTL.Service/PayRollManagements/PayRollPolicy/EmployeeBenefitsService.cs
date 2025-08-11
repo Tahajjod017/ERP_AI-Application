@@ -18,17 +18,17 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
             this.empBenefits = empBenefits;
         }
 
-        public async Task<CommonReturnViewModel> SaveEmployeeBenefits(EmployeeBenefitsSaveVM entityVM)
+        public async Task<CommonReturnViewModel> SaveEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM)
         {
             await empBenefits.BeginTransactionAsync();
             try
             {
-                if(empBenefits == null)
+                if(entityVM == null)
                 {
                     return new CommonReturnViewModel
                     {
                        Success = false,
-                       Message=""
+                       Message="Data Not Found"
                     };
                 }
                 var entity = new EmployeeBenefits
@@ -42,22 +42,28 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     IsProvidentFundEnabled=entityVM.IsProvidentFundEnabled,
                     ProvidentFundEmployeeContrebution=entityVM.ProvidentFundEmployeeContrebution,
                     ProvidentFundOrganizationContrebution=entityVM.ProvidentFundOrganizationContrebution,
-                    ProvidentFundRate=entityVM.ProvidentFundRate,
                     ProvidentFundOnSalaryTypeID=entityVM.ProvidentFundOnSalaryTypeID,
                     ProvidentFundMinimumServiceYear=entityVM.ProvidentFundMinimumServiceYear,
-                   
+                    HealthInsurance=entityVM.HealthInsurance,
+                    IsPerformanceBonusEnabled=entityVM.IsPerformanceBonusEnabled,
+                    IsYearEndBonusEnabled=entityVM.IsYearEndBonusEnabled,
+                    YearlyEndBonusTypeID=entityVM.YearlyEndBonusTypeID,
+                    CreatedAt=DateTime.Now,
+                    CreatedBy=entityVM.CreatedBy,
+                    LIP=entityVM.LIP,
+                    LMAC=entityVM.LMAC, 
                 };
                 await empBenefits.AddAsync(entity);
                 await empBenefits.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {
-                    Success = false,
-                    Message = ""
+                    Success = true,
+                    Message = "Save Succssfully"
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
                 throw;
             }
         }

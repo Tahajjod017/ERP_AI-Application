@@ -10,6 +10,6 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
 {
     public interface IEmployeeBenefitsService
     {
-        Task<CommonReturnViewModel> SaveEmployeeBenefits(EmployeeBenefitsSaveVM entityVM);
+        Task<CommonReturnViewModel> SaveEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM);
     }
 }

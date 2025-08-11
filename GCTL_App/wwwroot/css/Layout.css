@@ -1,3 +1,12 @@
 ﻿.choices.is-disabled .choices__inner, .choices.is-disabled .choices__input {
     background: #eff2f6 !important
 }
+
+.card-header {
+   
+    border-bottom: var(--phoenix-card-border-width) solid rgb(203 208 221 / 0%) !important;
+}
+
+.border-translucent {
+    border-color: rgb(203 208 221 / 0%) !important;
+}
