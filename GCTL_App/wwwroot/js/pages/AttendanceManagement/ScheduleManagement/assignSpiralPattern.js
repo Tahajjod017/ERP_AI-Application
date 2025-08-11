@@ -5,9 +5,10 @@
             baseUrl: '/',
             saveBtn: '#assignSpiralPattern-saveBtn',
             saveForm: '#assignSpiralPattern-form',
+            resetBtn: '#assignSpiralPattern-resetBtn',
         }, options);
 
-        var gridUrl = settings.baseUrl + "/GetAll";
+        var gridUrl = settings.baseUrl + "/GetAllAsync";
         $(() => {
 
 
@@ -25,6 +26,7 @@
                     success: function (response) {
                         if (response.isSuccess === true) {
                             toastr.success(response.message);
+                            clear();
                         } else {
                             const allFields = ["OrganizationID", "SpiralPatternTypeID", "SpiralPatternID", "StartDate", "EndDate"];
 
@@ -39,6 +41,56 @@
                     }
                 });
             });
+            // #endregion
+
+
+            // #region reset
+            $(settings.resetBtn).on('click', function (e) {
+                e.preventDefault();
+                clear();
+            });
+
+
+            function clear() {
+                $(settings.saveForm)[0].reset();
+
+                const deptSelect = document.getElementById('DepartmentIDs');
+                const empSelect = document.getElementById('EmployeeIDs');
+
+                const deptInstance = coreui.MultiSelect.getInstance(deptSelect);
+                const empInstance = coreui.MultiSelect.getInstance(empSelect);
+
+                if (deptInstance) {
+                    deptInstance.deselectAll();
+                }
+
+                if (empInstance) {
+                    empInstance.deselectAll();
+                }
+
+                if (organizationDD) {
+                    organizationDD.destroy();
+                }
+
+                if (spiralPatternTypeDD) {
+                    spiralPatternTypeDD.destroy();
+                }
+
+                if (spiralPatternDD) {
+                    spiralPatternDD.destroy();
+                }
+
+                ['OrganizationID', 'SpiralPatternTypeID', 'SpiralPatternID', 'StartDate', 'EndDate'].forEach(function (fieldId) {
+                    $('#' + fieldId).removeClass('is-valid is-invalid');
+                    $('#' + fieldId + 'Error').hide().text('');
+                    $('#' + fieldId).val('');
+                });
+
+                initOrganizationDD();
+                initSpiralPatternTypeDD();
+                initSpiralPatternDD();
+                loadTableData();
+            }
             // #endregion
 
 
@@ -268,7 +320,401 @@
                 allowInput: true
             });
             // #endregion
+
+
+            // #region on click spiral-pattern-link
+            $(document).on("click", ".spiral-pattern-link", function () {
+                var spiralPatternID = $(this).data("id");
+                var spiralPatternTypeID = $(this).data("typeid");
+
+                // Clear all table bodies
+                $("#weeklyTblBody, #fortnightlyTblBody, #monthlyTblBody").empty();
+
+                // Hide all tables
+                $("#weekly, #fortnightly, #monthly").hide();
+
+                // Fetch data from backend
+                $.ajax({
+                    url: '/AssignSpiralPattern/GetSpiralPatternDetails',
+                    type: 'GET',
+                    data: {
+                        id: spiralPatternID,
+                        typeId: spiralPatternTypeID
+                    },
+                    success: function (response) {
+                        if (!response || !response.length) return;
+
+                        // Decide which table to show based on type
+                        if (spiralPatternTypeID === 1) {
+                            $("#weekly").show();
+                            renderSpiralWeeklyPatternTable(response);
+                        }
+                        else if (spiralPatternTypeID === 2) {
+                            $("#fortnightly").show();
+                            renderSpiralBioWeeklyPatternTable(response);
+                        }
+                        else if (spiralPatternTypeID === 3) {
+                            $("#monthly").show();
+                            renderSpiralMonthlyPatternTable(response);
+                        }
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region renderSpiralWeeklyPatternTable
+            function renderSpiralWeeklyPatternTable(response) {
+                var $tableBody = $('#weeklyTblBody');
+                $tableBody.empty(); // Clear existing rows
+
+                if (response.length === 0) {
+                    $tableBody.append('<tr><td colspan="8" class="text-center">No Data Found</td></tr>');
+                    return;
+                }
+
+                response.forEach(function (pattern) {
+                    var row = '<tr class="hover-actions-trigger btn-reveal-trigger position-static">';
+                    row += `<td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                    <h5>${pattern.spiralPatternName}</h5></ br>
+                    <p class="fs-9 mb-0">${pattern.organizationName}</p>
+
+                </td>`;
+
+                    // Loop for 7 days (0 = Saturday, 6 = Friday)
+                    for (var day = 0; day < 7; day++) {
+                        var shiftDetail = pattern.spiralWeeklyPatternDetailsListVMs.find(d => d.dayOfWeek === day);
+                        if (shiftDetail && shiftDetail.shiftID > 0) {
+                            row += `<td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
+                                <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
+                                <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                    data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                    data-organization-id="${pattern.organizationID}"
+                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                    data-dayofweek="${shiftDetail.dayOfWeek}"
+                                    data-shift-id="${shiftDetail.shiftID}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>`;
+                        } else {
+                            row += `<td class="startTime align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal"
+                                data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
+                                data-organization-id="${pattern.organizationID}" 
+                                data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                data-dayofweek="${shiftDetail.dayOfWeek}" >
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </td>`;
+                        }
+                    }
+
+                    row += '</tr>';
+                    $tableBody.append(row);
+                });
+            }
+            // #endregion
+
+
+            // #region renderSpiralBioWeeklyPatternTable
+            function renderSpiralBioWeeklyPatternTable(response) {
+                var $tableBody = $('#fortnightlyTblBody');
+                $tableBody.empty(); // Clear existing rows
+
+                if (response.length === 0) {
+                    $tableBody.append('<tr><td colspan="15" class="text-center">No Data Found</td></tr>');
+                    return;
+                }
+
+                response.forEach(function (pattern) {
+                    var row = '<tr class="hover-actions-trigger btn-reveal-trigger position-static">';
+                    row += `<td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                    <h5>${pattern.spiralBioWeeklyPatternName}</h5></ br>
+                    <p class="fs-9 mb-0">${pattern.organizationName}</p>
+
+                </td>`;
+
+                    // Loop for 7 days (0 = Saturday, 6 = Friday)
+                    for (var day = 0; day < 14; day++) {
+                        var shiftDetail = pattern.spiralBioWeeklyPatternDetailsListVMs.find(d => d.dayOfMonth === day);
+                        if (shiftDetail && shiftDetail.shiftID) {
+                            // Example: you need to format Shift Time here (hardcoded now)
+                            row += `<td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
+                                <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
+                                <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                    data-id="${shiftDetail.spiralBioWeeklyPatternDetailID}" 
+                                    data-organization-id="${pattern.organizationID}"
+                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                    data-dayofmonth="${shiftDetail.dayOfMonth}"
+                                    data-shift-id="${shiftDetail.shiftID}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>`;
+                        } else {
+                            row += `<td class="startTime align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addFortMonthlyShiftModal"
+                                data-id="${shiftDetail.spiralBioWeeklyPatternDetailID}" 
+                                data-organization-id="${pattern.organizationID}" 
+                                data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                data-dayofmonth="${shiftDetail.dayOfMonth}">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </td>`;
+                        }
+                    }
+
+                    row += '</tr>';
+                    $tableBody.append(row);
+                });
+            }
+            // #endregion
+
+
+            // #region renderSpiralMonthlyPatternTable
+            function renderSpiralMonthlyPatternTable(response) {
+                var $tableBody = $('#monthlyTblBody');
+                $tableBody.empty(); // Clear existing rows
+
+                if (response.length === 0) {
+                    $tableBody.append('<tr><td colspan="30" class="text-center">No Data Found</td></tr>');
+                    return;
+                }
+
+                response.forEach(function (pattern) {
+                    var row = '<tr class="hover-actions-trigger btn-reveal-trigger position-static">';
+                    row += `<td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2">
+                    <h5>${pattern.spiralMonthlyPatternName}</h5></ br>
+                    <p class="fs-9 mb-0">${pattern.organizationName}</p>
+
+                </td>`;
+
+                    // Loop for 7 days (0 = Saturday, 6 = Friday)
+                    for (var day = 0; day < 30; day++) {
+                        var shiftDetail = pattern.spiralMonthlyPatternDetailsListVMs.find(d => d.dayOfMonth === day);
+                        if (shiftDetail && shiftDetail.shiftID) {
+                            // Example: you need to format Shift Time here (hardcoded now)
+                            row += `<td class="startTime align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
+                                <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
+                                <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
+                                    data-id="${shiftDetail.spiralMonthlyPatternDetailID}" 
+                                    data-organization-id="${pattern.organizationID}"
+                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                    data-dayofmonth="${shiftDetail.dayOfMonth}"
+                                    data-shift-id="${shiftDetail.shiftID}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>`;
+                        } else {
+                            row += `<td class="startTime align-middle text-center">
+                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addFortMonthlyShiftModal"
+                                data-id="${shiftDetail.spiralMonthlyPatternDetailID}" 
+                                data-organization-id="${pattern.organizationID}" 
+                                data-patterntype-id="${pattern.spiralPatternTypeID}"
+                                data-dayofmonth="${shiftDetail.dayOfMonth}">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </td>`;
+                        }
+                    }
+
+                    row += '</tr>';
+                    $tableBody.append(row);
+                });
+            }
+            // #endregion
         });
 
+
+        // #region Table with Pagination
+        var currentPage = 1;
+        var pageSize = 5;
+
+        $('#assignSpiralPattern-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+
+            if (selectedSize) {
+                pageSize = parseInt(selectedSize, 10);
+                currentPage = 1;
+                loadTableData();
+            }
+        });
+
+
+        $(document).ready(function () {
+            loadTableData();
+
+            $("#assignSpiralPattern-searchInput").on("input", function () {
+                currentPage = 1;
+                loadTableData();
+            });
+
+            $("#assignSpiralPattern-prevPageBtn").on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadTableData();
+                }
+            });
+
+            $("#assignSpiralPattern-nextPageBtn").on('click', function () {
+                currentPage++;
+                loadTableData();
+            });
+        });
+
+
+        let currentSortColumn = 'ShiftID';
+        let currentSortOrder = 'desc';
+
+        $('th.sort').on('click', function () {
+            const column = $(this).data('sort');
+
+            if (currentSortColumn === column) {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortOrder = 'asc';
+            }
+
+            loadTableData(currentSortColumn, currentSortOrder);
+            updateSortingIndicator(column, currentSortOrder);
+        });
+
+
+        function updateSortingIndicator() {
+            $('th.sort').each(function () {
+                const $th = $(this);
+                const column = $th.data('sort');
+                $th.find('.sort-icon').remove();
+
+                if (column === currentSortColumn) {
+                    const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+                    $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
+                } else {
+                    $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
+                }
+            });
+        }
+
+
+        function loadTableData(sortColumn, sortOrder) {
+            var searchTerm = $("#assignSpiralPattern-searchInput").val();
+            var organizationID = $("#assignSpiralPattern-dd-search").val();
+            $.ajax({
+                url: gridUrl,
+                method: 'GET',
+                data: {
+                    pageNumber: currentPage,
+                    pageSize: pageSize,
+                    searchTerm: searchTerm,
+                    sortColumn: sortColumn,
+                    sortOrder: sortOrder,
+                    organizationID: organizationID
+                },
+                success: function (response) {
+                    var tableBody = $("#assignSpiralPattern-tBody");
+                    tableBody.empty();
+
+                    if (response.data.length > 0) {
+                        response.data.forEach(function (item, index) {
+                            tableBody.append(`
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
+                                        <h5>${item.organizationName}</h5>
+                                    </td>
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
+                                        <h5>Developer</h5>
+                                    </td>
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
+                                        <h5>${item.employeeName}</h5>
+                                    </td>
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-1 ps-3">
+                                        <span>${item.spiralPatternTypeName}</span>
+                                    </td>
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-1 ps-3">
+                                        <a href="#" class="nav-item mx-2 text-decoration-none spiral-pattern-link" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#spiral_pattern_details"
+                                            data-id="${item.spiralPatternID}" 
+                                            data-typeid="${item.spiralPatternTypeID}">
+                                            <span>${item.spiralPatternName}</span>
+                                        </a>
+                                    </td>
+                                    <td class="py-1 ps-3">${item.startDate}</td>
+                                    <td class="py-1 ps-3">${item.endDate}</td>
+                                    <td class="text-end align-middle white-space-nowrap py-1 ps-3">
+                                        <div class="row g-3">
+                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.spiralPatternAssignListID}" data-bs-target="#edit_spiral_pattern">
+                                                <i class="fas fa-edit text-black"></i>
+                                            </a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit" id="addShift-singleDelBtn" data-id="${item.spiralPatternAssignListID}" data-bs-target="#cancel_modal">
+                                                <i class="far fa-trash-alt text-black"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                    }
+
+                    var separatePaginationInfo = response.separatePaginationInfo;
+
+                    $("#assignSpiralPattern-paginationInfo").text(`Showing ${separatePaginationInfo.startItem} to ${separatePaginationInfo.endItem} Items of ${separatePaginationInfo.totalItems}`);
+                    $("#assignSpiralPattern-totalCount").text(`(${separatePaginationInfo.totalItems})`);
+
+                    updatePagination(separatePaginationInfo.pageNumbers, separatePaginationInfo.currentPage, separatePaginationInfo.totalPages);
+                }
+            });
+        }
+
+        function updatePagination(pageNumbers, currentPage, totalPages) {
+            const paginationLinks = $("#assignSpiralPattern-paginationLinks");
+            paginationLinks.empty();
+            // Window size (number of pages before/after the current page)
+            const windowSize = 1;
+
+            const createPageButton = (page) => `
+                <li class="page-item ${page === currentPage ? 'active' : ''}">
+                    <button class="page-link page-btn" data-page="${page}">${page}</button>
+                </li>
+            `;
+
+            // Helper function for ellipsis
+            const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            // Add "First Page" and ellipsis if needed
+            if (currentPage > windowSize + 1) {
+                paginationLinks.append(createPageButton(1), addEllipsis());
+            }
+            // Add page number buttons within the window range
+            const startPage = Math.max(1, currentPage - windowSize);
+            const endPage = Math.min(totalPages, currentPage + windowSize);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationLinks.append(createPageButton(i));
+            }
+            // Add ellipsis and "Last Page" button if needed
+            if (currentPage < totalPages - windowSize) {
+                paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+            }
+            // Disable or enable previous/next buttons
+            $("#assignSpiralPattern-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#assignSpiralPattern-nextPageBtn").prop('disabled', currentPage === totalPages);
+        }
+
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
+            currentPage = page;
+            loadTableData();
+        });
+        // #endregion
     }
 }(jQuery));
