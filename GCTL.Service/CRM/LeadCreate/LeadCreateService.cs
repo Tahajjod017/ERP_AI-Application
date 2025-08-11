@@ -8,7 +8,6 @@ namespace GCTL.Service.CRM.LeadCreate
 {
     public class LeadCreateService : ILeadCreateService
     {
-        private readonly IGenericRepository<Customers> _customersRepository;
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<Individuals> _individualsRepository;
         private readonly IGenericRepository<Addresses> _addressesRepository;
@@ -17,7 +16,6 @@ namespace GCTL.Service.CRM.LeadCreate
 
         public LeadCreateService(IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Individuals> individualsRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository)
         {
-            _customersRepository = customersRepository;
             _countryRepository = countryRepository;
             _individualsRepository = individualsRepository;
             _addressesRepository = addressesRepository;
@@ -34,35 +32,87 @@ namespace GCTL.Service.CRM.LeadCreate
         {
             try
             {
-
-                string addressType="";
-
-                if (customerVM.TabName == "person")
+                var item = await _addressTypesRepository.GetAllAsync();
+                if (!item.Any())
                 {
-                    addressType = "person";
-                } 
-                else if (customerVM.TabName == "company")
-                {
-                    addressType = "company";
-                }
-                else if (customerVM.TabName == "shiping")
-                {
-                    addressType = "shiping";
-                }
-                    var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == customerVM.CountryName.ToLower());
-                int countryId;
-                if (existingCountry != null)
-                {
-                    // Country found
-                    countryId = existingCountry.CountryID;
-                }
-                else
-                {
-                    // 2. Create new country
-                    var newCountry = new Country
+                    List<AddressTypes> addressTypes =new List<AddressTypes>();
+                    var listImte = new string[] { "billing", "shiping" };
+                    for (int i = 0; i< listImte.Length; i++)
                     {
-                        CountryCode = customerVM.CountryCode,
-                        CountryName = customerVM.CountryName,
+                        addressTypes.Add(new AddressTypes()
+                        {
+                            AddressTypeName = listImte[i],
+
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+
+                        });
+                    }
+                    await _addressTypesRepository.AddRangeAsync(addressTypes);
+                }
+                foreach(var obj in customerVM.Customers)
+                {
+                    var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == obj.CountryName.ToLower());
+
+                    int countryId;
+                    if (existingCountry != null)
+                    {
+                        // Country found
+                        countryId = existingCountry.CountryID;
+                    }
+                    else
+                    {
+                        // 2. Create new country
+                        var newCountry = new Country
+                        {
+                            CountryCode = obj.CountryCode,
+                            CountryName = obj.CountryName,
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+
+                            UpdatedAt = DateTime.Now,
+                            UpdatedBy = customerVM.UpdatedBy ?? null,
+                            DeletedAt = null,
+                        };
+
+                        await _countryRepository.AddAsync(newCountry);
+                        countryId = newCountry.CountryID;
+                    }
+                    // individual
+                    Individuals individuals = new Individuals()
+                    {
+                        FirstName = obj.FirstName,
+                        LastName = obj.LastName,
+
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = customerVM.CreatedBy,
+                        LIP = customerVM.LIP,
+                        LMAC = customerVM.LMAC,
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = customerVM.UpdatedBy ?? null,
+                        DeletedAt = null,
+                    };
+                    await _individualsRepository.AddAsync(individuals);
+                    // Address
+                    Addresses addresses = new Addresses()
+                    {
+                        FullAddress = obj.FullAddress,
+                        Street = obj.Street,
+                        City = obj.City,
+                        State = obj.State,
+                        Additionaladdress = obj.Additionaladdress,
+                        PostalCode = obj.PostalCode,
+                        CountryID = countryId,
+                        Phone = obj.Phone,
+                        OtherPhone = obj.OtherPhone,
+                        Email = obj.Email,
+                        Latitude = obj.Latitude,
+                        Longitude = obj.Longitude,
+
                         CreatedAt = DateTime.Now,
                         CreatedBy = customerVM.CreatedBy,
                         LIP = customerVM.LIP,
@@ -72,111 +122,72 @@ namespace GCTL.Service.CRM.LeadCreate
                         UpdatedBy = customerVM.UpdatedBy ?? null,
                         DeletedAt = null,
                     };
+                    await _addressesRepository.AddAsync(addresses);
+                    // AddressType
+                    //AddressTypes addressTypes = new AddressTypes()
+                    //{
+                    //    AddressTypeName = addressType,
 
-                    await _countryRepository.AddAsync(newCountry);
-                    countryId = newCountry.CountryID;
+                    //    CreatedAt = DateTime.Now,
+                    //    CreatedBy = customerVM.CreatedBy,
+                    //    LIP = customerVM.LIP,
+                    //    LMAC = customerVM.LMAC,
+
+                    //    UpdatedAt = DateTime.Now,
+                    //    UpdatedBy = customerVM.UpdatedBy ?? null,
+                    //    DeletedAt = null,
+                    //};
+                    //await _addressTypesRepository.AddAsync(addressTypes);
+
+                    //get all table id
+                    int individualsId = individuals.IndividualID;
+                    int addressesId = addresses.AddressID;
+                    string serverSiteAddressType = obj.TabName == "person" ? "billing" : obj.TabName;
+
+                    var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == serverSiteAddressType);
+
+                    IndividualAddresses individualAddresses = new IndividualAddresses()
+                    {
+                        AddressTypeID = addressTypeObj.AddressTypeID,
+                        AddressID = addressesId,
+                        IndividualID = individualsId,
+
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = customerVM.CreatedBy,
+                        LIP = customerVM.LIP,
+                        LMAC = customerVM.LMAC,
+
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = customerVM.UpdatedBy ?? null,
+                        DeletedAt = null,
+                    };
+                    await _individualAddressesRepository.AddAsync(individualAddresses);
+                    //IndividualAddress
+                    // 
+                    //Customers newCustomer = new Customers()
+                    //{
+                    //    CustomerID = customerVM.CustomerID,
+                    //    FirstName = customerVM.FirstName,
+                    //    LastName = customerVM.LastName,
+                    //    FullAddress = customerVM.FullAddress,
+                    //    Street = customerVM.Street,
+                    //    City = customerVM.City,
+                    //    State = customerVM.State,
+                    //    Additionaladdress = customerVM.Additionaladdress,
+                    //    PostalCode = customerVM.PostalCode,
+                    //    CountryID = countryId,
+                    //    Latitude = customerVM.Latitude,
+                    //    Longitude = customerVM.Longitude,
+                    //    Phone = customerVM.Phone,
+                    //    OtherPhone = customerVM.OtherPhone,
+                    //    Email = customerVM.Email,
+
+
+                    //};
+                    //await _customersRepository.AddAsync(newCustomer);
+
+                    
                 }
-                // individual
-                Individuals individuals = new Individuals()
-                {
-                    FirstName = customerVM.FirstName,
-                    LastName = customerVM.LastName,
-
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
-                    UpdatedAt = DateTime.Now,
-                    UpdatedBy = customerVM.UpdatedBy ?? null,
-                    DeletedAt = null,
-                };
-                await _individualsRepository.AddAsync(individuals);
-                // Address
-                Addresses addresses = new Addresses()
-                {
-                    FullAddress = customerVM.FullAddress,
-                    Street = customerVM.Street,
-                    City = customerVM.City,
-                    State = customerVM.State,
-                    Additionaladdress = customerVM.Additionaladdress,
-                    PostalCode = customerVM.PostalCode,
-                    CountryID = countryId,
-                    Phone = customerVM.Phone,
-                    OtherPhone = customerVM.OtherPhone,
-                    Email = customerVM.Email,
-                    Latitude = customerVM.Latitude,
-                    Longitude = customerVM.Longitude,
-
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
-
-                    UpdatedAt = DateTime.Now,
-                    UpdatedBy = customerVM.UpdatedBy ?? null,
-                    DeletedAt = null,
-                };
-                await _addressesRepository.AddAsync(addresses);
-                // AddressType
-                AddressTypes addressTypes = new AddressTypes()
-                {
-                    AddressTypeName = addressType,
-
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
-
-                    UpdatedAt = DateTime.Now,
-                    UpdatedBy = customerVM.UpdatedBy ?? null,
-                    DeletedAt = null,
-                };
-                await _addressTypesRepository.AddAsync(addressTypes);
-
-                //get all table id
-                int individualsId = individuals.IndividualID;
-                int addressesId = addresses.AddressID;
-                int addressTypesId = addressTypes.AddressTypeID;
-                IndividualAddresses individualAddresses = new IndividualAddresses()
-                {
-                    AddressTypeID = addressTypesId,
-                    AddressID = addressesId,
-                    IndividualID = individualsId,
-
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
-
-                    UpdatedAt = DateTime.Now,
-                    UpdatedBy = customerVM.UpdatedBy ?? null,
-                    DeletedAt = null,
-                };
-                await _individualAddressesRepository.AddAsync(individualAddresses);
-                //IndividualAddress
-                // 
-                //Customers newCustomer = new Customers()
-                //{
-                //    CustomerID = customerVM.CustomerID,
-                //    FirstName = customerVM.FirstName,
-                //    LastName = customerVM.LastName,
-                //    FullAddress = customerVM.FullAddress,
-                //    Street = customerVM.Street,
-                //    City = customerVM.City,
-                //    State = customerVM.State,
-                //    Additionaladdress = customerVM.Additionaladdress,
-                //    PostalCode = customerVM.PostalCode,
-                //    CountryID = countryId,
-                //    Latitude = customerVM.Latitude,
-                //    Longitude = customerVM.Longitude,
-                //    Phone = customerVM.Phone,
-                //    OtherPhone = customerVM.OtherPhone,
-                //    Email = customerVM.Email,
-
-
-                //};
-                //await _customersRepository.AddAsync(newCustomer);
-
                 return new CommonReturnViewModel
                 {
                     Success = true,
@@ -184,6 +195,7 @@ namespace GCTL.Service.CRM.LeadCreate
                     //    Data = newCustomer
 
                 };
+
             }
             catch (Exception ex)
             {

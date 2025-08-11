@@ -1,6 +1,149 @@
 ﻿@model GCTL.Core.ViewModels.CRM.CreateLeadVM
 @using Microsoft.AspNetCore.Mvc.Rendering
 
+<style>
+
+    /*create lead customer command person modal */
+
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        border-color: #0d6efd;
+        border-bottom: 1px solid #0d6efd;
+    }
+
+    .nav-tabs .nav-link {
+        color: black;
+    }
+
+        .nav-tabs .nav-link:hover {
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+
+    .nav-tabs .nav-link {
+    }
+
+    .form-label.req::after {
+        content: ' *';
+        color: red;
+    }
+
+    .input-icon-end {
+        position: relative;
+    }
+
+        .input-icon-end .fa {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+        }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .readonly {
+        background-color: #f8f9fa;
+    }
+
+    /*//create lead mobiel field css*/
+    #iti-0__dropdown-content,
+    #iti-2__dropdown-content,
+    #iti-1__dropdown-content,
+    #iti-3__dropdown-content,
+    #iti-4__dropdown-content {
+        z-index: 111;
+    }
+
+    .iti--allow-dropdown {
+        width: 100%;
+    }
+
+    .iti__tel-input {
+        height: 46px;
+    }
+
+
+    /*#companySubTab ul li a .fa-solid {
+            padding-right: 54px !important;
+        }*/
+    /*for fixing modal google map loading problem*/
+
+    div.pac-container {
+        z-index: 99999999999 !important;
+    }
+
+
+    /*createLead table subtab*/
+    /* Sidebar container */
+    #customeInnerDiv {
+        border-top: 1px;
+        border-bottom: 1px;
+        border-right: 0;
+        border-left: 0;
+        border-style: solid;
+        border-color: rgb(203, 208, 221);
+        margin-bottom: -1px;
+    }
+
+    #customeSubTab {
+        padding-top: 1rem;
+    }
+
+    .custom-sidebar li a {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6c757d;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        transition: all 0.15s ease-in-out;
+        border: 1px solid rgb(203, 208, 221);
+        text-decoration: none;
+        cursor: pointer;
+        margin-top: -1px;
+        margin-right: -1px;
+        margin-bottom: -1px;
+    }
+
+        .custom-sidebar li a .svg-inline--fa {
+            margin-right: 6px;
+            width: 20px;
+            text-align: center;
+        }
+
+    .custom-sidebar a:hover {
+        background-color: #e9ecef;
+        color: #000;
+    }
+
+
+    .custom-sidebar a:not(.active) .svg-inline--fa {
+        color: rgb(203, 208, 221);
+    }
+
+    .custom-sidebar a.active, .custom-sidebar li a .svg-inline--fa {
+        color: #000;
+        font-weight: 700;
+    }
+
+    .iti__selected-country {
+        padding-left: 8% !important;
+    }
+
+    .iti__country-container {
+        padding-left: 3% !important;
+    }
+
+    .iti__tel-input {
+        padding-left: 11%;
+    }
+
+</style>
+
 
 
 <div class="container p-0 d-flex flex-column align-items-center">
@@ -21,10 +164,12 @@
                     <div class="col-sm-12 customerDiv col-md-6 position-relative">
                         <div class="form-floating mbs-4">
                             <input type="text" id="ContactNameSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
+                            <input type="hidden" id="customerID">
+
                             <label for="floatingSelectLitigation">@Html.SmartLocalize("Customer Search")</label>
                         </div>
                         <div class="search-results card" id="searchResults">
-                            <div class="list-group" id="contactNameList">
+                            <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
                                 <!-- ContactName items will be populated here by JavaScript -->
                             </div>
                             <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
@@ -144,6 +289,139 @@
                     </div>
                 </div>
             </div>
+
+            @* // person code *@
+            <h5 class="mb-3 text-body-highlight">Custommer Information</h5>
+            <div class="row g-3">
+                <form action="">
+                    <input type="number" id="personID" name="name" hidden />
+                    <input type="text" name="name" value="" id="countryCodePersonIndex" hidden />
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6 pe-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="firstNamePersonIndex" class="form-control" placeholder="" required>
+                                                <label class="form-label req">First Name</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 ps-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="lastNamePerson" class="form-control" placeholder="" required>
+                                                <label class="form-label req">Last Name</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" id="autocompletePerson" class="form-control" placeholder="Customer name" required>
+                                        <label class="form-label req">Full Address</label>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6 pe-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="streetPerson" class="form-control" placeholder="Street" required>
+                                                <label class="form-label req">Street</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 ps-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="cityPerson" class="form-control" placeholder="City" required>
+                                                <label class="form-label req">City</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6 pe-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="additionalAddressPerson" class="form-control" placeholder="" required>
+                                                <label class="form-label req">Additional Address</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 ps-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="statePerson" class="form-control" placeholder="" required>
+                                                <label class="form-label req">State/Province</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6 pe-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input id="postalCodePerson" type="text" class="form-control" placeholder="" required>
+                                                <label class="form-label req">Zip/Postal Code</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 ps-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input id="countryPerson" type="text" class="form-control" placeholder="" required>
+                                                <label class="form-label req">Country</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6 pe-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="latitudePerson" class="form-control" placeholder="" required>
+                                                <label class="form-label req">Latitude</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 ps-1 col-sm-6">
+                                            <div class="mb-3 form-floating">
+                                                <input type="text" id="longitudePerson" class="form-control" placeholder="" required>
+                                                <label class="form-label req">Longitude</label>
+                                                <span class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <div class="row">
+
+                                <div class="col-12 mb-3">
+                                    <input class="form-control" id="phone3" type="tel" placeholder="Phone Number" />
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <input class="form-control" id="phone4" type="tel" placeholder="Other Phone" />
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" id="emailPerson" class="form-control" placeholder="" required>
+                                        <label class="form-label req">Email</label>
+                                        <span class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-light me-2">Cancel</button>
                 <button type="submit" id="submitBtn" class="btn btn-primary">Save</button>
