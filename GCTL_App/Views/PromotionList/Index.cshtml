@@ -142,16 +142,16 @@
         <div class="border-translucent p-3 pt-0">
             <div id="promotionListTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="dynTable">
                         <thead>
                             <tr>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">@Html.SmartLocalize("Employee")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department">@Html.SmartLocalize("Department")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentPosition">@Html.SmartLocalize("Current Position")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="promotedPosition">@Html.SmartLocalize("Promoted Position")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">@Html.SmartLocalize("Effective Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="salaryIncrease">@Html.SmartLocalize("Salary Increase")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">@Html.SmartLocalize("Status")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Department")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentPosition" data-column="2">@Html.SmartLocalize("Current Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="promotedPosition" data-column="3">@Html.SmartLocalize("Promoted Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate"data-column="4">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="salaryIncrease" data-column="5">@Html.SmartLocalize("Salary Increase")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="6">@Html.SmartLocalize("Status")</th>
                             </tr>
                         </thead>
                         <tbody class="list" id="promotion-body">
@@ -196,6 +196,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
+    
     <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionList.js"></script>
     <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionForm.js"></script>
 }

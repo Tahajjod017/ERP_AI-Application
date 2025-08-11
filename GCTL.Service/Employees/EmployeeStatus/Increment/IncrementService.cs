@@ -33,6 +33,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
         private readonly IGenericRepository<ApprovalSettings> _approvalSettingRepository;
         private readonly IGenericRepository<ApprovalDesignation> _approvalDesignationRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
+        private readonly IGenericRepository<Alerts> alertsRepository;
+        private readonly IGenericRepository<AlertForEmployee> alertForEmployeeRepository;
 
         public IncrementService(
             IGenericRepository<EmployeeActionTypes> employeeActionTypeRepository,
@@ -45,7 +47,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             IGenericRepository<ApprovalTypes> approvalTypeRepository,
             IGenericRepository<ApprovalSettings> approvalSettingRepository,
             IGenericRepository<ApprovalDesignation> approvalDesignationRepository,
-            IGenericRepository<GCTL.Data.Models.Employees> employeeRepository)
+            IGenericRepository<GCTL.Data.Models.Employees> employeeRepository,
+            IGenericRepository<Alerts> alertsRepository,
+            IGenericRepository<AlertForEmployee> alertForEmployeeRepository)
         {
             _employeeActionTypeRepository = employeeActionTypeRepository;
             _employeeCarrerCngHistoryRepository = employeeCarrerCngHistoryRepository;
@@ -58,6 +62,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             _approvalSettingRepository = approvalSettingRepository;
             _approvalDesignationRepository = approvalDesignationRepository;
             _employeeRepository = employeeRepository;
+            this.alertsRepository = alertsRepository;
+            this.alertForEmployeeRepository = alertForEmployeeRepository;
         }
 
         #endregion
@@ -442,8 +448,10 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 #endregion
 
                 #region Employee Validation
-                var employee = await _empOfficialRepository.AllActive()
+
+                var employee = await _empOfficialRepository.AllActive().Include(e => e.Employee)
                     .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeId);
+
                 if (employee == null)
                 {
                     return new CommonReturnViewModel { Success = false, Message = "Employee not found" };
@@ -654,6 +662,34 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 #endregion
 
 
+                #region Alert
+
+               
+                var alert = new Alerts
+                {
+                    AlertTitle = "Employee Increment",
+                    AlertNote = $"{employee.Employee.FirstName} {employee.Employee.LastName} has requested an increment.",
+                    LMAC = model.LMAC,
+                    LIP = model.LIP,
+                    CreatedBy = model.CreatedBy,
+                    CreatedAt = DateTime.Now,
+                };
+
+                await alertsRepository.AddAsync(alert);
+                var empAlert = new AlertForEmployee
+                {
+                    AlertID = alert.AlertID,
+                    EmployeeID = increment.ApprovalPersonID,  // for alert Employee
+                    IsChecked = false,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = model.CreatedBy,
+                };
+                await alertForEmployeeRepository.AddAsync(empAlert);
+
+                #endregion
+
 
                 return new CommonReturnViewModel { Success = true, Message = "Increment saved successfully" };
             }
@@ -661,7 +697,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             {
                 //await transaction.RollbackAsync();
                 //_logger.LogError(ex, "Error saving increment for EmployeeID {EmployeeId}", model.EmployeeId);
-                return new CommonReturnViewModel { Success = false, Message = "An unexpected error occurred" };
+                return new CommonReturnViewModel { Success = false, Message = ex.Message };
             }
         }
 
@@ -770,8 +806,13 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
 
             try
             {
+
+               
                 var career = await _employeeCarrerCngRepository.AllActive()
                     .FirstOrDefaultAsync(e => e.EmployeeCareerChangeID == action.IncrementId);
+
+
+
                 if (career == null)
                 {
                     return new CommonReturnViewModel { Success = false, Message = "Increment not found" };
@@ -790,6 +831,12 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 if (career.ApprovalPersonID != action.CreatedBy)
                 {
                     return new CommonReturnViewModel { Success = false, Message = "You are not authorized to approve this increment" };
+                }
+
+                var employee = await _employeeRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == career.EmployeeID);
+                if (employee == null)
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "Employee not found" };
                 }
 
                 var status = await GetOrCreateStatusAsync(action.Action.ToLower(), action);
@@ -837,7 +884,35 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 await _employeeCarrerCngRepository.UpdateAsync(career);
                 await LogCareerChangeHistoryAsync(career, action);
 
-               
+                #region Alert
+                if (career.IsFinalApproved != true && career.IsDecline != true)
+                {
+                    var alert = new Alerts
+                    {
+                        AlertTitle = "Employee Increment",
+                        AlertNote = $"{employee.FirstName} {employee.LastName} has requested an increment.",
+                        LMAC = action.LMAC,
+                        LIP = action.LIP,
+                        CreatedBy = action.CreatedBy,
+                        CreatedAt = DateTime.Now,
+                    };
+
+                    await alertsRepository.AddAsync(alert);
+                    var empAlert = new AlertForEmployee
+                    {
+                        AlertID = alert.AlertID,
+                        EmployeeID = career.ApprovalPersonID,  // for alert Employee
+                        IsChecked = false,
+                        LIP = action.LIP,
+                        LMAC = action.LMAC,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = action.CreatedBy,
+                    };
+                    await alertForEmployeeRepository.AddAsync(empAlert);
+                }
+
+                #endregion
+
 
                 return new CommonReturnViewModel { Success = true, Message = "Increment action completed successfully" };
             }

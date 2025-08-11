@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -61,39 +62,42 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
 
         #region Get ALL For Table
 
-       
 
         [HttpPost]
-        public IActionResult GetIncrementList(string searchTerm, int? departmentId, string incrementType, string dateRange, 
-            int pageSize = 10, int pageNumber = 1, string sortColumn = "effectiveDate", string sortDirection = "desc" )
+        public IActionResult GetIncrementList(string searchTerm, int? departmentId, string incrementType, string dateRange, int pageSize = 10, int pageNumber = 1, string sortColumn = "effectiveDate", string sortDirection = "desc")
         {
             var imgLink = GetEmployeePictureURL(true);
 
-            // Base query with necessary joins
+            // Create a DTO class or use an existing one to avoid anonymous types in the query
             var query = from ecc in _empCarrerRepository.AllActive().Where(x => x.EmployeeID != null)
                         join emp in _employeeRepository.AllActive() on ecc.EmployeeID.Value equals emp.EmployeeID
                         join off in _employeeOffiRepository.AllActive() on emp.EmployeeID equals off.EmployeeID
                         join dept in _departmentRepository.AllActive() on off.DepartmentID equals dept.DepartmentID
-                        select new
+                        select new IncrementListItem
                         {
-                            ecc,
-                            emp,
-                            off,
-                            dept
+                            EmployeeCareerChangeID = ecc.EmployeeCareerChangeID,
+                            FirstName = emp.FirstName,
+                            LastName = emp.LastName,
+                            DepartmentName = dept.DepartmentName,
+                            DepartmentID = (int)off.DepartmentID,
+                            CurrentSalary = ecc.CurrentSalary,
+                            NewSalary = ecc.NewSalary,
+                            EffectiveDate = ecc.EffectiveDate,
+                            EmployeeActionTypeID = (int)ecc.EmployeeActionTypeID,
+                            StatusName = ecc.Status != null ? ecc.Status.StatusName : "N/A",
+                            EmployeeImageFileName = emp.EmployeeImageFileName
                         };
-
 
             // 🔍 Filter: Search by employee name
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                query = query.Where(x =>
-                    (x.emp.FirstName + " " + x.emp.LastName).Contains(searchTerm));
+                query = query.Where(x => (x.FirstName + " " + x.LastName).Contains(searchTerm));
             }
 
             // 📂 Filter: Department
             if (departmentId.HasValue)
             {
-                query = query.Where(x => x.off.DepartmentID == departmentId.Value);
+                query = query.Where(x => x.DepartmentID == departmentId.Value);
             }
 
             // 🧾 Filter: Increment/Decrement Type
@@ -101,8 +105,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
             {
                 var type = incrementType.ToLower();
                 query = query.Where(x =>
-                    type == "increment" ? x.ecc.EmployeeActionTypeID == 1 :
-                    type == "decrement" ? x.ecc.EmployeeActionTypeID == 2 : true);
+                    type == "increment" ? x.EmployeeActionTypeID == 1 :
+                    type == "decrement" ? x.EmployeeActionTypeID == 2 : true);
             }
 
             // 📅 Filter: Date Range
@@ -113,85 +117,84 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
                     DateTime.TryParse(dates[0], out var startDate) &&
                     DateTime.TryParse(dates[1], out var endDate))
                 {
-                    query = query.Where(x => x.ecc.EffectiveDate >= startDate && x.ecc.EffectiveDate <= endDate);
+                    query = query.Where(x => x.EffectiveDate >= startDate && x.EffectiveDate <= endDate);
                 }
             }
 
-            var list = query.ToList();
+            // 🔀 Apply sorting - Now using strongly typed approach
+            IOrderedQueryable<IncrementListItem> orderedQuery;
 
-            // 🔀 Apply sorting
             switch (sortColumn?.ToLower())
             {
                 case "employeename":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.emp.FirstName).ThenBy(x => x.emp.LastName)
-                        : query.OrderByDescending(x => x.emp.FirstName).ThenByDescending(x => x.emp.LastName);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.FirstName).ThenBy(x => x.LastName)
+                        : query.OrderByDescending(x => x.FirstName).ThenByDescending(x => x.LastName);
                     break;
 
                 case "department":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.dept.DepartmentName)
-                        : query.OrderByDescending(x => x.dept.DepartmentName);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.DepartmentName)
+                        : query.OrderByDescending(x => x.DepartmentName);
                     break;
 
                 case "currentsalary":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.ecc.CurrentSalary)
-                        : query.OrderByDescending(x => x.ecc.CurrentSalary);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.CurrentSalary)
+                        : query.OrderByDescending(x => x.CurrentSalary);
                     break;
 
                 case "newsalary":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.ecc.NewSalary)
-                        : query.OrderByDescending(x => x.ecc.NewSalary);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.NewSalary)
+                        : query.OrderByDescending(x => x.NewSalary);
                     break;
 
                 case "incrementamount":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => (x.ecc.NewSalary ?? 0) - (x.ecc.CurrentSalary ?? 0))
-                        : query.OrderByDescending(x => (x.ecc.NewSalary ?? 0) - (x.ecc.CurrentSalary ?? 0));
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => (x.NewSalary ?? 0) - (x.CurrentSalary ?? 0))
+                        : query.OrderByDescending(x => (x.NewSalary ?? 0) - (x.CurrentSalary ?? 0));
                     break;
 
                 case "incrementtype":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.ecc.EmployeeActionTypeID)
-                        : query.OrderByDescending(x => x.ecc.EmployeeActionTypeID);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.EmployeeActionTypeID)
+                        : query.OrderByDescending(x => x.EmployeeActionTypeID);
                     break;
 
                 case "status":
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.ecc.Status.StatusName)
-                        : query.OrderByDescending(x => x.ecc.Status.StatusName);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.StatusName)
+                        : query.OrderByDescending(x => x.StatusName);
                     break;
 
+                case "effectivedate":
                 default:
-                    query = sortDirection == "asc"
-                        ? query.OrderBy(x => x.ecc.EffectiveDate)
-                        : query.OrderByDescending(x => x.ecc.EffectiveDate);
+                    orderedQuery = sortDirection == "asc"
+                        ? query.OrderBy(x => x.EffectiveDate)
+                        : query.OrderByDescending(x => x.EffectiveDate);
                     break;
             }
 
+            // 📊 Get total count AFTER filtering but BEFORE pagination
+            var totalRecords = orderedQuery.Count();
 
-
-            // 📊 Pagination values
-            var totalRecords = query.Count();
-
-            var data = query
-                .OrderByDescending(x => x.ecc.EffectiveDate)
+            // 📄 Apply pagination and select final data
+            var data = orderedQuery
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new
                 {
-                    id = x.ecc.EmployeeCareerChangeID,
-                    employeeName = x.emp.FirstName + " " + x.emp.LastName,
-                    department = x.dept.DepartmentName,
-                    currentSalary = x.ecc.CurrentSalary,
-                    incrementAmount = (x.ecc.NewSalary ?? 0) - (x.ecc.CurrentSalary ?? 0),
-                    newSalary = x.ecc.NewSalary,
-                    effectiveDate = x.ecc.EffectiveDate.Value.ToString("dd-MM-yyyy"),
-                    incrementType = x.ecc.EmployeeActionTypeID == 1 ? "Increment" : "Decrement",
-                    status = x.ecc.Status != null ? x.ecc.Status.StatusName : "N/A",
-                    avatarUrl = imgLink + x.emp.EmployeeImageFileName
+                    id = x.EmployeeCareerChangeID,
+                    employeeName = x.FirstName + " " + x.LastName,
+                    department = x.DepartmentName,
+                    currentSalary = x.CurrentSalary,
+                    incrementAmount = (x.NewSalary ?? 0) - (x.CurrentSalary ?? 0),
+                    newSalary = x.NewSalary,
+                    effectiveDate = x.EffectiveDate.HasValue ? x.EffectiveDate.Value.ToString("dd-MM-yyyy") : "N/A",
+                    incrementType = x.EmployeeActionTypeID == 1 ? "Increment" : "Decrement",
+                    status = x.StatusName,
+                    avatarUrl = !string.IsNullOrEmpty(x.EmployeeImageFileName) ? imgLink + x.EmployeeImageFileName : "/images/default-avatar.png"
                 })
                 .ToList();
 
@@ -207,7 +210,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
                         currentPage = pageNumber,
                         pageSize,
                         totalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
-                        startRecord = ((pageNumber - 1) * pageSize) + 1,
+                        startRecord = totalRecords > 0 ? ((pageNumber - 1) * pageSize) + 1 : 0,
                         endRecord = Math.Min(pageNumber * pageSize, totalRecords)
                     }
                 }
@@ -216,8 +219,11 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
 
 
 
+
         #endregion
 
 
     }
+
+   
 }

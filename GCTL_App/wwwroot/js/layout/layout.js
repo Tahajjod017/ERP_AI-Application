@@ -1,4 +1,6 @@
-﻿var phoenixIsRTL = window.config.config.phoenixIsRTL;
+﻿
+
+var phoenixIsRTL = window.config.config.phoenixIsRTL;
 if (phoenixIsRTL) {
     var linkDefault = document.getElementById('style-default');
     var userLinkDefault = document.getElementById('user-style-default');
@@ -180,3 +182,67 @@ function validateField(fieldId, response) {
 // #endregion
 
 //
+
+//#region Dev messgae
+
+const dev = true;
+
+function showDev(message) {
+    if (!dev) return;
+
+    // Create toast container if it doesn't exist
+    let container = document.getElementById("custom-toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "custom-toast-container";
+        document.body.appendChild(container);
+
+        // Add container CSS
+        Object.assign(container.style, {
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            zIndex: "9999",
+        });
+    }
+
+    // Create toast element
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    // Toast styles
+    Object.assign(toast.style, {
+        background: "#333",
+        color: "#fff",
+        padding: "10px 15px",
+        borderRadius: "5px",
+        fontSize: "14px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+        opacity: "0",
+        transform: "translateY(20px)",
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+        maxWidth: "250px",
+        wordWrap: "break-word",
+    });
+
+    container.appendChild(toast);
+
+    // Trigger fade-in
+    requestAnimationFrame(() => {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+    });
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(20px)";
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+
+//#endregion

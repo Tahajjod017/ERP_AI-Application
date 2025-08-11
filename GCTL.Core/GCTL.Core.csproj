@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="ViewModels\AttendanceManagement\ScheduleManagement\EmployeeShiftView\" />
+    <Folder Include="ViewModels\Employee\EmployeeTermination\" />
     <Folder Include="ViewModels\ProjectManagements\" />
   </ItemGroup>
 

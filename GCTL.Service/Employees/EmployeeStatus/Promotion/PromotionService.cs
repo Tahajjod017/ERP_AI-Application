@@ -28,9 +28,11 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
         private readonly IGenericRepository<ApprovalTypes> _approvalTypeRepository;
         private readonly IGenericRepository<ApprovalSettings> _approvalSettingRepository;
         private readonly IGenericRepository<ApprovalDesignation> _approvalDesignationRepository;
+        private readonly IGenericRepository<Alerts> alertsRepository;
+        private readonly IGenericRepository<AlertForEmployee> alertForEmployeeRepository;
 
 
-        public PromotionService(IGenericRepository<EmployeeActionTypes> employeeActionTypeRepository, IGenericRepository<EmployeeCareerChangeHistory> employeeCarrerCngHistoryRepository, IGenericRepository<EmployeeCareerChanges> employeeCarrerCngRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<EmployeeOfficeInfo> empOfficialRepository, IGenericRepository<ApprovalTypes> approvalTypeRepository, IGenericRepository<ApprovalSettings> approvalSettingRepository, IGenericRepository<ApprovalDesignation> approvalDesignationRepository, IGenericRepository<Departments> deptRepository, IGenericRepository<Designations> desigRepository, IGenericRepository<Data.Models.Employees> employeeRepository)
+        public PromotionService(IGenericRepository<EmployeeActionTypes> employeeActionTypeRepository, IGenericRepository<EmployeeCareerChangeHistory> employeeCarrerCngHistoryRepository, IGenericRepository<EmployeeCareerChanges> employeeCarrerCngRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<EmployeeOfficeInfo> empOfficialRepository, IGenericRepository<ApprovalTypes> approvalTypeRepository, IGenericRepository<ApprovalSettings> approvalSettingRepository, IGenericRepository<ApprovalDesignation> approvalDesignationRepository, IGenericRepository<Departments> deptRepository, IGenericRepository<Designations> desigRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<Alerts> alertsRepository, IGenericRepository<AlertForEmployee> alertForEmployeeRepository)
         {
             _employeeActionTypeRepository = employeeActionTypeRepository;
             _employeeCarrerCngHistoryRepository = employeeCarrerCngHistoryRepository;
@@ -43,6 +45,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             _deptRepository = deptRepository;
             _desigRepository = desigRepository;
             _employeeRepository = employeeRepository;
+            this.alertsRepository = alertsRepository;
+            this.alertForEmployeeRepository = alertForEmployeeRepository;
         }
 
         public async Task<List<PromotionApproveViewModel>> GetAllPromotionPendingList()
@@ -1199,6 +1203,35 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 #endregion
 
 
+                #region Alert
+
+
+                var alert = new Alerts
+                {
+                    AlertTitle = "Employee Increment",
+                    AlertNote = $"{employee.Employee.FirstName} {employee.Employee.LastName} has requested an increment.",
+                    LMAC = model.LMAC,
+                    LIP = model.LIP,
+                    CreatedBy = model.CreatedBy,
+                    CreatedAt = DateTime.Now,
+                };
+
+                await alertsRepository.AddAsync(alert);
+                var empAlert = new AlertForEmployee
+                {
+                    AlertID = alert.AlertID,
+                    EmployeeID = increment.ApprovalPersonID,  // for alert Employee
+                    IsChecked = false,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = model.CreatedBy,
+                };
+                await alertForEmployeeRepository.AddAsync(empAlert);
+
+                #endregion
+
+
                 return new CommonReturnViewModel
                 {
                     Success = true,
@@ -1360,6 +1393,13 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                     return new CommonReturnViewModel { Success = false, Message = "You are not authorized to approve this promotion" };
                 }
 
+                var employee = await _employeeRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == career.EmployeeID);
+                if (employee == null)
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "Employee not found" };
+                }
+
+
                 var status = await GetOrCreateStatusAsync(action.Action.ToLower(), action);
                 if (status == null)
                 {
@@ -1404,6 +1444,33 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
                 await _employeeCarrerCngRepository.UpdateAsync(career);
                 await LogCareerChangeHistoryAsync(career, action);
+
+
+                if (career.IsFinalApproved != true && career.IsDecline != true)
+                {
+                    var alert = new Alerts
+                    {
+                        AlertTitle = "Employee Increment",
+                        AlertNote = $"{employee.FirstName} {employee.LastName} has requested an increment.",
+                        LMAC = action.LMAC,
+                        LIP = action.LIP,
+                        CreatedBy = action.CreatedBy,
+                        CreatedAt = DateTime.Now,
+                    };
+
+                    await alertsRepository.AddAsync(alert);
+                    var empAlert = new AlertForEmployee
+                    {
+                        AlertID = alert.AlertID,
+                        EmployeeID = career.ApprovalPersonID,  // for alert Employee
+                        IsChecked = false,
+                        LIP = action.LIP,
+                        LMAC = action.LMAC,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = action.CreatedBy,
+                    };
+                    await alertForEmployeeRepository.AddAsync(empAlert);
+                }
 
 
                 return new CommonReturnViewModel { Success = true, Message = "Promotion action completed successfully" };

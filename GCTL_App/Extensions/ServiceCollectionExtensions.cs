@@ -125,6 +125,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data;
 
+
 #endregion
 
 namespace GCTL_App.Extensions
@@ -271,10 +272,11 @@ namespace GCTL_App.Extensions
 
             #endregion
 
-            #region Employee Status Management(Increment, Promotion)
+            #region Employee Status Management(Increment, Promotion , Termination , Resignation)
 
             services.AddScoped<IincrementService, IncrementService>();
             services.AddScoped<IPromotionService, PromotionService>();
+            services.AddScoped<IEmployeeResign, EmployeeResignService>();
 
 
             #endregion
