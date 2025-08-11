@@ -18,6 +18,25 @@ function loadNotifications() {
 
                 const container = $('#notificationContainer');
                 container.empty(); // Clear any existing notifications
+
+                // ===== COUNT UNREAD NOTIFICATIONS =====
+                const unreadCount = response.data.filter(n => n.isChecked === false).length;
+
+                // Show or hide the badge
+                let $bellBadge = $("#notificationBadge");
+                if ($bellBadge.length === 0) {
+                    // Create badge if not exists
+                    $(".nav-link[aria-labelledby='navbarDropdownNotfication']").append(
+                        `<span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle"></span>`
+                    );
+                    $bellBadge = $("#notificationBadge");
+                }
+                if (unreadCount > 0) {
+                    $bellBadge.text(unreadCount).show();
+                } else {
+                    $bellBadge.hide();
+                }
+
                 response.data.forEach(notification => {
                     const cardHtml = `
                         <div class="px-2 px-sm-3 py-3 notification-card position-relative ${notification.isChecked ? 'read' : 'unread'} border-bottom">
