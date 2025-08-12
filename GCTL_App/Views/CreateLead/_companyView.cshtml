@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="col-sm-10 ">
-                            <div class="tab-content py-3 ps-sm-4 h-100">
+                            <div class="tab-content py-3 ps-sm-3 h-100">
                                 <div class="tab-pane fade show active" id="company" role="tabpanel">
                                     <h5 class="mb-3 text-body-highlight">Add Company</h5>
                                     <div class="row g-3">
@@ -420,7 +420,7 @@
                         </div>
 
                         <div class="col-sm-10">
-                            <div class="tab-content py-3 ps-sm-4 h-100">
+                            <div class="tab-content py-3 ps-sm-3 h-100">
                                 <div class="tab-pane fade" id="person" role="tabpanel">
                                     <h5 class="mb-3 text-body-highlight">Add Custommer</h5>
                                     <div class="row g-3">
@@ -441,7 +441,7 @@
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="lastNamePersonIndex" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="lastNamePerson" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Last Name</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -451,7 +451,7 @@
 
                                                         <div class="col-md-12">
                                                             <div class="mb-3 form-floating">
-                                                                <input type="text" id="autocompletePersonIndex" class="form-control" placeholder="Customer name" required>
+                                                                <input type="text" id="autocompletePerson" class="form-control" placeholder="Customer name" required>
                                                                 <label class="form-label req">Full Address</label>
                                                                 <span class="text-danger small"></span>
                                                             </div>
@@ -460,14 +460,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="streetPersonIndex" class="form-control" placeholder="Street" required>
+                                                                        <input type="text" id="streetPerson" class="form-control" placeholder="Street" required>
                                                                         <label class="form-label req">Street</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="cityPersonIndex" class="form-control" placeholder="City" required>
+                                                                        <input type="text" id="cityPerson" class="form-control" placeholder="City" required>
                                                                         <label class="form-label req">City</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -478,14 +478,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="additionalAddressPersonIndex" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="additionalAddressPerson" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Additional Address</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="statePersonIndex" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="statePerson" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">State/Province</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -496,14 +496,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input id="postalCodePersonIndex" type="text" class="form-control" placeholder="" required>
+                                                                        <input id="postalCodePerson" type="text" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Zip/Postal Code</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input id="countryPersonIndex" type="text" class="form-control" placeholder="" required>
+                                                                        <input id="countryPerson" type="text" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Country</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -514,14 +514,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="latitudePersonIndex" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="latitudePerson" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Latitude</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="longitudePersonIndex" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="longitudePerson" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Longitude</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -534,15 +534,15 @@
                                                     <div class="row">
 
                                                         <div class="col-12 mb-3">
-                                                            <input class="form-control" id="phoneIndex" type="tel" placeholder="Phone Number" />
+                                                            <input class="form-control" id="phone3" type="tel" placeholder="Phone Number" />
                                                         </div>
                                                         <div class="col-12 mb-3">
-                                                            <input class="form-control" id="otherPhoneIndex" type="tel" placeholder="Other Phone" />
+                                                            <input class="form-control" id="phone4" type="tel" placeholder="Other Phone" />
                                                         </div>
 
                                                         <div class="col-12">
                                                             <div class="mb-3 form-floating">
-                                                                <input type="text" id="emailPersonIndex" class="form-control" placeholder="" required>
+                                                                <input type="text" id="emailPerson" class="form-control" placeholder="" required>
                                                                 <label class="form-label req">Email</label>
                                                                 <span class="text-danger small"></span>
                                                             </div>

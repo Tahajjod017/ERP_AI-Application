@@ -51,16 +51,18 @@ namespace GCTL_App.Controllers.CRM
 
 
         [HttpGet]
-        public IActionResult GetCustomerList()
+        public async Task<IActionResult> GetCustomerList()
         {
-            var customers = _individualAddressesRepository.AllActive()
-                .OrderBy(n => n.Individual.FirstName + n.Individual.LastName)
-                .Select(n => new
-                {
-                    CustomerId = n.Individual.IndividualID,
-                    FullName = n.Individual.FirstName + " " + n.Individual.LastName
-                })
-                .ToList();
+            var customers = await _individualAddressesRepository
+                    .Find(u => u.AddressType.AddressTypeName == "billing")
+                    .OrderBy(n => n.Individual.FirstName + n.Individual.LastName)
+                    .Select(n => new
+                    {
+                        CustomerId = n.IndividualAddressID,
+                        FullName = n.Individual.FirstName + " " + n.Individual.LastName,
+                        Type = n.AddressType.AddressTypeName
+                    })
+                    .ToListAsync();
 
             return Json(customers);
         }
@@ -84,31 +86,58 @@ namespace GCTL_App.Controllers.CRM
                                          address.State,
                                          address.PostalCode,
                                          country.CountryName,
+                                         country.CountryCode,
                                          address.Latitude,
                                          address.Longitude,
                                          address.Phone,
                                          address.OtherPhone,
                                          address.Email
-
-
                                      }).FirstOrDefaultAsync();
 
+            var individualId = await _context.IndividualAddresses.Where(x => x.IndividualAddressID == id).Select(x => x.IndividualID).FirstOrDefaultAsync();
+            var shippingObj = await (from add in _context.IndividualAddresses
+                                     join address in _context.Addresses on add.AddressID equals address.AddressID
+                                     join country in _context.Country on address.CountryID equals country.CountryID
+                                     where add.AddressType.AddressTypeName == "shipping" && add.IndividualID == individualId
+                                     select new
+                                     {
+                                         address.FullAddress,
+                                         address.Street,
+                                         address.City,
+                                         address.Additionaladdress,
+                                         address.State,
+                                         address.PostalCode,
+                                         country.CountryName,
+                                         country.CountryCode,
+                                         address.Latitude,
+                                         address.Longitude,
+                                         address.Phone,
+                                         address.OtherPhone,
+                                         address.Email,
+                                         address.FirstName,
+                                         address.LastName
+                                     }).FirstOrDefaultAsync();
 
-            return Json(new { data = customerObj });
+            return Json(new { customer = customerObj, shipping = shippingObj });
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> createPerson([FromBody] CustomerVM customerVM)
+        public async Task<IActionResult> upsertPerson([FromBody] CustomerVM customerVM)
         {
             if (ModelState.IsValid)
             {
                 if (customerVM.Customers[0].PrimaryID == 0)
                 {
                     var result = await _leadCreateService.SaveLead(customerVM);
+                    
 
 
                     return Json(new { success = true, message = "Saved successfully" });
+                } else
+                {
+                    var result = await _leadCreateService.UpdateLead(customerVM);
+                    return Json(new { success = true, message = "Updated successfully" });
                 }
             }
             return Json(new { MessageContent = "Error" });

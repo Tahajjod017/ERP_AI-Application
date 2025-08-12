@@ -23,20 +23,17 @@ namespace GCTL.Service.CRM.LeadCreate
             _individualAddressesRepository = individualAddressesRepository;
         }
 
-        //public Task<bool> AddAsync(CreateLeadVM model)
-        //{
-            
-        //}
-
         public async Task<CommonReturnViewModel> SaveLead(CustomerVM customerVM)
         {
             try
             {
+                Individuals individuals = new Individuals();
                 var item = await _addressTypesRepository.GetAllAsync();
+
                 if (!item.Any())
                 {
                     List<AddressTypes> addressTypes =new List<AddressTypes>();
-                    var listImte = new string[] { "billing", "shiping" };
+                    var listImte = new string[] { "billing", "shipping" };
                     for (int i = 0; i< listImte.Length; i++)
                     {
                         addressTypes.Add(new AddressTypes()
@@ -52,6 +49,7 @@ namespace GCTL.Service.CRM.LeadCreate
                     }
                     await _addressTypesRepository.AddRangeAsync(addressTypes);
                 }
+
                 foreach(var obj in customerVM.Customers)
                 {
                     var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == obj.CountryName.ToLower());
@@ -64,16 +62,16 @@ namespace GCTL.Service.CRM.LeadCreate
                     }
                     else
                     {
-                        // 2. Create new country
+                        // 2. new country creation
                         var newCountry = new Country
                         {
                             CountryCode = obj.CountryCode,
                             CountryName = obj.CountryName,
+
                             CreatedAt = DateTime.Now,
                             CreatedBy = customerVM.CreatedBy,
                             LIP = customerVM.LIP,
                             LMAC = customerVM.LMAC,
-
                             UpdatedAt = DateTime.Now,
                             UpdatedBy = customerVM.UpdatedBy ?? null,
                             DeletedAt = null,
@@ -82,21 +80,178 @@ namespace GCTL.Service.CRM.LeadCreate
                         await _countryRepository.AddAsync(newCountry);
                         countryId = newCountry.CountryID;
                     }
+
+                    string serverSiteAddressType = obj.TabName == "person" ? "billing" : obj.TabName;
+                    var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == serverSiteAddressType);
+                    
                     // individual
-                    Individuals individuals = new Individuals()
+                    // only this condition will run when item type is billing
+
+                    if (addressTypeObj.AddressTypeName == "billing")
                     {
-                        FirstName = obj.FirstName,
-                        LastName = obj.LastName,
+                        individuals = new Individuals()
+                        {
+                            FirstName = obj.FirstName,
+                            LastName = obj.LastName,
+
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+                            UpdatedAt = DateTime.Now,
+                            UpdatedBy = customerVM.UpdatedBy ?? null,
+                            DeletedAt = null,
+                        };
+                        await _individualsRepository.AddAsync(individuals);
+                    }
+
+                        // Address
+                        Addresses addresses = new Addresses()
+                        {
+                            FullAddress = obj.FullAddress,
+                            Street = obj.Street,
+                            City = obj.City,
+                            State = obj.State,
+                            Additionaladdress = obj.Additionaladdress,
+                            PostalCode = obj.PostalCode,
+                            CountryID = countryId,
+                            Phone = obj.Phone,
+                            OtherPhone = obj.OtherPhone,
+                            Email = obj.Email,
+                            Latitude = obj.Latitude,
+                            Longitude = obj.Longitude,
+                            FirstName = addressTypeObj.AddressTypeName == "shipping" ? obj.FirstName : null,
+                            LastName = addressTypeObj.AddressTypeName == "shipping" ? obj.LastName : null,
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+                            UpdatedAt = DateTime.Now,
+                            UpdatedBy = customerVM.UpdatedBy ?? null,
+                            DeletedAt = null,
+                        };
+                    await _addressesRepository.AddAsync(addresses);
+                    
+                    //get all table id
+                    int addressesId = addresses.AddressID;
+
+                    IndividualAddresses individualAddresses = new IndividualAddresses()
+                    {
+                        AddressTypeID = addressTypeObj.AddressTypeID,
+                        AddressID = addressesId,
+                        IndividualID = individuals.IndividualID,
 
                         CreatedAt = DateTime.Now,
                         CreatedBy = customerVM.CreatedBy,
                         LIP = customerVM.LIP,
                         LMAC = customerVM.LMAC,
+
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = customerVM.UpdatedBy ?? null,
                         DeletedAt = null,
                     };
-                    await _individualsRepository.AddAsync(individuals);
+                    await _individualAddressesRepository.AddAsync(individualAddresses);
+                      
+                }
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Data saved succesfull",
+                    //    Data = newCustomer
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
+            }
+        }
+        public async Task<CommonReturnViewModel> UpdateLead(CustomerVM customerVM)
+        {
+            try
+            {
+                Individuals individuals = new Individuals();
+                var item = await _addressTypesRepository.GetAllAsync();
+
+                if (!item.Any())
+                {
+                    List<AddressTypes> addressTypes = new List<AddressTypes>();
+                    var listImte = new string[] { "billing", "shipping" };
+                    for (int i = 0; i < listImte.Length; i++)
+                    {
+                        addressTypes.Add(new AddressTypes()
+                        {
+                            AddressTypeName = listImte[i],
+
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+
+                        });
+                    }
+                    await _addressTypesRepository.AddRangeAsync(addressTypes);
+                }
+
+                foreach (var obj in customerVM.Customers)
+                {
+                    var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == obj.CountryName.ToLower());
+
+                    int countryId;
+                    if (existingCountry != null)
+                    {
+                        // Country found
+                        countryId = existingCountry.CountryID;
+                    }
+                    else
+                    {
+                        // 2. new country creation
+                        var newCountry = new Country
+                        {
+                            CountryCode = obj.CountryCode,
+                            CountryName = obj.CountryName,
+
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+                            UpdatedAt = DateTime.Now,
+                            UpdatedBy = customerVM.UpdatedBy ?? null,
+                            DeletedAt = null,
+                        };
+
+                        await _countryRepository.AddAsync(newCountry);
+                        countryId = newCountry.CountryID;
+                    }
+
+                    string serverSiteAddressType = obj.TabName == "person" ? "billing" : obj.TabName;
+                    var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == serverSiteAddressType);
+
+                    // individual
+                    // only this condition will run when item type is billing
+
+                    if (addressTypeObj.AddressTypeName == "billing")
+                    {
+                        individuals = new Individuals()
+                        {
+                            FirstName = obj.FirstName,
+                            LastName = obj.LastName,
+
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+                            UpdatedAt = DateTime.Now,
+                            UpdatedBy = customerVM.UpdatedBy ?? null,
+                            DeletedAt = null,
+                        };
+                        await _individualsRepository.AddAsync(individuals);
+                    }
+
                     // Address
                     Addresses addresses = new Addresses()
                     {
@@ -112,45 +267,26 @@ namespace GCTL.Service.CRM.LeadCreate
                         Email = obj.Email,
                         Latitude = obj.Latitude,
                         Longitude = obj.Longitude,
-
+                        FirstName = addressTypeObj.AddressTypeName == "shipping" ? obj.FirstName : null,
+                        LastName = addressTypeObj.AddressTypeName == "shipping" ? obj.LastName : null,
                         CreatedAt = DateTime.Now,
                         CreatedBy = customerVM.CreatedBy,
                         LIP = customerVM.LIP,
                         LMAC = customerVM.LMAC,
-
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = customerVM.UpdatedBy ?? null,
                         DeletedAt = null,
                     };
                     await _addressesRepository.AddAsync(addresses);
-                    // AddressType
-                    //AddressTypes addressTypes = new AddressTypes()
-                    //{
-                    //    AddressTypeName = addressType,
-
-                    //    CreatedAt = DateTime.Now,
-                    //    CreatedBy = customerVM.CreatedBy,
-                    //    LIP = customerVM.LIP,
-                    //    LMAC = customerVM.LMAC,
-
-                    //    UpdatedAt = DateTime.Now,
-                    //    UpdatedBy = customerVM.UpdatedBy ?? null,
-                    //    DeletedAt = null,
-                    //};
-                    //await _addressTypesRepository.AddAsync(addressTypes);
 
                     //get all table id
-                    int individualsId = individuals.IndividualID;
                     int addressesId = addresses.AddressID;
-                    string serverSiteAddressType = obj.TabName == "person" ? "billing" : obj.TabName;
-
-                    var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == serverSiteAddressType);
 
                     IndividualAddresses individualAddresses = new IndividualAddresses()
                     {
                         AddressTypeID = addressTypeObj.AddressTypeID,
                         AddressID = addressesId,
-                        IndividualID = individualsId,
+                        IndividualID = individuals.IndividualID,
 
                         CreatedAt = DateTime.Now,
                         CreatedBy = customerVM.CreatedBy,
@@ -162,38 +298,13 @@ namespace GCTL.Service.CRM.LeadCreate
                         DeletedAt = null,
                     };
                     await _individualAddressesRepository.AddAsync(individualAddresses);
-                    //IndividualAddress
-                    // 
-                    //Customers newCustomer = new Customers()
-                    //{
-                    //    CustomerID = customerVM.CustomerID,
-                    //    FirstName = customerVM.FirstName,
-                    //    LastName = customerVM.LastName,
-                    //    FullAddress = customerVM.FullAddress,
-                    //    Street = customerVM.Street,
-                    //    City = customerVM.City,
-                    //    State = customerVM.State,
-                    //    Additionaladdress = customerVM.Additionaladdress,
-                    //    PostalCode = customerVM.PostalCode,
-                    //    CountryID = countryId,
-                    //    Latitude = customerVM.Latitude,
-                    //    Longitude = customerVM.Longitude,
-                    //    Phone = customerVM.Phone,
-                    //    OtherPhone = customerVM.OtherPhone,
-                    //    Email = customerVM.Email,
 
-
-                    //};
-                    //await _customersRepository.AddAsync(newCustomer);
-
-                    
                 }
                 return new CommonReturnViewModel
                 {
                     Success = true,
                     Message = "Data saved succesfull",
                     //    Data = newCustomer
-
                 };
 
             }
@@ -203,12 +314,8 @@ namespace GCTL.Service.CRM.LeadCreate
                 {
                     Success = false,
                     Message = ex.Message,
-                   
-
                 };
-
             }
-            
         }
     }
 }

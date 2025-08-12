@@ -56,4 +56,6 @@ public partial class Addresses
     public virtual ICollection<IndividualAddresses> IndividualAddresses { get; set; } = new List<IndividualAddresses>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
 }
