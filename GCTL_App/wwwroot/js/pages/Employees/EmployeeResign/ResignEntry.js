@@ -7,8 +7,10 @@
     let sortDirection = 'asc';
     let fromDate = '';
     let toDate = '';
+    let currentEditingId = null;
 
-    // Initialize flatpickr for date range picker
+    //#region Initialize flatpickr for date range picker
+
     $("#timepicker2").flatpickr({
         mode: "range",
         dateFormat: "d/m/y",
@@ -23,7 +25,23 @@
         }
     });
 
-    // Function to fetch and render table data
+    //#endregion
+
+    //#region Initialize date pickers for modal forms
+
+    $("#noticeDate, #editNoticeDate").flatpickr({
+        dateFormat: "d/m/Y",
+        disableMobile: true
+    });
+
+    $("#resignationDate, #editResignationDate").flatpickr({
+        dateFormat: "d/m/Y",
+        disableMobile: true
+    });
+
+    //#endregion
+
+    //#region Function to fetch and render table data
     function loadTableData() {
         $.ajax({
             url: '/EmployeeResign/GetResignations',
@@ -46,29 +64,29 @@
                 data.forEach(item => {
                     const row = `
                         <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle py-0">
+                            <td class="fs-9 align-middle py-1">
                                 <div class="form-check mb-0 fs-8">
                                     <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
                                 </div>
                             </td>
-                            <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-0" data-column="0">
+                            <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
                                 <div class="d-flex align-items-center position-relative">
                                     <a href="" class="avatar avatar-md me-2">
                                         <img src="https://placehold.co/400" class="rounded-circle" alt="user">
                                     </a>
-                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.rEmpName}</a>
+                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.rEmpName || item.REmpName}</a>
                                 </div>
                             </td>
-                            <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="1">${item.rEmpDept}</td>
-                            <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="2">${item.resignResons}</td>
-                            <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="3">${item.resNoticeDate}</td>
-                            <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="4">${item.resinDate}</td>
+                            <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.rEmpDept || item.REmpDept}</td>
+                            <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.resignResons || item.ResignResons}</td>
+                            <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.resNoticeDate || item.ResNoticeDate}</td>
+                            <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.resinDate || item.ResinDate}</td>
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4" data-column="5">
                                 <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_resignation">
+                                    <a href="#" class="nav-item mx-2 edit-resignation" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#edit_resignation">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <a href="#" class="nav-item mx-2 delete-resignation" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#delete_modal">
                                         <i class="fas fa-trash text-danger"></i>
                                     </a>
                                 </div>
@@ -76,6 +94,8 @@
                         </tr>`;
                     tbody.append(row);
                 });
+
+                showDev("table Loaded");
 
                 // Update pagination info
                 const start = (currentPage - 1) * pageSize + 1;
@@ -158,8 +178,164 @@
         loadTableData();
     });
 
+    //#endregion
+
+    //#region Handle Add Resignation Form Submit
+    $('#new_resignation form').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: '/EmployeeResign/CreateResignation',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#new_resignation').modal('hide');
+                    $('#new_resignation form')[0].reset();
+                    loadTableData(); // Refresh the table
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to add resignation');
+            }
+        });
+    });
+
+    //#endregion
+
+    //#region Handle Edit button click
+
+    $(document).on('click', '.edit-resignation', function (e) {
+        e.preventDefault();
+        const resignationId = $(this).data('id');
+        currentEditingId = resignationId;
+
+        // Get resignation data
+        $.ajax({
+            url: '/EmployeeResign/GetResignation',
+            type: 'GET',
+            data: { id: resignationId },
+            success: function (response) {
+                if (response.success) {
+                    const data = response.data;
+
+                    
+                   
+
+                    choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);
+                    choiceManager.setChoiceValue('editEmployeeId', data.employeeId || data.EmployeeId);
+
+
+                    $('#editNoticeDate').val(data.resNoticeDate || data.ResNoticeDate);
+                    $('#editResignationDate').val(data.resinDate || data.ResinDate);
+                    $('#edit_resignation textarea').val(data.resignResons || data.ResignResons);
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load resignation data');
+            }
+        });
+    });
+
+    // Handle Edit Resignation Form Submit
+    $('#edit_resignation form').on('submit', function (e) {
+        e.preventDefault();
+
+        if (!currentEditingId) {
+            toastr.error('No resignation selected for editing');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('resignationId', currentEditingId);
+        formData.append('CompanyId', $('#editCompany').val());
+        formData.append('EmployeeId', $('#editEmployeeId').val());
+        formData.append('NoticeDate', $('#editNoticeDate').val());
+        formData.append('ResignationDate', $('#editResignationDate').val());
+        formData.append('Reason', $('#edit_resignation textarea').val());
+
+        $.ajax({
+            url: '/EmployeeResign/UpdateResignation',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#edit_resignation').modal('hide');
+                    currentEditingId = null;
+                    loadTableData(); // Refresh the table
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to update resignation');
+            }
+        });
+    });
+
+    //#endregion
+
+    //#region Handle Delete button click
+
+    $(document).on('click', '.delete-resignation', function (e) {
+        e.preventDefault();
+        const resignationId = $(this).data('id');
+        currentEditingId = resignationId; // Store for deletion
+    });
+
+    // Handle Delete confirmation
+    $('#delete_modal .btn-danger').on('click', function (e) {
+        e.preventDefault();
+
+        if (!currentEditingId) {
+            toastr.error('No resignation selected for deletion');
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeeResign/DeleteResignation',
+            type: 'POST',
+            data: { id: currentEditingId },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#delete_modal').modal('hide');
+                    currentEditingId = null;
+                    loadTableData(); // Refresh the table
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to delete resignation');
+            }
+        });
+    });
+
+    //#endregion
+
+    // Reset current editing ID when modals are hidden
+    $('#edit_resignation, #delete_modal').on('hidden.bs.modal', function () {
+        currentEditingId = null;
+    });
+
+    // Reset form when add modal is hidden
+    $('#new_resignation').on('hidden.bs.modal', function () {
+        $('#new_resignation form')[0].reset();
+    });
+
     // Initial load
     loadTableData();
-
-   
 });

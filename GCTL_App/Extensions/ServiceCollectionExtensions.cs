@@ -70,6 +70,7 @@ using GCTL.Service.Employees.EmployeeOfficial;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Employees.EmployeeReport;
 using GCTL.Service.Employees.EmployeeReport;
+using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Employees.EmployeeStatus.Increment;

@@ -14,5 +14,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeResign
         public string ResignResons { get; set; }
         public string ResNoticeDate { get; set; }
         public string ResinDate { get; set; }
+        public int EmployeeId { get; set; }
+        public int CompanyId { get; set; }
     }
 }
