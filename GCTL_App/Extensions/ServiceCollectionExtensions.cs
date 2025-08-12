@@ -5,6 +5,7 @@ using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
@@ -227,6 +228,7 @@ namespace GCTL_App.Extensions
             services.AddTransient<LeaveHelper>();
             services.AddScoped<IMonthlyReportService, MonthlyReportService>();
             services.AddScoped<IYearlyReportService, YearlyReportService>();
+            services.AddScoped<ILocalizationSettingService, LocalizationSettingService>();
             #endregion
 
 
