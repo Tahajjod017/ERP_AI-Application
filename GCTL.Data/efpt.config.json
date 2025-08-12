@@ -443,6 +443,26 @@
          "ObjectType": 0
       },
       {
+         "Name": "[HRM].[Resignations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[ResignationsApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[Terminations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeBenefits]",
          "ObjectType": 0
       },
@@ -456,6 +476,10 @@
       },
       {
          "Name": "[Settings].[Localizations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Percentages]",
          "ObjectType": 0
       },
       {

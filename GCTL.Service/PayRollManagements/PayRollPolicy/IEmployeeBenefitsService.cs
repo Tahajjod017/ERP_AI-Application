@@ -1,5 +1,9 @@
-﻿using GCTL.Core.ViewModels;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy;
+using GCTL.Data.Models;
+using GCTL.Service.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +15,10 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
     public interface IEmployeeBenefitsService
     {
         Task<CommonReturnViewModel> SaveEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM);
+        Task<CommonReturnViewModel> UpdateEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM);
+        Task<PaginationService<EmployeeBenefits, PayRollEmpBenefitsGetAllVM >.PaginationResult<PayRollEmpBenefitsGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+       string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null);
+        Task<CommonReturnViewModel> SoftDeletePayRollEmpRequest(DeleteRequestVM deleteRequestVM);
+        Task<CommonReturnViewModel> GetById(int employeeBenefitID);
     }
 }
