@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeActionTypes
+public partial class TerminationTypes
 {
-    public int EmployeeActionTypeID { get; set; }
+    public int TerminationTypeID { get; set; }
 
-    public string EmployeeActionTypeName { get; set; }
+    public string TerminationTypeName { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,9 +31,7 @@ public partial class EmployeeActionTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
-
-    public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
+    public virtual ICollection<Terminations> Terminations { get; set; } = new List<Terminations>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

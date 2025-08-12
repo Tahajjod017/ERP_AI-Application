@@ -80,7 +80,9 @@
     </div>
 </div>
 
-<!-- Add Resignation Modal -->
+
+
+
 <div class="modal fade" id="new_resignation">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
@@ -95,7 +97,7 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label" for="company">Company</label>
-                                <select class="form-select choiceDD" name="CompanyId" id="company" asp-items="@ViewBag.OrganizationDD" required>
+                                <select class="form-select choiceDD" name="CompanyId" id="company" asp-items="@ViewBag.OrganizationDD" required data-url="@Url.Action("GetEmployeesByCompany", "EmployeeResign")" >
                                     <option value="">Select Company</option>
                                 </select>
                             </div>

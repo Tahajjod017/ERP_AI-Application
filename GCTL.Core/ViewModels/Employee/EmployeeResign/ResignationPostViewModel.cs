@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Employee.EmployeeResign
 {
-    public class ResignationPostViewModel
+    public class ResignationPostViewModel : BaseViewModel
     {
    
         public int? Id { get; set; } // null for create
@@ -20,10 +20,10 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeResign
         public int EmployeeId { get; set; }
 
         [Required(ErrorMessage = "Notice Date is required")]
-        public DateTime? NoticeDate { get; set; }
+        public string? NoticeDate { get; set; }
 
         [Required(ErrorMessage = "Resignation Date is required")]
-        public DateTime? ResignationDate { get; set; }
+        public string? ResignationDate { get; set; }
 
         [Required(ErrorMessage = "Reason is required")]
         [StringLength(500, ErrorMessage = "Reason cannot exceed 500 characters")]

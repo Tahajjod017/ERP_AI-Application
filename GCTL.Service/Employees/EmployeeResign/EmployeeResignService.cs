@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
 using GCTL.Data.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.SqlServer.Server;
 
 namespace GCTL.Service.Employees.EmployeeResign
 {
@@ -14,8 +18,9 @@ namespace GCTL.Service.Employees.EmployeeResign
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOffiRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
+        private readonly IGenericRepository<Resignations> _resignationRepository;
 
-        // Static data storage
+        #region Static data storage for test
         private static List<ResignationViewModel> _resignations = new List<ResignationViewModel>
         {
             new ResignationViewModel {ResigId = 1, REmpName = "Tanvir Haider", REmpDept = "Finance", ResignResons = "Career Change", ResNoticeDate = "01/01/2024", ResinDate = "30/01/2024", EmployeeId = 1, CompanyId = 1 },
@@ -36,21 +41,39 @@ namespace GCTL.Service.Employees.EmployeeResign
         };
 
         private static int _nextId = 16;
+        #endregion
 
         public EmployeeResignService(
             IGenericRepository<GCTL.Data.Models.Employees> employeeRepository,
             IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository,
-            IGenericRepository<Departments> departmentRepository)
+            IGenericRepository<Departments> departmentRepository,
+            IGenericRepository<Resignations> resignationRepository)
         {
             _employeeRepository = employeeRepository;
             _employeeOffiRepository = employeeOffiRepository;
             _departmentRepository = departmentRepository;
+            _resignationRepository = resignationRepository;
         }
 
-        public object GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate, string toDate)
+        public object GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate, string toDate, string imgSrcThumb)
         {
             //var resignations = new List<ResignationViewModel>(_resignations);
-            var resignations = new List<ResignationViewModel>(_resignations);
+            var resignations = _resignationRepository.AllActive().Include(e=>e.Employee)
+                .ThenInclude(r=>r.EmployeeOfficeInfoEmployee).ThenInclude(p=>p.Department).Select(e=> new ResignationViewModel()
+                {
+                    ResigId = e.ResignationID,
+                    REmpDept = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
+                    REmpName = e.Employee.FirstName + " " + e.Employee.LastName,
+                    ResignResons = e.Reason,
+                    ResinDate = e.ResignationDate.Value.ToString("dd/MM/yyyy"),
+                    ResNoticeDate = e.NoticeDate.Value.ToString("dd/MM/yyyy"),
+                    EmployeeId = e.EmployeeID,
+                    CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID,
+                    Image = imgSrcThumb + e.Employee.EmployeeImageFileName
+
+                }).ToList();
+
+
 
             // Apply date range filter
             if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
@@ -88,32 +111,64 @@ namespace GCTL.Service.Employees.EmployeeResign
             };
         }
 
-        public bool InsertResignation(ResignationPostViewModel model)
+        public CommonReturnViewModel InsertResignation(ResignationPostViewModel model)
         {
             try
             {
-                // Get employee name and department from static data or repositories
-                var employee = GetEmployeeById(model.EmployeeId);
-                var department = GetDepartmentByEmployeeId(model.EmployeeId);
-
-                var newResignation = new ResignationViewModel
+                var result = new CommonReturnViewModel()
                 {
-                    ResigId = _nextId++,
-                    EmployeeId = model.EmployeeId,
-                    CompanyId = model.CompanyId,
-                    REmpName = employee?.Name ?? "Unknown Employee",
-                    REmpDept = department ?? "Unknown Department",
-                    ResignResons = model.Reason,
-                    ResNoticeDate = model.NoticeDate.Value.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy"),
-                    ResinDate = model.ResignationDate.Value.ToString("dd/MM/yyyy") ?? DateTime.Now.ToString("dd/MM/yyyy")
+                    Success = false,
+
                 };
 
-                _resignations.Add(newResignation);
-                return true;
+                if (!DateTime.TryParseExact(model.NoticeDate, "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                            DateTimeStyles.None, out DateTime noticeDate))
+                {
+                    result.Message = "Invalid Notice Date format. Expected format is dd/MM/yyyy.";
+                    return result;
+                }
+
+                if (!DateTime.TryParseExact(model.ResignationDate, "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                                            DateTimeStyles.None, out DateTime resignationDate))
+                {
+                    result.Message = "Invalid Resignation Date format. Expected format is dd/MM/yyyy.";
+                    return result;
+                }
+
+
+                var emp = _employeeRepository.AllActive().FirstOrDefault(e => e.EmployeeID == model.EmployeeId);
+
+                if (emp == null)
+                {
+                    result.Message = "Employee is invalid";
+                    return result;
+                }
+
+
+                var newResignation = new Resignations
+                {
+                    OrganizationID = model.CompanyId,
+                    EmployeeID = model.EmployeeId,
+                    ResignationDate = resignationDate,
+                    NoticeDate = noticeDate,
+                    Reason = model.Reason,
+
+
+                };
+
+                _resignationRepository.AddAsync(newResignation, model);
+                result.Success = true;
+                result.Message = "Saved successfull";
+                return result;
+
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
             }
         }
 
@@ -135,8 +190,8 @@ namespace GCTL.Service.Employees.EmployeeResign
                 existingResignation.REmpName = employee?.Name ?? existingResignation.REmpName;
                 existingResignation.REmpDept = department ?? existingResignation.REmpDept;
                 existingResignation.ResignResons = model.Reason;
-                existingResignation.ResNoticeDate = model.NoticeDate.Value.ToString("dd/MM/yyyy") ?? existingResignation.ResNoticeDate;
-                existingResignation.ResinDate = model.ResignationDate.Value.ToString("dd/MM/yyyy") ?? existingResignation.ResinDate;
+                existingResignation.ResNoticeDate = model.NoticeDate ?? existingResignation.ResNoticeDate;
+                existingResignation.ResinDate = model.ResignationDate ?? existingResignation.ResinDate;
 
                 return true;
             }
@@ -165,7 +220,21 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         public ResignationViewModel GetResignationById(int resignationId)
         {
-            return _resignations.FirstOrDefault(r => r.ResigId == resignationId);
+            var resign = _resignationRepository.AllActive().Where(e=>e.ResignationID == resignationId).Select(r=> new ResignationViewModel
+            {
+                ResigId = r.ResignationID,
+                ResignResons = r.Reason,
+                ResinDate = r.ResignationDate.Value.ToString("dd/MM/yyyy"),
+                ResNoticeDate = r.NoticeDate.Value.ToString("dd/MM/yyyy"),
+                EmployeeId = r.EmployeeID,
+                CompanyId = r.OrganizationID,
+
+            }).FirstOrDefault();
+
+            if (resign == null)
+                return new ResignationViewModel();
+
+            return resign;
         }
 
         // Helper methods to simulate getting employee and department info

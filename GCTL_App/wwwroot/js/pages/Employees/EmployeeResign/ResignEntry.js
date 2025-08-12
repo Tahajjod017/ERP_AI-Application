@@ -9,6 +9,35 @@
     let toDate = '';
     let currentEditingId = null;
 
+
+    //#region On change
+
+    $('#company').on('change', function () {
+        const companyId = $(this).val();
+        const url = $(this).data('url');
+
+        if (companyId) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: { companyId: companyId },
+                success: function (data) {
+                    showDev(data)
+                    choiceManager.populateDropdown('employeeId', data)
+                },
+                error: function () {
+                    alert('Failed to load employees.');
+                }
+            });
+        } else {
+            $('#employeeId').empty().append('<option value="">Select Employee</option>');
+        }
+    });
+
+
+
+    //#endregion
+
     //#region Initialize flatpickr for date range picker
 
     $("#timepicker2").flatpickr({
@@ -72,7 +101,7 @@
                             <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
                                 <div class="d-flex align-items-center position-relative">
                                     <a href="" class="avatar avatar-md me-2">
-                                        <img src="https://placehold.co/400" class="rounded-circle" alt="user">
+                                        <img src="${item.image || item.Image}" class="rounded-circle" alt="user">
                                     </a>
                                     <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.rEmpName || item.REmpName}</a>
                                 </div>
@@ -195,8 +224,15 @@
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    $('#new_resignation').modal('hide');
-                    $('#new_resignation form')[0].reset();
+                    clearResignationForm()
+
+                    var applyModalEl = document.getElementById('new_resignation');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+
                     loadTableData(); // Refresh the table
                 } else {
                     toastr.error(response.message);
@@ -232,9 +268,11 @@
                     choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);
                     choiceManager.setChoiceValue('editEmployeeId', data.employeeId || data.EmployeeId);
 
+                    flatpickrHelper.setDate('editNoticeDate', data.resNoticeDate || data.ResNoticeDate )
+                    flatpickrHelper.setDate('editResignationDate', data.resinDate || data.ResinDate )
 
-                    $('#editNoticeDate').val(data.resNoticeDate || data.ResNoticeDate);
-                    $('#editResignationDate').val(data.resinDate || data.ResinDate);
+                    //$('#editNoticeDate').val(data.resNoticeDate || data.ResNoticeDate);
+                    //$('#editResignationDate').val(data.resinDate || data.ResinDate);
                     $('#edit_resignation textarea').val(data.resignResons || data.ResignResons);
                 } else {
                     toastr.error(response.message);
@@ -326,16 +364,50 @@
 
     //#endregion
 
-    // Reset current editing ID when modals are hidden
-    $('#edit_resignation, #delete_modal').on('hidden.bs.modal', function () {
-        currentEditingId = null;
-    });
 
-    // Reset form when add modal is hidden
-    $('#new_resignation').on('hidden.bs.modal', function () {
-        $('#new_resignation form')[0].reset();
-    });
+    //#region clear form
+
+    function clearResignationForm() {
+        const form = document.querySelector('#new_resignation form');
+
+        if (!form) return;
+
+        // Reset all input/select/textarea fields
+        form.reset();
+
+        // Clear Choices.js dropdowns if used
+        const choiceDropdowns = form.querySelectorAll('.choiceDD');
+        choiceDropdowns.forEach(dd => {
+            if (dd._choices) {
+                dd._choices.clearStore();
+                dd._choices.setChoices([], 'value', 'label', true);
+            }
+        });
+
+        // Clear Flatpickr instances
+        const dateInputs = form.querySelectorAll('.datetimepicker');
+        dateInputs.forEach(input => {
+            if (input._flatpickr) {
+                input._flatpickr.clear();
+            }
+        });
+    }
+
+
+
+    //#endregion
+
+    //$('#edit_resignation, #delete_modal').on('hidden.bs.modal', function () {
+    //    currentEditingId = null;
+    //});
+
+    //// Reset form when add modal is hidden
+    //$('#new_resignation').on('hidden.bs.modal', function () {
+    //    $('#new_resignation form')[0].reset();
+    //});
 
     // Initial load
+
+
     loadTableData();
 });
