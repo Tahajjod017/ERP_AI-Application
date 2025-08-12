@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -13,6 +14,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
     public interface IAssignSpiralPatternService
     {
         Task<bool> AddAsync(AssignSpiralPatternSetupVM model);
+        //Task<bool> UpdateAsync(AssignSpiralPatternEditVM model);
+        //Task<AssignSpiralPatternDeleteVM> SoftDeleteAsync(DeleteRequestVM model);
+        Task<AssignSpiralPatternEditVM> GetByIdAsync(int id);
 
         Task<SeparatePaginationResult<AssignSpiralPatternListVM>> GetAllAsync(
             int pageNumber = 1,
