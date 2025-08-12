@@ -529,6 +529,12 @@ public partial class Employees
 
     public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesUpdatedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
 
+    public virtual ICollection<Percentages> PercentagesCreatedByNavigation { get; set; } = new List<Percentages>();
+
+    public virtual ICollection<Percentages> PercentagesDeletedByNavigation { get; set; } = new List<Percentages>();
+
+    public virtual ICollection<Percentages> PercentagesUpdatedByNavigation { get; set; } = new List<Percentages>();
+
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsCreatedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsDeletedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
@@ -554,6 +560,24 @@ public partial class Employees
     public virtual ICollection<ReportContent> ReportContentDeletedByNavigation { get; set; } = new List<ReportContent>();
 
     public virtual ICollection<ReportContent> ReportContentUpdatedByNavigation { get; set; } = new List<ReportContent>();
+
+    public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryApprovalPerson { get; set; } = new List<ResignationsApprovalHistory>();
+
+    public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryCreatedByNavigation { get; set; } = new List<ResignationsApprovalHistory>();
+
+    public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryDeletedByNavigation { get; set; } = new List<ResignationsApprovalHistory>();
+
+    public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryEmployee { get; set; } = new List<ResignationsApprovalHistory>();
+
+    public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryUpdatedByNavigation { get; set; } = new List<ResignationsApprovalHistory>();
+
+    public virtual ICollection<Resignations> ResignationsCreatedByNavigation { get; set; } = new List<Resignations>();
+
+    public virtual ICollection<Resignations> ResignationsDeletedByNavigation { get; set; } = new List<Resignations>();
+
+    public virtual ICollection<Resignations> ResignationsEmployee { get; set; } = new List<Resignations>();
+
+    public virtual ICollection<Resignations> ResignationsUpdatedByNavigation { get; set; } = new List<Resignations>();
 
     public virtual ICollection<ResultTypes> ResultTypesCreatedByNavigation { get; set; } = new List<ResultTypes>();
 
@@ -662,6 +686,30 @@ public partial class Employees
     public virtual ICollection<Statuses> StatusesDeletedByNavigation { get; set; } = new List<Statuses>();
 
     public virtual ICollection<Statuses> StatusesUpdatedByNavigation { get; set; } = new List<Statuses>();
+
+    public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryApprovalPerson { get; set; } = new List<TerminationApprovalHistory>();
+
+    public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryCreatedByNavigation { get; set; } = new List<TerminationApprovalHistory>();
+
+    public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryDeletedByNavigation { get; set; } = new List<TerminationApprovalHistory>();
+
+    public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryEmployee { get; set; } = new List<TerminationApprovalHistory>();
+
+    public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryUpdatedByNavigation { get; set; } = new List<TerminationApprovalHistory>();
+
+    public virtual ICollection<TerminationTypes> TerminationTypesCreatedByNavigation { get; set; } = new List<TerminationTypes>();
+
+    public virtual ICollection<TerminationTypes> TerminationTypesDeletedByNavigation { get; set; } = new List<TerminationTypes>();
+
+    public virtual ICollection<TerminationTypes> TerminationTypesUpdatedByNavigation { get; set; } = new List<TerminationTypes>();
+
+    public virtual ICollection<Terminations> TerminationsCreatedByNavigation { get; set; } = new List<Terminations>();
+
+    public virtual ICollection<Terminations> TerminationsDeletedByNavigation { get; set; } = new List<Terminations>();
+
+    public virtual ICollection<Terminations> TerminationsEmployee { get; set; } = new List<Terminations>();
+
+    public virtual ICollection<Terminations> TerminationsUpdatedByNavigation { get; set; } = new List<Terminations>();
 
     public virtual ICollection<TrainingYears> TrainingYearsCreatedByNavigation { get; set; } = new List<TrainingYears>();
 
