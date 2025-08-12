@@ -506,7 +506,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
 
-        modelBuilder.Entity<ApplicationUser>()
+
 .HasDiscriminator<string>("Discriminator")
 .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
@@ -514,6 +514,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
         modelBuilder.Entity<Attendance>(entity =>
         {
             entity.HasKey(e => e.AttendanceID).HasName("PK__Attendan__8B69263CCE1244FA");
@@ -2954,6 +2955,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.ResignationDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
+
+            entity.HasOne(d => d.ApprovalPerson).WithMany(p => p.ResignationsApprovalPerson)
+                .HasForeignKey(d => d.ApprovalPersonID)
+                .HasConstraintName("FK__Resignati__Appro__7D8391DF");
+
+
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ResignationsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__Resignati__Creat__538D5813");
@@ -2962,6 +2969,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Resignati__Delet__5669C4BE");
 
+
+            entity.HasOne(d => d.EmployeeActionType).WithMany(p => p.Resignations)
+                .HasForeignKey(d => d.EmployeeActionTypeID)
+                .HasConstraintName("FK__Resignati__Emplo__7C8F6DA6");
+
+
             entity.HasOne(d => d.Employee).WithMany(p => p.ResignationsEmployee)
                 .HasForeignKey(d => d.EmployeeID)
                 .HasConstraintName("FK__Resignati__Emplo__529933DA");
@@ -2969,6 +2982,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Organization).WithMany(p => p.Resignations)
                 .HasForeignKey(d => d.OrganizationID)
                 .HasConstraintName("FK__Resignati__Organ__51A50FA1");
+
+
+            entity.HasOne(d => d.Status).WithMany(p => p.Resignations)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__Resignati__Statu__7B9B496D");
+
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ResignationsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)

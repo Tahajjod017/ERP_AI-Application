@@ -6,11 +6,14 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace GCTL_App.Controllers.Employees.EmployeeResign
 {
     public class EmployeeResignController : BaseController
     {
+        #region CTOR
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOffiRepository;
         private readonly IGenericRepository<Organization> _organizationRepository;
@@ -36,28 +39,22 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             _employeeResignService = employeeResignService;
         }
 
+        #endregion
+
+        #region Index N Table load
+
         public IActionResult Index()
         {
             SetSmartPageCode(111800);
 
-            // Static employee dropdown data
-            ViewBag.EmployeeDD = new SelectList(new[]
-            {
-                new { id = 1, name = "Tanvir Haider" },
-                new { id = 2, name = "Hasan Tarek" },
-                new { id = 3, name = "Osman Goni" },
-                new { id = 4, name = "Jashim Uddin" },
-                new { id = 5, name = "Ahmed Rahman" },
-                new { id = 6, name = "Sarah Khan" }
-            }, "id", "name");
 
-            // Static organization dropdown data
-            ViewBag.OrganizationDD = new SelectList(new[]
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new
             {
-                new { OrganizationID = 1, OrganizationName = "GCTL Head Office" },
-                new { OrganizationID = 2, OrganizationName = "GCTL Branch Office" },
-                new { OrganizationID = 3, OrganizationName = "GCTL Remote Office" }
-            }, "OrganizationID", "OrganizationName");
+               id = e.EmployeeID,
+                name = e.FirstName + " " + e.LastName
+            }) , "id" , "name");
+            
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
 
             return View();
         }
@@ -65,9 +62,16 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         [HttpGet]
         public IActionResult GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate = null, string toDate = null)
         {
-            var result = _employeeResignService.GetResignations(page, pageSize, sortColumn, sortDirection, fromDate, toDate);
+            
+
+            var result = _employeeResignService.GetResignations(page, pageSize, sortColumn, sortDirection, fromDate, toDate , imgSrcThumb);
             return Json(result);
         }
+
+        #endregion
+
+
+        #region Create 
 
         [HttpPost]
         public IActionResult CreateResignation([FromForm] ResignationPostViewModel model)
@@ -81,20 +85,15 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
                 var result = _employeeResignService.InsertResignation(model);
 
-                if (result)
-                {
-                    return Json(new { success = true, message = "Resignation added successfully." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to add resignation." });
-                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
         }
+
+        #endregion
 
         [HttpPost]
         public IActionResult UpdateResignation([FromForm] int resignationId, [FromForm] ResignationPostViewModel model)
@@ -165,5 +164,24 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
                 return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
         }
+
+        #region on chng
+
+        public JsonResult GetEmployeesByCompany(int companyId)
+        {
+            var employees = _employeeOffiRepository.AllActive().Include(r=>r.Employee)
+                .Where(e => e.OrganizationID  == companyId)
+                .Select(e => new 
+                {
+                    id = e.EmployeeID.ToString(),
+                    name = e.Employee.FirstName + " " + e.Employee.LastName,
+                }).ToList();
+
+            return Json(employees);
+        }
+
+        #endregion
+
+
     }
 }
