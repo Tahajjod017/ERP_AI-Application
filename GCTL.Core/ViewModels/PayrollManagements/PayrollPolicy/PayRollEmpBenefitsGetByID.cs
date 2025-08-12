@@ -1,5 +1,4 @@
-﻿using GCTL.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
 {
-    public class PayRollEmpBenefitsGetAllVM
+    public class PayRollEmpBenefitsGetByID
     {
         public int EmployeeBenefitID { get; set; }
 
-        public string? OrganizationName { get; set; }
+        public int? OrganizationID { get; set; }
 
         public bool? IsHealthInsuranceEnabled { get; set; }
 
@@ -25,7 +24,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
 
         public decimal? FastivalBonusRate { get; set; }
 
-        public string? FastivalBonusOnSalaryTypeName { get; set; }
+        public int? FastivalBonusOnSalaryTypeID { get; set; }
 
         public bool? IsProvidentFundEnabled { get; set; }
 
@@ -33,15 +32,11 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
 
         public decimal? ProvidentFundOrganizationContrebution { get; set; }
 
-        public string? ProvidentFundOnSalaryTypeName { get; set; }
+        public int? ProvidentFundOnSalaryTypeID { get; set; }
 
         public decimal? ProvidentFundMinimumServiceYear { get; set; }
-
-        
+        public decimal? FastivalBonusMinimumServiceInMonth { get; set; }
         public bool? IsYearEndBonusEnabled { get; set; }
-
-        public string? YearlyEndBonusTypeName { get; set; }
-
-       
+        public int? YearlyEndBonusTypeID { get; set; }
     }
 }

@@ -2,11 +2,11 @@
 @model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpBenefitsSaveVM
 <style>
   
-    #leaveRequest-searchForm {
+    #payRollEmp-searchForm {
         position: relative;
     }
 
-    #leaveRequest-searchInput {
+    #payRollEmp-searchInput {
         padding-right: 2.25rem; /* Leave space for the icon inside */
         height: calc(1.5em + 0.75rem + 2px); /* Same as .form-select */
     }
@@ -59,7 +59,7 @@
                 <form asp-controller="" asp-action="Create" id="EmployeeBenefitsForm" class="row g-3 mb-2">
                     <div class="col-md-6">
 
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="organizerSingle">Company Name</label>
                                 <div class="form-check form-switch">
@@ -78,7 +78,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="timepicker1">Health Insurance</label>
                                 <div class="form-check form-switch">
@@ -90,19 +90,23 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="timepicker1">Performance Bonus</label>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" asp-for="IsPerformanceBonusEnabled">
                                 </div>
                             </div>
-                            <input class="form-control" type="text" placeholder="Ex: 10,000 tk Yearly" asp-for="PerformanceBonus">
+                            <select class="form-select mb-3 choiceDD" asp-for="PerformanceBonus" asp-items="@ViewBag.PercenatageDD as SelectList">
+                                <option value="">Select %</option>
+                 
+                            </select>
+                           @*  <input class="form-control" type="text" placeholder="Ex: 10,000 tk Yearly" asp-for="PerformanceBonus"> *@
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="timepicker1">Yearly End Bonus</label>
                                 <div class="form-check form-switch">
@@ -118,7 +122,7 @@
                     </div>
 
                     <div class="col-md-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                 <h5>Festival Bonus</h5>
                                 <div class="form-check form-switch">
@@ -129,24 +133,16 @@
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Festival Bonus Rate</label>
-                            <select class="form-select mb-3 choiceDD" asp-for="FastivalBonusRate">
+                            <select class="form-select mb-3 choiceDD" asp-for="FastivalBonusRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                                 <option value="">Select %</option>
-                                <option value="1">35 %</option>
-                                <option value="2">40 %</option>
-                                <option value="3">45 %</option>
-                                <option value="4">50 %</option>
-                                <option value="5">60 %</option>
-                                <option value="6">70 %</option>
-                                <option value="7">100 %</option>
-
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Bonus Depends on</label>
                             <select class="form-select choiceDD" asp-for="FastivalBonusOnSalaryTypeID" asp-items="@ViewBag.SalaryTypesDD as SelectList">
                                 <option value="">Select Salary Type</option>
@@ -154,9 +150,22 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="mb-1">
+                            <label class="form-label" for="timepicker1">Minimum Service Year</label>
+                            <select class="form-select choiceDD" asp-for="FastivalBonusMinimumServiceInMonth">
+                                <option value="">Select Year</option>
+                                <option value="05">05 Years</option>
+                                <option value="06">06 Years</option>
+                                <option value="07">07 Years</option>
+                                <option value="08">08 Years</option>
+                                <option value="09">09 Years</option>
 
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-lg-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
 
                             <div class="content-head d-flex justify-content-between  border-bottom">
                                 <h5>Providant Fund</h5>
@@ -170,40 +179,25 @@
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12 ">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Employee Contribution</label>
-                            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundEmployeeContrebution">
+                            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundEmployeeContrebution" asp-items="@ViewBag.PercenatageDD as SelectList">
                                 <option value="">Select %</option>
-                                <option value="5">5 %</option>
-                                <option value="6">6 %</option>
-                                <option value="7">7 %</option>
-                                <option value="8">8 %</option>
-                                <option value="9">9 %</option>
-
-
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12 ">
-                        <div class="mb-3">
-                            <label class="form-label" for="timepicker1">Organization Contrebution</label>
-                            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundOrganizationContrebution">
+                        <div class="mb-1">
+                            <label class="form-label" for="timepicker1">Organization Contribution</label>
+                            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundOrganizationContrebution" asp-items="@ViewBag.PercenatageDD as SelectList">
                                 <option value="">Select %</option>
-                                <option value="5">5 %</option>
-                                <option value="6">6 %</option>
-                                <option value="7">7 %</option>
-                                <option value="8">8 %</option>
-                                <option value="9">9 %</option>
-
-
-
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12 ">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Bonus Depends on</label>
                             <select class="form-select choiceDD" asp-for="ProvidentFundOnSalaryTypeID" asp-items="@ViewBag.SalaryTypesDD as SelectList">
                                 <option value="">Select Salary Type</option>
@@ -213,7 +207,7 @@
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Minimum Service Year</label>
                             <select class="form-select choiceDD" asp-for="ProvidentFundMinimumServiceYear">
                                 <option value="">Select Year</option>
@@ -244,125 +238,10 @@
 
     </div>
 
+
     <div class="card mt-2">
         <h4 class="mb-1 ms-4 mt-3">Employee Benefits</h4>
-        <div class="card-header d-flex align-items-center justify-content-between">
-            
-            
-            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-
-                <div class="col-12 col-sm-auto">
-                    <div class="d-flex align-items-center me-3" style="width: auto;">
-                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
-                        <div style="width: 100%;">
-                            <select id="leaveRequest-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
-                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
-                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
-                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
-                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="col-12 col-sm-auto">
-                <div class="d-flex align-items-center">
-
-                    <div class="dropdown me-3">
-                        <select class="form-select" id="organizerSingle1" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                            <option value="">Company Name</option>
-                            <option>GCTL</option>
-                            <option>CSL</option>
-                        </select>
-                    </div>
-                    <div class="d-none me-3" id="leaveRequest-bulkSelectActions">
-                        <div class="position-relative">
-                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="leaveRequest-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
-                        </div>
-                    </div>
-                    <div class="dropdown me-3" id="leaveRequest-searchBox">
-                        <form class="position-relative" id="leaveRequest-searchForm">
-                            <input class="form-control search-input" id="leaveRequest-searchInput" type="search"
-                                   placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
-                            <span class="fas fa-search search-box-icon"></span>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="border-translucent p-3">
-
-            <div class="table-responsive scrollbar mx-n1 px-1">
-                <table class="table table-bordered fs-9 leads-table " style="text-align:center;">
-                    <thead>
-                        <tr>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="companyName" rowspan="2">Company Name</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="helthInsurance" rowspan="2">Helth Insurance</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="providantFund" colspan="4">Providant Fund</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="FestivalBonus" colspan="2">Festival Bonus</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="performanceBonus" rowspan="2">Performance Bonus</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="yearEndBonus" rowspan="2">Year End Bonus</th>
-                            <th class="sort align-middle pe-0 ps-5" scope="col" rowspan="2">Action</th>
-                        </tr>
-                        <tr>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="">EC</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="">OC</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="">Time</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="">Salary of</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="">Rate</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="">Salary of</th>
-                        </tr>
-                    </thead>
-                    <tbody class="list" id="PayRollEmployeeBnefits-sellers-body">
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                                <span>GCTL</span>
-                            </td>
-                            <td class="helthInsurance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">500 tk</td>
-                            <td class="providantFundEC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">5 %</td>
-                            <td class="providantFundOC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">7 %</td>
-                            <td class="providantFundT align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">5 Years</td>
-                            <td class="providantFundS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Basic Salary</td>
-                            <td class="FestivalBonusR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">50 %</td>
-                            <td class="FestivalBonusS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Basic Salary</td>
-                            <td class="performanceBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">10 %</td>
-                            <td class="yearEndBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">1 Month of Basic Salary</td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_benefits">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-
-                                </div>
-                            </td>
-
-                        </tr>
-
-
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
-                <div class="d-flex">
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="leaveRequest-paginationInfo"></p>
-
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                </div>
-                <div class="d-flex">
-                    <button class="page-link" data-list-pagination="prev" id="leaveRequest-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
-                    <ul class="mb-0 pagination" id="leaveRequest-paginationLinks"></ul>
-                    <button class="page-link pe-0" data-list-pagination="next" id="leaveRequest-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
-                </div>
-            </div>
-
-        </div>
+        <partial name="_TableList" />
     </div>
 
 </div>
@@ -380,107 +259,121 @@
                         aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="add-shift-ui.html" class="row g-3 mb-4">
+                <form asp-controller="" asp-action="Create" id="EmployeeBenefitsForm" class="row g-3 mb-2">
                     <div class="col-md-6">
 
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="organizerSingle">Company Name</label>
                                 <div class="form-check form-switch">
                                 </div>
                             </div>
-                            <select class="form-multi-select" id="multiple-select-tag" multiple
-                                    data-coreui-selection-type="tags" data-coreui-search="true" asp-items="@ViewBag.OrganizationDD as SelectList">
-                                <option value="">Select Company</option>
-                                
+
+                            <select class="form-multi-select"
+                                    asp-for="OrganizationID"
+                                    asp-items="@ViewBag.OrganizationDD as SelectList"
+                                    multiple data-coreui-multiple="true"
+                                    data-coreui-selection-type="counter"
+                                    data-coreui-search="true"
+                                    data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
                             </select>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="timepicker1">Health Insurance</label>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"  id="flexSwitchCheckDefault">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsHealthInsuranceEnabled" value="false">
                                 </div>
                             </div>
-                            <input class="form-control" id="timepicker1" type="text" placeholder="Ex: 500 tk Per Month">
+                            <input class="form-control" asp-for="HealthInsurance" type="text" placeholder="Ex: 500 tk Per Month">
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="timepicker1">Performance Bonus</label>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"  id="flexSwitchCheckDefault">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsPerformanceBonusEnabled">
                                 </div>
                             </div>
-                            <input class="form-control" id="" type="text" placeholder="Ex: 10,000 tk Yearly">
+                            <select class="form-select mb-3 choiceDD" asp-for="PerformanceBonus" asp-items="@ViewBag.PercenatageDD as SelectList">
+                                <option value="">Select %</option>
+
+                            </select>
+                            @*  <input class="form-control" type="text" placeholder="Ex: 10,000 tk Yearly" asp-for="PerformanceBonus"> *@
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center">
                                 <label class="form-label" for="timepicker1">Yearly End Bonus</label>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"  id="flexSwitchCheckDefault">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsYearEndBonusEnabled" value="false">
+
                                 </div>
                             </div>
-                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                <option value="">Select one...</option>
-                                <option>1 Month of Gross Salary</option>
-                                <option>1 Month of Basic Salary</option>
+                            <select class="form-select choiceDD" asp-for="YearlyEndBonusTypeID" asp-items="@ViewBag.YearlyBonusTypeDD as SelectList">
+                                <option value="">Select one</option>
+
                             </select>
                         </div>
                     </div>
 
                     <div class="col-md-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                                 <h5>Festival Bonus</h5>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"  id="flexSwitchCheckDefault">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsFastivalBonusEnabled" value="false">
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Festival Bonus Rate</label>
-                            <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select mb-3 choiceDD" asp-for="FastivalBonusRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                                 <option value="">Select %</option>
-                                <option>35 %</option>
-                                <option>40 %</option>
-                                <option>45 %</option>
-                                <option>50 %</option>
-                                <option>60 %</option>
-                                <option>70 %</option>
-                                <option>100 %</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Bonus Depends on</label>
-                            <select class="form-select" id="organizerSingle" data-choices="data-choices" asp-items="@ViewBag.SalaryTypesDD as SelectList" data-options='{" removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select choiceDD" asp-for="FastivalBonusOnSalaryTypeID" asp-items="@ViewBag.SalaryTypesDD as SelectList">
                                 <option value="">Select Salary Type</option>
-                                
+
                             </select>
                         </div>
                     </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="mb-1">
+                            <label class="form-label" for="timepicker1">Minimum Service Year</label>
+                            <select class="form-select choiceDD" asp-for="FastivalBonusMinimumServiceInMonth">
+                                <option value="">Select Year</option>
+                                <option value="05">05 Years</option>
+                                <option value="06">06 Years</option>
+                                <option value="07">07 Years</option>
+                                <option value="08">08 Years</option>
+                                <option value="09">09 Years</option>
 
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-lg-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
 
                             <div class="content-head d-flex justify-content-between  border-bottom">
                                 <h5>Providant Fund</h5>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"  id="flexSwitchCheckDefault">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsProvidentFundEnabled" value="false">
                                 </div>
                             </div>
 
@@ -489,56 +382,44 @@
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12 ">
-                        <div class="mb-3">
-                            <label class="form-label" for="timepicker1">Employee Contrebution</label>
-                            <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <div class="mb-1">
+                            <label class="form-label" for="timepicker1">Employee Contribution</label>
+                            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundEmployeeContrebution" asp-items="@ViewBag.PercenatageDD as SelectList">
                                 <option value="">Select %</option>
-                                <option>5 %</option>
-                                <option>6 %</option>
-                                <option>7 %</option>
-                                <option>8 %</option>
-                                <option>9 %</option>
-                                <option>10 %</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12 ">
-                        <div class="mb-3">
-                            <label class="form-label" for="timepicker1">Organization Contrebution</label>
-                            <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <div class="mb-1">
+                            <label class="form-label" for="timepicker1">Organization Contribution</label>
+                            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundOrganizationContrebution" asp-items="@ViewBag.PercenatageDD as SelectList">
                                 <option value="">Select %</option>
-                                <option>5 %</option>
-                                <option>6 %</option>
-                                <option>7 %</option>
-                                <option>8 %</option>
-                                <option>9 %</option>
-                                <option>10 %</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12 ">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Bonus Depends on</label>
-                            <select class="form-select" id="organizerSingle" data-choices="data-choices" asp-items="@ViewBag.SalaryTypesDD as SelectList" data-options='{" removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select choiceDD" asp-for="ProvidentFundOnSalaryTypeID" asp-items="@ViewBag.SalaryTypesDD as SelectList">
                                 <option value="">Select Salary Type</option>
-                               
+
                             </select>
                         </div>
                     </div>
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label class="form-label" for="timepicker1">Minimum Service Year</label>
-                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                <option value="">Select Year...</option>
-                                <option>05 Years</option>
-                                <option>06 Years</option>
-                                <option>07 Years</option>
-                                <option>08 Years</option>
-                                <option>09 Years</option>
-                                <option>10 Years</option>
+                            <select class="form-select choiceDD" asp-for="ProvidentFundMinimumServiceYear">
+                                <option value="">Select Year</option>
+                                <option value="05">05 Years</option>
+                                <option value="06">06 Years</option>
+                                <option value="07">07 Years</option>
+                                <option value="08">08 Years</option>
+                                <option value="09">09 Years</option>
+
                             </select>
                         </div>
                     </div>
@@ -547,10 +428,10 @@
                     <div class="col-12">
                         <div class="row g-3 justify-content-end">
                             <div class="col-auto">
-                                <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                                <button class="btn btn-phoenix-primary px-5" type="button" id="ResetBtn">RESET</button>
                             </div>
                             <div class="col-auto">
-                                <button class="btn btn-primary px-5 px-sm-5">Save</button>
+                                <button class="btn btn-primary px-5 px-sm-5" type="button" id="PayRollEmpSave">Save</button>
                             </div>
                         </div>
                     </div>
@@ -569,3 +450,4 @@
     
 
 }
+

@@ -9,7 +9,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
     public class PayRollEmpBenefitsSaveVM:BaseViewModel
     {
        
-
+        public int EmployeeBenefitID { get; set; }
         public int? OrganizationID { get; set; }
 
         public bool IsHealthInsuranceEnabled { get; set; }
@@ -35,7 +35,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
         public int? ProvidentFundOnSalaryTypeID { get; set; }
 
         public decimal? ProvidentFundMinimumServiceYear { get; set; }
-
+        public decimal? FastivalBonusMinimumServiceInMonth { get; set; }
         public bool IsYearEndBonusEnabled { get; set; }
         public int? YearlyEndBonusTypeID { get; set; }
     }

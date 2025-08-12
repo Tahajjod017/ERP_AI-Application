@@ -12,14 +12,156 @@
             <div class="border-bottom mb-3 pb-3">
                 <h4>Localization</h4>
             </div>
+            <form id="localizationForm" asp-controller="LocalizationSettings" asp-action="Create" method="post">
+                <div class="mb-3">
+                    <div class="row">
+                        <!-- Organization Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="organization">Organization</label>
+                                <select class="form-select choiceDD" id="organization" name="OrganizationID">
+                                    <option value="1">CSL</option>
+                                    <option value="2">GCTL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Language Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="languageId">Language</label>
+                                <select class="form-select choiceDD" id="languageId" name="LanguageID">
+                                    <option >Select</option>
+                                    <option value="1">English</option>
+                                    <option value="2">Bangla</option>
+                                    <option value="3">French</option>
+                                    <option value="4">Spanish</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Timezone Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="timezoneId">Timezone</label>
+                                <select class="form-select choiceDD" id="timezoneId" name="TimezoneID">
+                                    <option>Select</option>
+                                    <option value="1">(UTC -12:00) Baker/Howland Island</option>
+                                    <option value="2">(UTC -11:00) American Samoa</option>
+                                    <option value="3">(UTC -10:00) Hawaii</option>
+                                    <option value="4">(UTC -09:00) Alaska</option>
+                                    <option value="5">(UTC -08:00) Pacific Time (US & Canada)</option>
+                                    <option value="6">(UTC -07:00) Mountain Time (US & Canada)</option>
+                                    <option value="7">(UTC -06:00) Central Time (US & Canada)</option>
+                                    <option value="8">(UTC -05:00) Eastern Time (US & Canada)</option>
+                                    <option value="9">(UTC -04:00) Atlantic Time (Canada)</option>
+                                    <option value="10">(UTC -03:00) Argentina, Brazil, Paraguay</option>
+                                    <option value="11">(UTC -02:00) South Georgia & the South Sandwich Islands</option>
+                                    <option value="12">(UTC -01:00) Azores, Cape Verde Islands</option>
+                                    <option value="13">(UTC +00:00) London, Dublin, Lisbon, Casablanca</option>
+                                    <option value="14">(UTC +01:00) Central European Time</option>
+                                    <option value="15">(UTC +02:00) Eastern European Time</option>
+                                    <option value="16">(UTC +03:00) Moscow, St. Petersburg, Volgograd</option>
+                                    <option value="17">(UTC +04:00) Samara Time</option>
+                                    <option value="18">(UTC +05:00) Pakistan Standard Time</option>
+                                    <option value="19">(UTC +05:30) India Standard Time</option>
+                                    <option value="20">(UTC +06:00) Bangladesh Standard Time (Dhaka)</option> <!-- Added Dhaka -->
+                                    <option value="21">(UTC +07:00) Indochina Time (Thailand, Vietnam, Cambodia)</option>
+                                    <option value="22">(UTC +08:00) China Standard Time</option>
+                                    <option value="23">(UTC +09:00) Japan Standard Time</option>
+                                    <option value="24">(UTC +10:00) Australian Eastern Standard Time</option>
+                                    <option value="25">(UTC +11:00) Solomon Islands Time</option>
+                                    <option value="26">(UTC +12:00) Fiji Time</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <!-- Date Format Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="dateFormatId">Date Format</label>
+                                <select class="form-select choiceDD" id="dateFormatId" name="DateFormatID">
+                                    <option>Select</option>
+                                    <option value="1">YYYY-MM-DD</option>
+                                    <option value="2">MM/DD/YYYY</option>
+                                    <option value="3">DD/MM/YYYY</option>
+                                    <option value="4">YYYY/MM/DD</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Time Format Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="timeFormatId">Time Format</label>
+                                <select class="form-select choiceDD" id="timeFormatId" name="TimeFormatID">
+                                    <option>Select</option>
+                                    <option value="1">12 Hours</option>
+                                    <option value="2">24 Hours</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Currency Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="currencyId">Currency</label>
+                                <select class="form-select choiceDD" id="currencyId" name="CurrencyID">
+                                    <option>Select</option>
+                                    <option value="1">USD</option>
+                                    <option value="2">EURO</option>
+                                    <option value="3">BDT</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Currency Symbol Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="currencySymbolId">Currency Symbol</label>
+                                <select class="form-select" id="currencySymbolId" name="CurrencySymbol">
+                                    <option>Select</option>
+                                    <option value="$">$</option>
+                                    <option value="€">€</option>
+                                    <option value="৳">৳</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <partial name="_localizationListTable" />
+</div>
+
+
+
+@* <div class="col-xl-12 mt-3">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="border-bottom mb-3 pb-3">
+                <h4>Localization</h4>
+            </div>
             <form >
                 <div class="mb-3">
                     <div class="row">
 
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerSingleCompany">Organization</label>
-                                <select class="form-select choiceDD">
+                                <label class="form-label" for="organizerSingleCompany" data-bs-toggle="tooltip" title="Select the organization this localization applies to.">
+                                    Organization
+                                </label>
+
+
+                                <select class="form-select choiceDD" id="organization">
                                     <option value="1">CSL</option>
                                     <option value="2">GCTL</option>
                                 </select>
@@ -28,10 +170,14 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Language</label>
-                                <select class="form-select choiceDD" aria-label="Default select example">
+                                <label class="form-label" for="Language" data-bs-toggle="tooltip" title="Choose the preferred language for the system interface.">
+                                    Language
+                                </label>
+
+                                <select class="form-select choiceDD" id="languageId" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>English</option>
+                                    <option>Bangla</option>
                                     <option>French</option>
                                     <option>Spanish</option>
                                 </select>
@@ -40,8 +186,11 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Timezone</label>
-                                <select class="form-select choiceDD" aria-label="Default select example">
+                                <label class="form-label" for="Timezone" data-bs-toggle="tooltip" title="Set the timezone for accurate time tracking and scheduling.">
+                                    Timezone
+                                </label>
+
+                                <select class="form-select choiceDD" id="timezoneId" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>(UTC +5:30)</option>
                                     <option>(UTC+11:00) INR</option>
@@ -51,8 +200,11 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Date Format</label>
-                                <select class="form-select choiceDD" aria-label="Default select example">
+                                <label class="form-label" for="DateFormat" data-bs-toggle="tooltip" title="Select how dates should be displayed across the system.">
+                                    Date Format
+                                </label>
+
+                                <select class="form-select choiceDD" id="DateFormatId" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>YYYY-MM-DD</option>
                                     <option>MM/DD/YYYY</option>
@@ -64,8 +216,10 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Time Format</label>
-                                <select class="form-select choiceDD" aria-label="Default select example">
+                                <label class="form-label" for="TimeFormat" data-bs-toggle="tooltip" title="Choose between 12-hour or 24-hour time display.">
+                                    Time Format
+                                </label>
+                                <select class="form-select choiceDD" id="TimeFormatId" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>12 Hours</option>
                                     <option>24 Hours</option>
@@ -75,8 +229,11 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Currency</label>
-                                <select class="form-select choiceDD" aria-label="Default select example">
+                                <label class="form-label" for="Currency" data-bs-toggle="tooltip" title="Select the currency used for financial transactions.">
+                                    Currency
+                                </label>
+
+                                <select class="form-select choiceDD" id="CurrencyId" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>USD</option>
                                     <option>EURO</option>
@@ -87,8 +244,10 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Currency Symbol</label>
-                                <select class="form-select choiceDD" aria-label="Default select example">
+                                <label class="form-label" for="CurrencySymbol" data-bs-toggle="tooltip" title="Pick the symbol that represents your selected currency.">
+                                    Currency Symbol
+                                </label>
+                                <select class="form-select" id="currencySymbolId" aria-label="Default select example">
                                     <option>Select</option>
                                     <option>$</option>
                                     <option>€</option>
@@ -109,7 +268,7 @@
         </div>
     </div>
     <partial name="_localizationListTable" />
-</div>
+</div> *@
 
 @section Scripts {
     <script src="~/js/pages/adminsettings/generalsettings/localizationsettings.js"></script>

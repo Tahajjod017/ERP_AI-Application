@@ -571,7 +571,9 @@ public partial class Employees
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryUpdatedByNavigation { get; set; } = new List<ResignationsApprovalHistory>();
 
+
     public virtual ICollection<Resignations> ResignationsApprovalPerson { get; set; } = new List<Resignations>();
+
 
     public virtual ICollection<Resignations> ResignationsCreatedByNavigation { get; set; } = new List<Resignations>();
 

@@ -37,6 +37,7 @@ public partial class Resignations
 
     public int? ApprovalStep { get; set; }
 
+
     public int? StatusID { get; set; }
 
     public int? EmployeeActionTypeID { get; set; }
@@ -49,19 +50,24 @@ public partial class Resignations
 
     public virtual Employees ApprovalPerson { get; set; }
 
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
 
+
     public virtual EmployeeActionTypes EmployeeActionType { get; set; }
+
 
     public virtual Organization Organization { get; set; }
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
 
+
     public virtual Statuses Status { get; set; }
+
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

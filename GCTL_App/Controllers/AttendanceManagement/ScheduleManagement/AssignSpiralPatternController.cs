@@ -77,6 +77,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetByIdAsync
+        [Route("AssignSpiralPattern/GetByIdAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _assignSpiralPatternService.GetByIdAsync(id);
+                return Json(result);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
         #region GetDepartmentByOrganization
         [HttpGet]
         public async Task<IActionResult> GetDepartmentByOrganization(int? id)
