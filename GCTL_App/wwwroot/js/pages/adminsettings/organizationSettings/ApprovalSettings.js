@@ -230,7 +230,7 @@ $(document).ready(function () {
     });
 });
 
-function choicDp() {
+function theChoicDp() {
     $.ajax({
         url: '/ApprovalSettings/GetChoiceOrgnization', // Adjust this URL if needed
         type: 'GET',
