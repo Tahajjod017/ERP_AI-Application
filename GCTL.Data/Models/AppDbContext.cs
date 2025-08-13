@@ -504,11 +504,11 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ApprovalTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
-        });
+        }); 
 
-
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+        modelBuilder.Entity<ApplicationUser>()
+        .HasDiscriminator<string>("Discriminator")
+        .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
