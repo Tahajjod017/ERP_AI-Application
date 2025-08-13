@@ -77,6 +77,8 @@ public partial class Organization
 
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
+
     public virtual ICollection<EmployeeBenefits> EmployeeBenefits { get; set; } = new List<EmployeeBenefits>();
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
@@ -101,8 +103,6 @@ public partial class Organization
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
 
-    public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
-
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
@@ -124,8 +124,6 @@ public partial class Organization
     public virtual TenantInfo TenantInfo { get; set; }
 
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
-
-    public virtual ICollection<Terminations> Terminations { get; set; } = new List<Terminations>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 
