@@ -77,6 +77,10 @@ public partial class Organization
 
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
+
+    public virtual ICollection<EmployeeBenefits> EmployeeBenefits { get; set; } = new List<EmployeeBenefits>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromOrganization { get; set; } = new List<EmployeeTransfer>();
@@ -91,11 +95,15 @@ public partial class Organization
 
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
 
+    public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
+
     public virtual ICollection<OTPSettings> OTPSettings { get; set; } = new List<OTPSettings>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
+
+    public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
 
@@ -109,9 +117,13 @@ public partial class Organization
 
     public virtual ICollection<SpiralMonthlyPattern> SpiralMonthlyPattern { get; set; } = new List<SpiralMonthlyPattern>();
 
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignList { get; set; } = new List<SpiralPatternAssignList>();
+
     public virtual ICollection<SpiralWeeklyPattern> SpiralWeeklyPattern { get; set; } = new List<SpiralWeeklyPattern>();
 
     public virtual TenantInfo TenantInfo { get; set; }
+
+    public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 

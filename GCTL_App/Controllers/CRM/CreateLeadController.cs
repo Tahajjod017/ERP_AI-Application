@@ -20,13 +20,14 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Services> _serviceTypeRepository;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesTypeRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeTypeRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly ILeadCreateService _leadCreateService;
         private readonly IGenericRepository<IndividualAddresses> _individualAddressesRepository;
         private readonly AppDbContext _context;
 
         #endregion
-        public CreateLeadController(AppDbContext context,ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
+        public CreateLeadController(AppDbContext context,ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -34,6 +35,7 @@ namespace GCTL_App.Controllers.CRM
             _customersRepository = customersRepository;
             _leadCreateService = leadCreateService;
             _individualAddressesRepository = individualAddressesRepository;
+            _employeeTypeRepository = employeeTypeRepository;
             _context = context;
         }
 
@@ -44,6 +46,7 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadStatusDD = new SelectList(_leadStatusesTypeRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.EmployeeDD = new SelectList(_employeeTypeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
 
             return View();
@@ -77,6 +80,8 @@ namespace GCTL_App.Controllers.CRM
                                      where add.IndividualAddressID == id
                                      select new
                                      {
+                                         add.IndividualAddressID,
+                                         add.AddressType.AddressTypeName,
                                          ind.FirstName,
                                          ind.LastName,
                                          address.FullAddress,
@@ -101,6 +106,7 @@ namespace GCTL_App.Controllers.CRM
                                      where add.AddressType.AddressTypeName == "shipping" && add.IndividualID == individualId
                                      select new
                                      {
+                                         add.IndividualAddressID,
                                          address.FullAddress,
                                          address.Street,
                                          address.City,
@@ -129,11 +135,11 @@ namespace GCTL_App.Controllers.CRM
             {
                 if (customerVM.Customers[0].PrimaryID == 0)
                 {
-                    var result = await _leadCreateService.SaveLead(customerVM);
+                    var result = await _leadCreateService.CreateLead(customerVM);
                     
 
 
-                    return Json(new { success = true, message = "Saved successfully" });
+                    return Json(new { success = true, message = "Saved successfully", result= result });
                 } else
                 {
                     var result = await _leadCreateService.UpdateLead(customerVM);

@@ -149,13 +149,13 @@
 <div class="container p-0 d-flex flex-column align-items-center">
 
     <div class="row col-md-12 mb-2">
-        <nav class="mb-3 alig " aria-label="breadcrumb">
+        @* <nav class="mb-3 alig " aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="#!">Page 1</a></li>
                 <li class="breadcrumb-item"><a href="#!">Page 2</a></li>
                 <li class="breadcrumb-item active">Default</li>
             </ol>
-        </nav>
+        </nav> *@
         <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead")</h3>
         <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html">
             <div class="modal-body pb-2">
@@ -210,13 +210,8 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
-                            <select class="form-select" id="organizerSingle2">
-                                <option value="">@Html.SmartLocalize("Select Lead Owner")</option>
-                                <option>Juel Rana</option>
-                                <option>Hasan</option>
-                                <option>Juzayer</option>
-                                <option>Robiul</option>
-                                <option>Karim</option>
+                            <select class="form-select choiceDD" id="organizerSingle2" asp-items="@ViewBag.EmployeeDD as SelectList">
+                                <option disabled selected>@Html.SmartLocalize("Select Lead Owner")</option>
                             </select>
                         </div>
                     </div>
@@ -254,7 +249,7 @@
                 <div class="col-md-6 col-sm-12">
                     <div class="row">
                         <div>
-                            <input type="number" id="personID" name="name" hidden />
+                            <input type="number" id="personIndexIA_ID" hidden>
                             <input type="text" name="name" value="" id="countryCodePersonIndex" hidden />
                         </div>
                         <div class="col-md-12">
@@ -384,7 +379,7 @@
                 <!-- Left Section -->
                 <div class="col-md-6">
                     <div>
-                        <input type="number" id="shipingIDIndex" name="name" hidden />
+                        <input type="number" id="shippingIndexIA_ID" name="name" hidden />
                         <input type="text" name="name" value="" id="countryCodeShipingIndex" hidden />
                     </div>
                     <div class="col-md-12">

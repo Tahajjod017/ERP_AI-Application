@@ -64,18 +64,25 @@ $(document).ready(function () {
 
 
 
-    $.ajax({
-        url: '/CreateLead/GetCustomerList',
-        method: 'GET',
-        success: function (data) {
-            customers = data;
-            console.log(customers);
-        },
-        error: function (e) {
-            alert('Failed to load Contact Name' + e.text);
-        }
-    });
+    function getCustomerList() {
+        $.ajax({
+            url: '/CreateLead/GetCustomerList',
+            method: 'GET',
+            success: function (data) {
+                customers = data;
+                console.log(customers);
+            },
+            error: function (e) {
+                alert('Failed to load Contact Name' + e.text);
+            }
+        });
 
+    }
+
+    // run getCustomerList funciton intialization
+    getCustomerList();
+
+    // getCustomerInformation while click on any customer item
     function getCustomerInfo(customerId) {
         console.log(`customerId: ${customerId}`);
         $.ajax({
@@ -85,6 +92,12 @@ $(document).ready(function () {
             data: JSON.stringify(customerId),
             success: function (response) {
                 console.log(response);
+                debugger;
+                $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
+                $('#customerID').val(response.customer.individualAddressID);
+                $('#customerType').val(response.customer.addressTypeName);
+
+                document.getElementById("personIndexIA_ID").value = response.customer.individualAddressID;
                 document.getElementById("firstNamePersonIndex").value = response.customer.firstName;
                 document.getElementById("lastNamePersonIndex").value = response.customer.lastName;
                 document.getElementById("autocompletePersonIndex").value = response.customer.fullAddress;
@@ -104,6 +117,7 @@ $(document).ready(function () {
 
                 // shipping
                 if (response.shipping.firstName) {
+                    document.getElementById("shippingIndexIA_ID").value = response.shipping.individualAddressID;
                     document.getElementById("firstNameShippingIndex").value = response.shipping.firstName;
                     document.getElementById("lastNameShippingIndex").value = response.shipping.lastName;
                     document.getElementById("autocompleteShippingIndex").value = response.shipping.fullAddress;
@@ -284,8 +298,8 @@ $(document).ready(function () {
     const idMap = {
         company: {
             primaryID: 'personID',
-            firstName: 'firstNamePerson',
-            lastName: 'lastNamePerson',
+            firstName: 'firstNameCompnay',
+            lastName: 'lastNameCompany',
 
             autocomplete: 'autocompleteCompany',
             street: 'streetCompany',
@@ -322,7 +336,7 @@ $(document).ready(function () {
         shipping: {
             primaryID: 'shipingID',
             firstName: 'firstNameShiping',
-            lastName: 'lastNamePerson',
+            lastName: 'lastNameShipping',
             autocomplete: 'autocompleteShiping', // full address
             street: 'streetShiping',
             city: 'cityShiping',
@@ -342,7 +356,7 @@ $(document).ready(function () {
 
     const idMapIndex = {
         company: {
-            primaryID: 'customerName-item',
+            primaryID: 'companyID',
             firstName: 'firstNamePerson',
             lastName: 'lastNamePerson',
 
@@ -362,7 +376,7 @@ $(document).ready(function () {
         },
         // index person
         person: {
-            primaryID: 'customerID',
+            primaryID: 'personIndexIA_ID',
             primaryType: 'customerType',
             firstName: 'firstNamePersonIndex',
             lastName: 'lastNamePersonIndex',
@@ -381,7 +395,7 @@ $(document).ready(function () {
             email: 'emailPersonIndex',
         },
         shipping: {
-            primaryID: 'shipingID',
+            primaryID: 'shippingIndexIA_ID',
             firstName: 'firstNameShippingIndex',
             lastName: 'lastNameShippingIndex',
             autocomplete: 'autocompleteShippingIndex', // full address
@@ -492,6 +506,7 @@ $(document).ready(function () {
 
     // save data
     $("#modalSaveBtn").on("click", function (e) {
+        debugger;
         e.preventDefault();
         const actionTab =
             (targetTab === "person" || targetTab === "shipping") ? ["person", "shipping"] : ["company"];
@@ -530,10 +545,13 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(dataToSend),
             success: function (response) {
+                debugger;
                 console.log(response);
                 if (response.success) {
                     $('#addCustomerModal').modal('hide');
                     toastr.success(response.message);
+                    getCustomerList();
+                    getCustomerInfo(response.result.data);
                 }
             },
             error: function (xhr) {
@@ -546,7 +564,8 @@ $(document).ready(function () {
     $("#indexSaveBtn").on("click", function (e) {
         e.preventDefault();
         debugger;
-        console.log(document.getElementById("customerID").value);
+        console.log(document.getElementById("personIndexIA_ID").value);
+        console.log(document.getElementById("shippingIndexIA_ID").value);
         customerType = document.getElementById("customerType").value;
         const actionTab =
             (customerType === "billing" ) ? ["person", "shipping"] : ["company"];
@@ -556,7 +575,7 @@ $(document).ready(function () {
             const ids = idMapIndex[item] || {}; $(".customerName-item").data("id")
             data.push({
                 TabName: item,
-                PrimaryID: document.getElementById("customerID").value,
+                PrimaryID: document.getElementById(ids.primaryID).value,
                 FirstName: document.getElementById(ids.firstName).value,
                 LastName: document.getElementById(ids.lastName).value,
                 FullAddress: document.getElementById(ids.autocomplete).value,

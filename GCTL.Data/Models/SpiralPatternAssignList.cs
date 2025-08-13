@@ -5,11 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeActionTypes
+public partial class SpiralPatternAssignList
 {
-    public int EmployeeActionTypeID { get; set; }
+    public int SpiralPatternAssignListID { get; set; }
 
-    public string EmployeeActionTypeName { get; set; }
+    public int? OrganizationID { get; set; }
+
+    public int? EmployeeID { get; set; }
+
+    public int? SpiralPatternTypeID { get; set; }
+
+    public int? SpiralPatternID { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,13 +37,19 @@ public partial class EmployeeActionTypes
 
     public int? DeletedBy { get; set; }
 
+    public int? DepartmentID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
+    public virtual Departments Department { get; set; }
 
-    public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
+    public virtual Employees Employee { get; set; }
+
+    public virtual Organization Organization { get; set; }
+
+    public virtual SpiralPatternTypes SpiralPatternType { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

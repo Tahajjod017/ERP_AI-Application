@@ -256,14 +256,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[LeadSources]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[LeadStatuses]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[LeaveApplications]",
          "ObjectType": 0
       },
@@ -400,6 +392,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[SpiralPatternAssignList]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[SpiralPatternTypes]",
          "ObjectType": 0
       },
@@ -437,6 +433,70 @@
       },
       {
          "Name": "[dbo].[YearlyEndBonusTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[Resignations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[ResignationsApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[Terminations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[Leads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadSources]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowances]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[SalaryTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[DateFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Localizations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Percentages]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[TimeFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Timezones]",
          "ObjectType": 0
       }
    ],

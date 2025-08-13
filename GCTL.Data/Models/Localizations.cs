@@ -5,11 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeActionTypes
+public partial class Localizations
 {
-    public int EmployeeActionTypeID { get; set; }
+    public int LocalizationID { get; set; }
 
-    public string EmployeeActionTypeName { get; set; }
+    public int? OrganizationID { get; set; }
+
+    public int? LanguageID { get; set; }
+
+    public int? TimezoneID { get; set; }
+
+    public int? DateFormatID { get; set; }
+
+    public int? TimeFormatID { get; set; }
+
+    public int? CurrencyID { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,11 +39,19 @@ public partial class EmployeeActionTypes
 
     public virtual Employees CreatedByNavigation { get; set; }
 
+    public virtual Currencies Currency { get; set; }
+
+    public virtual DateFormats DateFormat { get; set; }
+
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
+    public virtual LanguageLists Language { get; set; }
 
-    public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
+    public virtual Organization Organization { get; set; }
+
+    public virtual TimeFormats TimeFormat { get; set; }
+
+    public virtual Timezones Timezone { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

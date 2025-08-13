@@ -37,5 +37,7 @@ public partial class Currencies
 
     public virtual ICollection<EmployeeSalarySettings> EmployeeSalarySettings { get; set; } = new List<EmployeeSalarySettings>();
 
+    public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

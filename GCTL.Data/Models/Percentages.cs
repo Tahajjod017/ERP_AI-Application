@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeActionTypes
+public partial class Percentages
 {
-    public int EmployeeActionTypeID { get; set; }
+    public int PercentageID { get; set; }
 
-    public string EmployeeActionTypeName { get; set; }
+    public decimal? PercentageValue { get; set; }
 
     public string LIP { get; set; }
 
@@ -30,10 +30,6 @@ public partial class EmployeeActionTypes
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
-
-    public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
