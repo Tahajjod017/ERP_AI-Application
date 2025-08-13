@@ -9,29 +9,29 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" asp-for="ShiftName">@Html.SmartLocalize("Shift Name")</label>
+                            <label class="form-label" asp-for="ShiftName">@Html.SmartLocalize("Shift Name")<span style="color:red;">&nbsp;*</span></label>
                             <input class="form-control" asp-for="ShiftName" type="text" placeholder="@Html.SmartLocalize("Enter Name")" />
                         </div>
-                        <span asp-validation-for="ShiftName" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
+                        <span id="ShiftNameError" class="text-danger" style="display:none;"></span>
                     </div>
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Company Name")</label>
-                            @* <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" 
+                            <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+                            <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" 
                                 multiple data-coreui-selection-type="counter"
                                 data-coreui-search="true"
-                                data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
-                            </select> *@
-                            <select class="form-multi-select coreUiDD"
+                                data-coreui-placeholder="@Html.SmartLocalize("Select Organization")...">
+                            </select>
+                            @* <select class="form-multi-select coreUiDD"
                                     id="OrganizationIDs"
                                     multiple
                                     data-coreui-selection-type="counter"
                                     data-coreui-search="true"
-                                    data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
-                            </select>
+                                    data-coreui-placeholder="@Html.SmartLocalize("Select Organization")...">
+                            </select> *@
                         </div>
+                        <span id="OrganizationIDsError" class="text-danger" style="display:none;"></span>
                     </div>
 
                     <div class="col-md-6">

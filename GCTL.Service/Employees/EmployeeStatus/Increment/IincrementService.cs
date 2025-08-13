@@ -10,6 +10,13 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
 {
     public interface IincrementService
     {
-        Task<CommonReturnViewModel> SaveSalaryChange(SalaryChangeViewModel model);
+       // Task<CommonReturnViewModel> SaveSalaryChange(SalaryChangeViewModel model);
+
+        Task<CommonReturnViewModel> SaveAsync(SalaryChangeViewModel model);
+        Task<List<IncrementApproveViewModel>> GetAllIncrementPendingList();
+        Task<object> GetFilteredIncrementsAsync(IncrementFilterModel filter, string imgLink, int? loggedID);
+        Task<object> GetFilteredApprovedIncrementsAsync(IncrementFilterModel filter, string imgLink, int? loggedID);
+        Task<IncrementApproveViewModel> GetPendingIncrementDetailsByID(int id);
+        Task<CommonReturnViewModel> ApproveIncrementAsync(IncrementActionModel action);
     }
 }

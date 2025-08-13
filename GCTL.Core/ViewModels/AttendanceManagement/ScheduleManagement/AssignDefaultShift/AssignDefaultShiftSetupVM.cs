@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +10,14 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDef
     public class AssignDefaultShiftSetupVM : BaseViewModel
     {
         public int DefaultShiftID { get; set; }
+                
+        [Required(ErrorMessage = "Organization is required!")]
+        public int? OrganizationID { get; set; }
 
+        [Required(ErrorMessage = "Shift is required!")]
         public int? ShiftID { get; set; }
 
         public string? ShiftName { get; set; }
-
-        public int? OrganizationID { get; set; }
 
         //public List<int>? OrganizationIDs { get; set; }
 

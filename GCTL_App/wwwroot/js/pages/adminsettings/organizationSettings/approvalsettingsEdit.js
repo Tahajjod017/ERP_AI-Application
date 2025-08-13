@@ -185,7 +185,7 @@ $(document).ready(function () {
                     $('#edit_approval_setting').modal('hide');  // Close the modal
                     loadTableData();  // Reload the table data if needed
                     populateOptions();  // Re-populate any necessary dropdowns or options
-                    choicDp();  // Update any custom dropdown or options
+                    theChoicDp();  // Update any custom dropdown or options
                 } else {
                     toastr.error(response.message, 'Error');
                 }

@@ -344,11 +344,34 @@ $(document).on('click', '.page-btn', function () {
 });
 
 
+$('.column-toggle').on('change', function () {
+    var column = $(this).data('column');
+    var isChecked = $(this).prop('checked');
 
+    if (isChecked) {
+        showColumn(column);
+    } else {
+        hideColumn(column);
+    }
+});
+
+// Show the column
+function showColumn(column) {
+    $("th[data-sort='" + column + "']").removeClass('d-none');
+    $("td[data-column='" + column + "']").removeClass('d-none');
+}
+
+// Hide the column
+function hideColumn(column) {
+    $("th[data-sort='" + column + "']").addClass('d-none');
+    $("td[data-column='" + column + "']").addClass('d-none');
+}
 
 let map;
 let marker;
 let autocomplete;
+let namCompany = '';
+
 
 // Initialize the map with a default location
 function initMap() {
@@ -379,6 +402,7 @@ function initMap() {
 
     // Listen for place selection and update fields
     autocomplete.addListener('place_changed', function () {
+        debugger
         const place = autocomplete.getPlace();
 
         if (!place.geometry) {
@@ -395,6 +419,8 @@ function initMap() {
 
         // Fill in the address fields based on selected place
         updateAddressFields(place);
+
+        namCompany = place.name;
     });
 
     // Listen for changes in Latitude and Longitude input fields
@@ -435,9 +461,10 @@ function updateAddressFields(place) {
     let city = '';
     let street = '';
     let postalCode = '';
-
+    
     // Loop through the address components
     for (let i = 0; i < place.address_components.length; i++) {
+       
         const component = place.address_components[i];
         console.log(component)
         if (component.types.includes("street_number")) {

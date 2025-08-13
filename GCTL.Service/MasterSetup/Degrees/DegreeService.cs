@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers.Jsonserialize;
 
 namespace GCTL.Service.MasterSetup.Degrees
 {
@@ -82,16 +83,19 @@ namespace GCTL.Service.MasterSetup.Degrees
         public async Task<bool> UpdateAsync(DegreeVM model)
         {
             await _degreeRepository.BeginTransactionAsync();
+
             try
             {
+                //var jsonSettings = new JsonSerializerSettings
+                //{
+                //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                //};
                 var entity = await _degreeRepository.GetByIdAsync(model.DegreeID);
                 if (entity == null)
                 {
                     return false;
                 }
-
-                var beforeEntity = JsonConvert.DeserializeObject<DegreeVM>(JsonConvert.SerializeObject(entity));
-
+                var beforeEntity = JsonConvert.DeserializeObject<DegreeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.DegreeName = model.DegreeName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -100,7 +104,7 @@ namespace GCTL.Service.MasterSetup.Degrees
 
                 await _degreeRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<DegreeVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<DegreeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Degree", ActionName.DataUpdated, beforeEntity, afterEntity, entity.DegreeID, model);
 
                 await _degreeRepository.CommitTransactionAsync();

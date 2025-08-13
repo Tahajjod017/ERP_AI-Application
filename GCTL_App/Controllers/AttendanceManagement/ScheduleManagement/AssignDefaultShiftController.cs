@@ -48,18 +48,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    if (model.OrganizationID == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Please choose a Company!" });
-                    }
-                    
-                    if(model.ShiftID == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Please choose a shift!" });
-                    }
-
-                    //var hasData = 
-
                     //// userInfoService.SetUserInfo(model, User, HttpContext);
                     //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
                     //if (!uniqueName)
@@ -70,8 +58,17 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                     await _assignDefaultShiftService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
                 }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                var orderedKeys = new[] { "OrganizationID", "ShiftID" };
 
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)

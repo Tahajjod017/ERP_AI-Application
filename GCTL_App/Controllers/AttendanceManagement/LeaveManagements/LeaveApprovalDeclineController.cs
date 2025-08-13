@@ -71,7 +71,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         }
         #endregion 
 
-        #region Get All Data List above below Data
+        #region Get All Data List  below Data
 
         [Route("LeaveApprovalDeclineRoute/GetAllTableBelowAsync")]
 

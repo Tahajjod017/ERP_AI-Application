@@ -18,12 +18,31 @@ function loadNotifications() {
 
                 const container = $('#notificationContainer');
                 container.empty(); // Clear any existing notifications
+
+                // ===== COUNT UNREAD NOTIFICATIONS =====
+                const unreadCount = response.data.filter(n => n.isChecked === false).length;
+
+                // Show or hide the badge
+                let $bellBadge = $("#notificationBadge");
+                if ($bellBadge.length === 0) {
+                    // Create badge if not exists
+                    $(".nav-link[aria-labelledby='navbarDropdownNotfication']").append(
+                        `<span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle"></span>`
+                    );
+                    $bellBadge = $("#notificationBadge");
+                }
+                if (unreadCount > 0) {
+                    $bellBadge.text(unreadCount).show();
+                } else {
+                    $bellBadge.hide();
+                }
+
                 response.data.forEach(notification => {
                     const cardHtml = `
                         <div class="px-2 px-sm-3 py-3 notification-card position-relative ${notification.isChecked ? 'read' : 'unread'} border-bottom">
                             <div class="d-flex align-items-center justify-content-between position-relative">
                                 <div class="d-flex">
-                                    <div class="avatar avatar-m status-online me-3">
+                                    <div class="avatar avatar-m me-3">
                                         ${notification.employeeImage
                             ? `<img class="rounded-circle" src="${notification.employeeImage}" alt="" />`
                             : `<div class="avatar-name rounded-circle"><span>${notification.employeeName?.charAt(0) || '?'}</span></div>`}
@@ -31,7 +50,8 @@ function loadNotifications() {
                                     <div class="flex-1 me-sm-3">
                                         <h4 class="fs-9 text-body-emphasis">${notification.employeeName || 'Unknown'}</h4>
                                         <p class="fs-9 text-body-highlight mb-2 mb-sm-3 fw-normal">
-                                            <span class='me-1 fs-10'>🔔</span>New notification
+                                             <span class='me-1 fs-10'><b>Title</b></span>${notification.alertTitle}<br/>
+                                            <span class='me-1 fs-10'><b>Note</b></span>${notification.alertNote}
                                             <span class="ms-2 text-body-quaternary text-opacity-75 fw-bold fs-10">
                                                 ${notification.createdAt ? moment(notification.createdAt).fromNow() : ''}
                                             </span>
@@ -45,11 +65,16 @@ function loadNotifications() {
                                 </div>
                                 <div class="dropdown notification-dropdown">
                                     <button class="btn fs-10 btn-sm dropdown-toggle dropdown-caret-none transition-none" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-                                        <span class="fas fa-ellipsis-h fs-10 text-body"></span>
+                                        <i style="font-size:18px" class="fa">&#xf141;</i>
                                     </button>
-                                    <div class="dropdown-menu py-2">
-                                        <a class="dropdown-item" href="#!">Mark as unread</a>
-                                    </div>
+                                       <div class="dropdown-menu dropdown-menu-end py-2">
+        <!-- Only show if not already marked as checked -->
+        ${notification.isChecked === false ? `
+            <a data-id="${notification.alertForEmployeeID}" class="dropdown-item isCheckedBtn" href="#!">Mark as Read</a>
+        ` : `
+            <span class="dropdown-item text-muted">Already Read</span>
+        `}
+    </div>
                                 </div>
                             </div>
                         </div>

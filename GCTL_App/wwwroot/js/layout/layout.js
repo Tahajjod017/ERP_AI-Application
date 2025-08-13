@@ -1,4 +1,6 @@
-﻿var phoenixIsRTL = window.config.config.phoenixIsRTL;
+﻿
+
+var phoenixIsRTL = window.config.config.phoenixIsRTL;
 if (phoenixIsRTL) {
     var linkDefault = document.getElementById('style-default');
     var userLinkDefault = document.getElementById('user-style-default');
@@ -180,3 +182,164 @@ function validateField(fieldId, response) {
 // #endregion
 
 //
+
+//#region Dev messgae
+
+const dev = true;
+
+function showDev(message, headerText = 'console') {
+    if (!dev) return;
+
+    let container = document.getElementById("custom-toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "custom-toast-container";
+        document.body.appendChild(container);
+
+        Object.assign(container.style, {
+            position: "fixed",
+            bottom: "20px",
+            left: "20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            zIndex: "9999",
+        });
+    }
+
+    const toast = document.createElement("div");
+
+    Object.assign(toast.style, {
+        background: "#333",
+        color: "#fff",
+        borderRadius: "5px",
+        fontSize: "14px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+        opacity: "0",
+        transform: "translateY(20px)",
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+        maxWidth: "300px",
+       // minWidth: "300px",
+        pointerEvents: "auto",
+        overflow: "hidden",
+        maxHeight: "450px",
+        display: "flex",
+        flexDirection: "column",
+    });
+
+    // Header with Copy button
+    const header = document.createElement("div");
+    Object.assign(header.style, {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        background: "#444",
+        padding: "3px 3px",
+        borderTopLeftRadius: "5px",
+        borderTopRightRadius: "5px",
+    });
+
+    // Console-style text
+    const consoleText = document.createElement("span");
+    consoleText.textContent = headerText;
+    Object.assign(consoleText.style, {
+        fontSize: "14px",
+        whiteSpace: "nowrap",
+    });
+
+
+
+    const copyBtn = document.createElement("button");
+    copyBtn.textContent = "Copy";
+    Object.assign(copyBtn.style, {
+        background: "#666",
+        color: "#fff",
+        border: "none",
+        padding: "2px 6px",
+        fontSize: "12px",
+        borderRadius: "3px",
+        cursor: "pointer",
+    });
+
+    header.appendChild(consoleText);
+    header.appendChild(copyBtn);
+    toast.appendChild(header);
+
+    // Message body
+    const body = document.createElement("div");
+    Object.assign(body.style, {
+        padding: "10px 15px",
+        overflowY: "auto",
+        fontFamily: "monospace",
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-word",
+    });
+
+    let rawText;
+    if (typeof message === "object") {
+        rawText = JSON.stringify(message, null, 2);
+        body.textContent = rawText;
+    } else {
+        rawText = message;
+        body.textContent = message;
+    }
+
+    copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(rawText).then(() => {
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => (copyBtn.textContent = "Copy"), 1000);
+        });
+    });
+
+    toast.appendChild(body);
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+    });
+
+    let hideTimeout;
+    let isHovered = false;
+
+    const scheduleRemoval = () => {
+        hideTimeout = setTimeout(() => {
+            if (!isHovered) {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(20px)";
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    };
+
+    toast.addEventListener("mouseenter", () => {
+        isHovered = true;
+        clearTimeout(hideTimeout);
+    });
+
+    toast.addEventListener("mouseleave", () => {
+        isHovered = false;
+        scheduleRemoval();
+    });
+
+    scheduleRemoval();
+}
+
+
+//#endregion
+
+//#region HideModal
+
+function hideModal(id) {
+    const modalEl = document.getElementById(id);
+    if (!modalEl) return;
+
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+
+    modalInstance.hide();
+}
+
+//#endregion

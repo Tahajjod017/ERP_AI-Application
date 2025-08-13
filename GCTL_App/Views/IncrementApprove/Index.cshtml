@@ -1,6 +1,428 @@
 ﻿
-    <!-- Breadcrumb -->
-    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+
+<!-- Breadcrumb -->
+<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="my-auto mb-2">
+        <h2 class="mb-1">@Html.SmartLocalize("Increment Approval")</h2>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="index.html"><i class="ti ti-smart-home"></i></a>
+                </li>
+                <li class="breadcrumb-item">@Html.SmartLocalize("Employee")</li>
+                <li class="breadcrumb-item active" aria-current="page">@Html.SmartLocalize("Increment Approval")</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+        <div class="me-2 mb-2">
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                    <i class="ti ti-file-export me-1"></i>@Html.SmartLocalize("Export")
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end p-3">
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>@Html.SmartLocalize("Export as PDF")</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>@Html.SmartLocalize("Export as Excel")</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Breadcrumb -->
+
+<div class="my-4">
+    <!-- Increment Info Cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-black-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Annual Increment")</p>
+                            <h4>125</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-trending-up fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-success">@Html.SmartLocalize("Pending"): 15</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-blue-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Performance Bonus")</p>
+                            <h4>85</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-trophy fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-success">@Html.SmartLocalize("Pending"): 8</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-purple-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Promotion Increment")</p>
+                            <h4>42</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-arrow-up-circle fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-warning">@Html.SmartLocalize("Pending"): 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-pink-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Special Increment")</p>
+                            <h4>28</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-star fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-success">@Html.SmartLocalize("Pending"): 5</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Increment Info Cards -->
+</div>
+
+<!-- Waiting for Increment Approval Table -->
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">@Html.SmartLocalize("Waiting for Increment Approval")</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="dropdown me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="incrementType" data-choices="data-choices" size="1" required="required" name="incrementType" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Increment Type")</option>
+                        <option>@Html.SmartLocalize("Annual Increment")</option>
+                        <option>@Html.SmartLocalize("Performance Bonus")</option>
+                        <option>@Html.SmartLocalize("Promotion Increment")</option>
+                        <option>@Html.SmartLocalize("Special Increment")</option>
+                    </select>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Select Status")</option>
+                        <option>@Html.SmartLocalize("Approved")</option>
+                        <option>@Html.SmartLocalize("Declined")</option>
+                        <option>@Html.SmartLocalize("Pending")</option>
+                    </select>
+                </div>
+
+                <div class="dropdown">
+                    <select class="form-select" id="sortBy" data-choices="data-choices" size="1" required="required" name="sortBy" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
+                        <option>@Html.SmartLocalize("Recently Added")</option>
+                        <option>@Html.SmartLocalize("Ascending")</option>
+                        <option>@Html.SmartLocalize("Descending")</option>
+                        <option>@Html.SmartLocalize("Last Month")</option>
+                        <option>@Html.SmartLocalize("Last 7 days")</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-translucent p-3">
+            <div id="incrementApprovalTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="pendingTblDy" >
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"increment-approval-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType" data-column="1">@Html.SmartLocalize("Increment Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary" data-column="2">@Html.SmartLocalize("Current Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary" data-column="3">@Html.SmartLocalize("Proposed Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount" data-column="4">@Html.SmartLocalize("Increment Amount")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate" data-column="5">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision" data-column="6">@Html.SmartLocalize("Decision")</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="increment-approval-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Approved Increments Table -->
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">@Html.SmartLocalize("Approved Increments")</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="dropdown me-3">
+                    <select class="form-select" id="approvedDepartment" data-choices="data-choices" size="1" required="required" name="approvedDepartment" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Select department")</option>
+                        <option>@Html.SmartLocalize("Developer")</option>
+                        <option>@Html.SmartLocalize("Finance")</option>
+                        <option>@Html.SmartLocalize("Marketing")</option>
+                        <option>@Html.SmartLocalize("IT Support")</option>
+                    </select>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="approvedEmployee" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Select Employee...")</option>
+                        <option>@Html.SmartLocalize("Galib")</option>
+                        <option>@Html.SmartLocalize("Korim")</option>
+                        <option>@Html.SmartLocalize("Nozib")</option>
+                        <option>@Html.SmartLocalize("Hasan")</option>
+                    </select>
+                </div>
+
+                <div class="dropdown me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input" id="approvedDateRange" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select" id="approvedIncrementType" data-choices="data-choices" size="1" required="required" name="approvedIncrementType" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Increment Type")</option>
+                        <option>@Html.SmartLocalize("Annual Increment")</option>
+                        <option>@Html.SmartLocalize("Performance Bonus")</option>
+                        <option>@Html.SmartLocalize("Promotion Increment")</option>
+                        <option>@Html.SmartLocalize("Special Increment")</option>
+                    </select>
+                </div>
+
+                <div class="dropdown">
+                    <select class="form-select" id="approvedSort" data-choices="data-choices" size="1" required="required" name="approvedSort" data-options='{"removeItemButton":true,"placeholder":true}'>
+                        <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
+                        <option>@Html.SmartLocalize("Recently Added")</option>
+                        <option>@Html.SmartLocalize("Ascending")</option>
+                        <option>@Html.SmartLocalize("Descending")</option>
+                        <option>@Html.SmartLocalize("Last Month")</option>
+                        <option>@Html.SmartLocalize("Last 7 days")</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-translucent p-3">
+            <div id="approvedIncrementTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="approvedTblDy">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"approved-increment-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType" data-column="1">@Html.SmartLocalize("Increment Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary" data-column="2">@Html.SmartLocalize("Current Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary" data-column="3">@Html.SmartLocalize("New Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount" data-column="4">@Html.SmartLocalize("Increment Amount")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate" data-column="5">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approvedDate" data-column="6">@Html.SmartLocalize("Approved Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="7">@Html.SmartLocalize("Status")</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="approved-increment-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Increment Approval Modal -->
+<div class="modal fade" id="increment_approval_modal" tabindex="-1" aria-labelledby="incrementApprovalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incrementApprovalModalLabel">@Html.SmartLocalize("Review Increment Request")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Employee Name")</label>
+                            <input type="text" class="form-control" value="Hasan Shikder" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Department")</label>
+                            <input type="text" class="form-control" value="Development" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Increment Type")</label>
+                            <input type="text" class="form-control" value="Annual Increment" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Effective Date")</label>
+                            <input type="text" class="form-control" value="01 Jan 2024" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Current Salary")</label>
+                            <input type="text" class="form-control" value="৳45,000" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Proposed Salary")</label>
+                            <input type="text" class="form-control" value="৳50,000" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Increment Amount")</label>
+                            <input type="text" class="form-control" value="৳5,000" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("Justification/Reason")</label>
+                    <textarea class="form-control" rows="3" readonly>@Html.SmartLocalize("Annual performance review shows consistent excellent performance. Employee has exceeded targets and contributed significantly to project success.")</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("Comments (Optional)")</label>
+                    <textarea class="form-control" rows="3" placeholder="@Html.SmartLocalize("Add your comments here...")"></textarea>
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-danger me-2" data-action="decline" data-increment-id="">@Html.SmartLocalize("Decline")</button>
+                <button type="button" class="btn btn-success" data-action="approve" data-increment-id="">@Html.SmartLocalize("Approve")</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmation_modal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">@Html.SmartLocalize("Confirm Action")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmation_message">@Html.SmartLocalize("Are you sure you want to") <span id="confirmation_action"></span> @Html.SmartLocalize("this promotion?")</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Cancel")</button>
+                <button type="button" class="btn btn-primary" id="confirm_action">@Html.SmartLocalize("OK")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementApprove.js"></script>
+
+}
+
+
+
+
+
+@*<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
         <div class="my-auto mb-2">
             <h2 class="mb-1">Increment Approval</h2>
             <nav>
@@ -31,10 +453,8 @@
             </div>
         </div>
     </div>
-    <!-- /Breadcrumb -->
 
     <div class="my-4">
-        <!-- Increment Info Cards -->
         <div class="row">
             <div class="col-xl-3 col-md-6">
                 <div class="card bg-black-le">
@@ -117,10 +537,8 @@
                 </div>
             </div>
         </div>
-        <!-- /Increment Info Cards -->
     </div>
 
-    <!-- Waiting for Increment Approval Table -->
     <div class="mb-4">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
@@ -165,7 +583,7 @@
             </div>
 
             <div class="border-translucent p-3">
-                <div id="incrementApprovalTable" data-list='{"valueNames":["employeeName","incrementType","currentSalary","proposedSalary","incrementAmount","effectiveDate","status"],"page":10,"pagination":true}'>
+                <div id="incrementApprovalTable">
                     <div class="table-responsive scrollbar mx-n1 px-1">
                         <table class="table table-sm fs-9 leads-table">
                             <thead>
@@ -182,249 +600,10 @@
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount">Increment Amount</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision">Decision</th>
-                                    <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+
                                 </tr>
                             </thead>
                             <tbody class="list" id="increment-approval-body">
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Hasan Shikder</h6>
-                                                <span class="fs-12 fw-normal">Developer</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Annual Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳45,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳50,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳5,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
-
-                                    <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#increment_approval_modal" data-bs-toggle="tooltip" data-bs-placement="top" title="Review Increment">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                                <i class="fas fa-edit text-success"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Momi Mia</h6>
-                                                <span class="fs-12 fw-normal">Office Staff</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Performance Bonus</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳25,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳28,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳3,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Jan 2024</td>
-
-                                    <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#increment_approval_modal" data-bs-toggle="tooltip" data-bs-placement="top" title="Review Increment">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                                <i class="fas fa-edit text-success"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Nojibul Hasan</h6>
-                                                <span class="fs-12 fw-normal">IT Support</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Promotion Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳35,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳42,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳7,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">19 Feb 2024</td>
-
-                                    <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#increment_approval_modal" data-bs-toggle="tooltip" data-bs-placement="top" title="Review Increment">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                                <i class="fas fa-edit text-success"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Aminul Islam</h6>
-                                                <span class="fs-12 fw-normal">Manager</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Special Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳55,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳65,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳10,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Sep 2024</td>
-
-                                    <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#increment_approval_modal" data-bs-toggle="tooltip" data-bs-placement="top" title="Review Increment">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                                <i class="fas fa-edit text-success"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Faruk Hasan</h6>
-                                                <span class="fs-12 fw-normal">Finance Director</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Annual Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳75,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳82,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳7,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25 Dec 2024</td>
-
-                                    <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#increment_approval_modal" data-bs-toggle="tooltip" data-bs-placement="top" title="Review Increment">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                                <i class="fas fa-edit text-success"></i>
-                                            </a>
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -448,7 +627,6 @@
 
 
 
-    <!-- Approved Increments Table -->
     <div class="mb-4">
         <div class="card">
             <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
@@ -504,7 +682,7 @@
             </div>
 
             <div class="border-translucent p-3">
-                <div id="approvedIncrementTable" data-list='{"valueNames":["employeeName","incrementType","currentSalary","proposedSalary","incrementAmount","effectiveDate","approvedDate","status"],"page":10,"pagination":true}'>
+                <div id="approvedIncrementTable">
                     <div class="table-responsive scrollbar mx-n1 px-1">
                         <table class="table table-sm fs-9 leads-table">
                             <thead>
@@ -522,229 +700,10 @@
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approvedDate">Approved Date</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
-                                    <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+
                                 </tr>
                             </thead>
                             <tbody class="list" id="approved-increment-body">
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Zia-ur Rahman</h6>
-                                                <span class="fs-12 fw-normal">IT Executive</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Annual Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳40,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳45,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳5,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Jan 2024</td>
-                                    <td class="approvedDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">28 Dec 2023</td>
-
-                                    <td class="status align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Kadirul Alom</h6>
-                                                <span class="fs-12 fw-normal">Designer</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Performance Bonus</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳30,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳33,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳3,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Jan 2024</td>
-                                    <td class="approvedDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">10 Jan 2024</td>
-
-                                    <td class="status align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Ali Hasan</h6>
-                                                <span class="fs-12 fw-normal">Developer</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Promotion Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳38,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳45,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳7,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">19 Feb 2024</td>
-                                    <td class="approvedDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">15 Feb 2024</td>
-
-                                    <td class="status align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Rakibul Islam</h6>
-                                                <span class="fs-12 fw-normal">Manager</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Special Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳60,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳70,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳10,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">01 Sep 2024</td>
-                                    <td class="approvedDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25 Aug 2024</td>
-
-                                    <td class="status align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                    <td class="fs-9 align-middle py-0">
-                                        <div class="form-check mb-0 fs-8">
-                                            <input class="form-check-input" type="checkbox" />
-                                        </div>
-                                    </td>
-
-                                    <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                        <div class="d-flex align-items-center file-name-icon">
-                                            <div class="avatar avatar-m avatar-bordered me-4">
-                                                <img class="rounded-circle" src="../../assets/img/users/user-01.jpg" alt="" />
-                                            </div>
-                                            <div class="ms-1">
-                                                <h6 class="fw-bold">Faruk Hasan</h6>
-                                                <span class="fs-12 fw-normal">Finance</span>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">
-                                        <div class="d-flex align-items-center">
-                                            <p class="fs-14 fw-medium d-flex align-items-center mb-0">Annual Increment</p>
-                                        </div>
-                                    </td>
-
-                                    <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳80,000</td>
-                                    <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳88,000</td>
-                                    <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">৳8,000</td>
-                                    <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">25 Dec 2024</td>
-                                    <td class="approvedDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">20 Dec 2024</td>
-
-                                    <td class="status align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
-                                        <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
-                                    </td>
-
-                                    <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                        <div class="btn-reveal-trigger position-static">
-                                            <a href="#" class="nav-item mx-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                <i class="fas fa-trash text-danger"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -767,7 +726,6 @@
     </div>
 
 
-    <!-- Increment Approval Modal -->
     <div class="modal fade" id="increment_approval_modal" tabindex="-1" aria-labelledby="incrementApprovalModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -833,13 +791,43 @@
                         <textarea class="form-control" rows="3" placeholder="Add your comments here..."></textarea>
                     </div>
                 </div>
+
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-danger me-2">Decline</button>
-                    <button type="button" class="btn btn-success">Approve</button>
+                    <button type="button" class="btn btn-danger me-2" data-action="decline" data-increment-id="">Decline</button>
+                    <button type="button" class="btn btn-success" data-action="approve" data-increment-id="">Approve</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmation_modal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmation_message">Are you sure you want to <span id="confirmation_action"></span> this promotion?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirm_action">OK</button>
                 </div>
             </div>
         </div>
     </div>
 
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementApprove.js"></script>
+
+    }*@

@@ -41,9 +41,6 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
 
         public async Task<IActionResult> Index()
         {
-
-           
-
             ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
@@ -178,6 +175,33 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagemnets
                 
             }
            
+        }
+        #endregion
+        #region Display Leave banlance
+
+        [Route("EmployeeTransferManagement/GetByPersonTransferStepVM")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetByPersonTransferStepVM(int employeeTransferID)
+        {
+
+            try
+            {
+
+
+                if (employeeTransferID == 0)
+                    return BadRequest("LeaveApplicationId not found in claims.");
+
+
+                var data = await employeeTransferService.GetByPersonTransferStepVM(employeeTransferID);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
         }
         #endregion
     }

@@ -19,15 +19,15 @@ $(document).ready(function () {
         const selfSelect = $('#selSelfApproval');
         const selfWrapper = selfSelect.closest('.mt-3');
 
-        if (selfCheckbox.is(':checked')) {
-            selfWrapper.hide();
-            selfSelect.prop('disabled', true);
-            selfSelect.removeAttr('required');
-        } else {
-            selfWrapper.show();
-            selfSelect.prop('disabled', false);
-            selfSelect.attr('required', 'required');
-        }
+        //if (selfCheckbox.is(':checked')) {
+        //    selfWrapper.hide();
+        //    selfSelect.prop('disabled', true);
+        //    selfSelect.removeAttr('required');
+        //} else {
+        //    selfWrapper.show();
+        //    selfSelect.prop('disabled', false);
+        //    selfSelect.attr('required', 'required');
+        //}
     }
 
     function setDefaultIfAvailable(selectEl) {
@@ -230,7 +230,7 @@ $(document).ready(function () {
     });
 });
 
-function choicDp() {
+function theChoicDp() {
     $.ajax({
         url: '/ApprovalSettings/GetChoiceOrgnization', // Adjust this URL if needed
         type: 'GET',

@@ -64,6 +64,11 @@
                                 <option>2029</option>
                             </select>
                         </div>
+                    <div class="dropdown">
+                        <button id="printButton" class="btn btn-phoenix-secondary rounded-3 me-1 mb-1" type="button">
+                            <span class="fas fa-print me-2" data-fa-transform="shrink-3"></span>Print
+                        </button>
+                    </div>
 
                     </div>
                 </div>
@@ -128,8 +133,64 @@
 
                     </div>
                 </div> *@
-
-                <!-- All Employee yearly attendance Table-->
+            <!-- All Employee yearly attendance Table-->
+            <div id="allEmployeeYearlyAttendanceTable">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center fw-bold">
+                        <thead>
+                            <tr>
+                                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-2 py-1">
+                                    <div class="d-flex align-items-center file-name-icon">
+                                        <div class="ms-1">
+                                            <h5 class="fw-bold">Month</h5>
+                                        </div>
+                                    </div>
+                                </td>
+                                <th>01</th>
+                                <th>02</th>
+                                <th>03</th>
+                                <th>04</th>
+                                <th>05</th>
+                                <th>06</th>
+                                <th>07</th>
+                                <th>08</th>
+                                <th>09</th>
+                                <th>10</th>
+                                <th>11</th>
+                                <th>12</th>
+                                <th>13</th>
+                                <th>14</th>
+                                <th>15</th>
+                                <th>16</th>
+                                <th>17</th>
+                                <th>18</th>
+                                <th>19</th>
+                                <th>20</th>
+                                <th>21</th>
+                                <th>22</th>
+                                <th>23</th>
+                                <th>24</th>
+                                <th>25</th>
+                                <th>26</th>
+                                <th>27</th>
+                                <th>28</th>
+                                <th>29</th>
+                                <th>30</th>
+                                <th>31&nbsp;</th>
+                                <th>Total Present</th>
+                                <th>Total Absence</th>
+                                <th>Total Leave</th>
+                                <th>Total Weekend</th>
+                                <th>Total Holiday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Rows will be dynamically added here using AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+               @*  <!-- All Employee yearly attendance Table-->
                 <div id="allEmployeeYearlyAttendanceTable">
                     <div class="table-responsive">
                         <table class="table table-bordered text-center fw-bold">
@@ -711,7 +772,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </div> *@
                 <!-- Leave Explaination-->
                 <div class="d-flex my-3 flex-wrap border-bottom ">
                     <div class="full-present me-2">
@@ -744,3 +805,6 @@
         </div>
     </div>
 
+@section Scripts{
+    <script src="~/js/pages/attendancemanagement/employeereportall/yearlyreport.js"></script>
+}

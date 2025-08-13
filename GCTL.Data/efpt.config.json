@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.0",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -438,6 +437,65 @@
       {
          "Name": "[HRM].[Resignations]",
          "ObjectType": 0
+<<<<<<< HEAD
+=======
+      },
+      {
+         "Name": "[HRM].[ResignationsApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[Terminations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowances]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[SalaryTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[DateFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Localizations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Percentages]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[TimeFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Timezones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[aa]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
+         "ObjectType": 1
+>>>>>>> cc9b265f1eb403b60225570d21b40e2c788744c7
       },
       {
          "Name": "[HRM].[ResignationsApprovalHistory]",
@@ -513,7 +571,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,

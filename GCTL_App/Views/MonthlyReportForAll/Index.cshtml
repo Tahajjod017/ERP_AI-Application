@@ -12,8 +12,91 @@
 <partial name="~/Views/Shared/AttendenceReportNavs/_attendenceReportMenuTabs.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AttendenceReportNavs/_AttendenceSubMenuReportMonthly.cshtml" model="subTab" />
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <!-- Include Month Select Plugin CSS (important to load for correct styling) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+<style>
+
+    .flatpickr-monthSelect-months {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+        gap: 10px; /* Space between months */
+        margin: 10px 1px 3px 1px;
+    }
+
+    /* Styling for individual months */
+    .flatpickr-monthSelect-month {
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: #393939;
+        cursor: pointer;
+        display: flex; /* Use flexbox to center the text inside the month */
+        justify-content: center;
+        padding: 10px;
+        position: relative;
+        text-align: center;
+        width: 100%; /* Make sure it takes full width of the column */
+    }
+
+        /* Disabled month styling */
+        .flatpickr-monthSelect-month.flatpickr-disabled {
+            color: #eee;
+        }
+
+            .flatpickr-monthSelect-month.flatpickr-disabled:hover,
+            .flatpickr-monthSelect-month.flatpickr-disabled:focus {
+                cursor: not-allowed;
+                background: none !important;
+            }
+
+    /* Dark theme adjustments */
+    .flatpickr-monthSelect-theme-dark {
+        background: #3f4458;
+    }
+
+        .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+            .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.selected {
+                background-color: #80cbc4;
+                color: #fff;
+                border-color: #80cbc4;
+            }
+
+    /* Styling for today’s month */
+    .flatpickr-monthSelect-month.today {
+        border-color: #959ea9;
+    }
+
+    .flatpickr-monthSelect-month.selected,
+    .flatpickr-monthSelect-month.startRange,
+    .flatpickr-monthSelect-month.endRange {
+        background-color: #569ff7;
+        box-shadow: none;
+        color: #fff;
+        border-color: #569ff7;
+    }
+
+    /* Range selection */
+    .flatpickr-monthSelect-month.startRange {
+        border-radius: 50px 0 0 50px;
+    }
+
+    .flatpickr-monthSelect-month.endRange {
+        border-radius: 0 50px 50px 0;
+    }
+
+    .flatpickr-monthSelect-month.inRange {
+        border-radius: 0;
+        box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
+    }
+
+</style>
 
 <div class="tab-pane fade show active" id="tab-monthlyReportForAll" role="tabpanel" aria-labelledby="home-tab">
 
@@ -43,6 +126,7 @@
 
 @section Scripts {
    <script src="~/js/pages/attendancemanagement/employeereportall/monthlyreportforall.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
     <!-- Include Flatpickr JS -->
@@ -50,7 +134,7 @@
     <script>
            $(document).ready(function () {
             $('#year-month-picker').flatpickr({
-                mode: "month",   // Single selection mode (no day selection)
+                mode: "single",   // Single selection mode (no day selection)
                 dateFormat: "F Y",  // Display month and year as 'm.y' (e.g., '07.2025')
                 altFormat: "F Y",  // Display full month and year (e.g., 'July 2025')
                 plugins: [

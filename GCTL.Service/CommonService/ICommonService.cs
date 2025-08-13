@@ -22,6 +22,12 @@ namespace GCTL.Service.CommonService
         Task<List<CommonSelectVM>> GetShifts();
 
         Task<List<CommonSelectVM>> GetCompensation();
+
+        Task<List<CommonSelectVM>> GetSpiralPatternTypes();
+
+        Task<List<CommonSelectVM>> GetSpiralPatterns();
+
+        Task<List<CommonSelectVM>> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId);
         #endregion
 
 

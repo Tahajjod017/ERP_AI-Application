@@ -4,10 +4,12 @@ using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class HolidaySettingsController : BaseController
     {
         private readonly IHolidaySettingService _holidaySettingService;

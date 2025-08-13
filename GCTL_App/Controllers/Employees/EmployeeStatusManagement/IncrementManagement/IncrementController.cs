@@ -74,7 +74,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         [HttpPost]
         public async Task< IActionResult> SaveSalaryChange(SalaryChangeViewModel model)
         {
-            CommonReturnViewModel result = await _incrementService.SaveSalaryChange(model);
+            CommonReturnViewModel result = await _incrementService.SaveAsync(model);
             return Ok(result);
         }
 

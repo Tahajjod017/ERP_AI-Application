@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    const developmentMode = true;
+    const developmentMode = false;
 
     if (developmentMode) {
         toastr.info("Welcome to the Promotion Form!");
@@ -9,6 +9,15 @@
 
     $("#promotionForm").on("submit", function (e) {
         e.preventDefault();
+
+        const newDesignation = $("#promotionNewDes").val();
+        const effectiveDate = $("#promotionWef").val();
+
+        if (!newDesignation || !effectiveDate) {
+            toastr.error("New Designation and Effective Date are required.");
+            return; // Stop form submission
+        }
+
 
         const formData = new FormData();
         formData.append("EmployeeID", $("#promotionEmployee").val());
@@ -32,10 +41,29 @@
             processData: false,
             contentType: false,
             success: function (res) {
-                toastr.success("Promotion saved!");
-                clearPromotionForm();
-                $("#add_promotion").modal("hide");
-                loadPromotionList(); // reload table
+               
+                if (res.success) {
+                    toastr.success(res.message || "Promotion saved!");
+                    clearPromotionForm();
+
+                    loadPromotionList(1); // reload table
+
+                    var applyModalEl = document.getElementById('add_promotion');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+
+                    
+
+
+                } else {
+                    toastr.warning(res.message || "Promotion Not saved!");
+                }
+
+                
+                
             },
             error: function (xhr) {
                 toastr.error("Error saving promotion");
@@ -52,21 +80,7 @@
         clearPromotionForm();
     });
 
-    function clearPromotionForm() {
-        $("#promotionForm")[0].reset();
-      
-
-        choiceManager.resetChoice('promotionEmployee', 'promotionOrganization', 'promotionDesignation', 'promotionDepartment', 'promotionPrevDes', 'promotionNewDes' );
-
-        $("input[name='changeType']").prop("checked", false);
-        $("#promotionWef").val("");
-       
-        $("#promotionPrevSalary").val("");
-        $("#incrementAmt").val("");
-        $("#incrementPercent").val("");
-        $("#promotionNewSalary").val("");
-        $("#promotionRemark").val("");
-    }
+    
 
     //#endregion Clear Form
 
@@ -117,17 +131,7 @@
     });
 
 
-    function updateIncrementLabel() {
-        const type = $("input[name='changeType']:checked").val();
-        const isPromotion = type === "promotion";
-
-        const labelText = isPromotion ? "Increment Amount" : "Decrement Amount";
-        const labelPercent = isPromotion ? "Increment Percent" : "Decrement Percent";
-
-        $("label[for='incrementAmt']").text(labelText);
-        $("label[for='incrementPercent']").text(labelPercent);
-    }
-
+  
 
 
     //#endregion
@@ -142,62 +146,7 @@
     $("#incrementPercent").on("input", updateFromPercent);
     $("#promotionNewSalary").on("input", updateFromNewSalary);
 
-    function getCurrentSalary() {
-        return parseFloat($("#promotionPrevSalary").val()) || 0;
-    }
-
-    function isPromotion() {
-        return $("input[name='changeType']:checked").val() === "promotion";
-    }
-
-    function updateFromAmount() {
-        const current = getCurrentSalary();
-        const amount = parseFloat($("#incrementAmt").val()) || 0;
-        const sign = isPromotion() ? 1 : -1;
-        const newSalary = current + (amount * sign);
-        const percent = (amount / current) * 100;
-
-        $("#promotionNewSalary").val(newSalary.toFixed(2));
-        $("#incrementPercent").val(percent.toFixed(2));
-    }
-
-    function updateFromPercent() {
-        const current = getCurrentSalary();
-        const percent = parseFloat($("#incrementPercent").val()) || 0;
-        const sign = isPromotion() ? 1 : -1;
-        const amount = (current * percent) / 100;
-        const newSalary = current + (amount * sign);
-
-        $("#incrementAmt").val(amount.toFixed(2));
-        $("#promotionNewSalary").val(newSalary.toFixed(2));
-    }
-
    
-
-
-    function updateFromNewSalary() {
-        const current = getCurrentSalary();
-        const newSalary = parseFloat($("#promotionNewSalary").val()) || 0;
-
-        if (!current || !newSalary) return;
-
-        const isPromo = isPromotion();
-        const isValid =
-            (isPromo && newSalary >= current) ||
-            (!isPromo && newSalary <= current);
-
-        if (!isValid) {
-            $("#incrementAmt").val("");
-            $("#incrementPercent").val("");
-            return;
-        }
-
-        const amount = Math.abs(newSalary - current);
-        const percent = (amount / current) * 100;
-
-        $("#incrementAmt").val(amount.toFixed(2));
-        $("#incrementPercent").val(percent.toFixed(2));
-    }
 
 
 
@@ -209,3 +158,93 @@
     //#endregion
     
 })
+
+
+
+function clearPromotionForm() {
+    $("#promotionForm")[0].reset();
+
+
+    choiceManager.resetChoice('promotionEmployee', 'promotionOrganization', 'promotionDesignation', 'promotionDepartment', 'promotionPrevDes', 'promotionNewDes');
+
+    $("input[name='changeType']").prop("checked", false);
+    $("#promotionWef").val("");
+
+    $("#promotionPrevSalary").val("");
+    $("#incrementAmt").val("");
+    $("#incrementPercent").val("");
+    $("#promotionNewSalary").val("");
+    $("#promotionRemark").val("");
+}
+
+
+function updateIncrementLabel() {
+    const type = $("input[name='changeType']:checked").val();
+    const isPromotion = type === "promotion";
+
+    const labelText = isPromotion ? "Increment Amount" : "Decrement Amount";
+    const labelPercent = isPromotion ? "Increment Percent" : "Decrement Percent";
+
+    $("label[for='incrementAmt']").text(labelText);
+    $("label[for='incrementPercent']").text(labelPercent);
+}
+
+
+
+
+function getCurrentSalary() {
+    return parseFloat($("#promotionPrevSalary").val()) || 0;
+}
+
+function isPromotion() {
+    return $("input[name='changeType']:checked").val() === "promotion";
+}
+
+function updateFromAmount() {
+    const current = getCurrentSalary();
+    const amount = parseFloat($("#incrementAmt").val()) || 0;
+    const sign = isPromotion() ? 1 : -1;
+    const newSalary = current + (amount * sign);
+    const percent = (amount / current) * 100;
+
+    $("#promotionNewSalary").val(newSalary.toFixed(2));
+    $("#incrementPercent").val(percent.toFixed(2));
+}
+
+function updateFromPercent() {
+    const current = getCurrentSalary();
+    const percent = parseFloat($("#incrementPercent").val()) || 0;
+    const sign = isPromotion() ? 1 : -1;
+    const amount = (current * percent) / 100;
+    const newSalary = current + (amount * sign);
+
+    $("#incrementAmt").val(amount.toFixed(2));
+    $("#promotionNewSalary").val(newSalary.toFixed(2));
+}
+
+
+
+
+function updateFromNewSalary() {
+    const current = getCurrentSalary();
+    const newSalary = parseFloat($("#promotionNewSalary").val()) || 0;
+
+    if (!current || !newSalary) return;
+
+    const isPromo = isPromotion();
+    const isValid =
+        (isPromo && newSalary >= current) ||
+        (!isPromo && newSalary <= current);
+
+    if (!isValid) {
+        $("#incrementAmt").val("");
+        $("#incrementPercent").val("");
+        return;
+    }
+
+    const amount = Math.abs(newSalary - current);
+    const percent = (amount / current) * 100;
+
+    $("#incrementAmt").val(amount.toFixed(2));
+    $("#incrementPercent").val(percent.toFixed(2));
+}

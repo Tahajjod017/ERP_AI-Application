@@ -1,50 +1,43 @@
-﻿<form id="promotionForm">
+﻿
+<form id="promotionForm">
     <div class="card">
-
         <div class="card-body">
-
-
-
-
 
             <!-- 4 Column Header Fields -->
             <div class="row mb-3">
                 <div class="col-md-3">
                     <div class="form-floating form-floating-advance-select">
                         <select class="form-select choiceDD" id="promotionEmployee" asp-items="@ViewBag.EmployeeDD as SelectList">
-                            <option value="" selected disabled>Select Employee</option>
+                            <option value="" selected disabled>@Html.SmartLocalize("Select Employee")</option>
                         </select>
-                        <label for="promotionEmployee">Employee Name</label>
+                        <label for="promotionEmployee">@Html.SmartLocalize("Employee Name")</label>
                     </div>
                     <span class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <div class="form-floating form-floating-advance-select">
                         <select class="form-select choiceDD" id="promotionOrganization" required asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
-                            <option value="" selected disabled>Select Organization</option>
-                           
+                            <option value="" selected disabled>@Html.SmartLocalize("Select Organization")</option>
                         </select>
-                        <label for="promotionOrganization">Organization</label>
+                        <label for="promotionOrganization">@Html.SmartLocalize("Organization")</label>
                     </div>
                     <span class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <div class="form-floating form-floating-advance-select">
                         <select class="form-select choiceDD" id="promotionDesignation" required asp-items="@ViewBag.DesignationDD as SelectList" disabled>
-                            <option value="" selected disabled>Select Designation</option>
-                          
+                            <option value="" selected disabled>@Html.SmartLocalize("Select Designation")</option>
                         </select>
-                        <label for="promotionDesignation">Designation</label>
+                        <label for="promotionDesignation">@Html.SmartLocalize("Designation")</label>
                     </div>
                     <span class="text-danger small"></span>
                 </div>
                 <div class="col-md-3">
                     <div class="form-floating form-floating-advance-select">
                         <select class="form-select choiceDD" id="promotionDepartment" required asp-items="@ViewBag.DepartmentDD as SelectList" disabled>
-                            <option value="" selected disabled>Select Department</option>
-                            
+                            <option value="" selected disabled>@Html.SmartLocalize("Select Department")</option>
                         </select>
-                        <label for="promotionDepartment">Department</label>
+                        <label for="promotionDepartment">@Html.SmartLocalize("Department")</label>
                     </div>
                     <span class="text-danger small"></span>
                 </div>
@@ -54,11 +47,11 @@
             <div class="d-flex mb-3">
                 <div class="form-check me-4">
                     <input class="form-check-input" type="radio" name="changeType" id="promotion" value="promotion" checked>
-                    <label class="form-check-label" for="promotion">Promotion</label>
+                    <label class="form-check-label" for="promotion">@Html.SmartLocalize("Promotion")</label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="changeType" id="demotion" value="demotion">
-                    <label class="form-check-label" for="demotion">Demotion</label>
+                    <label class="form-check-label" for="demotion">@Html.SmartLocalize("Demotion")</label>
                 </div>
             </div>
 
@@ -67,26 +60,21 @@
             <!-- Change Details Section in Card -->
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Change Details</h6>
+                    <h6 class="mb-0">@Html.SmartLocalize("Change Details")</h6>
                 </div>
                 <div class="card-body">
                     <!-- Date Field -->
                     <div class="row mb-3">
-
                         <div class="col-md-6">
                             <div class="flatpickr-input-container">
                                 <div class="form-floating">
-                                    <input id="promotionWef" class="form-control datetimepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true}' />
-                                    <label class="ps-6" id="promotionWef">Effective Date</label>
+                                    <input id="promotionWef" class="form-control datetimepicker" type="text" placeholder="@Html.SmartLocalize("dd/mm/yyyy")" data-options='{"disableMobile":true}' />
+                                    <label class="ps-6" for="promotionWef">@Html.SmartLocalize("Effective Date")</label>
                                     <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
                                     <span class="text-danger small"></span>
                                 </div>
                             </div>
                         </div>
-
-
-
-
                     </div>
 
                     <!-- 2 Dropdown Fields -->
@@ -94,20 +82,18 @@
                         <div class="col-md-6">
                             <div class="form-floating form-floating-advance-select">
                                 <select class="form-select choiceDD" id="promotionPrevDes" required asp-items="@ViewBag.DesignationDD as SelectList" disabled>
-                                    <option value="" selected disabled>Select Current Designation</option>
-                                    
+                                    <option value="" selected disabled>@Html.SmartLocalize("Select Current Designation")</option>
                                 </select>
-                                <label>Current Designation</label>
+                                <label>@Html.SmartLocalize("Current Designation")</label>
                             </div>
                             <span class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating form-floating-advance-select">
                                 <select class="form-select choiceDD" id="promotionNewDes" required asp-items="@ViewBag.DesignationDD as SelectList">
-                                    <option value="" selected disabled>Select New Designation</option>
-                                   
+                                    <option value="" selected disabled>@Html.SmartLocalize("Select New Designation")</option>
                                 </select>
-                                <label>New Designation</label>
+                                <label>@Html.SmartLocalize("New Designation")</label>
                             </div>
                             <span class="text-danger small"></span>
                         </div>
@@ -117,8 +103,8 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="promotionPrevSalary" placeholder="Current Salary"  readonly>
-                                <label>Current Salary</label>
+                                <input type="text" class="form-control" id="promotionPrevSalary" placeholder="@Html.SmartLocalize("Current Salary")" readonly>
+                                <label>@Html.SmartLocalize("Current Salary")</label>
                             </div>
                             <span class="text-danger small"></span>
                         </div>
@@ -126,24 +112,23 @@
                         <div class="col-md-4">
                             <div class="input-group">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="incrementAmt" placeholder="Increment / Decrement Amount" >
-                                    <label for="incrementAmt">Increment / Decrement Amount</label>
+                                    <input type="text" class="form-control" id="incrementAmt" placeholder="@Html.SmartLocalize("Increment / Decrement Amount")">
+                                    <label for="incrementAmt">@Html.SmartLocalize("Increment / Decrement Amount")</label>
                                 </div>
                                 <span class="text-danger small"></span>
 
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" id="incrementPercent" placeholder="Increment / Decrement Percent" >
-                                    <label for="incrementPercent">Increment / Decrement Percent</label>
+                                    <input type="text" class="form-control" id="incrementPercent" placeholder="@Html.SmartLocalize("Increment / Decrement Percent")">
+                                    <label for="incrementPercent">@Html.SmartLocalize("Increment / Decrement Percent")</label>
                                 </div>
                                 <span class="text-danger small"></span>
                             </div>
-
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="promotionNewSalary" placeholder="New Salary" >
-                                <label>New Salary</label>
+                                <input type="text" class="form-control" id="promotionNewSalary" placeholder="@Html.SmartLocalize("New Salary")">
+                                <label>@Html.SmartLocalize("New Salary")</label>
                             </div>
                             <span class="text-danger small"></span>
                         </div>
@@ -151,6 +136,178 @@
 
                     <!-- Remarks -->
                     <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" rows="3" id="promotionRemark" placeholder="@Html.SmartLocalize("Reason / Remarks")" style="height: 100px;"></textarea>
+                                <label>@Html.SmartLocalize("Reason / Remarks")</label>
+                            </div>
+                            <span class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" id="btnPromotionCancel" class="btn btn-light">@Html.SmartLocalize("Cancel")</button>
+                <button type="submit" id="btnPromotionSubmit" class="btn btn-primary">@Html.SmartLocalize("Submit")</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+
+
+
+<!--<form id="promotionForm">
+    <div class="card">
+
+        <div class="card-body">-->
+<!-- 4 Column Header Fields -->
+<!--<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="form-floating form-floating-advance-select">
+            <select class="form-select choiceDD" id="promotionEmployee" asp-items="@ViewBag.EmployeeDD as SelectList">
+                <option value="" selected disabled>Select Employee</option>
+            </select>
+            <label for="promotionEmployee">Employee Name</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <div class="form-floating form-floating-advance-select">
+            <select class="form-select choiceDD" id="promotionOrganization" required asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
+                <option value="" selected disabled>Select Organization</option>
+
+            </select>
+            <label for="promotionOrganization">Organization</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <div class="form-floating form-floating-advance-select">
+            <select class="form-select choiceDD" id="promotionDesignation" required asp-items="@ViewBag.DesignationDD as SelectList" disabled>
+                <option value="" selected disabled>Select Designation</option>
+
+            </select>
+            <label for="promotionDesignation">Designation</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+    <div class="col-md-3">
+        <div class="form-floating form-floating-advance-select">
+            <select class="form-select choiceDD" id="promotionDepartment" required asp-items="@ViewBag.DepartmentDD as SelectList" disabled>
+                <option value="" selected disabled>Select Department</option>
+
+            </select>
+            <label for="promotionDepartment">Department</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+</div>-->
+<!-- Radio Button Section -->
+<!--<div class="d-flex mb-3">
+    <div class="form-check me-4">
+        <input class="form-check-input" type="radio" name="changeType" id="promotion" value="promotion" checked>
+        <label class="form-check-label" for="promotion">Promotion</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="changeType" id="demotion" value="demotion">
+        <label class="form-check-label" for="demotion">Demotion</label>
+    </div>
+</div>
+
+<hr>-->
+<!-- Change Details Section in Card -->
+<!--<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Change Details</h6>
+    </div>
+    <div class="card-body">-->
+<!-- Date Field -->
+<!--<div class="row mb-3">
+
+    <div class="col-md-6">
+        <div class="flatpickr-input-container">
+            <div class="form-floating">
+                <input id="promotionWef" class="form-control datetimepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true}' />
+                <label class="ps-6" id="promotionWef">Effective Date</label>
+                <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                <span class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>-->
+<!-- 2 Dropdown Fields -->
+<!--<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="form-floating form-floating-advance-select">
+            <select class="form-select choiceDD" id="promotionPrevDes" required asp-items="@ViewBag.DesignationDD as SelectList" disabled>
+                <option value="" selected disabled>Select Current Designation</option>
+
+            </select>
+            <label>Current Designation</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <div class="form-floating form-floating-advance-select">
+            <select class="form-select choiceDD" id="promotionNewDes" required asp-items="@ViewBag.DesignationDD as SelectList">
+                <option value="" selected disabled>Select New Designation</option>
+
+            </select>
+            <label>New Designation</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+</div>-->
+<!-- 2 Input Fields -->
+<!--<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="promotionPrevSalary" placeholder="Current Salary"  readonly>
+            <label>Current Salary</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4">
+        <div class="input-group">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="incrementAmt" placeholder="Increment / Decrement Amount" >
+                <label for="incrementAmt">Increment / Decrement Amount</label>
+            </div>
+            <span class="text-danger small"></span>
+
+            <div class="form-floating">
+                <input type="text" class="form-control" id="incrementPercent" placeholder="Increment / Decrement Percent" >
+                <label for="incrementPercent">Increment / Decrement Percent</label>
+            </div>
+            <span class="text-danger small"></span>
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="promotionNewSalary" placeholder="New Salary" >
+            <label>New Salary</label>
+        </div>
+        <span class="text-danger small"></span>
+    </div>
+</div>-->
+<!-- Remarks -->
+<!--<div class="row mb-3">
                         <div class="col-md-12">
                             <div class="form-floating">
                                 <textarea class="form-control" rows="3" id="promotionRemark" placeholder="Reason / Remarks" style="height: 100px;"></textarea>
@@ -180,4 +337,4 @@
         </div>
 
     </div>
-</form>
+</form>-->

@@ -1,0 +1,536 @@
+﻿
+<style>
+
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        background-color: #fff;
+        padding: 8px;
+        border-radius: 16px;
+        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.05);
+    }
+
+
+
+    .setting-link {
+        text-decoration: none;
+        color: inherit;
+        display: inline-block;
+        width: 100%; /* Optional: full width click area */
+    }
+
+    .setting-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 10px;
+        transition: background-color 0.2s;
+    }
+
+
+        .setting-item:hover {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+        }
+
+    .setting-icon {
+        font-size: 28px;
+        color: #7f8c8d;
+        flex-shrink: 0;
+    }
+
+    .setting-text {
+        flex-grow: 1;
+    }
+
+    .setting-title a {
+        font-weight: 600;
+        font-size: 16px;
+        color: #2c3e50;
+        text-decoration: none;
+    }
+
+        .setting-title a:hover {
+            text-decoration: underline;
+        }
+
+</style>
+
+
+<!-- Container for dynamic settings -->
+<div class="settings-grid mb-2" id="settingsContainer"></div>
+
+<!-- jQuery (for AJAX) -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/MasterSetupCategory/GetMasterSetupCategoriesAsync',
+            type: 'GET',
+            success: function (data) {
+                if (Array.isArray(data)) {
+                    $('#settingsContainer').empty();
+
+                    data.forEach(function (item) {
+                        const iconClass = item.icon || 'fa-solid fa-circle-question';
+                        const title = item.title || 'Untitled';
+                        const controller = item.controllerName || '#';
+                        const html = `
+                             <a href="/${controller}/Index" class="setting-link">
+        <div class="setting-item">
+            <div class="setting-icon"><i class="${iconClass}"></i></div>
+            <div class="setting-text mt-2">
+                <div class="setting-title">${title}</div>
+            </div>
+        </div>
+    </a>
+
+                        `;
+                        $('#settingsContainer').append(html);
+                    });
+                } else {
+                    $('#settingsContainer').html('<p>No data found.</p>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error loading settings:', error);
+                $('#settingsContainer').html('<p style="color:red;">Failed to load settings.</p>');
+            }
+        });
+    });
+</script>
+
+
+
+
+@* 
+<style>
+
+    .dashboard-container {
+        margin-top: 90px !important;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        height: 85px;
+    }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+            .card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .card-body {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        padding-right: 0px;
+    }
+
+
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        background: linear-gradient(135deg, var(--card-color), var(--card-color-light));
+        flex-shrink: 0; /* Prevents icon from shrinking */
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    /* Color schemes for different cards */
+    .card:nth-child(1) {
+        --card-color: #3498db;
+        --card-color-light: #5dade2;
+    }
+
+    .card:nth-child(2) {
+        --card-color: #2ecc71;
+        --card-color-light: #58d68d;
+    }
+
+    .card:nth-child(3) {
+        --card-color: #e74c3c;
+        --card-color-light: #ec7063;
+    }
+
+    .card:nth-child(4) {
+        --card-color: #f39c12;
+        --card-color-light: #f7dc6f;
+    }
+
+    .card:nth-child(5) {
+        --card-color: #9b59b6;
+        --card-color-light: #bb8fce;
+    }
+
+    .card:nth-child(6) {
+        --card-color: #1abc9c;
+        --card-color-light: #5dbeaa;
+    }
+
+    .card:nth-child(7) {
+        --card-color: #34495e;
+        --card-color-light: #5d6d7e;
+    }
+
+    .card:nth-child(8) {
+        --card-color: #e67e22;
+        --card-color-light: #f0ad4e;
+    }
+
+    .card:nth-child(9) {
+        --card-color: #8e44ad;
+        --card-color-light: #a569bd;
+    }
+
+    .card:nth-child(10) {
+        --card-color: #27ae60;
+        --card-color-light: #52c882;
+    }
+
+    .card:nth-child(11) {
+        --card-color: #2980b9;
+        --card-color-light: #5499c7;
+    }
+
+    .card:nth-child(12) {
+        --card-color: #c0392b;
+        --card-color-light: #cd6155;
+    }
+
+    .card-designation {
+        --card-color: #6c5ce7;
+        --card-color-light: #a29bfe;
+    }
+
+    .card-education-board {
+        --card-color: #00b894;
+        --card-color-light: #55efc4;
+    }
+
+    .card-education-level {
+        --card-color: #fdcb6e;
+        --card-color-light: #ffeaa7;
+    }
+
+    .card-country {
+        --card-color: #0984e3;
+        --card-color-light: #74b9ff;
+    }
+
+    .card-gender {
+        --card-color: #e17055;
+        --card-color-light: #fab1a0;
+    }
+
+    .card-marital-status {
+        --card-color: #d63031;
+        --card-color-light: #ff7675;
+    }
+
+    .card-organization {
+        --card-color: #2d3436;
+        --card-color-light: #636e72;
+    }
+
+    .card-yearly-bonus {
+        --card-color: #00cec9;
+        --card-color-light: #81ecec;
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-container {
+            padding: 20px;
+            margin: 10px;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="dashboard-container mb-2">
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">🏢</div>
+                <div class="card-content">
+                    <div class="card-title">Company Info</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">🏪</div>
+                <div class="card-content">
+                    <div class="card-title">Branch</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">📧</div>
+                <div class="card-content">
+                    <div class="card-title">Email Config</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <div class="card-title"><a href="/Currencys/Index">Manage Currency</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">💳</div>
+                <div class="card-content">
+                    <div class="card-title"><a href="/PaymentModes/Index">Payment Type</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">👥</div>
+                <div class="card-content">
+                    <div class="card-title">Customer Type</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">📊</div>
+                <div class="card-content">
+                    <div class="card-title">VAT Percentage</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">📂</div>
+                <div class="card-content">
+                    <div class="card-title">Manage Categories</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">📏</div>
+                <div class="card-content">
+                    <div class="card-title">Units of Measure</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" >
+            <div class="card-body">
+                <div class="card-icon">💸</div>
+                <div class="card-content">
+                    <div class="card-title">Expense Type</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-icon">🛡️</div>
+                <div class="card-content">
+                    <div class="card-title">Manage User Roles</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" >
+            <div class="card-body">
+                <div class="card-icon">🏛️</div>
+                <div class="card-content">
+                    <div class="card-title"><a href="/Departments/Index"> Department</a></div>
+                </div>
+            </div>
+        </div>
+        <!-- Designations -->
+        <div class="card card-designation" >
+            <div class="card-body">
+                <div class="card-icon">👔</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/Designations/Index">Designations</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Boards -->
+        <div class="card card-education-board" >
+            <div class="card-body">
+                <div class="card-icon">🏫</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/EducationBoards/Index">Education Boards</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Levels -->
+        <div class="card card-education-level" >
+            <div class="card-body">
+                <div class="card-icon">🎓</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/EducationLevels/Index">Education Levels</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Countries -->
+        <div class="card card-country" >
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">🌍</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/Countrys/Index">Countries</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Genders -->
+        <div class="card card-gender">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">🚻</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/Genders/Index">Genders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marital Status -->
+        <div class="card card-marital-status" >
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">💍</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/MaritalStatus/Index">Marital Status</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organizations -->
+        <div class="card card-organization">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">🏢</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/Organizations/Index">Organizations</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yearly End Bonus Type -->
+        <div class="card card-yearly-bonus">
+            <div class="card-body d-flex align-items-center">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <div class="card-title">
+                        <a href="/YearlyEndBonusType/Index">Yearly End Bonus Type</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+ *@

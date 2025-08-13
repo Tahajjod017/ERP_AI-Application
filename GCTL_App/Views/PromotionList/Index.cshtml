@@ -1,20 +1,22 @@
-﻿<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+﻿
+
+<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
     <div class="my-auto mb-2">
-        <h2 class="mb-1">Employee Promotion</h2>
+        <h2 class="mb-1">@Html.SmartLocalize("Employee Promotion")</h2>
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
                     <a href="#"><i class="ti ti-smart-home"></i></a>
                 </li>
-                <li class="breadcrumb-item">Employee</li>
-                <li class="breadcrumb-item active" aria-current="page">Promotion</li>
+                <li class="breadcrumb-item">@Html.SmartLocalize("Employee")</li>
+                <li class="breadcrumb-item active" aria-current="page">@Html.SmartLocalize("Promotion")</li>
             </ol>
         </nav>
     </div>
     <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
         <div class="mb-2">
             <a href="#" data-bs-toggle="modal" data-bs-target="#add_promotion" class="btn btn-primary d-flex align-items-center">
-                <i class="ti ti-circle-plus me-2"></i>Add Promotion
+                <i class="ti ti-circle-plus me-2"></i>@Html.SmartLocalize("Add Promotion")
             </a>
         </div>
     </div>
@@ -26,7 +28,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Pending Promotions</p>
+                        <p class="mb-1">@Html.SmartLocalize("Pending Promotions")</p>
                         <h4 id="pendingPromotions">0</h4>
                     </div>
                     <div class="d-flex">
@@ -45,7 +47,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Approved Promotions</p>
+                        <p class="mb-1">@Html.SmartLocalize("Approved Promotions")</p>
                         <h4 id="approvedPromotions">0</h4>
                     </div>
                     <div class="d-flex">
@@ -64,7 +66,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">This Month</p>
+                        <p class="mb-1">@Html.SmartLocalize("This Month")</p>
                         <h4 id="thisMonthPromotions">0</h4>
                     </div>
                     <div class="d-flex">
@@ -83,7 +85,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="text-start">
-                        <p class="mb-1">Total Promotions</p>
+                        <p class="mb-1">@Html.SmartLocalize("Total Promotions")</p>
                         <h4 id="totalPromotions">0</h4>
                     </div>
                     <div class="d-flex">
@@ -102,20 +104,19 @@
 <div class="mb-4">
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
-            <h4 class="mb-1">Employee Promotion List</h4>
+            <h4 class="mb-1">@Html.SmartLocalize("Employee Promotion List")</h4>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div class="me-3">
-                    <input class="form-control" id="searchInput" type="text" placeholder="Search by Employee Name">
+                    <input class="form-control" id="searchInput" type="text" placeholder="@Html.SmartLocalize("Search by Employee Name")">
                 </div>
                 <div class="me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y ">
+                        <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="@Html.SmartLocalize("d/m/y")">
                     </div>
                 </div>
                 <div class="dropdown me-3">
                     <select class="form-select" id="departmentFilter" data-choices="data-choices" size="1" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Select Department</option>
-
+                        <option value="">@Html.SmartLocalize("Select Department")</option>
                     </select>
                 </div>
                 <div class="dropdown me-3">
@@ -123,12 +124,10 @@
                         <option value="">@Html.SmartLocalize("Select Status")</option>
                     </select>
                 </div>
-
                 <div class="dropdown me-3">
-
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" id="">Showing</span>
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
                         </div>
                         <select class="form-select" id="pageSizeSelect" data-choices="data-choices" size="1" name="pageSizeSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
                             <option value="10">10</option>
@@ -137,30 +136,22 @@
                             <option value="100">100</option>
                         </select>
                     </div>
-
-
                 </div>
-
             </div>
         </div>
         <div class="border-translucent p-3 pt-0">
             <div id="promotionListTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="dynTable">
                         <thead>
                             <tr>
-                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" id="checkAll" />
-                                    </div>
-                                </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">Employee</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department">Department</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentPosition">Current Position</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="promotedPosition">Promoted Position</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="salaryIncrease">Salary Increase</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Department")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentPosition" data-column="2">@Html.SmartLocalize("Current Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="promotedPosition" data-column="3">@Html.SmartLocalize("Promoted Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate"data-column="4">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="salaryIncrease" data-column="5">@Html.SmartLocalize("Salary Increase")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="6">@Html.SmartLocalize("Status")</th>
                             </tr>
                         </thead>
                         <tbody class="list" id="promotion-body">
@@ -188,7 +179,7 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Add/Edit Promotion</h4>
+                <h4 class="modal-title">@Html.SmartLocalize("Add/Edit Promotion")</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -205,7 +196,217 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionForm.js"></script>
+    
     <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionList.js"></script>
-
+    <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionForm.js"></script>
 }
+
+
+
+@*<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="my-auto mb-2">
+            <h2 class="mb-1">Employee Promotion</h2>
+            <nav>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="#"><i class="ti ti-smart-home"></i></a>
+                    </li>
+                    <li class="breadcrumb-item">Employee</li>
+                    <li class="breadcrumb-item active" aria-current="page">Promotion</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="mb-2">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#add_promotion" class="btn btn-primary d-flex align-items-center">
+                    <i class="ti ti-circle-plus me-2"></i>Add Promotion
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-black-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">Pending Promotions</p>
+                            <h4 id="pendingPromotions">0</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-clock fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-purple-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">Approved Promotions</p>
+                            <h4 id="approvedPromotions">0</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-check fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-pink-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">This Month</p>
+                            <h4 id="thisMonthPromotions">0</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-calendar-month fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-blue-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">Total Promotions</p>
+                            <h4 id="totalPromotions">0</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-trending-up fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+                <h4 class="mb-1">Employee Promotion List</h4>
+                <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                    <div class="me-3">
+                        <input class="form-control" id="searchInput" type="text" placeholder="Search by Employee Name">
+                    </div>
+                    <div class="me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y ">
+                        </div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select" id="departmentFilter" data-choices="data-choices" size="1" name="departmentFilter" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">Select Department</option>
+
+                        </select>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select choiceDD" id="promotionStatusFilter" asp-items="@ViewBag.PromotionStatusList as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Status")</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="">Showing</span>
+                            </div>
+                            <select class="form-select" id="pageSizeSelect" data-choices="data-choices" size="1" name="pageSizeSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="border-translucent p-3 pt-0">
+                <div id="promotionListTable">
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <table class="table table-sm fs-9 leads-table">
+                            <thead>
+                                <tr>
+
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">Employee</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department">Department</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentPosition">Current Position</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="promotedPosition">Promoted Position</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">Effective Date</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="salaryIncrease">Salary Increase</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="promotion-body">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row align-items-center justify-content-between pe-0 fs-9">
+                        <div class="col-auto d-flex">
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        </div>
+                        <div class="col-auto d-flex">
+                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                            <ul class="mb-0 pagination"></ul>
+                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="add_promotion">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add/Edit Promotion</h4>
+                    <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                @await Html.PartialAsync("~/Views/Promotion/_PromotionForm.cshtml")
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionList.js"></script>
+        <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionForm.js"></script>
+
+    }*@

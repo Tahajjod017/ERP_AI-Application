@@ -2,6 +2,18 @@
     var mainTab = "CompanySetting";
     var subTab = "Company";
 }
+<style>
+    /* Styling for the dropdown */
+    .dropdown-menu {
+        min-width: 200px;
+        padding: 10px;
+    }
+
+    .column-toggle {
+        margin-right: 10px;
+    }
+
+</style>
 
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
@@ -14,7 +26,7 @@
                         <h4>Organization Settings</h4>
                     </div>
                     <form id="companySettingsForm" asp-controller="CompanySettings" asp-action="Create" method="post" enctype="multipart/form-data">
-                        <div class="border-bottom mb-3">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div>
@@ -193,10 +205,10 @@
 <partial name="_ConfirmDelete" />
 
 
-@section Scripts {
+@section Scripts { 
     <script src="~/js/pages/adminsettings/organizationsettings/companysetting.js"></script>
-        @* //https://maps.googleapis.com/maps/api/js?key=AIzaSyAeHMgN5z-dNA7bE5bpXosfFlEijVN6pyI&callback=initMap *@
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAeHMgN5z-dNA7bE5bpXosfFlEijVN6pyI&libraries=places&callback=initMap" async defer></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places&callback=initMap" async defer></script>
 
 }
 

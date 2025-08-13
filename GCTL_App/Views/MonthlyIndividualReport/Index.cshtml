@@ -17,8 +17,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 
 <style>
-    /* Custom CSS to display months in 3 columns, only for a specific Flatpickr instance */
-    /* Make the container display in 3 columns */
+    
     .flatpickr-monthSelect-months {
         display: grid;
         grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
@@ -139,7 +138,7 @@
                                 <h5>10</h5>
                                 <span class="badge badge-phoenix badge-phoenix-success">
                                     <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    06 %
+                                    00 %
                                 </span>
                             </div>
                         </div>
@@ -163,7 +162,7 @@
                 <!-- Data searching -->
                 <div class="card-header d-flex justify-content-between flex-wrap row-gap-3 mb-4">
 
-                    <h4 class="mb-1">Employee Name (Designation)</h4>
+                    <h4 class="mb-1">Shefain ()</h4>
                     <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
 
                         <div class="dropdown me-3">
@@ -187,22 +186,21 @@
                             <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
                                 <option value="">Employee Name</option>
                                 <option>Abdullah</option>
-                                <option>Juel Rana</option>
+                                <option>Shefain </option>
                                 <option>Hasan</option>
-                                <option>Nozib-ullah</option>
+                                <option>Rakib</option>
                             </select>
                         </div>
-                        <div class="">
-                          <input type="text" id="year-month-picker-1" class="form-control" />
-
-                        </div>
                         
-
+                    <div class="flatpickr-input-container me-3">
+                        <input class="form-control ps-6 flatpickr-input" id="year-month-picker-1" type="text" readonly="readonly" placeholder="Select Month">
+                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                    </div>
                     </div>
                 </div>
 
                 <!-- All Employee monthly attendance Table-->
-            <div id="individualEmployeemonthlyAttendanceTable">
+            @* <div id="individualEmployeemonthlyAttendanceTable">
                 <div class="table-responsive">
                     <table class="table-bordered text-center p-2">
                         <thead>
@@ -216,10 +214,24 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> *@
+@*             <div id="individualEmployeemonthlyAttendanceTable">
+                <div class="table-responsive">
+                    <table class="table-bordered text-center p-2">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <!-- Days will be populated dynamically here -->
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <!-- Rows for check-in, check-out, etc. will be populated dynamically here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div> *@
 
-
-               @*  <div id="individualEmployeemonthlyAttendanceTable" data-list='{"valueNames":["empName"],"page":3,"pagination":true}'>
+              <div id="individualEmployeemonthlyAttendanceTable">
                     <div class="table-responsive">
                         <table class=" table-bordered text-center p-2">
                             <thead>
@@ -359,8 +371,8 @@
                                 </tr>
                                 <tr>
                                     <th>Late</th>
-                                    <td class="fs-10 fw-normal">5 Min</td>
-                                    <td class="fs-10 fw-normal">5 Min</td>
+                                    <td class="fs-10 fw-normal">15 Min</td>
+                                    <td class="fs-10 fw-normal">50 Min</td>
                                     <td class="fs-10 fw-normal">-</td>
                                     <td class="fs-10 fw-normal">5 Min</td>
                                     <td class="fs-10 fw-normal">4.12 H</td>
@@ -750,7 +762,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div> *@
+                </div> 
                 <!-- Leave Explaination-->
                 <div class="d-flex my-3 flex-wrap border-bottom ">
                     <div class="full-present me-2">

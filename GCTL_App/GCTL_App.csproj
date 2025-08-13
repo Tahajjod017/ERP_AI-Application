@@ -58,9 +58,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\Employees\EmployeeTermination\" />
     <Folder Include="ViewModels\ProjectManagements\" />
     <Folder Include="Views\LeadSources\" />
     <Folder Include="wwwroot\img\companyImages\" />
+    <Folder Include="wwwroot\js\pages\Employees\EmployeeTermination\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
     <Folder Include="wwwroot\uploads\employee\signatures\" />
 

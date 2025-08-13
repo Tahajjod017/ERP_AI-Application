@@ -1,0 +1,258 @@
+﻿@model GCTL.Core.ViewModels.Employee.EmployeeResign.ResignationPostViewModel
+
+<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-1">
+    <div class="my-auto mb-2">
+        <h2 class="mb-1">@Html.SmartLocalize("Resignation List")</h2>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="#"><i class="ti ti-smart-home"></i></a>
+                </li>
+                <li class="breadcrumb-item">@Html.SmartLocalize("Employee")</li>
+                <li class="breadcrumb-item active" aria-current="page">@Html.SmartLocalize("Resignation")</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+        <div class="mb-2">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#new_resignation" class="btn btn-primary d-flex align-items-center">
+                <i class="ti ti-circle-plus me-2"></i>@Html.SmartLocalize("Add Resignation")
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-0">
+            <h4 class="mb-1">@Html.SmartLocalize("Employee Resignation List")</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <select id="pageSize" class="form-select form-select-sm choiceDD" style="width:auto;">
+                        <option value="5">5 per page</option>
+                        <option value="10" selected>10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top border-translucent px-3">
+            <div id="employeeListTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="resignTBL">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="rEmpName" data-column="0">Resigning Employee Name</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="rEmpDept" data-column="1">Department</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resignResons" data-column="2">Reason</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resNoticeDate" data-column="3">Notice Date</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resinDate" data-column="4">Termination Date</th>
+                                <th class="sort text-end align-middle pe-0 ps-4" scope="col" data-column="5"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="purchasers-sellers-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9 mb-3">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <ul class="mb-0 pagination"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="new_resignation">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Resignation</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <form>
+                <div class="modal-body pb-0">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label" for="company">Company</label>
+                                <select class="form-select choiceDD" name="CompanyId" id="company" asp-items="@ViewBag.OrganizationDD" required data-url="@Url.Action("GetEmployeesByCompany", "EmployeeResign")" >
+                                    <option value="">Select Company</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Resigning Employee</label>
+                                <select class="form-select choiceDD" name="EmployeeId" id="employeeId" asp-items="@ViewBag.EmployeeDD" required>
+                                    <option value="">Select Employee</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3 position-relative">
+                                <div class="content-head d-flex justify-content-between align-items-center">
+                                    <label class="form-label">@Html.SmartLocalize("Notice Date")</label>
+                                </div>
+                                <div class="position-relative">
+                                    <input class="form-control datetimepicker" name="NoticeDate" id="noticeDate" type="text" placeholder="dd/mm/yyyy" required
+                                           data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                          style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3 position-relative">
+                                <div class="content-head d-flex justify-content-between align-items-center">
+                                    <label class="form-label">@Html.SmartLocalize("Resignation Date")</label>
+                                </div>
+                                <div class="position-relative">
+                                    <input class="form-control datetimepicker" name="ResignationDate" id="resignationDate" type="text" placeholder="dd/mm/yyyy" required
+                                           data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Reason</label>
+                                <textarea class="form-control" name="Reason" rows="3" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white border me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Resignation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Resignation Modal -->
+<div class="modal fade" id="edit_resignation">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Resignation</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <form>
+                <div class="modal-body pb-0">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label" for="editCompany">Company</label>
+                                <select class="form-select choiceDD" id="editCompany" asp-items="@ViewBag.OrganizationDD" required>
+                                    <option value="">Select Company</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Resigning Employee</label>
+                                <select class="form-select choiceDD" id="editEmployeeId" asp-items="@ViewBag.EmployeeDD" required>
+                                    <option value="">Select Employee</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3 position-relative">
+                                <div class="content-head d-flex justify-content-between align-items-center">
+                                    <label class="form-label">@Html.SmartLocalize("Notice Date")</label>
+                                </div>
+                                <div class="position-relative">
+                                    <input class="form-control datetimepicker" id="editNoticeDate" type="text" placeholder="dd/mm/yyyy" required
+                                           data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
+                                          style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3 position-relative">
+                                <div class="content-head d-flex justify-content-between align-items-center">
+                                    <label class="form-label">@Html.SmartLocalize("Resignation Date")</label>
+                                </div>
+                                <div class="position-relative">
+                                    <input class="form-control datetimepicker" id="editResignationDate" type="text" placeholder="dd/mm/yyyy" required
+                                           data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Reason</label>
+                                <textarea class="form-control" rows="3" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white border me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="delete_modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger text-danger mb-3">
+                    <i class="fa fa-trash fs-36"></i>
+                </span>
+                <h4 class="mb-1">Confirm Delete</h4>
+                <p class="mb-3">You want to delete this resignation record, this can't be undone once you delete.</p>
+                <div class="d-flex justify-content-center">
+                    <a href="javascript:void(0);" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</a>
+                    <a href="javascript:void(0);" class="btn btn-danger">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/Employees/EmployeeResign/ResignEntry.js"></script>
+}

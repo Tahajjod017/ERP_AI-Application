@@ -7,6 +7,7 @@ using GCTL.Core.ViewModels.Employee.EmpTransfer;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.Employees.EmpTransfer
 {
@@ -29,8 +31,12 @@ namespace GCTL.Service.Employees.EmpTransfer
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly IGenericRepository<OrganizationBranches> organizationBranch;
+        private readonly IGenericRepository<EmployeeTransferHistory> transferhistoryRepository;
         private readonly IGenericRepository<Alerts> alertsRepository;
-        public EmployeeTransferService(IGenericRepository<EmployeeTransfer> genericRepository, IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<OrganizationBranches> organizationBranch, IGenericRepository<Alerts> alertsRepository) : base(genericRepository)
+        private readonly IGenericRepository<AlertForEmployee> alertForEmployeeRepository;
+        private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
+        private readonly IGenericRepository<Statuses> statusRepository;
+        public EmployeeTransferService(IGenericRepository<EmployeeTransfer> genericRepository, IGenericRepository<EmployeeTransfer> repositoryEmployeeTransfer, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<OrganizationBranches> organizationBranch, IGenericRepository<Alerts> alertsRepository, IGenericRepository<EmployeeTransferHistory> transferhistoryRepository, IGenericRepository<AlertForEmployee> alertForEmployeeRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> statusRepository) : base(genericRepository)
         {
             this.repositoryEmployeeTransfer = repositoryEmployeeTransfer;
             this.employee = employee;
@@ -42,6 +48,10 @@ namespace GCTL.Service.Employees.EmpTransfer
             this.empoffi = empoffi;
             this.organizationBranch = organizationBranch;
             this.alertsRepository = alertsRepository;
+            this.transferhistoryRepository = transferhistoryRepository;
+            this.alertForEmployeeRepository = alertForEmployeeRepository;
+            this.approvaldesignation = approvaldesignation;
+            this.statusRepository = statusRepository;
         }
 
         #region Get All
@@ -61,7 +71,7 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 // 🔹 Step 3: Base query with includes
 
-                var query = repositoryEmployeeTransfer.AllActive() .Include(x => x.Employee)
+                var query = repositoryEmployeeTransfer.AllActive().Include(x=>x.Status).Include(x => x.Employee)
              .Include(x => x.FromOrganization).Include(x => x.ToOrganization)
              .Include(x => x.FromOrganizationBranch).Include(x => x.ToOrganizationBranch).Include(x=>x.FromDepartment)
              .Include(x=>x.ToDepartment).Include(x=>x.FromDesignation).Include(x => x.ToDesignation)
@@ -173,13 +183,14 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                        EmployeeTransferID = b.EmployeeTransferID,
                        TransferDate = DateTimeHelpers.FormatDateTime(b.TransferDate),
-                       FromOrganizationName = b.FromOrganization?.OrganizationName ?? "",
-                       ToOrganizationName = b.ToOrganization?.OrganizationName ?? "",
-                       FromOrganizationBranchName = b.FromOrganizationBranch?.OrganizationBranchName ?? "",
-                       ToOrganizationBranchName = b.ToOrganizationBranch?.OrganizationBranchName ?? "",
-                       FromDepartmentName = b.FromDepartment.DepartmentName,
-                       ToDepartmentName = b.ToDepartment.DepartmentName,
-                       FromDesignationName=b.FromDepartment.DepartmentName, 
+                       FromOrganizationName =b.FromOrganization !=null ? b.FromOrganization?.OrganizationName : "",
+                       ToOrganizationName = b.ToOrganization != null ? b.ToOrganization?.OrganizationName : "",
+                       FromOrganizationBranchName = b.FromOrganizationBranch != null ? b.FromOrganizationBranch?.OrganizationBranchName : "",
+                       ToOrganizationBranchName = b.ToOrganizationBranch != null ? b.ToOrganizationBranch?.OrganizationBranchName : "",
+                       FromDepartmentName =b.FromDepartment  !=null ? b.FromDepartment.DepartmentName : "",
+                       ToDepartmentName =b.ToDepartment !=null ? b.ToDepartment.DepartmentName : "",
+                       FromDesignationName= b.FromDepartment != null ? b.FromDepartment.DepartmentName : "", 
+                       StatusName = b.Status !=null ? b.Status.StatusName : "",
                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName ?? ""} {b.Employee.LastName ?? ""}".Trim(): "",
                        EmployeeImage = b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)? url + b.Employee.EmployeeImageFileName : "",
                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
@@ -203,11 +214,95 @@ namespace GCTL.Service.Employees.EmpTransfer
 
         #endregion
 
+        #region IsExistAnyRole
+        public async Task<CommonReturnViewModel> CheckIfEmployeeHasApprovalRoleAsync(EmployeeTransferAddVM entityVM, int? approvalPersonId)
+        {
+            
+            // Check if employee is in any ApprovalSettings role
+            var hasRoleInApprovalSettings = await approvalSettingsRepository.AllActive().AnyAsync(x =>
+                x.FirstApprovalID == entityVM.EmployeeID ||
+                x.SecondApprovalID == entityVM.EmployeeID ||
+                x.ThirdApprovalID == entityVM.EmployeeID ||
+                x.SelfExceptionApprovalID==entityVM.EmployeeID 
+            );
+
+            // Check if employee is set as any supervisor in EmployeeOfficeInfo
+            var hasRoleInOfficeInfo = await empoffi.AllActive().AnyAsync(x =>
+                x.SeniorSupervisorId == entityVM.EmployeeID ||
+                x.ImmediateSupervisorId == entityVM.EmployeeID ||
+                x.HeadOfDepartmentId == entityVM.EmployeeID
+            
+            );
+
+            if (hasRoleInApprovalSettings || hasRoleInOfficeInfo)
+            {
+                // Create alert
+                var alert = new Alerts
+                {
+                    AlertTitle = "Employee Transfer",
+                    AlertNote = "This employee is currently assigned to an approval or supervisory role.",
+                    LMAC = entityVM.LMAC,
+                    LIP = entityVM.LIP,
+                    CreatedBy = entityVM.CreatedBy,
+                    CreatedAt = DateTime.Now,
+                };
+
+                await alertsRepository.AddAsync(alert);
+                var empAlert = new AlertForEmployee
+                {
+                    AlertID = alert.AlertID,
+                    EmployeeID = approvalPersonId,  // for alert Employee
+                    IsChecked = false,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = entityVM.CreatedBy,
+                };
+                await alertForEmployeeRepository.AddAsync(empAlert);
+             
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "This employee is currently assigned to an approval or supervisory role. An alert has been created."
+                };
+            }
+
+            return new CommonReturnViewModel
+            {
+                Success = true
+            };
+        }
+
+        #endregion
+
+
         #region Save Data
-    
+        // Approver persons according to Designation
+        private async Task<int?> ResolveApprovalAsync(int? approvalId, bool isDesignation, dynamic offf)
+        {
+            if (!approvalId.HasValue) return null;
+
+            if (isDesignation)
+            {
+                var code = await approvaldesignation.AllActive()
+                    .Where(x => x.ApprovalDesignationID == approvalId)
+                    .Select(x => x.Code).FirstOrDefaultAsync();
+
+                return code switch
+                {
+                    1 => offf.ImmediateSupervisorId,
+                    2 => offf.SeniorSupervisorId,
+                    3 => offf.HeadOfDepartmentId,
+                    _ => null
+                };
+            }
+
+            return approvalId;
+        }
         public async Task<CommonReturnViewModel> SaveEmployeeTansferAsync(EmployeeTransferAddVM entityVM)
         {
             await repositoryEmployeeTransfer.BeginTransactionAsync();
+            // Check Rul
 
             if (entityVM == null || entityVM.EmployeeID == 0)
             {
@@ -234,31 +329,94 @@ namespace GCTL.Service.Employees.EmpTransfer
 
             try
             {
-                //
+                // Get office info
                 var offf = await empoffi.AllActive()
-    .Where(x => x.EmployeeID == entityVM.EmployeeID)
-    .Select(x => new
-    {
-        x.EmployeeID,
-        x.OrganizationID,
-        x.OrganizationBranchID,
-        x.SeniorSupervisorId,
-        x.ImmediateSupervisorId,
-        x.HeadOfDepartmentId
-    }).FirstOrDefaultAsync();
+                    .Where(x => x.EmployeeID == entityVM.EmployeeID)
+                    .Select(x => new
+                    {
+                        x.EmployeeID,
+                        x.OrganizationID,
+                        x.OrganizationBranchID,
+                        x.SeniorSupervisorId,
+                        x.ImmediateSupervisorId,
+                        x.HeadOfDepartmentId
+                    }).FirstOrDefaultAsync();
 
                 if (offf == null)
                     return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
 
+                // Get approval settings
                 var approvalSettings = await approvalSettingsRepository.AllActive()
-                    .Include(x => x.ApprovalType).Where(x =>
-                        x.OrganizationID == offf.OrganizationID &&
-                        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                        x.ApprovalType.ApprovalTypeName == "Leave Request Approval").FirstOrDefaultAsync();
+                    .Include(x => x.ApprovalType)
+                    .Where(x =>
+                        x.ApprovalType.ApprovalTypeName == "Transfer Approval")
+                    .FirstOrDefaultAsync();
 
-                //if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
-                //
+                if (approvalSettings == null)
+                    return new CommonReturnViewModel { Success = false, Message = "No active Transfer Approval settings found." };
+
+                // Build approval flow
+                 var approvalFlow = new List<(int? id, bool isDesignation)>
+                    {
+                        (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+                        (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+                        (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+                    };
+
+                int? approvalPersonId = null;
+                // Determine if the current employee is already an approver
+                bool isFirstApprover = approvalSettings.FirstApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpFirstApprovalID;
+                bool isSecondApprover = approvalSettings.SecondApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpSecondApprovalID && approvalSettings.IsEnableSecondApproval;
+                bool isThirdApprover = approvalSettings.ThirdApprovalID == entityVM.EmployeeID && !approvalSettings.IsDesignationOrEmpThirdApprovalID && approvalSettings.IsEnableThirdApproval;
+
+                // Determine next approver
+                if (isFirstApprover)
+                {
+                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID, offf)
+                        ?? await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf)
+                        ?? (approvalSettings.AllowSelfApproval == false
+                            ? await ResolveApprovalAsync(approvalSettings.SelfExceptionApprovalID, false, offf)
+                            : null);
+                }
+                else if (isSecondApprover)
+                {
+                    approvalPersonId = await ResolveApprovalAsync(approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID, offf)
+                        ?? (approvalSettings.AllowSelfApproval == false
+                            ? await ResolveApprovalAsync(approvalSettings.SelfExceptionApprovalID, false, offf)
+                            : null);
+                }
+                else if (isThirdApprover)
+                {
+                    approvalPersonId = (approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue)
+                        ? await ResolveApprovalAsync(approvalSettings.SelfExceptionApprovalID, false, offf)
+                        : null;
+                }
+                else
+                {
+                    // General Employee - start from top of the flow
+                    foreach (var (id, isDesignation) in approvalFlow)
+                    {
+                        var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+
+                        if (resolvedId.HasValue && resolvedId != entityVM.CreatedBy)
+                        {
+                            approvalPersonId = resolvedId;
+                            break;
+                        }
+                    }
+                }
+
+                // Final fallback
+                if (approvalPersonId == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "No valid approver found. Transfer request cannot be self-approved."
+                    };
+                }
                 // Step 1: Save transfer record
+                int employeeTransferID = 0;
                 var entity = new EmployeeTransfer
                 {
                     EmployeeID = entityVM.EmployeeID,
@@ -268,11 +426,12 @@ namespace GCTL.Service.Employees.EmpTransfer
                     ToOrganizationBranchID = entityVM.ToOrganizationBranchID,
                     TransferNote = entityVM.TransferNote,
                     TransferDate = entityVM.TransferDate,
-                    FromDepartmentID= entityVM.FromDepartmentID,
-                    FromDesignationID= entityVM.FromDesignationID,
-                    ToDepartmentID= entityVM.ToDepartmentID,
-                    ToDesignationID= entityVM.ToDesignationID,
+                    FromDepartmentID = entityVM.FromDepartmentID,
+                    FromDesignationID = entityVM.FromDesignationID,
+                    ToDepartmentID = entityVM.ToDepartmentID,
+                    ToDesignationID = entityVM.ToDesignationID,
                     TransferType = entityVM.TransferType ?? "",
+                    ApprovalPersonID = approvalPersonId,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -280,50 +439,10 @@ namespace GCTL.Service.Employees.EmpTransfer
                 };
 
                 await repositoryEmployeeTransfer.AddAsync(entity);
-
-                // Step 2: Update EmployeeOfficeInfo
-                var getByIdEmpoffi = await empoffi.AllActive() .FirstOrDefaultAsync(x => x.EmployeeID == entityVM.EmployeeID);
-
-                if (getByIdEmpoffi == null)
-                {
-                    await repositoryEmployeeTransfer.RollbackTransactionAsync();
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Employee not found in official info table"
-                    };
-                }
-                
-                if (entityVM.TransferType == "Organization")
-                {
-                    getByIdEmpoffi.OrganizationID = entityVM.ToOrganizationID;
-                    getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
-                }
-                else if (entityVM.TransferType == "Branch")
-                {
-                    getByIdEmpoffi.OrganizationBranchID = entityVM.ToOrganizationBranchID;
-                }
-                getByIdEmpoffi.DesignationID = entityVM.ToDesignationID;
-                getByIdEmpoffi.DepartmentID = entityVM.ToDepartmentID;
-                //await empoffi.UpdateAsync(getByIdEmpoffi);
-
-                //Notifications
-                //if (approvalSettings != null)
-                //{
-                //    var alert = new Alerts
-                //    {
-                //        AlertForEmployeeID = entityVM.EmployeeID,
-                //        AlertNote = "AlertNote",
-                //        IsChecked = false,
-                //    };
-                //    await alertsRepository.AddAsync(alert);
-                //}
-                  
-                //
-                // Step 3: Commit transaction
+                employeeTransferID = entity.EmployeeTransferID;
+                await CheckIfEmployeeHasApprovalRoleAsync(entityVM, approvalPersonId);   // Role Checked
                 await repositoryEmployeeTransfer.CommitTransactionAsync();
-
-                return new CommonReturnViewModel { Success = true, Message = "Saved successfully" };
+                return new CommonReturnViewModel { Success = true, Message = "Saved Successfully" };
             }
             catch (Exception ex)
             {
@@ -436,18 +555,15 @@ namespace GCTL.Service.Employees.EmpTransfer
 
                 var approvalSettings = await approvalSettingsRepository.AllActive()
                     .Include(x => x.ApprovalType).Where(x =>
-                        x.OrganizationID == offf.OrganizationID &&
-                        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
-                        x.ApprovalType.ApprovalTypeName == "Leave Request Approval").FirstOrDefaultAsync();
+                        x.ApprovalType.ApprovalTypeName == "Transfer Approval").FirstOrDefaultAsync();
 
                 //if (approvalSettings != null) return new CommonReturnViewModel { Success = false, Message = "This employee is currently part of an active Leave Request Approval configuration. Please remove the approval role before transferring." };
-
                 //
                 // Step 1: Find existing transfer record
                 var existingEntity = await repositoryEmployeeTransfer.AllActive()
                     .FirstOrDefaultAsync(x =>
-                        x.EmployeeID == entityVM.EmployeeIDEdit &&
-                        x.TransferDate == entityVM.TransferDateEdit
+                        x.EmployeeID == entityVM.EmployeeIDEdit
+                       
                     );
 
                 if (existingEntity == null)
@@ -467,18 +583,19 @@ namespace GCTL.Service.Employees.EmpTransfer
                         x.ToOrganizationID == entityVM.ToOrganizationIDEdit &&
                         x.ToOrganizationBranchID == entityVM.ToOrganizationBranchIDEdit &&
                         x.TransferDate == entityVM.TransferDateEdit &&
-                        x.EmployeeTransferID != existingEntity.EmployeeTransferID // exclude current
+                        x.EmployeeTransferID != existingEntity.EmployeeTransferID &&
+                        x.Status.StatusName !="DECLINED"
                     );
 
-                if (isDuplicate)
-                {
-                    await repositoryEmployeeTransfer.RollbackTransactionAsync();
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Duplicate transfer record already exists."
-                    };
-                }
+                //if (isDuplicate)
+                //{
+                //    await repositoryEmployeeTransfer.RollbackTransactionAsync();
+                //    return new CommonReturnViewModel
+                //    {
+                //        Success = false,
+                //        Message = "Duplicate transfer record already exists."
+                //    };
+                //}
 
                 // Step 2: Update transfer fields
                 existingEntity.FromOrganizationID = entityVM.FromOrganizationIDEdit;
@@ -493,31 +610,6 @@ namespace GCTL.Service.Employees.EmpTransfer
                 existingEntity.UpdatedAt = DateTime.Now;
                 existingEntity.UpdatedBy = entityVM.UpdatedBy;
                 await repositoryEmployeeTransfer.UpdateAsync(existingEntity);
-
-                // Step 3: Update employee official info
-                var empOfficialInfo = await empoffi.AllActive()
-                    .FirstOrDefaultAsync(x => x.EmployeeID == entityVM.EmployeeIDEdit);
-
-                if (empOfficialInfo != null)
-                {
-                    if (entityVM.TransferTypeEdit == "Organization")
-                    {
-                        empOfficialInfo.OrganizationID = entityVM.ToOrganizationIDEdit;
-                        empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
-                    }
-                    else if (entityVM.TransferTypeEdit == "Branch")
-                    {
-                        empOfficialInfo.OrganizationBranchID = entityVM.ToOrganizationBranchIDEdit;
-                    }
-                    empOfficialInfo.DesignationID = entityVM.ToDesignationIDEdit;
-                    empOfficialInfo.DepartmentID = entityVM.ToDepartmentIDEdit;
-                    await empoffi.UpdateAsync(empOfficialInfo);
-                }
-
-                //
-                
-                //
-                // Step 4: Commit transaction
                 await repositoryEmployeeTransfer.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
@@ -665,7 +757,44 @@ namespace GCTL.Service.Employees.EmpTransfer
             };
         }
 
-       
+
+
+        #endregion
+
+        #region Person Leave Step  
+
+        public async Task<List<PersonTransferStepVM>> GetByPersonTransferStepVM(int employeeTransferID)
+        {
+            try
+            {
+                var result = await (
+                    from lb in transferhistoryRepository.AllActive()
+                        .Where(x => x.EmployeeTransferID == employeeTransferID)
+                        .AsNoTracking()
+                    join statusName in statusRepository.AllActive()
+                        .Select(x => new { x.StatusID, x.StatusName })
+                        on lb.StatusID equals statusName.StatusID
+                    join e in employee.AllActive()
+                        .Select(x => new { x.EmployeeID, x.FirstName, x.LastName })
+                        on lb.ApprovalPersonID equals e.EmployeeID
+                    
+                    select new PersonTransferStepVM
+                    {
+                        ApprovarNote = lb.ApprovalPersonNote ?? string.Empty,
+                        ApproverStep = lb.ApprovalStep ?? 0,
+                        ApprovarPerson = e.FirstName + " " + e.LastName ?? string.Empty,
+                        StatusName = statusName.StatusName ?? string.Empty,
+                        ApprovedOrDeclineDate = DateTimeHelpers.FormatDateTime(lb.CreatedAt),
+
+                    }).OrderBy(X => X.ApproverStep).ToListAsync();
+
+                return result ?? new List<PersonTransferStepVM>();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         #endregion
     }

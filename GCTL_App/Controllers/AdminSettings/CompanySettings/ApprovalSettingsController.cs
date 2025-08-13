@@ -3,10 +3,12 @@ using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
+    [Authorize]
     public class ApprovalSettingsController : BaseController
     {
         private readonly IApprovalSettingService _approvalSettingService;
@@ -17,6 +19,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         public async Task<IActionResult> Index()
         {
+            SmartLocalizeText("585585568");
             ViewBag.Organizations = await _approvalSettingService.GetOrganizationsAsync();
             ViewBag.ApprovalTypes = await _approvalSettingService.GetApprovalTypesAsync();
             //ViewBag.Employees = await _approvalSettingService.GetEmployeeWithApprovalDesignationAsync();
