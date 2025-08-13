@@ -1,12 +1,34 @@
 ﻿$(document).ready(function () {
 
-   
+    
+    $("select[name='OrganizationID']").on("changed.coreui.multi-select", function () {
+        validateOrganization();
+    });
+
+    function validateOrganization()
+    {
+        var orgSelect = $("select[name='OrganizationID']");
+        var selectedValues = orgSelect.val();
+        var errorSpan = $("#OrganizationID-error");
+        if (!selectedValues || selectedValues.length === 0) {
+            errorSpan.text("Please select an organization.");
+            orgSelect.css('border', '1px solid red');
+            return false;
+        } else {
+            errorSpan.text("");
+            orgSelect.css('border', '1px solid #ccc');
+            return true;
+        }
+    }
+
 
     $("#PayRollEmpSave").on("click", function (e) {
         e.preventDefault();
-
+        if (!validateOrganization()) {
+            
+            return;
+        }
         var formData = new FormData();
-
         // ====== Dropdowns / Inputs ======
         formData.append("OrganizationID", $("select[name='OrganizationID']").val());
         formData.append("HealthInsurance", $("input[name='HealthInsurance']").val());
@@ -25,7 +47,6 @@
         formData.append("IsFastivalBonusEnabled", $("#IsFastivalBonusEnabled").is(":checked"));
         formData.append("IsProvidentFundEnabled", $("#IsProvidentFundEnabled").is(":checked"));
         formData.append("IsYearEndBonusEnabled", $("#IsYearEndBonusEnabled").is(":checked"));
-     
         $.ajax({
             url: '/EmployeeBenefits/Create',
             type: 'POST',
@@ -35,8 +56,9 @@
             success: function (res) {
              
                 if (res.success) {
-                    toastr.success(res.message); // "Save Successfully"
+                    toastr.success(res.message); 
                     resetPayRollForm();
+                    loadTableData();
                 } else {
                     toastr.error(res.message); 
                 }
@@ -48,6 +70,113 @@
         });
     });
 
+    
+
+    //
+    $(document).on('click', '#PayRollEmpUpdate', function (e) {
+        e.preventDefault();
+
+        const formData = new FormData();
+
+        formData.append("EmployeeBenefitIDEdit", $("#EmployeeBenefitIDEdit").val());
+        formData.append("OrganizationIDEdit", $("#OrganizationIDEdit").val());
+        formData.append("HealthInsuranceEdit", $("#HealthInsuranceEdit").val());
+        formData.append("IsHealthInsuranceEnabledEdit", $("#IsHealthInsuranceEnabledEdit").is(":checked"));
+        formData.append("IsPerformanceBonusEnabledEdit", $("#IsPerformanceBonusEnabledEdit").is(":checked"));
+        formData.append("IsFastivalBonusEnabledEdit", $("#IsFastivalBonusEnabledEdit").is(":checked"));
+        formData.append("IsProvidentFundEnabledEdit", $("#IsProvidentFundEnabledEdit").is(":checked"));
+        formData.append("IsYearEndBonusEnabledEdit", $("#IsYearEndBonusEnabledEdit").is(":checked"));
+        formData.append("PerformanceBonusEdit", $("#PerformanceBonusEdit").val());
+        formData.append("FastivalBonusRateEdit", $("#FastivalBonusRateEdit").val());
+        formData.append("FastivalBonusOnSalaryTypeIDEdit", $("#FastivalBonusOnSalaryTypeIDEdit").val());
+        formData.append("FastivalBonusMinimumServiceInMonthEdit", $("#FastivalBonusMinimumServiceInMonthEdit").val());
+        formData.append("ProvidentFundEmployeeContrebutionEdit", $("#ProvidentFundEmployeeContrebutionEdit").val());
+        formData.append("ProvidentFundOrganizationContrebutionEdit", $("#ProvidentFundOrganizationContrebutionEdit").val());
+        formData.append("ProvidentFundOnSalaryTypeIDEdit", $("#ProvidentFundOnSalaryTypeIDEdit").val());
+        formData.append("ProvidentFundMinimumServiceYearEdit", $("#ProvidentFundMinimumServiceYearEdit").val());
+        formData.append("YearlyEndBonusTypeIDEdit", $("#YearlyEndBonusTypeIDEdit").val());
+
+        // Validation for organization selection
+        if (!$("#OrganizationIDEdit").val()) {
+            toastr.error("Please select an organization.");
+            return;
+        }
+
+        $.ajax({
+            url: '/EmployeeBenefits/Update',
+            type: 'POST',
+            data: formData,
+            processData: false,  // Required for FormData
+            contentType: false,  // Required for FormData
+            success: function (res) {
+                if (res.success) {
+                    toastr.success(res.message || "Employee benefits updated successfully.");
+                    resetPayRollEditForm();
+                    loadTableData();
+                } else {
+                    toastr.error(res.message || "Failed to update employee benefits.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error updating Employee Benefits:", error);
+                toastr.error("An error occurred while updating employee benefits.");
+            }
+        });
+    });
+
+    //
+
+    //
+    //#region Get By Id Data
+    $(document).on('click', '#EditEmpBenefits', function () {
+        const employeeBenefitID = $(this).data('id');
+
+        $.ajax({
+            url: '/EmployeeBenefits/GetByIdEmpBenefits',
+            type: 'GET',
+            data: { employeeBenefitID: employeeBenefitID },
+            dataType: 'json',
+            success: function (res) {
+                if (res.success && res.data) {
+                    var data = res.data;
+
+                    $("#EmployeeBenefitIDEdit").val(data.employeeBenefitID);
+                    $("#OrganizationIDEdit").val(data.organizationID).trigger('change');
+
+                    $("#HealthInsuranceEdit").val(data.healthInsurance);
+                    $("#IsHealthInsuranceEnabledEdit").prop('checked', data.isHealthInsuranceEnabled);
+                    $("#IsPerformanceBonusEnabledEdit").prop('checked', data.isPerformanceBonusEnabled);
+                    $("#IsFastivalBonusEnabledEdit").prop('checked', data.isFastivalBonusEnabled);
+                    $("#IsProvidentFundEnabledEdit").prop('checked', data.isProvidentFundEnabled);
+                    $("#IsYearEndBonusEnabledEdit").prop('checked', data.isYearEndBonusEnabled);
+                    setFormattedChoiceValue('PerformanceBonusEdit', data.performanceBonus);
+                    setFormattedChoiceValue('FastivalBonusRateEdit', data.fastivalBonusRate)
+                    choiceManager.setChoiceValue('FastivalBonusOnSalaryTypeIDEdit', data.fastivalBonusOnSalaryTypeID)
+                    choiceManager.setChoiceValue('FastivalBonusMinimumServiceInMonthEdit', data.fastivalBonusMinimumServiceInMonth)
+                    setFormattedChoiceValue('ProvidentFundEmployeeContrebutionEdit', data.providentFundEmployeeContrebution)
+                    setFormattedChoiceValue('ProvidentFundOrganizationContrebutionEdit', data.providentFundOrganizationContrebution)
+                    choiceManager.setChoiceValue('ProvidentFundOnSalaryTypeIDEdit', data.providentFundOnSalaryTypeID)
+                    choiceManager.setChoiceValue('YearlyEndBonusTypeIDEdit', data.yearlyEndBonusTypeID)
+                    choiceManager.setChoiceValue('ProvidentFundMinimumServiceYearEdit', data.providentFundMinimumServiceYear)
+                    console.log("Form populated with employee benefits data.");
+                } else {
+                    toastr.error(res.message || "Failed to load employee benefits.");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching Employee Benefits:", error);
+                toastr.error("An error occurred while fetching employee benefits.");
+            }
+        });
+
+    });
+
+    function setFormattedChoiceValue(fieldName, value) {
+        const formattedValue = Number(value).toFixed(2);
+        choiceManager.setChoiceValue(fieldName, formattedValue);
+    }
+
+    //#endregion
     // for RESET Button
 
     function resetPayRollForm() {
@@ -57,7 +186,12 @@
         if (branchInstance) {
             branchInstance.deselectAll();
         }
-        choiceManager.resetChoice('FastivalBonusMinimumServiceInMonth','PerformanceBonus','FastivalBonusRate', 'FastivalBonusOnSalaryTypeID', 'YearlyEndBonusTypeID', 'ProvidentFundOnSalaryTypeID', 'ProvidentFundOrganizationContrebution','ProvidentFundOnSalaryTypeID','ProvidentFundMinimumServiceYear')
+        choiceManager.resetChoice('ProvidentFundEmployeeContrebution',
+            'FastivalBonusMinimumServiceInMonth',
+            'PerformanceBonus', 'FastivalBonusRate',
+            'FastivalBonusOnSalaryTypeID', 'YearlyEndBonusTypeID',
+            'ProvidentFundOnSalaryTypeID', 'ProvidentFundOrganizationContrebution',
+            'ProvidentFundOnSalaryTypeID', 'ProvidentFundMinimumServiceYear')
         // Reset all input fields
         $("input[name='HealthInsurance']").val("");
        
@@ -67,37 +201,64 @@
         $("#IsFastivalBonusEnabled").prop('checked', false);
         $("#IsProvidentFundEnabled").prop('checked', false);
         $("#IsYearEndBonusEnabled").prop('checked', false);
+
+        $("#OrganizationID-error").text("");
+        $("select[name='OrganizationID']").css('border', '1px solid #ccc');
         console.log("Form reset successfully");
     }
 
     $("#ResetBtn").on("click", function (e) {
         e.preventDefault();
         resetPayRollForm();
-        
+        resetPayRollEditForm();
+    });
+    function resetPayRollEditForm() {
+        // Deselect all organizations
+        const branchSelect = document.getElementById('OrganizationIDEdit');
+        const branchInstance = coreui.MultiSelect.getInstance(branchSelect);
+        if (branchInstance) {
+            branchInstance.deselectAll();
+        }
+
+        // Reset all Choice dropdowns
+        choiceManager.resetChoice(
+            'PerformanceBonusEdit',
+            'FastivalBonusRateEdit',
+            'FastivalBonusOnSalaryTypeIDEdit',
+            'FastivalBonusMinimumServiceInMonthEdit',
+            'YearlyEndBonusTypeIDEdit',
+            'ProvidentFundOnSalaryTypeIDEdit',
+            'ProvidentFundEmployeeContrebutionEdit',
+            'ProvidentFundOrganizationContrebutionEdit',
+            'ProvidentFundMinimumServiceYearEdit'
+        );
+
+        // Reset input fields
+        $("#HealthInsuranceEdit").val("");
+
+        // Reset checkboxes
+        $("#IsHealthInsuranceEnabledEdit").prop('checked', false);
+        $("#IsPerformanceBonusEnabledEdit").prop('checked', false);
+        $("#IsFastivalBonusEnabledEdit").prop('checked', false);
+        $("#IsProvidentFundEnabledEdit").prop('checked', false);
+        $("#IsYearEndBonusEnabledEdit").prop('checked', false);
+
+        // Reset validation error
+        $("#OrganizationIDEdit-error").text("");
+        $("select[name='OrganizationIDEdit']").css('border', '1px solid #ccc');
+
+        console.log("Edit form reset successfully");
+    }
+
+    // Bind reset button
+    $("#ResetBtnEdit").on("click", function (e) {
+        e.preventDefault();
+        resetPayRollEditForm();
     });
 
     // Table Datum
 
-    //#region Get By Id Data
-    $(document).on('click', '#EditEmpBenefits', function () {
-        const employeeBenefitID = $(this).data('id');
-
-        $.ajax({
-            url: '/EmployeeBenefits/GetByIdEmpBenefits',
-            type: 'GET',
-            data: { employeeBenefitID },
-            dataType: 'json',
-            success: function (data) {
-                console.log("Get By ID:", data);
-              
-            },
-            error: function (xhr, status, error) {
-                console.error("Error fetching Employee Benefits:", error);
-            }
-        });
-    });
-
-    //#endregion
+   
 
     //#region Delete Soft Leave Request
     $(document).on('click', '#SoftDeletePayRollEmpBenefitsDelete-singleDelBtn', function () {
@@ -167,7 +328,6 @@
 
     $('th.sort').on('click', function () {
         const column = $(this).data('sort');
-        debugger
         if (currentSortColumn === column) {
             currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
         } else {
@@ -245,15 +405,15 @@
                             <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
                                 <span>${item.organizationName}</span>
                             </td>
-                            <td class="helthInsurance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.healthInsurance} tk</td>
-                            <td class="providantFundEC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">-%</td>
-                            <td class="providantFundOC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">-%</td>
-                            <td class="providantFundT align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">-Years</td>
-                            <td class="providantFundS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.providentFundOnSalaryTypeName}</td>
-                            <td class="FestivalBonusR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.fastivalBonusRate}</td>
-                            <td class="FestivalBonusS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.fastivalBonusOnSalaryTypeName}</td>
-                            <td class="performanceBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.performanceBonus}%</td>
-                            <td class="yearEndBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.yearlyEndBonusTypeName}</td>
+                            <td class="helthInsurance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.healthInsurance || ''} tk</td>
+                            <td class="providantFundEC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.providentFundEmployeeContrebution}%</td>
+                            <td class="providantFundOC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.providentFundOrganizationContrebution}%</td>
+                            <td class="providantFundT align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.providentFundMinimumServiceYear} Years</td>
+                            <td class="providantFundS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.providentFundOnSalaryTypeName || ''}</td>
+                            <td class="FestivalBonusR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.fastivalBonusRate || ''}</td>
+                            <td class="FestivalBonusS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.fastivalBonusOnSalaryTypeName || ''}</td>
+                            <td class="performanceBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.performanceBonus || ''}%</td>
+                            <td class="yearEndBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.yearlyEndBonusTypeName || ''}</td>
                             <td class="align-middle white-space-nowrap text-end pe-3">
                               <div class="d-flex justify-content-end align-items-center">
                                   <a href="#" class="nav-item mx-2" title="Edit" data-bs-toggle="modal" data-bs-target="#edit_benefits" id="EditEmpBenefits" data-id="${item.employeeBenefitID}">

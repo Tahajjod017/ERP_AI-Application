@@ -463,6 +463,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[EmployeeAllowances]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeBenefits]",
          "ObjectType": 0
       },

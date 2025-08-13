@@ -9,8 +9,6 @@ public partial class Terminations
 {
     public int TerminationID { get; set; }
 
-    public int? OrganizationID { get; set; }
-
     public int? EmployeeID { get; set; }
 
     public int? TerminationTypeID { get; set; }
@@ -44,8 +42,6 @@ public partial class Terminations
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
-
-    public virtual Organization Organization { get; set; }
 
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
 
