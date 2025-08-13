@@ -72,9 +72,16 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 }
                 Expression<Func<EmployeeBenefits, object>> orderByExpression = currentSortColumn?.ToLower() switch
                 {
-                    "employeename" => x => x.Organization.OrganizationName,
-                    "leavetype" => x => x.HealthInsurance,
-                  
+                    "companyname" => x => x.Organization.OrganizationName,
+                    "helthinsurance" => x => x.HealthInsurance,
+                    "ec" => x => x.ProvidentFundEmployeeContrebution,
+                    "oc" => x => x.ProvidentFundOrganizationContrebution,
+                    "time" => x => x.ProvidentFundMinimumServiceYear,
+                    "salaryof" => x => x.ProvidentFundOnSalaryType.SalaryTypeName,
+                    "rate" => x => x.FastivalBonusRate,
+                    "festivalbonus" => x => x.FastivalBonusOnSalaryType.SalaryTypeName,
+                    "performancebonus" => x => x.PerformanceBonus,
+                    "yearendbonus" => x => x.YearlyEndBonusType.YearlyEndBonusTypeName,
                     _ => x => x.EmployeeBenefitID
                 };
 
@@ -99,20 +106,27 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     currentSortOrder,
 
                    term => b =>
+                      string.IsNullOrEmpty(term) ||
                       EF.Functions.Like(b.EmployeeBenefitID.ToString(), $"%{term}%") ||
-                      EF.Functions.Like(b.Organization.OrganizationName, $"%{term}%") ,
-
+                      EF.Functions.Like((b.HealthInsurance ?? 0).ToString(), $"%{term}%") ||
+                      (b.Organization != null && EF.Functions.Like(b.Organization.OrganizationName, $"%{term}%")) ||
+                      (b.ProvidentFundOnSalaryType != null && EF.Functions.Like(b.ProvidentFundOnSalaryType.SalaryTypeName, $"%{term}%")) ||
+                      (b.FastivalBonusOnSalaryType != null && EF.Functions.Like(b.FastivalBonusOnSalaryType.SalaryTypeName, $"%{term}%")) ||
+                      (b.YearlyEndBonusType != null && EF.Functions.Like(b.YearlyEndBonusType.YearlyEndBonusTypeName, $"%{term}%")),
 
                     b => new PayRollEmpBenefitsGetAllVM
                     {
                         EmployeeBenefitID = b.EmployeeBenefitID,
-                        HealthInsurance = b.HealthInsurance,
-                        OrganizationName =b.Organization.OrganizationName ?? string.Empty,
-                        ProvidentFundOnSalaryTypeName=b.ProvidentFundOnSalaryType.SalaryTypeName ?? string.Empty,
-                        FastivalBonusOnSalaryTypeName=b.FastivalBonusOnSalaryType.SalaryTypeName ?? string.Empty,
-                        YearlyEndBonusTypeName=b.YearlyEndBonusType.YearlyEndBonusTypeName ?? string.Empty,
-                        PerformanceBonus=b.PerformanceBonus,
-                        FastivalBonusRate=b.FastivalBonusRate,
+                        HealthInsurance = b.HealthInsurance ?? 0,
+                        OrganizationName = b.Organization?.OrganizationName ?? string.Empty,
+                        ProvidentFundOnSalaryTypeName = b.ProvidentFundOnSalaryType?.SalaryTypeName ?? string.Empty,
+                        FastivalBonusOnSalaryTypeName = b.FastivalBonusOnSalaryType?.SalaryTypeName ?? string.Empty,
+                        YearlyEndBonusTypeName = b.YearlyEndBonusType?.YearlyEndBonusTypeName ?? string.Empty,
+                        PerformanceBonus = b.PerformanceBonus ?? 0,
+                        FastivalBonusRate=b.FastivalBonusRate ?? 0,
+                        ProvidentFundEmployeeContrebution=b.ProvidentFundEmployeeContrebution ?? 0,
+                        ProvidentFundOrganizationContrebution=b.ProvidentFundOrganizationContrebution ?? 0,
+                        ProvidentFundMinimumServiceYear=b.ProvidentFundMinimumServiceYear ?? 0,
                     });
 
                 return result;
@@ -182,7 +196,11 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw;
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Error"
+                };
             }
         }
 
@@ -190,11 +208,11 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
         #endregion
 
         #region Update  Datum
-        public async Task<CommonReturnViewModel> UpdateEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM)
+        public async Task<CommonReturnViewModel> UpdateEmployeeBenefits(PayRollEmpBenefitsUpdate entityVM)
         {
             try
             {
-                var existingEntity = await empBenefits.GetByIdAsync(entityVM.EmployeeBenefitID);
+                var existingEntity = await empBenefits.GetByIdAsync(entityVM.EmployeeBenefitIDEdit);
 
                 if (existingEntity == null)
                 {
@@ -206,22 +224,25 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 }
 
                 // Map incoming ViewModel to the existing entity
-                existingEntity.OrganizationID = entityVM.OrganizationID;
-                existingEntity.IsHealthInsuranceEnabled = entityVM.IsHealthInsuranceEnabled;
-                existingEntity.IsFastivalBonusEnabled = entityVM.IsFastivalBonusEnabled;
-                existingEntity.PerformanceBonus = entityVM.PerformanceBonus;
-                existingEntity.FastivalBonusRate = entityVM.FastivalBonusRate;
-                existingEntity.FastivalBonusOnSalaryTypeID = entityVM.FastivalBonusOnSalaryTypeID;
-                existingEntity.IsProvidentFundEnabled = entityVM.IsProvidentFundEnabled;
-                existingEntity.ProvidentFundEmployeeContrebution = entityVM.ProvidentFundEmployeeContrebution;
-                existingEntity.ProvidentFundOrganizationContrebution = entityVM.ProvidentFundOrganizationContrebution;
-                existingEntity.ProvidentFundOnSalaryTypeID = entityVM.ProvidentFundOnSalaryTypeID;
-                existingEntity.ProvidentFundMinimumServiceYear = (int?)entityVM.ProvidentFundMinimumServiceYear;
-                existingEntity.HealthInsurance = entityVM.HealthInsurance;
-                existingEntity.IsPerformanceBonusEnabled = entityVM.IsPerformanceBonusEnabled;
-                existingEntity.IsYearEndBonusEnabled = entityVM.IsYearEndBonusEnabled;
-                existingEntity.YearlyEndBonusTypeID = entityVM.YearlyEndBonusTypeID;
-                existingEntity.FastivalBonusMinimumServiceInMonth = (int?)entityVM.FastivalBonusMinimumServiceInMonth;
+
+                existingEntity.OrganizationID = entityVM.OrganizationIDEdit;
+                existingEntity.IsHealthInsuranceEnabled = entityVM.IsHealthInsuranceEnabledEdit;
+                existingEntity.IsFastivalBonusEnabled = entityVM.IsFastivalBonusEnabledEdit;
+                existingEntity.PerformanceBonus = entityVM.PerformanceBonusEdit;
+                existingEntity.FastivalBonusRate = entityVM.FastivalBonusRateEdit;
+                existingEntity.FastivalBonusOnSalaryTypeID = entityVM.FastivalBonusOnSalaryTypeIDEdit;
+                existingEntity.IsProvidentFundEnabled = entityVM.IsProvidentFundEnabledEdit;
+                existingEntity.ProvidentFundEmployeeContrebution = entityVM.ProvidentFundEmployeeContrebutionEdit;
+                existingEntity.ProvidentFundOrganizationContrebution = entityVM.ProvidentFundOrganizationContrebutionEdit;
+                existingEntity.ProvidentFundOnSalaryTypeID = entityVM.ProvidentFundOnSalaryTypeIDEdit;
+                existingEntity.ProvidentFundMinimumServiceYear = entityVM.ProvidentFundMinimumServiceYearEdit;
+                existingEntity.HealthInsurance = entityVM.HealthInsuranceEdit;
+                existingEntity.IsPerformanceBonusEnabled = entityVM.IsPerformanceBonusEnabledEdit;
+                existingEntity.IsYearEndBonusEnabled = entityVM.IsYearEndBonusEnabledEdit;
+                existingEntity.YearlyEndBonusTypeID = entityVM.YearlyEndBonusTypeIDEdit;
+                existingEntity.FastivalBonusMinimumServiceInMonth = entityVM.FastivalBonusMinimumServiceInMonthEdit;
+                existingEntity.UpdatedAt = DateTime.Now;
+                existingEntity.UpdatedBy = entityVM.UpdatedBy;
 
                 // Save changes
                 await empBenefits.UpdateAsync(existingEntity);
@@ -229,7 +250,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Employee Benefits updated successfully."
+                    Message = "Updated Successfully."
                 };
             }
             catch (Exception ex)

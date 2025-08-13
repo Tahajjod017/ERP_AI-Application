@@ -10,6 +10,8 @@ using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using System.Security.Claims;
 using GCTL.Core.Helpers;
+using Microsoft.Identity.Client;
+using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
@@ -31,14 +33,13 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 
         public async Task<IActionResult> Index()
         {
+            PayRollEmpBenefitsPageVM model = new PayRollEmpBenefitsPageVM();
+            
             ViewBag.OrganizationDD = new SelectList( organization.AllActive(), "OrganizationID", "OrganizationName");
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewBag.YearlyBonusTypeDD=new SelectList(yearlyEndBonusTypes.AllActive(), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
-            //ViewBag.PercentageDD = new SelectList(percentagesService.AllActive()
-            //    .Select(p => new{ id = p.PercentageID, name = p.PercentageValue * 100 }), "id", "name");
-
-            return View();
+            return View(model);
         }
         #region Save Data
 
@@ -74,29 +75,42 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                                            .SelectMany(v => v.Errors)
+                                            .Select(e => e.ErrorMessage)
+                                            .ToList();
+                    return Json(new { Success = false, message = string.Join(", ", errors) });
+                }
                 var data = await employeeBenefitsService.SaveEmployeeBenefits(entityVM);
-                return Json(data);
-            }
-            catch (Exception)
-            {
+                    return Json(data);
 
-                throw;
+                
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving the data.", error = ex.Message });
             }
         }
 
         [Route("EmployeeBenefits/Update")]
         [HttpPost]
-        public async Task<IActionResult> Update(PayRollEmpBenefitsSaveVM entityVM)
+        public async Task<IActionResult> Update(PayRollEmpBenefitsUpdate entityVM)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors) .Select(e => e.ErrorMessage).ToList();
+                    return Json(new { Success = false, message = string.Join(", ", errors) });
+                }
                 var data = await employeeBenefitsService.UpdateEmployeeBenefits(entityVM);
                 return Json(data);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return StatusCode(500, new { message = "An error occurred while retrieving the data.", error = ex.Message });
             }
         }
 

@@ -607,10 +607,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //});
 
         modelBuilder.Entity<ApplicationUser>()
-.HasOne(u => u.Employees)
-.WithMany(e => e.AspNetUsers)
-.HasForeignKey(u => u.EmployeeId)
-.HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
+        modelBuilder.Entity<ApplicationUser>()
+        .HasOne(u => u.Employees)
+        .WithMany(e => e.AspNetUsers)
+        .HasForeignKey(u => u.EmployeeId)
+        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
