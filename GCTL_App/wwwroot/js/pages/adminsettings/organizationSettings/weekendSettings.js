@@ -171,7 +171,7 @@ function populateBranchesByOrganization(orgId) {
         type: 'GET',
         data: { organizationId: orgId },
         success: function (branches) {
-            debugger
+            
             const simplifiedRoles = branches.map(role => ({
                 id: role.value,
                 name: role.text
@@ -209,6 +209,8 @@ $(document).on('change', '#OrganizationEditID', function () {
         $('#OrganizationBranchEditID').empty().append('<option value="">-- Select Branch --</option>');
     }
 });
+
+
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 //////////////////////////////Data Table Initialization//////////////////////////////

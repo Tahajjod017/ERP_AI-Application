@@ -46,32 +46,44 @@
                                 <label class="form-label" for="timezoneId">Timezone</label>
                                 <select class="form-select choiceDD" id="timezoneId" name="TimezoneID">
                                     <option>Select</option>
-                                    <option value="1">(UTC -12:00) Baker/Howland Island</option>
-                                    <option value="2">(UTC -11:00) American Samoa</option>
-                                    <option value="3">(UTC -10:00) Hawaii</option>
-                                    <option value="4">(UTC -09:00) Alaska</option>
-                                    <option value="5">(UTC -08:00) Pacific Time (US & Canada)</option>
-                                    <option value="6">(UTC -07:00) Mountain Time (US & Canada)</option>
-                                    <option value="7">(UTC -06:00) Central Time (US & Canada)</option>
-                                    <option value="8">(UTC -05:00) Eastern Time (US & Canada)</option>
-                                    <option value="9">(UTC -04:00) Atlantic Time (Canada)</option>
-                                    <option value="10">(UTC -03:00) Argentina, Brazil, Paraguay</option>
-                                    <option value="11">(UTC -02:00) South Georgia & the South Sandwich Islands</option>
-                                    <option value="12">(UTC -01:00) Azores, Cape Verde Islands</option>
-                                    <option value="13">(UTC +00:00) London, Dublin, Lisbon, Casablanca</option>
-                                    <option value="14">(UTC +01:00) Central European Time</option>
-                                    <option value="15">(UTC +02:00) Eastern European Time</option>
-                                    <option value="16">(UTC +03:00) Moscow, St. Petersburg, Volgograd</option>
-                                    <option value="17">(UTC +04:00) Samara Time</option>
-                                    <option value="18">(UTC +05:00) Pakistan Standard Time</option>
-                                    <option value="19">(UTC +05:30) India Standard Time</option>
-                                    <option value="20">(UTC +06:00) Bangladesh Standard Time (Dhaka)</option> <!-- Added Dhaka -->
-                                    <option value="21">(UTC +07:00) Indochina Time (Thailand, Vietnam, Cambodia)</option>
-                                    <option value="22">(UTC +08:00) China Standard Time</option>
-                                    <option value="23">(UTC +09:00) Japan Standard Time</option>
-                                    <option value="24">(UTC +10:00) Australian Eastern Standard Time</option>
-                                    <option value="25">(UTC +11:00) Solomon Islands Time</option>
-                                    <option value="26">(UTC +12:00) Fiji Time</option>
+                                    <option value="1" >(UTC-12:00) International Date Line West</option>
+                                    <option value="2" >(UTC-11:00) Coordinated Universal Time-11</option>
+                                    <option value="3" >(UTC-10:00) Hawaii</option>
+                                    <option value="4" data-tz="UTC-09:00">(UTC-09:00) Alaska</option>
+                                    <option value="5" data-tz="UTC-08:00">(UTC-08:00) Pacific Time (US & Canada)</option>
+                                    <option value="6" data-tz="UTC-07:00">(UTC-07:00) Mountain Time (US & Canada)</option>
+                                    <option value="7" data-tz="UTC-06:00">(UTC-06:00) Central Time (US & Canada)</option>
+                                    <option value="8" data-tz="UTC-05:00">(UTC-05:00) Eastern Time (US & Canada)</option>
+                                    <option value="9" data-tz="UTC-04:00">(UTC-04:00) Atlantic Time (Canada)</option>
+                                    <option value="10" data-tz="UTC-03:00">(UTC-03:00) Buenos Aires</option>
+                                    <option value="11" data-tz="UTC-02:00">(UTC-02:00) Mid-Atlantic</option>
+                                    <option value="12" data-tz="UTC-01:00">(UTC-01:00) Azores</option>
+                                    <option value="13" data-tz="UTC+00:00">(UTC+00:00) Dublin, Edinburgh, London, Lisbon</option>
+                                    <option value="14" data-tz="UTC+01:00">(UTC+01:00) Amsterdam, Berlin, Paris, Rome</option>
+                                    <option value="15" data-tz="UTC+02:00">(UTC+02:00) Athens, Bucharest, Cairo, Jerusalem</option>
+                                    <option value="16" data-tz="UTC+03:00">(UTC+03:00) Baghdad, Kuwait, Nairobi, Moscow</option>
+                                    <option value="17" data-tz="UTC+03:30">(UTC+03:30) Tehran</option>
+                                    <option value="18" data-tz="UTC+04:00">(UTC+04:00) Abu Dhabi, Baku, Muscat</option>
+                                    <option value="19" data-tz="UTC+04:30">(UTC+04:30) Kabul</option>
+                                    <option value="20" data-tz="UTC+05:00">(UTC+05:00) Islamabad, Karachi, Tashkent</option>
+                                    <option value="21" data-tz="UTC+05:30">(UTC+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
+                                    <option value="22" data-tz="UTC+05:45">(UTC+05:45) Kathmandu</option>
+                                    <option value="23" data-tz="UTC+06:00">(UTC+06:00) Dhaka, Astana, Almaty</option>
+                                    <option value="24" data-tz="UTC+06:30">(UTC+06:30) Yangon (Rangoon)</option>
+                                    <option value="25" data-tz="UTC+07:00">(UTC+07:00) Bangkok, Hanoi, Jakarta</option>
+                                    <option value="26" data-tz="UTC+08:00">(UTC+08:00) Beijing, Hong Kong, Singapore, Perth</option>
+                                    <option value="27" data-tz="UTC+09:00">(UTC+09:00) Tokyo, Seoul, Osaka</option>
+                                    <option value="28" data-tz="UTC+09:30">(UTC+09:30) Adelaide, Darwin</option>
+                                    <option value="29" data-tz="UTC+10:00">(UTC+10:00) Brisbane, Sydney, Guam</option>
+                                    <option value="30" data-tz="UTC+11:00">(UTC+11:00) Magadan, Solomon Islands</option>
+                                    <option value="31" data-tz="UTC+12:00">(UTC+12:00) Auckland, Wellington, Fiji</option>
+                                    <option value="32" data-tz="UTC+13:00">(UTC+13:00) Nuku'alofa</option>
+                                    <option value="33" data-tz="Europe/Berlin">(DST aware) Berlin (Europe/Berlin)</option>
+                                    <option value="34" data-tz="Asia/Dhaka">Dhaka (Asia/Dhaka)</option>
+                                    <option value="35" data-tz="Asia/Kolkata">India (Asia/Kolkata)</option>
+                                    <option value="36" data-tz="Asia/Riyadh">Saudi Arabia (Asia/Riyadh)</option>
+
+
                                 </select>
                             </div>
                         </div>
@@ -97,8 +109,8 @@
                                 <label class="form-label" for="timeFormatId">Time Format</label>
                                 <select class="form-select choiceDD" id="timeFormatId" name="TimeFormatID">
                                     <option>Select</option>
-                                    <option value="1">12 Hours</option>
-                                    <option value="2">24 Hours</option>
+                                    <option value="6">12 Hours</option>
+                                    <option value="4">24 Hours</option>
                                 </select>
                             </div>
                         </div>

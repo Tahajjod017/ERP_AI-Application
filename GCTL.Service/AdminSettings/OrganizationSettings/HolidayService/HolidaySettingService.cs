@@ -65,7 +65,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                     existingEntity.StatusID = model.StatusID;
 
 
-                    existingEntity.CreatedAt = DateTime.Now;
+                    existingEntity.CreatedAt = DateTime.UtcNow;
                     existingEntity.CreatedBy = model.CreatedBy; // You can replace this with current user ID  
                     existingEntity.LIP = model.LIP;
                     existingEntity.LMAC = model.LMAC;
