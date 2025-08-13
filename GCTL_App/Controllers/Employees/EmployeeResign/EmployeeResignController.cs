@@ -21,6 +21,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         private readonly IGenericRepository<Designations> _designationRepository;
         private readonly IEmployeeResign _employeeResignService;
 
+
+
         public EmployeeResignController(
             ITranslateService translateService,
             IUserProfileService userProfileService,
@@ -74,7 +76,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         #region Create 
 
         [HttpPost]
-        public IActionResult CreateResignation([FromForm] ResignationPostViewModel model)
+        public async Task< IActionResult> CreateResignation([FromForm] ResignationPostViewModel model)
         {
             try
             {
@@ -83,7 +85,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
                     return Json(new { success = false, message = "Invalid data provided." });
                 }
 
-                var result = _employeeResignService.InsertResignation(model);
+                var result = await _employeeResignService.InsertResignation(model);
 
                 return Ok(result);
             }
@@ -94,6 +96,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         }
 
         #endregion
+
+        #region Edit and Get By ID
 
         [HttpPost]
         public IActionResult UpdateResignation([FromForm] int resignationId, [FromForm] ResignationPostViewModel model)
@@ -107,14 +111,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
                 var result = _employeeResignService.UpdateResignation(resignationId, model);
 
-                if (result)
-                {
-                    return Json(new { success = true, message = "Resignation updated successfully." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to update resignation. Record not found." });
-                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -143,6 +140,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             }
         }
 
+
+        #endregion
+
         [HttpPost]
         public IActionResult DeleteResignation(int id)
         {
@@ -150,14 +150,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             {
                 var result = _employeeResignService.DeleteResignation(id);
 
-                if (result)
-                {
-                    return Json(new { success = true, message = "Resignation deleted successfully." });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to delete resignation. Record not found." });
-                }
+                return Ok(result);
             }
             catch (Exception ex)
             {

@@ -160,12 +160,12 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     ProvidentFundEmployeeContrebution = entityVM.ProvidentFundEmployeeContrebution,
                     ProvidentFundOrganizationContrebution = entityVM.ProvidentFundOrganizationContrebution,
                     ProvidentFundOnSalaryTypeID = entityVM.ProvidentFundOnSalaryTypeID,
-                    ProvidentFundMinimumServiceYear = entityVM.ProvidentFundMinimumServiceYear,
+                    ProvidentFundMinimumServiceYear = (int?)entityVM.ProvidentFundMinimumServiceYear,
                     HealthInsurance = entityVM.HealthInsurance,
                     IsPerformanceBonusEnabled = entityVM.IsPerformanceBonusEnabled,
                     IsYearEndBonusEnabled = entityVM.IsYearEndBonusEnabled,
                     YearlyEndBonusTypeID = entityVM.YearlyEndBonusTypeID,
-                    FastivalBonusMinimumServiceInMonth=entityVM.FastivalBonusMinimumServiceInMonth,
+                    FastivalBonusMinimumServiceInMonth= (int?)entityVM.FastivalBonusMinimumServiceInMonth,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
@@ -216,12 +216,12 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 existingEntity.ProvidentFundEmployeeContrebution = entityVM.ProvidentFundEmployeeContrebution;
                 existingEntity.ProvidentFundOrganizationContrebution = entityVM.ProvidentFundOrganizationContrebution;
                 existingEntity.ProvidentFundOnSalaryTypeID = entityVM.ProvidentFundOnSalaryTypeID;
-                existingEntity.ProvidentFundMinimumServiceYear = entityVM.ProvidentFundMinimumServiceYear;
+                existingEntity.ProvidentFundMinimumServiceYear = (int?)entityVM.ProvidentFundMinimumServiceYear;
                 existingEntity.HealthInsurance = entityVM.HealthInsurance;
                 existingEntity.IsPerformanceBonusEnabled = entityVM.IsPerformanceBonusEnabled;
                 existingEntity.IsYearEndBonusEnabled = entityVM.IsYearEndBonusEnabled;
                 existingEntity.YearlyEndBonusTypeID = entityVM.YearlyEndBonusTypeID;
-                existingEntity.FastivalBonusMinimumServiceInMonth = entityVM.FastivalBonusMinimumServiceInMonth;
+                existingEntity.FastivalBonusMinimumServiceInMonth = (int?)entityVM.FastivalBonusMinimumServiceInMonth;
 
                 // Save changes
                 await empBenefits.UpdateAsync(existingEntity);

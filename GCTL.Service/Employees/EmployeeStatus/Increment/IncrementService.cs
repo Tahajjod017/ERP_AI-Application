@@ -403,31 +403,37 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 return new CommonReturnViewModel { Success = false, Message = "Invalid input data" };
             }
 
-            bool AllowSecondApproval;
-            bool AllowThirdApproval;
-            bool AllowSelfApproval; // Assuming self-approval is not allowed by default
-            int firstApproverId = 0;
-            int secondApproverId = 0;
-            int thirdApproverId = 0;
-            int selfApprovalExceptionId = 0;
+            
 
             try
             {
+                bool AllowSecondApproval;
+                bool AllowThirdApproval;
+                bool AllowSelfApproval; 
+                int firstApproverId = 0;
+                int secondApproverId = 0;
+                int thirdApproverId = 0;
+                int selfApprovalExceptionId = 0;
+
                 #region Action Type and Status Setup
 
                 var actionType = await _employeeActionTypeRepository.AllActive()
                     .FirstOrDefaultAsync(e => e.EmployeeActionTypeName.ToLower() == model.ChangeType.ToLower());
+
                 if (actionType == null)
                 {
-                    actionType = new EmployeeActionTypes
-                    {
-                        EmployeeActionTypeName = model.ChangeType,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = model.CreatedBy,
-                        LIP = model.LIP,
-                        LMAC = model.LMAC
-                    };
-                    await _employeeActionTypeRepository.AddAsync(actionType);
+                    //actionType = new EmployeeActionTypes
+                    //{
+                    //    EmployeeActionTypeName = model.ChangeType,
+                    //    CreatedAt = DateTime.UtcNow,
+                    //    CreatedBy = model.CreatedBy,
+                    //    LIP = model.LIP,
+                    //    LMAC = model.LMAC
+                    //};
+                    //await _employeeActionTypeRepository.AddAsync(actionType);
+
+                    return new CommonReturnViewModel { Success = false, Message = "Employee Action type not found !" };
+
                 }
 
                 var status = await _statusRepository.AllActive()
@@ -744,7 +750,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
 
 
 
-        #region Edit Save
+        #region Edit Save / Approve
         public async Task<IncrementApproveViewModel> GetPendingIncrementDetailsByID(int id)
         {
             var matches = new[] { "increment", "decrement" };

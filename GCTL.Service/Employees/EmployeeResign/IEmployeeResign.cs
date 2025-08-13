@@ -11,9 +11,9 @@ namespace GCTL.Service.Employees.EmployeeResign
     public interface IEmployeeResign
     {
         object GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate, string toDate, string imgSrcThumb);
-        CommonReturnViewModel InsertResignation(ResignationPostViewModel model);
-        bool UpdateResignation(int resignationId, ResignationPostViewModel model);
-        bool DeleteResignation(int resignationId);
+        Task<CommonReturnViewModel> InsertResignation(ResignationPostViewModel model);
+        CommonReturnViewModel UpdateResignation(int resignationId, ResignationPostViewModel model);
+        CommonReturnViewModel DeleteResignation(int resignationId);
         ResignationViewModel GetResignationById(int resignationId);
     }
 }
