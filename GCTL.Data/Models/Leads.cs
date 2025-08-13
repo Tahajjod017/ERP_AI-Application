@@ -5,11 +5,25 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LeadSources
+public partial class Leads
 {
-    public int LeadSourceID { get; set; }
+    public int LeadID { get; set; }
 
-    public string LeadSourceName { get; set; }
+    public int? CustomerID { get; set; }
+
+    public bool? IsIndividualCustomer { get; set; }
+
+    public int? LeadStatusID { get; set; }
+
+    public int? LeadSourceID { get; set; }
+
+    public int? LeadOwnerID { get; set; }
+
+    public decimal? ApproximateDealValue { get; set; }
+
+    public decimal? ProbabilityPercentage { get; set; }
+
+    public string LeadDescription { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,7 +45,11 @@ public partial class LeadSources
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
+    public virtual Employees LeadOwner { get; set; }
+
+    public virtual LeadSources LeadSource { get; set; }
+
+    public virtual LeadStatuses LeadStatus { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -255,14 +255,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[LeadSources]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[LeadStatuses]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[LeaveApplications]",
          "ObjectType": 0
       },
@@ -445,6 +437,8 @@
       {
          "Name": "[HRM].[Resignations]",
          "ObjectType": 0
+<<<<<<< HEAD
+=======
       },
       {
          "Name": "[HRM].[ResignationsApprovalHistory]",
@@ -501,10 +495,67 @@
       {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
          "ObjectType": 1
+>>>>>>> cc9b265f1eb403b60225570d21b40e2c788744c7
       },
       {
-         "Name": "[dbo].[Prc_GetEmployeesPaged]",
-         "ObjectType": 1
+         "Name": "[HRM].[ResignationsApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[Terminations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[TerminationTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[Leads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadSources]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowances]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[SalaryTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[DateFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Localizations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Percentages]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[TimeFormats]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[Timezones]",
+         "ObjectType": 0
       }
    ],
    "UiHint": null,

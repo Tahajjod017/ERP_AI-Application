@@ -31,5 +31,7 @@ public partial class LeadStatuses
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }
