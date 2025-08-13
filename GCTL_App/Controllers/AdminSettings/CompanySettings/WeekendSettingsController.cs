@@ -1,6 +1,8 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -8,6 +10,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -16,14 +19,28 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
     [Authorize]
     public class WeekendSettingsController : BaseController
     {
+        private IGenericRepository<WeekendSettings> _genericRepository;
         private readonly IWeekendSettingService _weekendSettingService;
-        public WeekendSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IWeekendSettingService weekendSettingService) : base(translateService, userProfileService)
+        private readonly ILocalizationContext _loc;
+        public WeekendSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IWeekendSettingService weekendSettingService, IGenericRepository<WeekendSettings> genericRepository, ILocalizationContext loc) : base(translateService, userProfileService)
         {
             _weekendSettingService = weekendSettingService;
+            _genericRepository = genericRepository;
+            _loc = loc;
         }
 
         public async Task<IActionResult> Index()
         {
+            int setupId = 721;
+
+            DateTime? selectedTime = await _genericRepository.AllActive()
+                .Where(x => x.WeekendSettingID == setupId)
+                .Select(x => x.CreatedAt)          // this is DateTime?
+                .FirstOrDefaultAsync();
+
+            ViewBag.selectZone = selectedTime.HasValue
+                ? selectedTime.Value.ToOrgDateTime(_loc) // your existing extension for DateTime
+                : null;
             //var organizations = await _weekendSettingService.GetOrganizationsAsync();
             ViewBag.Organizations = await _weekendSettingService.GetOrganizationsAsync(); ;
             ViewBag.Branches = new List<SelectListItem>(); // initially empty

@@ -229,6 +229,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IMonthlyReportService, MonthlyReportService>();
             services.AddScoped<IYearlyReportService, YearlyReportService>();
             services.AddScoped<ILocalizationSettingService, LocalizationSettingService>();
+          
             #endregion
 
 

@@ -51,10 +51,10 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 {
                     // Restore and update the record
                     existingEntity.OrganizationID = model.OrganizationID;
-                    //existingEntity.LanguageID = model.LanguageID;
+                    existingEntity.LanguageID = model.LanguageID;
                     existingEntity.TimezoneID = model.TimezoneID;
                     existingEntity.DateFormatID = model.DateFormatID;
-                   // existingEntity.TimeFormatID = model.TimeFormatID;
+                    existingEntity.TimeFormatID = model.TimeFormatID;
                     existingEntity.CurrencyID = model.CurrencyID;
                    // existingEntity.CurrencySymbol = model.CurrencySymbol;
 
@@ -96,7 +96,88 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             }
         }
         #endregion
+        #region 
 
+        #endregion
+
+        public async Task<Localizations> GetForOrganizationAsync(int orgId)
+        {
+            // Fetch all active (not soft-deleted) localization rows for this org
+            var rows = await _genericRepository.FindAsync(x =>
+                x.OrganizationID == orgId &&
+                x.DeletedAt == null
+            );
+
+            // Pick the most recently updated/created one
+            var loc = rows
+                .OrderByDescending(x => x.UpdatedAt ?? x.CreatedAt)
+                .FirstOrDefault();
+
+            if (loc == null)
+            {
+                // No active localization configured for this organization.
+                // You can replace with a default/fallback if you prefer.
+                throw new InvalidOperationException(
+                    $"No active localization found for OrganizationID={orgId}. " +
+                    "Please create a localization (timezone/date/time format) first.");
+            }
+
+            return loc;
+        }
+        public async Task<string> GetIanaTimeZoneByIdAsync(int? timezoneId)
+        {
+            if (!timezoneId.HasValue)
+                return "UTC"; // default fallback
+
+            var tz =  _genericRepositoryTimeZone.AllActive().Where(x=>x.TimezoneID == timezoneId.Value).Select(x=>x.TimezoneValue).FirstOrDefault();
+
+            if (tz == null || string.IsNullOrWhiteSpace(tz))
+                return "UTC"; // fallback if not found or empty
+
+            return tz; // e.g., "Asia/Dhaka"
+        }
+
+        public async Task<string> GetDatePatternByIdAsync(int? dateFormatId)
+        {
+            if (!dateFormatId.HasValue)
+                return "yyyy-MM-dd"; // default fallback
+
+            var df = await _genericRepositoryDateFormat.AllActive().Where(x => x.DateFormatID == dateFormatId.Value).Select(x => x.FormatCode).FirstOrDefaultAsync();
+
+            if (df == null || string.IsNullOrWhiteSpace(df))
+                return "yyyy-MM-dd";
+
+            return df; // e.g., "dd/MM/yyyy"
+        }
+
+        public async Task<string> GetTimePatternByIdAsync(int? timeFormatId)
+        {
+            if (!timeFormatId.HasValue)
+                return "HH:mm"; // default fallback
+
+            var tf = await _genericRepositoryTimeformat.AllActive().Where(x => x.TimeFormatID == timeFormatId.Value).Select(x=>x.FormatCode).FirstOrDefaultAsync();
+
+            if (tf == null || string.IsNullOrWhiteSpace(tf))
+                return "HH:mm";
+
+            return tf; // e.g., "hh:mm tt"
+        }
+
+        public async Task<OrgLocBundle> GetOrgLocalizationBundleAsync(int orgId)
+        {
+            var loc = await GetForOrganizationAsync(orgId);
+
+            var tz = await GetIanaTimeZoneByIdAsync(loc.TimezoneID);
+            var dp = await GetDatePatternByIdAsync(loc.DateFormatID);
+            var tp = await GetTimePatternByIdAsync(loc.TimeFormatID);
+
+            return new OrgLocBundle
+            {
+                TzValueOrIana = string.IsNullOrWhiteSpace(tz) ? "UTC+00:00" : tz.Trim(),
+                DatePattern = string.IsNullOrWhiteSpace(dp) ? "yyyy-MM-dd" : dp.Trim(),
+                TimePattern = string.IsNullOrWhiteSpace(tp) ? "HH:mm" : tp.Trim()
+            };
+        }
 
         public async Task<List<SelectListItem>> GetOrganizationsAsync()
         {

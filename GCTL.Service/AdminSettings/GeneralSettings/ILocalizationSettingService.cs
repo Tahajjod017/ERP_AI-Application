@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,21 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
     {
 
         Task<bool> AddAsync(LocalizationViewModel model);
+
+        Task<Localizations> GetForOrganizationAsync(int orgId);
         Task<List<SelectListItem>> GetOrganizationsAsync();
         Task<List<SelectListItem>> GetTimeformatAsync();
         Task<List<SelectListItem>> GetTimeZoneAsync();
         Task<List<SelectListItem>> GetDateFormateAsync();
         Task<List<SelectListItem>> GetCurrencieAsync();
+
+        // You can also declare other helpers you’re already using in middleware:
+        Task<string> GetIanaTimeZoneByIdAsync(int? timezoneId);
+        Task<string> GetDatePatternByIdAsync(int? dateFormatId);
+        Task<string> GetTimePatternByIdAsync(int? timeFormatId);
+
+        // Optional: one-shot bundle to reduce DB round-trips
+        Task<OrgLocBundle> GetOrgLocalizationBundleAsync(int orgId);
 
     }
 }
