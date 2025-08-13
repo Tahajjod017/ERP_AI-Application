@@ -187,7 +187,7 @@ function validateField(fieldId, response) {
 
 const dev = true;
 
-function showDev(message) {
+function showDev(message, headerText = 'console') {
     if (!dev) return;
 
     let container = document.getElementById("custom-toast-container");
@@ -231,13 +231,23 @@ function showDev(message) {
     const header = document.createElement("div");
     Object.assign(header.style, {
         display: "flex",
-        justifyContent: "flex-end",
+        justifyContent: "space-between",
         alignItems: "center",
         background: "#444",
         padding: "3px 3px",
         borderTopLeftRadius: "5px",
         borderTopRightRadius: "5px",
     });
+
+    // Console-style text
+    const consoleText = document.createElement("span");
+    consoleText.textContent = headerText;
+    Object.assign(consoleText.style, {
+        fontSize: "14px",
+        whiteSpace: "nowrap",
+    });
+
+
 
     const copyBtn = document.createElement("button");
     copyBtn.textContent = "Copy";
@@ -251,6 +261,7 @@ function showDev(message) {
         cursor: "pointer",
     });
 
+    header.appendChild(consoleText);
     header.appendChild(copyBtn);
     toast.appendChild(header);
 
@@ -314,120 +325,21 @@ function showDev(message) {
     scheduleRemoval();
 }
 
-//function showDev(message) {
-//    if (!dev) return;
 
-//    let container = document.getElementById("custom-toast-container");
-//    if (!container) {
-//        container = document.createElement("div");
-//        container.id = "custom-toast-container";
-//        document.body.appendChild(container);
+//#endregion
 
-//        Object.assign(container.style, {
-//            position: "fixed",
-//            bottom: "20px",
-//            right: "20px",
-//            display: "flex",
-//            flexDirection: "column",
-//            gap: "10px",
-//            zIndex: "9999",
-//        });
-//    }
+//#region HideModal
 
-//    const toast = document.createElement("div");
+function hideModal(id) {
+    const modalEl = document.getElementById(id);
+    if (!modalEl) return;
 
-//    // Create copy button
-//    const copyBtn = document.createElement("button");
-//    copyBtn.textContent = "Copy";
-//    Object.assign(copyBtn.style, {
-//        position: "absolute",
-//        top: "5px",
-//        right: "5px",
-//        background: "#555",
-//        color: "#fff",
-//        border: "none",
-//        padding: "2px 6px",
-//        fontSize: "12px",
-//        borderRadius: "3px",
-//        cursor: "pointer",
-//    });
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
 
-//    // Toast styles
-//    Object.assign(toast.style, {
-//        position: "relative",
-//        background: "#333",
-//        color: "#fff",
-//        padding: "10px 15px",
-//        borderRadius: "5px",
-//        fontSize: "14px",
-//        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-//        opacity: "0",
-//        transform: "translateY(20px)",
-//        transition: "opacity 0.3s ease, transform 0.3s ease",
-//        maxWidth: "300px",
-//        wordWrap: "break-word",
-//        pointerEvents: "auto",
-//        overflow: "auto",
-//        maxHeight: "200px",
-//    });
-
-//    let rawText;
-//    if (typeof message === "object") {
-//        rawText = JSON.stringify(message, null, 2);
-//        const pre = document.createElement("pre");
-//        pre.textContent = rawText;
-//        Object.assign(pre.style, {
-//            margin: 0,
-//            whiteSpace: "pre-wrap",
-//            wordBreak: "break-word",
-//            fontFamily: "monospace",
-//        });
-//        toast.appendChild(pre);
-//    } else {
-//        rawText = message;
-//        toast.innerText = message;
-//    }
-
-//    // Copy logic
-//    copyBtn.addEventListener("click", () => {
-//        navigator.clipboard.writeText(rawText).then(() => {
-//            copyBtn.textContent = "Copied!";
-//            setTimeout(() => (copyBtn.textContent = "Copy"), 1000);
-//        });
-//    });
-
-//    toast.appendChild(copyBtn);
-//    container.appendChild(toast);
-
-//    requestAnimationFrame(() => {
-//        toast.style.opacity = "1";
-//        toast.style.transform = "translateY(0)";
-//    });
-
-//    let hideTimeout;
-//    let isHovered = false;
-
-//    const scheduleRemoval = () => {
-//        hideTimeout = setTimeout(() => {
-//            if (!isHovered) {
-//                toast.style.opacity = "0";
-//                toast.style.transform = "translateY(20px)";
-//                setTimeout(() => toast.remove(), 300);
-//            }
-//        }, 3000);
-//    };
-
-//    toast.addEventListener("mouseenter", () => {
-//        isHovered = true;
-//        clearTimeout(hideTimeout);
-//    });
-
-//    toast.addEventListener("mouseleave", () => {
-//        isHovered = false;
-//        scheduleRemoval();
-//    });
-
-//    scheduleRemoval();
-//}
+    modalInstance.hide();
+}
 
 //#endregion

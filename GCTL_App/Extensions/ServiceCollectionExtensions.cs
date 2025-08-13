@@ -51,8 +51,12 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
+<<<<<<< HEAD
+using GCTL.Service.CRM.LeadCreate;
+=======
 using GCTL.Service.CommonService;
 using GCTL.Service.ElementPermission;
+>>>>>>> cc9b265f1eb403b60225570d21b40e2c788744c7
 using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeAllowance;
@@ -289,6 +293,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
             services.AddScoped<ILeadStatusService, LeadStatusService>();
             services.AddScoped<ILeadSourceService, LeadSourceService>();
+            services.AddScoped<ILeadCreateService, LeadCreateService>();
             #endregion
         }
     }

@@ -15,7 +15,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
     public interface IEmployeeBenefitsService
     {
         Task<CommonReturnViewModel> SaveEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM);
-        Task<CommonReturnViewModel> UpdateEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM);
+        Task<CommonReturnViewModel> UpdateEmployeeBenefits(PayRollEmpBenefitsUpdate entityVM);
         Task<PaginationService<EmployeeBenefits, PayRollEmpBenefitsGetAllVM >.PaginationResult<PayRollEmpBenefitsGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
        string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null);
         Task<CommonReturnViewModel> SoftDeletePayRollEmpRequest(DeleteRequestVM deleteRequestVM);
