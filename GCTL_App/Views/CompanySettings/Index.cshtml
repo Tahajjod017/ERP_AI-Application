@@ -2,6 +2,18 @@
     var mainTab = "CompanySetting";
     var subTab = "Company";
 }
+<style>
+    /* Styling for the dropdown */
+    .dropdown-menu {
+        min-width: 200px;
+        padding: 10px;
+    }
+
+    .column-toggle {
+        margin-right: 10px;
+    }
+
+</style>
 
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />

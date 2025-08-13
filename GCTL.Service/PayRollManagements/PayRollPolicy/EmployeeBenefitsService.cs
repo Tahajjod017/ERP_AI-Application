@@ -174,12 +174,12 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     ProvidentFundEmployeeContrebution = entityVM.ProvidentFundEmployeeContrebution,
                     ProvidentFundOrganizationContrebution = entityVM.ProvidentFundOrganizationContrebution,
                     ProvidentFundOnSalaryTypeID = entityVM.ProvidentFundOnSalaryTypeID,
-                    ProvidentFundMinimumServiceYear = entityVM.ProvidentFundMinimumServiceYear,
+                    ProvidentFundMinimumServiceYear = (int?)entityVM.ProvidentFundMinimumServiceYear,
                     HealthInsurance = entityVM.HealthInsurance,
                     IsPerformanceBonusEnabled = entityVM.IsPerformanceBonusEnabled,
                     IsYearEndBonusEnabled = entityVM.IsYearEndBonusEnabled,
                     YearlyEndBonusTypeID = entityVM.YearlyEndBonusTypeID,
-                    FastivalBonusMinimumServiceInMonth=entityVM.FastivalBonusMinimumServiceInMonth,
+                    FastivalBonusMinimumServiceInMonth= (int?)entityVM.FastivalBonusMinimumServiceInMonth,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
@@ -224,6 +224,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 }
 
                 // Map incoming ViewModel to the existing entity
+
                 existingEntity.OrganizationID = entityVM.OrganizationIDEdit;
                 existingEntity.IsHealthInsuranceEnabled = entityVM.IsHealthInsuranceEnabledEdit;
                 existingEntity.IsFastivalBonusEnabled = entityVM.IsFastivalBonusEnabledEdit;
@@ -242,6 +243,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 existingEntity.FastivalBonusMinimumServiceInMonth = entityVM.FastivalBonusMinimumServiceInMonthEdit;
                 existingEntity.UpdatedAt = DateTime.Now;
                 existingEntity.UpdatedBy = entityVM.UpdatedBy;
+
                 // Save changes
                 await empBenefits.UpdateAsync(existingEntity);
 

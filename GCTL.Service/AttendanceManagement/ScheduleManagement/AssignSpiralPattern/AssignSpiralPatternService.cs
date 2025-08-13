@@ -1,9 +1,9 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -157,6 +157,38 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
             {
                 await _genericRepository.RollbackTransactionAsync();
                 return false;
+            }
+        }
+        #endregion
+
+
+        #region GetByIdAsync
+        public async Task<AssignSpiralPatternEditVM> GetByIdAsync(int id)
+        {
+            try
+            {
+                var entity = await _genericRepository.GetByIdAsync(id);
+
+                if (entity == null)
+                {
+                    return null;
+                }
+
+                return new AssignSpiralPatternEditVM
+                {
+                    SpiralPatternAssignListID = entity.SpiralPatternAssignListID,
+                    EditOrganizationID = entity.OrganizationID,
+                    EditDepartmentIDs = entity.DepartmentID.HasValue ? new List<int> { entity.DepartmentID.Value } : new List<int>(),
+                    EditEmployeeIDs = entity.EmployeeID.HasValue ? new List<int> { entity.EmployeeID.Value } : new List<int>(),
+                    EditSpiralPatternTypeID = entity.SpiralPatternTypeID,
+                    EditSpiralPatternID = entity.SpiralPatternID,
+                    EditStartDate = entity.StartDate,
+                    EditEndDate = entity.EndDate
+                };
+            }
+            catch(Exception ex)
+            {
+                return null;
             }
         }
         #endregion
