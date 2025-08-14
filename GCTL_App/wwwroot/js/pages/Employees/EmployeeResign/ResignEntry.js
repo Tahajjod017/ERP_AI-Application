@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    showDev("EmployeeResignEntry.js");
+    showDev("EmployeeResignEntry.js", 'init');
 
     let currentPage = 1;
     let pageSize = 10;
@@ -112,7 +112,7 @@
                             <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.resinDate || item.ResinDate}</td>
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4" data-column="5">
                                 <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2 edit-resignation" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#edit_resignation">
+                                    <a href="#" class="nav-item mx-2 edit-resignation11" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#edit_resignation">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
                                     <a href="#" class="nav-item mx-2 delete-resignation" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#delete_modal">
@@ -210,6 +210,7 @@
     //#endregion
 
     //#region Handle Add Resignation Form Submit
+
     $('#new_resignation form').on('submit', function (e) {
         e.preventDefault();
 
@@ -226,20 +227,18 @@
                     toastr.success(response.message);
                     clearResignationForm()
 
-                    var applyModalEl = document.getElementById('new_resignation');
-                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
-                    if (!applyModal) {
-                        applyModal = new bootstrap.Modal(applyModalEl);
-                    }
-                    applyModal.hide();
+
+                    hideModal('new_resignation');
 
                     loadTableData(); // Refresh the table
                 } else {
-                    toastr.error(response.message);
+                    toastr.warning(response.message);
+                    showDev(response.message)
                 }
             },
-            error: function () {
+            error: function (ex) {
                 toastr.error('Failed to add resignation');
+                showDev(ex.message);
             }
         });
     });
@@ -248,7 +247,7 @@
 
     //#region Handle Edit button click
 
-    $(document).on('click', '.edit-resignation', function (e) {
+    $(document).on('click', '.edit-resignation11', function (e) {
         e.preventDefault();
         const resignationId = $(this).data('id');
         currentEditingId = resignationId;
@@ -261,25 +260,21 @@
             success: function (response) {
                 if (response.success) {
                     const data = response.data;
-
-                    
-                   
-
                     choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);
                     choiceManager.setChoiceValue('editEmployeeId', data.employeeId || data.EmployeeId);
-
                     flatpickrHelper.setDate('editNoticeDate', data.resNoticeDate || data.ResNoticeDate )
                     flatpickrHelper.setDate('editResignationDate', data.resinDate || data.ResinDate )
-
-                    //$('#editNoticeDate').val(data.resNoticeDate || data.ResNoticeDate);
-                    //$('#editResignationDate').val(data.resinDate || data.ResinDate);
                     $('#edit_resignation textarea').val(data.resignResons || data.ResignResons);
+
+                 
+
                 } else {
                     toastr.error(response.message);
                 }
             },
-            error: function () {
+            error: function (ex) {
                 toastr.error('Failed to load resignation data');
+                showDev(ex.message);
             }
         });
     });
@@ -310,15 +305,18 @@
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    $('#edit_resignation').modal('hide');
+                    
+                    hideModal('edit_resignation');
+
                     currentEditingId = null;
                     loadTableData(); // Refresh the table
                 } else {
-                    toastr.error(response.message);
+                    toastr.warning(response.message);
                 }
             },
-            error: function () {
+            error: function (ex) {
                 toastr.error('Failed to update resignation');
+                showDev(ex.message)
             }
         });
     });
@@ -364,7 +362,6 @@
 
     //#endregion
 
-
     //#region clear form
 
     function clearResignationForm() {
@@ -397,16 +394,7 @@
 
     //#endregion
 
-    //$('#edit_resignation, #delete_modal').on('hidden.bs.modal', function () {
-    //    currentEditingId = null;
-    //});
-
-    //// Reset form when add modal is hidden
-    //$('#new_resignation').on('hidden.bs.modal', function () {
-    //    $('#new_resignation form')[0].reset();
-    //});
-
-    // Initial load
+   
 
 
     loadTableData();

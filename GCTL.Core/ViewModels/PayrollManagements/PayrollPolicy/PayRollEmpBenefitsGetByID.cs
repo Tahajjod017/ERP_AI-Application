@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
 
         public bool? IsFastivalBonusEnabled { get; set; }
 
+        
         public decimal? FastivalBonusRate { get; set; }
 
         public int? FastivalBonusOnSalaryTypeID { get; set; }

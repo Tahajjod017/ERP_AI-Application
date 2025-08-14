@@ -245,6 +245,12 @@ public partial class Employees
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
 
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowancesCreatedByNavigation { get; set; } = new List<EmployeeAllowances>();
+
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowancesDeletedByNavigation { get; set; } = new List<EmployeeAllowances>();
+
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowancesUpdatedByNavigation { get; set; } = new List<EmployeeAllowances>();
+
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesCreatedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
 
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesDeletedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
@@ -429,6 +435,14 @@ public partial class Employees
 
     public virtual ICollection<LeadStatuses> LeadStatusesUpdatedByNavigation { get; set; } = new List<LeadStatuses>();
 
+    public virtual ICollection<Leads> LeadsCreatedByNavigation { get; set; } = new List<Leads>();
+
+    public virtual ICollection<Leads> LeadsDeletedByNavigation { get; set; } = new List<Leads>();
+
+    public virtual ICollection<Leads> LeadsLeadOwner { get; set; } = new List<Leads>();
+
+    public virtual ICollection<Leads> LeadsUpdatedByNavigation { get; set; } = new List<Leads>();
+
     public virtual ICollection<LeaveApplications> LeaveApplicationsApprovalPerson { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveApplications> LeaveApplicationsCreatedByNavigation { get; set; } = new List<LeaveApplications>();
@@ -571,9 +585,7 @@ public partial class Employees
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryUpdatedByNavigation { get; set; } = new List<ResignationsApprovalHistory>();
 
-
     public virtual ICollection<Resignations> ResignationsApprovalPerson { get; set; } = new List<Resignations>();
-
 
     public virtual ICollection<Resignations> ResignationsCreatedByNavigation { get; set; } = new List<Resignations>();
 

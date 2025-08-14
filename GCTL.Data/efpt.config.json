@@ -255,14 +255,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[LeadSources]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[LeadStatuses]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[LeaveApplications]",
          "ObjectType": 0
       },
@@ -460,6 +452,22 @@
       },
       {
          "Name": "[HRM].[TerminationTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[Leads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadSources]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadStatuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowances]",
          "ObjectType": 0
       },
       {

@@ -46,7 +46,7 @@ const departmentDataDummy = [
 //#endregion
 
 
-
+const deb = false
 
 
 //#region Unversal Choice Version 3
@@ -68,14 +68,14 @@ class UniversalChoices {
         document.querySelectorAll(`select.${this.className}`).forEach(select => {
             const id = select.id;
             if (!id) {
-                console.warn('Choices dropdown must have an ID:', select);
+                if (deb) console.warn('Choices dropdown must have an ID:', select);
                 return;
             }
 
             const config = { ...this.defaultConfig };
             try {
                 this.instances[id] = new Choices(select, config);
-                console.debug(`Choices initialized for ID: ${id}`);
+                if (deb) console.debug(`Choices initialized for ID: ${id}`);
             } catch (error) {
                 console.error(`Failed to initialize Choices for ID: ${id}`, error);
             }
@@ -93,10 +93,10 @@ class UniversalChoices {
                 instance.removeActiveItems();
                 instance.setChoiceByValue('');
                 $(`#${id}`).val('').trigger('change');
-                console.debug(`Cleared choice for ID: ${id}`);
+                if (deb) console.debug(`Cleared choice for ID: ${id}`);
             } else {
                 $(`#${id}`).val('').trigger('change');
-                console.warn(`No Choices instance found for ID: ${id} during clearChoice`);
+                if (deb) console.warn(`No Choices instance found for ID: ${id} during clearChoice`);
             }
         });
     }
@@ -119,16 +119,16 @@ class UniversalChoices {
             valueArray.forEach(value => {
                 const strValue = String(value);
                 instance.setChoiceByValue(strValue);
-                console.debug(`Set value ${strValue} for ID: ${id}`);
+                if (deb) console.debug(`Set value ${strValue} for ID: ${id}`);
             });
 
             // Update the underlying <select> and trigger change
             $(`#${id}`).val(valueArray).trigger('change');
-            console.debug(`Set values ${valueArray.join(', ')} for ID: ${id}`);
+            if (deb) console.debug(`Set values ${valueArray.join(', ')} for ID: ${id}`);
         } else {
             // Fallback to jQuery if no Choices instance
             $(`#${id}`).val(valueArray).trigger('change');
-            console.warn(`No Choices instance found for ID: ${id} during setChoiceValue`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} during setChoiceValue`);
         }
     }
 
@@ -143,7 +143,7 @@ class UniversalChoices {
         ids.forEach(id => {
             const selectElement = document.getElementById(id);
             if (!selectElement) {
-                console.warn(`No select element found for ID: ${id}`);
+                if (deb) console.warn(`No select element found for ID: ${id}`);
                 return;
             }
 
@@ -151,7 +151,7 @@ class UniversalChoices {
             if (instance) {
                 // Destroy the current instance
                 instance.destroy();
-                console.debug(`Destroyed Choices instance for ID: ${id}`);
+                if (deb) console.debug(`Destroyed Choices instance for ID: ${id}`);
             }
 
             // Reset the select element to its original state
@@ -162,7 +162,7 @@ class UniversalChoices {
             try {
                 const config = { ...this.defaultConfig };
                 this.instances[id] = new Choices(selectElement, config);
-                console.debug(`Recreated Choices instance for ID: ${id}`);
+                if (deb) console.debug(`Recreated Choices instance for ID: ${id}`);
             } catch (error) {
                 console.error(`Failed to recreate Choices for ID: ${id}`, error);
             }
@@ -181,11 +181,11 @@ class UniversalChoices {
         const instance = this.instances[id];
         if (instance) {
             const selected = instance.getValue(true);
-            console.debug(`Got value ${selected} for ID: ${id}`);
+            if (deb) console.debug(`Got value ${selected} for ID: ${id}`);
             return selected;
         } else {
             const value = $(`#${id}`).val();
-            console.warn(`No Choices instance found for ID: ${id} during getChoiceValue, using jQuery value: ${value}`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} during getChoiceValue, using jQuery value: ${value}`);
             return value;
         }
     }
@@ -194,14 +194,14 @@ class UniversalChoices {
     getPlaceholderFromHtml(id) {
         const select = document.getElementById(id);
         if (!select) {
-            console.warn(`No select element found for ID: ${id}`);
+            if (deb) console.warn(`No select element found for ID: ${id}`);
             return null;
         }
 
         // Check for data-placeholder attribute
         const dataPlaceholder = select.getAttribute('data-placeholder');
         if (dataPlaceholder) {
-            console.debug(`Found data-placeholder for ID: ${id}: ${dataPlaceholder}`);
+            if (deb) console.debug(`Found data-placeholder for ID: ${id}: ${dataPlaceholder}`);
             return dataPlaceholder;
         }
 
@@ -209,11 +209,11 @@ class UniversalChoices {
         const placeholderOption = select.querySelector('option[value=""]');
         if (placeholderOption) {
             const text = placeholderOption.textContent.trim();
-            console.debug(`Found placeholder option for ID: ${id}: ${text}`);
+            if (deb) console.debug(`Found placeholder option for ID: ${id}: ${text}`);
             return text;
         }
 
-        console.debug(`No placeholder found in HTML for ID: ${id}`);
+        if (deb) console.debug(`No placeholder found in HTML for ID: ${id}`);
         return null;
     }
 
@@ -245,13 +245,13 @@ class UniversalChoices {
             if (keys.length >= 2) {
                 valueKey = valueKey || keys[0];
                 labelKey = labelKey || keys[1];
-                console.debug(`Auto-detected keys for data: valueKey=${valueKey}, labelKey=${labelKey}`);
+                if (deb) console.debug(`Auto-detected keys for data: valueKey=${valueKey}, labelKey=${labelKey}`);
             } else if (keys.length === 1) {
                 valueKey = valueKey || keys[0];
                 labelKey = labelKey || keys[0];
-                console.debug(`Single key detected for data: valueKey=${valueKey}, labelKey=${labelKey}`);
+                if (deb) console.debug(`Single key detected for data: valueKey=${valueKey}, labelKey=${labelKey}`);
             } else {
-                console.warn('No keys found in data for auto-detection');
+                if (deb) console.warn('No keys found in data for auto-detection');
                 return;
             }
         }
@@ -262,18 +262,18 @@ class UniversalChoices {
         ids.forEach(id => {
             const instance = this.instances[id];
             if (!instance) {
-                console.warn(`No Choices instance found for ID: ${id} during populateDropdown`);
+                if (deb) console.warn(`No Choices instance found for ID: ${id} during populateDropdown`);
                 return;
             }
 
             // Get placeholder from HTML or fall back to config
             const placeholder = this.getPlaceholderFromHtml(id) || mergedConfig.placeholder;
-            console.debug(`Using placeholder for ID: ${id}: ${placeholder}`);
+            if (deb) console.debug(`Using placeholder for ID: ${id}: ${placeholder}`);
 
             // Clear existing options and selections
             instance.clearStore();
             instance.removeActiveItems();
-            console.debug(`Cleared store and active items for ID: ${id}`);
+            if (deb) console.debug(`Cleared store and active items for ID: ${id}`);
 
             // Format data
             let formattedData;
@@ -284,7 +284,7 @@ class UniversalChoices {
                     selected: item.selected || false,
                     disabled: item.disabled || false
                 }));
-                console.debug(`Formatted data for ID: ${id}`, formattedData);
+                if (deb) console.debug(`Formatted data for ID: ${id}`, formattedData);
             } catch (error) {
                 console.error(`Error formatting data for ID: ${id}`, error);
                 return;
@@ -297,7 +297,7 @@ class UniversalChoices {
                     valueKey: 'value',
                     placeholder
                 });
-                console.debug(`Populated dropdown for ID: ${id} with ${formattedData.length} options`);
+                if (deb) console.debug(`Populated dropdown for ID: ${id} with ${formattedData.length} options`);
             } catch (error) {
                 console.error(`Error populating dropdown for ID: ${id}`, error);
             }
@@ -313,9 +313,9 @@ class UniversalChoices {
             if (container) {
                 container.classList.add('is-disabled');
             }
-            console.debug(`Disabled choice for ID: ${id}`);
+            if (deb) console.debug(`Disabled choice for ID: ${id}`);
         } else {
-            console.warn(`No Choices instance found for ID: ${id} during disableChoice`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} during disableChoice`);
         }
     }
 
@@ -328,9 +328,9 @@ class UniversalChoices {
             if (container) {
                 container.classList.remove('is-disabled');
             }
-            console.debug(`Enabled choice for ID: ${id}`);
+            if (deb) console.debug(`Enabled choice for ID: ${id}`);
         } else {
-            console.warn(`No Choices instance found for ID: ${id} during enableChoice`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} during enableChoice`);
         }
     }
 
@@ -358,7 +358,7 @@ class ChoicePopulator {
 
         const instance = this.choiceManager.instances[id];
         if (!instance) {
-            console.warn(`No Choices instance found for ID: ${id} in populateStatic`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} in populateStatic`);
             return;
         }
 
@@ -380,11 +380,11 @@ class ChoicePopulator {
                 placeholder: true,
                 selected: true // Ensure placeholder is selected by default
             }], 'value', 'label', false);
-            console.debug(`Set placeholder for ID: ${id}: ${placeholder}`);
+            if (deb) console.debug(`Set placeholder for ID: ${id}: ${placeholder}`);
 
             // Add options
             instance.setChoices(formattedOptions, 'value', 'label', true);
-            console.debug(`Set ${formattedOptions.length} options for ID: ${id}`);
+            if (deb) console.debug(`Set ${formattedOptions.length} options for ID: ${id}`);
         } catch (error) {
             console.error(`Error setting choices for ID: ${id}`, error);
         }
@@ -400,7 +400,7 @@ class ChoicePopulator {
 
         const instance = this.choiceManager.instances[id];
         if (!instance) {
-            console.warn(`No Choices instance found for ID: ${id} in populateFromApi`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} in populateFromApi`);
             return;
         }
 
@@ -434,7 +434,7 @@ class ChoicePopulator {
             }], 'value', 'label', false);
 
             instance.setChoices(formattedOptions, 'value', 'label', true);
-            console.debug(`Populated ${formattedOptions.length} options from API for ID: ${id}`);
+            if (deb) console.debug(`Populated ${formattedOptions.length} options from API for ID: ${id}`);
             return true;
         } catch (error) {
             console.error(`Error populating choices for ID ${id} from ${url}:`, error);
@@ -446,16 +446,16 @@ class ChoicePopulator {
         const instance = this.choiceManager.instances[id];
         if (instance) {
             instance.clearStore();
-            console.debug(`Cleared options for ID: ${id}`);
+            if (deb) console.debug(`Cleared options for ID: ${id}`);
         } else {
-            console.warn(`No Choices instance found for ID: ${id} in clearOptions`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} in clearOptions`);
         }
     }
 
     addOption(id, config = {}) {
         const instance = this.choiceManager.instances[id];
         if (!instance) {
-            console.warn(`No Choices instance found for ID: ${id} in addOption`);
+            if (deb) console.warn(`No Choices instance found for ID: ${id} in addOption`);
             return;
         }
 
@@ -473,7 +473,7 @@ class ChoicePopulator {
                 selected,
                 disabled
             }], 'value', true);
-            console.debug(`Added option ${label} for ID: ${id}`);
+            if (deb) console.debug(`Added option ${label} for ID: ${id}`);
         } catch (error) {
             console.error(`Error adding option for ID: ${id}`, error);
         }
@@ -513,7 +513,7 @@ window.choiceManager = choiceManager;
 //        document.querySelectorAll(`select.${this.className}`).forEach(select => {
 //            const id = select.id;
 //            if (!id) {
-//                console.warn('Choices dropdown must have an ID:', select);
+//                if (deb) console.warn('Choices dropdown must have an ID:', select);
 //                return;
 //            }
 
@@ -590,7 +590,7 @@ window.choiceManager = choiceManager;
 //    initAll() {
 //        document.querySelectorAll(`select.${this.className}`).forEach(select => {
 //            const id = select.id;
-//            if (!id) return console.warn('Choices dropdown must have an ID:', select);
+//            if (!id) return if (deb) console.warn('Choices dropdown must have an ID:', select);
 
 //            const config = { ...this.defaultConfig };
 //            this.instances[id] = new Choices(`#${id}`, config);
