@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
+using GCTL.Service.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,10 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
     {
 
         Task<bool> AddAsync(LocalizationViewModel model);
-
+        Task<bool> UpdateAsync(LocalizationViewModel model);
+       // Task<LocalizationViewModel> GetByIdAsync(int id);
+        Task<PaginationService<Localizations, LocalizationViewModel>.PaginationResult<LocalizationViewModel>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+            string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<Localizations> GetForOrganizationAsync(int orgId);
         Task<List<SelectListItem>> GetOrganizationsAsync();
         Task<List<SelectListItem>> GetTimeformatAsync();

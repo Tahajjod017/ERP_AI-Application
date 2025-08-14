@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -96,10 +97,116 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             }
         }
         #endregion
-        #region 
 
+        #region UpdateAsync
+        public async Task<bool> UpdateAsync(LocalizationViewModel model)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                // Fetch the existing localization record
+                var existingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.LocalizationID == model.LocalizationID && x.DeletedAt == null);
+                if (existingEntity == null)
+                {
+                    throw new InvalidOperationException($"Localization with ID {model.LocalizationID} not found or is soft-deleted.");
+                }
+                // Update the fields
+                existingEntity.OrganizationID = model.OrganizationID;
+                existingEntity.LanguageID = model.LanguageID;
+                existingEntity.TimezoneID = model.TimezoneID;
+                existingEntity.DateFormatID = model.DateFormatID;
+                existingEntity.TimeFormatID = model.TimeFormatID;
+                existingEntity.CurrencyID = model.CurrencyID;
+                // existingEntity.CurrencySymbol = model.CurrencySymbol;
+                existingEntity.UpdatedAt = DateTime.Now;
+                existingEntity.UpdatedBy = model.UpdatedBy ?? null;
+                await _genericRepository.UpdateAsync(existingEntity);
+
+                await _genericRepository.CommitTransactionAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                throw new Exception(ex.Message, ex);
+            }
+        }
         #endregion
 
+        #region GetAllAsync
+        public async Task<PaginationService<Localizations, LocalizationViewModel>.PaginationResult<LocalizationViewModel>> GetAllAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "OrganizationID",
+            string sortOrder = "desc",
+            int? organizationID = null)
+        {
+            var query = _genericRepository.All()
+                .AsNoTracking()
+                .Include(x => x.Organization) // Include related Organization entity
+                .Include(x => x.Language) // Include related Language entity
+                .Include(x => x.Timezone) // Include related Timezone entity
+                .Include(x => x.DateFormat) // Include related DateFormat entity
+                .Include(x => x.Currency) // Include related Currency entity
+                .Where(x => x.DeletedAt == null); // Filter out soft-deleted records
+
+            // Filter by organization if provided
+            if (organizationID.HasValue && organizationID.Value > 0)
+            {
+                query = query.Where(x => x.OrganizationID == organizationID.Value);
+            }
+
+            // Sorting logic for columns
+            query = sortColumn switch
+            {
+                "OrganizationID" => sortOrder == "desc" ? query.OrderByDescending(x => x.OrganizationID) : query.OrderBy(x => x.OrganizationID),
+                "LanguageID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LanguageID) : query.OrderBy(x => x.LanguageID),
+                "TimezoneID" => sortOrder == "desc" ? query.OrderByDescending(x => x.TimezoneID) : query.OrderBy(x => x.TimezoneID),
+                "CurrencyID" => sortOrder == "desc" ? query.OrderByDescending(x => x.CurrencyID) : query.OrderBy(x => x.CurrencyID),
+                _ => query.OrderBy(x => x.OrganizationID)
+            };
+
+            // Use pagination service with projection
+            var result = await PaginationService<Localizations, LocalizationViewModel>.GetPaginatedData(
+                query,
+                pageNumber,
+                pageSize,
+                searchTerm,
+                sortColumn,
+                sortOrder,
+                term => x => EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") || EF.Functions.Like(x.Currency.CurrencyName, $"%{term}%"),
+                x => new LocalizationViewModel
+                {
+                    LocalizationID = x.LocalizationID,
+                    OrganizationID = x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName ?? "_", // Assuming OrganizationName exists in Organization
+                    LanguageID = x.LanguageID,
+                    LanguageName = x.Language?.LanguageName ?? "_", // Assuming LanguageName exists in Language
+                    TimezoneID = x.TimezoneID,
+                    TimezoneName = x.Timezone?.TimezoneName ?? "_", // Assuming TimezoneName exists in Timezone
+                    DateFormatID = x.DateFormatID,
+                    DateFormat = x.DateFormat?.Description ?? "_", // Assuming Description exists in DateFormat
+                    TimeFormatID = x.TimeFormatID,
+                    TimeFormat = x.TimeFormat?.DisplayText ?? "_", // Assuming DisplayText exists in TimeFormat
+                    CurrencyID = x.CurrencyID,
+                    CurrencyName = x.Currency?.CurrencyName ?? "_", // Assuming CurrencyName exists in Currency
+                    //CurrencySymbol = x.Currency?.CurrencySymbol ?? "_", // Assuming CurrencySymbol exists in Currency
+                    //CreatedAt = x.CreatedAt,
+                    CreatedBy = x.CreatedBy,
+                    //UpdatedAt = x.UpdatedAt,
+                    UpdatedBy = x.UpdatedBy,
+                  //  DeletedAt = x.DeletedAt,
+                    LIP = x.LIP,
+                    LMAC = x.LMAC
+                });
+
+            return result;
+        }
+        #endregion
+
+
+        #region Timezone , DateFormat, TimeFormat, Currency
         public async Task<Localizations> GetForOrganizationAsync(int orgId)
         {
             // Fetch all active (not soft-deleted) localization rows for this org
@@ -129,7 +236,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             if (!timezoneId.HasValue)
                 return "UTC"; // default fallback
 
-            var tz =  _genericRepositoryTimeZone.AllActive().Where(x=>x.TimezoneID == timezoneId.Value).Select(x=>x.TimezoneValue).FirstOrDefault();
+            var tz = _genericRepositoryTimeZone.AllActive().Where(x => x.TimezoneID == timezoneId.Value).Select(x => x.TimezoneValue).FirstOrDefault();
 
             if (tz == null || string.IsNullOrWhiteSpace(tz))
                 return "UTC"; // fallback if not found or empty
@@ -155,7 +262,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             if (!timeFormatId.HasValue)
                 return "HH:mm"; // default fallback
 
-            var tf = await _genericRepositoryTimeformat.AllActive().Where(x => x.TimeFormatID == timeFormatId.Value).Select(x=>x.FormatCode).FirstOrDefaultAsync();
+            var tf = await _genericRepositoryTimeformat.AllActive().Where(x => x.TimeFormatID == timeFormatId.Value).Select(x => x.FormatCode).FirstOrDefaultAsync();
 
             if (tf == null || string.IsNullOrWhiteSpace(tf))
                 return "HH:mm";
@@ -178,7 +285,11 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 TimePattern = string.IsNullOrWhiteSpace(tp) ? "HH:mm" : tp.Trim()
             };
         }
+        #endregion
 
+
+
+        #region dropdown
         public async Task<List<SelectListItem>> GetOrganizationsAsync()
         {
             var organizations = await _genericRepositoryOraganization.All()
@@ -264,5 +375,6 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             }
             return currencies;
         }
+        #endregion
     }
 }

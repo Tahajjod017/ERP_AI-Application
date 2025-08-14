@@ -31,7 +31,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         public async Task<IActionResult> Index()
         {
-            int setupId = 721;
+            int setupId = 1717;
 
             DateTime? selectedTime = await _genericRepository.AllActive()
                 .Where(x => x.WeekendSettingID == setupId)
@@ -109,6 +109,28 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+        #endregion
+
+        #region update
+        [HttpPost]
+        public async Task<IActionResult> Update(WeekendSettingVM model) 
+        {
+            try
+            {
+               // model.WeekendSettingID = weekendSettingID;
+                // Call your existing UpdateAsync method
+                bool updateSuccess = await _weekendSettingService.UpdateAsync(model);
+
+                // Return success response
+                return Json(new { success = updateSuccess, message = "Weekend setting updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Handle errors
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         #endregion
 
         #region

@@ -24,10 +24,19 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             ILocalizationSettingService locService,
             IUserInfoService userInfo)
         {
-            // var orgId = await userInfo.GetOrganizationIdAsync(http.User);
-            var orgId = 2; // hardcoded for your testing
+            // Ensure the user is authenticated
+            if (!http.User.Identity.IsAuthenticated)
+            {
+                // Handle unauthenticated access if needed (e.g., redirect, error message, etc.)
+                await _next(http);
+                return; // Exit middleware if user is not authenticated
+            }
 
-            var bundle = await locService.GetOrgLocalizationBundleAsync(orgId);
+            var orgId = await userInfo.GetOrganizationIdAsync(http.User,http);
+            //var orgId = 2; // hardcoded for your testing
+
+
+            var bundle = await locService.GetOrgLocalizationBundleAsync(orgId.Value);
 
             // Build DateTimeZone from DB value
             DateTimeZone zone;

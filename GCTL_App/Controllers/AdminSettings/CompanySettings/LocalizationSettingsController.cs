@@ -61,5 +61,13 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
         #endregion
 
+        #region getall
+        public async Task<IActionResult> GetAllData(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
+        {
+            var result = await _localizationSettingService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
+            return Json(result);
+        }
+        #endregion
+
     }
 }

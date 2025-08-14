@@ -9,7 +9,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
 {
     public static class UtcTimeHelper
     {
-        private const string NtpServer = "time.google.com";
+        private const string NtpServer = "time.google.com"; //check server  online
 
         public static DateTime GetReliableUtcNow()
         {
