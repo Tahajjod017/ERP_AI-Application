@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
+namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM
 {
-    public class PayRollEmpBenefitsSaveVM:BaseViewModel
+    public class PayRollEmpBenefitsSaveVM : BaseViewModel
     {
-       
+
         public int EmployeeBenefitID { get; set; }
-        [Required(ErrorMessage ="Please Select Organization")]
+        [Required(ErrorMessage = "Please Select Organization")]
         public int? OrganizationID { get; set; }
 
         public bool IsHealthInsuranceEnabled { get; set; }

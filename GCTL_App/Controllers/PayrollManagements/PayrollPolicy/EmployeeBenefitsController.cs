@@ -12,6 +12,7 @@ using System.Security.Claims;
 using GCTL.Core.Helpers;
 using Microsoft.Identity.Client;
 using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
