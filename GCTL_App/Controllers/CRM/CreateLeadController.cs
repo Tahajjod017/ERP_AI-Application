@@ -140,9 +140,18 @@ namespace GCTL_App.Controllers.CRM
 
 
                     return Json(new { success = true, message = "Saved successfully", result= result });
-                } else
+                } 
+            }
+            return Json(new { MessageContent = "Error" });
+
+        }
+        public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (leadsVM.Customers[0].PrimaryID != 0)
                 {
-                    var result = await _leadCreateService.UpdateLead(customerVM);
+                    var result = await _leadCreateService.UpdateLead(leadsVM);
                     return Json(new { success = true, message = "Updated successfully" });
                 }
             }

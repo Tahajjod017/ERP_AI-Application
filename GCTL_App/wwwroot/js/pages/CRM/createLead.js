@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6", "#phonePersonIndex", "#otherPhonePersonIndex", "#phone5Index","#phone6Index"];
+    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6", "#phonePersonIndex", "#otherPhonePersonIndex", "#phone5Index", "#phone6Index"];
 
     phoneIds.forEach(selector => {
         const input = document.querySelector(selector);
@@ -135,7 +135,7 @@ $(document).ready(function () {
                     document.getElementById("emailShippingIndex").value = response.shipping.email;
 
                 }
-                
+
             },
             error: function () {
                 alert('Failed to load Contact Name');
@@ -201,7 +201,7 @@ $(document).ready(function () {
         targetTab = 'company';
         $('#addCustomerModal').modal('show');
         //remove
-        
+
         $('#person-tab').removeClass('active');
         $('#tab-Personal').removeClass('active show');
         $('#person').removeClass('active show');
@@ -323,7 +323,7 @@ $(document).ready(function () {
             street: 'streetPerson',
             city: 'cityPerson',
             state: 'statePerson',
-            additionalAddress : 'additionalAddressPerson',
+            additionalAddress: 'additionalAddressPerson',
             country: 'countryPerson',
             countryCode: 'countryCodePerson',
             postal_code: 'postalCodePerson',
@@ -432,7 +432,7 @@ $(document).ready(function () {
             }
             for (const component of place.address_components) {
                 if (component.types.includes("street_number")) street_number = component.long_name;
-                if (component.types.includes("route")) route = component.long_name; 
+                if (component.types.includes("route")) route = component.long_name;
                 if (component.types.includes("postal_code")) postal_code = component.long_name;
                 if (component.types.includes("locality")) city = component.long_name;
                 if (component.types.includes("administrative_area_level_1")) state = component.short_name;
@@ -461,7 +461,7 @@ $(document).ready(function () {
                         document.getElementById("phone1").value = phone;
                     }
                 });
-            } 
+            }
             document.getElementById(ids.city).value = city;
             document.getElementById(ids.state).value = state;
             document.getElementById(ids.country).value = country;
@@ -476,7 +476,7 @@ $(document).ready(function () {
         const newTab = $(e.target).data('bs-target'); // e.g. "#company" or "#person"
         if (newTab === '#company') {
             targetTab = 'company'
-        } else if (newTab === '#person'){
+        } else if (newTab === '#person') {
             targetTab = 'person';
         }
         console.log('Activated tab:', newTab);
@@ -485,7 +485,7 @@ $(document).ready(function () {
         }, 300);
         console.log(targetTab);
     });
-    
+
     // Optional: hide suggestion list when clicking outside
     $(document).on('click', function (e) {
         if (!$(e.target).closest('#ContactNameSearch, #searchResults').length) {
@@ -508,57 +508,61 @@ $(document).ready(function () {
     $("#modalSaveBtn").on("click", function (e) {
         debugger;
         e.preventDefault();
-        const actionTab =
-            (targetTab === "person" || targetTab === "shipping") ? ["person", "shipping"] : ["company"];
-        //console.log(ids.phone);
-        var data = []
-        actionTab.forEach(item => {
-            const ids = idMap[item] || {};
-            data.push({
-                TabName: item,
-                PrimaryID: document.getElementById(ids.primaryID).value
-                    ? parseInt(document.getElementById(ids.primaryID).value, 10)
-                    : 0,
-                FirstName: document.getElementById(ids.firstName).value,
-                LastName: document.getElementById(ids.lastName).value,
-                FullAddress: document.getElementById(ids.autocomplete).value,
-                Street: document.getElementById(ids.street).value,
-                City: document.getElementById(ids.city).value,
-                State: document.getElementById(ids.state).value,
-                Additionaladdress: document.getElementById(ids.additionalAddress).value,
-                PostalCode: document.getElementById(ids.postal_code).value,
-                CountryName: document.getElementById(ids.country).value,
-                CountryCode: document.getElementById(ids.countryCode).value,
-                Latitude: parseFloat(document.getElementById(ids.latitude).value) || null,
-                Longitude: parseFloat(document.getElementById(ids.longitude).value) || null,
-                Phone: getPhoneNumber(`#${ids.phone}`),
-                OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
-                Email: document.getElementById(ids.email).value,
+        
+        if (validateName()) {
+            const actionTab =
+                (targetTab === "person" || targetTab === "shipping") ? ["person", "shipping"] : ["company"];
+            //console.log(ids.phone);
+            var data = []
+            actionTab.forEach(item => {
+                const ids = idMap[item] || {};
+                data.push({
+                    TabName: item,
+                    PrimaryID: document.getElementById(ids.primaryID).value
+                        ? parseInt(document.getElementById(ids.primaryID).value, 10)
+                        : 0,
+                    FirstName: document.getElementById(ids.firstName).value,
+                    LastName: document.getElementById(ids.lastName).value,
+                    FullAddress: document.getElementById(ids.autocomplete).value,
+                    Street: document.getElementById(ids.street).value,
+                    City: document.getElementById(ids.city).value,
+                    State: document.getElementById(ids.state).value,
+                    Additionaladdress: document.getElementById(ids.additionalAddress).value,
+                    PostalCode: document.getElementById(ids.postal_code).value,
+                    CountryName: document.getElementById(ids.country).value,
+                    CountryCode: document.getElementById(ids.countryCode).value,
+                    Latitude: parseFloat(document.getElementById(ids.latitude).value) || null,
+                    Longitude: parseFloat(document.getElementById(ids.longitude).value) || null,
+                    Phone: getPhoneNumber(`#${ids.phone}`),
+                    OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
+                    Email: document.getElementById(ids.email).value,
+                });
             });
-        });
-        var dataToSend = { Customers: data };
+            var dataToSend = { Customers: data };
 
-        console.log(data);
-        $.ajax({
-            url: '/CreateLead/upsertPerson',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(dataToSend),
-            success: function (response) {
-                debugger;
-                console.log(response);
-                if (response.success) {
-                    $('#addCustomerModal').modal('hide');
-                    toastr.success(response.message);
-                    getCustomerList();
-                    getCustomerInfo(response.result.data);
+            console.log(data);
+            $.ajax({
+                url: '/CreateLead/upsertPerson',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    debugger;
+                    console.log(response);
+                    if (response.success) {
+                        $('#addCustomerModal').modal('hide');
+                        toastr.success(response.message);
+                        getCustomerList();
+                        getCustomerInfo(response.result.data);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                    alert('Error saving person');
                 }
-            },
-            error: function (xhr) {
-                console.log(xhr);
-                alert('Error saving person');
-            }
-        });
+            });
+        };
+
     });
 
     $("#indexSaveBtn").on("click", function (e) {
@@ -568,12 +572,23 @@ $(document).ready(function () {
         console.log(document.getElementById("shippingIndexIA_ID").value);
         customerType = document.getElementById("customerType").value;
         const actionTab =
-            (customerType === "billing" ) ? ["person", "shipping"] : ["company"];
+            (customerType === "billing") ? ["person", "shipping"] : ["company"];
         //console.log(ids.phone);
-        var data = []
+        var data = {
+            IsIndividualCustomer: document.getElementById("customerType").value === "billing" ? true : false,
+            LeadStatusID: document.getElementById("leadStatusId").value,
+            LeadSourceID: document.getElementById("leadSourceId").value,
+            LeadOwnerID: document.getElementById("leadOwnerId").value,
+            ApproximateDealValue: document.getElementById("approximateDealValue").value,
+            ProbabilityPercentage: document.getElementById("probabilityPercentage").value,
+            LeadDescription: document.getElementById("descriptionText").value,
+            Customers: []
+        };
+
         actionTab.forEach(item => {
-            const ids = idMapIndex[item] || {}; $(".customerName-item").data("id")
-            data.push({
+            const ids = idMapIndex[item] || {};
+            $(".customerName-item").data("id");
+            data.Customers.push({
                 TabName: item,
                 PrimaryID: document.getElementById(ids.primaryID).value,
                 FirstName: document.getElementById(ids.firstName).value,
@@ -597,10 +612,10 @@ $(document).ready(function () {
 
         console.log(data);
         $.ajax({
-            url: '/CreateLead/upsertPerson',
+            url: '/CreateLead/CreateLead',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(dataToSend),
+            data: JSON.stringify(data),
             success: function (response) {
                 console.log(response);
                 if (response.success) {
@@ -616,120 +631,160 @@ $(document).ready(function () {
     });
 
 
+    // runtime validation check
+    function runtimeValidationCheck() {
+        const selectedTabList = targetTab === 'person' || targetTab == 'shipping'
+            ? [
+                idMap.person.firstName, idMap.person.lastName, idMap.person.autocomplete, idMap.person.postal_code, idMap.person.country, idMap.person.phone, idMap.person.email,
+                idMap.shipping.firstName, idMap.shipping.lastName, idMap.shipping.autocomplete, idMap.shipping.postal_code, idMap.shipping.country, idMap.shipping.phone, idMap.shipping.email
+            ]
+            : [idMap.company.firstName];
+        selectedTabList
+            .filter(Boolean)
+            .forEach(e => {
+                $(document).on('input', `#${e}`, function () {
+                    validateNameOne(this);
+                    console.log("ok, working");
+                });
+            });
+        function validateNameOne(obj) {
+            var name = $(obj).val().trim();
 
-    //document.addEventListener("DOMContentLoaded", function () {
-    //    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
-
-    //    phoneIds.forEach(selector => {
-    //        const input = document.querySelector(selector);
-    //        if (!input) return;
-
-    //        const iti = window.intlTelInput(input, {
-    //            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-    //            separateDialCode: true,
-    //            initialCountry: "bd",
-    //            preferredCountries: ["bd", "in", "us"]
-    //        });
-
-    //        input.addEventListener("blur", function () {
-    //            console.log(`${selector} Phone:`, iti.getNumber());
-    //        });
-    //    });
-    //});
-
-
-    //document.addEventListener("DOMContentLoaded", function () {
-    //    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
-
-    //    phoneIds.forEach(selector => {
-    //        const input = document.querySelector(selector);
-    //        if (!input) return;
-
-    //        const iti = window.intlTelInput(input, {
-    //            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-    //            separateDialCode: true,
-    //            initialCountry: "bd",
-    //            preferredCountries: ["bd", "in", "us"]
-    //        });
-
-    //        input.addEventListener("blur", function () {
-    //            console.log(`${selector} Phone:`, iti.getNumber());
-    //        });
-    //    });
-    //});
-    // phone field value insert
-    //let itiMap = {};
-    //document.addEventListener("DOMContentLoaded", function () {
-    //    debugger;
-    //    console.log("phone running");
-    //    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
-    //    debugger;
-    //    phoneIds.forEach(selector => {
-    //        const input = document.querySelector(selector);
-    //        if (!input) return;
-
-    //        const iti = window.intlTelInput(input, {
-    //            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-    //            separateDialCode: true,
-    //            initialCountry: "bd",
-    //            preferredCountries: ["bd", "in", "us"]
-    //        });
-    //        itiMap[selector] = iti;
-    //        let phoneInit = itiMap["#phone"];
-    //        input.addEventListener("blur", function () {
-    //            console.log(`${selector} Phone:`, phoneInit.getNumber());
-    //        });
-    //    });
-
-    //    console.log("Phone fields initialized", itiMap);
-    //});
-
-    // submit button
-    //$("#submitBtn").on('click', function (e) {
-    //    debugger
-    //    e.preventDefault();
-    //    console.log("Phone fields initialized", itiMap);
-
-    //    const iti = itiMap["#phone"];
-    //    if (iti) {
-    //        const phoneNumber = iti.getNumber();
-    //        console.log(`Phone Number: ${phoneNumber}`);
-    //    }
-        
-    //});
-
-
-//#endregion
-
-//#region Save Nationality
-
-$('#confirmAddNationalityBtn').on('click', function () {
-    const newNationality = $('#newNationalityName').val().trim();
-
-    if (!newNationality) {
-        alert('Please enter a nationality name.');
-        return;
+            if (name === '') {
+                $(obj).css('border', '1px solid red');
+            } else {
+                $(obj).css('border', '1px solid #ccc');
+            }
+        }
     }
 
-    $.ajax({
-        url: '/CreateLead/SaveNationality', // <-- Update with your actual route
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(newNationality),
-        success: function (response) {
-            if (response.success) {
-                customers.push(newNationality);
-                $('#ContactNameSearch').val(newNationality);
-                $('#searchResults').hide();
-                $('#removeContactNameBtn').show();
-                $('#addCustomerModal').modal('hide');
+
+    // check validation when click on submit btn
+    function validateName() {
+        debugger;
+        
+        const selectedTab = targetTab === 'person' || targetTab == 'shipping'
+            ? [
+                idMap.person.firstName, idMap.person.lastName, idMap.person.autocomplete, idMap.person.postal_code, idMap.person.country, idMap.person.phone, idMap.person.email,
+                idMap.shipping.firstName, idMap.shipping.lastName, idMap.shipping.autocomplete, idMap.shipping.postal_code, idMap.shipping.country, idMap.shipping.phone, idMap.shipping.email
+            ]
+            : [idMap.company.firstName];
+
+        let isValid = true;
+        //isValid = checkNameUnique();
+        const errorMessages = [];
+        let errorCount = 0;
+        runtimeValidationCheck();
+        //checkNameUnique();
+        selectedTab.filter(Boolean).forEach(e => {
+            const name = $(`#${e}`).val().trim();
+
+            if (name === '') {
+                $(`#${e}`).css('border', '1px solid red');
+                errorCount += 1;
+                isValid = false;
+            } else {
+                $(`#${e}`).css('border', '1px solid #ccc');;
             }
-        },
-        error: function (xhr) {
-            alert('Error saving nationality: ' + xhr.responseText);
+        });
+
+        if (errorCount > 0) {
+            if (errorCount == 1) {
+                toastr.warning("This field is required");
+                
+                
+            }
+            else if (errorCount > 1) {
+                toastr.warning("These fields are required");
+            }
         }
-    });
-});
+
+        return isValid;
+    }
+
+    // //check phoneNumber is unique or not
+    //function checkNameUnique() {
+    //    debugger;
+    //    const selectedTab = targetTab === 'person' || targetTab === 'shipping'
+    //        ? [
+    //            {
+    //                phone: idMap.person.phone,
+    //                phoneWarningDivID: "phonePersonError",
+    //                otherPhone: idMap.person.otherPhone,
+    //                otherPhoneWarningDivID: "otherPhonePersonError"
+    //            },
+    //            {
+    //                phone: idMap.shipping.phone,
+    //                otherPhone: idMap.shipping.otherPhone
+    //            }
+    //        ]
+    //        : [
+    //            {
+    //                phone: idMap.company.phone
+    //            }
+    //        ];
+
+    //    selectedTab.forEach(ids => {
+    //        // Attach input listener to phone
+    //        $(document).on('input', `#${ids.phone}`, function () {
+    //            let phoneVal = $(`#${ids.phone}`).val();
+    //            let otherPhoneVal = $(`#${ids.otherPhone}`).val();
+
+    //            if (phoneVal && otherPhoneVal && phoneVal === otherPhoneVal) {
+    //                $(`#${ids.phoneWarningDivID}`).text("Phone and Other Phone fields cannot be the same");
+    //                toastr.warning("Phone and Other Phone fields cannot be the same");
+    //            } else {
+    //                $(`#${ids.phoneWarningDivID}`).text("");
+    //            }
+    //        });
+
+    //        // Attach input listener to other phone
+    //        $(document).on('input', `#${ids.otherPhone}`, function () {
+    //            let phoneVal = $(`#${ids.phone}`).val();
+    //            let otherPhoneVal = $(`#${ids.otherPhone}`).val();
+
+    //            if (phoneVal && otherPhoneVal && otherPhoneVal === phoneVal) {
+    //                $(`#${ids.otherPhoneWarningDivID}`).text("Phone and Other Phone fields cannot be the same");
+    //                toastr.warning("Phone and Other Phone fields cannot be the same");
+    //            } else {
+    //                $(`#${ids.otherPhoneWarningDivID}`).text("");
+    //            }
+    //        });
+    //    });
+    //}
+
+
+
+
+
+
+    //$('#confirmAddNationalityBtn').on('click', function () {
+    //    const newNationality = $('#newNationalityName').val().trim();
+
+    //    if (!newNationality) {
+    //        alert('Please enter a nationality name.');
+    //        return;
+    //    }
+
+    //    $.ajax({
+    //        url: '/CreateLead/SaveNationality', // <-- Update with your actual route
+    //        method: 'POST',
+    //        contentType: 'application/json',
+    //        data: JSON.stringify(newNationality),
+    //        success: function (response) {
+    //            if (response.success) {
+    //                customers.push(newNationality);
+    //                $('#ContactNameSearch').val(newNationality);
+    //                $('#searchResults').hide();
+    //                $('#removeContactNameBtn').show();
+    //                $('#addCustomerModal').modal('hide');
+    //            }
+    //        },
+    //        error: function (xhr) {
+    //            alert('Error saving nationality: ' + xhr.responseText);
+    //        }
+    //    });
+    //});
 
 
     //#endregion 

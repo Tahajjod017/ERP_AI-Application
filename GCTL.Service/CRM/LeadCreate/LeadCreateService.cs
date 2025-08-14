@@ -15,14 +15,16 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypesRepository;
         private readonly IGenericRepository<IndividualAddresses> _individualAddressesRepository;
+        private readonly IGenericRepository<Leads> _leadsRepository;
 
-        public LeadCreateService(IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Individuals> individualsRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository)
+        public LeadCreateService(IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Individuals> individualsRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<Leads> leadsRepository)
         {
             _countryRepository = countryRepository;
             _individualsRepository = individualsRepository;
             _addressesRepository = addressesRepository;
             _addressTypesRepository = addressTypesRepository;
             _individualAddressesRepository = individualAddressesRepository;
+            _leadsRepository = leadsRepository;
         }
 
         public async Task<CommonReturnViewModel> CreateLead(CustomerVM customerVM)
@@ -42,7 +44,7 @@ namespace GCTL.Service.CRM.LeadCreate
                         {
                             AddressTypeName = listImte[i],
 
-                            CreatedAt = DateTime.Now,
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = customerVM.CreatedBy,
                             LIP = customerVM.LIP,
                             LMAC = customerVM.LMAC,
@@ -70,11 +72,11 @@ namespace GCTL.Service.CRM.LeadCreate
                             CountryCode = obj.CountryCode,
                             CountryName = obj.CountryName,
 
-                            CreatedAt = DateTime.Now,
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = customerVM.CreatedBy,
                             LIP = customerVM.LIP,
                             LMAC = customerVM.LMAC,
-                            UpdatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.UtcNow,
                             UpdatedBy = customerVM.UpdatedBy ?? null,
                             DeletedAt = null,
                         };
@@ -96,7 +98,7 @@ namespace GCTL.Service.CRM.LeadCreate
                             FirstName = obj.FirstName,
                             LastName = obj.LastName,
 
-                            CreatedAt = DateTime.Now,
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = customerVM.CreatedBy,
                             LIP = customerVM.LIP,
                             LMAC = customerVM.LMAC,
@@ -122,11 +124,11 @@ namespace GCTL.Service.CRM.LeadCreate
                             Longitude = obj.Longitude,
                             FirstName = addressTypeObj.AddressTypeName == "shipping" ? obj.FirstName : null,
                             LastName = addressTypeObj.AddressTypeName == "shipping" ? obj.LastName : null,
-                            CreatedAt = DateTime.Now,
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = customerVM.CreatedBy,
                             LIP = customerVM.LIP,
                             LMAC = customerVM.LMAC,
-                            UpdatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.UtcNow,
                             UpdatedBy = customerVM.UpdatedBy ?? null,
                             DeletedAt = null,
                         };
@@ -141,12 +143,12 @@ namespace GCTL.Service.CRM.LeadCreate
                         AddressID = addressesId,
                         IndividualID = individuals.IndividualID,
 
-                        CreatedAt = DateTime.Now,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = customerVM.CreatedBy,
                         LIP = customerVM.LIP,
                         LMAC = customerVM.LMAC,
 
-                        UpdatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.UtcNow,
                         UpdatedBy = customerVM.UpdatedBy ?? null,
                         DeletedAt = null,
                     };
@@ -175,7 +177,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
-        public async Task<CommonReturnViewModel> UpdateLead(CustomerVM customerVM)
+        public async Task<CommonReturnViewModel> UpdateLead(LeadsVM leadsVM)
         {
             try
             {
@@ -192,22 +194,23 @@ namespace GCTL.Service.CRM.LeadCreate
                         {
                             AddressTypeName = listImte[i],
 
-                            CreatedAt = DateTime.Now,
-                            CreatedBy = customerVM.CreatedBy,
-                            LIP = customerVM.LIP,
-                            LMAC = customerVM.LMAC,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = leadsVM.CreatedBy,
+                            LIP = leadsVM.LIP,
+                            LMAC = leadsVM.LMAC,
 
                         });
                     }
                     await _addressTypesRepository.AddRangeAsync(addressTypes);
                 }
-                for (int customerObjCounter=0; customerObjCounter < customerVM.Customers.Count; customerObjCounter++)
+                IndividualAddresses customerIndividualAddressObj = new IndividualAddresses();
+                for (int customerObjCounter=0; customerObjCounter < leadsVM.Customers.Count; customerObjCounter++)
                 {
-                    var customerIndividualAddressObj = await _individualAddressesRepository.FirstOrDefaultAsync(u => u.IndividualAddressID == customerVM.Customers[customerObjCounter].PrimaryID);
+                    customerIndividualAddressObj = await _individualAddressesRepository.FirstOrDefaultAsync(u => u.IndividualAddressID == leadsVM.Customers[customerObjCounter].PrimaryID);
 
                     if (customerIndividualAddressObj != null)
                     {
-                        var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == customerVM.Customers[customerObjCounter].CountryName);
+                        var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == leadsVM.Customers[customerObjCounter].CountryName);
 
                         int countryId;
                         if (existingCountry != null)
@@ -220,13 +223,13 @@ namespace GCTL.Service.CRM.LeadCreate
                             // 2. new country creation
                             var newCountry = new Country
                             {
-                                CountryCode = customerVM.Customers[0].CountryCode,
-                                CountryName = customerVM.Customers[0].CountryName,
+                                CountryCode = leadsVM.Customers[0].CountryCode,
+                                CountryName = leadsVM.Customers[0].CountryName,
 
-                                LIP = customerVM.LIP,
-                                LMAC = customerVM.LMAC,
-                                UpdatedAt = DateTime.Now,
-                                UpdatedBy = customerVM.UpdatedBy ?? null,
+                                LIP = leadsVM.LIP,
+                                LMAC = leadsVM.LMAC,
+                                UpdatedAt = DateTime.UtcNow,
+                                UpdatedBy = leadsVM.UpdatedBy ?? null,
                                 DeletedAt = null,
                             };
 
@@ -237,26 +240,26 @@ namespace GCTL.Service.CRM.LeadCreate
                         var addressObj = await _addressesRepository.FirstOrDefaultAsync(u => u.AddressID == customerIndividualAddressObj.AddressID);
                         if (addressObj != null)
                         {
-                            addressObj.FullAddress = customerVM.Customers[customerObjCounter].FullAddress;
-                            addressObj.Street = customerVM.Customers[customerObjCounter].Street;
-                            addressObj.City = customerVM.Customers[customerObjCounter].City;
-                            addressObj.State = customerVM.Customers[customerObjCounter].Street;
-                            addressObj.Additionaladdress = customerVM.Customers[customerObjCounter].Additionaladdress;
-                            addressObj.PostalCode = customerVM.Customers[customerObjCounter].PostalCode;
+                            addressObj.FullAddress = leadsVM.Customers[customerObjCounter].FullAddress;
+                            addressObj.Street = leadsVM.Customers[customerObjCounter].Street;
+                            addressObj.City = leadsVM.Customers[customerObjCounter].City;
+                            addressObj.State = leadsVM.Customers[customerObjCounter].Street;
+                            addressObj.Additionaladdress = leadsVM.Customers[customerObjCounter].Additionaladdress;
+                            addressObj.PostalCode = leadsVM.Customers[customerObjCounter].PostalCode;
                             addressObj.CountryID = countryId;
-                            addressObj.Phone = customerVM.Customers[customerObjCounter].Phone;
-                            addressObj.OtherPhone = customerVM.Customers[customerObjCounter].OtherPhone;
-                            addressObj.Email = customerVM.Customers[customerObjCounter].Email;
-                            addressObj.Latitude = customerVM.Customers[customerObjCounter].Latitude;
-                            addressObj.Longitude = customerVM.Customers[customerObjCounter].Longitude;
+                            addressObj.Phone = leadsVM.Customers[customerObjCounter].Phone;
+                            addressObj.OtherPhone = leadsVM.Customers[customerObjCounter].OtherPhone;
+                            addressObj.Email = leadsVM.Customers[customerObjCounter].Email;
+                            addressObj.Latitude = leadsVM.Customers[customerObjCounter].Latitude;
+                            addressObj.Longitude = leadsVM.Customers[customerObjCounter].Longitude;
 
-                            addressObj.FirstName = customerIndividualAddressObj.AddressType.AddressTypeName == "shipping" ? customerVM.Customers[customerObjCounter].FirstName : null;
-                            addressObj.LastName = customerIndividualAddressObj.AddressType.AddressTypeName == "shipping" ? customerVM.Customers[customerObjCounter].LastName : null;
+                            addressObj.FirstName = customerIndividualAddressObj.AddressType.AddressTypeName == "shipping" ? leadsVM.Customers[customerObjCounter].FirstName : null;
+                            addressObj.LastName = customerIndividualAddressObj.AddressType.AddressTypeName == "shipping" ? leadsVM.Customers[customerObjCounter].LastName : null;
 
-                            addressObj.LIP = customerVM.LIP;
-                            addressObj.LMAC = customerVM.LMAC;
-                            addressObj.UpdatedAt = DateTime.Now;
-                            addressObj.UpdatedBy = customerVM.UpdatedBy ?? null;
+                            addressObj.LIP = leadsVM.LIP;
+                            addressObj.LMAC = leadsVM.LMAC;
+                            addressObj.UpdatedAt = DateTime.UtcNow;
+                            addressObj.UpdatedBy = leadsVM.UpdatedBy ?? null;
                             addressObj.DeletedAt = null;
                         }
                         if (customerIndividualAddressObj.AddressType.AddressTypeName == "billing")
@@ -264,23 +267,43 @@ namespace GCTL.Service.CRM.LeadCreate
                             var individualsObj = await _individualsRepository.FirstOrDefaultAsync(u => u.IndividualID == customerIndividualAddressObj.IndividualID);
                             if (individualsObj != null)
                             {
-                                individualsObj.FirstName = customerVM.Customers[customerObjCounter].FirstName;
-                                individualsObj.LastName = customerVM.Customers[customerObjCounter].LastName;
+                                individualsObj.FirstName = leadsVM.Customers[customerObjCounter].FirstName;
+                                individualsObj.LastName = leadsVM.Customers[customerObjCounter].LastName;
 
-                                individualsObj.LIP = customerVM.LIP;
-                                individualsObj.LMAC = customerVM.LMAC;
-                                individualsObj.UpdatedAt = DateTime.Now;
-                                individualsObj.UpdatedBy = customerVM.UpdatedBy ?? null;
+                                individualsObj.LIP = leadsVM.LIP;
+                                individualsObj.LMAC = leadsVM.LMAC;
+                                individualsObj.UpdatedAt = DateTime.UtcNow;
+                                individualsObj.UpdatedBy = leadsVM.UpdatedBy ?? null;
                                 individualsObj.DeletedAt = null;
                             }
                         }
+
+                       
                         
 
                     }
                     
-                }
 
-                
+                }
+                Leads leadObj = new Leads()
+                {
+                    CustomerID = customerIndividualAddressObj.IndividualAddressID,
+                    IsIndividualCustomer = leadsVM.IsIndividualCustomer,
+                    LeadStatusID = leadsVM.LeadStatusID,
+                    LeadSourceID = leadsVM.LeadSourceID,
+                    LeadOwnerID = leadsVM.LeadOwnerID,
+                    ApproximateDealValue = leadsVM.ApproximateDealValue,
+                    ProbabilityPercentage = leadsVM.ProbabilityPercentage,
+                    LeadDescription = leadsVM.LeadDescription,
+
+                    LIP = leadsVM.LIP,
+                    LMAC = leadsVM.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = leadsVM.UpdatedBy ?? null,
+                    DeletedAt = null,
+
+                };
+                _leadsRepository.AddAsync(leadObj);
 
 
                 //foreach (var obj in customerVM.Customers)

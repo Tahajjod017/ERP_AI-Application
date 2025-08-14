@@ -192,7 +192,7 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Sources") </label>
-                            <select class="form-select choiceDD" id="organizerSingle2" asp-items="@ViewBag.LeadSourceDD as SelectList">
+                            <select class="form-select choiceDD" id="leadSourceId" asp-items="@ViewBag.LeadSourceDD as SelectList">
                                 <option selected disabled>@Html.SmartLocalize("Select Sources")...</option>
                             </select>
                         </div>
@@ -201,7 +201,7 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Status Name")</label>
-                            <select class="form-select choiceDD" id="organizerSingle2" asp-items="@ViewBag.LeadStatusDD as SelectList">
+                            <select class="form-select choiceDD" id="leadStatusId" asp-items="@ViewBag.LeadStatusDD as SelectList">
                                 <option disabled selected>@Html.SmartLocalize("Select Status")</option>
                             </select>
                         </div>
@@ -210,7 +210,7 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
-                            <select class="form-select choiceDD" id="organizerSingle2" asp-items="@ViewBag.EmployeeDD as SelectList">
+                            <select class="form-select choiceDD" id="leadOwnerId" asp-items="@ViewBag.EmployeeDD as SelectList">
                                 <option disabled selected>@Html.SmartLocalize("Select Lead Owner")</option>
                             </select>
                         </div>
@@ -219,7 +219,7 @@
                     <div class="col-md-6">
                         <div class="form-floating">
 
-                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="" />
+                            <input class="form-control" id="approximateDealValue" type="text" placeholder="" />
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Approximate Deal Value")</label>
                         </div>
                     </div>
@@ -227,7 +227,7 @@
                     <div class="col-md-6">
                         <div class="form-floating">
 
-                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="" />
+                            <input class="form-control" id="probabilityPercentage" type="text" placeholder="" />
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Probability (%)")</label>
                         </div>
                     </div>
@@ -236,7 +236,7 @@
 
                     <div class="col-md-12">
                         <div class="form-floating">
-                            <textarea class="form-control h-100" id="" rows="3" placeholder=""></textarea>
+                            <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Description")</label>
                         </div>
                     </div>
