@@ -67,6 +67,38 @@ $(document).ready(function () {
 
         });
     });
+
+    // Form edit submission using AJAX
+    $('#weekendFormEdit').submit(function (event) {
+        event.preventDefault(); // Prevent default form submission
+        var weekendSettingID = $('#WeekendSettingID').data('id');  // Get ID from the modal trigger
+        var formData = $(this).serialize(); // Serialize the form data
+
+        // Append the approvalSettingID to the form data
+       // formData += '&approvalSettingID=' + weekendSettingID;
+
+        // Send the data via AJAX
+        $.ajax({
+            url: '/WeekendSettings/Update', // Adjust URL if necessary
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    // Handle success
+                    toastr.success('Weekend setting updated successfully!');
+                    $('#edit_weekend_setting').modal('hide'); // Hide the modal
+                    loadTableData();
+                } else {
+                    // Handle failure
+                    toastr.error('Failed to update weekend setting: ' + response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle AJAX errors
+                toastr.error('Error: ' + error);
+            }
+        });
+    });
 });
 
 $(document).on('click', '#weekendSettings-singleDelBtn', function () {
@@ -106,8 +138,12 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 //edit
 //edit
 $(document).on('click', '#edit_weekend_settingBtn', function () {
-    var approvalSettingID = $(this).data('id');
+    var weekendSettingID = $(this).data('id');
     $('#edit_weekend_setting').modal('show'); // Show the edit modal
+
+    // Store the ID in the hidden input field
+    $('#WeekendSettingID').val(weekendSettingID);
+
     populateOrganizations(); // Populate the organization dropdown
     populateWeekendDays(); // Populate the weekend days dropdown
 
@@ -115,7 +151,7 @@ $(document).on('click', '#edit_weekend_settingBtn', function () {
     $.ajax({
         url: '/WeekendSettings/GetWeekendSettingById',  // Adjust the URL as per your endpoint
         type: 'GET',
-        data: { id: approvalSettingID },
+        data: { id: weekendSettingID },
         success: function (data) {
             debugger
             console.log(data.model.organizationID)
@@ -171,7 +207,7 @@ function populateBranchesByOrganization(orgId) {
         type: 'GET',
         data: { organizationId: orgId },
         success: function (branches) {
-            debugger
+            
             const simplifiedRoles = branches.map(role => ({
                 id: role.value,
                 name: role.text
@@ -209,6 +245,8 @@ $(document).on('change', '#OrganizationEditID', function () {
         $('#OrganizationBranchEditID').empty().append('<option value="">-- Select Branch --</option>');
     }
 });
+
+
 
 //////////////////////////////Data Table Initialization//////////////////////////////
 //////////////////////////////Data Table Initialization//////////////////////////////

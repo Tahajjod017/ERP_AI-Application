@@ -1,7 +1,5 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.MasterSetup.LeadSource;
-using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
-using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 
 namespace GCTL.Service.MasterSetup.LeadSource

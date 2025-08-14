@@ -1,4 +1,89 @@
-﻿<div class="modal fade" id="new_resignation">
+﻿@model GCTL.Core.ViewModels.Employee.EmployeeResign.ResignationPostViewModel
+
+<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-1">
+    <div class="my-auto mb-2">
+        <h2 class="mb-1">@Html.SmartLocalize("Resignation List")</h2>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="#"><i class="ti ti-smart-home"></i></a>
+                </li>
+                <li class="breadcrumb-item">@Html.SmartLocalize("Employee")</li>
+                <li class="breadcrumb-item active" aria-current="page">@Html.SmartLocalize("Resignation")</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+        <div class="mb-2">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#new_resignation" class="btn btn-primary d-flex align-items-center">
+                <i class="ti ti-circle-plus me-2"></i>@Html.SmartLocalize("Add Resignation")
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-0">
+            <h4 class="mb-1">@Html.SmartLocalize("Employee Resignation List")</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <select id="pageSize" class="form-select form-select-sm choiceDD" style="width:auto;">
+                        <option value="5">5 per page</option>
+                        <option value="10" selected>10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top border-translucent px-3">
+            <div id="employeeListTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="resignTBL">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="rEmpName" data-column="0">Resigning Employee Name</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="rEmpDept" data-column="1">Department</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resignResons" data-column="2">Reason</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resNoticeDate" data-column="3">Notice Date</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resinDate" data-column="4">Termination Date</th>
+                                <th class="sort text-end align-middle pe-0 ps-4" scope="col" data-column="5"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="purchasers-sellers-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9 mb-3">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <ul class="mb-0 pagination"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="new_resignation">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,14 +91,14 @@
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
-            <form action="resignation.html">
+            <form>
                 <div class="modal-body pb-0">
                     <div class="row">
-
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerSingleCompany">Company</label>
-                                <select class="form-select choiceDD" id="company" asp-items="@ViewBag.OrganizationDD">
+                                <label class="form-label" for="company">Company</label>
+                                <select class="form-select choiceDD" name="CompanyId" id="company" asp-items="@ViewBag.OrganizationDD" required data-url="@Url.Action("GetEmployeesByCompany", "EmployeeResign")" >
+                                    <option value="">Select Company</option>
                                 </select>
                             </div>
                         </div>
@@ -21,21 +106,19 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label">Resigning Employee</label>
-                                <select class="form-select choiceDD" id="employeeId" asp-items="@ViewBag.EmployeeDD">
+                                <select class="form-select choiceDD" name="EmployeeId" id="employeeId" asp-items="@ViewBag.EmployeeDD" required>
+                                    <option value="">Select Employee</option>
                                 </select>
                             </div>
                         </div>
-
 
                         <div class="col-md-12">
                             <div class="mb-3 position-relative">
                                 <div class="content-head d-flex justify-content-between align-items-center">
                                     <label class="form-label">@Html.SmartLocalize("Notice Date")</label>
-                                    <div class="form-check form-switch">
-                                    </div>
                                 </div>
                                 <div class="position-relative">
-                                    <input class="form-control datetimepicker" id="noticeDate" type="text" placeholder="dd/mm/yyyy"
+                                    <input class="form-control datetimepicker" name="NoticeDate" id="noticeDate" type="text" placeholder="dd/mm/yyyy" required
                                            data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
                                     <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
                                           style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
@@ -43,29 +126,23 @@
                             </div>
                         </div>
 
-
-
                         <div class="col-md-12">
                             <div class="mb-3 position-relative">
                                 <div class="content-head d-flex justify-content-between align-items-center">
                                     <label class="form-label">@Html.SmartLocalize("Resignation Date")</label>
-                                    <div class="form-check form-switch">
-                                    </div>
                                 </div>
                                 <div class="position-relative">
-                                    <input class="form-control datetimepicker" id="resignationDate" type="text" placeholder="dd/mm/yyyy"
+                                    <input class="form-control datetimepicker" name="ResignationDate" id="resignationDate" type="text" placeholder="dd/mm/yyyy" required
                                            data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
                                     <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
                                 </div>
                             </div>
                         </div>
 
-
-
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label">Reason</label>
-                                <textarea class="form-control" rows="3"></textarea>
+                                <textarea class="form-control" name="Reason" rows="3" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -79,10 +156,7 @@
     </div>
 </div>
 
-
-
-
-
+<!-- Edit Resignation Modal -->
 <div class="modal fade" id="edit_resignation">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
@@ -91,14 +165,13 @@
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
-            <form action="resignation.html">
+            <form>
                 <div class="modal-body pb-0">
                     <div class="row">
-
                         <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerSingleCompany">Company</label>
-                                <select class="form-select choiceDD" id="editCompany" asp-items="@ViewBag.OrganizationDD">
+                                <label class="form-label" for="editCompany">Company</label>
+                                <select class="form-select choiceDD" id="editCompany" asp-items="@ViewBag.OrganizationDD" required>
                                     <option value="">Select Company</option>
                                 </select>
                             </div>
@@ -107,23 +180,19 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label">Resigning Employee</label>
-                                <select class="form-select choiceDD" id="editEmployeeId" asp-items="@ViewBag.EmployeeDD">
+                                <select class="form-select choiceDD" id="editEmployeeId" asp-items="@ViewBag.EmployeeDD" required>
                                     <option value="">Select Employee</option>
                                 </select>
                             </div>
                         </div>
 
-
-
                         <div class="col-md-12">
                             <div class="mb-3 position-relative">
                                 <div class="content-head d-flex justify-content-between align-items-center">
                                     <label class="form-label">@Html.SmartLocalize("Notice Date")</label>
-                                    <div class="form-check form-switch">
-                                    </div>
                                 </div>
                                 <div class="position-relative">
-                                    <input class="form-control datetimepicker" id="editNoticeDate" type="text" placeholder="dd/mm/yyyy"
+                                    <input class="form-control datetimepicker" id="editNoticeDate" type="text" placeholder="dd/mm/yyyy" required
                                            data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
                                     <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute"
                                           style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
@@ -131,37 +200,23 @@
                             </div>
                         </div>
 
-
-
                         <div class="col-md-12">
                             <div class="mb-3 position-relative">
                                 <div class="content-head d-flex justify-content-between align-items-center">
                                     <label class="form-label">@Html.SmartLocalize("Resignation Date")</label>
-                                    <div class="form-check form-switch">
-                                    </div>
                                 </div>
                                 <div class="position-relative">
-                                    <input class="form-control datetimepicker" id="editResignationDate" type="text" placeholder="dd/mm/yyyy"
-                                            data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
+                                    <input class="form-control datetimepicker" id="editResignationDate" type="text" placeholder="dd/mm/yyyy" required
+                                           data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' style="padding-left: 30px;" />
                                     <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
                                 </div>
                             </div>
                         </div>
 
-
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Resignation Date</label>
-                                <div class="input-icon-end position-relative">
-                                    <input type="text" class="form-control datetimepicker" placeholder="dd/mm/yyyy" value="14 Mar 2024">
-
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label">Reason</label>
-                                <textarea class="form-control" rows="3">Career Change</textarea>
+                                <textarea class="form-control" rows="3" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -175,11 +230,7 @@
     </div>
 </div>
 
-
-
-
-
-
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="delete_modal">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -188,276 +239,20 @@
                     <i class="fa fa-trash fs-36"></i>
                 </span>
                 <h4 class="mb-1">Confirm Delete</h4>
-                <p class="mb-3">You want to delete all the marked items, this cant be undone once you delete.</p>
+                <p class="mb-3">You want to delete this resignation record, this can't be undone once you delete.</p>
                 <div class="d-flex justify-content-center">
                     <a href="javascript:void(0);" class="btn btn-light me-3" data-bs-dismiss="modal">Cancel</a>
-                    <a href="resignation.html" class="btn btn-danger">Yes, Delete</a>
+                    <a href="javascript:void(0);" class="btn btn-danger">Yes, Delete</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-<div class="mb-9">
-
-
-    <div class="row">
-        <div class="row mb-2 gx-0 gy-0 align-items-center px-1 mt-1">
-            <div class="col-auto">
-                <h2 class="mb-0">Resignation List<span class="fw-normal text-body-tertiary ms-3">(24)</span></h2>
-            </div>
-
-        </div>
-
-
-        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-0">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#new_resignation" class="btn btn-primary d-flex align-items-center"><i class="fa fa-plus me-2"></i>Add Resignation</a>
-            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-                <div class="me-3">
-                    <div class="input-icon-end position-relative">
-
-                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
-
-                    </div>
-                </div>
-
-
-                @*<div class="dropdown">
-                    <select class="form-select" id="organizerSingle3" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Sort by Last 7 days</option>
-                        <option>Sort by Last 15 days</option>
-                        <option>Sort by Last 1 Month</option>
-                        <option>Sort by Last 3 Month</option>
-                        <option>Sort by Last 6 Month</option>
-                    </select>
-                </div>*@
-
-                <div class="dropdown">
-                    <select id="pageSize" class="form-select form-select-sm choiceDD" style="width:auto;">
-                        <option value="5">5 per page</option>
-                        <option value="10" selected>10 per page</option>
-                        <option value="25">25 per page</option>
-                        <option value="50">50 per page</option>
-                    </select>
-                </div>
-
-
-            </div>
-        </div>
-
-        <div class="border-top border-translucent p-3">
-            <div id="employeeListTable">
-
-                <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table dyn-table" id="resignTBL">
-                        <thead>
-                            <tr>
-                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
-                                    </div>
-                                </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="rEmpName" data-column="0">Resigning Employee Nmae</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="rEmpDept" data-column="1">Department</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resignResons" data-column="2">Reason</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resNoticeDate" data-column="3">Notice Date</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="resinDate" data-column="4">Termination Date</th>
-                                <th class="sort text-end align-middle pe-0 ps-4" scope="col" data-column="5"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="list" id="purchasers-sellers-body">
-
-
-                            @*<tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                <td class="fs-9 align-middle py-0">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"rEmpName":"Hasan Ali","rEmpDept":"Finance","resignResons":"Jov Switch","resNoticeDate":"01 Jan 2024","resinDate":"01 Jan 2024"}' />
-                                    </div>
-                                </td>
-
-
-                                <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-3">
-                                    <div class="d-flex align-items-center position-relative">
-                                        <a href="" class="avatar avatar-md me-2">
-                                            <img src="../../assets/img/users/user-14.jpg" class="rounded-circle" alt="user">
-                                        </a>
-                                        <a class="text-body-highlight fw-bold stretched-link" href="#!">Tanvir Haider</a>
-                                    </div>
-                                </td>
-                                <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Finance</td>
-                                <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Career Change</td>
-                                <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">01 Jan 2024</td>
-                                <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">30 Jan 2024</td>
-
-
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_resignation">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-
-                                    </div>
-                                </td>
-
-                            </tr>
-
-                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                <td class="fs-9 align-middle py-0">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"rEmpName":"Hasan Ali","rEmpDept":"Finance","resignResons":"Jov Switch","resNoticeDate":"01 Jan 2024","resinDate":"01 Jan 2024"}' />
-                                    </div>
-                                </td>
-
-
-                                <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-3">
-                                    <div class="d-flex align-items-center position-relative">
-                                        <a href="" class="avatar avatar-md me-2">
-                                            <img src="../../assets/img/users/user-14.jpg" class="rounded-circle" alt="user">
-                                        </a>
-                                        <a class="text-body-highlight fw-bold stretched-link" href="#!">Hasan Tarek</a>
-                                    </div>
-                                </td>
-                                <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">UI / UX</td>
-                                <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Health Reasons</td>
-                                <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">05 Aug 2024</td>
-                                <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">30 Dec 2024</td>
-
-
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_resignation">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-
-                                    </div>
-                                </td>
-
-                            </tr>
-
-                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                <td class="fs-9 align-middle py-0">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"rEmpName":"Hasan Ali","rEmpDept":"Finance","resignResons":"Jov Switch","resNoticeDate":"01 Jan 2024","resinDate":"01 Jan 2024"}' />
-                                    </div>
-                                </td>
-
-
-                                <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-3">
-                                    <div class="d-flex align-items-center position-relative">
-                                        <a href="" class="avatar avatar-md me-2">
-                                            <img src="../../assets/img/users/user-14.jpg" class="rounded-circle" alt="user">
-                                        </a>
-                                        <a class="text-body-highlight fw-bold stretched-link" href="#!">Osman Goni</a>
-                                    </div>
-                                </td>
-                                <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Marketing</td>
-                                <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Personal Development</td>
-                                <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">25 Feb 2024</td>
-                                <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">30 Apr 2024</td>
-
-
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_resignation">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-
-                                    </div>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                <td class="fs-9 align-middle py-0">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"rEmpName":"Hasan Ali","rEmpDept":"Finance","resignResons":"Jov Switch","resNoticeDate":"01 Jan 2024","resinDate":"01 Jan 2024"}' />
-                                    </div>
-                                </td>
-
-
-                                <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-3">
-                                    <div class="d-flex align-items-center position-relative">
-                                        <a href="" class="avatar avatar-md me-2">
-                                            <img src="../../assets/img/users/user-14.jpg" class="rounded-circle" alt="user">
-                                        </a>
-                                        <a class="text-body-highlight fw-bold stretched-link" href="#!">Jashim Uddin</a>
-                                    </div>
-                                </td>
-                                <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Application Development</td>
-                                <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">Entrepreneurial Pursuits</td>
-                                <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">05 Jan 2024</td>
-                                <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-3">05 Feb 2024</td>
-
-
-                                <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_resignation">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-
-                                        <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-
-                                    </div>
-                                </td>
-
-                            </tr>*@
-
-
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="row align-items-center justify-content-between pe-0 fs-9">
-                    <div class="col-auto d-flex">
-                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                    </div>
-                    <div class="col-auto d-flex">
-                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                        <ul class="mb-0 pagination"></ul>
-                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script src="~/js/pages/Employees/EmployeeResign/ResignEntry.js"></script>
-
 }

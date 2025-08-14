@@ -18,6 +18,11 @@ namespace GCTL_App.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private int _smartPageCode = 0;
 
+        
+        protected string imgSrc => GetBaseUrl() + "/uploads/employee/images/";
+        protected string imgSrcThumb => GetBaseUrl() + "/uploads/employee/images/thumbs/";
+
+
         protected BaseController(ITranslateService translateService, IUserProfileService userProfileService)
         {
             _translateService = translateService;
@@ -85,6 +90,15 @@ namespace GCTL_App.Controllers
             }
 
             return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/";
+        }
+
+        // Helper method to get base URL
+        private string GetBaseUrl()
+        {
+            var request = _httpContextAccessor.HttpContext?.Request;
+            if (request == null) return string.Empty;
+
+            return $"{request.Scheme}://{request.Host}";
         }
         // New method to get the current EmployeeID
         protected async Task<int?> GetCurrentEmployeeIdAsync()

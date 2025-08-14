@@ -255,14 +255,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[LeadSources]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[LeadStatuses]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[LeaveApplications]",
          "ObjectType": 0
       },
@@ -463,6 +455,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[Leads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadSources]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadStatuses]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeAllowances]",
          "ObjectType": 0
       },
@@ -512,6 +516,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -530,5 +535,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }

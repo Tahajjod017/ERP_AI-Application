@@ -1,25 +1,29 @@
+using GCTL.Core.DataTables;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using NodaTime.Text;
+using NodaTime;
 using System.Diagnostics;
 
 namespace GCTL_App.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
+        private readonly ILocalizationContext _loc;
+        public HomeController(ITranslateService translateService, IUserProfileService userProfileService, ILocalizationContext loc) : base(translateService, userProfileService)
         {
+            _loc = loc;
         }
 
         public IActionResult Index()
         {
-            
+           
 
             SetSmartPageCode(912000);
-
-           
 
             return View();
         }

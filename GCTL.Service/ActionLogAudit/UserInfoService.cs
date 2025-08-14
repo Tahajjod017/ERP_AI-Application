@@ -3,6 +3,7 @@ using GCTL.Core.Helpers.LipLmacAddress;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,25 @@ namespace GCTL.Service.ActionLogAudit
 
             }
         }
+
+        public async Task<int?> GetOrganizationIdAsync(ClaimsPrincipal user, HttpContext httpContext)
+        {
+            if (user.Identity.IsAuthenticated)
+            {
+                var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Use asynchronous query to avoid blocking
+                var orgId = await _context.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => u.OrganizationID)
+                    .FirstOrDefaultAsync();  // Returns null if not found
+
+                return orgId;
+            }
+
+            return null;  // Return null if user is not authenticated
+        }
+
 
         public async Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID, BaseViewModel entityVM)
         {

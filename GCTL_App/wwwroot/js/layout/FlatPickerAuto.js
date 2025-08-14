@@ -1,15 +1,18 @@
-﻿//// ------Set Date
-//flatpickrHelper.setDate('dob', '2025-06-16');
+﻿
 
-////----- Get Date
-//let dobValue = flatpickrHelper.getDate('dob');
-//console.log('Selected Date:', dobValue);
 
-//// -----Clear Date
-//flatpickrHelper.clearDate('dob');
+
 
 //#region Universal Flatpickr Methods Version 2
+
+
 const flatpickrHelper = {
+
+
+    //// ------Set Date
+    //flatpickrHelper.setDate('dob', '2025-06-16');
+
+
     setDate: function (elementId, dateValue) {
         if (!dateValue) return;
 
@@ -27,6 +30,11 @@ const flatpickrHelper = {
         }
     },
 
+
+    ////----- Get Date
+    //let dobValue = flatpickrHelper.getDate('dob');
+    //console.log('Selected Date:', dobValue);
+
     getDate: function (elementId) {
 
        
@@ -43,6 +51,9 @@ const flatpickrHelper = {
         }
         return null;
     },
+
+    //// -----Clear Date
+    //flatpickrHelper.clearDate('dob');
 
     clearDate: function (...elementIds) {
         elementIds.forEach(elementId => {

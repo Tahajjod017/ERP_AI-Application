@@ -3,6 +3,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -33,6 +34,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
             this.genericRepositoryWeekdays = genericRepositoryWeekdays;
         }
         #endregion
+       
+
         #region AddAsync  
         public async Task<bool> AddAsync(WeekendSettingVM model)
         {
@@ -74,7 +77,10 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
                     {
                         OrganizationID = model.OrganizationID,
                         OrganizationBranchID = model.OrganizationBranchID,
-                        CreatedAt = DateTime.Now,
+                        CreatedAt = DateTime.UtcNow,
+                       // CreatedAt = UtcTimeHelper.GetReliableUtcNow(),
+                       
+                       // Console.WriteLine($"UTC time: {utcNow:O}");
                         CreatedBy = model.CreatedBy,
                         // Optional: LIP = model.LIP, LMAC = model.LMAC
                     };
@@ -149,6 +155,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
                 entity.OrganizationID = model.OrganizationID;
                 entity.OrganizationBranchID = model.OrganizationBranchID;
                 entity.UpdatedAt = DateTime.Now;
+                //entity.UpdatedAt = DateTime.UtcNow;
+               // entity.UpdatedAt = UtcTimeHelper.GetReliableUtcNow();
+
                 entity.UpdatedBy = model.UpdatedBy ?? model.CreatedBy;
                 entity.DeletedAt = null; // Restore if soft-deleted
                 entity.DeletedBy = null;
@@ -416,5 +425,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.WeekendService
         }
 
         #endregion
+
+
     }
 }

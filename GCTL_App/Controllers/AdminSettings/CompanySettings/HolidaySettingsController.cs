@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Helpers;
+﻿using GCTL.Core.DataTables;
+using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
@@ -20,6 +21,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         public async Task<IActionResult> Index()
         {
+
            
             ViewBag.Organizations = await  _holidaySettingService.GetOrganizationsAsync();
             ViewBag.HolidayStatuses =await  _holidaySettingService.GetHolidayStatusesAsync();

@@ -3,13 +3,38 @@
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            saveBtn: '#assignSpiralPattern-saveBtn',
             saveForm: '#assignSpiralPattern-form',
+            editForm: '#assignSpiralPattern-editForm',
+            saveBtn: '#assignSpiralPattern-saveBtn',
+            editBtn: '#assignSpiralPattern-editBtn',
+            updateBtn: '#assignSpiralPatter-updateBtn',
+            deleteBtn: '#assignSpiralPattern-singleDelBtn',
             resetBtn: '#assignSpiralPattern-resetBtn',
+            editModal: '#assignSpiralPatternEditModal',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAllAsync";
+        var editUrl = settings.baseUrl + "/GetByIdAsync";
         $(() => {
+
+
+            editOrgSelecetChoices = new Choices('#EditOrganizationID', {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholderValue: 'Select Organization...'
+            });
+
+            editPatternTypeChoices = new Choices('#EditSpiralPatternTypeID', {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholderValue: 'Select Spiral Patern Type...'
+            });
+
+            editSpiralPatternChoices = new Choices('#EditSpiralPatternID', {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholderValue: 'Select Spiral Patern...'
+            });
 
 
             // #region Save
@@ -38,6 +63,37 @@
                     },
                     error: function (err) {
                         console.error('Conflict check failed:', err);
+                    }
+                });
+            });
+            // #endregion
+
+
+            // #region On click edit button GetByIdAsync
+            $(document).on('click', settings.editBtn, function (e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+
+                $.ajax({
+                    url: editUrl,
+                    type: 'GET',
+                    data: { id: id },
+                    success: function (result) {
+                        debugger
+                        const modal = $(settings.editModal);
+                        modal.modal('show')
+
+                        $('#SpiralPatternAssignListID').val(result.spiralPatternAssignListID);
+                        editOrgSelecetChoices.setChoiceByValue(result.editOrganizationID.toString());
+                        $('#EditDepartmentIDs').val(result.editDepartmentIDs).trigger('change');
+                        $('#EditEmployeeIDs').val(result.editEmployeeIDs).trigger('change');
+                        editPatternTypeChoices.setChoiceByValue(result.editSpiralPatternTypeID.toString());
+                        editSpiralPatternChoices.setChoiceByValue(result.editSpiralPatternID.toString());
+                        $('#EditStartDate').val(result.editStartDate);
+                        $('#EditEndDate').val(result.editEndDate);
+                    },
+                    error: function () {
+                        console.log('Something went wrong!');
                     }
                 });
             });
@@ -389,25 +445,11 @@
                             <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
                                 <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
-                                    data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
-                                    data-organization-id="${pattern.organizationID}"
-                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
-                                    data-dayofweek="${shiftDetail.dayOfWeek}"
-                                    data-shift-id="${shiftDetail.shiftID}">
-                                    <i class="fas fa-pen"></i>
-                                </a>
                             </div>
                         </td>`;
                         } else {
                             row += `<td class="startTime align-middle text-center">
-                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal"
-                                data-id="${shiftDetail.spiralWeeklyPatternDetailID}" 
-                                data-organization-id="${pattern.organizationID}" 
-                                data-patterntype-id="${pattern.spiralPatternTypeID}"
-                                data-dayofweek="${shiftDetail.dayOfWeek}" >
-                                <i class="fa fa-plus"></i>
-                            </a>
+                            <p class="my-2 fs-10">-</p>
                         </td>`;
                         }
                     }
@@ -446,25 +488,11 @@
                             <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
                                 <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
-                                    data-id="${shiftDetail.spiralBioWeeklyPatternDetailID}" 
-                                    data-organization-id="${pattern.organizationID}"
-                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
-                                    data-dayofmonth="${shiftDetail.dayOfMonth}"
-                                    data-shift-id="${shiftDetail.shiftID}">
-                                    <i class="fas fa-pen"></i>
-                                </a>
                             </div>
                         </td>`;
                         } else {
                             row += `<td class="startTime align-middle text-center">
-                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addFortMonthlyShiftModal"
-                                data-id="${shiftDetail.spiralBioWeeklyPatternDetailID}" 
-                                data-organization-id="${pattern.organizationID}" 
-                                data-patterntype-id="${pattern.spiralPatternTypeID}"
-                                data-dayofmonth="${shiftDetail.dayOfMonth}">
-                                <i class="fa fa-plus"></i>
-                            </a>
+                            <p class="my-2 fs-10">-</p>
                         </td>`;
                         }
                     }
@@ -503,25 +531,11 @@
                             <div class="position-relative badge badge-phoenix-primary px-4 py-2 day-block" style="border-left:5px solid #A1F1A1;">
                                 <p class="my-2 fs-10">${shiftDetail.shiftName}</p>
                                 <p class="my-2 fs-10">${shiftDetail.shiftTime}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 editBtn" data-bs-toggle="modal" data-bs-target="#editShiftModal"
-                                    data-id="${shiftDetail.spiralMonthlyPatternDetailID}" 
-                                    data-organization-id="${pattern.organizationID}"
-                                    data-patterntype-id="${pattern.spiralPatternTypeID}"
-                                    data-dayofmonth="${shiftDetail.dayOfMonth}"
-                                    data-shift-id="${shiftDetail.shiftID}">
-                                    <i class="fas fa-pen"></i>
-                                </a>
                             </div>
                         </td>`;
                         } else {
                             row += `<td class="startTime align-middle text-center">
-                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addFortMonthlyShiftModal"
-                                data-id="${shiftDetail.spiralMonthlyPatternDetailID}" 
-                                data-organization-id="${pattern.organizationID}" 
-                                data-patterntype-id="${pattern.spiralPatternTypeID}"
-                                data-dayofmonth="${shiftDetail.dayOfMonth}">
-                                <i class="fa fa-plus"></i>
-                            </a>
+                            <p class="my-2 fs-10">-</p>
                         </td>`;
                         }
                     }
@@ -652,10 +666,16 @@
                                     <td class="py-1 ps-3">${item.endDate}</td>
                                     <td class="text-end align-middle white-space-nowrap py-1 ps-3">
                                         <div class="row g-3">
-                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.spiralPatternAssignListID}" data-bs-target="#edit_spiral_pattern">
+                                            <a href="#!" class="btn btn-outline-light btn-icon assignSpiralPattern-bulkEdit me-2"
+                                                id="assignSpiralPattern-editBtn"
+                                                data-id="${item.spiralPatternAssignListID}" >
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit" id="addShift-singleDelBtn" data-id="${item.spiralPatternAssignListID}" data-bs-target="#cancel_modal">
+                                            <a href="#!" class="btn btn-outline-light btn-icon assignSpiralPattern-bulkDelete"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#cancel_modal"
+                                                id="assignSpiralPattern-singleDelBtn"
+                                                data-id="${item.spiralPatternAssignListID}" >
                                                 <i class="far fa-trash-alt text-black"></i>
                                             </a>
                                         </div>

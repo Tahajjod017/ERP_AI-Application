@@ -43,7 +43,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -144,6 +143,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<LeadSources> LeadSources { get; set; }
 
     public virtual DbSet<LeadStatuses> LeadStatuses { get; set; }
+
+    public virtual DbSet<Leads> Leads { get; set; }
 
     public virtual DbSet<LeaveApplications> LeaveApplications { get; set; }
 
@@ -520,14 +521,97 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
 
+        //modelBuilder.Entity<AspNetRoleClaims>(entity =>
+        //{
+        //    entity.Property(e => e.RoleId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
+        //});
+
+        //modelBuilder.Entity<AspNetRoles>(entity =>
+        //{
+        //    entity.Property(e => e.Discriminator)
+        //        .IsRequired()
+        //        .HasMaxLength(21);
+        //    entity.Property(e => e.Name).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
+
+        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetRoles)
+        //        .HasForeignKey(d => d.OrganizationID)
+        //        .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
+
+        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetRoles)
+        //        .HasForeignKey(d => d.TenantInfoId)
+        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+        //});
+
+        //modelBuilder.Entity<AspNetUserClaims>(entity =>
+        //{
+        //    entity.Property(e => e.UserId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
+        //});
+
+        //modelBuilder.Entity<AspNetUserLogins>(entity =>
+        //{
+        //    entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+
+        //    entity.Property(e => e.UserId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
+        //});
+
+        //modelBuilder.Entity<AspNetUserTokens>(entity =>
+        //{
+        //    entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+
+        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
+        //});
+
+        //modelBuilder.Entity<AspNetUsers>(entity =>
+        //{
+        //    entity.Property(e => e.Discriminator)
+        //        .IsRequired()
+        //        .HasMaxLength(21);
+        //    entity.Property(e => e.Email).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+        //    entity.Property(e => e.UserName).HasMaxLength(256);
+
+        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.EmployeeId)
+        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.OrganizationID)
+        //        .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
+
+        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.TenantInfoId)
+        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
+
+        //    entity.HasMany(d => d.Role).WithMany(p => p.User)
+        //        .UsingEntity<Dictionary<string, object>>(
+        //            "AspNetUserRoles",
+        //            r => r.HasOne<AspNetRoles>().WithMany().HasForeignKey("RoleId"),
+        //            l => l.HasOne<AspNetUsers>().WithMany().HasForeignKey("UserId"),
+        //            j =>
+        //            {
+        //                j.HasKey("UserId", "RoleId");
+        //            });
+        //});
+
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
-        modelBuilder.Entity<ApplicationUser>()
-        .HasOne(u => u.Employees)
-        .WithMany(e => e.AspNetUsers)
-        .HasForeignKey(u => u.EmployeeId)
-        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+.HasOne(u => u.Employees)
+.WithMany(e => e.AspNetUsers)
+.HasForeignKey(u => u.EmployeeId)
+.HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -2249,32 +2333,37 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<LeadSources>(entity =>
         {
-            entity.HasKey(e => e.LeadSourceID).HasName("PK__LeadSour__9FB37DB359916DED");
+            entity.HasKey(e => e.LeadSourceID).HasName("PK__LeadSour__9FB37DB37D4EAF34");
+
+            entity.ToTable("LeadSources", "Lead");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.LeadSourceName).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadSourcesCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__LeadSourc__Creat__7FD5EEA5");
+                .HasConstraintName("FK__LeadSourc__Creat__127EAEC5");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadSourcesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__LeadSourc__Delet__02B25B50");
+                .HasConstraintName("FK__LeadSourc__Delet__155B1B70");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadSourcesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__LeadSourc__Updat__00CA12DE");
+                .HasConstraintName("FK__LeadSourc__Updat__1372D2FE");
         });
 
         modelBuilder.Entity<LeadStatuses>(entity =>
         {
-            entity.HasKey(e => e.LeadStatusID).HasName("PK__LeadStat__33EE656BCCF50C89");
+            entity.HasKey(e => e.LeadStatusID).HasName("PK__LeadStat__33EE656B187089C4");
+
+            entity.ToTable("LeadStatuses", "Lead");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -2287,15 +2376,56 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadStatusesCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__LeadStatu__Creat__6ADAD1BF");
+                .HasConstraintName("FK__LeadStatu__Creat__1837881B");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadStatusesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__LeadStatu__Delet__6DB73E6A");
+                .HasConstraintName("FK__LeadStatu__Delet__1B13F4C6");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadStatusesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__LeadStatu__Updat__6BCEF5F8");
+                .HasConstraintName("FK__LeadStatu__Updat__192BAC54");
+        });
+
+        modelBuilder.Entity<Leads>(entity =>
+        {
+            entity.HasKey(e => e.LeadID).HasName("PK__Leads__73EF791A468253CC");
+
+            entity.ToTable("Leads", "Lead");
+
+            entity.Property(e => e.ApproximateDealValue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.ProbabilityPercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Leads__CreatedBy__20CCCE1C");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Leads__DeletedBy__23A93AC7");
+
+            entity.HasOne(d => d.LeadOwner).WithMany(p => p.LeadsLeadOwner)
+                .HasForeignKey(d => d.LeadOwnerID)
+                .HasConstraintName("FK__Leads__LeadOwner__1FD8A9E3");
+
+            entity.HasOne(d => d.LeadSource).WithMany(p => p.Leads)
+                .HasForeignKey(d => d.LeadSourceID)
+                .HasConstraintName("FK__Leads__LeadSourc__1EE485AA");
+
+            entity.HasOne(d => d.LeadStatus).WithMany(p => p.Leads)
+                .HasForeignKey(d => d.LeadStatusID)
+                .HasConstraintName("FK__Leads__LeadStatu__1DF06171");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Leads__UpdatedBy__21C0F255");
         });
 
         modelBuilder.Entity<LeaveApplications>(entity =>
