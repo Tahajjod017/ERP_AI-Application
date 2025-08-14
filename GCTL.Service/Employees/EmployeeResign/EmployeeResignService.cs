@@ -850,68 +850,90 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         #region Approve Page
 
-        public async Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation)
+        #region Pendeing
+
+        public async Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation, string imgSrcThumb)
         {
-            var query = _resignationRepository.AllActive()
+            try
+            {
+                var query = _resignationRepository.AllActive()
                 .Include(r => r.Employee)
                     .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                         .ThenInclude(office => office.Designation)
                 .Include(r => r.Employee)
                     .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                         .ThenInclude(office => office.Department)
-                .Include(r=>r.Status)
-                .Where(r => (bool)!r.IsFinalApproved);
+                .Include(r => r.Status)
+                .Where(r => (r.IsFinalApproved == false && r.IsDecline == null) ||
+                              (r.IsFinalApproved == r.IsDecline && r.IsDecline != true)  ||
+                              (r.IsDecline == false && r.IsFinalApproved == null) ||
+                              (r.IsFinalApproved == null && r.IsDecline == null)
+                );
 
-            // Apply date range filter
-            if (!string.IsNullOrEmpty(dateRange))
-            {
-                var dates = dateRange.Split(" to ");
-                if (dates.Length == 2 &&
-                    DateTime.TryParseExact(dates[0], "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fromDate) &&
-                    DateTime.TryParseExact(dates[1], "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var toDate))
+                var test = query.ToList();
+
+                if (!string.IsNullOrEmpty(dateRange))
                 {
-                    query = query.Where(r => r.NoticeDate >= fromDate && r.NoticeDate <= toDate);
+                    var dates = dateRange.Split(" to ");
+                    if (dates.Length == 2 &&
+                        DateTime.TryParseExact(dates[0], "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fromDate) &&
+                        DateTime.TryParseExact(dates[1], "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var toDate))
+                    {
+                        query = query.Where(r => r.NoticeDate >= fromDate && r.NoticeDate <= toDate);
+                    }
                 }
+
+                // Apply department filter
+                if (!string.IsNullOrEmpty(department))
+                {
+                    query = query.Where(r => r.Employee.EmployeeOfficeInfoEmployee.Any(o => o.DepartmentID == int.Parse(department)));
+                }
+
+                // Apply designation filter
+                if (!string.IsNullOrEmpty(designation))
+                {
+                    query = query.Where(r => r.Employee.EmployeeOfficeInfoEmployee.Any(o => o.DesignationID == int.Parse(designation)));
+                }
+
+                var test1 = query.ToList();
+
+                var resignations = await query.Select(r => new ResignationGetViewModel
+                {
+                    Id = r.ResignationID,
+                    EmployeeName = r.Employee.FirstName + " " + r.Employee.LastName,
+                    Department = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
+                    Position = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Designation.DesignationName,
+                    Reason = r.Reason,
+                    NoticeDate = r.NoticeDate.Value.ToString("dd/MM/yyyy"),
+                    LastWorkingDay = r.ResignationDate.Value.ToString("dd/MM/yyyy"),
+                    Status = r.Status.StatusName ?? "Pending",
+                    ProfileImage = r.Employee.EmployeeImageFileName != null ? imgSrcThumb + r.Employee.EmployeeImageFileName : "https://placehold.co/400",
+                    EmployeeId = r.EmployeeID.ToString(),
+                    YearsOfService = CalculateYearsOfService(r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().JoiningDate, r.ResignationDate.Value),
+                    NoticePeriod = (r.ResignationDate.Value - r.NoticeDate.Value).Days.ToString() + " Days",
+                    //CurrentSalary = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().ToString("C", CultureInfo.GetCultureInfo("bn-BD")) ?? "৳0",
+                    PendingDues = "৳0", // Placeholder, adjust based on actual logic
+                                        //HandoverStatus = r.HandoverStatus ?? "pending",
+                                        //AssetReturned = r.AssetReturned ?? false,
+                                        //ClearanceCompleted = r.ClearanceCompleted ?? false,
+                                        //DocumentsPrepared = r.DocumentsPrepared ?? false
+                }).ToListAsync();
+
+                return resignations;
             }
-
-            // Apply department filter
-            if (!string.IsNullOrEmpty(department))
+            catch (Exception)
             {
-                query = query.Where(r => r.Employee.EmployeeOfficeInfoEmployee.Any(o => o.DepartmentID == int.Parse(department)));
+
+                throw;
             }
-
-            // Apply designation filter
-            if (!string.IsNullOrEmpty(designation))
-            {
-                query = query.Where(r => r.Employee.EmployeeOfficeInfoEmployee.Any(o => o.DesignationID == int.Parse(designation)));
-            }
-
-            var resignations = await query.Select(r => new ResignationGetViewModel
-            {
-                Id = r.ResignationID,
-                EmployeeName = r.Employee.FirstName + " " + r.Employee.LastName,
-                Department = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
-                Position = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Designation.DesignationName,
-                Reason = r.Reason,
-                NoticeDate = r.NoticeDate.Value.ToString("dd/MM/yyyy"),
-                LastWorkingDay = r.ResignationDate.Value.ToString("dd/MM/yyyy"),
-                Status =  r.Status.StatusName ?? "Pending",
-                ProfileImage = r.Employee.EmployeeImageFileName != null ? "/images/employees/" + r.Employee.EmployeeImageFileName : "https://placehold.co/400",
-                EmployeeId = r.EmployeeID.ToString(),
-                YearsOfService = CalculateYearsOfService(r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().JoiningDate, r.ResignationDate.Value),
-                NoticePeriod = (r.ResignationDate.Value - r.NoticeDate.Value).Days.ToString() + " Days",
-                //CurrentSalary = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().ToString("C", CultureInfo.GetCultureInfo("bn-BD")) ?? "৳0",
-                PendingDues = "৳0", // Placeholder, adjust based on actual logic
-                //HandoverStatus = r.HandoverStatus ?? "pending",
-                //AssetReturned = r.AssetReturned ?? false,
-                //ClearanceCompleted = r.ClearanceCompleted ?? false,
-                //DocumentsPrepared = r.DocumentsPrepared ?? false
-            }).ToListAsync();
-
-            return resignations;
+            
         }
 
-        public async Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation)
+        #endregion
+
+        #region Approved 
+
+        public async Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation, string imgSrcThumb)
         {
             var query = _resignationRepository.AllActive()
                     .Include(r => r.Employee)
@@ -921,7 +943,14 @@ namespace GCTL.Service.Employees.EmployeeResign
                         .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                             .ThenInclude(office => office.Department)
                     .Include(r=>r.Status)
-                    .Where(r => (bool)!r.IsFinalApproved);
+                     .Where(r => (r.IsFinalApproved == true && r.IsDecline == null) ||
+                              (r.IsFinalApproved == r.IsDecline && r.IsDecline != false  && r.IsDecline != null) ||
+                              (r.IsDecline == true && r.IsFinalApproved == null) ||
+                              (r.IsFinalApproved != null && r.IsDecline != null)
+
+                     );
+
+            
 
             // Apply date range filter
             if (!string.IsNullOrEmpty(dateRange))
@@ -958,7 +987,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                 LastWorkingDay = r.ResignationDate.Value.ToString("dd/MM/yyyy"),
                 //ProcessedDate = r.NoticeDate?.ToString("dd/MM/yyyy") ?? "",
                 Status = r.Status.StatusName  ?? "Approved",
-                ProfileImage = r.Employee.EmployeeImageFileName != null ? "/images/employees/" + r.Employee.EmployeeImageFileName : "https://placehold.co/400",
+                ProfileImage = r.Employee.EmployeeImageFileName != null ? imgSrcThumb + r.Employee.EmployeeImageFileName : "https://placehold.co/400",
                 EmployeeId = r.EmployeeID.ToString(),
                 YearsOfService = CalculateYearsOfService(r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().JoiningDate, r.ResignationDate.Value),
                 NoticePeriod = (r.ResignationDate.Value - r.NoticeDate.Value).Days.ToString() + " Days",
@@ -973,6 +1002,10 @@ namespace GCTL.Service.Employees.EmployeeResign
             return resignations;
         }
 
+        #endregion
+
+
+        #region Get by id and Action 
         public async Task<ResignationGetViewModel> GetAppResignationById(int id)
         {
             var resignation = await _resignationRepository.AllActive()
@@ -1117,59 +1150,49 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         #endregion
 
-        private string CalculateYearsOfService(DateOnly? joiningDate, DateTime resignationDate)
+        #endregion
+
+        #region Helper Calcute Year
+        public static string CalculateYearsOfService(DateOnly? joiningDate, DateTime resignationDate)
         {
-            if (!joiningDate.HasValue)
-                return "0 Years";
-
-            var joinDateTime = joiningDate.Value.ToDateTime(TimeOnly.MinValue);
-            if (resignationDate < joinDateTime)
-                return "0 Years";
-
-            int years = resignationDate.Year - joinDateTime.Year;
-            int months = resignationDate.Month - joinDateTime.Month;
-            int days = resignationDate.Day - joinDateTime.Day;
-
-            if (days < 0)
+            try
             {
-                months--;
-                days += DateTime.DaysInMonth(resignationDate.Year, (resignationDate.Month == 1 ? 12 : resignationDate.Month - 1));
-            }
+                if (!joiningDate.HasValue)
+                    return "0 Years";
 
-            if (months < 0)
+                var joinDateTime = joiningDate.Value.ToDateTime(TimeOnly.MinValue);
+                if (resignationDate < joinDateTime)
+                    return "0 Years";
+
+                int years = resignationDate.Year - joinDateTime.Year;
+                int months = resignationDate.Month - joinDateTime.Month;
+                int days = resignationDate.Day - joinDateTime.Day;
+
+                if (days < 0)
+                {
+                    months--;
+                    days += DateTime.DaysInMonth(resignationDate.Year, (resignationDate.Month == 1 ? 12 : resignationDate.Month - 1));
+                }
+
+                if (months < 0)
+                {
+                    years--;
+                    months += 12;
+                }
+
+                return $"{years} Years {months} Months";
+            }
+            catch (Exception)
             {
-                years--;
-                months += 12;
-            }
 
-            return $"{years} Years {months} Months";
+                throw;
+            }
+            
         }
 
-        //#region Approve Page
-
-        //public Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<ResignationGetViewModel> GetAppResignationById(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Task<(bool Success, string Message)> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        #endregion
 
 
-
-        //#endregion
 
 
     }

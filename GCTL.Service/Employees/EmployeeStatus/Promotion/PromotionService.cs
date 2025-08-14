@@ -561,12 +561,16 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 #endregion
 
                 #region Employee Validation
-                var employee = await _empOfficialRepository.AllActive()
-                    .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
-                if (employee == null)
+
+                var employee = await _empOfficialRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
+
+                var empInfo = await _employeeRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeeID);
+
+                if (employee == null || empInfo == null)
                 {
                     return new CommonReturnViewModel { Success = false, Message = "Employee not found" };
                 }
+
                 #endregion
 
                 #region Approval Person Determination
@@ -781,7 +785,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 var alert = new Alerts
                 {
                     AlertTitle = "Employee Increment",
-                    AlertNote = $"{employee.Employee.FirstName} {employee.Employee.LastName} has requested an increment.",
+                    AlertNote = $"{empInfo.FirstName} {empInfo.LastName} has requested an increment.",
                     LMAC = model.LMAC,
                     LIP = model.LIP,
                     CreatedBy = model.CreatedBy,

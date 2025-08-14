@@ -18,6 +18,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagements
 {
     public class EmpTransferApprovarController : BaseController
     {
+        #region CTOR
         private ILeaveRequestService leaveRequestService;
         private ILeaveApprovalService leaveApprovalService;
         private readonly IGenericRepository<Organization> organizationService;
@@ -42,13 +43,11 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagements
             this.empTransferApprovedOrDeclineService = empTransferApprovedOrDeclineService;
             this.employee = employee;
         }
-
+        #endregion
 
 
         public async Task<IActionResult> Index()
         {
-
-
 
             ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
@@ -64,6 +63,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagements
 
             return View();
         }
+
+
         [Route("EmpTransferApprovar/UpdateEmployeeTransferAsync")]
         [HttpPost]
         public async Task<IActionResult> UpdateEmployeeTransferAsync([FromBody] EmployeeTransferApproveOrDecEditVM entityVM)
@@ -80,6 +81,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagements
             }
 
         }
+
         #region GetBy EmployeeTransferID
         [Route("EmpTransferApprovar/GetEmployeeTransferByIdAsync")]
         [HttpGet]
@@ -91,14 +93,15 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagements
         }
 
         #endregion
-        #region Get All Data List
+
+        #region Get All Data tables
 
         [Route("EmpTransferApprovar/GetAllTableListAsync")]
 
         [HttpGet]
         public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null,
-    List<int> departmentIds = null,
-    List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
+        List<int> departmentIds = null,
+        List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
@@ -118,8 +121,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeTransferManagements
 
         [HttpGet]
         public async Task<IActionResult> GetAllTableListAsyncBelow(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null,
-List<int> departmentIds = null,
-List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
+        List<int> departmentIds = null,
+        List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
             try
             {
@@ -135,6 +138,7 @@ List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null
             }
         }
         #endregion
+
         #region Get All Or Single Employee according to loginID
 
         [Route("EmpTransferApprovar/GetEmployee")]

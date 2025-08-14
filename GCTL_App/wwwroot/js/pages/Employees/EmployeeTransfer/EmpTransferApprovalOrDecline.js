@@ -26,7 +26,7 @@ $(document).ready(function () {
     //            data: { id: organizationId },
     //            success: function (departments) {
     //                recreateDepartmentDropdown(departments);
-    //                //resolve(); 
+    //                //resolve();
     //                setTimeout(() => resolve(), 100);
     //            },
     //            error: function (xhr, status, error) {
@@ -44,7 +44,7 @@ $(document).ready(function () {
     //            data: { id: organizationId },
     //            success: function (departments) {
     //                recreateDepartmentDropdown(departments);
-    //                //resolve(); 
+    //                //resolve();
     //                setTimeout(() => resolve(), 100);
     //            },
     //            error: function (xhr, status, error) {
@@ -181,12 +181,12 @@ $(document).ready(function () {
     //    // ✅ Step 3: Remove the entire content and recreate
     //    container.innerHTML = `
     //                <label class="form-label" for="DepartmentIDs">${container.querySelector('label').textContent}</label>
-    //                <select class="form-multi-select" 
-    //                        id="${originalAttributes.id}" 
-    //                        name="${originalAttributes.name}" 
-    //                        multiple 
-    //                        data-coreui-multiple="true" 
-    //                        data-coreui-selection-type="counter" 
+    //                <select class="form-multi-select"
+    //                        id="${originalAttributes.id}"
+    //                        name="${originalAttributes.name}"
+    //                        multiple
+    //                        data-coreui-multiple="true"
+    //                        data-coreui-selection-type="counter"
     //                        data-coreui-search="true">
     //                </select>
     //            `;
@@ -256,6 +256,8 @@ $(document).ready(function () {
     //        }
     //    });
     //}
+
+
     initializeDatepickerDMY('TransferDate');
 
 
@@ -318,6 +320,7 @@ $(document).ready(function () {
                 }
              
                 const data = response.data;
+
                 choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                 choiceManager.setChoiceValue('FromOrganizationIDEdit', data.fromOrganizationIDEdit);
                 choiceManager.setChoiceValue('FromOrganizationBranchIDEdit', data.fromOrganizationBranchIDEdit);
@@ -327,6 +330,7 @@ $(document).ready(function () {
                 choiceManager.setChoiceValue('ToDepartmentIDEdit', data.toDepartmentIDEdit);
                 choiceManager.setChoiceValue('FromDesignationIDEdit', data.fromDesignationIDEdit);
                 choiceManager.setChoiceValue('ToDesignationIDEdit', data.toDesignationIDEdit);
+
                 $('#TransferDateEdit').val(data.transferDateEdit);
                 $('#TransferNoteEdit').val(data.transferNoteEdit);
                 $('#EmployeeTransferID').val(data.employeeTransferID);

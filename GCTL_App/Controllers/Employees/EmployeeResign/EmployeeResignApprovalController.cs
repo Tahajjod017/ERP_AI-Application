@@ -12,6 +12,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 {
     public class EmployeeResignApprovalController : BaseController
     {
+        #region CTOR
         private readonly IGenericRepository<Departments> _departmentRepository;
         private readonly IGenericRepository<Designations> _designationRepository;
         private readonly IEmployeeResign _employeeResign;
@@ -22,7 +23,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             _designationRepository = designationRepository;
             _employeeResign = employeeResign;
         }
+        #endregion
 
+        #region Index
         public IActionResult Index()
         {
 
@@ -34,10 +37,14 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             return View();
         }
 
+        #endregion
+
+        #region Pending
+
         [HttpGet]
         public async Task<IActionResult> GetPendingResignations(string dateRange, string department, string designation, int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "", string sortDirection = "asc")
         {
-            var resignations = await _employeeResign.GetPendingResignations(dateRange, department, designation);
+            var resignations = await _employeeResign.GetPendingResignations(dateRange, department, designation, imgSrcThumb);
 
             // Apply search
             if (!string.IsNullOrEmpty(searchTerm))
@@ -82,10 +89,14 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             return Json(result);
         }
 
+        #endregion
+
+        #region Approved
+
         [HttpGet]
         public async Task<IActionResult> GetProcessedResignations(string dateRange, string department, string designation, int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "", string sortDirection = "asc")
         {
-            var resignations = await _employeeResign.GetProcessedResignations(dateRange, department, designation);
+            var resignations = await _employeeResign.GetProcessedResignations(dateRange, department, designation, imgSrcThumb);
 
             // Apply search
             if (!string.IsNullOrEmpty(searchTerm))
@@ -131,6 +142,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             return Json(result);
         }
 
+        #endregion
+
+        #region Get By ID And Action
+
         [HttpGet]
         public async Task<IActionResult> GetResignationDetails(int id)
         {
@@ -152,7 +167,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             }
             return BadRequest(new { success = false, message = result.Message });
         }
-
+        #endregion
 
     }
 }

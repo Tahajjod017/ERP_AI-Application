@@ -494,6 +494,361 @@ window.choiceManager = choiceManager;
 //#endregion
 
 
+//#region Universal Choice XA Version
+
+//#region ChoiceXA - jQuery Style Dropdown Manager
+
+class ChoiceXA {
+    constructor(className = 'choiceXA') {
+        this.className = className;
+        this.instances = {};
+        this.defaultConfig = {
+            placeholder: 'Select one',
+            allowCustomOptions: false,
+            searchEnabled: false
+        };
+    }
+
+    initAll() {
+        document.querySelectorAll(`select.${this.className}`).forEach(select => {
+            const id = select.id;
+            if (!id) {
+                if (typeof deb !== 'undefined' && deb) console.warn('ChoiceXA dropdown must have an ID:', select);
+                return;
+            }
+
+            try {
+                this.instances[id] = {
+                    element: select,
+                    $element: $(select),
+                    config: { ...this.defaultConfig }
+                };
+
+                // Set up initial placeholder if it doesn't exist
+                this.setupPlaceholder(id);
+
+                if (typeof deb !== 'undefined' && deb) console.debug(`ChoiceXA initialized for ID: ${id}`);
+            } catch (error) {
+                console.error(`Failed to initialize ChoiceXA for ID: ${id}`, error);
+            }
+        });
+    }
+
+    setupPlaceholder(id) {
+        const instance = this.instances[id];
+        if (!instance) return;
+
+        const $select = instance.$element;
+        const placeholder = this.getPlaceholderFromHtml(id) || instance.config.placeholder;
+
+        // Add placeholder option if it doesn't exist
+        if ($select.find('option[value=""]').length === 0) {
+            $select.prepend(`<option value="">${placeholder}</option>`);
+        }
+
+        // Set placeholder as selected if no other option is selected
+        if (!$select.val()) {
+            $select.val('');
+        }
+    }
+
+    // Get placeholder from HTML select element
+    getPlaceholderFromHtml(id) {
+        const select = document.getElementById(id);
+        if (!select) return null;
+
+        // Check for data-placeholder attribute
+        const dataPlaceholder = select.getAttribute('data-placeholder');
+        if (dataPlaceholder) return dataPlaceholder;
+
+        // Check for an option with empty value
+        const placeholderOption = select.querySelector('option[value=""]');
+        if (placeholderOption) {
+            return placeholderOption.textContent.trim();
+        }
+
+        return null;
+    }
+
+    // jQuery-style methods
+
+    // Get value: var selectedValue = choiceXA.val('myDropdown') or $('#myDropdown').val()
+    val(id, value = undefined) {
+        const instance = this.instances[id];
+        if (!instance) {
+            if (typeof deb !== 'undefined' && deb) console.warn(`No ChoiceXA instance found for ID: ${id}`);
+            return value === undefined ? $('#' + id).val() : $('#' + id).val(value);
+        }
+
+        if (value === undefined) {
+            // Get value
+            const currentValue = instance.$element.val();
+            if (typeof deb !== 'undefined' && deb) console.debug(`Got value ${currentValue} for ID: ${id}`);
+            return currentValue;
+        } else {
+            // Set value
+            instance.$element.val(value).trigger('change');
+            if (typeof deb !== 'undefined' && deb) console.debug(`Set value ${value} for ID: ${id}`);
+            return this;
+        }
+    }
+
+    // Clear dropdown: choiceXA.clear('myDropdown')
+    clear(...ids) {
+        ids.forEach(id => {
+            const instance = this.instances[id];
+            if (instance) {
+                instance.$element.val('').trigger('change');
+                if (typeof deb !== 'undefined' && deb) console.debug(`Cleared choice for ID: ${id}`);
+            } else {
+                $('#' + id).val('').trigger('change');
+                if (typeof deb !== 'undefined' && deb) console.warn(`No ChoiceXA instance found for ID: ${id} during clear`);
+            }
+        });
+    }
+
+    // Empty and populate: choiceXA.populate('myDropdown', options)
+    populate(id, options = [], config = {}) {
+        const instance = this.instances[id];
+        if (!instance) {
+            if (typeof deb !== 'undefined' && deb) console.warn(`No ChoiceXA instance found for ID: ${id}`);
+            return;
+        }
+
+        const defaultConfig = {
+            valueKey: 'value',
+            textKey: 'text',
+            labelKey: null, // Alternative to textKey
+            preservePlaceholder: true
+        };
+        const mergedConfig = { ...defaultConfig, ...config };
+
+        // Auto-detect keys if not provided and options exist
+        if (options.length > 0) {
+            const keys = Object.keys(options[0]);
+            if (!mergedConfig.textKey && !mergedConfig.labelKey && keys.length >= 2) {
+                mergedConfig.valueKey = mergedConfig.valueKey || keys[0];
+                mergedConfig.textKey = keys.find(key => key.toLowerCase().includes('name') || key.toLowerCase().includes('text') || key.toLowerCase().includes('label')) || keys[1];
+                if (typeof deb !== 'undefined' && deb) console.debug(`Auto-detected keys: valueKey=${mergedConfig.valueKey}, textKey=${mergedConfig.textKey}`);
+            }
+        }
+
+        const textKey = mergedConfig.labelKey || mergedConfig.textKey;
+        const $dropdown = instance.$element;
+
+        // Store current placeholder
+        const placeholder = this.getPlaceholderFromHtml(id) || instance.config.placeholder;
+
+        // Clear existing options
+        $dropdown.empty();
+
+        // Add placeholder if preserving
+        if (mergedConfig.preservePlaceholder) {
+            $dropdown.append($('<option>', {
+                value: '',
+                text: placeholder
+            }));
+        }
+
+        // Add options
+        $.each(options, function (index, item) {
+            const optionValue = typeof item === 'object' ? item[mergedConfig.valueKey] : item;
+            const optionText = typeof item === 'object' ? item[textKey] : item;
+
+            $dropdown.append($('<option>', {
+                value: optionValue,
+                text: optionText
+            }));
+        });
+
+        if (typeof deb !== 'undefined' && deb) console.debug(`Populated ${options.length} options for ID: ${id}`);
+    }
+
+    // Add single option: choiceXA.addOption('myDropdown', {value: 'val', text: 'text'})
+    addOption(id, option) {
+        const instance = this.instances[id];
+        if (!instance) {
+            if (typeof deb !== 'undefined' && deb) console.warn(`No ChoiceXA instance found for ID: ${id}`);
+            return;
+        }
+
+        const $dropdown = instance.$element;
+        const value = typeof option === 'object' ? option.value : option;
+        const text = typeof option === 'object' ? (option.text || option.label) : option;
+
+        $dropdown.append($('<option>', {
+            value: value,
+            text: text
+        }));
+
+        if (typeof deb !== 'undefined' && deb) console.debug(`Added option ${text} to ID: ${id}`);
+    }
+
+    // Remove option by value: choiceXA.removeOption('myDropdown', 'value')
+    removeOption(id, value) {
+        const instance = this.instances[id];
+        if (!instance) {
+            if (typeof deb !== 'undefined' && deb) console.warn(`No ChoiceXA instance found for ID: ${id}`);
+            return;
+        }
+
+        instance.$element.find(`option[value="${value}"]`).remove();
+        if (typeof deb !== 'undefined' && deb) console.debug(`Removed option with value ${value} from ID: ${id}`);
+    }
+
+    // Enable/Disable dropdown
+    disable(id) {
+        const instance = this.instances[id];
+        if (instance) {
+            instance.$element.prop('disabled', true);
+            if (typeof deb !== 'undefined' && deb) console.debug(`Disabled dropdown for ID: ${id}`);
+        }
+    }
+
+    enable(id) {
+        const instance = this.instances[id];
+        if (instance) {
+            instance.$element.prop('disabled', false);
+            if (typeof deb !== 'undefined' && deb) console.debug(`Enabled dropdown for ID: ${id}`);
+        }
+    }
+
+    // Get all options: choiceXA.getOptions('myDropdown')
+    getOptions(id) {
+        const instance = this.instances[id];
+        if (!instance) return [];
+
+        const options = [];
+        instance.$element.find('option').each(function () {
+            options.push({
+                value: $(this).val(),
+                text: $(this).text()
+            });
+        });
+
+        return options;
+    }
+
+    // Check if option exists: choiceXA.hasOption('myDropdown', 'value')
+    hasOption(id, value) {
+        const instance = this.instances[id];
+        if (!instance) return false;
+
+        return instance.$element.find(`option[value="${value}"]`).length > 0;
+    }
+
+    // Get selected text (not just value): choiceXA.getSelectedText('myDropdown')
+    getSelectedText(id) {
+        const instance = this.instances[id];
+        if (!instance) return '';
+
+        return instance.$element.find('option:selected').text();
+    }
+
+    // Select by text: choiceXA.selectByText('myDropdown', 'Display Text')
+    selectByText(id, text) {
+        const instance = this.instances[id];
+        if (!instance) return;
+
+        const $option = instance.$element.find('option').filter(function () {
+            return $(this).text() === text;
+        });
+
+        if ($option.length > 0) {
+            instance.$element.val($option.val()).trigger('change');
+            if (typeof deb !== 'undefined' && deb) console.debug(`Selected option with text "${text}" for ID: ${id}`);
+        }
+    }
+
+    // Reset to placeholder: choiceXA.reset('myDropdown')
+    reset(...ids) {
+        ids.forEach(id => {
+            this.val(id, '');
+            if (typeof deb !== 'undefined' && deb) console.debug(`Reset dropdown to placeholder for ID: ${id}`);
+        });
+    }
+}
+
+// Create global instance
+const choiceXA = new ChoiceXA();
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+    choiceXA.initAll();
+});
+
+// Optional global access
+window.choiceXA = choiceXA;
+
+//#endregion
+
+/* 
+Usage Examples:
+
+HTML:
+<select id="myDropdown" class="choiceXA" data-placeholder="Choose an option">
+    <option value="">Choose an option</option>
+</select>
+
+JavaScript:
+
+// Get value (jQuery style still works)
+var selectedValue = $('#myDropdown').val();
+// OR using choiceXA
+var selectedValue = choiceXA.val('myDropdown');
+
+// Set value (jQuery style still works)
+$('#myDropdown').val('desiredValue').trigger('change');
+// OR using choiceXA
+choiceXA.val('myDropdown', 'desiredValue');
+
+// Populate dropdown (enhanced method)
+const options = [
+    {value: 'apple', text: 'Apple'},
+    {value: 'banana', text: 'Banana'},
+    {value: 'orange', text: 'Orange'}
+];
+choiceXA.populate('myDropdown', options);
+
+// jQuery style populate (still works)
+var $dropdown = $('#myDropdown');
+$dropdown.empty();
+$.each(options, function(index, item) {
+    $dropdown.append($('<option>', {
+        value: item.value,
+        text: item.text
+    }));
+});
+$dropdown.val('banana').trigger('change');
+
+// Clear dropdown
+choiceXA.clear('myDropdown');
+
+// Add single option
+choiceXA.addOption('myDropdown', {value: 'grape', text: 'Grape'});
+
+// Get selected text
+var selectedText = choiceXA.getSelectedText('myDropdown');
+
+// Select by text
+choiceXA.selectByText('myDropdown', 'Apple');
+
+// Enable/Disable
+choiceXA.disable('myDropdown');
+choiceXA.enable('myDropdown');
+
+// Check if option exists
+var exists = choiceXA.hasOption('myDropdown', 'apple');
+
+// Get all options
+var allOptions = choiceXA.getOptions('myDropdown');
+
+// Reset to placeholder
+choiceXA.reset('myDropdown');
+
+*/
+
+//#endregion
 
 //#region Unversal Choice Version 2
 
