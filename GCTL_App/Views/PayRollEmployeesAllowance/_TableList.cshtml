@@ -1,0 +1,94 @@
+﻿<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
+    <h4 class="mb-1">Employee Allowance</h4>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+
+        <div class="dropdown me-3">
+            <select class="form-select" id="organizerSingle1" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                <option value="">Company Name</option>
+                <option>GCTL</option>
+                <option>CSL</option>
+            </select>
+        </div>
+
+
+    </div>
+</div>
+
+<div class="border-translucent p-3">
+    <div id="employeeListTable">
+
+        <div class="table-responsive scrollbar mx-n1 px-1">
+            <table class="table table-bordered fs-9 leads-table " style="text-align:center;">
+                <thead>
+                    <tr>
+
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="companyName" rowspan="2">Company Name</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="mobileAllowance" rowspan="2">Mobile/ Internet Allowance </th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="shiftAllowance" rowspan="2">Shift Allowance</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="houseRent" colspan="2">House Rent</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="medicalAllowance" colspan="2">Medical Allowance</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="conveyanceAllowance" colspan="2">Conveyance Allowance</th>
+                        <th class="align-middle pe-0 ps-5" scope="col" rowspan="2">Action </th>
+                    </tr>
+                    <tr>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="houseRentR">Rate</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="houseRentS">Depends on</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="medicalAllowanceR">Rate</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="medicalAllowanceS">Depends on</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="conveyanceAllowanceR">Rate</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="conveyanceAllowanceS">Depends on</th>
+                    </tr>
+                </thead>
+                <tbody class="list" id="purchasers-sellers-body">
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
+                            <span>GCTL</span>
+                        </td>
+
+                        <td class="mobileAllowance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">1000 tk</td>
+                        <td class="shiftAllowance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">500 tk</td>
+
+                        <td class="houseRentR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">50 %</td>
+                        <td class="houseRentS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Basic Salary</td>
+
+                        <td class="medicalAllowanceR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">10 %</td>
+                        <td class="medicalAllowanceS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Basic Salary</td>
+
+                        <td class="conveyanceAllowanceR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">10 %</td>
+                        <td class="conveyanceAllowanceS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Basic Salary</td>
+
+
+                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
+                            <div class="btn-reveal-trigger position-static">
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_alloance">
+                                    <i class="fas fa-edit text-success"></i>
+                                </a>
+                                <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <i class="fas fa-trash text-danger"></i>
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row align-items-center justify-content-between pe-0 fs-9">
+            <div class="col-auto d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+            </div>
+            <div class="col-auto d-flex">
+                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination"></ul>
+                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+
+    </div>
+</div>

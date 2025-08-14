@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AttendanceManagement.LeaveManagements;
@@ -23,33 +24,21 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
     public class EmployeeBenefitsService : AppService<EmployeeBenefits>, IEmployeeBenefitsService
     {
         private readonly IGenericRepository<EmployeeBenefits> empBenefits;
-        private readonly IGenericRepository<Organization> organization;
-        private readonly IGenericRepository<SalaryTypes> salaryTypes;
         private readonly IUserInfoService userInfoService;
-        public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IUserInfoService userInfoService) : base(empBenefits)
+        public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IUserInfoService userInfoService):base(empBenefits) 
         {
             this.empBenefits = empBenefits;
-            this.organization = organization;
-            this.salaryTypes = salaryTypes;
             this.userInfoService = userInfoService;
         }
-
-
 
         #region Get All Dataum
 
         public async Task<PaginationService<EmployeeBenefits, PayRollEmpBenefitsGetAllVM>.PaginationResult<PayRollEmpBenefitsGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null)
         {
+          #nullable disable
+
             try
             {
-
-                //var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
-                //var roleName = await(from user in appDb.Users
-                //                     join userRole in appDb.UserRoles on user.Id equals userRole.UserId
-                //                     join role in appDb.Roles on userRole.RoleId equals role.Id
-                //                     where user.Id == userId
-                //                     select role.Name).FirstOrDefaultAsync();
-
                 // 🔹 Step 3: Base query with includes
                 var query = empBenefits.AllActive().Include(x => x.YearlyEndBonusType).Include(x => x.FastivalBonusOnSalaryType).Include(x => x.ProvidentFundOnSalaryType).Include(x => x.Organization).OrderByDescending(x => x.EmployeeBenefitID).AsQueryable();
                 if (query == null)
@@ -57,14 +46,6 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     throw new InvalidOperationException("query source is null.");
                 }
 
-                // 🔹 Step 4: Filter if not SuperAdmin
-                //if (string.IsNullOrEmpty(roleName) || !string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    query = query.Where(x => x.EmployeeID == employeeId);
-                //}
-                //
-                //
-               
                 if (organizationId.HasValue)
                 {
                    
@@ -89,19 +70,15 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     ? query.OrderByDescending(orderByExpression)
                     : query.OrderBy(orderByExpression);
 
-              
-
                 // For approver Step
-                
+               
+
                 //
                 var result = await PaginationService<EmployeeBenefits, PayRollEmpBenefitsGetAllVM>.GetPaginatedData(
-
-
                     query,
                     pageNumber,
                     pageSize,
                     searchTerm,
-
                     currentSortColumn,
                     currentSortOrder,
 
@@ -146,7 +123,6 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
 
        
         #endregion
-
 
         #region Save Data
         public async Task<CommonReturnViewModel> SaveEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM)
@@ -243,8 +219,6 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 existingEntity.FastivalBonusMinimumServiceInMonth = entityVM.FastivalBonusMinimumServiceInMonthEdit;
                 existingEntity.UpdatedAt = DateTime.Now;
                 existingEntity.UpdatedBy = entityVM.UpdatedBy;
-
-                // Save changes
                 await empBenefits.UpdateAsync(existingEntity);
 
                 return new CommonReturnViewModel

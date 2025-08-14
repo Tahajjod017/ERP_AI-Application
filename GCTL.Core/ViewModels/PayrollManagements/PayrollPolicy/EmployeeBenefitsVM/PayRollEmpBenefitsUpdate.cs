@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
+namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM
 {
-    public class PayRollEmpBenefitsUpdate:BaseViewModel
+    public class PayRollEmpBenefitsUpdate : BaseViewModel
     {
         public int EmployeeBenefitIDEdit { get; set; }
 

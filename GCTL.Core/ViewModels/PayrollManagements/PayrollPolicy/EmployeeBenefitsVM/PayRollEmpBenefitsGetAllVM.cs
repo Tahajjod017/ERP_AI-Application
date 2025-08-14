@@ -1,11 +1,10 @@
-﻿using GCTL.Data.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
+namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM
 {
     public class PayRollEmpBenefitsGetAllVM
     {
@@ -37,11 +36,11 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
 
         public decimal? ProvidentFundMinimumServiceYear { get; set; }
 
-        
+
         public bool? IsYearEndBonusEnabled { get; set; }
 
         public string? YearlyEndBonusTypeName { get; set; }
 
-       
+
     }
 }

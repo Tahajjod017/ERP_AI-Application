@@ -1,0 +1,44 @@
+﻿@model GCTL_App.ViewModels.PayRollManagements.PayRollPolicy.PayRollEmpAllowancePageVM
+<div class="mb-2 mt-2">
+
+    <div class="card">
+
+        <div class="card-header ">
+            <h4 class="mb-1">Add Employee Allowance</h4>
+
+            <div class="">
+                @await Html.PartialAsync("_PayRollEmpAllowanceSave", Model.Save)
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card mt-2">
+        <partial name="_TableList" />
+
+
+    </div>
+
+</div>
+
+
+<!-- Edit shift -->
+<div class="modal fade" id="edit_alloance">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Employee Allowance</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <partial name="_PayRollEmpAllowanceUpdate" />
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
