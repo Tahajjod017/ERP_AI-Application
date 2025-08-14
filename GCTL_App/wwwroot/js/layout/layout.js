@@ -330,6 +330,7 @@ function showDev(message, headerText = 'console') {
 
 //#region HideModal
 
+//hideModal('new_resignation');
 function hideModal(id) {
     const modalEl = document.getElementById(id);
     if (!modalEl) return;

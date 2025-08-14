@@ -25,7 +25,7 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="department">Department ID filter.</param>
         /// <param name="designation">Designation ID filter.</param>
         /// <returns>A list of pending resignation view models.</returns>
-        Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation);
+        Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation, string imgSrcThumb);
 
         /// <summary>
         /// Retrieves a list of processed resignations based on provided filters.
@@ -34,7 +34,7 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="department">Department ID filter.</param>
         /// <param name="designation">Designation ID filter.</param>
         /// <returns>A list of processed resignation view models.</returns>
-        Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation);
+        Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation, string imgSrcThumb);
 
         /// <summary>
         /// Retrieves details of a specific resignation by its ID.

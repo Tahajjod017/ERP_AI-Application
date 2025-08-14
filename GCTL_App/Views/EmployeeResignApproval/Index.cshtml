@@ -142,13 +142,29 @@
                         <option value="">@Html.SmartLocalize("Select designation")</option>
                     </select>
                 </div>
+                <div class="dropdown me-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                        </div>
+                        <select class="form-select" id="pageSizeSelectPending" data-choices="data-choices" size="1" name="pageSizeSelectPending" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+
+
             </div>
         </div>
 
         <div class="border-translucent p-3">
             <div id="resignationApprovalTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table dyn-table" id="resignPending">
+                    <table class="table table-sm fs-9 leads-table dyn-table shefain" id="resignPending">
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -156,13 +172,13 @@
                                         <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"resignation-approval-body"}' />
                                     </div>
                                 </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">@Html.SmartLocalize("Employee Name")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department">@Html.SmartLocalize("Department")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position">@Html.SmartLocalize("Position")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason">@Html.SmartLocalize("Reason")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="noticeDate">@Html.SmartLocalize("Notice Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="lastWorkingDay">@Html.SmartLocalize("Last Working Day")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision">@Html.SmartLocalize("Decision")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Department")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position" data-column="2">@Html.SmartLocalize("Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason" data-column="3">@Html.SmartLocalize("Reason")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="noticeDate" data-column="4">@Html.SmartLocalize("Notice Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="lastWorkingDay" data-column="5">@Html.SmartLocalize("Last Working Day")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision" data-column="6">@Html.SmartLocalize("Decision")</th>
                             </tr>
                         </thead>
                         <tbody class="list" id="pending-resignation-body">
@@ -173,11 +189,11 @@
 
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
-                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body totalPending" id="totalPending" data-list-info="data-list-info"></p>
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                        <ul class="mb-0 pagination"></ul>
+                        <ul class="mb-0 pagination" id="paginationPending"></ul>
                         <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
                     </div>
                 </div>
@@ -211,6 +227,23 @@
                         <option value="">@Html.SmartLocalize("Select designation")</option>
                     </select>
                 </div>
+
+                <div class="dropdown me-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                        </div>
+                        <select class="form-select" id="pageSizeSelectApprove" data-choices="data-choices" size="1" name="pageSizeSelectApprove" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+
+
             </div>
         </div>
 
@@ -225,13 +258,13 @@
                                         <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"processed-resignation-body"}' />
                                     </div>
                                 </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">@Html.SmartLocalize("Employee Name")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department">@Html.SmartLocalize("Department")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position">@Html.SmartLocalize("Position")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason">@Html.SmartLocalize("Reason")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="processedDate">@Html.SmartLocalize("Processed Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="lastWorkingDay">@Html.SmartLocalize("Last Working Day")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status">@Html.SmartLocalize("Status")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Department")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position" data-column="2">@Html.SmartLocalize("Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason" data-column="3">@Html.SmartLocalize("Reason")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="processedDate" data-column="4">@Html.SmartLocalize("Processed Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="lastWorkingDay" data-column="5">@Html.SmartLocalize("Last Working Day")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="6">@Html.SmartLocalize("Status")</th>
                             </tr>
                         </thead>
                         <tbody class="list" id="processed-resignation-body">
@@ -242,11 +275,11 @@
 
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
-                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="totalApprove" data-list-info="data-list-info"></p>
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                        <ul class="mb-0 pagination"></ul>
+                        <ul class="mb-0 pagination" id="paginationApprove"></ul>
                         <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
                     </div>
                 </div>
@@ -255,13 +288,14 @@
     </div>
 </div>
 
-<!-- Existing modals remain unchanged -->
+
 <div class="modal fade" id="resignation_approval_modal" tabindex="-1" aria-labelledby="resignationApprovalModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="resignationApprovalModalLabel">@Html.SmartLocalize("Review Resignation Request")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                @*<button type="button" class="btn-close btnCloseMainModal" aria-label="Close"></button>*@
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -336,7 +370,7 @@
                     <label class="form-label">@Html.SmartLocalize("HR Comments (Optional)")</label>
                     <textarea class="form-control" id="modalHRComments" rows="3" placeholder="@Html.SmartLocalize("Add your comments here...")"></textarea>
                 </div>
-                <div class="mb-3">
+                @*<div class="mb-3">
                     <label class="form-label">@Html.SmartLocalize("Handover Status")</label>
                     <select class="form-select" id="modalHandoverStatus">
                         <option value="pending">@Html.SmartLocalize("Pending")</option>
@@ -363,12 +397,18 @@
                             @Html.SmartLocalize("Exit documents prepared")
                         </label>
                     </div>
-                </div>
+                </div>*@
+
+
             </div>
 
             <div class="modal-footer">
+                @*<button type="button"  class="btn btn-secondary btnCloseMainModal">@Html.SmartLocalize("Close")</button>*@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
-                <button type="button" class="btn btn-warning me-2" data-action="hold" data-resignation-id="">@Html.SmartLocalize("Hold for Review")</button>
+
+                @*<button type="button" class="btn btn-warning me-2" data-action="hold" data-resignation-id="">@Html.SmartLocalize("Hold for Review")</button>*@
+                <button type="button" class="btn btn-warning me-2" data-action="hold" data-resignation-id="">@Html.SmartLocalize("View Settlement Details")</button>
+
                 <button type="button" class="btn btn-danger me-2" data-action="decline" data-resignation-id="">@Html.SmartLocalize("Decline")</button>
                 <button type="button" class="btn btn-success" data-action="approve" data-resignation-id="">@Html.SmartLocalize("Approve")</button>
             </div>
