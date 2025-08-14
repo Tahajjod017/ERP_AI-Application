@@ -12,6 +12,7 @@ namespace GCTL.Service.ActionLogAudit
     public interface IUserInfoService
     {
         void SetUserInfo(BaseViewModel model, ClaimsPrincipal user, HttpContext httpContext);
+        Task<int?> GetOrganizationIdAsync(ClaimsPrincipal user, HttpContext httpContext);
 
         Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID, BaseViewModel entityVM);
         Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM);
