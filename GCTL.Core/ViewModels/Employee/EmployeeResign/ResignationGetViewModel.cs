@@ -27,6 +27,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeResign
         public bool AssetReturned { get; set; }
         public bool ClearanceCompleted { get; set; }
         public bool DocumentsPrepared { get; set; }
+        public string EmployeeCode { get; set; }
     }
 
     public class ResignationListViewModel

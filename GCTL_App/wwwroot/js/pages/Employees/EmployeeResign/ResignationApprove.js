@@ -1,15 +1,15 @@
 ﻿$(document).ready(function () {
 
 
-    // Initialize tables with default page and size
+    
     $('#resignPending').data('page', 1).data('size', 10).data('search', '').data('sort', '').data('dir', 'asc');
     $('#resignProcessed').data('page', 1).data('size', 10).data('search', '').data('sort', '').data('dir', 'asc');
 
-    // Load tables on page load
+   
     loadPendingTable();
     loadProcessedTable();
 
-    // Search input handler
+   
     $('#pendingSearch').on('input', function () {
         $('#resignPending').data('search', $(this).val()).data('page', 1);
         loadPendingTable();
@@ -20,7 +20,7 @@
         loadProcessedTable();
     });
 
-    // Filter change handlers
+   
     $('#timepicker2, #processedDepartment, #processedDesignation').on('change', function () {
         $('#resignPending').data('page', 1);
         loadPendingTable();
@@ -36,7 +36,7 @@
         $('body').removeClass('modal-open');
     });
 
-    // Sorting handler
+   
     $('.sort').on('click', function () {
         var tableId = $(this).closest('table').attr('id');
         var column = $(this).data('sort');
@@ -51,7 +51,7 @@
         }
     });
 
-    // Pagination handlers
+   
     $('[data-list-pagination="prev"]').on('click', function () {
         var tableId = $(this).closest('.card').find('table').attr('id');
         var page = $('#' + tableId).data('page');
@@ -90,13 +90,13 @@
         }
     });
 
-    // Modal click handler for reviewing resignations
+   
     $(document).on('click', '[data-bs-target="#resignation_approval_modal"]', function (e) {
         e.preventDefault();
         loadResignationDetails($(this).data('resignation-id'));
     });
 
-    // Modal action handler
+   
     var currentAction = '';
     var currentResignationId = '';
     //$('#resignation_approval_modal').on('click', '[data-action]', function () {
@@ -128,7 +128,7 @@
         processResignation(currentResignationId, currentAction);
     });
 
-    // Load pending resignations
+    //#region Table pending resignations
     function loadPendingTable() {
         var page = $('#resignPending').data('page');
         //var size = $('#resignPending').data('size');
@@ -165,12 +165,17 @@
                                 </div>
                             </td>
                             <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
-                                <div class="d-flex align-items-center position-relative">
-                                    <a href="" class="avatar avatar-md me-2">
-                                        <img src="${item.profileImage || 'https://placehold.co/400'}" class="rounded-circle" alt="user">
-                                    </a>
-                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.employeeName}</a>
+                               <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle" src="${item.profileImage || '/images/default-avatar.png'}"
+                                             alt="${item.employeeName}" onerror="this.src='/images/default-avatar.png'" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold mb-0">${item.employeeName}</h6>
+                                        <span class="fs-12 fw-normal text-muted">#${item.employeeCode || 'N/A'}</span>
+                                    </div>
                                 </div>
+
                             </td>
                             <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.department}</td>
                             <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.position}</td>
@@ -192,6 +197,8 @@
                 DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignPending'), 'resignPending');
 
                 updatePaginationPending(data.totalCount, page, size)
+
+                    
                
                 $('#resignPending').data('total', data.totalCount);
             },
@@ -201,7 +208,9 @@
         });
     }
 
-    //#region approve table
+    //#endregion
+
+    //#region table approve resignation
     function loadProcessedTable() {
         var page = $('#resignProcessed').data('page');
         //var size = $('#resignProcessed').data('size');
@@ -227,6 +236,9 @@
                 sortDirection: dir
             },
             success: function (data) {
+
+                showDev(data, 'Approve Table')
+
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 $.each(data.resignations, function (index, item) {
@@ -239,11 +251,15 @@
                                 </div>
                             </td>
                             <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
-                                <div class="d-flex align-items-center position-relative">
-                                    <a href="" class="avatar avatar-md me-2">
-                                        <img src="${item.profileImage || 'https://placehold.co/400'}" class="rounded-circle" alt="user">
-                                    </a>
-                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.employeeName}</a>
+                                 <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle" src="${item.profileImage || '/images/default-avatar.png'}"
+                                             alt="${item.employeeName}" onerror="this.src='/images/default-avatar.png'" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold mb-0">${item.employeeName}</h6>
+                                        <span class="fs-12 fw-normal text-muted">#${item.employeeCode || 'N/A'}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.department}</td>
@@ -251,8 +267,8 @@
                             <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.reason}</td>
                             <td class="processedDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.processedDate}</td>
                             <td class="lastWorkingDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="5">${item.lastWorkingDay}</td>
-                            <td class="status align-middle white-space-nowrap text-end pe-0 ps-4" data-column="6">
-                                <span class="badge badge-phoenix ${statusBadge}">${item.status}</span>
+                            <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="6">
+                                <span class="badge badge-phoenix ${statusBadge} fs-9">${item.status}</span>
                             </td>
                         </tr>
                     `);
@@ -274,7 +290,7 @@
     //#endregion
 
    
-
+    //#region pagination
     function updatePaginationPending(totalCount, page, size) {
         
         var totalPages = Math.ceil(totalCount / size);
@@ -303,8 +319,9 @@
 
         $('#totalApprove').text(`Showing ${(page - 1) * size + 1} to ${Math.min(page * size, totalCount)} of ${totalCount} entries`);
     }
+    //#endregion
    
-    // Load resignation details for modal
+    //#region  get by id for modal
     function loadResignationDetails(id) {
         $.ajax({
             url: '/EmployeeResignApproval/GetResignationDetails',
@@ -313,7 +330,7 @@
             success: function (data) {
                 $('#modalDepartment').val(data.department);
                 $('#modalPosition').val(data.position);
-                $('#modalEmployeeId').val(data.employeeId);
+                $('#modalEmployeeId').val(data.employeeName);
                 $('#modalNoticeDate').val(data.noticeDate);
                 $('#modalYearsOfService').val(data.yearsOfService);
                 $('#modalLastWorkingDay').val(data.lastWorkingDay);
@@ -335,8 +352,9 @@
             }
         });
     }
+    //#endregion
 
-    // Process resignation action
+    //#region Approve or decline button 
     function processResignation(id, action) {
         var data = {
             id: id,
@@ -347,6 +365,7 @@
             clearanceCompleted: $('#clearanceCheck').is(':checked'),
             documentsPrepared: $('#documentsCheck').is(':checked')
         };
+        showDev(data, 'data sent')
 
         $.ajax({
             url: '/EmployeeResignApproval/ProcessResignation',
@@ -374,7 +393,7 @@
             }
         });
     }
-
+    //#endregion
 
     //$('.btnCloseMainModal').on('click', function () {
     //    showDev('main  mondla Close');

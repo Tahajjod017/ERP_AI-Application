@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
@@ -143,6 +144,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                     ResigId = e.ResignationID,
                     REmpDept = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
                     REmpName = e.Employee.FirstName + " " + e.Employee.LastName,
+                    REmpCode = e.Employee.EmployeeCode,
                     ResignResons = e.Reason,
                     ResinDate = e.ResignationDate.Value.ToString("dd/MM/yyyy"),
                     ResNoticeDate = e.NoticeDate.Value.ToString("dd/MM/yyyy"),
@@ -615,37 +617,48 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         #region Delter And Get by id
 
-        public CommonReturnViewModel DeleteResignation(int resignationId)
+        public CommonReturnViewModel DeleteResignation(DeleteRequestVM delete)
         {
             try
             {
-                var baseModel = new BaseViewModel();
-
                 var result = new CommonReturnViewModel
                 {
                     Success = false
                 };
 
-                
-                var resignation = _resignationRepository.AllActive()
-                    .FirstOrDefault(r => r.ResignationID == resignationId);
-
-                if (resignation == null)
+                foreach (var item in delete.Ids)
                 {
-                    result.Message = "Resignation record not found.";
-                    return result;
+                    var resignation = _resignationRepository.AllActive()
+                        .FirstOrDefault(r => r.ResignationID == item);
+
+                    if (resignation == null)
+                    {
+                        result.Message = "Resignation record not found.";
+                        return result;
+                    }
+
+                    var apperoveCheck = _resignationsApprovalHistoryRepository.AllActive().Where(e => e.ResignationID == item).ToList();
+                    if (apperoveCheck.Any())
+                    {
+                        result.Message = "Can not Delete !! Resign is Already is in Approval matrix";
+                        return result;
+                    }
+
+
+                    resignation.DeletedAt = DateTime.UtcNow;
+                    resignation.DeletedBy = delete.DeletedBy;
+
+                    _resignationRepository.UpdateAsync(resignation, delete);
+
+                    result.Success = true;
+                    result.Message = "Deleted successfully.";
+                   
                 }
 
-                
-                
-                resignation.DeletedAt = DateTime.Now; 
-                resignation.DeletedBy = baseModel.DeletedBy; 
-
-                _resignationRepository.UpdateAsync(resignation);
-
-                result.Success = true;
-                result.Message = "Deleted successfully.";
                 return result;
+
+
+
             }
             catch (Exception ex)
             {
@@ -658,23 +671,51 @@ namespace GCTL.Service.Employees.EmployeeResign
         }
 
 
-        public ResignationViewModel GetResignationById(int resignationId)
+        public CommonReturnViewModel GetResignationById(int resignationId)
         {
-            var resign = _resignationRepository.AllActive().Where(e=>e.ResignationID == resignationId).Select(r=> new ResignationViewModel
+            try
             {
-                ResigId = r.ResignationID,
-                ResignResons = r.Reason,
-                ResinDate = r.ResignationDate.Value.ToString("dd/MM/yyyy"),
-                ResNoticeDate = r.NoticeDate.Value.ToString("dd/MM/yyyy"),
-                EmployeeId = r.EmployeeID,
-              //  CompanyId = r.OrganizationID,
+                var apperoveCheck = _resignationsApprovalHistoryRepository.AllActive().Where(e => e.ResignationID == resignationId).ToList();
 
-            }).FirstOrDefault();
+                var resign = _resignationRepository.AllActive().Join(
+                                _empOfficialRepository.AllActive(),
+                                resignation => resignation.EmployeeID,
+                                office => office.EmployeeID,
+                                (resignation, office) => new { resignation, office }
+                            )
 
-            if (resign == null)
-                return new ResignationViewModel();
+                .Where(e => e.resignation.ResignationID == resignationId).Select(r => new ResignationViewModel
+                {
+                    ResigId = r.resignation.ResignationID,
+                    ResignResons = r.resignation.Reason,
+                    ResinDate = r.resignation.ResignationDate.Value.ToString("dd/MM/yyyy"),
+                    ResNoticeDate = r.resignation.NoticeDate.Value.ToString("dd/MM/yyyy"),
+                    EmployeeId = r.resignation.EmployeeID,
+                    CompanyId = r.office.OrganizationID,
 
-            return resign;
+                }).FirstOrDefault();
+
+                if (resign == null)
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "No resignation found", };
+                }
+
+                if (apperoveCheck.Any())
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "Can not edit data is Already is in Approval matrix", Data = resign };
+                }
+
+                return new CommonReturnViewModel { Success = true, Message = "Resignation loaded successfully", Data = resign };
+            }
+            catch (Exception ex)
+            {
+
+                return new CommonReturnViewModel { Success = false, Message = ex.Message, };
+
+            }
+
+
+
         }
 
 
@@ -745,9 +786,9 @@ namespace GCTL.Service.Employees.EmployeeResign
             return status;
         }
 
-        private async Task<int> ResolveNextApproverAsync(EmployeeCareerChanges career)
+        private async Task<int> ResolveNextApproverAsync(Resignations career)
         {
-            if (career.EmployeeID == null || career.ApprovalStage == null)
+            if (career.EmployeeID == null || career.ApprovalStep == null)
                 return 0;
 
             var employee = await _empOfficialRepository.AllActive()
@@ -767,7 +808,7 @@ namespace GCTL.Service.Employees.EmployeeResign
             if (approvalSettings == null)
                 return 0;
 
-            int currentStage = career.ApprovalStage.Value;
+            int currentStage = career.ApprovalStep.Value;
             if (currentStage == 1 && approvalSettings.IsEnableSecondApproval)
             {
                 return await ResolveApproverAsync(approvalSettings, employee, 2);
@@ -826,7 +867,7 @@ namespace GCTL.Service.Employees.EmployeeResign
             return selfExceptionID ?? approverID ?? 0;
         }
 
-        private async Task LogCareerChangeHistoryAsync(Resignations career, PromotionActionModel action, bool isAuto = false)
+        private async Task LogCareerChangeHistoryAsync(Resignations career, BaseViewModel action, string hrComments, bool isAuto = false)
         {
             var history = new ResignationsApprovalHistory
             {
@@ -836,7 +877,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                 ApprovalPersonID = isAuto ? career.ApprovalPersonID : action.CreatedBy,
                 // ApprovalPersonID = career.ApprovalPersonID,
                 //ApprovalPersonID = action.CreatedBy,
-                ApprovalPersonNote = action.Comments,
+                ApprovalPersonNote = hrComments,
                 LIP = action.LIP,
                 LMAC = action.LMAC,
                 CreatedAt = DateTime.UtcNow,
@@ -852,7 +893,7 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         #region Pendeing
 
-        public async Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation, string imgSrcThumb)
+        public async Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation, string imgSrcThumb, int? currentUser)
         {
             try
             {
@@ -864,10 +905,13 @@ namespace GCTL.Service.Employees.EmployeeResign
                     .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                         .ThenInclude(office => office.Department)
                 .Include(r => r.Status)
-                .Where(r => (r.IsFinalApproved == false && r.IsDecline == null) ||
+                .Where(r => r.ApprovalPersonID == currentUser && 
+
+                              ((r.IsFinalApproved == false && r.IsDecline == null) ||
                               (r.IsFinalApproved == r.IsDecline && r.IsDecline != true)  ||
                               (r.IsDecline == false && r.IsFinalApproved == null) ||
-                              (r.IsFinalApproved == null && r.IsDecline == null)
+                              (r.IsFinalApproved == null && r.IsDecline == null) )
+                               
                 );
 
                 var test = query.ToList();
@@ -901,6 +945,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                 {
                     Id = r.ResignationID,
                     EmployeeName = r.Employee.FirstName + " " + r.Employee.LastName,
+                    EmployeeCode = r.Employee.EmployeeCode,
                     Department = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
                     Position = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Designation.DesignationName,
                     Reason = r.Reason,
@@ -933,9 +978,12 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         #region Approved 
 
-        public async Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation, string imgSrcThumb)
+        public async Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation, string imgSrcThumb, int? currentUser)
         {
-            var query = _resignationRepository.AllActive()
+            var query = _resignationsApprovalHistoryRepository.AllActive()
+
+                //_resignationRepository.AllActive()
+                    .Include(i => i.Resignation)
                     .Include(r => r.Employee)
                         .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                             .ThenInclude(office => office.Designation)
@@ -943,10 +991,14 @@ namespace GCTL.Service.Employees.EmployeeResign
                         .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                             .ThenInclude(office => office.Department)
                     .Include(r=>r.Status)
-                     .Where(r => (r.IsFinalApproved == true && r.IsDecline == null) ||
-                              (r.IsFinalApproved == r.IsDecline && r.IsDecline != false  && r.IsDecline != null) ||
-                              (r.IsDecline == true && r.IsFinalApproved == null) ||
-                              (r.IsFinalApproved != null && r.IsDecline != null)
+                    
+                     .Where(r => r.ApprovalPersonID == currentUser &&
+
+                                ((r.Resignation.IsFinalApproved == true && r.Resignation.IsDecline == null) ||
+                              (r.Resignation.IsFinalApproved == r.Resignation.IsDecline && r.Resignation.IsDecline != false  && r.Resignation.IsDecline != null) ||
+                              (r.Resignation.IsDecline == true && r.Resignation.IsFinalApproved == null) ||
+                              (r.Resignation.IsFinalApproved != null && r.Resignation.IsDecline != null) )
+                              
 
                      );
 
@@ -960,7 +1012,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                     DateTime.TryParseExact(dates[0], "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fromDate) &&
                     DateTime.TryParseExact(dates[1], "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var toDate))
                 {
-                    query = query.Where(r => r.ResignationDate >= fromDate && r.ResignationDate <= toDate);
+                    query = query.Where(r => r.Resignation.ResignationDate >= fromDate && r.Resignation.ResignationDate <= toDate);
                 }
             }
 
@@ -978,20 +1030,21 @@ namespace GCTL.Service.Employees.EmployeeResign
 
             var resignations = await query.Select(r => new ResignationGetViewModel
             {
-                Id = r.ResignationID,
+                Id = r.Resignation.ResignationID,
                 EmployeeName = r.Employee.FirstName + " " + r.Employee.LastName,
-                Department = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
-                Position = r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Designation.DesignationName,
-                Reason = r.Reason,
-                NoticeDate = r.NoticeDate.Value.ToString("dd/MM/yyyy"),
-                LastWorkingDay = r.ResignationDate.Value.ToString("dd/MM/yyyy"),
-                //ProcessedDate = r.NoticeDate?.ToString("dd/MM/yyyy") ?? "",
+                EmployeeCode = r.Employee.EmployeeCode,
+                Department = r.Resignation.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
+                Position = r.Resignation.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Designation.DesignationName,
+                Reason = r.Resignation.Reason,
+                NoticeDate = r.Resignation.NoticeDate.Value.ToString("dd/MM/yyyy"),
+                LastWorkingDay = r.Resignation.ResignationDate.Value.ToString("dd/MM/yyyy"),
+                ProcessedDate = r.Resignation.NoticeDate.Value.ToString("dd/MM/yyyy") ?? "",
                 Status = r.Status.StatusName  ?? "Approved",
                 ProfileImage = r.Employee.EmployeeImageFileName != null ? imgSrcThumb + r.Employee.EmployeeImageFileName : "https://placehold.co/400",
                 EmployeeId = r.EmployeeID.ToString(),
-                YearsOfService = CalculateYearsOfService(r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().JoiningDate, r.ResignationDate.Value),
-                NoticePeriod = (r.ResignationDate.Value - r.NoticeDate.Value).Days.ToString() + " Days",
-                CurrentSalary = r.Employee.EmployeeSalarySettingsEmployee.FirstOrDefault().Salary.ToString() ?? "৳0",
+                YearsOfService = CalculateYearsOfService(r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().JoiningDate, r.Resignation.ResignationDate.Value),
+                NoticePeriod = (r.Resignation.ResignationDate.Value - r.Resignation.NoticeDate.Value).Days.ToString() + " Days",
+                CurrentSalary = r.Resignation.Employee.EmployeeSalarySettingsEmployee.FirstOrDefault().Salary.ToString() ?? "৳0",
                 PendingDues = "৳0", // Placeholder, adjust based on actual logic
                 //HandoverStatus = r.HandoverStatus ?? "pending",
                 //AssetReturned = r.AssetReturned ?? false,
@@ -1027,7 +1080,7 @@ namespace GCTL.Service.Employees.EmployeeResign
             return new ResignationGetViewModel
             {
                 Id = resignation.ResignationID,
-                EmployeeName = resignation.Employee.FirstName + " " + resignation.Employee.LastName,
+                EmployeeName = resignation.Employee.FirstName + " " + resignation.Employee.LastName + " (" + resignation.Employee.EmployeeCode + ")",
                 Department = resignation.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault()?.Department.DepartmentName ?? "Unknown",
                 Position = resignation.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault()?.Designation.DesignationName ?? "Unknown",
                 Reason = resignation.Reason,
@@ -1048,103 +1101,141 @@ namespace GCTL.Service.Employees.EmployeeResign
             };
         }
 
-        public async Task<(bool Success, string Message)> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared)
+        public async Task<CommonReturnViewModel> ProcessResignation(int resignationId, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared, CommonBaseViewModel? bm)
         {
             try
             {
-                var bm = new BaseViewModel();
+                if (action == null || resignationId <= 0 || string.IsNullOrEmpty(action))
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "Invalid action model" };
+                }
 
-                var resignation = await _resignationRepository.AllActive().FirstOrDefaultAsync(r => r.ResignationID == id);
+                var resignation = await _resignationRepository.AllActive().FirstOrDefaultAsync(r => r.ResignationID == resignationId);
                 if (resignation == null)
                 {
-                    return (false, "Resignation not found.");
+                    
+                    return new CommonReturnViewModel { Success = false, Message = "Resignation not found" };
+
                 }
 
                 var employee = await _employeeRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == resignation.EmployeeID);
                 if (employee == null)
                 {
-                    return (false, "Employee not found.");
+                    return new CommonReturnViewModel { Success = false, Message = "Employee not found" };
+
+                   
                 }
 
-                
-                //resignation.HandoverStatus = handoverStatus;
-                //resignation.AssetReturned = assetReturned;
-                //resignation.ClearanceCompleted = clearanceCompleted;
-                //resignation.DocumentsPrepared = documentsPrepared;
-                //resignation.ProcessedDate = DateTime.UtcNow;
-
-                // Determine status based on action
-                string statusName;
-                switch (action.ToLower())
+                if (resignation.IsFinalApproved == true)
                 {
-                    case "approve":
-                        statusName = "Approved";
-                        resignation.IsFinalApproved = true;
-                        break;
-                    case "decline":
-                        statusName = "Declined";
-                        resignation.IsFinalApproved = true;
-                        break;
-                    case "hold":
-                        statusName = "On Hold";
-                        break;
-                    default:
-                        return (false, "Invalid action.");
+                    return new CommonReturnViewModel { Success = false, Message = "Increment already approved" };
                 }
 
-                // Update status
-                var status = await _statusRepository.AllActive().FirstOrDefaultAsync(s => s.StatusName.ToLower() == statusName.ToLower());
+                if (resignation.IsDecline == true)
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "Increment has been declined" };
+                }
+
+                if (resignation.ApprovalPersonID != bm.CreatedBy)
+                {
+                    return new CommonReturnViewModel { Success = false, Message = "You are not authorized to approve this increment" };
+                }
+
+                var status = await GetOrCreateStatusAsync(action.ToLower(), new PromotionActionModel
+                {
+                    CreatedBy = bm.CreatedBy,
+                    LIP = bm.LIP,
+                    LMAC = bm.LMAC
+                }); 
+
+
                 if (status == null)
                 {
-                    status = new Statuses
-                    {
-                        StatusName = statusName,
-                        StatusType = "EmployeeCareerChange",
-                        
-                    };
-                    await _statusRepository.AddAsync(status , bm);
+                    return new CommonReturnViewModel { Success = false, Message = "Failed to retrieve or create status" };
                 }
+
                 resignation.StatusID = status.StatusID;
+                bool isDecline = action.ToLower() == "decline";
+                resignation.IsDecline = isDecline;
 
-                // Add approval history
-                var approvalHistory = new ResignationsApprovalHistory
+                if (!isDecline)
                 {
-                    ResignationID = resignation.ResignationID,
-                    //Action = action,
-                    //Comments = hrComments,
-                    //ApprovalDate = DateTime.UtcNow,
-                    //ApprovedBy = "System", // Adjust based on your logic
-                    ApprovalStep = resignation.ApprovalStep,
-                    LIP = "127.0.0.1", // Placeholder
-                    LMAC = "00:00:00:00:00:00" // Placeholder
-                };
-                await _resignationsApprovalHistoryRepository.AddAsync(approvalHistory);
+                    resignation.ApprovalStep = (resignation.ApprovalStep ?? 0);
+                    int nextApproverID = await ResolveNextApproverAsync(resignation);
+                    if (nextApproverID != 0)
+                    {
+                        resignation.ApprovalPersonID = nextApproverID;
+                        resignation.IsFinalApproved = false;
+                        resignation.ApprovalStep = resignation.ApprovalStep + 1;
+                    }
+                    else
+                    {
 
-                // Create alert for action
-                var alert = new Alerts
-                {
-                    AlertTitle = $"Resignation {action}",
-                    AlertNote = $"Resignation for {employee.FirstName} {employee.LastName} has been {action}.",
-                    
-                };
-                await alertsRepository.AddAsync(alert , bm);
 
-                var empAlert = new AlertForEmployee
+                        resignation.IsFinalApproved = true;
+                        resignation.ApprovalStep = resignation.ApprovalStep + 1;
+
+
+
+                    }
+                }
+                else
                 {
-                    AlertID = alert.AlertID,
-                    EmployeeID = resignation.EmployeeID,
-                    IsChecked = false,
-                  
-                };
-                await alertForEmployeeRepository.AddAsync(empAlert , bm);
+                        resignation.IsFinalApproved = false;
+                    resignation.ApprovalStep = resignation.ApprovalStep ?? 1;
+                }
+
+                resignation.UpdatedAt = DateTime.UtcNow;
+                resignation.UpdatedBy = bm.UpdatedBy;
+                resignation.LIP = bm.LIP;
+                resignation.LMAC = bm.LMAC;
 
                 await _resignationRepository.UpdateAsync(resignation);
+                await LogCareerChangeHistoryAsync(resignation, bm, hrComments);
 
-                return (true, $"Resignation {action} successfully.");
+
+                #region Alert
+                if (resignation.IsFinalApproved != true && resignation.IsDecline != true)
+                {
+                    var alert = new Alerts
+                    {
+                        AlertTitle = "Employee Increment",
+                        AlertNote = $"{employee.FirstName} {employee.LastName} has requested an increment.",
+                        LMAC = bm.LMAC,
+                        LIP = bm.LIP,
+                        CreatedBy = bm.CreatedBy,
+                        CreatedAt = DateTime.Now,
+                    };
+
+                    await alertsRepository.AddAsync(alert);
+                    var empAlert = new AlertForEmployee
+                    {
+                        AlertID = alert.AlertID,
+                        EmployeeID = resignation.ApprovalPersonID,  // for alert Employee
+                        IsChecked = false,
+                        LIP = bm.LIP,
+                        LMAC = bm.LMAC,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = bm.CreatedBy,
+                    };
+                    await alertForEmployeeRepository.AddAsync(empAlert);
+                }
+
+                #endregion
+
+
+
+                
+
+                return new CommonReturnViewModel { Success = true, Message = "Resign action completed successfully" };
+            }
+            catch (DbUpdateException ex)
+            {
+                return new CommonReturnViewModel { Success = false, Message = "Database error occurred while processing the increment action" };
             }
             catch (Exception ex)
             {
-                return (false, ex.Message);
+                return new CommonReturnViewModel { Success = false, Message = "An unexpected error occurred while processing the increment action: " + ex.Message };
             }
         }
 

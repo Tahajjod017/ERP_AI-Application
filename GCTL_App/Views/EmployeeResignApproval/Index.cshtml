@@ -129,7 +129,10 @@
                 </div>
                 <div class="dropdown me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" 
+                               data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly" style="padding-left: 30px;">
+                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+
                     </div>
                 </div>
                 <div class="dropdown me-3">
@@ -212,9 +215,13 @@
                         <input class="form-control" id="processedSearch" type="text" placeholder="@Html.SmartLocalize("Search...")">
                     </div>
                 </div>
+               
+                  
+               
+
                 <div class="dropdown me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="approveDateRange" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="approveDateRange" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                     </div>
                 </div>
                 <div class="dropdown me-3">
@@ -315,7 +322,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">@Html.SmartLocalize("Employee ID")</label>
+                            <label class="form-label">@Html.SmartLocalize("Employee Name")</label>
                             <input type="text" class="form-control" id="modalEmployeeId" value="EMP-001" readonly>
                         </div>
                     </div>
@@ -407,7 +414,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
 
                 @*<button type="button" class="btn btn-warning me-2" data-action="hold" data-resignation-id="">@Html.SmartLocalize("Hold for Review")</button>*@
-                <button type="button" class="btn btn-warning me-2" data-action="hold" data-resignation-id="">@Html.SmartLocalize("View Settlement Details")</button>
+                <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#final_settlement_modal" data-resignation-id="">@Html.SmartLocalize("View Settlement Details")</button>
 
                 <button type="button" class="btn btn-danger me-2" data-action="decline" data-resignation-id="">@Html.SmartLocalize("Decline")</button>
                 <button type="button" class="btn btn-success" data-action="approve" data-resignation-id="">@Html.SmartLocalize("Approve")</button>
