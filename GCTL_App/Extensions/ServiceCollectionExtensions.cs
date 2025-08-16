@@ -1,88 +1,61 @@
 ﻿#region References
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
-using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
-using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.AdminSettings.OrganizationSettings.ApprovalService;
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
-using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
-using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
-using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
-using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
-using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
-using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
-using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
-using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
 using GCTL.Service.AllNotifications;
-using GCTL.Service.AllNotifications;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
-using GCTL.Service.AttendanceManagement.EmployeeAttendence;
-using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.YearlyReports;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
-using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
-using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveHistoryBalances;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings;
-using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings;
-using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
-using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
-using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
-using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
-using GCTL.Service.CommonService;
+
+using GCTL.Service.CRM.LeadCreate;
+
 using GCTL.Service.ElementPermission;
-using GCTL.Service.ElementPermission;
+
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.Employees.EmployeeContact;
-using GCTL.Service.Employees.EmployeeContact;
-using GCTL.Service.Employees.EmployeeDetails;
 using GCTL.Service.Employees.EmployeeDetails;
 using GCTL.Service.Employees.EmployeeEducational;
 using GCTL.Service.Employees.EmployeeFamily;
 using GCTL.Service.Employees.EmployeeList;
-using GCTL.Service.Employees.EmployeeList;
-using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeOfficial;
 using GCTL.Service.Employees.EmployeePersonal;
 using GCTL.Service.Employees.EmployeeReport;
-using GCTL.Service.Employees.EmployeeReport;
+using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
-using GCTL.Service.Employees.EmployeeStatus.Increment;
-using GCTL.Service.Employees.EmployeeStatus.Promotion;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
-using GCTL.Service.Employees.EmpTransfer;
-using GCTL.Service.FileHandler;
 using GCTL.Service.FileHandler;
 using GCTL.Service.HRMsettings.ProbationService;
-using GCTL.Service.HRMsettings.ProbationService;
-using GCTL.Service.ImageFileHandler;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ActionTakens;
@@ -116,6 +89,7 @@ using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.MenuTabs;
+using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
@@ -205,6 +179,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<INotificationsService, NotificationsService>();
             services.AddScoped<IEmpTransferApprovedOrDeclineService, EmpTransferApprovedOrDeclineService>();
             services.AddScoped<IEmployeeBenefitsService, EmployeeBenefitsService>();
+            services.AddScoped<IPayRollEmpAllowanceService, PayRollEmpAllowanceService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
@@ -226,6 +201,8 @@ namespace GCTL_App.Extensions
             services.AddTransient<LeaveHelper>();
             services.AddScoped<IMonthlyReportService, MonthlyReportService>();
             services.AddScoped<IYearlyReportService, YearlyReportService>();
+            services.AddScoped<ILocalizationSettingService, LocalizationSettingService>();
+          
             #endregion
 
 
@@ -285,6 +262,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
             services.AddScoped<ILeadStatusService, LeadStatusService>();
             services.AddScoped<ILeadSourceService, LeadSourceService>();
+            services.AddScoped<ILeadCreateService, LeadCreateService>();
             #endregion
         }
     }

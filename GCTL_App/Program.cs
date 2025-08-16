@@ -8,6 +8,8 @@ using GCTL.Service.VisitingPath;
 using GCTL.Service.RolePermissions;
 using GCTL_App.EmailServicesMethod;
 using QuestPDF.Infrastructure;
+using GCTL.Service.AdminSettings.GeneralSettings;
+using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +79,9 @@ builder.Services.AddControllersWithViews(options =>
 //builder.Services.AddHttpContextAccessor();
 #endregion
 
+// localization
+builder.Services.AddScoped<ILocalizationContext, LocalizationContext>();
+
 QuestPDF.Settings.License = LicenseType.Community;
 
 
@@ -119,8 +124,8 @@ app.Use(async (context, next) =>
 app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 app.UseRouting();
 
-app.UseAuthentication(); 
-
+app.UseAuthentication();
+app.UseMiddleware<LocalizationMiddleware>();
 app.UseAuthorization();
 //app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 

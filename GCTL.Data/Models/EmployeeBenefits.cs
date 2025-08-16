@@ -21,7 +21,7 @@ public partial class EmployeeBenefits
 
     public bool? IsFastivalBonusEnabled { get; set; }
 
-    public decimal ? FastivalBonusRate { get; set; }
+    public decimal? FastivalBonusRate { get; set; }
 
     public int? FastivalBonusOnSalaryTypeID { get; set; }
 
@@ -33,7 +33,7 @@ public partial class EmployeeBenefits
 
     public int? ProvidentFundOnSalaryTypeID { get; set; }
 
-    public decimal? ProvidentFundMinimumServiceYear { get; set; }
+    public int? ProvidentFundMinimumServiceYear { get; set; }
 
     public string LIP { get; set; }
 
@@ -54,6 +54,8 @@ public partial class EmployeeBenefits
     public bool? IsYearEndBonusEnabled { get; set; }
 
     public int? YearlyEndBonusTypeID { get; set; }
+
+    public int? FastivalBonusMinimumServiceInMonth { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

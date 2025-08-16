@@ -31,6 +31,12 @@ public partial class SalaryTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowancesConAllowDepOnSalaryType { get; set; } = new List<EmployeeAllowances>();
+
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowancesHRentDependsOnSalaryType { get; set; } = new List<EmployeeAllowances>();
+
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowancesMediAllowDepOnSalaryType { get; set; } = new List<EmployeeAllowances>();
+
     public virtual ICollection<EmployeeBenefits> EmployeeBenefitsFastivalBonusOnSalaryType { get; set; } = new List<EmployeeBenefits>();
 
     public virtual ICollection<EmployeeBenefits> EmployeeBenefitsProvidentFundOnSalaryType { get; set; } = new List<EmployeeBenefits>();

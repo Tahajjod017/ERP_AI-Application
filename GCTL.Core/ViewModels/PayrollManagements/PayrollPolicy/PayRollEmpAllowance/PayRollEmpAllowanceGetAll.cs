@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
+namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance
 {
-    public class PayRollEmpBenefitsGetAllVM
+    public class PayRollEmpAllowanceGetAll
     {
-
     }
 }

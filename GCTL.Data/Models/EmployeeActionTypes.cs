@@ -33,5 +33,7 @@ public partial class EmployeeActionTypes
 
     public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
 
+    public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

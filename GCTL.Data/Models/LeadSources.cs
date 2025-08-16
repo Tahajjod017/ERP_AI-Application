@@ -11,6 +11,8 @@ public partial class LeadSources
 
     public string LeadSourceName { get; set; }
 
+    public string LIP { get; set; }
+
     public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
@@ -28,6 +30,8 @@ public partial class LeadSources
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

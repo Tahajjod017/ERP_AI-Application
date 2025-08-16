@@ -9,11 +9,11 @@
                 <h4 class="modal-title">Edit Weekend Settings</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="weekendFormEdit" asp-controller="WeekendSettings" asp-action="UpdatesById" method="post">
+            <form id="weekendFormEdit" asp-controller="WeekendSettings" asp-action="Update" method="post">
                 <div class=" mb-3">
 
                     <div class="row">
-
+                        <input type="hidden" id="WeekendSettingID" name="WeekendSettingID" />
                         <!-- Organization Dropdown -->
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">

@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
+namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM
 {
-    public class PayRollEmpBenefitsSaveVM:BaseViewModel
+    public class PayRollEmpBenefitsSaveVM : BaseViewModel
     {
-       
 
+        public int EmployeeBenefitID { get; set; }
+        [Required(ErrorMessage = "Please Select Organization")]
         public int? OrganizationID { get; set; }
 
         public bool IsHealthInsuranceEnabled { get; set; }
@@ -34,8 +36,8 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy
 
         public int? ProvidentFundOnSalaryTypeID { get; set; }
 
-        public decimal? ProvidentFundMinimumServiceYear { get; set; }
-
+        public int? ProvidentFundMinimumServiceYear { get; set; }
+        public int? FastivalBonusMinimumServiceInMonth { get; set; }
         public bool IsYearEndBonusEnabled { get; set; }
         public int? YearlyEndBonusTypeID { get; set; }
     }

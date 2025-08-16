@@ -1,0 +1,180 @@
+﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM.PayRollEmpBenefitsUpdate
+
+<form  id="EmployeeBenefitsFormUpdate" class="row g-3 mb-2">
+    <div class="col-md-6">
+
+        <div class="mb-1">
+            <input asp-for="EmployeeBenefitIDEdit"  type="hidden"/>
+            <div class="content-head d-flex justify-content-between align-items-center">
+                <label class="form-label" for="organizerSingle">Company Name</label>
+                <div class="form-check form-switch">
+                </div>
+            </div>
+
+            <select class="form-multi-select"
+                    asp-for="OrganizationIDEdit"
+                    asp-items="@ViewBag.OrganizationDD as SelectList"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Company")...">
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="mb-1">
+            <div class="content-head d-flex justify-content-between align-items-center">
+                <label class="form-label" for="timepicker1">Health Insurance</label>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsHealthInsuranceEnabledEdit" value="false">
+                </div>
+            </div>
+            <input class="form-control" asp-for="HealthInsuranceEdit" type="text" placeholder="Ex: 500 tk Per Month">
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="mb-1">
+            <div class="content-head d-flex justify-content-between align-items-center">
+                <label class="form-label" for="timepicker1">Performance Bonus</label>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsPerformanceBonusEnabledEdit">
+                </div>
+            </div>
+            <select class="form-select mb-3 choiceDD" asp-for="PerformanceBonusEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
+                <option value="">Select %</option>
+
+            </select>
+            @*  <input class="form-control" type="text" placeholder="Ex: 10,000 tk Yearly" asp-for="PerformanceBonus"> *@
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="mb-1">
+            <div class="content-head d-flex justify-content-between align-items-center">
+                <label class="form-label" for="timepicker1">Yearly End Bonus</label>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsYearEndBonusEnabledEdit" value="false">
+
+                </div>
+            </div>
+            <select class="form-select choiceDD" asp-for="YearlyEndBonusTypeIDEdit" asp-items="@ViewBag.YearlyBonusTypeDD as SelectList">
+                <option value="">Select one</option>
+
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="mb-1">
+            <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+                <h5>Festival Bonus</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsFastivalBonusEnabledEdit" value="false">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Festival Bonus Rate</label>
+            <select class="form-select mb-3 choiceDD" asp-for="FastivalBonusRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
+                <option value="">Select %</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Bonus Depends on</label>
+            <select class="form-select choiceDD" asp-for="FastivalBonusOnSalaryTypeIDEdit" asp-items="@ViewBag.SalaryTypesDD as SelectList">
+                <option value="">Select Salary Type</option>
+
+            </select>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Minimum Service Year</label>
+            <select class="form-select choiceDD" asp-for="FastivalBonusMinimumServiceInMonthEdit">
+                <option value="">Select Year</option>
+                <option value="5">05 Years</option>
+                <option value="6">06 Years</option>
+                <option value="7">07 Years</option>
+                <option value="8">08 Years</option>
+                <option value="9">09 Years</option>
+
+            </select>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="mb-1">
+
+            <div class="content-head d-flex justify-content-between  border-bottom">
+                <h5>Providant Fund</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" asp-for="IsProvidentFundEnabledEdit" value="false">
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 ">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Employee Contribution</label>
+            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundEmployeeContrebutionEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
+                <option value="">Select %</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 ">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Organization Contribution</label>
+            <select class="form-select mb-3 choiceDD" asp-for="ProvidentFundOrganizationContrebutionEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
+                <option value="">Select %</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 ">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Bonus Depends on</label>
+            <select class="form-select choiceDD" asp-for="ProvidentFundOnSalaryTypeIDEdit" asp-items="@ViewBag.SalaryTypesDD as SelectList">
+                <option value="">Select Salary Type</option>
+
+            </select>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Minimum Service Year</label>
+            <select class="form-select choiceDD" asp-for="ProvidentFundMinimumServiceYearEdit">
+                <option value="">Select Year</option>
+                <option value="5">05 Years</option>
+                <option value="6">06 Years</option>
+                <option value="7">07 Years</option>
+                <option value="8">08 Years</option>
+                <option value="9">09 Years</option>
+
+            </select>
+        </div>
+    </div>
+
+
+    <div class="col-12">
+        <div class="row g-3 justify-content-end">
+            <div class="col-auto">
+                <button class="btn btn-phoenix-primary px-5" type="button" id="ResetBtn">RESET</button>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary px-5 px-sm-5" type="button" id="PayRollEmpUpdate">Update</button>
+            </div>
+        </div>
+    </div>
+</form>

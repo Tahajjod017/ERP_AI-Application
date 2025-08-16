@@ -73,7 +73,11 @@
             </form>
         </div>
     </div>
-   
+    <div class="header">
+        <span title="@ViewBag.selectZone">
+            Created at (local): <strong>@(ViewBag.selectZone ?? "—")</strong>
+        </span>
+    </div>
     <partial name="_WeekendSettingsTableList" />
     <partial name="_WeekendSettingsEdit" />
     <partial name="_ConfirmDelete" />
