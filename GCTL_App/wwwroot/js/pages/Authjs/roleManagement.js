@@ -191,10 +191,7 @@ function loadRoleTableData() {
                             <td>${rowIndex}</td>
                             <td>${item.companyName}</td>
                             <td>${item.roleName}</td>
-                            <td>${item.createdBy}</td>
-                            <td class="text-center">
-                                
-                            </td>
+                            
                         </tr>
                     `);
                 });
