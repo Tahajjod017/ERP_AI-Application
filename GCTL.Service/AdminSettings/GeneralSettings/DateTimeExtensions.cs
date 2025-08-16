@@ -5,12 +5,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace GCTL.Service.AdminSettings.GeneralSettings
 {
     public static class DateTimeExtensions
     {
         // Convert UTC DateTime -> ZonedDateTime (org zone)
+
+        public static ZonedDateTime NowZoned(ILocalizationContext ctx)
+        {
+            var now = SystemClock.Instance.GetCurrentInstant();
+            return now.InZone(ctx.Zone);
+        }
+        public static string NowDateTime(ILocalizationContext ctx)
+        {
+            var z = NowZoned(ctx);
+            var pattern = LocalDateTimePattern.CreateWithInvariantCulture(ctx.DateTimePattern);
+            return pattern.Format(z.LocalDateTime);
+        }
+
         public static ZonedDateTime ToOrgZoned(this DateTime utc, ILocalizationContext ctx)
         {
             var u = utc.Kind == DateTimeKind.Utc ? utc : DateTime.SpecifyKind(utc, DateTimeKind.Utc);
@@ -30,6 +44,13 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             var z = utc.ToOrgZoned(ctx);
             var pattern = LocalTimePattern.CreateWithInvariantCulture(ctx.TimePattern);
             return pattern.Format(z.TimeOfDay);
+        }
+
+        public static string ToOrgTimeString(this DateTime utc, ILocalizationContext ctx)
+        {
+            var z = utc.ToOrgZoned(ctx);
+            var localTime = z.LocalDateTime;
+            return localTime.ToString(ctx.TimePattern, CultureInfo.InvariantCulture);
         }
 
         public static string ToOrgDateTime(this DateTime utc, ILocalizationContext ctx)
