@@ -256,32 +256,6 @@ $(document).ready(function () {
                     document.getElementById("emailPersonIndex").value = response.customer.email;
                 }, 300);
                 
-
-
-
-
-                //// shipping
-                //if (response.shipping.firstName) {
-                //    document.getElementById("shippingIndexIA_ID").value = response.shipping.individualAddressID;
-                //    document.getElementById("firstNameShippingIndex").value = response.shipping.firstName;
-                //    document.getElementById("lastNameShippingIndex").value = response.shipping.lastName;
-                //    document.getElementById("autocompleteShippingIndex").value = response.shipping.fullAddress;
-                //    document.getElementById("streetShippingIndex").value = response.shipping.street;
-                //    document.getElementById("cityShippingIndex").value = response.shipping.city;
-                //    document.getElementById("additionalAddressShippingIndex").value = response.shipping.additionaladdress;
-                //    document.getElementById("stateShippingIndex").value = response.shipping.state;
-                //    document.getElementById("postalCodeShippingIndex").value = response.shipping.postalCode;
-                //    document.getElementById("countryShippingIndex").value = response.shipping.countryName;
-                //    document.getElementById("countryCodeShipingIndex").value = response.shipping.countryCode;
-                //    document.getElementById("latitudeShippingIndex").value = response.shipping.latitude;
-                //    document.getElementById("longitudeShippingIndex").value = response.shipping.longitude;
-                //    document.getElementById("phone5Index").value = response.shipping.phone;
-                //    document.getElementById("phone6Index").value = response.shipping.otherPhone;
-                //    document.getElementById("emailShippingIndex").value = response.shipping.email;
-
-                //}
-                //check validataion again
-                
             },
             error: function () {
                 alert('Failed to load Contact Name');
@@ -671,19 +645,6 @@ $(document).ready(function () {
     }
 
 
-    //$(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function (e) {
-    //    const newTab = $(e.target).data('bs-target'); // e.g. "#company" or "#person"
-    //    if (newTab === '#company') {
-    //        targetTab = 'company'
-    //    } else if (newTab === '#person') {
-    //        targetTab = 'person';
-    //    }
-    //    console.log('Activated tab:', newTab);
-    //    setTimeout(() => {
-    //        initAutocomplete();
-    //    }, 300);
-    //    console.log(targetTab);
-    //});
 
     // Optional: hide suggestion list when clicking outside
     $(document).on('click', function (e) {
@@ -779,10 +740,10 @@ $(document).ready(function () {
 
     });
 
+    //fieldValidation();
     $("#indexSaveBtn").on("click", function (e) {
         e.preventDefault();
         debugger;
-        console.log(document.getElementById("personIndexIA_ID").value);
         if (fieldValidation()) {
             const actionTab =
                 (targetTab === "index") ? ["person"] : ["company"];
@@ -903,7 +864,6 @@ $(document).ready(function () {
         }
     }
 
-
     // runtime validation check
     function runtimeValidationCheck() {
         const selectedTabList = targetListForValidation();
@@ -917,17 +877,6 @@ $(document).ready(function () {
                 });
             });
     }
-
-    //function validateNamevalidateNameOne(obj) {
-    //    var name = $(obj).val().trim();
-
-    //    if (name === '') {
-    //        $(obj).css('border', '1px solid red');
-    //    } else {
-    //        $(obj).css('border', '1px solid #ccc');
-    //    }
-    //}
-
 
     // check validation when click on submit btn
     function fieldValidation() {
@@ -973,7 +922,6 @@ $(document).ready(function () {
         return isValid;
     }
 
-
     function fieldValidationOne(obj) {
         obj = $(obj); 
         const name = obj.val().trim();
@@ -1007,93 +955,5 @@ $(document).ready(function () {
             target.css('border', '1px solid #ccc');
         }
     }
-
-
-    // //check phoneNumber is unique or not
-    //function checkNameUnique() {
-    //    debugger;
-    //    const selectedTab = targetTab === 'person' || targetTab === 'shipping'
-    //        ? [
-    //            {
-    //                phone: idMap.person.phone,
-    //                phoneWarningDivID: "phonePersonError",
-    //                otherPhone: idMap.person.otherPhone,
-    //                otherPhoneWarningDivID: "otherPhonePersonError"
-    //            },
-    //            {
-    //                phone: idMap.shipping.phone,
-    //                otherPhone: idMap.shipping.otherPhone
-    //            }
-    //        ]
-    //        : [
-    //            {
-    //                phone: idMap.company.phone
-    //            }
-    //        ];
-
-    //    selectedTab.forEach(ids => {
-    //        // Attach input listener to phone
-    //        $(document).on('input', `#${ids.phone}`, function () {
-    //            let phoneVal = $(`#${ids.phone}`).val();
-    //            let otherPhoneVal = $(`#${ids.otherPhone}`).val();
-
-    //            if (phoneVal && otherPhoneVal && phoneVal === otherPhoneVal) {
-    //                $(`#${ids.phoneWarningDivID}`).text("Phone and Other Phone fields cannot be the same");
-    //                toastr.warning("Phone and Other Phone fields cannot be the same");
-    //            } else {
-    //                $(`#${ids.phoneWarningDivID}`).text("");
-    //            }
-    //        });
-
-    //        // Attach input listener to other phone
-    //        $(document).on('input', `#${ids.otherPhone}`, function () {
-    //            let phoneVal = $(`#${ids.phone}`).val();
-    //            let otherPhoneVal = $(`#${ids.otherPhone}`).val();
-
-    //            if (phoneVal && otherPhoneVal && otherPhoneVal === phoneVal) {
-    //                $(`#${ids.otherPhoneWarningDivID}`).text("Phone and Other Phone fields cannot be the same");
-    //                toastr.warning("Phone and Other Phone fields cannot be the same");
-    //            } else {
-    //                $(`#${ids.otherPhoneWarningDivID}`).text("");
-    //            }
-    //        });
-    //    });
-    //}
-
-
-
-
-
-
-    //$('#confirmAddNationalityBtn').on('click', function () {
-    //    const newNationality = $('#newNationalityName').val().trim();
-
-    //    if (!newNationality) {
-    //        alert('Please enter a nationality name.');
-    //        return;
-    //    }
-
-    //    $.ajax({
-    //        url: '/CreateLead/SaveNationality', // <-- Update with your actual route
-    //        method: 'POST',
-    //        contentType: 'application/json',
-    //        data: JSON.stringify(newNationality),
-    //        success: function (response) {
-    //            if (response.success) {
-    //                customers.push(newNationality);
-    //                $('#ContactNameSearch').val(newNationality);
-    //                $('#searchResults').hide();
-    //                $('#removeContactNameBtn').show();
-    //                $('#addCustomerModal').modal('hide');
-    //            }
-    //        },
-    //        error: function (xhr) {
-    //            alert('Error saving nationality: ' + xhr.responseText);
-    //        }
-    //    });
-    //});
-
-
-    //#endregion 
 
 });
