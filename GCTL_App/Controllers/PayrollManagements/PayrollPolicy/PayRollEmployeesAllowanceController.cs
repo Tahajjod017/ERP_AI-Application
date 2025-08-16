@@ -37,7 +37,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             return View(model);
         }
         #region Save Data
-        [Route("")]
+        [Route("PayRollEmployeesAllowance/SavePayRollEmpAlowance")]
         public async Task<IActionResult> SavePayRollEmpAlowance(PayRollEmpAllowanceSaveVM model)
         {
             try
