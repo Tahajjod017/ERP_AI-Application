@@ -1,15 +1,19 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class AssignSpiralPatternController : BaseController
     {
         #region Services & Repositories
@@ -143,6 +147,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetSpiralPatternDetails
         public async Task<IActionResult> GetSpiralPatternDetails(int typeId, int id)
         {
             object result = null;
@@ -161,5 +166,35 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
             return Json(result);
         }
+        #endregion
+
+
+        #region Delete
+        //[Permission("Delete", "AssignSpiralPattern")]
+        [Route("AssignSpiralPattern/Delete")]
+        [HttpPost]
+        public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No data selected to delete." });
+                }
+
+                var result = await _assignSpiralPatternService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No data found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
     }
 }

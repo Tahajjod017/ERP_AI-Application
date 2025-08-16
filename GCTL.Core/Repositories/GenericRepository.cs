@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels;
+﻿using EFCore.BulkExtensions;
+using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -93,6 +94,15 @@ namespace GCTL.Core.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task BulkInsertAsync(IEnumerable<T> entities)
+        {
+            await _context.BulkInsertAsync(entities.ToList(), new BulkConfig
+            {
+                PreserveInsertOrder = true,
+                SetOutputIdentity = true
+            });
+        }
+
         public async Task AddAsync(T entity, object model)
         {
             if (entity == null || model == null)
@@ -147,6 +157,15 @@ namespace GCTL.Core.Repository
         {
             _context.Set<T>().Update(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task BulkUpdateAsync(IEnumerable<T> entities)
+        {
+            await _context.BulkUpdateAsync(entities.ToList(), new BulkConfig
+            {
+                PreserveInsertOrder = true,
+                SetOutputIdentity = false
+            });
         }
 
         public async Task UpdateAsync(T entity, object model)

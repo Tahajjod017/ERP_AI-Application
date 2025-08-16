@@ -52,7 +52,7 @@ function showLoadingIndicator() {
     if ($('#loadingIndicator').length === 0) {
         $('body').append(`
                     <div id="loadingIndicator" style="display:none; position: fixed; top: 35%; left: 35%; z-index: 9999;">
-                        <img src="/images/spinner4-unscreen.gif" alt="Loading..." />
+                        <img src="/media/indicator/spinner.gif" alt="Loading..." />
                     </div>
                 `);
     }
