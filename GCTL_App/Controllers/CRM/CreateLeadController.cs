@@ -25,9 +25,10 @@ namespace GCTL_App.Controllers.CRM
         private readonly ILeadCreateService _leadCreateService;
         private readonly IGenericRepository<IndividualAddresses> _individualAddressesRepository;
         private readonly AppDbContext _context;
+        private readonly IGenericRepository<Country> _countryRepository;
 
         #endregion
-        public CreateLeadController(AppDbContext context,ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
+        public CreateLeadController(AppDbContext context,ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -36,6 +37,7 @@ namespace GCTL_App.Controllers.CRM
             _leadCreateService = leadCreateService;
             _individualAddressesRepository = individualAddressesRepository;
             _employeeTypeRepository = employeeTypeRepository;
+            _countryRepository = countryRepository;
             _context = context;
         }
 
@@ -47,10 +49,12 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadStatusDD = new SelectList(_leadStatusesTypeRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.EmployeeDD = new SelectList(_employeeTypeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.CountryDD = new SelectList(_countryRepository.AllActive().Select(e => new { e.CountryID, e.CountryName }), "CountryID", "CountryName");
 
 
             return View();
         }
+
 
 
         [HttpGet]
@@ -68,6 +72,22 @@ namespace GCTL_App.Controllers.CRM
                     .ToListAsync();
 
             return Json(customers);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> getCountry(string countryName)
+        {
+            var countryObj = await _countryRepository.AllActive().Where(e => e.CountryName.Trim().ToLower() == countryName.Trim().ToLower()).FirstOrDefaultAsync();
+            if (countryObj == null)
+            {
+                countryObj = new Country()
+                {
+                    CountryName = countryName
+                };
+                await _countryRepository.AddAsync(countryObj);
+            }
+
+            return Json(new {countryId = countryObj.CountryID , countryName= countryObj.CountryName});
         }
         [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)
@@ -144,15 +164,15 @@ namespace GCTL_App.Controllers.CRM
             }
             return Json(new { MessageContent = "Error" });
 
-        }
+        } 
         public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && leadsVM != null)
             {
                 if (leadsVM.Customers[0].PrimaryID != 0)
                 {
                     var result = await _leadCreateService.UpdateLead(leadsVM);
-                    return Json(new { success = true, message = "Updated successfully" });
+                    return Json(new { success = true, message = "Lead Created successfully" });
                 }
             }
             return Json(new { MessageContent = "Error" });
