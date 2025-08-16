@@ -1,6 +1,9 @@
 ﻿@{
 	var fullName = ViewData["FullName"] as string;
 	var profilePicturePath = ViewData["ProfilePicturePath"] as string;
+	var current = (string)ViewData["CurrentTime"];
+	var isoNow = (string)ViewData["NowIso"];
+	var tzId = (string)ViewData["TzId"]; // IANA works best (e.g., "Asia/Dhaka")
 }
 
 

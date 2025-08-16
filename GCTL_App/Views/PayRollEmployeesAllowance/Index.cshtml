@@ -1,5 +1,5 @@
 ﻿@model GCTL_App.ViewModels.PayRollManagements.PayRollPolicy.PayRollEmpAllowancePageVM
-<div class="mb-2 mt-2">
+<div class="mb-2">
 
     <div class="card">
 
@@ -42,3 +42,13 @@
         </div>
     </div>
 </div>
+<partial name="_ConfirmDelete" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/payrollmanagements/payrollpolicy/PayRollEmpAllowance.js"></script>
+
+
+}

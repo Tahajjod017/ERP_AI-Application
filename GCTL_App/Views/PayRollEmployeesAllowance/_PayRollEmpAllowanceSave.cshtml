@@ -1,5 +1,6 @@
 ﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.PayRollEmpAllowanceSaveVM
-<form action="add-shift-ui.html" class="row g-3 mb-2">
+<form id="payrollEmpAllowanceForm" class="row g-3">
+   
     <div class="col-md-4">
 
         <div class="mb-3">
@@ -8,11 +9,12 @@
                 <div class="form-check form-switch">
                 </div>
             </div>
-            <select class="form-multi-select" id="multiple-select-tag" multiple    asp-for="OrganizationID"  asp-items="@ViewBag.OrganizationDD"
+            <select class="form-multi-select"  multiple    asp-for="OrganizationID"  asp-items="@ViewBag.OrganizationDD"
                     data-coreui-selection-type="tags" data-coreui-search="true">
                 <option value="">Select Company</option>
                 
             </select>
+            <span id="OrganizationID-error" class="text-danger"></span>
         </div>
     </div>
 
@@ -54,15 +56,15 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">House Rent Allowance Rate</label>
-            <select class="form-select mb-3 choiceDD" asp-for="HouseRentAllowanceRate">
+            <select class="form-select mb-3 choiceDD" asp-for="HouseRentAllowanceRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                <option>35 %</option>
+               @*  <option>35 %</option>
                 <option>40 %</option>
                 <option>45 %</option>
                 <option>50 %</option>
                 <option>60 %</option>
                 <option>70 %</option>
-                <option>100 %</option>
+                <option>100 %</option> *@
             </select>
         </div>
     </div>
@@ -72,8 +74,7 @@
             <label class="form-label" for="timepicker1">Allowance Depends on</label>
             <select class="form-select choiceDD" asp-items="@ViewBag.SalaryTypesDD as SelectList" asp-for="HRentDependsOnSalaryTypeID">
                 <option value="">Select Salary</option>
-                <option>Gross Salary</option>
-                <option >Basic Salary</option>
+                
             </select>
         </div>
     </div>
@@ -92,11 +93,11 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Medical Allowance Rate</label>
-            <select class="form-select mb-3 choiceDD" asp-for="MedicalAllowanceRate" >
+            <select class="form-select mb-3 choiceDD" asp-for="MedicalAllowanceRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                <option>8 %</option>
+               @*  <option>8 %</option>
                 <option>10 %</option>
-                <option>15 %</option>
+                <option>15 %</option> *@
             </select>
         </div>
     </div>
@@ -125,11 +126,11 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Conveyance Allowance Rate</label>
-            <select class="form-select mb-3 choiceDD" asp-for="ConveyanceAllowanceRate">
+            <select class="form-select mb-3 choiceDD" asp-for="ConveyanceAllowanceRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                <option>8 %</option>
+                @* <option>8 %</option>
                 <option>10 %</option>
-                <option>15 %</option>
+                <option>15 %</option> *@
             </select>
         </div>
     </div>
@@ -148,10 +149,10 @@
     <div class="col-12">
         <div class="row g-3 justify-content-end">
             <div class="col-auto">
-                <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                <button class="btn btn-phoenix-primary px-5" id="ResetButton">Cancel</button>
             </div>
             <div class="col-auto">
-                <button class="btn btn-primary px-5 px-sm-15">Save</button>
+                <button class="btn btn-primary px-5 px-sm-15"  id="PayRollEmpAllowanceSave">Save</button>
             </div>
         </div>
     </div>

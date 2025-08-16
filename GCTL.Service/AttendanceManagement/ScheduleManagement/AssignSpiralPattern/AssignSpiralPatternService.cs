@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
@@ -25,8 +26,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
         private readonly IGenericRepository<SpiralBioWeeklyPattern> _spiralBioWeeklyPatternRepository;
         private readonly IGenericRepository<SpiralMonthlyPattern> _spiralMonthlyPatternRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeesRepository;
+        private readonly IGenericRepository<Departments> _departments;
 
-        public AssignSpiralPatternService(IGenericRepository<SpiralPatternAssignList> genericRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<SpiralPatternTypes> spiralPatternTypeRepository, IGenericRepository<SpiralWeeklyPattern> spiralWeeklyPatternRepository, IGenericRepository<SpiralBioWeeklyPattern> spiralBioWeeklyPatternRepository, IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPatternRepository, IGenericRepository<Data.Models.Employees> employeesRepository) : base(genericRepository)
+        public AssignSpiralPatternService(IGenericRepository<SpiralPatternAssignList> genericRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<SpiralPatternTypes> spiralPatternTypeRepository, IGenericRepository<SpiralWeeklyPattern> spiralWeeklyPatternRepository, IGenericRepository<SpiralBioWeeklyPattern> spiralBioWeeklyPatternRepository, IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPatternRepository, IGenericRepository<Data.Models.Employees> employeesRepository, IGenericRepository<Departments> departments) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
@@ -36,6 +38,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
             _spiralBioWeeklyPatternRepository = spiralBioWeeklyPatternRepository;
             _spiralMonthlyPatternRepository = spiralMonthlyPatternRepository;
             _employeesRepository = employeesRepository;
+            _departments = departments;
         }
         #endregion
 
@@ -54,18 +57,29 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                     {
                         var existingEntity = await _genericRepository.All()
                             .Where(e => e.OrganizationID == employee.OrganizationID 
+                            && e.DepartmentID == employee.DepartmentID
                             && e.EmployeeID == employee.EmployeeID
                             && e.StartDate == model.StartDate 
-                            && e.EndDate == model.EndDate)
+                            && e.EndDate == model.EndDate
+                            && e.DeletedAt != null && e.DeletedBy != null)
                             .FirstOrDefaultAsync();
                         if (existingEntity != null)
                         {
-
+                            SpiralPatternAssignList entity = new SpiralPatternAssignList();
+                            entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
+                            entity.SpiralPatternID = model.SpiralPatternID;
+                            entity.CreatedBy = model.CreatedBy;
+                            entity.CreatedAt = DateTime.Now;
+                            entity.LIP = model.LIP;
+                            entity.LMAC = model.LMAC;
+                            entity.DeletedAt = null;
+                            entity.DeletedBy = null;
                         }
                         else
                         {
                             SpiralPatternAssignList entity = new SpiralPatternAssignList();
                             entity.OrganizationID = model.OrganizationID;
+                            entity.DepartmentID = employee.DepartmentID;
                             entity.EmployeeID = employee.EmployeeID;
                             entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
                             entity.SpiralPatternID = model.SpiralPatternID;
@@ -89,17 +103,29 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                         {
                             var existingEntity = await _genericRepository.All()
                                 .Where(e => e.OrganizationID == employee.OrganizationID
+                                && e.DepartmentID == employee.DepartmentID
                                 && e.EmployeeID == employee.EmployeeID
                                 && e.StartDate == model.StartDate
-                                && e.EndDate == model.EndDate)
+                                && e.EndDate == model.EndDate
+                                && e.DeletedAt != null && e.DeletedBy != null)
                                 .FirstOrDefaultAsync();
                             if (existingEntity != null)
                             {
+                                SpiralPatternAssignList entity = new SpiralPatternAssignList();
+                                entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
+                                entity.SpiralPatternID = model.SpiralPatternID;
+                                entity.CreatedBy = model.CreatedBy;
+                                entity.CreatedAt = DateTime.Now;
+                                entity.LIP = model.LIP;
+                                entity.LMAC = model.LMAC;
+                                entity.DeletedAt = null;
+                                entity.DeletedBy = null;
                             }
                             else
                             {
                                 SpiralPatternAssignList entity = new SpiralPatternAssignList();
                                 entity.OrganizationID = model.OrganizationID;
+                                entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = employee.EmployeeID;
                                 entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
                                 entity.SpiralPatternID = model.SpiralPatternID;
@@ -123,17 +149,29 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                         {
                             var existingEntity = await _genericRepository.All()
                                 .Where(e => e.OrganizationID == employee.OrganizationID
+                                && e.DepartmentID == employee.DepartmentID
                                 && e.EmployeeID == employee.EmployeeID
                                 && e.StartDate == model.StartDate
-                                && e.EndDate == model.EndDate)
+                                && e.EndDate == model.EndDate
+                                && e.DeletedAt != null && e.DeletedBy != null)
                                 .FirstOrDefaultAsync();
                             if (existingEntity != null)
                             {
+                                SpiralPatternAssignList entity = new SpiralPatternAssignList();
+                                entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
+                                entity.SpiralPatternID = model.SpiralPatternID;
+                                entity.CreatedBy = model.CreatedBy;
+                                entity.CreatedAt = DateTime.Now;
+                                entity.LIP = model.LIP;
+                                entity.LMAC = model.LMAC;
+                                entity.DeletedAt = null;
+                                entity.DeletedBy = null;
                             }
                             else
                             {
                                 SpiralPatternAssignList entity = new SpiralPatternAssignList();
                                 entity.OrganizationID = model.OrganizationID;
+                                entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = employee.EmployeeID;
                                 entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
                                 entity.SpiralPatternID = model.SpiralPatternID;
@@ -178,8 +216,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                 {
                     SpiralPatternAssignListID = entity.SpiralPatternAssignListID,
                     EditOrganizationID = entity.OrganizationID,
-                    EditDepartmentIDs = entity.DepartmentID.HasValue ? new List<int> { entity.DepartmentID.Value } : new List<int>(),
-                    EditEmployeeIDs = entity.EmployeeID.HasValue ? new List<int> { entity.EmployeeID.Value } : new List<int>(),
+                    EditDepartmentID = entity.DepartmentID,
+                    EditEmployeeID = entity.EmployeeID,
                     EditSpiralPatternTypeID = entity.SpiralPatternTypeID,
                     EditSpiralPatternID = entity.SpiralPatternID,
                     EditStartDate = entity.StartDate,
@@ -212,7 +250,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                         
                         join org in _organizationRepository.All().AsNoTracking() on spa.OrganizationID equals org.OrganizationID into orgGroup
                         from org in orgGroup.DefaultIfEmpty()
-                        
+
+                        join dep in _departments.All().AsNoTracking() on spa.DepartmentID equals dep.DepartmentID into depGroup
+                        from dep in depGroup.DefaultIfEmpty()
+
                         join spt in _spiralPatternTypeRepository.All().AsNoTracking() on spa.SpiralPatternTypeID equals spt.SpiralPatternTypeID into sptGroup
                         from spt in sptGroup.DefaultIfEmpty()
                         
@@ -229,6 +270,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                             SpiralPatternAssignListID = spa.SpiralPatternAssignListID,
                             OrganizationID = spa.OrganizationID,
                             OrganizationName = org.OrganizationName ?? "-",
+                            DepartmentID = spa.DepartmentID,
+                            DepartmentName = dep.DepartmentName ?? "-",
                             EmployeeID = spa.EmployeeID,
                             EmployeeName = $"{emp.FirstName} {emp.LastName}",
                             SpiralPatternTypeID = spa.SpiralPatternTypeID,
@@ -395,6 +438,47 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                 }).AsNoTracking().ToListAsync();
 
             return rawData;
+        }
+        #endregion
+
+
+        #region SoftDeleteAsync
+        public async Task<AssignSpiralPatternDeleteVM> SoftDeleteAsync(DeleteRequestVM requestVM)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.SpiralPatternAssignListID));
+                if (data == null || data.Count == 0)
+                {
+                    return new AssignSpiralPatternDeleteVM
+                    {
+                        Message = "No data found to delete."
+                    };
+                }
+
+                foreach (var item in data)
+                {
+                    item.DeletedAt = DateTime.Now;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
+                    item.DeletedBy = requestVM.DeletedBy;
+                }
+
+                await _genericRepository.UpdateRangeAsync(data);
+
+                await _genericRepository.CommitTransactionAsync();
+
+                return new AssignSpiralPatternDeleteVM
+                {
+                    Message = $"{data.Count} data(s) deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                throw new Exception("Error occurred during the deletion of data.", ex);
+            }
         }
         #endregion
     }

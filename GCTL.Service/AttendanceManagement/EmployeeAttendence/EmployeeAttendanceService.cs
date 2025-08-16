@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,8 +26,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         private readonly IGenericRepository<Holidays> _genericHolidays;
         private readonly IGenericRepository<EmployeeOfficeInfo> _genericEmployeeOfficeInfo;
         private readonly IGenericRepository<AttendanceLog> _genericAttendanceLog;
+        private readonly ILocalizationContext _localizationContext;
 
-        public EmployeeAttendanceService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<Shifts> genericRepositoryShift, IGenericRepository<Holidays> genericHolidays, IGenericRepository<WeekendDays> genericWeekdays, IGenericRepository<WeekendSettings> genericWeekSettings, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, IGenericRepository<AttendanceLog> genericAttendanceLog) : base(genericRepository)
+        public EmployeeAttendanceService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<Shifts> genericRepositoryShift, IGenericRepository<Holidays> genericHolidays, IGenericRepository<WeekendDays> genericWeekdays, IGenericRepository<WeekendSettings> genericWeekSettings, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, IGenericRepository<AttendanceLog> genericAttendanceLog, ILocalizationContext localizationContext) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -36,6 +38,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             _genericWeekSettings = genericWeekSettings;
             _genericEmployeeOfficeInfo = genericEmployeeOfficeInfo;
             _genericAttendanceLog = genericAttendanceLog;
+            _localizationContext = localizationContext;
         }
 
         public async Task<PaginationService<Attendance, EmployeeAttendenceVM>.PaginationResult<EmployeeAttendenceVM>> GetAllAsync(
@@ -207,6 +210,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
         public async Task<IActionResult> GetEmployeePunchTimeline(int userId)
         {
+
             var punches = await _genericAttendanceLog.All()
                 .Where(x => x.DeletedAt == null &&
                             x.Attendance.EmployeeID == userId &&
@@ -216,6 +220,48 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 .ToListAsync();
 
             return new JsonResult(new { punches }); // Replace 'Json' with 'JsonResult'
+        }
+
+        public async Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId)
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            // Pull only PunchTime from DB
+            var punchTimes = await _genericAttendanceLog.All()
+                .Where(x => x.DeletedAt == null
+                            && x.Attendance.EmployeeID == userId
+                            && x.PunchTime >= today
+                            && x.PunchTime < tomorrow)
+                .OrderBy(x => x.PunchTime)
+                .Select(x => x.PunchTime)
+                
+                .ToListAsync();
+
+            var result = punchTimes
+               // consistent with your ViewBag logic
+                .Select((x, index) =>
+                {
+                    var localTime = x.ToOrgTime(_localizationContext);
+                   // var formatted = localTime;
+                   // ctx.TimePattern = "h:mm tt"; // e.g., "7:30 PM"
+
+
+
+
+                    var type = index % 2 == 0 ? "Punch In" : "Punch Out";
+
+                    return new PunchActivityDto
+                    {
+                        Type = type,
+                        Time = localTime.ToString(),
+                        Description = type + " "
+                    };
+                }).ToList();
+
+
+
+            return result;
         }
         public async Task<IActionResult> CalculateWorkingHours(int attendanceId)
         {

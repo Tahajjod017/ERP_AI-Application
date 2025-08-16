@@ -1,4 +1,6 @@
-﻿using GCTL.Data.Models;
+﻿using GCTL.Core.Helpers;
+using GCTL.Data.Models;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -10,9 +12,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
     public class EmployeesAttendanceController : BaseController
     {
         private readonly IEmployeeAttendanceReport _employeeAttendanceReport;
-        public EmployeesAttendanceController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAttendanceReport employeeAttendanceReport) : base(translateService, userProfileService)
+        private readonly ILocalizationContext _loc;
+        public EmployeesAttendanceController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAttendanceReport employeeAttendanceReport, ILocalizationContext loc) : base(translateService, userProfileService)
         {
             _employeeAttendanceReport = employeeAttendanceReport;
+            _loc = loc;
         }
 
         public async Task<IActionResult> Index()
@@ -26,7 +30,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             // user profile  
             SetUserProfile();
             // Get the current time from the server  
-            var serverTime = DateTime.Now.ToString("hh:mm tt, dd MMM yyyy");
+           
 
             int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
 
@@ -50,9 +54,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             {
                 // Handle the case where currentEmployeeId is null if necessary  
             }
-            
+            var serverTime = DateTime.Now.ToString("hh:mm tt, dd MMM yyyy");
             // Pass the current time to the view  
-            ViewData["CurrentTime"] = serverTime;
+            ViewData["CurrentTime"] = DateTimeExtensions.NowDateTime(_loc);
 
 
 
@@ -103,7 +107,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeAttendanceActivity()
+        {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
 
+            if (!currentEmployeeId.HasValue)
+            {
+                return Json(null);
+            }
+
+            // Use the interface method
+            var attendanceData = await _employeeAttendanceReport
+                .GetEmployeePunchActivityAsync(currentEmployeeId.Value);
+
+            return Json(attendanceData);
+        }
 
 
     }

@@ -15,7 +15,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
     {
         Task<bool> AddAsync(AssignSpiralPatternSetupVM model);
         //Task<bool> UpdateAsync(AssignSpiralPatternEditVM model);
-        //Task<AssignSpiralPatternDeleteVM> SoftDeleteAsync(DeleteRequestVM model);
+        Task<AssignSpiralPatternDeleteVM> SoftDeleteAsync(DeleteRequestVM model);
         Task<AssignSpiralPatternEditVM> GetByIdAsync(int id);
 
         Task<SeparatePaginationResult<AssignSpiralPatternListVM>> GetAllAsync(

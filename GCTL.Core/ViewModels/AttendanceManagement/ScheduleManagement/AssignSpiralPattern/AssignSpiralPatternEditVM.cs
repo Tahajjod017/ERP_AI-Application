@@ -15,9 +15,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpi
         [Required(ErrorMessage = "{0} is required!"), DisplayName("Organization")]
         public int? EditOrganizationID { get; set; }
 
-        public List<int>? EditDepartmentIDs { get; set; }
+        public int? EditDepartmentID { get; set; }
 
-        public List<int>? EditEmployeeIDs { get; set; }
+        public int? EditEmployeeID { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), DisplayName("Spiral Pattern Type")]
         public int? EditSpiralPatternTypeID { get; set; }

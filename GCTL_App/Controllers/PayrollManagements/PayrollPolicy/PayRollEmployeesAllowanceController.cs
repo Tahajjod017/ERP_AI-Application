@@ -6,6 +6,7 @@ using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -37,18 +38,25 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             return View(model);
         }
         #region Save Data
+       
         [Route("PayRollEmployeesAllowance/SavePayRollEmpAlowance")]
+        [HttpPost]
+        
         public async Task<IActionResult> SavePayRollEmpAlowance(PayRollEmpAllowanceSaveVM model)
         {
             try
             {
-               var data=await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
-                return Json(data);  
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var data=await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
+                return Ok(data);  
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return Json(new { success = false, message = ex.Message });
+               
             }
         }
         #endregion

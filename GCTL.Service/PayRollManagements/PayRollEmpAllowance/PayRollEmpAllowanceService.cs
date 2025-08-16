@@ -26,7 +26,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
             try
             {
-                if (entityVM == null)
+                if (entityVM == null || entityVM.OrganizationID==null)
                 {
                     result.Success = false;
                     result.Message = "Data Not Found";
@@ -39,8 +39,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 {
                     OrganizationID = entityVM.OrganizationID,
                     IsConveyanceAllowanceEnabled = entityVM.IsConveyanceAllowanceEnabled,
+                    IsMobileInternetAllowanceEnabled=entityVM.IsMobileInternetAllowanceEnabled,
+                    IsMedicalAllowanceEnabled= entityVM.IsMedicalAllowanceEnabled,
                     MobileInternetAllowance = entityVM.MobileInternetAllowance,
-                    IsHouseRentAllowanceEnabled = entityVM.IsHouseRentAllowanceEnabled, // FIXED: Was mistakenly using IsConveyanceAllowanceEnabled
+                    IsHouseRentAllowanceEnabled = entityVM.IsHouseRentAllowanceEnabled, 
                     HouseRentAllowanceRate = entityVM.HouseRentAllowanceRate,
                     IsShiftAllowanceEnabled = entityVM.IsShiftAllowanceEnabled,
                     ShiftAllowance = entityVM.ShiftAllowance,
@@ -49,6 +51,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     MedicalAllowanceRate = entityVM.MedicalAllowanceRate,
                     ConAllowDepOnSalaryTypeID = entityVM.ConAllowDepOnSalaryTypeID,
                     ConveyanceAllowanceRate = entityVM.ConveyanceAllowanceRate,
+                    LIP=entityVM.LIP,
+                    LMAC=entityVM.LMAC,
+                    CreatedAt=DateTime.Now, 
+                    CreatedBy=entityVM.CreatedBy,
                 };
 
                 await empAllowance.AddAsync(entity);

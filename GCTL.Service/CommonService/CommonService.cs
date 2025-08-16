@@ -67,7 +67,7 @@ namespace GCTL.Service.CommonService
             var result = await _organization.AllActive().AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.OrganizationID,
-                Name = x.OrganizationName
+                Name = x.OrganizationName ?? "-"
             }).ToListAsync();
 
             return result;
@@ -92,7 +92,7 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.OrganizationID,
-                    Name = x.OrganizationName
+                    Name = x.OrganizationName ?? "-"
                 })
                 .ToListAsync();
 
@@ -111,7 +111,7 @@ namespace GCTL.Service.CommonService
             var result = await _organizationBranches.AllActive().AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.OrganizationBranchID,
-                Name = x.OrganizationBranchName
+                Name = x.OrganizationBranchName ?? "-"
             }).ToListAsync();
 
             return result;
@@ -130,8 +130,8 @@ namespace GCTL.Service.CommonService
                                 select new CommonSelectVM
                                 {
                                     Id = dep.DepartmentID,
-                                    Name = dep.DepartmentName,
-                                    GroupName = org.OrganizationName
+                                    Name = dep.DepartmentName ?? "-",
+                                    GroupName = org.OrganizationName ?? "-"
                                 }).ToListAsync();
 
             return result;
@@ -153,8 +153,8 @@ namespace GCTL.Service.CommonService
                               select new CommonSelectVM
                               {
                                   Id = empOi.EmployeeID ?? 0,
-                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
-                                  GroupName = dep.DepartmentName
+                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
+                                  GroupName = dep.DepartmentName ?? "-"
                               }).ToListAsync();
             return data;
         }
@@ -167,7 +167,7 @@ namespace GCTL.Service.CommonService
             var result = await _shifts.AllActive().AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.ShiftID,
-                Name = $"{x.ShiftName} ({x.StartTime} - {x.EndTime})"
+                Name = $"{x.ShiftName} ({x.StartTime} - {x.EndTime})" ?? "-"
             }).ToListAsync();
 
             return result;
@@ -181,7 +181,7 @@ namespace GCTL.Service.CommonService
             var result = await _compensationTypes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.CompensationTypeID,
-                Name = $"{x.CompensationTypeName}"
+                Name = $"{x.CompensationTypeName}" ?? "-"
             }).ToListAsync();
 
             return result;
@@ -195,7 +195,7 @@ namespace GCTL.Service.CommonService
             var result = await _spiralPatternTypes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.SpiralPatternTypeID,
-                Name = x.SpiralPatternTypeName
+                Name = x.SpiralPatternTypeName ?? "-"
             }).ToListAsync();
 
             return result;
@@ -210,8 +210,8 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.SpiralWeeklyPatternID,
-                    Name = x.SpiralWeeklyPatternName,
-                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                    Name = x.SpiralWeeklyPatternName ?? "-",
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName ?? "-"
                 })
                 .ToListAsync();
 
@@ -219,8 +219,8 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.SpiralBioWeeklyPatternID,
-                    Name = x.SpiralBioWeeklyPatternName,
-                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                    Name = x.SpiralBioWeeklyPatternName ?? "-",
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName ?? "-"
                 })
                 .ToListAsync();
 
@@ -228,8 +228,8 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.SpiralMonthlyPatternID,
-                    Name = x.SpiralMonthlyPatternName,
-                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                    Name = x.SpiralMonthlyPatternName ?? "-",
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName ?? "-"
                 })
                 .ToListAsync();
 
@@ -252,8 +252,8 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.SpiralWeeklyPatternID,
-                    Name = x.SpiralWeeklyPatternName,
-                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                    Name = x.SpiralWeeklyPatternName ?? "-",
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName ?? "-"
                 })
                 .ToListAsync();
 
@@ -262,8 +262,8 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.SpiralBioWeeklyPatternID,
-                    Name = x.SpiralBioWeeklyPatternName,
-                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                    Name = x.SpiralBioWeeklyPatternName ?? "-",
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName ?? "-"
                 })
                 .ToListAsync();
 
@@ -272,8 +272,8 @@ namespace GCTL.Service.CommonService
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.SpiralMonthlyPatternID,
-                    Name = x.SpiralMonthlyPatternName,
-                    GroupName = x.SpiralPatternType.SpiralPatternTypeName
+                    Name = x.SpiralMonthlyPatternName ?? "-",
+                    GroupName = x.SpiralPatternType.SpiralPatternTypeName ?? "-"
                 })
                 .ToListAsync();
 
@@ -299,7 +299,7 @@ namespace GCTL.Service.CommonService
             var result = await query.Select(b => new CommonSelectVM
             {
                 Id = b.OrganizationBranchID,
-                Name = b.OrganizationBranchName
+                Name = b.OrganizationBranchName ?? "-"
             }).ToListAsync();
 
             return result;
@@ -320,8 +320,8 @@ namespace GCTL.Service.CommonService
                                 select new CommonSelectVM
                                 {
                                     Id = dep.DepartmentID,
-                                    Name = dep.DepartmentName,
-                                    GroupName = org.OrganizationName
+                                    Name = dep.DepartmentName ?? "-",
+                                    GroupName = org.OrganizationName ?? "-"
                                 }).ToListAsync();
 
             return result;
@@ -345,8 +345,8 @@ namespace GCTL.Service.CommonService
                               select new CommonSelectVM
                               {
                                   Id = empOi.EmployeeID ?? 0,
-                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})",
-                                  GroupName = dep.DepartmentName
+                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
+                                  GroupName = dep.DepartmentName ?? "-"
                               }).ToListAsync();
             return data;
         }
@@ -388,8 +388,8 @@ namespace GCTL.Service.CommonService
             var data = await query.Select(x => new CommonSelectVM
             {
                 Id = x.EmployeeID ?? 0,
-                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
-                GroupName = x.DepartmentName
+                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
+                GroupName = x.DepartmentName ?? "-"
             }).ToListAsync();
 
             return data;
@@ -408,7 +408,7 @@ namespace GCTL.Service.CommonService
             var result = await query.Select(s => new CommonSelectVM
             {
                 Id = s.ShiftID,
-                Name = $"{s.ShiftName} ({s.StartTime} - {s.EndTime})"
+                Name = $"{s.ShiftName} ({s.StartTime} - {s.EndTime})" ?? "-"
             }).ToListAsync();
 
             return result;
@@ -457,8 +457,8 @@ namespace GCTL.Service.CommonService
             var result = await query.Select(x => new CommonSelectVM
             {
                 Id = x.EmployeeID ?? 0,
-                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
-                GroupName = x.DepartmentName
+                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
+                GroupName = x.DepartmentName ?? "-"
             }).ToListAsync();
 
             return result;
@@ -482,8 +482,8 @@ namespace GCTL.Service.CommonService
                         (ws, days) => new
                         {
                             WeekendSettingID = ws.WeekendSettingID,
-                            OrganizationName = ws.Organization.OrganizationName,
-                            WeekdayNumbers = string.Join(", ", days.Select(d => d.WeekdayNumber))
+                            OrganizationName = ws.Organization.OrganizationName ?? "-",
+                            WeekdayNumbers = string.Join(", ", days.Select(d => d.WeekdayNumber)) ?? "-"
                         })
                     .ToListAsync();
 

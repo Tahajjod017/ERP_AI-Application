@@ -8,33 +8,18 @@
             saveBtn: '#assignSpiralPattern-saveBtn',
             editBtn: '#assignSpiralPattern-editBtn',
             updateBtn: '#assignSpiralPatter-updateBtn',
-            deleteBtn: '#assignSpiralPattern-singleDelBtn',
+            bulkDelBtn: '#assignSpiralPattern-delSel',
+            singleDelBtn: '#assignSpiralPattern-singleDelBtn',
             resetBtn: '#assignSpiralPattern-resetBtn',
             editModal: '#assignSpiralPatternEditModal',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAllAsync";
         var editUrl = settings.baseUrl + "/GetByIdAsync";
+        var deleteUrl = settings.baseUrl + "/Delete";
         $(() => {
 
 
-            editOrgSelecetChoices = new Choices('#EditOrganizationID', {
-                removeItemButton: true,
-                shouldSort: false,
-                placeholderValue: 'Select Organization...'
-            });
-
-            editPatternTypeChoices = new Choices('#EditSpiralPatternTypeID', {
-                removeItemButton: true,
-                shouldSort: false,
-                placeholderValue: 'Select Spiral Patern Type...'
-            });
-
-            editSpiralPatternChoices = new Choices('#EditSpiralPatternID', {
-                removeItemButton: true,
-                shouldSort: false,
-                placeholderValue: 'Select Spiral Patern...'
-            });
 
 
             // #region Save
@@ -79,18 +64,27 @@
                     type: 'GET',
                     data: { id: id },
                     success: function (result) {
-                        debugger
                         const modal = $(settings.editModal);
                         modal.modal('show')
 
                         $('#SpiralPatternAssignListID').val(result.spiralPatternAssignListID);
                         editOrgSelecetChoices.setChoiceByValue(result.editOrganizationID.toString());
-                        $('#EditDepartmentIDs').val(result.editDepartmentIDs).trigger('change');
-                        $('#EditEmployeeIDs').val(result.editEmployeeIDs).trigger('change');
+
+                        // ✅ DEPARTMENT MULTI SELECT
+                        $('#EditDepartmentID').val(result.editDepartmentID).each(function () {
+                            coreui.MultiSelect.getInstance(this)?.update();
+                        });
+
+                        // ✅ EMPLOYEEE MULTI SELECT
+                        $('#EditEmployeeID').val(result.editEmployeeID).each(function () {
+                            coreui.MultiSelect.getInstance(this)?.update();
+                        });
+
+
                         editPatternTypeChoices.setChoiceByValue(result.editSpiralPatternTypeID.toString());
                         editSpiralPatternChoices.setChoiceByValue(result.editSpiralPatternID.toString());
-                        $('#EditStartDate').val(result.editStartDate);
-                        $('#EditEndDate').val(result.editEndDate);
+                        $('#EditStartDate')[0]._flatpickr.setDate(result.editStartDate, true);
+                        $('#EditEndDate')[0]._flatpickr.setDate(result.editEndDate, true);
                     },
                     error: function () {
                         console.log('Something went wrong!');
@@ -100,7 +94,109 @@
             // #endregion
 
 
-            // #region reset
+            // #region Delete
+            $(document).on('click', settings.bulkDelBtn, function () {
+                debugger
+                var selectedItems = $(".assignSpiralPattern-selectItem:checked");
+                var selectedIds = [];
+
+                selectedItems.each(function () {
+                    selectedIds.push($(this).data('id'));
+                });
+
+                if (selectedIds.length > 0) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'POST',
+                            data: { ids: selectedIds },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.info("Please select at least one item to delete.");
+                }
+            });
+
+            $(document).on('click', settings.singleDelBtn, function () {
+                var id = $(this).data('id');
+
+                if (id) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'POST',
+                            data: { ids: [id] },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.error("Invalid action.");
+                }
+            });
+            // #endregion
+
+
+            // #region toggleBulkActions
+            $(document).ready(function () {
+                $('#assignSpiralPattern-check-all').on('change', function () {
+                    var isChecked = $(this).prop('checked');
+                    $('.assignSpiralPattern-selectItem').prop('checked', isChecked);
+
+                    toggleBulkActions();
+                });
+
+                $(document).on('change', '.assignSpiralPattern-selectItem', function () {
+                    toggleBulkActions();
+                });
+            });
+
+            function toggleBulkActions() {
+                const allItems = $('.assignSpiralPattern-selectItem');
+                const checkedItems = $('.assignSpiralPattern-selectItem:checked');
+
+                const allChecked = allItems.length === checkedItems.length;
+                const someChecked = checkedItems.length > 0 && !allChecked;
+
+                $('#assignSpiralPattern-check-all').prop('checked', allChecked);
+                $('#assignSpiralPattern-check-all').prop('indeterminate', someChecked);
+
+                if (checkedItems.length > 1) {
+                    $('#assignSpiralPattern-bulkSelectActions').removeClass('d-none');
+                    $('#assignSpiralPattern-searchBox').addClass('d-none');
+                    $('.assignSpiralPattern-bulkDelete').addClass('disabled');
+                    $('.assignSpiralPattern-bulkEdit').addClass('disabled');
+                } else {
+                    $('#assignSpiralPattern-bulkSelectActions').addClass('d-none');
+                    $('#assignSpiralPattern-searchBox').removeClass('d-none');
+                    $('.assignSpiralPattern-bulkDelete').removeClass('disabled');
+                    $('.assignSpiralPattern-bulkEdit').removeClass('disabled');
+                }
+            }
+            // #endregion
+
+
+            // #region clear
             $(settings.resetBtn).on('click', function (e) {
                 e.preventDefault();
                 clear();
@@ -145,6 +241,7 @@
                 initOrganizationDD();
                 initSpiralPatternTypeDD();
                 initSpiralPatternDD();
+                toggleBulkActions();
                 loadTableData();
             }
             // #endregion
@@ -363,6 +460,25 @@
             }
             document.addEventListener('DOMContentLoaded', initSpiralPatternDD);
             initSpiralPatternDD();
+
+
+            editOrgSelecetChoices = new Choices('#EditOrganizationID', {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholderValue: 'Select Organization...'
+            });
+
+            editPatternTypeChoices = new Choices('#EditSpiralPatternTypeID', {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholderValue: 'Select Spiral Patern Type...'
+            });
+
+            editSpiralPatternChoices = new Choices('#EditSpiralPatternID', {
+                removeItemButton: true,
+                shouldSort: false,
+                placeholderValue: 'Select Spiral Patern...'
+            });
             // #endregion
 
 
@@ -641,11 +757,14 @@
                         response.data.forEach(function (item, index) {
                             tableBody.append(`
                                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                    <td class="text-center text-middle align-middle" style="width: 5%;">
+                                        <input type="checkbox" class="form-check-input assignSpiralPattern-selectItem" data-id="${item.spiralPatternAssignListID}" />
+                                    </td>
                                     <td class="align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
                                         <h5>${item.organizationName}</h5>
                                     </td>
                                     <td class="align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
-                                        <h5>Developer</h5>
+                                        <h5>${item.departmentName}</h5>
                                     </td>
                                     <td class="align-middle white-space-nowrap fw-semibold text-body py-2 ps-3">
                                         <h5>${item.employeeName}</h5>
@@ -662,8 +781,8 @@
                                             <span>${item.spiralPatternName}</span>
                                         </a>
                                     </td>
-                                    <td class="py-1 ps-3">${item.startDate}</td>
-                                    <td class="py-1 ps-3">${item.endDate}</td>
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-1 ps-3">${item.startDate}</td>
+                                    <td class="align-middle white-space-nowrap fw-semibold text-body py-1 ps-3">${item.endDate}</td>
                                     <td class="text-end align-middle white-space-nowrap py-1 ps-3">
                                         <div class="row g-3">
                                             <a href="#!" class="btn btn-outline-light btn-icon assignSpiralPattern-bulkEdit me-2"
@@ -672,8 +791,6 @@
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>
                                             <a href="#!" class="btn btn-outline-light btn-icon assignSpiralPattern-bulkDelete"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#cancel_modal"
                                                 id="assignSpiralPattern-singleDelBtn"
                                                 data-id="${item.spiralPatternAssignListID}" >
                                                 <i class="far fa-trash-alt text-black"></i>
