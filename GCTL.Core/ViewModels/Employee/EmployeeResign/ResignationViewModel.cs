@@ -19,5 +19,6 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeResign
         public int? EmployeeId { get; set; }
         public int? CompanyId { get; set; }
         public string Image { get; set; }
+        public string REmpCode { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
 
@@ -13,8 +14,8 @@ namespace GCTL.Service.Employees.EmployeeResign
         object GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate, string toDate, string imgSrcThumb);
         Task<CommonReturnViewModel> InsertResignation(ResignationPostViewModel model);
         CommonReturnViewModel UpdateResignation(int resignationId, ResignationPostViewModel model);
-        CommonReturnViewModel DeleteResignation(int resignationId);
-        ResignationViewModel GetResignationById(int resignationId);
+        CommonReturnViewModel DeleteResignation( DeleteRequestVM delete);
+        CommonReturnViewModel GetResignationById(int resignationId);
 
 
 
@@ -25,7 +26,7 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="department">Department ID filter.</param>
         /// <param name="designation">Designation ID filter.</param>
         /// <returns>A list of pending resignation view models.</returns>
-        Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation, string imgSrcThumb);
+        Task<List<ResignationGetViewModel>> GetPendingResignations(string dateRange, string department, string designation, string imgSrcThumb, int? currentUser);
 
         /// <summary>
         /// Retrieves a list of processed resignations based on provided filters.
@@ -34,7 +35,7 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="department">Department ID filter.</param>
         /// <param name="designation">Designation ID filter.</param>
         /// <returns>A list of processed resignation view models.</returns>
-        Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation, string imgSrcThumb);
+        Task<List<ResignationGetViewModel>> GetProcessedResignations(string dateRange, string department, string designation, string imgSrcThumb, int? currentUser);
 
         /// <summary>
         /// Retrieves details of a specific resignation by its ID.
@@ -54,6 +55,6 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="clearanceCompleted">Whether department clearance is completed.</param>
         /// <param name="documentsPrepared">Whether exit documents are prepared.</param>
         /// <returns>A result object indicating success or failure with a message.</returns>
-        Task<(bool Success, string Message)> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared);
+        Task<CommonReturnViewModel> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared, CommonBaseViewModel? baseModel);
     }
 }

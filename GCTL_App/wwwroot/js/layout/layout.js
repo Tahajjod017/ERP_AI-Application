@@ -209,6 +209,7 @@ function showDev(message, headerText = 'console') {
 
     const toast = document.createElement("div");
 
+   
     Object.assign(toast.style, {
         background: "#333",
         color: "#fff",
@@ -218,10 +219,15 @@ function showDev(message, headerText = 'console') {
         opacity: "0",
         transform: "translateY(20px)",
         transition: "opacity 0.3s ease, transform 0.3s ease",
-        maxWidth: "300px",
-       // minWidth: "300px",
         pointerEvents: "auto",
-        overflow: "hidden",
+        //maxWidth: "300px",
+        //minWidth: "300px",
+        //overflow: "hidden",
+        width: "300px",       // Initial fixed width
+        maxWidth: "800px",    // Allow resizing up to this limit
+        resize: "both", //    "horizontal"
+        overflow: "auto",    
+        
         maxHeight: "450px",
         display: "flex",
         flexDirection: "column",
@@ -332,6 +338,7 @@ function showDev(message, headerText = 'console') {
 
 //hideModal('new_resignation');
 function hideModal(id) {
+   
     const modalEl = document.getElementById(id);
     if (!modalEl) return;
 

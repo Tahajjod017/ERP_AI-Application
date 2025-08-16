@@ -22,8 +22,31 @@
                 type: 'GET',
                 data: { companyId: companyId },
                 success: function (data) {
-                    showDev(data)
+                    showDev(data , '1')
                     choiceManager.populateDropdown('employeeId', data)
+                },
+                error: function () {
+                    alert('Failed to load employees.');
+                }
+            });
+        } else {
+            $('#employeeId').empty().append('<option value="">Select Employee</option>');
+        }
+    });
+
+
+    $('#editCompany').on('change', function () {
+        const companyId = $(this).val();
+        const url = $(this).data('url');
+
+        if (companyId) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: { companyId: companyId },
+                success: function (data) {
+                    showDev(data , '2')
+                    choiceManager.populateDropdown('editEmployeeId', data)
                 },
                 error: function () {
                     alert('Failed to load employees.');
@@ -99,12 +122,20 @@
                                 </div>
                             </td>
                             <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
-                                <div class="d-flex align-items-center position-relative">
-                                    <a href="" class="avatar avatar-md me-2">
-                                        <img src="${item.image || item.Image}" class="rounded-circle" alt="user">
-                                    </a>
-                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.rEmpName || item.REmpName}</a>
+                                
+
+                                <div class="d-flex align-items-center file-name-icon">
+                                    <div class="avatar avatar-m avatar-bordered me-4">
+                                        <img class="rounded-circle" src="${item.image || '/images/default-avatar.png'}"
+                                             alt="${item.rEmpName}" onerror="this.src='/images/default-avatar.png'" />
+                                    </div>
+                                    <div class="ms-1">
+                                        <h6 class="fw-bold mb-0">${item.rEmpName}</h6>
+                                        <span class="fs-12 fw-normal text-muted">#${item.rEmpCode || 'N/A'}</span>
+                                    </div>
                                 </div>
+
+
                             </td>
                             <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.rEmpDept || item.REmpDept}</td>
                             <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.resignResons || item.ResignResons}</td>
@@ -233,12 +264,12 @@
                     loadTableData(); // Refresh the table
                 } else {
                     toastr.warning(response.message);
-                    showDev(response.message)
+                    showDev(response.message , '3')
                 }
             },
             error: function (ex) {
                 toastr.error('Failed to add resignation');
-                showDev(ex.message);
+                showDev(ex.message , '4');
             }
         });
     });
@@ -259,25 +290,60 @@
             data: { id: resignationId },
             success: function (response) {
                 if (response.success) {
+                    removeResignationFormReadonly();
                     const data = response.data;
-                    choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);
-                    choiceManager.setChoiceValue('editEmployeeId', data.employeeId || data.EmployeeId);
-                    flatpickrHelper.setDate('editNoticeDate', data.resNoticeDate || data.ResNoticeDate )
-                    flatpickrHelper.setDate('editResignationDate', data.resinDate || data.ResinDate )
-                    $('#edit_resignation textarea').val(data.resignResons || data.ResignResons);
+                    $('#duplicateMessage').text('');
+                    populateEditModal(data)
+                    
+                    
 
                  
 
                 } else {
-                    toastr.error(response.message);
+                    const data = response.data;
+                    if (data == null) {
+                        toastr.warning(response.message);
+                        clearResignationForm();
+                    } else {
+                        toastr.warning(response.message);
+                        $('#duplicateMessage').text(response.message);
+                        populateEditModal(data)
+                        makeResignationFormReadonly()
+                    }
+
+                    
                 }
             },
             error: function (ex) {
                 toastr.error('Failed to load resignation data');
-                showDev(ex.message);
+                showDev(ex.message , '5');
             }
         });
     });
+
+    function populateEditModal(data) {
+        choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);      
+        setTimeout(function () {          
+            choiceManager.setChoiceValue('editEmployeeId', data.employeeId || data.EmployeeId);
+        }, 500);
+        flatpickrHelper.setDate('editNoticeDate', data.resNoticeDate || data.ResNoticeDate)
+        flatpickrHelper.setDate('editResignationDate', data.resinDate || data.ResinDate)
+        $('#edit_resignation textarea').val(data.resignResons || data.ResignResons);
+    }
+
+    function removeResignationFormReadonly() {
+        choiceManager.enableChoice('editCompany')
+        choiceManager.enableChoice('editEmployeeId')
+        flatpickrHelper.enable('editNoticeDate', 'editResignationDate');
+        $('#edit_resignation textarea').prop('readonly', false);
+    }
+
+    function makeResignationFormReadonly() {
+        choiceManager.disableChoice('editCompany')
+        choiceManager.disableChoice('editEmployeeId')
+        flatpickrHelper.disable('editNoticeDate', 'editResignationDate');
+        $('#edit_resignation textarea').prop('readonly', true); 
+    }
 
     // Handle Edit Resignation Form Submit
     $('#edit_resignation form').on('submit', function (e) {
@@ -316,7 +382,7 @@
             },
             error: function (ex) {
                 toastr.error('Failed to update resignation');
-                showDev(ex.message)
+                showDev(ex.message, '6')
             }
         });
     });
@@ -343,15 +409,21 @@
         $.ajax({
             url: '/EmployeeResign/DeleteResignation',
             type: 'POST',
-            data: { id: currentEditingId },
+            data: { ids: currentEditingId },
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    $('#delete_modal').modal('hide');
+                    hideModal('delete_modal');
                     currentEditingId = null;
-                    loadTableData(); // Refresh the table
+                    loadTableData();
+                    showDev(response, '6')
+
                 } else {
-                    toastr.error(response.message);
+                    hideModal('delete_modal');
+                    $('#notDelete_modal').modal('show');
+                    toastr.warning(response.message);
+                    showDev(response, '7')
+
                 }
             },
             error: function () {
@@ -394,7 +466,16 @@
 
     //#endregion
 
-   
+    //#region close modal click
+
+    $('#ndCloseBtn').on('click', function () {
+       $('#notDelete_modal').modal('hide');
+        showDev('click close ', '8')
+    });
+
+    
+
+    //#endregion
 
 
     loadTableData();
