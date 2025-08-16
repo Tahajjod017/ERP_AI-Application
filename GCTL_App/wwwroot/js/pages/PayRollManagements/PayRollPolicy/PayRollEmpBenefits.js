@@ -24,8 +24,8 @@
 
     $("#PayRollEmpSave").on("click", function (e) {
         e.preventDefault();
-        if (!validateOrganization()) {
-            
+        if (!validateOrganization())
+        {
             return;
         }
         var formData = new FormData();
