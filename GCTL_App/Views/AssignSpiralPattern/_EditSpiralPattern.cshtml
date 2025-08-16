@@ -17,7 +17,7 @@
             <form asp-controller="AssignSpiralPattern" asp-action="Update" id="assignSpiralPattern-editForm" enctype="multipart/form-data">
                 <div class="modal-body pb-0">
                     <div class="row">
-                        <input type="text" asp-for="SpiralPatternAssignListID" />
+                        <input type="hidden" asp-for="SpiralPatternAssignListID" />
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="EditOrganizationID" class="form-label">@Html.SmartLocalize("Select Organization")</label>
@@ -29,9 +29,9 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" asp-for="EditDepartmentIDs">@Html.SmartLocalize("Select Department")</label>
-                                <select class="form-multi-select" asp-for="EditDepartmentIDs"
-                                        multiple data-coreui-selection-type="counter"
+                                <label class="form-label" asp-for="EditDepartmentID">@Html.SmartLocalize("Select Department")</label>
+                                <select class="form-multi-select" asp-for="EditDepartmentID"
+                                        data-coreui-multiple="false"
                                         data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
                                         data-coreui-search="true">
                                     @foreach (var group in editDepartments.GroupBy(e => e.GroupName))
@@ -47,11 +47,11 @@
                             </div>
                         </div>
 
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" asp-for="EditEmployeeIDs">@Html.SmartLocalize("Select Employee")</label>
-                                <select class="form-multi-select" asp-for="EditEmployeeIDs"
-                                        multiple data-coreui-selection-type="counter"
+                                <label class="form-label" asp-for="EditEmployeeID">@Html.SmartLocalize("Select Employee")</label>
+                                <select class="form-multi-select" asp-for="EditEmployeeID"
+                                        data-coreui-multiple="false"
                                         data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
                                         data-coreui-search="true">
                                     @foreach (var group in editEmployees.GroupBy(e => e.GroupName))
@@ -66,6 +66,7 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" asp-for="EditSpiralPatternTypeID">@Html.SmartLocalize("Spiral Patern Type")</label>
@@ -93,17 +94,21 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" asp-for="EditStartDate">@Html.SmartLocalize("Start Date")</label>
-                                <input class="form-control datetimepicker" asp-for="EditStartDate" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                        <div class="col-md-6 mb-3 flatpickr-input-container">
+                            <label class="form-label" asp-for="EditStartDate">@Html.SmartLocalize("Start Date")<span style="color: red;">&nbsp;*</span></label>
+                            <div class="input-icon-end position-relative flatpickr">
+                                <input class="form-control datetimepicker" asp-for="EditStartDate" type="text" placeholder="dd/mm/yyyy" />
+                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                <span id="EditStartDateError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" asp-for="EditEndDate">@Html.SmartLocalize("End Date")</label>
-                                <input class="form-control datetimepicker" asp-for="EditEndDate" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                        <div class="col-md-6 mb-3 flatpickr-input-container">
+                            <label class="form-label" asp-for="EditEndDate">@Html.SmartLocalize("End Date")<span style="color: red;">&nbsp;*</span></label>
+                            <div class="input-icon-end position-relative flatpickr">
+                                <input class="form-control datetimepicker" asp-for="EditEndDate" type="text" placeholder="dd/mm/yyyy" />
+                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                <span id="EditEndDate" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
                     </div>

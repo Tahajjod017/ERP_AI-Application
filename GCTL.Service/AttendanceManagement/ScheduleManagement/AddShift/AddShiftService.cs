@@ -6,10 +6,13 @@ using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,98 +27,299 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         private readonly IGenericRepository<Shifts> _genericRepository;
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly IDbConnection _dbConnection;
 
 
-        public AddShiftService(IGenericRepository<Shifts> genericRepository, IUserInfoService userInfoService, IGenericRepository<Organization> organizationRepository) : base(genericRepository)
+        public AddShiftService(IGenericRepository<Shifts> genericRepository, IUserInfoService userInfoService, IGenericRepository<Organization> organizationRepository, IDbConnection dbConnection) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
             _organizationRepository = organizationRepository;
+            _dbConnection = dbConnection;
         }
         #endregion
 
 
         #region AddAsync
+
+        #region By SP
+        //public async Task<bool> AddAsync(ShiftsSetupVM model)
+        //{
+        //    var dataTable = new DataTable();
+        //    dataTable.Columns.AddRange(new[]
+        //    {
+        //        new DataColumn("ShiftName", typeof(string)),
+        //        new DataColumn("OrganizationID", typeof(int)),
+        //        new DataColumn("StartTime", typeof(TimeSpan)),
+        //        new DataColumn("EndTime", typeof(TimeSpan)),
+        //        new DataColumn("IsLateCount", typeof(bool)),
+        //        new DataColumn("IsAutomaticORManualBreakTime", typeof(bool)),
+        //        new DataColumn("IsMealBreakCompulsaryOrComplementaryDeductWithShift", typeof(bool)),
+        //        new DataColumn("IsAllowStartAndEndTime", typeof(bool)),
+        //        new DataColumn("MealBreakStartTime", typeof(TimeSpan)),
+        //        new DataColumn("MealBreakEndTime", typeof(TimeSpan)),
+        //        new DataColumn("IsAllowOvertime", typeof(bool)),
+        //        new DataColumn("GraceTime", typeof(TimeSpan)),
+        //        new DataColumn("MinimumWorkingTime", typeof(TimeSpan)),
+        //        new DataColumn("MinimumRequiredOvertime", typeof(TimeSpan)),
+        //        new DataColumn("MaximumAllowedOvertime", typeof(TimeSpan)),
+        //        new DataColumn("MealBreakTime", typeof(TimeSpan)),
+        //        new DataColumn("CreatedBy", typeof(string)),
+        //        new DataColumn("UpdatedBy", typeof(string)),
+        //        new DataColumn("LIP", typeof(string)),
+        //        new DataColumn("LMAC", typeof(string)),
+        //    });
+
+        //    foreach (var orgId in model.OrganizationIDs)
+        //    {
+        //        dataTable.Rows.Add(
+        //            model.ShiftName,
+        //            orgId,
+        //            model.StartTime,
+        //            model.EndTime,
+        //            model.IsLateCount,
+        //            model.IsAutomaticORManualBreakTime,
+        //            model.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
+        //            model.IsAllowStartAndEndTime,
+        //            model.MealBreakStartTime,
+        //            model.MealBreakEndTime,
+        //            model.IsAllowOvertime,
+        //            model.GraceTime,
+        //            model.MinimumWorkingTime,
+        //            model.MinimumRequiredOvertime,
+        //            model.MaximumAllowedOvertime,
+        //            model.MealBreakTime,
+        //            model.CreatedBy ?? (object)DBNull.Value,
+        //            model.UpdatedBy ?? (object)DBNull.Value,
+        //            model.LIP,
+        //            model.LMAC
+        //        );
+        //    }
+
+        //    if (_dbConnection.State != ConnectionState.Open)
+        //        _dbConnection.Open();
+
+        //    using var command = _dbConnection.CreateCommand();
+        //    command.CommandText = "sp_InsertOrUpdateShifts";
+        //    command.CommandType = CommandType.StoredProcedure;
+
+        //    var parameter = command.CreateParameter();
+        //    parameter.ParameterName = "@ShiftInputs";
+
+        //    if (parameter is SqlParameter sqlParam)
+        //    {
+        //        sqlParam.SqlDbType = SqlDbType.Structured;
+        //        sqlParam.TypeName = "dbo.ShiftInputType";
+        //        sqlParam.Value = dataTable;
+        //        command.Parameters.Add(sqlParam);
+        //    }
+        //    else
+        //    {
+        //        parameter.Value = dataTable;
+        //        command.Parameters.Add(parameter);
+        //    }
+
+        //    command.ExecuteNonQuery();
+
+        //    return true;
+        //}
+        #endregion
+
+
+        #region By EFCore.BulkExtensions
         public async Task<bool> AddAsync(ShiftsSetupVM model)
         {
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                foreach (var organizationID in model.OrganizationIDs)
+                var now = DateTime.Now;
+
+                // Fetch all soft-deleted entries that match the shift name + organization IDs
+                var existingEntities = await _genericRepository.FindAsync(b =>
+                    b.DeletedAt != null &&
+                    b.ShiftName == model.ShiftName &&
+                    model.OrganizationIDs.Contains((int)b.OrganizationID)
+                );
+
+                // Separate insert and update lists
+                var shiftsToUpdate = new List<Shifts>();
+                var shiftsToInsert = new List<Shifts>();
+
+                foreach (var orgId in model.OrganizationIDs)
                 {
-                    var entityToRestore = await _genericRepository.FindAsync(b => b.DeletedAt != null && b.ShiftName == model.ShiftName && b.OrganizationID == organizationID);
+                    var existing = existingEntities.FirstOrDefault(x => x.OrganizationID == orgId);
 
-                    var existingEntity = entityToRestore.FirstOrDefault();
-                    if (existingEntity != null)
+                    if (existing != null)
                     {
-                        existingEntity.ShiftName = model.ShiftName;
-                        existingEntity.OrganizationID = organizationID;
-                        existingEntity.StartTime = model.StartTime;
-                        existingEntity.EndTime = model.EndTime;
-                        existingEntity.IsLateCount = model.IsLateCount;
-                        existingEntity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                        existingEntity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
-                        existingEntity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
-                        existingEntity.MealBreakStartTime = model.MealBreakStartTime;
-                        existingEntity.MealBreakEndTime = model.MealBreakEndTime;
-                        existingEntity.IsAllowOvertime = model.IsAllowOvertime;
-                        existingEntity.GraceTime = model.GraceTime;
-                        existingEntity.MinimumWorkingTime = model.MinimumWorkingTime;
-                        existingEntity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
-                        existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
-                        existingEntity.MealBreakTime = model.MealBreakTime;
+                        existing.StartTime = model.StartTime;
+                        existing.EndTime = model.EndTime;
+                        existing.IsLateCount = model.IsLateCount;
+                        existing.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
+                        existing.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
+                        existing.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
+                        existing.MealBreakStartTime = model.MealBreakStartTime;
+                        existing.MealBreakEndTime = model.MealBreakEndTime;
+                        existing.IsAllowOvertime = model.IsAllowOvertime;
+                        existing.GraceTime = model.GraceTime;
+                        existing.MinimumWorkingTime = model.MinimumWorkingTime;
+                        existing.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
+                        existing.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
+                        existing.MealBreakTime = model.MealBreakTime;
 
-                        existingEntity.CreatedAt = DateTime.Now;
-                        existingEntity.CreatedBy = model.CreatedBy;
-                        existingEntity.LIP = model.LIP;
-                        existingEntity.LMAC = model.LMAC;
-                        existingEntity.UpdatedBy = model.UpdatedBy ?? null;
-                        existingEntity.DeletedAt = null;
-                        existingEntity.UpdatedAt = DateTime.Now;
+                        existing.CreatedAt = now;
+                        existing.CreatedBy = model.CreatedBy;
+                        existing.UpdatedBy = model.UpdatedBy ?? null;
+                        existing.UpdatedAt = now;
+                        existing.DeletedAt = null;
+                        existing.DeletedBy = null;
+                        existing.LIP = model.LIP;
+                        existing.LMAC = model.LMAC;
 
-                        await _genericRepository.UpdateAsync(existingEntity);
-                        //var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entityToRestore));
-                        //await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, existingEntity, existingEntity.ShiftID, model);
+                        shiftsToUpdate.Add(existing);
                     }
                     else
                     {
-                        Shifts entity = new Shifts();
-                        entity.ShiftName = model.ShiftName;
-                        entity.OrganizationID = organizationID;
-                        entity.StartTime = model.StartTime;
-                        entity.EndTime = model.EndTime;
-                        entity.IsLateCount = model.IsLateCount;
-                        entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
-                        entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
-                        entity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
-                        entity.MealBreakStartTime = model.MealBreakStartTime;
-                        entity.MealBreakEndTime = model.MealBreakEndTime;
-                        entity.IsAllowOvertime = model.IsAllowOvertime;
-                        entity.GraceTime = model.GraceTime;
-                        entity.MinimumWorkingTime = model.MinimumWorkingTime;
-                        entity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
-                        entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
-                        entity.MealBreakTime = model.MealBreakTime;
-                        entity.CreatedAt = DateTime.Now;
-                        entity.CreatedBy = model.CreatedBy ?? null;
-                        entity.LIP = model.LIP;
-                        entity.LMAC = model.LMAC;
-                        await _genericRepository.AddAsync(entity);
+                        var newShift = new Shifts
+                        {
+                            ShiftName = model.ShiftName,
+                            OrganizationID = orgId,
+                            StartTime = model.StartTime,
+                            EndTime = model.EndTime,
+                            IsLateCount = model.IsLateCount,
+                            IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime,
+                            IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
+                            IsAllowStartAndEndTime = model.IsAllowStartAndEndTime,
+                            MealBreakStartTime = model.MealBreakStartTime,
+                            MealBreakEndTime = model.MealBreakEndTime,
+                            IsAllowOvertime = model.IsAllowOvertime,
+                            GraceTime = model.GraceTime,
+                            MinimumWorkingTime = model.MinimumWorkingTime,
+                            MinimumRequiredOvertime = model.MinimumRequiredOvertime,
+                            MaximumAllowedOvertime = model.MaximumAllowedOvertime,
+                            MealBreakTime = model.MealBreakTime,
+                            CreatedAt = now,
+                            CreatedBy = model.CreatedBy,
+                            LIP = model.LIP,
+                            LMAC = model.LMAC
+                        };
+
+                        shiftsToInsert.Add(newShift);
+                    }
+                }
+
+                // ✅ Perform bulk update
+                if (shiftsToUpdate.Any())
+                {
+                    await _genericRepository.BulkUpdateAsync(shiftsToUpdate);
+                }
+
+                // ✅ Perform bulk insert
+                if (shiftsToInsert.Any())
+                {
+                    await _genericRepository.BulkInsertAsync(shiftsToInsert);
+
+                    // Optional: Log insert actions
+                    foreach (var entity in shiftsToInsert)
+                    {
                         await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, entity, entity.ShiftID, model);
                     }
                 }
 
                 await _genericRepository.CommitTransactionAsync();
-
                 return true;
             }
             catch (Exception ex)
             {
                 await _genericRepository.RollbackTransactionAsync();
-                throw new Exception(ex.Message, ex);
-                //return false;
+                throw new Exception("Bulk operation failed: " + ex.Message, ex);
             }
         }
+        #endregion
+
+
+        #region Normal
+        //public async Task<bool> AddAsync(ShiftsSetupVM model)
+        //{
+        //    await _genericRepository.BeginTransactionAsync();
+        //    try
+        //    {
+        //        foreach (var organizationID in model.OrganizationIDs)
+        //        {
+        //            var entityToRestore = await _genericRepository.FindAsync(b => b.DeletedAt != null && b.ShiftName == model.ShiftName && b.OrganizationID == organizationID);
+
+        //            var existingEntity = entityToRestore.FirstOrDefault();
+        //            if (existingEntity != null)
+        //            {
+        //                existingEntity.ShiftName = model.ShiftName;
+        //                existingEntity.OrganizationID = organizationID;
+        //                existingEntity.StartTime = model.StartTime;
+        //                existingEntity.EndTime = model.EndTime;
+        //                existingEntity.IsLateCount = model.IsLateCount;
+        //                existingEntity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
+        //                existingEntity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
+        //                existingEntity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
+        //                existingEntity.MealBreakStartTime = model.MealBreakStartTime;
+        //                existingEntity.MealBreakEndTime = model.MealBreakEndTime;
+        //                existingEntity.IsAllowOvertime = model.IsAllowOvertime;
+        //                existingEntity.GraceTime = model.GraceTime;
+        //                existingEntity.MinimumWorkingTime = model.MinimumWorkingTime;
+        //                existingEntity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
+        //                existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
+        //                existingEntity.MealBreakTime = model.MealBreakTime;
+
+        //                existingEntity.CreatedAt = DateTime.Now;
+        //                existingEntity.CreatedBy = model.CreatedBy;
+        //                existingEntity.LIP = model.LIP;
+        //                existingEntity.LMAC = model.LMAC;
+        //                existingEntity.UpdatedBy = model.UpdatedBy ?? null;
+        //                existingEntity.DeletedAt = null;
+        //                existingEntity.UpdatedAt = DateTime.Now;
+
+        //                await _genericRepository.UpdateAsync(existingEntity);
+        //                //var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entityToRestore));
+        //                //await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, existingEntity, existingEntity.ShiftID, model);
+        //            }
+        //            else
+        //            {
+        //                Shifts entity = new Shifts();
+        //                entity.ShiftName = model.ShiftName;
+        //                entity.OrganizationID = organizationID;
+        //                entity.StartTime = model.StartTime;
+        //                entity.EndTime = model.EndTime;
+        //                entity.IsLateCount = model.IsLateCount;
+        //                entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
+        //                entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
+        //                entity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
+        //                entity.MealBreakStartTime = model.MealBreakStartTime;
+        //                entity.MealBreakEndTime = model.MealBreakEndTime;
+        //                entity.IsAllowOvertime = model.IsAllowOvertime;
+        //                entity.GraceTime = model.GraceTime;
+        //                entity.MinimumWorkingTime = model.MinimumWorkingTime;
+        //                entity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
+        //                entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
+        //                entity.MealBreakTime = model.MealBreakTime;
+        //                entity.CreatedAt = DateTime.Now;
+        //                entity.CreatedBy = model.CreatedBy ?? null;
+        //                entity.LIP = model.LIP;
+        //                entity.LMAC = model.LMAC;
+        //                await _genericRepository.AddAsync(entity);
+        //                await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, entity, entity.ShiftID, model);
+        //            }
+        //        }
+
+        //        await _genericRepository.CommitTransactionAsync();
+
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await _genericRepository.RollbackTransactionAsync();
+        //        throw new Exception(ex.Message, ex);
+        //        //return false;
+        //    }
+        //}
+        #endregion
+
         #endregion
 
 
