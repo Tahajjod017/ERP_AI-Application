@@ -52,6 +52,7 @@ using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
+using GCTL.Service.Employees.EmployeeTermination;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.FileHandler;
@@ -254,6 +255,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IincrementService, IncrementService>();
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IEmployeeResign, EmployeeResignService>();
+            services.AddScoped<IEmployeeTermination, EmployeeTerminationService>();
 
 
             #endregion

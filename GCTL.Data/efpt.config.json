@@ -467,6 +467,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[LeadTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeAllowances]",
          "ObjectType": 0
       },
@@ -508,6 +512,10 @@
       },
       {
          "Name": "[dbo].[Prc_GetEmployeesPaged]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_InsertOrUpdateShifts]",
          "ObjectType": 1
       }
    ],

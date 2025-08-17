@@ -43,8 +43,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
+
+
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
+
 
     public virtual DbSet<Attendance> Attendance { get; set; }
 
@@ -143,6 +147,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<LeadSources> LeadSources { get; set; }
 
     public virtual DbSet<LeadStatuses> LeadStatuses { get; set; }
+
+    public virtual DbSet<LeadTypes> LeadTypes { get; set; }
 
     public virtual DbSet<Leads> Leads { get; set; }
 
@@ -259,6 +265,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -2387,6 +2394,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__LeadStatu__Updat__192BAC54");
         });
 
+        modelBuilder.Entity<LeadTypes>(entity =>
+        {
+            entity.HasKey(e => e.LeadTypeID).HasName("PK__LeadType__0236086821CA0CB2");
+
+            entity.ToTable("LeadTypes", "Lead");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeadTypes__Creat__33DFA290");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeadTypes__Delet__36BC0F3B");
+
+            entity.HasOne(d => d.Lead).WithMany(p => p.LeadTypes)
+                .HasForeignKey(d => d.LeadID)
+                .HasConstraintName("FK__LeadTypes__LeadI__31F75A1E");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.LeadTypes)
+                .HasForeignKey(d => d.ServiceID)
+                .HasConstraintName("FK__LeadTypes__Servi__32EB7E57");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeadTypes__Updat__34D3C6C9");
+        });
+
         modelBuilder.Entity<Leads>(entity =>
         {
             entity.HasKey(e => e.LeadID).HasName("PK__Leads__73EF791A468253CC");
@@ -2400,6 +2442,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LeadName).HasMaxLength(200);
             entity.Property(e => e.ProbabilityPercentage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -3922,6 +3965,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.ResignationDate).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
+            entity.HasOne(d => d.ApprovalPerson).WithMany(p => p.TerminationsApprovalPerson)
+                .HasForeignKey(d => d.ApprovalPersonID)
+                .HasConstraintName("FK__Terminati__Appro__422DC1E7");
+
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TerminationsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__Terminati__Creat__4BEC364B");
@@ -3930,9 +3977,17 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Terminati__Delet__4EC8A2F6");
 
+            entity.HasOne(d => d.EmployeeActionType).WithMany(p => p.Terminations)
+                .HasForeignKey(d => d.EmployeeActionTypeID)
+                .HasConstraintName("FK__Terminati__Emplo__41399DAE");
+
             entity.HasOne(d => d.Employee).WithMany(p => p.TerminationsEmployee)
                 .HasForeignKey(d => d.EmployeeID)
                 .HasConstraintName("FK__Terminati__Emplo__4A03EDD9");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.Terminations)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__Terminati__Statu__40457975");
 
             entity.HasOne(d => d.TerminationType).WithMany(p => p.Terminations)
                 .HasForeignKey(d => d.TerminationTypeID)
