@@ -1,400 +1,90 @@
 ﻿<div class="container m-0 p-0">
-    <nav class="mb-3" aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="#!">Page 1</a></li>
-            <li class="breadcrumb-item"><a href="#!">Page 2</a></li>
-            <li class="breadcrumb-item active">Default</li>
-        </ol>
-    </nav>
 
-    <div class="pb-6">
-        <h2 class="mb-4">25 Leads</h2>
-        <div id="lealsTable" data-list='{"valueNames":["name","email","phone","contact","company","date"],"page":10,"pagination":true}'>
-            <div class="row g-3 justify-content-between mb-4">
-                <div class="col-auto">
-                    <div class="d-md-flex justify-content-between">
-                        <div>
-                            <!-- <button class="btn btn-primary me-4" data-bs-toggle="modal" data-bs-target="#CreateLeadModal">
-                              <span class="fas fa-plus me-2"></span>Create Lead
-                            </button> -->
-
-                            <a class="btn btn-primary me-4" asp-controller="crm" asp-action="create">
-                                <span class="fas fa-plus me-2"></span>Create Lead
-                            </a>
-
-                            <button class="btn btn-link text-body px-0">
-                                <span class="fa-solid fa-file-export fs-9 me-2"></span>Export
-                            </button>
+    <div class="mb-4">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+                <h4 class="mb-1">@Html.SmartLocalize("Processed Resignations")</h4>
+                <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control" id="dataSearch" type="text" placeholder="@Html.SmartLocalize("Search...")">
                         </div>
                     </div>
-                </div>
-                <div class="col-auto">
-                    <div class="d-flex">
-                        <div class="search-box me-2">
-                            <form class="position-relative">
-                                <input class="form-control search-input search" type="search" placeholder="Search by name" aria-label="Search" />
-                                <span class="fas fa-search search-box-icon"></span>
 
-                            </form>
+
+
+
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="dateRange" type="text" placeholder="@Html.SmartLocalize("Select Date Range")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                         </div>
-                        <div class="flatpickr-input-container me-2">
-                            <input class="form-control ps-6 datetimepicker" id="datepicker" type="text" data-options='{"dateFormat":"M j, Y","disableMobile":true,"defaultDate":"Mar 1, 2022"}' /><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
-                        </div>
-                        <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="modal" data-bs-target="#filterModal" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fa-solid fa-filter text-primary" data-fa-transform="down-3"></span></button>
-                        <div class="modal fade" id="filterModal" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border border-translucent">
-                                    <form id="addEventForm" autocomplete="off">
-                                        <div class="modal-header border-translucent p-4 justify-content-between">
-                                            <h5 class="modal-title text-body-highlight fs-6 lh-sm">Filter</h5>
-                                            <button class="btn p-1 text-danger" type="button" data-bs-dismiss="modal" aria-label="Close"><span class="fas fa-times fs-9"></span></button>
-                                        </div>
-                                        <div class="modal-body pt-4 pb-2 px-4">
-                                            <div class="mb-3">
-                                                <label class="fw-bold mb-2 text-body-highlight" for="leadStatus">Lead Status</label>
-                                                <select class="form-select" id="leadStatus">
-                                                    <option value="newLead" selected="selected">New Lead</option>
-                                                    <option value="coldLead">Cold Lead</option>
-                                                    <option value="wonLead">Won Lead</option>
-                                                    <option value="canceled">Canceled</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="fw-bold mb-2 text-body-highlight" for="createDate">Create Date</label>
-                                                <select class="form-select" id="createDate">
-                                                    <option value="today" selected="selected">Today</option>
-                                                    <option value="last7Days">Last 7 Days</option>
-                                                    <option value="last30Days">Last 30 Days</option>
-                                                    <option value="chooseATimePeriod">Choose a time period</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="fw-bold mb-2 text-body-highlight" for="designation">Designation</label>
-                                                <select class="form-select" id="designation">
-                                                    <option value="VPAccounting" selected="selected">VP Accounting</option>
-                                                    <option value="ceo">CEO</option>
-                                                    <option value="creativeDirector">Creative Director</option>
-                                                    <option value="accountant">Accountant</option>
-                                                    <option value="executiveManager">Executive Manager</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer d-flex justify-content-end align-items-center px-4 pb-4 border-0 pt-3">
-                                            <button class="btn btn-sm btn-phoenix-primary px-4 fs-10 my-0" type="submit"> <span class="fas fa-arrows-rotate me-2 fs-10"></span>Reset</button>
-                                            <button class="btn btn-sm btn-primary px-9 fs-10 my-0" type="submit">Done</button>
-                                        </div>
-                                    </form>
-                                </div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select choiceDD" id="approveDepartment" data-choices="data-choices" size="1" required="required" name="customerType" asp-items="@ViewBag.DepartmentDD">
+                            <option value="">@Html.SmartLocalize("Select department")</option>
+                        </select>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
                             </div>
+                            <select class="form-select" id="pageElementSize" data-choices="data-choices" size="1" name="pageSizeSelectApprove" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
                         </div>
                     </div>
+
+
                 </div>
             </div>
-            <div class="table-responsive scrollbar mx-n1 px-1">
-                <table class="table fs-9 mb-0 leads-table border-top border-translucent">
-                    <thead>
-                        <tr>
-                            <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"leal-tables-body"}' />
-                                </div>
-                            </th>
-                            <th class="sort white-space-nowrap align-middle text-uppercase ps-0" scope="col" data-sort="name" style="width:25%;">Leads Name</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase border-end border-translucent" scope="col" data-sort="email" style="width:15%;">
-                                <div class="d-inline-flex flex-center">
-                                    <div class="d-flex align-items-center px-1 py-1 bg-success-subtle rounded me-2"><span class="text-success-dark" data-feather="mail"></span></div><span>Email</span>
-                                </div>
-                            </th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase border-end border-translucent" scope="col" data-sort="phone" style="width:15%; min-width: 180px;">
-                                <div class="d-inline-flex flex-center">
-                                    <div class="d-flex align-items-center px-1 py-1 bg-primary-subtle rounded me-2"><span class="text-primary-dark" data-feather="phone"></span></div><span>Phone</span>
-                                </div>
-                            </th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase border-end border-translucent" scope="col" data-sort="contact" style="width:15%;">
-                                <div class="d-inline-flex flex-center">
-                                    <div class="d-flex align-items-center px-1 py-1 bg-info-subtle rounded me-2"><span class="text-info-dark" data-feather="user"></span></div><span>Contact name</span>
-                                </div>
-                            </th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase border-end border-translucent" scope="col" data-sort="company" style="width:15%;">
-                                <div class="d-inline-flex flex-center">
-                                    <div class="d-flex align-items-center px-1 py-1 bg-warning-subtle rounded me-2"><span class="text-warning-dark" data-feather="grid"></span></div><span>Company name</span>
-                                </div>
-                            </th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase" scope="col" data-sort="date" style="width:15%;">Status</th>
-                            <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="list" id="leal-tables-body">
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/32.webp","name":"Anthoney Michael","designation":"VP Accounting","status":{"label":"new lead","type":"badge-phoenix-primary"}},"email":"anth125@gmail.com","phone":"+1-202-555-0126","contact":"Ally Aagaard","company":"Google.inc","date":"Jan 01, 12:56 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
 
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Anthoney Michael</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">VP Accounting</p>
+            <div class="border-translucent p-3">
+                <div id="processedResignationTable">
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <table class="table table-sm fs-9 leads-table dyn-table" id="resignProcessed">
+                            <thead>
+                                <tr>
+                                    <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                        <div class="form-check mb-0 fs-8">
+                                            <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"processed-resignation-body"}' />
                                         </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:anth125@gmail.com">anth125@gmail.com</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+1-202-555-0126">+1-202-555-0126</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Ally Aagaard</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Google.inc</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-primary">new lead</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                                    </th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Leads Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Email")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position" data-column="2">@Html.SmartLocalize("Phone")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason" data-column="3">@Html.SmartLocalize("Contact Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="processedDate" data-column="4">@Html.SmartLocalize("Company Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="6">@Html.SmartLocalize("Status")</th>
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="processed-resignation-body">
+                                <!-- Processed resignation rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/29.webp","name":"Reyna Denise","designation":"Executive Manager","status":{"label":"new lead","type":"badge-phoenix-info"}},"email":"reyna99@gmail.com","phone":"+44 1632 960958","contact":"Jase Adams","company":"Twitter","date":"Dec 25, 12:55 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Reyna Denise</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">Executive Manager</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:reyna99@gmail.com">reyna99@gmail.com</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+441632960958">+44 1632 960958</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Jase Adams</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Twitter</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-info">new lead</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/65.webp","name":"Roy Anderson","designation":"System Admin","status":{"label":"Canceled","type":"badge-phoenix-secondary"}},"email":"andersonroy@netflix.chill","phone":"+1-613-555-0109","contact":"Jim Aldridge","company":"Google.inc","date":"Dec 24, 09:52 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Roy Anderson</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">System Admin</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:andersonroy@netflix.chill">andersonroy@netflix.chill</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+1-613-555-0109">+1-613-555-0109</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Jim Aldridge</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Google.inc</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-secondary">Canceled</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><img src="@Url.Content("~/assets/img/icons/three-dot.svg")" style="height: 1rem;" /></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a>
-                                        <a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/63.webp","name":"Emily Beazley","designation":"Marketing Executive","status":{"label":"New Lead","type":"badge-phoenix-info"}},"email":"beazley1@gmail.com","phone":"+61 1900 654 321","contact":"Zackry Aldridge","company":"Instagram","date":"Dec 22, 08:45 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Emily Beazley</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">Marketing Executive</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:beazley1@gmail.com">beazley1@gmail.com</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+611900654321">+61 1900 654 321</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Zackry Aldridge</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Instagram</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-info">New Lead</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/31.webp","name":"Layla Beckstrand","designation":"Junior Executive","status":{"label":"cold lead","type":"badge-phoenix-warning"}},"email":"layla@live.com","phone":"+36 55 116 068","contact":"Daniel Alexander","company":"Linkedin","date":"Dec 20, 06:32 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Layla Beckstrand</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">Junior Executive</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:layla@live.com">layla@live.com</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+3655116068">+36 55 116 068</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Daniel Alexander</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Linkedin</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-warning">cold lead</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/26.webp","name":"Olivia Bensinger","designation":"Chief Tech Officer","status":{"label":"won lead","type":"badge-phoenix-success"}},"email":"olivia1986@gmail.com","phone":"+44 1632 960248","contact":"Sam Alimentato","company":"Google.inc","date":"Dec 19, 10:44 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Olivia Bensinger</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">Chief Tech Officer</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:olivia1986@gmail.com">olivia1986@gmail.com</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+441632960248">+44 1632 960248</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Sam Alimentato</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Google.inc</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-success">won lead</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/73.webp","name":"Emily Beazley","designation":"Marketing Executive","status":{"label":"New Lead","type":"badge-phoenix-info"}},"email":"beazley1@gmail.com","phone":"+61 1900 654 321","contact":"Zackry Aldridge","company":"Instagram","date":"Dec 22, 08:45 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Emily Beazley</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">Marketing Executive</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:beazley1@gmail.com">beazley1@gmail.com</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+611900654321">+61 1900 654 321</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Zackry Aldridge</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Instagram</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-info">New Lead</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="fs-9 align-middle">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/75.webp","name":"Roy Anderson","designation":"System Admin","status":{"label":"Canceled","type":"badge-phoenix-secondary"}},"email":"andersonroy@netflix.chill","phone":"+1-613-555-0109","contact":"Jim Aldridge","company":"Google.inc","date":"Dec 24, 09:52 PM"}' />
-                                </div>
-                            </td>
-                            <td class="name align-middle white-space-nowrap ps-0">
-                                <div class="d-flex align-items-center">
-
-                                    <div>
-                                        <a class="fs-8 fw-bold" href="#!">Roy Anderson</a>
-                                        <div class="d-flex align-items-center">
-                                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">System Admin</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:andersonroy@netflix.chill">andersonroy@netflix.chill</a></td>
-                            <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="tel:+1-613-555-0109">+1-613-555-0109</a></td>
-                            <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight">Jim Aldridge</td>
-                            <td class="company align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 border-end border-translucent fw-semibold text-body-highlight">Google.inc</td>
-                            <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary"><span class="badge badge-phoenix badge-phoenix-secondary">Canceled</span></td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                    <div class="dropdown-menu dropdown-menu-end py-2">
-                                        <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                        <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="row align-items-center justify-content-end py-4 pe-0 fs-9">
-                <div class="col-auto d-flex">
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                </div>
-                <div class="col-auto d-flex">
-                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                    <ul class="mb-0 pagination"></ul>
-                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    <div class="row align-items-center justify-content-between pe-0 fs-9">
+                        <div class="col-auto d-flex">
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="totalApprove" data-list-info="data-list-info"></p>
+                        </div>
+                        <div class="col-auto d-flex">
+                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                            <ul class="mb-0 pagination" id="pageNumber"></ul>
+                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/pages/CRM/crm_index.js"></script>
+}

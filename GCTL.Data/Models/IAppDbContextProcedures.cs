@@ -13,6 +13,7 @@ namespace GCTL.Data.Models
 {
     public partial interface IAppDbContextProcedures
     {
+
         Task<int> aaAsync(string TableName, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<GetPaginatedEmployeeAttendanceResult>> GetPaginatedEmployeeAttendanceAsync(int? Month, int? Year, int? PageNumber, int? PageSize, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> Prc_GetEmployeesPagedAsync(int? PageNumber, int? PageSize, string SearchTerm, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
