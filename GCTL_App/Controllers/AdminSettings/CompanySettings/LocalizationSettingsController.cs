@@ -18,6 +18,8 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 
         public IActionResult Index()
         {
+           // ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+
             return View();
         }
 
@@ -61,11 +63,68 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
         #endregion
 
+        #region Update
+
+        #endregion
+
+        #region byId
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                var localization = await _localizationSettingService.GetByIdAsync(id);
+                if (localization == null)
+                {
+                    return NotFound();
+                }
+                return Json(localization);
+            }
+            catch (Exception ex)
+            {
+                // Log exception here if needed
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
         #region getall
         public async Task<IActionResult> GetAllData(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
         {
             var result = await _localizationSettingService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
             return Json(result);
+        }
+        #endregion
+
+        #region dropdown
+        public async Task<IActionResult> GetOrganizations()
+        {
+            var organizations = await _localizationSettingService.GetOrganizationsAsync();
+            return Json(organizations);
+        }
+        public async Task<IActionResult> GetLanguages()
+        {
+            var languages = await _localizationSettingService.GetLanguagesAsync();
+            return Json(languages);
+        }
+        public async Task<IActionResult> GetTimeFormat()
+        {
+            var timeFormats = await _localizationSettingService.GetTimeformatAsync();
+            return Json(timeFormats);
+        }
+        public async Task<IActionResult> GetTimeZone()
+        {
+            var timeZones = await _localizationSettingService.GetTimeZoneAsync();
+            return Json(timeZones);
+        }
+        public async Task<IActionResult> GetDateFormat()
+        {
+            var dateFormats = await _localizationSettingService.GetDateFormateAsync();
+            return Json(dateFormats);
+        }
+        public async Task<IActionResult> GetCurrency()
+        {
+            var currencies = await _localizationSettingService.GetCurrencieAsync();
+            return Json(currencies);
         }
         #endregion
 
