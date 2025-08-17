@@ -31,7 +31,7 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
-
+using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadCreate;
 
 using GCTL.Service.ElementPermission;
@@ -263,6 +263,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadStatusService, LeadStatusService>();
             services.AddScoped<ILeadSourceService, LeadSourceService>();
             services.AddScoped<ILeadCreateService, LeadCreateService>();
+            services.AddScoped<ICRMService, CRMService>();
             #endregion
         }
     }

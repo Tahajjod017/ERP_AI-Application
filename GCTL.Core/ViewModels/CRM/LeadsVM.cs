@@ -9,6 +9,7 @@ namespace GCTL.Core.ViewModels.CRM
     public class LeadsVM : BaseViewModel
     {
         public bool? IsIndividualCustomer { get; set; }
+        public string? LeadName { get; set; }
 
         public int? LeadStatusID { get; set; }
 

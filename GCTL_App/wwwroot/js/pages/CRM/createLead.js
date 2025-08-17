@@ -95,138 +95,6 @@ $(document).ready(function () {
     // run getCustomerList funciton intialization
     getCustomerList();
 
-    // getCustomerInformation while click on any customer item
-    customerInfoContainer = $("#customerInfoContainer");
-    customerInfoContainerHtml = `
-                <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8">Custommer Information</h5>
-                <div class="border-top pb-0 mb-3"></div>
-                <div class="row p-0">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="row">
-                            <div>
-                                <input type="number" id="personIndexIA_ID" hidden>
-                                <input type="text" name="name" value="" id="countryCodePersonIndex" hidden />
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="autocompletePersonIndex" class="form-control" placeholder="Customer name" required>
-                                    <label class="form-label req">Full Address</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6 pe-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="streetPersonIndex" class="form-control" placeholder="Street" required>
-                                            <label class="form-label req">Street</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ps-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="cityPersonIndex" class="form-control" placeholder="City" required>
-                                            <label class="form-label req">City</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6 pe-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="additionalAddressPersonIndex" class="form-control" placeholder="" required>
-                                            <label class="form-label req">Additional Address</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ps-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="statePersonIndex" class="form-control" placeholder="" required>
-                                            <label class="form-label req">State/Province</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6 pe-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input id="postalCodePersonIndex" type="text" class="form-control" placeholder="" required>
-                                            <label class="form-label req">Zip/Postal Code</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ps-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input id="countryPersonIndex" type="text" class="form-control" placeholder="" required>
-                                            <label class="form-label req">Country</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6 pe-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="latitudePersonIndex" class="form-control" placeholder="" required>
-                                            <label class="form-label req">Latitude</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ps-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="longitudePersonIndex" class="form-control" placeholder="" required>
-                                            <label class="form-label req">Longitude</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-sm-12">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6 pe-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="firstNamePersonIndex" class="form-control" placeholder="" required>
-                                            <label class="form-label req">First Name</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ps-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input type="text" id="lastNamePersonIndex" class="form-control" placeholder="" required>
-                                            <label class="form-label req">Last Name</label>
-                                            <span class="text-danger small"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <input class="form-control" id="phonePersonIndex" type="tel" placeholder="Phone Number" />
-                            </div>
-                            <div class="col-12 mb-3">
-                                <input class="form-control" id="otherPhonePersonIndex" type="tel" placeholder="Other Phone" />
-                            </div>
-
-                            <div class="col-12">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="emailPersonIndex" class="form-control" placeholder="" required>
-                                    <label class="form-label req">Email</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    `
-
     // later show it
     //customerInfoContainer.show();
     function getCustomerInfo(customerId) {
@@ -237,40 +105,29 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify(customerId),
             success: function (response) {
-                console.log(response);
+                document.getElementById("customerInfoContainer").style.display = "block";
 
-                setTimeout(() => {
-                    customerInfoContainer.empty();
-                    customerInfoContainer.append(customerInfoContainerHtml);
+                $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
+                $('#customerID').val(response.customer.individualAddressID);
+                $('#customerType').val(response.customer.addressTypeName);
 
-
-                    initPhoneFields();
-                }, 300);
-
-                setTimeout(() => {
-                    $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
-                    $('#customerID').val(response.customer.individualAddressID);
-                    $('#customerType').val(response.customer.addressTypeName);
-
-                    document.getElementById("personIndexIA_ID").value = response.customer.individualAddressID;
-                    document.getElementById("firstNamePersonIndex").value = response.customer.firstName;
-                    document.getElementById("lastNamePersonIndex").value = response.customer.lastName;
-                    document.getElementById("autocompletePersonIndex").value = response.customer.fullAddress;
-                    document.getElementById("streetPersonIndex").value = response.customer.street;
-                    document.getElementById("cityPersonIndex").value = response.customer.city;
-                    document.getElementById("additionalAddressPersonIndex").value = response.customer.additionaladdress;
-                    document.getElementById("statePersonIndex").value = response.customer.state;
-                    document.getElementById("postalCodePersonIndex").value = response.customer.postalCode;
-                    document.getElementById("countryPersonIndex").value = response.customer.countryName;
-                    document.getElementById("countryCodePersonIndex").value = response.customer.countryCode;
-                    document.getElementById("latitudePersonIndex").value = response.customer.latitude;
-                    document.getElementById("longitudePersonIndex").value = response.customer.longitude;
-                    document.getElementById("phonePersonIndex").value = response.customer.phone;
-                    document.getElementById("otherPhonePersonIndex").value = response.customer.otherPhone;
-                    document.getElementById("emailPersonIndex").value = response.customer.email;
-                }, 300);
+                document.getElementById("personIndexIA_ID").value = response.customer.individualAddressID;
+                document.getElementById("firstNamePersonIndex").value = response.customer.firstName;
+                document.getElementById("lastNamePersonIndex").value = response.customer.lastName;
+                document.getElementById("autocompletePersonIndex").value = response.customer.fullAddress;
+                document.getElementById("streetPersonIndex").value = response.customer.street;
+                document.getElementById("cityPersonIndex").value = response.customer.city;
+                document.getElementById("additionalAddressPersonIndex").value = response.customer.additionaladdress;
+                document.getElementById("statePersonIndex").value = response.customer.state;
+                document.getElementById("postalCodePersonIndex").value = response.customer.postalCode;
+                document.getElementById("countryPersonIndex").value = response.customer.countryName;
+                document.getElementById("countryCodePersonIndex").value = response.customer.countryCode;
+                document.getElementById("latitudePersonIndex").value = response.customer.latitude;
+                document.getElementById("longitudePersonIndex").value = response.customer.longitude;
+                document.getElementById("phonePersonIndex").value = response.customer.phone;
+                document.getElementById("otherPhonePersonIndex").value = response.customer.otherPhone;
+                document.getElementById("emailPersonIndex").value = response.customer.email;
             },
-
             error: function () {
                 alert('Failed to load Contact Name');
             }
@@ -751,7 +608,6 @@ $(document).ready(function () {
     //fieldValidation();
     $("#indexSaveBtn").on("click", function (e) {
         e.preventDefault();
-        debugger;
         if (fieldValidation()) {
             console.log(document.getElementById(idMapIndex.person.primaryID).value);
             const actionTab =
@@ -759,6 +615,7 @@ $(document).ready(function () {
             //console.log(ids.phone);
             var data = {
                 IsIndividualCustomer: document.getElementById("customerType").value === "billing" ? true : false,
+                LeadName: document.getElementById(idMapIndex.indexBase.leadName).value,
                 LeadStatusID: document.getElementById(idMapIndex.indexBase.leadStatusID).value,
                 LeadSourceID: document.getElementById(idMapIndex.indexBase.leadSourceID).value,
                 LeadOwnerID: document.getElementById(idMapIndex.indexBase.leadOwnerID).value,
@@ -806,7 +663,6 @@ $(document).ready(function () {
                 success: function (response) {
                     console.log(response);
                     if (response.success) {
-                        $('#addCustomerModal').modal('hide');
                         toastr.success(response.message);
                     }
                 },
@@ -818,7 +674,6 @@ $(document).ready(function () {
     });
 
     function targetListForValidation() {
-        debugger;
         if (targetTab === 'person' || targetTab === 'shipping') {
             let ids = idMap.shipping;
             let list = [];
@@ -880,7 +735,6 @@ $(document).ready(function () {
 
     // check validation when click on submit btn
     function fieldValidation() {
-        debugger;
         const selectedTab = targetListForValidation();
 
         let isValid = true;
