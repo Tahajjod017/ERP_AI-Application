@@ -33,11 +33,8 @@
                 </button>
             </div>
             <div class="modal-body">
-
-                <partial name="_PayRollEmpAllowanceUpdate" />
-
-
-
+                @await Html.PartialAsync("_PayRollEmpAllowanceUpdate", Model.Update)
+               
             </div>
         </div>
     </div>

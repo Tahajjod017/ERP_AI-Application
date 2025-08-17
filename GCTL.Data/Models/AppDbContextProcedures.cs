@@ -153,7 +153,9 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<int> sp_InsertOrUpdateShiftsAsync(DataTable shiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+
+        public virtual async Task<List<sp_InsertOrUpdateShiftsResult>> sp_InsertOrUpdateShiftsAsync(DataTable ShiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -167,13 +169,17 @@ namespace GCTL.Data.Models
                 new SqlParameter
                 {
                     ParameterName = "ShiftInputs",
-                    Value = shiftInputs ?? Convert.DBNull,
+
+                    Value = ShiftInputs ?? Convert.DBNull,
+
                     SqlDbType = System.Data.SqlDbType.Structured,
                     TypeName = "[dbo].[ShiftInputType]",
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_InsertOrUpdateShifts] @ShiftInputs = @ShiftInputs", sqlParameters, cancellationToken);
+
+            var _ = await _context.SqlQueryAsync<sp_InsertOrUpdateShiftsResult>("EXEC @returnValue = [dbo].[sp_InsertOrUpdateShifts] @ShiftInputs = @ShiftInputs", sqlParameters, cancellationToken);
+
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

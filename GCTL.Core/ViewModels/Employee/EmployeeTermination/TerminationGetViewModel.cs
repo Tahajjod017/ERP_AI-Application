@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using GCTL.Core.ViewModels.Employee.EmployeeResign;
+
+namespace GCTL.Core.ViewModels.Employee.EmployeeTermination
+{
+    public class TerminationGetViewModel 
+    {
+        public int Id { get; set; }
+        public string EmployeeName { get; set; }
+        public string EmployeeCode { get; set; }
+        public string Department { get; set; }
+        public string Position { get; set; }
+        public string TerminationType { get; set; }
+        public string Reason { get; set; }
+        public string NoticeDate { get; set; }
+        public string TerminationDate { get; set; }
+        public string ProcessedDate { get; set; }
+        public string Status { get; set; }
+        public string ProfileImage { get; set; }
+        public int? EmployeeId { get; set; }
+        public string YearsOfService { get; set; }
+        public string NoticePeriod { get; set; }
+        public string CurrentSalary { get; set; }
+        public string PendingDues { get; set; }
+        public int TerminationTypeId { get; set; }
+        public int? CompanyId { get; set; }
+    }
+
+    public class TerminationListViewModel
+    {
+        public List<TerminationGetViewModel> Terminations { get; set; }
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public string SearchTerm { get; set; }
+        public string SortColumn { get; set; }
+        public string SortDirection { get; set; }
+    }
+}

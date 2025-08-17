@@ -141,8 +141,9 @@
                     var data = res.data;
 
                     $("#EmployeeBenefitIDEdit").val(data.employeeBenefitID);
-                    $("#OrganizationIDEdit").val(data.organizationID).trigger('change');
-
+                    $('#OrganizationIDEdit').val(d.organizationIDEdit).each(function () {
+                        coreui.MultiSelect.getInstance(this)?.update();
+                    });
                     $("#HealthInsuranceEdit").val(data.healthInsurance);
                     $("#IsHealthInsuranceEnabledEdit").prop('checked', data.isHealthInsuranceEnabled);
                     $("#IsPerformanceBonusEnabledEdit").prop('checked', data.isPerformanceBonusEnabled);

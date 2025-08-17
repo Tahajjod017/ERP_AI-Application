@@ -1,14 +1,13 @@
 ﻿$(document).ready(function () {
-    showDev("EmployeeResignEntry.js", 'init');
+    showDev("EmployeeTerminationEntry.js", 'init');
 
     let currentPage = 1;
     let pageSize = 10;
-    let sortColumn = 'rEmpName';
+    let sortColumn = 'tEmpName';
     let sortDirection = 'asc';
     let fromDate = '';
     let toDate = '';
     let currentEditingId = null;
-
 
     //#region On change
 
@@ -22,7 +21,7 @@
                 type: 'GET',
                 data: { companyId: companyId },
                 success: function (data) {
-                    showDev(data , '1')
+                    showDev(data, '1')
                     choiceManager.populateDropdown('employeeId', data)
                 },
                 error: function () {
@@ -34,7 +33,6 @@
         }
     });
 
-
     $('#editCompany').on('change', function () {
         const companyId = $(this).val();
         const url = $(this).data('url');
@@ -45,7 +43,7 @@
                 type: 'GET',
                 data: { companyId: companyId },
                 success: function (data) {
-                    showDev(data , '2')
+                    showDev(data, '2')
                     choiceManager.populateDropdown('editEmployeeId', data)
                 },
                 error: function () {
@@ -56,8 +54,6 @@
             $('#employeeId').empty().append('<option value="">Select Employee</option>');
         }
     });
-
-
 
     //#endregion
 
@@ -86,17 +82,17 @@
         disableMobile: true
     });
 
-    $("#resignationDate, #editResignationDate").flatpickr({
+    $("#terminationDate, #editTerminationDate").flatpickr({
         dateFormat: "d/m/Y",
         disableMobile: true
     });
 
     //#endregion
 
-    //#region  table data Function to fetch and
+    //#region table data Function to fetch and render
     function loadTableData() {
         $.ajax({
-            url: '/EmployeeResign/GetResignations',
+            url: '/EmployeeTermination/GetTerminations',
             type: 'GET',
             data: {
                 page: currentPage,
@@ -109,9 +105,10 @@
             success: function (response) {
                 const data = response.data;
                 const totalRecords = response.recordsTotal;
-                const tbody = $('#purchasers-sellers-body');
+                const tbody = $('#termination-body');
                 tbody.empty();
 
+                showDev(response, 'table data')
                 // Render table rows
                 data.forEach(item => {
                     const row = `
@@ -121,32 +118,29 @@
                                     <input class="form-check-input" type="checkbox" data-bulk-select-row='${JSON.stringify(item)}' />
                                 </div>
                             </td>
-                            <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
-                                
-
+                            <td class="tEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
                                 <div class="d-flex align-items-center file-name-icon">
                                     <div class="avatar avatar-m avatar-bordered me-4">
-                                        <img class="rounded-circle" src="${item.image || '/images/default-avatar.png'}"
-                                             alt="${item.rEmpName}" onerror="this.src='/images/default-avatar.png'" />
+                                        <img class="rounded-circle" src="${item.profileImage || '/images/default-avatar.png'}"
+                                             alt="${item.employeeName}" onerror="this.src='/images/default-avatar.png'" />
                                     </div>
                                     <div class="ms-1">
-                                        <h6 class="fw-bold mb-0">${item.rEmpName}</h6>
-                                        <span class="fs-12 fw-normal text-muted">#${item.rEmpCode || 'N/A'}</span>
+                                        <h6 class="fw-bold mb-0">${item.employeeName}</h6>
+                                        <span class="fs-12 fw-normal text-muted">#${item.employeeCode || 'N/A'}</span>
                                     </div>
                                 </div>
-
-
                             </td>
-                            <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.rEmpDept || item.REmpDept}</td>
-                            <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.resignResons || item.ResignResons}</td>
-                            <td class="resNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.resNoticeDate || item.ResNoticeDate}</td>
-                            <td class="resinDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.resinDate || item.ResinDate}</td>
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4" data-column="5">
+                            <td class="tEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.department || item.Department}</td>
+                            <td class="terminationType align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.terminationType || item.TerminationType}</td>
+                            <td class="terminationReason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.reason || item.Reason}</td>
+                            <td class="termNoticeDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.noticeDate || item.NoticeDate}</td>
+                            <td class="terminationDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="5">${item.terminationDate || item.TerminationDate}</td>
+                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4" data-column="6">
                                 <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2 edit-resignation11" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#edit_resignation">
+                                    <a href="#" class="nav-item mx-2 edit-termination11" data-id="${item.id || item.Id}" data-bs-toggle="modal" data-bs-target="#edit_termination">
                                         <i class="fas fa-edit text-success"></i>
                                     </a>
-                                    <a href="#" class="nav-item mx-2 delete-resignation" data-id="${item.resigId || item.ResigId}" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                    <a href="#" class="nav-item mx-2 delete-termination" data-id="${item.id || item.Id}" data-bs-toggle="modal" data-bs-target="#delete_modal">
                                         <i class="fas fa-trash text-danger"></i>
                                     </a>
                                 </div>
@@ -166,7 +160,7 @@
                 renderPagination(totalRecords);
             },
             error: function () {
-                toastr.error('Failed to load resignation data');
+                toastr.error('Failed to load termination data');
             }
         });
     }
@@ -227,7 +221,7 @@
     });
 
     // Handle column sorting
-    $('#resignTBL th.sort').on('click', function () {
+    $('#terminateTBL th.sort').on('click', function () {
         const column = $(this).data('sort');
         if (sortColumn === column) {
             sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -240,15 +234,15 @@
 
     //#endregion
 
-    //#region Handle Add Resignation Form Submit
+    //#region Handle Add Termination Form Submit
 
-    $('#new_resignation form').on('submit', function (e) {
+    $('#new_termination form').on('submit', function (e) {
         e.preventDefault();
 
         const formData = new FormData(this);
 
         $.ajax({
-            url: '/EmployeeResign/CreateResignation',
+            url: '/EmployeeTermination/CreateTermination',
             type: 'POST',
             data: formData,
             processData: false,
@@ -256,20 +250,17 @@
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    clearResignationForm()
-
-
-                    hideModal('new_resignation');
-
+                    clearTerminationForm()
+                    hideModal('new_termination');
                     loadTableData(); // Refresh the table
                 } else {
                     toastr.warning(response.message);
-                    showDev(response.message , '3')
+                    showDev(response.message, '3')
                 }
             },
             error: function (ex) {
-                toastr.error('Failed to add resignation');
-                showDev(ex.message , '4');
+                toastr.error('Failed to add termination');
+                showDev(ex.message, '4');
             }
         });
     });
@@ -278,92 +269,90 @@
 
     //#region Handle Edit button click
 
-    $(document).on('click', '.edit-resignation11', function (e) {
+    $(document).on('click', '.edit-termination11', function (e) {
         e.preventDefault();
-        const resignationId = $(this).data('id');
-        currentEditingId = resignationId;
+        const terminationId = $(this).data('id');
+        currentEditingId = terminationId;
 
-        // Get resignation data
+        // Get termination data
         $.ajax({
-            url: '/EmployeeResign/GetResignation',
+            url: '/EmployeeTermination/GetTermination',
             type: 'GET',
-            data: { id: resignationId },
+            data: { id: terminationId },
             success: function (response) {
+                showDev(response, 'edit data populate')
                 if (response.success) {
-                    removeResignationFormReadonly();
+                    removeTerminationFormReadonly();
                     const data = response.data;
                     $('#duplicateMessage').text('');
                     populateEditModal(data)
-                    
-                    
-
-                 
-
                 } else {
                     const data = response.data;
                     if (data == null) {
                         toastr.warning(response.message);
-                        clearResignationForm();
+                        clearTerminationForm();
                     } else {
                         toastr.warning(response.message);
                         $('#duplicateMessage').text(response.message);
                         populateEditModal(data)
-                        makeResignationFormReadonly()
+                        makeTerminationFormReadonly()
                     }
-
-                    
                 }
             },
             error: function (ex) {
-                toastr.error('Failed to load resignation data');
-                showDev(ex.message , '5');
+                toastr.error('Failed to load termination data');
+                showDev(ex.message, '5');
             }
         });
     });
 
     function populateEditModal(data) {
-        choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);      
-        setTimeout(function () {          
+        choiceManager.setChoiceValue('editCompany', data.companyId || data.CompanyId);
+        setTimeout(function () {
             choiceManager.setChoiceValue('editEmployeeId', data.employeeId || data.EmployeeId);
         }, 500);
-        flatpickrHelper.setDate('editNoticeDate', data.resNoticeDate || data.ResNoticeDate)
-        flatpickrHelper.setDate('editResignationDate', data.resinDate || data.ResinDate)
-        $('#edit_resignation textarea').val(data.resignResons || data.ResignResons);
+        choiceManager.setChoiceValue('editTerminationTypeId', data.terminationTypeId || data.TerminationTypeId);
+        flatpickrHelper.setDate('editNoticeDate', data.noticeDate || data.NoticeDate)
+        flatpickrHelper.setDate('editTerminationDate', data.terminationDate || data.TerminationDate)
+        $('#edit_termination textarea').val(data.reason || data.Reason);
     }
 
-    function removeResignationFormReadonly() {
+    function removeTerminationFormReadonly() {
         choiceManager.enableChoice('editCompany')
         choiceManager.enableChoice('editEmployeeId')
-        flatpickrHelper.enable('editNoticeDate', 'editResignationDate');
-        $('#edit_resignation textarea').prop('readonly', false);
+        choiceManager.enableChoice('editTerminationTypeId')
+        flatpickrHelper.enable('editNoticeDate', 'editTerminationDate');
+        $('#edit_termination textarea').prop('readonly', false);
     }
 
-    function makeResignationFormReadonly() {
+    function makeTerminationFormReadonly() {
         choiceManager.disableChoice('editCompany')
         choiceManager.disableChoice('editEmployeeId')
-        flatpickrHelper.disable('editNoticeDate', 'editResignationDate');
-        $('#edit_resignation textarea').prop('readonly', true); 
+        choiceManager.disableChoice('editTerminationTypeId')
+        flatpickrHelper.disable('editNoticeDate', 'editTerminationDate');
+        $('#edit_termination textarea').prop('readonly', true);
     }
 
-    // Handle Edit Resignation Form Submit
-    $('#edit_resignation form').on('submit', function (e) {
+    // Handle Edit Termination Form Submit
+    $('#edit_termination form').on('submit', function (e) {
         e.preventDefault();
 
         if (!currentEditingId) {
-            toastr.error('No resignation selected for editing');
+            toastr.error('No termination selected for editing');
             return;
         }
 
         const formData = new FormData();
-        formData.append('resignationId', currentEditingId);
+        formData.append('terminationId', currentEditingId);
         formData.append('CompanyId', $('#editCompany').val());
         formData.append('EmployeeId', $('#editEmployeeId').val());
+        formData.append('TerminationTypeId', $('#editTerminationTypeId').val());
         formData.append('NoticeDate', $('#editNoticeDate').val());
-        formData.append('ResignationDate', $('#editResignationDate').val());
-        formData.append('Reason', $('#edit_resignation textarea').val());
+        formData.append('ResignationDate', $('#editTerminationDate').val());
+        formData.append('Reason', $('#edit_termination textarea').val());
 
         $.ajax({
-            url: '/EmployeeResign/UpdateResignation',
+            url: '/EmployeeTermination/UpdateTermination',
             type: 'POST',
             data: formData,
             processData: false,
@@ -371,9 +360,7 @@
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-                    
-                    hideModal('edit_resignation');
-
+                    hideModal('edit_termination');
                     currentEditingId = null;
                     loadTableData(); // Refresh the table
                 } else {
@@ -381,7 +368,7 @@
                 }
             },
             error: function (ex) {
-                toastr.error('Failed to update resignation');
+                toastr.error('Failed to update termination');
                 showDev(ex.message, '6')
             }
         });
@@ -390,11 +377,11 @@
     //#endregion
 
     //#region Handle Delete button click
-  
-    $(document).on('click', '.delete-resignation', function (e) {
+
+    $(document).on('click', '.delete-termination', function (e) {
         e.preventDefault();
-        const resignationId = $(this).data('id');
-        currentEditingId = resignationId; // Store for deletion
+        const terminationId = $(this).data('id');
+        currentEditingId = terminationId; // Store for deletion
     });
 
     // Handle Delete confirmation
@@ -402,12 +389,12 @@
         e.preventDefault();
 
         if (!currentEditingId) {
-            toastr.error('No resignation selected for deletion');
+            toastr.error('No termination selected for deletion');
             return;
         }
 
         $.ajax({
-            url: '/EmployeeResign/DeleteResignation',
+            url: '/EmployeeTermination/DeleteTermination',
             type: 'POST',
             data: { ids: currentEditingId },
             success: function (response) {
@@ -417,17 +404,15 @@
                     currentEditingId = null;
                     loadTableData();
                     showDev(response, '6')
-
                 } else {
                     hideModal('delete_modal');
                     $('#notDelete_modal').modal('show');
                     toastr.warning(response.message);
                     showDev(response, '7')
-
                 }
             },
             error: function () {
-                toastr.error('Failed to delete resignation');
+                toastr.error('Failed to delete termination');
             }
         });
     });
@@ -436,8 +421,8 @@
 
     //#region clear form
 
-    function clearResignationForm() {
-        const form = document.querySelector('#new_resignation form');
+    function clearTerminationForm() {
+        const form = document.querySelector('#new_termination form');
 
         if (!form) return;
 
@@ -462,21 +447,16 @@
         });
     }
 
-
-
     //#endregion
 
     //#region close modal click
 
     $('#ndCloseBtn').on('click', function () {
-       $('#notDelete_modal').modal('hide');
+        $('#notDelete_modal').modal('hide');
         showDev('click close ', '8')
     });
 
-    
-
     //#endregion
-
 
     loadTableData();
 });
