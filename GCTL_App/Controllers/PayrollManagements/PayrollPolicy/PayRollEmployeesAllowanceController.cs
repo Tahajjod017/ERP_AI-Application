@@ -1,6 +1,8 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Data.Models;
+using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
@@ -38,10 +40,10 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             return View(model);
         }
         #region Save Data
-       
+
         [Route("PayRollEmployeesAllowance/SavePayRollEmpAlowance")]
         [HttpPost]
-        
+
         public async Task<IActionResult> SavePayRollEmpAlowance(PayRollEmpAllowanceSaveVM model)
         {
             try
@@ -50,13 +52,106 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                 {
                     return BadRequest(ModelState);
                 }
-                var data=await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
-                return Ok(data);  
+                var data = await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
+                return Json(new { success = true, message = "Saved Successfully" });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message });
-               
+
+            }
+        }
+
+        #endregion
+
+        #region Update Data
+        [Route("PayRollEmployeesAllowance/UpdatePayRollEmpAllowance")]
+        [HttpPost]  
+        public async Task<IActionResult> UpdatePayRollEmpAllowance(PayRollEmpAllowanceUpdate model)
+        {
+            try
+            {
+                try
+                {
+                    if (!ModelState.IsValid)
+                    {
+                        return BadRequest(ModelState);
+                    }
+                    var data = await payRollEmpAllowanceService.UpdatePayRollEmpAllowance(model);
+                    return Json(data);
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = ex.Message });
+
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Get By Data
+        [Route("PayRollEmployeesAllowance/GetByIdPayRollEmpAllowance")]
+        [HttpGet]
+        public async Task<IActionResult> GetByIdPayRollEmpAllowance(int id)
+        {
+            try
+            {
+                var data = await payRollEmpAllowanceService.GetByIdPayRollEmpAllowance(id);
+                return Ok(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get All Data List
+
+        [Route("PayRollEmployeesAllowance/GetAllTableListAsync")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null)
+        {
+            try
+            {
+
+                var data = await payRollEmpAllowanceService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, organizationId);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        #endregion
+
+        #region Delete Leave Request
+        [Route("PayRollEmployeesAllowance/SoftDeletePayRollEmpAllowance")]
+        [HttpPost]
+        public async Task<IActionResult> SoftDeletePayRollEmpAllowance(DeleteRequestVM deleteRequestVM)
+        {
+            try
+            {
+                var data = await payRollEmpAllowanceService.SoftDeletePayRollEmpAllowance(deleteRequestVM);
+                return Json(data);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new { message = ex.Message });
+
             }
         }
         #endregion
