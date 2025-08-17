@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Employees\EmployeeTermination\" />
     <Folder Include="ProjectManagements\" />
   </ItemGroup>
 

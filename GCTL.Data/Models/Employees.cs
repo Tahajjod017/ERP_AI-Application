@@ -435,6 +435,12 @@ public partial class Employees
 
     public virtual ICollection<LeadStatuses> LeadStatusesUpdatedByNavigation { get; set; } = new List<LeadStatuses>();
 
+    public virtual ICollection<LeadTypes> LeadTypesCreatedByNavigation { get; set; } = new List<LeadTypes>();
+
+    public virtual ICollection<LeadTypes> LeadTypesDeletedByNavigation { get; set; } = new List<LeadTypes>();
+
+    public virtual ICollection<LeadTypes> LeadTypesUpdatedByNavigation { get; set; } = new List<LeadTypes>();
+
     public virtual ICollection<Leads> LeadsCreatedByNavigation { get; set; } = new List<Leads>();
 
     public virtual ICollection<Leads> LeadsDeletedByNavigation { get; set; } = new List<Leads>();
@@ -718,6 +724,8 @@ public partial class Employees
     public virtual ICollection<TerminationTypes> TerminationTypesDeletedByNavigation { get; set; } = new List<TerminationTypes>();
 
     public virtual ICollection<TerminationTypes> TerminationTypesUpdatedByNavigation { get; set; } = new List<TerminationTypes>();
+
+    public virtual ICollection<Terminations> TerminationsApprovalPerson { get; set; } = new List<Terminations>();
 
     public virtual ICollection<Terminations> TerminationsCreatedByNavigation { get; set; } = new List<Terminations>();
 

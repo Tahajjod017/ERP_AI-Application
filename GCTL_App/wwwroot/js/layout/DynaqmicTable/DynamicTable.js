@@ -1,5 +1,9 @@
 ﻿
 
+
+//#region dynamic table version 1
+
+
 const DynamicTable = {
 
     
@@ -148,3 +152,6 @@ const DynamicTable = {
 $(document).ready(function () {
     DynamicTable.init();
 });
+
+
+    //#endregion

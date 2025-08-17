@@ -41,6 +41,8 @@ public partial class Leads
 
     public int? DeletedBy { get; set; }
 
+    public string LeadName { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -50,6 +52,8 @@ public partial class Leads
     public virtual LeadSources LeadSource { get; set; }
 
     public virtual LeadStatuses LeadStatus { get; set; }
+
+    public virtual ICollection<LeadTypes> LeadTypes { get; set; } = new List<LeadTypes>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
