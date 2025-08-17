@@ -1,14 +1,19 @@
 ﻿//const { ajax } = require("jquery");
 
 let itiMap = {};
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6", "#phonePersonIndex", "#otherPhonePersonIndex", "#phone5Index", "#phone6Index"];
+let itiMapIndex = {};
+function initPhoneFields() {
+    const phoneIds = [
+        "#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6",
+        "#phonePersonIndex", "#otherPhonePersonIndex", "#phone5Index", "#phone6Index"
+    ];
 
     phoneIds.forEach(selector => {
         const input = document.querySelector(selector);
         if (!input) return;
+
+        // Prevent double initialization
+        if (itiMap[selector]) return;
 
         const iti = window.intlTelInput(input, {
             separateDialCode: true,
@@ -21,7 +26,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     console.log("Phone fields initialized", itiMap);
+}
+
+// Initialize once when DOM ready
+document.addEventListener("DOMContentLoaded", function () {
+    initPhoneFields();
 });
+
 
 
 $(document).ready(function () {
@@ -227,11 +238,14 @@ $(document).ready(function () {
             data: JSON.stringify(customerId),
             success: function (response) {
                 console.log(response);
-                
-                $(document).ready(function () {
+
+                setTimeout(() => {
                     customerInfoContainer.empty();
                     customerInfoContainer.append(customerInfoContainerHtml);
-                });
+
+
+                    initPhoneFields();
+                }, 300);
 
                 setTimeout(() => {
                     $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
@@ -255,8 +269,8 @@ $(document).ready(function () {
                     document.getElementById("otherPhonePersonIndex").value = response.customer.otherPhone;
                     document.getElementById("emailPersonIndex").value = response.customer.email;
                 }, 300);
-                
             },
+
             error: function () {
                 alert('Failed to load Contact Name');
             }
@@ -561,7 +575,6 @@ $(document).ready(function () {
         }
     };
     function initAutocomplete() {
-        debugger;
         const ids = idMap[targetTab] || {};
         const input = document.getElementById(ids.autocomplete);;
 
@@ -613,7 +626,6 @@ $(document).ready(function () {
             document.getElementById(ids.city).value = city;
             document.getElementById(ids.state).value = state;
             //setCountry(ids.country, country);
-            debugger;
             //document.getElementById(ids.country).value = country;
             setCountry(ids.country, country);
             document.getElementById(ids.countryCode).value = countryCode;
@@ -630,7 +642,6 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: { countryName : countryName },
             success: function (response) {
-                debugger;
                 showDev(response, 'dd')
 
                 choiceManager.setChoiceValue(id, response.countryId)
@@ -666,7 +677,6 @@ $(document).ready(function () {
 
 
     function modalValidation(item) {
-        debugger;
         let validationStatus = true;
         const ids = idMap[item] || {};
         if (item == "shipping") {
@@ -676,7 +686,6 @@ $(document).ready(function () {
     }
     // save data
     $("#modalSaveBtn").on("click", function (e) {
-        debugger;
         e.preventDefault();
         
         if (fieldValidation()) {
@@ -722,8 +731,7 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 data: JSON.stringify(dataToSend),
                 success: function (response) {
-                    debugger;
-                    console.log(response);
+                    targetTab = "index";
                     if (response.success) {
                         $('#addCustomerModal').modal('hide');
                         toastr.success(response.message);
@@ -745,6 +753,7 @@ $(document).ready(function () {
         e.preventDefault();
         debugger;
         if (fieldValidation()) {
+            console.log(document.getElementById(idMapIndex.person.primaryID).value);
             const actionTab =
                 (targetTab === "index") ? ["person"] : ["company"];
             //console.log(ids.phone);
@@ -768,14 +777,14 @@ $(document).ready(function () {
                 $(".customerName-item").data("id");
                 data.Customers.push({
                     TabName: item,
-                    PrimaryID: document.getElementById(ids.primaryID).value,
+                    PrimaryID: document.getElementById(idMapIndex.person.primaryID).value,
                     FirstName: document.getElementById(ids.firstName).value,
                     LastName: document.getElementById(ids.lastName).value,
                     FullAddress: document.getElementById(ids.autocomplete).value,
                     Street: document.getElementById(ids.street).value,
                     City: document.getElementById(ids.city).value,
                     State: document.getElementById(ids.state).value,
-                    Additionaladdress: document.getElementById(ids.additionalAddress).value,
+                    Additionaladdress: document.getElementById(idMapIndex.person.additionalAddress).value,
                     PostalCode: document.getElementById(ids.postal_code).value,
                     CountryName: document.getElementById(ids.country).value,
                     CountryCode: document.getElementById(ids.countryCode).value,
@@ -803,13 +812,13 @@ $(document).ready(function () {
                 },
                 error: function (xhr) {
                     console.log(xhr);
-                    alert('Error saving person');
                 }
             });
         }
     });
 
     function targetListForValidation() {
+        debugger;
         if (targetTab === 'person' || targetTab === 'shipping') {
             let ids = idMap.shipping;
             let list = [];
@@ -818,21 +827,17 @@ $(document).ready(function () {
             if ($(`#${ids.firstName}`).val() === "" && $(`#${ids.lastName}`).val() === "") {
                 list = [
                     idMap.person.firstName,
-                    idMap.person.lastName,
                     idMap.person.phone
                 ];
                 let removeBorderItemList = [
                     idMap.shipping.firstName,
-                    idMap.shipping.lastName,
                     idMap.shipping.phone]
                 removeBorderItemList.forEach(e => removeValidationOne(`#${e}`));
             } else {
                 list = [
                     idMap.person.firstName,
-                    idMap.person.lastName,
                     idMap.person.phone,
                     idMap.shipping.firstName,
-                    idMap.shipping.lastName,
                     idMap.shipping.phone
                 ];
             }
@@ -851,12 +856,7 @@ $(document).ready(function () {
                 idMapIndex.indexBase.leadOwnerID,
 
                 idMapIndex.person.firstName,
-                idMapIndex.person.lastName,
-                idMapIndex.person.autocomplete,
-                idMapIndex.person.postal_code,
-                idMapIndex.person.country,
                 idMapIndex.person.phone,
-                idMapIndex.person.email,
             ];
         }
         else {
@@ -880,7 +880,7 @@ $(document).ready(function () {
 
     // check validation when click on submit btn
     function fieldValidation() {
-        
+        debugger;
         const selectedTab = targetListForValidation();
 
         let isValid = true;
