@@ -264,7 +264,6 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     YearlyEndBonusTypeID = entity.YearlyEndBonusTypeID,
                     FastivalBonusMinimumServiceInMonth = entity.FastivalBonusMinimumServiceInMonth,
 
-
                 };
 
                 return new CommonReturnViewModel

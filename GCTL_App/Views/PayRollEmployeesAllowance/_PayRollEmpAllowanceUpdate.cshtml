@@ -1,6 +1,5 @@
-﻿<form action="add-shift-ui.html" class="row g-3 mb-63">
-
-
+﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.PayRollEmpAllowanceUpdate
+<form id="payrollEmpAllowanceFormUpdate" class="row g-3">
 
     <div class="col-md-4">
 
@@ -10,12 +9,13 @@
                 <div class="form-check form-switch">
                 </div>
             </div>
-            <select class="form-multi-select" id="multiple-select-tag" multiple
+            <input asp-for="EmployeeAllowanceID" type="hidden"/>
+            <select class="form-multi-select" multiple asp-for="OrganizationIDEdit" asp-items="@ViewBag.OrganizationDD"
                     data-coreui-selection-type="tags" data-coreui-search="true">
-                <option value="0">Select Company...</option>
-                <option value="1">CSL</option>
-                <option value="2">GCTL</option>
+                <option value="">Select Company</option>
+
             </select>
+            <span id="OrganizationID-error" class="text-danger"></span>
         </div>
     </div>
 
@@ -24,10 +24,10 @@
             <div class="content-head d-flex justify-content-between align-items-center">
                 <label class="form-label" for="timepicker1">Mobile/Internet Allowance</label>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                    <input class="form-check-input" type="checkbox" asp-for="IsMobileInternetAllowanceEnabledEdit">
                 </div>
             </div>
-            <input class="form-control" id="" type="text" placeholder="Ex: 1000 tk Monthly">
+            <input class="form-control" type="text" placeholder="Ex: 1000 tk Monthly" asp-for="MobileInternetAllowanceEdit">
         </div>
     </div>
 
@@ -36,19 +36,19 @@
             <div class="content-head d-flex justify-content-between align-items-center">
                 <label class="form-label" for="timepicker1">Shift Allowance</label>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                    <input class="form-check-input" type="checkbox" asp-for="IsShiftAllowanceEnabledEdit">
                 </div>
             </div>
-            <input class="form-control" id="" type="text" placeholder="Ex: 500 tk Per Night Shift">
+            <input class="form-control" id="" type="text" placeholder="Ex: 500 tk Per Night Shift" asp-for="ShiftAllowanceEdit">
         </div>
     </div>
 
     <div class="col-md-12">
-        <div class="mb-1">
+        <div class="mb-3">
             <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                 <h5>House Rent Allowance</h5>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                    <input class="form-check-input" type="checkbox" asp-for="IsHouseRentAllowanceEnabledEdit">
                 </div>
             </div>
         </div>
@@ -57,15 +57,15 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">House Rent Allowance Rate</label>
-            <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+            <select class="form-select mb-3 choiceDD" asp-for="HouseRentAllowanceRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                <option>35 %</option>
+                @*  <option>35 %</option>
                 <option>40 %</option>
                 <option>45 %</option>
                 <option>50 %</option>
                 <option>60 %</option>
                 <option>70 %</option>
-                <option>100 %</option>
+                <option>100 %</option> *@
             </select>
         </div>
     </div>
@@ -73,33 +73,32 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Allowance Depends on</label>
-            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                <option value="">Select Salary...</option>
-                <option>Gross Salary</option>
-                <option selected>Basic Salary</option>
+            <select class="form-select choiceDD" asp-items="@ViewBag.SalaryTypesDD as SelectList" asp-for="HRentDependsOnSalaryTypeIDEdit">
+                <option value="">Select Salary</option>
+
             </select>
         </div>
     </div>
 
     <div class="col-md-12">
-        <div class="mb-1">
+        <div class="mb-3">
             <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                 <h5>Medical Allowance</h5>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                    <input class="form-check-input" type="checkbox" asp-for="IsMedicalAllowanceEnabledEdit">
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-lg-6 col-md-6 col-sm-12">
-        <div class="mb-1">
+        <div class="mb-3">
             <label class="form-label" for="timepicker1">Medical Allowance Rate</label>
-            <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+            <select class="form-select mb-3 choiceDD" asp-for="MedicalAllowanceRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                <option>8 %</option>
+                @*  <option>8 %</option>
                 <option>10 %</option>
-                <option>15 %</option>
+                <option>15 %</option> *@
             </select>
         </div>
     </div>
@@ -107,10 +106,9 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Allowance Depends on</label>
-            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                <option value="">Select Salary...</option>
-                <option>Gross Salary</option>
-                <option selected>Basic Salary</option>
+            <select class="form-select choiceDD" asp-items="@ViewBag.SalaryTypesDD as SelectList" asp-for="MediAllowDepOnSalaryTypeIDEdit">
+                <option value="">Select Salary</option>
+
             </select>
         </div>
     </div>
@@ -120,7 +118,7 @@
             <div class="content-head d-flex justify-content-between align-items-center border-bottom">
                 <h5>Conveyance Allowance</h5>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+                    <input class="form-check-input" type="checkbox" asp-for="IsConveyanceAllowanceEnabledEdit">
                 </div>
             </div>
         </div>
@@ -129,11 +127,11 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Conveyance Allowance Rate</label>
-            <select class="form-select mb-3" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+            <select class="form-select mb-3 choiceDD" asp-for="ConveyanceAllowanceRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                <option>8 %</option>
+                @* <option>8 %</option>
                 <option>10 %</option>
-                <option>15 %</option>
+                <option>15 %</option> *@
             </select>
         </div>
     </div>
@@ -141,10 +139,8 @@
     <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Allowance Depends on</label>
-            <select class="form-select" id="organizerSingle" data-choices="data-choices" disabled data-options='{"removeItemButton":true,"placeholder":true}'>
-                <option value="">Select Salary...</option>
-                <option>Gross Salary</option>
-                <option selected>Basic Salary</option>
+            <select class="form-select choiceDD" asp-items="@ViewBag.SalaryTypesDD as SelectList" asp-for="ConAllowDepOnSalaryTypeIDEdit">
+                <option value="">Select Salary</option>
             </select>
         </div>
     </div>
@@ -154,10 +150,10 @@
     <div class="col-12">
         <div class="row g-3 justify-content-end">
             <div class="col-auto">
-                <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                <button class="btn btn-phoenix-primary px-5" id="ResetButton">Cancel</button>
             </div>
             <div class="col-auto">
-                <button class="btn btn-primary px-5 px-sm-10">Save</button>
+                <button class="btn btn-primary px-5 px-sm-15" id="PayRollEmpAllowanceUpdate">Save</button>
             </div>
         </div>
     </div>
