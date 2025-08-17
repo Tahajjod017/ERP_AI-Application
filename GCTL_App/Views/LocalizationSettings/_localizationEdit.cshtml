@@ -1,4 +1,93 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿<div class="modal fade" id="edit_Localization_setting">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Localization Settings</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="localizationForm" asp-controller="LocalizationSettings" asp-action="Updates" method="post">
+                <div class="mb-3">
+                    <div class="row">
+                        <input type="hidden" id="localizationId" name="LocalizationID" value="" />
+                        <!-- Organization Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="organization">Organization</label>
+                                <select class="form-select choiceDD" id="organizationEditId" name="OrganizationID">
+                                   
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Language Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="languageId">Language</label>
+                                <select class="form-select choiceDD" id="languageEditId" name="LanguageID">
+                                   
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Timezone Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="timezoneId">Timezone</label>
+                                <select class="form-select choiceDD" id="timezoneEditId" name="TimezoneID">
+
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <!-- Date Format Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="dateFormatId">Date Format</label>
+                                <select class="form-select choiceDD" id="dateFormatEditId" name="DateFormatID">
+                                   
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Time Format Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="timeFormatId">Time Format</label>
+                                <select class="form-select choiceDD" id="timeFormatEditId" name="TimeFormatID">
+                                  
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Currency Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="currencyId">Currency</label>
+                                <select class="form-select choiceDD" id="currencyEditId" name="CurrencyID">
+                                   
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Currency Symbol Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="currencySymbolId">Currency Symbol</label>
+                                <select class="form-select" id="currencySymbolEditId" name="CurrencySymbol">
+                                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

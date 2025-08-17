@@ -22,8 +22,9 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
         private readonly IGenericRepository<TimeFormats> _genericRepositoryTimeformat;
         private readonly IGenericRepository<Timezones> _genericRepositoryTimeZone;
         private readonly IGenericRepository<DateFormats> _genericRepositoryDateFormat;
+        private readonly IGenericRepository<LanguageLists> _genericRepositoryLanguageLists;
 
-        public LocalizationSettingService(IUserInfoService userInfoService, IGenericRepository<Localizations> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<Currencies> genericRepositoryCurrencies, IGenericRepository<TimeFormats> genericRepositoryTimeformat, IGenericRepository<Timezones> genericRepositoryTimeZone, IGenericRepository<DateFormats> genericRepositoryDateFormat) : base(genericRepository)
+        public LocalizationSettingService(IUserInfoService userInfoService, IGenericRepository<Localizations> genericRepository, IGenericRepository<Organization> genericRepositoryOraganization, IGenericRepository<Currencies> genericRepositoryCurrencies, IGenericRepository<TimeFormats> genericRepositoryTimeformat, IGenericRepository<Timezones> genericRepositoryTimeZone, IGenericRepository<DateFormats> genericRepositoryDateFormat, IGenericRepository<LanguageLists> genericRepositoryLanguageLists) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -32,6 +33,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             _genericRepositoryTimeformat = genericRepositoryTimeformat;
             _genericRepositoryTimeZone = genericRepositoryTimeZone;
             _genericRepositoryDateFormat = genericRepositoryDateFormat;
+            _genericRepositoryLanguageLists = genericRepositoryLanguageLists;
         }
 
         #region AddAsync
@@ -133,6 +135,40 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
         }
         #endregion
 
+        #region getById
+        public async Task<LocalizationViewModel> GetByIdAsync(int id)
+        {
+            var entity = await _genericRepository.FirstOrDefaultAsync(x => x.LocalizationID == id && x.DeletedAt == null);
+            if (entity == null)
+            {
+                return null; // or throw an exception if preferred
+            }
+            return new LocalizationViewModel
+            {
+                LocalizationID = entity.LocalizationID,
+                OrganizationID = entity.OrganizationID,
+                OrganizationName = entity.Organization?.OrganizationName ?? "_", // Assuming OrganizationName exists in Organization
+                LanguageID = entity.LanguageID,
+                LanguageName = entity.Language?.LanguageName ?? "_", // Assuming LanguageName exists in Language
+                TimezoneID = entity.TimezoneID,
+                TimezoneName = entity.Timezone?.TimezoneName ?? "_", // Assuming TimezoneName exists in Timezone
+                DateFormatID = entity.DateFormatID,
+                DateFormat = entity.DateFormat?.Description ?? "_", // Assuming Description exists in DateFormat
+                TimeFormatID = entity.TimeFormatID,
+                TimeFormat = entity.TimeFormat?.DisplayText ?? "_", // Assuming DisplayText exists in TimeFormat
+                CurrencyID = entity.CurrencyID,
+                CurrencyName = entity.Currency?.CurrencyName ?? "_", // Assuming CurrencyName exists in Currency
+                                                                     // CurrencySymbol = entity.Currency?.CurrencySymbol ?? "_", // Assuming CurrencySymbol exists in Currency
+               // CreatedAt = entity.CreatedAt,
+                CreatedBy = entity.CreatedBy,
+               // UpdatedAt = entity.UpdatedAt,
+                UpdatedBy = entity.UpdatedBy,
+                // DeletedAt = entity.DeletedAt,
+                LIP = entity.LIP,
+                LMAC = entity.LMAC
+            };
+        }
+        #endregion
         #region GetAllAsync
         public async Task<PaginationService<Localizations, LocalizationViewModel>.PaginationResult<LocalizationViewModel>> GetAllAsync(
             int pageNumber = 1,
@@ -309,6 +345,18 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
 
 
             return organizations;
+        }
+        public async Task<List<SelectListItem>> GetLanguagesAsync()
+        {
+            var languages = await _genericRepositoryLanguageLists.AllActive()
+                .Select(l => new SelectListItem
+                {
+                    Value = l.ID.ToString(),
+                    Text = l.LanguageName
+                })
+                .ToListAsync();
+            
+            return languages;
         }
         public async Task<List<SelectListItem>> GetTimeformatAsync()
         {
