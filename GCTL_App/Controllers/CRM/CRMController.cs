@@ -35,7 +35,7 @@ namespace GCTL_App.Controllers.CRM
             int pageSize = 10,
             string searchTerm = "",
             string sortColumn = "",
-            string sortDirection = "asc")
+            string sortDirection = "desc")
         {
             // Fetch all leads
             var leadList = await _crmService.GetLeads(customerType);
@@ -57,12 +57,12 @@ namespace GCTL_App.Controllers.CRM
             {
                 leadList = sortColumn switch
                 {
-                    "leadName" => sortDirection == "asc" ? leadList.OrderBy(r => r.LeadName ?? "").ToList() : leadList.OrderByDescending(r => r.LeadName ?? "").ToList(),
-                    "email" => sortDirection == "asc" ? leadList.OrderBy(r => r.Email ?? "").ToList() : leadList.OrderByDescending(r => r.Email ?? "").ToList(),
-                    "phone" => sortDirection == "asc" ? leadList.OrderBy(r => r.Phone ?? "").ToList() : leadList.OrderByDescending(r => r.Phone ?? "").ToList(),
-                    "contactName" => sortDirection == "asc" ? leadList.OrderBy(r => r.ContactName ?? "").ToList() : leadList.OrderByDescending(r => r.ContactName ?? "").ToList(),
-                    "companyName" => sortDirection == "asc" ? leadList.OrderBy(r => r.CompanyName ?? "").ToList() : leadList.OrderByDescending(r => r.CompanyName ?? "").ToList(),
-                    "status" => sortDirection == "asc" ? leadList.OrderBy(r => r.Status ?? "").ToList() : leadList.OrderByDescending(r => r.Status ?? "").ToList(),
+                    "leadName" => sortDirection == "desc" ? leadList.OrderBy(r => r.LeadName ?? "").ToList() : leadList.OrderByDescending(r => r.LeadName ?? "").ToList(),
+                    "email" => sortDirection == "desc" ? leadList.OrderBy(r => r.Email ?? "").ToList() : leadList.OrderByDescending(r => r.Email ?? "").ToList(),
+                    "phone" => sortDirection == "desc" ? leadList.OrderBy(r => r.Phone ?? "").ToList() : leadList.OrderByDescending(r => r.Phone ?? "").ToList(),
+                    "contactName" => sortDirection == "desc" ? leadList.OrderBy(r => r.ContactName ?? "").ToList() : leadList.OrderByDescending(r => r.ContactName ?? "").ToList(),
+                    "companyName" => sortDirection == "desc" ? leadList.OrderBy(r => r.CompanyName ?? "").ToList() : leadList.OrderByDescending(r => r.CompanyName ?? "").ToList(),
+                    "status" => sortDirection == "desc" ? leadList.OrderBy(r => r.Status ?? "").ToList() : leadList.OrderByDescending(r => r.Status ?? "").ToList(),
                     _ => leadList
                 };
             }
