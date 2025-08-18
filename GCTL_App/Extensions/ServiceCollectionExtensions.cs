@@ -91,6 +91,7 @@ using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.MenuTabs;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
+using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
@@ -181,6 +182,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmpTransferApprovedOrDeclineService, EmpTransferApprovedOrDeclineService>();
             services.AddScoped<IEmployeeBenefitsService, EmployeeBenefitsService>();
             services.AddScoped<IPayRollEmpAllowanceService, PayRollEmpAllowanceService>();
+            services.AddScoped<IPayRollEmpSalaryService, PayRollEmploSalaryService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
