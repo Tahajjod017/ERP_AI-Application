@@ -23,12 +23,14 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
         private readonly IGenericRepository<RosterInHolyDays> _genericRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
         private readonly IGenericRepository<CompensationDayExchanges> _compensationDayExchanges;
+        private readonly IGenericRepository<SpiralPatternAssignList> _spiralPatternAssignList;
 
-        public OffDayRosterService(IGenericRepository<RosterInHolyDays> genericRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo, IGenericRepository<CompensationDayExchanges> compensationDayExchanges) : base(genericRepository)
+        public OffDayRosterService(IGenericRepository<RosterInHolyDays> genericRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo, IGenericRepository<CompensationDayExchanges> compensationDayExchanges, IGenericRepository<SpiralPatternAssignList> spiralPatternAssignList) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employeeOfficeInfo = employeeOfficeInfo;
             _compensationDayExchanges = compensationDayExchanges;
+            _spiralPatternAssignList = spiralPatternAssignList;
         }
         #endregion
 
@@ -377,126 +379,353 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
 
         #region GetAllAsync
         public async Task<(List<RosterInOffDayListVM> Data, List<string> UniqueDates, SeparatePaginationInfo Pagination)> GetAllAsync(
-            int pageNumber = 1, 
-            int pageSize = 5, 
-            string searchTerm = "", 
-            string sortColumn = "RosterInHolyDayID", 
-            string sortOrder = "desc", 
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "RosterInHolyDayID",
+            string sortOrder = "desc",
             int daysToShow = 7,
             DateTime? startDate = null)
         {
-            // 1. Get raw flat records first
-            var rawData = await _genericRepository.AllActive()
-                .Where(x => x.DayDate.HasValue)
-                .Select(x => new
-                {
-                    x.EmployeeID,
-                    EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
-                    x.DepartmentID,
-                    DepartmentName = x.Department.DepartmentName,
-                    x.OrganizationID,
-                    OrganizationName = x.Organization.OrganizationName,
-                    x.DayDate,
-                    x.ShiftID,
-                    ShiftName = x.Shift.ShiftName,
-                    StartTime = x.Shift.StartTime,
-                    EndTime = x.Shift.EndTime,
-                    x.RosterInHolyDayID
-                })
-                .AsNoTracking()
-                .ToListAsync();
-
-            // 2. Extract unique dates
-            var startFrom = startDate ?? DateTime.Today;
-
-            var uniqueDates = rawData
-                .Where(x => x.DayDate.Value >= startDate)
-                .Select(x => x.DayDate.Value.Date.ToString("yyyy-MM-dd"))
-                .Distinct()
-                .OrderBy(d => d)
-                .Take(daysToShow)
-                .ToList();
-
-            // 3. Group data in memory (small set after projection)
-            var grouped = rawData
-                .GroupBy(x => x.EmployeeID)
-                .Select(g => new RosterInOffDayListVM
-                {
-                    EmployeeID = g.Key ?? 0,
-                    RosterInHolyDayID = g.First().RosterInHolyDayID,
-                    EmployeeName = g.First().EmployeeName ?? "",
-                    DepartmentID = g.First().DepartmentID ?? 0,
-                    DepartmentName = g.First().DepartmentName ?? "",
-                    OrganizationID = g.First().OrganizationID ?? 0,
-                    OrganizationName = g.First().OrganizationName ?? "",
-                    ShiftsPerDay = g
-                        .Where(x => x.DayDate.HasValue)
-                        .ToDictionary(
-                            k => k.DayDate.Value.ToString("yyyy-MM-dd"),
-                            v => new ShiftVM
-                            {
-                                ShiftID = v.ShiftID,
-                                ShiftName = v.ShiftName ?? "N/A",
-                                TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
-                                RosterInHolyDayID = v.RosterInHolyDayID
-                            })
-                })
-                .ToList();
-
-            // 4. Apply search
-            if (!string.IsNullOrWhiteSpace(searchTerm))
+            try
             {
-                var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
-                grouped = grouped
-                    .Where(x =>
-                        x.EmployeeName.ToLower().Contains(lowerSearch) ||
-                        x.DepartmentName.ToLower().Contains(lowerSearch) ||
-                        x.OrganizationName.ToLower().Contains(lowerSearch))
+                var rawData = await _genericRepository.AllActive()
+                    .Where(x => x.DayDate.HasValue)
+                    .Select(x => new
+                    {
+                        x.EmployeeID,
+                        EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
+                        x.DepartmentID,
+                        DepartmentName = x.Department.DepartmentName,
+                        x.OrganizationID,
+                        OrganizationName = x.Organization.OrganizationName,
+                        x.DayDate,
+                        x.ShiftID,
+                        ShiftName = x.Shift.ShiftName,
+                        StartTime = x.Shift.StartTime,
+                        EndTime = x.Shift.EndTime,
+                        x.RosterInHolyDayID
+                    }).AsNoTracking().ToListAsync();
+
+                var spiralPatternData = await _spiralPatternAssignList.AllActive()
+                    .Where(x => x.StartDate.HasValue && x.EndDate.HasValue)
+                    .Include(x => x.SpiralWeeklyPattern)
+                        .ThenInclude(x => x.SpiralWeeklyPatternDetails)
+                        .ThenInclude(s => s.Shift)
+                    .Include(x => x.SpiralWeeklyPattern)
+                        .ThenInclude(x => x.SpiralPatternType)
+                    .Include(x => x.SpiralBioWeeklyPattern)
+                        .ThenInclude(x => x.SpiralBioWeeklyPatternDetails)
+                        .ThenInclude(s => s.Shift)
+                    .Include(x => x.SpiralBioWeeklyPattern)
+                        .ThenInclude(x => x.SpiralPatternType)
+                    .Include(x => x.SpiralMonthlyPattern)
+                        .ThenInclude(x => x.SpiralMonthlyPatternDetails)
+                        .ThenInclude(s => s.Shift)
+                    .Include(x => x.SpiralMonthlyPattern)
+                        .ThenInclude(x => x.SpiralPatternType)
+                    .Include(x => x.Employee)
+                        .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                    .Include(x => x.Department)
+                    .Include(x => x.Organization)
+                    .Select(x => new
+                    {
+                        x.SpiralPatternAssignListID,
+                        x.OrganizationID,
+                        OrganizationName = x.Organization.OrganizationName,
+                        x.DepartmentID,
+                        DepartmentName = x.Department.DepartmentName,
+                        x.EmployeeID,
+                        EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
+                        x.StartDate,
+                        x.EndDate,
+                        SpiralPatternTypeID =
+                            x.SpiralWeeklyPattern != null ? x.SpiralWeeklyPattern.SpiralPatternTypeID :
+                            x.SpiralBioWeeklyPattern != null ? x.SpiralBioWeeklyPattern.SpiralPatternTypeID :
+                            x.SpiralMonthlyPattern != null ? x.SpiralMonthlyPattern.SpiralPatternTypeID : (int?)null,
+                        SpiralPatternTypeName =
+                            x.SpiralWeeklyPattern != null ? x.SpiralWeeklyPattern.SpiralPatternType.SpiralPatternTypeName :
+                            x.SpiralBioWeeklyPattern != null ? x.SpiralBioWeeklyPattern.SpiralPatternType.SpiralPatternTypeName :
+                            x.SpiralMonthlyPattern != null ? x.SpiralMonthlyPattern.SpiralPatternType.SpiralPatternTypeName : null,
+                        SpiralPatternID = x.SpiralWeeklyPatternID ?? x.SpiralBioWeeklyPatternID ?? x.SpiralMonthlyPatternID,
+                        SpiralPatternName =
+                            x.SpiralWeeklyPattern != null ? x.SpiralWeeklyPattern.SpiralWeeklyPatternName :
+                            x.SpiralBioWeeklyPattern != null ? x.SpiralBioWeeklyPattern.SpiralBioWeeklyPatternName :
+                            x.SpiralMonthlyPattern != null ? x.SpiralMonthlyPattern.SpiralMonthlyPatternName : null,
+                    }).AsNoTracking().ToListAsync();
+
+                // 1.Get raw flat records first
+                //var rawData = await (from rhd in _genericRepository.AllActive()
+                //                     join spa in _spiralPatternAssignList.All() on rhd.EmployeeID equals spa.EmployeeID into spaGroup
+                //                     from spa in spaGroup.DefaultIfEmpty()
+                //                     where rhd.DayDate.HasValue
+                //                     select new
+                //                     {
+                //                         rhd.EmployeeID,
+                //                         EmployeeName = $"{rhd.Employee.FirstName} {rhd.Employee.LastName} ({rhd.Employee.EmployeeCode})",
+                //                         rhd.DepartmentID,
+                //                         DepartmentName = rhd.Department.DepartmentName,
+                //                         rhd.OrganizationID,
+                //                         OrganizationName = rhd.Organization.OrganizationName,
+                //                         rhd.DayDate,
+                //                         rhd.ShiftID,
+                //                         ShiftName = rhd.Shift.ShiftName,
+                //                         StartTime = rhd.Shift.StartTime,
+                //                         EndTime = rhd.Shift.EndTime,
+                //                         rhd.RosterInHolyDayID,
+                //                         // SpiralPatternAssignList fields
+                //                         SpiralPatternAssignListID = spa.SpiralPatternAssignListID,
+                //                         //SpiralPatternTypeID = spa.SpiralPatternTypeID,
+                //                         //SpiralPatternName = spa.SpiralPatternType.SpiralPatternTypeName,
+                //                         StartDate = spa.StartDate,
+                //                         EndDate = spa.EndDate
+                //                     }).AsNoTracking().ToListAsync();
+
+                // 2. Extract unique dates
+                var startFrom = startDate ?? DateTime.Today;
+
+                var uniqueDates = rawData
+                    .Where(x => x.DayDate.Value >= startDate)
+                    .Select(x => x.DayDate.Value.Date.ToString("yyyy-MM-dd"))
+                    .Distinct()
+                    .OrderBy(d => d)
+                    .Take(daysToShow)
                     .ToList();
-            }
 
-            // 5. Apply sorting
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                grouped = sortColumn.ToLower() switch
+                // 3. Group data in memory (small set after projection)
+                var grouped = rawData
+                    .GroupBy(x => x.EmployeeID)
+                    .Select(g => new RosterInOffDayListVM
+                    {
+                        EmployeeID = g.Key ?? 0,
+                        RosterInHolyDayID = g.First().RosterInHolyDayID,
+                        EmployeeName = g.First().EmployeeName ?? "",
+                        DepartmentID = g.First().DepartmentID ?? 0,
+                        DepartmentName = g.First().DepartmentName ?? "",
+                        OrganizationID = g.First().OrganizationID ?? 0,
+                        OrganizationName = g.First().OrganizationName ?? "",
+                        //ShiftsPerDay = g
+                        //    .Where(x => x.DayDate.HasValue)
+                        //    .ToDictionary(
+                        //        k => k.DayDate.Value.ToString("yyyy-MM-dd"),
+                        //        v => new ShiftVM
+                        //        {
+                        //            ShiftID = v.ShiftID,
+                        //            ShiftName = v.ShiftName ?? "N/A",
+                        //            TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
+                        //            RosterInHolyDayID = v.RosterInHolyDayID
+                        //        })
+                        ShiftsPerDay = g
+                            .Where(x => x.DayDate.HasValue)
+                            .GroupBy(x => x.DayDate.Value.Date)   // group duplicates by date
+                            .ToDictionary(
+                                k => k.Key.ToString("yyyy-MM-dd"),
+                                v => new ShiftVM
+                                {
+                                    ShiftID = v.First().ShiftID,
+                                    ShiftName = v.First().ShiftName ?? "-",
+                                    TimeRange = $"{v.First().StartTime?.ToString(@"hh\:mm")} - {v.First().EndTime?.ToString(@"hh\:mm")}",
+                                    RosterInHolyDayID = v.First().RosterInHolyDayID
+                                })
+                    })
+                    .ToList();
+
+                // 4. Apply search
+                if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
-                    "employeename" => (sortOrder == "asc"
-                        ? grouped.OrderBy(x => x.EmployeeName)
-                        : grouped.OrderByDescending(x => x.EmployeeName)).ToList(),
+                    var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+                    grouped = grouped
+                        .Where(x =>
+                            x.EmployeeName.ToLower().Contains(lowerSearch) ||
+                            x.DepartmentName.ToLower().Contains(lowerSearch) ||
+                            x.OrganizationName.ToLower().Contains(lowerSearch))
+                        .ToList();
+                }
 
-                    "departmentname" => (sortOrder == "asc"
-                        ? grouped.OrderBy(x => x.DepartmentName)
-                        : grouped.OrderByDescending(x => x.DepartmentName)).ToList(),
+                // 5. Apply sorting
+                if (!string.IsNullOrEmpty(sortColumn))
+                {
+                    grouped = sortColumn.ToLower() switch
+                    {
+                        "employeename" => (sortOrder == "asc"
+                            ? grouped.OrderBy(x => x.EmployeeName)
+                            : grouped.OrderByDescending(x => x.EmployeeName)).ToList(),
 
-                    "organizationname" => (sortOrder == "asc"
-                        ? grouped.OrderBy(x => x.OrganizationName)
-                        : grouped.OrderByDescending(x => x.OrganizationName)).ToList(),
+                        "departmentname" => (sortOrder == "asc"
+                            ? grouped.OrderBy(x => x.DepartmentName)
+                            : grouped.OrderByDescending(x => x.DepartmentName)).ToList(),
 
-                    _ => grouped.OrderByDescending(x => x.RosterInHolyDayID).ToList() // default fallback
+                        "organizationname" => (sortOrder == "asc"
+                            ? grouped.OrderBy(x => x.OrganizationName)
+                            : grouped.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+                        _ => grouped.OrderByDescending(x => x.RosterInHolyDayID).ToList() // default fallback
+                    };
+                }
+
+                // 4. Paginate grouped results
+                var totalCount = grouped.Count;
+                var pagedResult = pageSize == 0
+                    ? grouped
+                    : grouped.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+                // 5. Build pagination info
+                var pagination = new SeparatePaginationInfo
+                {
+                    StartItem = (pageNumber - 1) * pageSize + 1,
+                    EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                    TotalItems = totalCount,
+                    CurrentPage = pageNumber,
+                    TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+                    PageNumbers = pageSize == 0
+                        ? new List<int> { 1 }
+                        : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
                 };
+
+                return (pagedResult, uniqueDates, pagination);
             }
-
-            // 4. Paginate grouped results
-            var totalCount = grouped.Count;
-            var pagedResult = pageSize == 0
-                ? grouped
-                : grouped.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-
-            // 5. Build pagination info
-            var pagination = new SeparatePaginationInfo
+            catch (Exception ex)
             {
-                StartItem = (pageNumber - 1) * pageSize + 1,
-                EndItem = Math.Min(pageNumber * pageSize, totalCount),
-                TotalItems = totalCount,
-                CurrentPage = pageNumber,
-                TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
-                PageNumbers = pageSize == 0
-                    ? new List<int> { 1 }
-                    : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
-            };
-
-            return (pagedResult, uniqueDates, pagination);
+                return (
+                    new List<RosterInOffDayListVM>(),
+                    new List<string>(),
+                    new SeparatePaginationInfo
+                    {
+                        StartItem = 0,
+                        EndItem = 0,
+                        TotalItems = 0,
+                        CurrentPage = 1,
+                        TotalPages = 1,
+                        PageNumbers = new List<int> { 1 }
+                    }
+                );
+            }
         }
+        #endregion
+
+
+        #region GetAllAsync
+        //public async Task<(List<RosterInOffDayListVM> Data, List<string> UniqueDates, SeparatePaginationInfo Pagination)> GetAllAsync(
+        //    int pageNumber = 1, 
+        //    int pageSize = 5, 
+        //    string searchTerm = "", 
+        //    string sortColumn = "RosterInHolyDayID", 
+        //    string sortOrder = "desc", 
+        //    int daysToShow = 7,
+        //    DateTime? startDate = null)
+        //{
+        //    // 1. Get raw flat records first
+        //    var rawData = await _genericRepository.AllActive()
+        //        .Where(x => x.DayDate.HasValue)
+        //        .Select(x => new
+        //        {
+        //            x.EmployeeID,
+        //            EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
+        //            x.DepartmentID,
+        //            DepartmentName = x.Department.DepartmentName,
+        //            x.OrganizationID,
+        //            OrganizationName = x.Organization.OrganizationName,
+        //            x.DayDate,
+        //            x.ShiftID,
+        //            ShiftName = x.Shift.ShiftName,
+        //            StartTime = x.Shift.StartTime,
+        //            EndTime = x.Shift.EndTime,
+        //            x.RosterInHolyDayID
+        //        })
+        //        .AsNoTracking()
+        //        .ToListAsync();
+
+        //    // 2. Extract unique dates
+        //    var startFrom = startDate ?? DateTime.Today;
+
+        //    var uniqueDates = rawData
+        //        .Where(x => x.DayDate.Value >= startDate)
+        //        .Select(x => x.DayDate.Value.Date.ToString("yyyy-MM-dd"))
+        //        .Distinct()
+        //        .OrderBy(d => d)
+        //        .Take(daysToShow)
+        //        .ToList();
+
+        //    // 3. Group data in memory (small set after projection)
+        //    var grouped = rawData
+        //        .GroupBy(x => x.EmployeeID)
+        //        .Select(g => new RosterInOffDayListVM
+        //        {
+        //            EmployeeID = g.Key ?? 0,
+        //            RosterInHolyDayID = g.First().RosterInHolyDayID,
+        //            EmployeeName = g.First().EmployeeName ?? "",
+        //            DepartmentID = g.First().DepartmentID ?? 0,
+        //            DepartmentName = g.First().DepartmentName ?? "",
+        //            OrganizationID = g.First().OrganizationID ?? 0,
+        //            OrganizationName = g.First().OrganizationName ?? "",
+        //            ShiftsPerDay = g
+        //                .Where(x => x.DayDate.HasValue)
+        //                .ToDictionary(
+        //                    k => k.DayDate.Value.ToString("yyyy-MM-dd"),
+        //                    v => new ShiftVM
+        //                    {
+        //                        ShiftID = v.ShiftID,
+        //                        ShiftName = v.ShiftName ?? "N/A",
+        //                        TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
+        //                        RosterInHolyDayID = v.RosterInHolyDayID
+        //                    })
+        //        })
+        //        .ToList();
+
+        //    // 4. Apply search
+        //    if (!string.IsNullOrWhiteSpace(searchTerm))
+        //    {
+        //        var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+        //        grouped = grouped
+        //            .Where(x =>
+        //                x.EmployeeName.ToLower().Contains(lowerSearch) ||
+        //                x.DepartmentName.ToLower().Contains(lowerSearch) ||
+        //                x.OrganizationName.ToLower().Contains(lowerSearch))
+        //            .ToList();
+        //    }
+
+        //    // 5. Apply sorting
+        //    if (!string.IsNullOrEmpty(sortColumn))
+        //    {
+        //        grouped = sortColumn.ToLower() switch
+        //        {
+        //            "employeename" => (sortOrder == "asc"
+        //                ? grouped.OrderBy(x => x.EmployeeName)
+        //                : grouped.OrderByDescending(x => x.EmployeeName)).ToList(),
+
+        //            "departmentname" => (sortOrder == "asc"
+        //                ? grouped.OrderBy(x => x.DepartmentName)
+        //                : grouped.OrderByDescending(x => x.DepartmentName)).ToList(),
+
+        //            "organizationname" => (sortOrder == "asc"
+        //                ? grouped.OrderBy(x => x.OrganizationName)
+        //                : grouped.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+        //            _ => grouped.OrderByDescending(x => x.RosterInHolyDayID).ToList() // default fallback
+        //        };
+        //    }
+
+        //    // 4. Paginate grouped results
+        //    var totalCount = grouped.Count;
+        //    var pagedResult = pageSize == 0
+        //        ? grouped
+        //        : grouped.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+        //    // 5. Build pagination info
+        //    var pagination = new SeparatePaginationInfo
+        //    {
+        //        StartItem = (pageNumber - 1) * pageSize + 1,
+        //        EndItem = Math.Min(pageNumber * pageSize, totalCount),
+        //        TotalItems = totalCount,
+        //        CurrentPage = pageNumber,
+        //        TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+        //        PageNumbers = pageSize == 0
+        //            ? new List<int> { 1 }
+        //            : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
+        //    };
+
+        //    return (pagedResult, uniqueDates, pagination);
+        //}
         #endregion
     }
 }
