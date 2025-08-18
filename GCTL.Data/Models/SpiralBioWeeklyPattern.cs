@@ -39,6 +39,8 @@ public partial class SpiralBioWeeklyPattern
 
     public virtual ICollection<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; } = new List<SpiralBioWeeklyPatternDetails>();
 
+    public virtual ICollection<SpiralPatternAssignList> SpiralPatternAssignList { get; set; } = new List<SpiralPatternAssignList>();
+
     public virtual SpiralPatternTypes SpiralPatternType { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

@@ -129,6 +129,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetEmployeesByOrgBraDepId
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        {
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            return Json(result);
+        }
+        #endregion
+
+
         #region GetAllAsync
         [Route("AssignSpiralPattern/GetAllAsync")]
         [HttpGet]

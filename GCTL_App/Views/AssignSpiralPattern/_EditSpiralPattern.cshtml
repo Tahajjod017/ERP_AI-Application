@@ -69,18 +69,18 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" asp-for="EditSpiralPatternTypeID">@Html.SmartLocalize("Spiral Patern Type")</label>
+                                <label class="form-label" asp-for="EditSpiralPatternTypeID">@Html.SmartLocalize("Spiral Pattern Type")</label>
                                 <select class="form-select" asp-for="EditSpiralPatternTypeID" asp-items="@ViewBag.SpiralPatternTypeDD">
-                                    <option value="">@Html.SmartLocalize("Select Spiral Patern Type")...</option>
+                                    <option value="">@Html.SmartLocalize("Select Spiral Pattern Type")...</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="form-label" asp-for="EditSpiralPatternID">@Html.SmartLocalize("Spiral Patern")</label>
+                                <label class="form-label" asp-for="EditSpiralPatternID">@Html.SmartLocalize("Spiral Pattern")</label>
                                 <select class="form-select" asp-for="EditSpiralPatternID">
-                                    <option value="">@Html.SmartLocalize("Select Spiral Patern")...</option>
+                                    <option value="">@Html.SmartLocalize("Select Spiral Pattern")...</option>
                                     @foreach (var group in editSpiralPatterns.GroupBy(e => e.GroupName))
                                     {
                                         <optgroup label="@group.Key">
