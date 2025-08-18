@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -135,6 +136,52 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
         }
         #endregion
 
+        #region delete 
+
+        public async Task<LocalizationViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            try
+            {
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.LocalizationID));
+                if (data == null || data.Count == 0)
+                {
+                    return new LocalizationViewModel
+                    {
+                        Message = "No data found to soft delete."
+                    };
+                }
+
+                //var beforeEntity = JsonConvert.DeserializeObject<List<HolidayViewModel>>(JsonConvert.SerializeObject(data));
+                var targetIds = data.Select(x => (int?)x.LocalizationID).ToList();
+
+                foreach (var item in data)
+                {
+                    item.DeletedAt = DateTime.Now;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    //item.LIP = requestVM.LIP;
+                    //item.LMAC = requestVM.LMAC;
+                }
+
+                await _genericRepository.UpdateRangeAsync(data);
+
+                //await _userInfoService.ActionLogDeleteAsync("Holiday", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+
+                await _genericRepository.CommitTransactionAsync();
+
+                return new LocalizationViewModel
+                {
+                    Message = $"{data.Count} data(s) deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                throw new Exception("Error occurred during the deletion of data.", ex);
+            }
+        }
+        #endregion
+
         #region getById
         public async Task<LocalizationViewModel> GetByIdAsync(int id)
         {
@@ -184,6 +231,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 .Include(x => x.Language) // Include related Language entity
                 .Include(x => x.Timezone) // Include related Timezone entity
                 .Include(x => x.DateFormat) // Include related DateFormat entity
+                .Include(x=>x.TimeFormat)
                 .Include(x => x.Currency) // Include related Currency entity
                 .Where(x => x.DeletedAt == null); // Filter out soft-deleted records
 
