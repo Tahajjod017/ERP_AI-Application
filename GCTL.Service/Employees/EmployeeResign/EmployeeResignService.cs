@@ -66,54 +66,134 @@ namespace GCTL.Service.Employees.EmployeeResign
         #region Entry Page 
 
         #region Get All 
+
+
+        #region Get All
         public object GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate, string toDate, string imgSrcThumb)
         {
-            //var resignations = new List<ResignationViewModel>(_resignations);
-            var resignations = _resignationRepository.AllActive().Include(e=>e.Employee)
-                .ThenInclude(r=>r.EmployeeOfficeInfoEmployee).ThenInclude(p=>p.Department).Select(e=> new ResignationViewModel()
+            //DateTime? from = null;
+            //DateTime? to = null;
+
+            //if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
+            //{
+            //    from = DateTime.ParseExact(fromDate, "dd/MM/yyyy", null);
+            //    to = DateTime.ParseExact(toDate, "dd/MM/yyyy", null);
+            //}
+
+            //var query = _resignationRepository.AllActive()
+            //    .Include(e => e.Employee)
+            //        .ThenInclude(r => r.EmployeeOfficeInfoEmployee)
+            //            .ThenInclude(p => p.Department)
+            //    .Select(e => new ResignationViewModel
+            //    {
+            //        ResigId = e.ResignationID,
+            //        REmpDept = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName ?? "",
+            //        REmpName = e.Employee.FirstName + " " + e.Employee.LastName,
+            //        REmpCode = e.Employee.EmployeeCode,
+            //        ResignResons = e.Reason,
+            //        ResinDateRaw = e.ResignationDate,
+            //        ResNoticeDateRaw = e.NoticeDate,
+            //        ResinDate = e.ResignationDate.HasValue ? e.ResignationDate.Value.ToString("dd/MM/yyyy") : "",
+            //        ResNoticeDate = e.NoticeDate.HasValue ? e.NoticeDate.Value.ToString("dd/MM/yyyy") : "",
+            //        EmployeeId = e.EmployeeID,
+            //        CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID ?? 0,
+            //        Image = imgSrcThumb + e.Employee.EmployeeImageFileName
+            //    });
+
+            //// Filter by date range
+            //if (from.HasValue && to.HasValue)
+            //{
+            //    query = query.Where(r => r.ResinDateRaw.HasValue && r.ResinDateRaw.Value >= from.Value && r.ResinDateRaw.Value <= to.Value);
+            //}
+
+            //// Sorting
+            //query = sortColumn switch
+            //{
+            //    "rEmpName" => sortDirection == "asc" ? query.OrderBy(r => r.REmpName) : query.OrderByDescending(r => r.REmpName),
+            //    "rEmpDept" => sortDirection == "asc" ? query.OrderBy(r => r.REmpDept) : query.OrderByDescending(r => r.REmpDept),
+            //    "resignResons" => sortDirection == "asc" ? query.OrderBy(r => r.ResignResons) : query.OrderByDescending(r => r.ResignResons),
+            //    "resNoticeDate" => sortDirection == "asc" ? query.OrderBy(r => r.ResNoticeDateRaw) : query.OrderByDescending(r => r.ResNoticeDateRaw),
+            //    "resinDate" => sortDirection == "asc" ? query.OrderBy(r => r.ResinDateRaw) : query.OrderByDescending(r => r.ResinDateRaw),
+            //    _ => query
+            //};
+
+            //var totalRecords = query.Count();
+            //var pagedData = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            //return new
+            //{
+            //    data = pagedData,
+            //    recordsTotal = totalRecords,
+            //    recordsFiltered = totalRecords
+            //};
+
+            // If this is not an async method, remove async/await
+            DateTime? from = null;
+            DateTime? to = null;
+            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
+            {
+                from = DateTime.ParseExact(fromDate, "dd/MM/yyyy", null);
+                to = DateTime.ParseExact(toDate, "dd/MM/yyyy", null);
+            }
+
+            // Use IQueryable instead of IIncludableQueryable for type consistency
+            IQueryable<Resignations> baseQuery = _resignationRepository.AllActive()
+                .Include(e => e.Employee)
+                    .ThenInclude(emp => emp.EmployeeOfficeInfoEmployee)
+                        .ThenInclude(info => info.Department);
+
+            // Apply date filter early
+            if (from.HasValue && to.HasValue)
+            {
+                baseQuery = baseQuery.Where(r => r.ResignationDate.HasValue &&
+                                               r.ResignationDate.Value >= from.Value &&
+                                               r.ResignationDate.Value <= to.Value);
+            }
+
+            // Get total count before projection (synchronous)
+            var totalRecords = baseQuery.Count();
+
+            // Apply sorting - use IQueryable for consistency
+            IQueryable<Resignations> sortedQuery = sortColumn switch
+            {
+                "rEmpName" => sortDirection == "asc"
+                    ? baseQuery.OrderBy(r => r.Employee.FirstName + " " + r.Employee.LastName)
+                    : baseQuery.OrderByDescending(r => r.Employee.FirstName + " " + r.Employee.LastName),
+                "rEmpDept" => sortDirection == "asc"
+                    ? baseQuery.OrderBy(r => r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName)
+                    : baseQuery.OrderByDescending(r => r.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName),
+                "resignResons" => sortDirection == "asc"
+                    ? baseQuery.OrderBy(r => r.Reason)
+                    : baseQuery.OrderByDescending(r => r.Reason),
+                "resNoticeDate" => sortDirection == "asc"
+                    ? baseQuery.OrderBy(r => r.NoticeDate)
+                    : baseQuery.OrderByDescending(r => r.NoticeDate),
+                "resinDate" => sortDirection == "asc"
+                    ? baseQuery.OrderBy(r => r.ResignationDate)
+                    : baseQuery.OrderByDescending(r => r.ResignationDate),
+                _ => baseQuery.OrderBy(r => r.ResignationID)
+            };
+
+            // Apply pagination and projection (synchronous)
+            var pagedData = sortedQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(e => new ResignationViewModel
                 {
                     ResigId = e.ResignationID,
-                    REmpDept = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
+                    REmpDept = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName ?? "",
                     REmpName = e.Employee.FirstName + " " + e.Employee.LastName,
                     REmpCode = e.Employee.EmployeeCode,
                     ResignResons = e.Reason,
-                    ResinDate = e.ResignationDate.Value.ToString("dd/MM/yyyy"),
-                    ResNoticeDate = e.NoticeDate.Value.ToString("dd/MM/yyyy"),
+                    ResinDateRaw = e.ResignationDate,
+                    ResNoticeDateRaw = e.NoticeDate,
+                    ResinDate = e.ResignationDate.HasValue ? e.ResignationDate.Value.ToString("dd/MM/yyyy") : "",
+                    ResNoticeDate = e.NoticeDate.HasValue ? e.NoticeDate.Value.ToString("dd/MM/yyyy") : "",
                     EmployeeId = e.EmployeeID,
-                    CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID,
+                    CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID ?? 0,
                     Image = imgSrcThumb + e.Employee.EmployeeImageFileName
-
-                }).ToList();
-
-
-
-            // Apply date range filter
-            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
-            {
-                DateTime from = DateTime.ParseExact(fromDate, "dd/MM/yyyy", null);
-                DateTime to = DateTime.ParseExact(toDate, "dd/MM/yyyy", null);
-                resignations = resignations
-                    .Where(r => {
-                        DateTime noticeDate = DateTime.ParseExact(r.ResinDate, "dd/MM/yyyy", null);
-                        return noticeDate >= from && noticeDate <= to;
-                    })
-                    .ToList();
-            }
-
-            // Apply sorting
-            resignations = sortColumn switch
-            {
-                "rEmpName" => sortDirection == "asc" ? resignations.OrderBy(r => r.REmpName).ToList() : resignations.OrderByDescending(r => r.REmpName).ToList(),
-                "rEmpDept" => sortDirection == "asc" ? resignations.OrderBy(r => r.REmpDept).ToList() : resignations.OrderByDescending(r => r.REmpDept).ToList(),
-                "resignResons" => sortDirection == "asc" ? resignations.OrderBy(r => r.ResignResons).ToList() : resignations.OrderByDescending(r => r.ResignResons).ToList(),
-                "resNoticeDate" => sortDirection == "asc" ? resignations.OrderBy(r => r.ResNoticeDate).ToList() : resignations.OrderByDescending(r => r.ResNoticeDate).ToList(),
-                "resinDate" => sortDirection == "asc" ? resignations.OrderBy(r => r.ResinDate).ToList() : resignations.OrderByDescending(r => r.ResinDate).ToList(),
-                _ => resignations
-            };
-
-            // Apply pagination
-            var totalRecords = resignations.Count;
-            var pagedData = resignations.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                })
+                .ToList();
 
             return new
             {
@@ -122,6 +202,64 @@ namespace GCTL.Service.Employees.EmployeeResign
                 recordsFiltered = totalRecords
             };
         }
+        #endregion
+
+        //public object GetResignations(int page, int pageSize, string sortColumn, string sortDirection, string fromDate, string toDate, string imgSrcThumb)
+        //{
+        //    //var resignations = new List<ResignationViewModel>(_resignations);
+        //    var resignations = _resignationRepository.AllActive().Include(e=>e.Employee)
+        //        .ThenInclude(r=>r.EmployeeOfficeInfoEmployee).ThenInclude(p=>p.Department).Select(e=> new ResignationViewModel()
+        //        {
+        //            ResigId = e.ResignationID,
+        //            REmpDept = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName,
+        //            REmpName = e.Employee.FirstName + " " + e.Employee.LastName,
+        //            REmpCode = e.Employee.EmployeeCode,
+        //            ResignResons = e.Reason,
+        //            ResinDate = e.ResignationDate.Value.ToString("dd/MM/yyyy"),
+        //            ResNoticeDate = e.NoticeDate.Value.ToString("dd/MM/yyyy"),
+        //            EmployeeId = e.EmployeeID,
+        //            CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID,
+        //            Image = imgSrcThumb + e.Employee.EmployeeImageFileName
+
+        //        }).ToList();
+
+
+
+        //    // Apply date range filter
+        //    if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate))
+        //    {
+        //        DateTime from = DateTime.ParseExact(fromDate, "dd/MM/yyyy", null);
+        //        DateTime to = DateTime.ParseExact(toDate, "dd/MM/yyyy", null);
+        //        resignations = resignations
+        //            .Where(r => {
+        //                DateTime noticeDate = DateTime.ParseExact(r.ResinDate, "dd/MM/yyyy", null);
+        //                return noticeDate >= from && noticeDate <= to;
+        //            })
+        //            .ToList();
+        //    }
+
+        //    // Apply sorting
+        //    resignations = sortColumn switch
+        //    {
+        //        "rEmpName" => sortDirection == "asc" ? resignations.OrderBy(r => r.REmpName).ToList() : resignations.OrderByDescending(r => r.REmpName).ToList(),
+        //        "rEmpDept" => sortDirection == "asc" ? resignations.OrderBy(r => r.REmpDept).ToList() : resignations.OrderByDescending(r => r.REmpDept).ToList(),
+        //        "resignResons" => sortDirection == "asc" ? resignations.OrderBy(r => r.ResignResons).ToList() : resignations.OrderByDescending(r => r.ResignResons).ToList(),
+        //        "resNoticeDate" => sortDirection == "asc" ? resignations.OrderBy(r => r.ResNoticeDate).ToList() : resignations.OrderByDescending(r => r.ResNoticeDate).ToList(),
+        //        "resinDate" => sortDirection == "asc" ? resignations.OrderBy(r => r.ResinDate).ToList() : resignations.OrderByDescending(r => r.ResinDate).ToList(),
+        //        _ => resignations
+        //    };
+
+        //    // Apply pagination
+        //    var totalRecords = resignations.Count;
+        //    var pagedData = resignations.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        //    return new
+        //    {
+        //        data = pagedData,
+        //        recordsTotal = totalRecords,
+        //        recordsFiltered = totalRecords
+        //    };
+        //}
 
         #endregion
 

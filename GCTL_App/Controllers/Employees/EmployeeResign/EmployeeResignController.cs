@@ -49,7 +49,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
         public IActionResult Index()
         {
-            SetSmartPageCode(111800);
+            SetSmartPageCode(1196500);
 
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new
