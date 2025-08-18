@@ -1,16 +1,161 @@
-﻿
+﻿<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Include Month Select Plugin CSS (important to load for correct styling) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+<style>
+    .flatpickr-monthSelect-months {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+        gap: 10px; /* Space between months */
+        margin: 10px 1px 3px 1px;
+    }
+
+    /* Styling for individual months */
+    .flatpickr-monthSelect-month {
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: #393939;
+        cursor: pointer;
+        display: flex; /* Use flexbox to center the text inside the month */
+        justify-content: center;
+        padding: 10px;
+        position: relative;
+        text-align: center;
+        width: 100%; /* Make sure it takes full width of the column */
+    }
+
+        /* Disabled month styling */
+        .flatpickr-monthSelect-month.flatpickr-disabled {
+            color: #eee;
+        }
+
+            .flatpickr-monthSelect-month.flatpickr-disabled:hover,
+            .flatpickr-monthSelect-month.flatpickr-disabled:focus {
+                cursor: not-allowed;
+                background: none !important;
+            }
+
+    /* Dark theme adjustments */
+    .flatpickr-monthSelect-theme-dark {
+        background: #3f4458;
+    }
+
+        .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+            .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.selected {
+                background-color: #80cbc4;
+                color: #fff;
+                border-color: #80cbc4;
+            }
+
+    /* Styling for today’s month */
+    .flatpickr-monthSelect-month.today {
+        border-color: #959ea9;
+    }
+
+    .flatpickr-monthSelect-month.selected,
+    .flatpickr-monthSelect-month.startRange,
+    .flatpickr-monthSelect-month.endRange {
+        background-color: #569ff7;
+        box-shadow: none;
+        color: #fff;
+        border-color: #569ff7;
+    }
+
+    /* Range selection */
+    .flatpickr-monthSelect-month.startRange {
+        border-radius: 50px 0 0 50px;
+    }
+
+    .flatpickr-monthSelect-month.endRange {
+        border-radius: 0 50px 50px 0;
+    }
+
+    .flatpickr-monthSelect-month.inRange {
+        border-radius: 0;
+        box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
+    }
+</style>
+
+
+<style>
+
+    #payRollEmp-searchForm {
+        position: relative;
+    }
+
+    #payRollEmp-searchInput {
+        padding-right: 2.25rem; /* Leave space for the icon inside */
+        height: calc(1.5em + 0.75rem + 2px); /* Same as .form-select */
+    }
+
+    .search-box-icon {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+    }
+
+
+    .date-input {
+        width: 108%;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+    .date-picker-wrapper .footer {
+        display: none !important;
+    }
+
+
+    .date-picker-wrapper {
+        margin-left: 8.2vw !important;
+    }
+
+    .card-header {
+        
+        border-bottom: var(--phoenix-card-border-width) solid rgb(203 208 221 / 3%) !important;
+    }
+
+</style>
 <div class="card">
 
-    <div class="card-header mb-4">
+    <div class="card-header mb-0 pb-2">
 
 
         <div class="d-flex justify-content-between">
             <h4 class="mb-1">Employee Salary List</h4>
 
-            <div class="dropdown start-0">
+            <div class="btn-group ms-3" role="group" aria-label="Button group with nested dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    Export <i class="fa-solid fa-file-export"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" id="export-pdf-btn"><span data-feather="download"></span>PDF</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);" id="exportToExcelTaxOverview"><span data-feather="download"></span>Excel</a></li>
+                </ul>
+            </div>
+
+           @*  <div class="dropdown start-0">
                 <a href="#" class="btn btn-outline-info  rounded-pill d-flex align-items-center" data-bs-target="#add_employee_salary"
                    data-bs-toggle="modal"><i class="fa fa-plus me-2"></i></a>
-            </div>
+            </div> *@
 
         </div>
 
@@ -45,11 +190,53 @@
                     </optgroup>
                 </select>
             </div>
-
+            <div class="flatpickr-input-container me-3">
+                <input class="form-control ps-6 flatpickr-input" id="year-month-picker-1" type="text" readonly="readonly" placeholder="Select Month">
+                <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+            </div>
         </div>
 
     </div>
+    <div class="card-header d-flex align-items-center justify-content-between pb-0 pt-1 ">
 
+
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center me-3" style="width: auto;">
+                    <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                    <div style="width: 100%;">
+                        <select id="payRollEmp-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                            <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                            <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                            <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                            <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+        <div class="col-12 col-sm-auto">
+            <div class="d-flex align-items-center">
+
+                
+                <div class="d-none me-3" id="payRollEmp-bulkSelectActions">
+                    <div class="position-relative">
+                        <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="payRollEmp-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                    </div>
+                </div>
+                <div class="dropdown me-3" id="payRollEmp-searchBox">
+                    <form class="position-relative" id="payRollEmp-searchForm">
+                        <input class="form-control search-input" id="payRollEmp-searchInput" type="search"
+                               placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="border-translucent p-3">
         <div id="employeeListTable">
 
@@ -64,8 +251,8 @@
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empBonus">Bonus</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDeduction">Deductions</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="netSalary">Net Salary</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="paySlip">Payslip</th>
-                            <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+                            <th class="align-middle ps-4 pe-5 text-uppercase text-nowrap">Payslip</th>
+                            
                         </tr>
                     </thead>
                     <tbody class="list" id="purchasers-sellers-body">
@@ -86,35 +273,26 @@
                             <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">5000</td>
                             <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">55000</td>
                             <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <a href="/PaySlipForEmp/Index"><i class="fas fa-download text-success"></i></a>
+                                <a  asp-action="Index" asp-controller="PaySlipForEmp"><i class="fas fa-download text-success"></i></a>
                             </td>
 
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#edit_employee_salary">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-                                    <a href="#" class="nav-item mx-2" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-
-                                </div>
-                            </td>
-
+                            
                         </tr>
 
                     </tbody>
                 </table>
             </div>
 
-            <div class="row align-items-center justify-content-between pe-0 fs-9">
-                <div class="col-auto d-flex">
-                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="payRollEmp-paginationInfo"></p>
+
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
                 </div>
-                <div class="col-auto d-flex">
-                    <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                    <ul class="mb-0 pagination"></ul>
-                    <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="payRollEmp-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="payRollEmp-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="payRollEmp-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
                 </div>
             </div>
 
@@ -123,164 +301,13 @@
 
 </div>
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
-<!-- Add Employes Salary -->
-<div class="modal fade" id="add_employee_salary">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Add Employes Salary</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="add-shift-ui.html" class="row g-3 mb-6">
-
-
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">Company Name</label>
-                            <select class="form-multi-select" id="multiple-select-tag" multiple
-                                    data-coreui-selection-type="tags" data-coreui-search="true">
-                                <option value="0">Select Company...</option>
-                                <option value="1">CSL</option>
-                                <option value="2">GCTL</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">Deparment</label>
-                            <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                                <option value="">Select Department</option>
-                                <option>Developer</option>
-                                <option>Designer</option>
-                                <option>Finance</option>
-                            </select>
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">Employee Name</label>
-                            <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                                <optgroup label="Developer">
-                                    <option value="2">Alam</option>
-                                    <option value="3">Momin</option>
-                                </optgroup>
-                                <optgroup label="Designer">
-                                    <option value="4">Name (id)</option>
-                                    <option value="5">Name (id)</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
-
-
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="timepicker1">Salary</label>
-                            <input class="form-control" id="timepicker1" type="text" placeholder="25000">
-                        </div>
-                    </div>
-
-
-                    <div class="col-12">
-                        <div class="row g-3 justify-content-end">
-                            <div class="col-auto">
-                                <button class="btn btn-phoenix-primary px-3">Cancel</button>
-                            </div>
-                            <div class="col-auto">
-                                <button class="btn btn-primary px-3 px-sm-10">Edit Salary</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Edit Employes Salary -->
-<div class="modal fade" id="edit_employee_salary">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Edit Employes Salary</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="add-shift-ui.html" class="row g-3 mb-6">
-
-
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">Company Name</label>
-                            <select class="form-multi-select" id="multiple-select-tag" multiple
-                                    data-coreui-selection-type="tags" data-coreui-search="true">
-                                <option value="0">Select Company...</option>
-                                <option value="1">CSL</option>
-                                <option value="2">GCTL</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">Deparment</label>
-                            <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                                <option value="">Select Department</option>
-                                <option>Developer</option>
-                                <option>Designer</option>
-                                <option>Finance</option>
-                            </select>
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="organizerSingle">Employee Name</label>
-                            <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                                <optgroup label="Developer">
-                                    <option value="2">Alam</option>
-                                    <option value="3">Momin</option>
-                                </optgroup>
-                                <optgroup label="Designer">
-                                    <option value="4">Name (id)</option>
-                                    <option value="5">Name (id)</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
-
-
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="timepicker1">Salary</label>
-                            <input class="form-control" id="timepicker1" type="text" placeholder="25000">
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="row g-3 justify-content-end">
-                            <div class="col-auto">
-                                <button class="btn btn-phoenix-primary px-5">Cancel</button>
-                            </div>
-                            <div class="col-auto">
-                                <button class="btn btn-primary px-5 px-sm-15">Edit Salary</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/payrollmanagements/payrollpolicy/PayRollEmpSalary.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+}
