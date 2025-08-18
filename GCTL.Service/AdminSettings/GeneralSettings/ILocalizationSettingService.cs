@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;
@@ -15,8 +16,9 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
 
         Task<bool> AddAsync(LocalizationViewModel model);
         Task<bool> UpdateAsync(LocalizationViewModel model);
-       // Task<bool> DeleteAsync(int id);
-       // Task<bool> IsLocalizationUniqueAsync(int? organizationId, int? languageId, int? timezoneId);
+        // Task<bool> DeleteAsync(int id);
+        Task<LocalizationViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
+        // Task<bool> IsLocalizationUniqueAsync(int? organizationId, int? languageId, int? timezoneId);
         Task<LocalizationViewModel> GetByIdAsync(int id);
         // Task<LocalizationViewModel> GetByIdAsync(int id);
         Task<PaginationService<Localizations, LocalizationViewModel>.PaginationResult<LocalizationViewModel>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",

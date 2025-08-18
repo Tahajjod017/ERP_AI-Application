@@ -63,7 +63,7 @@ function orgazationEditDropdown() {
                 id: role.value,
                 name: role.text
             }));
-            choiceManager.populateDropdown('organizationEditId', simplifiedRoles);
+           // choiceManager.populateDropdown('organizationEditId', simplifiedRoles);
         },
         error: function () {
             console.log("Error fetching organization data.");
@@ -152,7 +152,41 @@ function currencyDropdown() {
     });
 }
 
+//delete 
+$(document).on('click', '#localizationSettingsDelete_singleDelBtn', function () {
+    var localizationSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', localizationSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
 
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/LocalizationSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
 
 
 
@@ -273,7 +307,7 @@ function loadTableData(sortColumn, sortOrder) {
                             <a 
                               href="#" title="Delete"  data-id="${item.localizationID}"
                               class="btn btn-outline-light btn-icon"  
-                              id="localizationSettingsDelete-singleDelBtn" >
+                              id="localizationSettingsDelete_singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
                           </div>
@@ -351,15 +385,49 @@ $(document).on('click', '#edit_localization_settingBtn', function () {
         data: { id: weekendSettingID },
         success: function (data) {
             debugger 
-            orgazationEditDropdown();
-            choiceManager.setChoiceValue('organizationEditId', data.organizationID)
+            //orgazationEditDropdown();
+            choiceManager.setChoiceValue('organizationEditId', data.organizationID);
+            choiceManager.setChoiceValue('languageEditId', data.languageID);
+            choiceManager.setChoiceValue('timezoneEditId', data.timezoneID);
+            choiceManager.setChoiceValue('dateFormatEditId', data.dateFormatID);
+            choiceManager.setChoiceValue('timeFormatEditId', data.timeFormatID);
+            choiceManager.setChoiceValue('currencyEditId', data.currencyID);
 
-           
-           
 
         },
         error: function (xhr, status, error) {
 
+        }
+    });
+});
+
+$('#localizationEditForm').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+    var weekendSettingID = $('#localizationId').data('id');  // Get ID from the modal trigger
+    var formData = $(this).serialize(); // Serialize the form data
+
+    // Append the approvalSettingID to the form data
+    // formData += '&approvalSettingID=' + weekendSettingID;
+
+    // Send the data via AJAX
+    $.ajax({
+        url: '/LocalizationSettings/Updates', // Adjust URL if necessary
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                // Handle success
+                toastr.success('Localization setting updated successfully!');
+                $('#edit_Localization_setting').modal('hide'); // Hide the modal
+                loadTableData();
+            } else {
+                // Handle failure
+                toastr.error('Failed to update weekend setting: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle AJAX errors
+            toastr.error('Error: ' + error);
         }
     });
 });
