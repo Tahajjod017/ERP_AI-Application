@@ -13,10 +13,6 @@ public partial class SpiralPatternAssignList
 
     public int? EmployeeID { get; set; }
 
-    public int? SpiralPatternTypeID { get; set; }
-
-    public int? SpiralPatternID { get; set; }
-
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
@@ -39,6 +35,12 @@ public partial class SpiralPatternAssignList
 
     public int? DepartmentID { get; set; }
 
+    public int? SpiralWeeklyPatternID { get; set; }
+
+    public int? SpiralBioWeeklyPatternID { get; set; }
+
+    public int? SpiralMonthlyPatternID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -49,7 +51,11 @@ public partial class SpiralPatternAssignList
 
     public virtual Organization Organization { get; set; }
 
-    public virtual SpiralPatternTypes SpiralPatternType { get; set; }
+    public virtual SpiralBioWeeklyPattern SpiralBioWeeklyPattern { get; set; }
+
+    public virtual SpiralMonthlyPattern SpiralMonthlyPattern { get; set; }
+
+    public virtual SpiralWeeklyPattern SpiralWeeklyPattern { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

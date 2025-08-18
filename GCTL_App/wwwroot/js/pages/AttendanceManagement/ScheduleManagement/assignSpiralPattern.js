@@ -80,9 +80,9 @@
                             coreui.MultiSelect.getInstance(this)?.update();
                         });
 
-
                         editPatternTypeChoices.setChoiceByValue(result.editSpiralPatternTypeID.toString());
                         editSpiralPatternChoices.setChoiceByValue(result.editSpiralPatternID.toString());
+
                         $('#EditStartDate')[0]._flatpickr.setDate(result.editStartDate, true);
                         $('#EditEndDate')[0]._flatpickr.setDate(result.editEndDate, true);
                     },
@@ -355,7 +355,7 @@
             // #endregion
 
 
-            // #region OrganizationID on change
+            // #region SpiralPatternTypeID on change
             $('#SpiralPatternTypeID').on('change', function (e) {
                 e.preventDefault();
 
@@ -422,6 +422,70 @@
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading departments:', error);
+                    }
+                });
+            }
+            // #endregion
+
+
+            // #region DepartmentIDs on change
+            document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function (event) {
+                const orgId = $('#OrganizationID').val();
+
+                const selected = event.value || []; // array of {text, value}
+                const depIds = selected.map(x => parseInt(x.value));
+
+                getEmployeesByOrgBraDepId(orgId, depIds);
+            });
+            // #endregion
+
+
+            // #region GetEmployeesByOrgBraDepId
+            function getEmployeesByOrgBraDepId(orgId, depIds = []) {
+                $.ajax({
+                    url: '/AssignSpiralPattern/GetEmployeesByOrgBraDepId',
+                    type: 'GET',
+                    traditional: true,
+                    data: {
+                        orgId: orgId,
+                        depIds: depIds
+                    },
+                    success: function (employees) {
+                        const select = $('#EmployeeIDs');
+                        select.empty();
+
+                        const grouped = {};
+
+                        // Group employees by GroupName (DepartmentName)
+                        employees.forEach(emp => {
+                            const group = emp.groupName || 'No Department';
+                            if (!grouped[group]) {
+                                grouped[group] = [];
+                            }
+                            grouped[group].push(emp);
+                        });
+
+                        // Build <optgroup> structure
+                        Object.keys(grouped).forEach(group => {
+                            const optgroup = $('<optgroup>').attr('label', group);
+                            grouped[group].forEach(emp => {
+                                optgroup.append(
+                                    $('<option>').val(emp.id).text(emp.name)
+                                );
+                            });
+                            select.append(optgroup);
+                        });
+
+                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                        if (multiSelectInstance) {
+                            multiSelectInstance.update(); // Refresh UI
+                        } else {
+                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading employees:', error);
                     }
                 });
             }
