@@ -452,34 +452,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                             x.SpiralWeeklyPattern != null ? x.SpiralWeeklyPattern.SpiralWeeklyPatternName :
                             x.SpiralBioWeeklyPattern != null ? x.SpiralBioWeeklyPattern.SpiralBioWeeklyPatternName :
                             x.SpiralMonthlyPattern != null ? x.SpiralMonthlyPattern.SpiralMonthlyPatternName : null,
+                        ShiftID = x.SpiralWeeklyPattern.SpiralWeeklyPatternDetails.Select(x => x.Shift.ShiftID),
+                        ShiftName = x.SpiralWeeklyPattern.SpiralWeeklyPatternDetails.Select(x => x.Shift.ShiftName)
                     }).AsNoTracking().ToListAsync();
-
-                // 1.Get raw flat records first
-                //var rawData = await (from rhd in _genericRepository.AllActive()
-                //                     join spa in _spiralPatternAssignList.All() on rhd.EmployeeID equals spa.EmployeeID into spaGroup
-                //                     from spa in spaGroup.DefaultIfEmpty()
-                //                     where rhd.DayDate.HasValue
-                //                     select new
-                //                     {
-                //                         rhd.EmployeeID,
-                //                         EmployeeName = $"{rhd.Employee.FirstName} {rhd.Employee.LastName} ({rhd.Employee.EmployeeCode})",
-                //                         rhd.DepartmentID,
-                //                         DepartmentName = rhd.Department.DepartmentName,
-                //                         rhd.OrganizationID,
-                //                         OrganizationName = rhd.Organization.OrganizationName,
-                //                         rhd.DayDate,
-                //                         rhd.ShiftID,
-                //                         ShiftName = rhd.Shift.ShiftName,
-                //                         StartTime = rhd.Shift.StartTime,
-                //                         EndTime = rhd.Shift.EndTime,
-                //                         rhd.RosterInHolyDayID,
-                //                         // SpiralPatternAssignList fields
-                //                         SpiralPatternAssignListID = spa.SpiralPatternAssignListID,
-                //                         //SpiralPatternTypeID = spa.SpiralPatternTypeID,
-                //                         //SpiralPatternName = spa.SpiralPatternType.SpiralPatternTypeName,
-                //                         StartDate = spa.StartDate,
-                //                         EndDate = spa.EndDate
-                //                     }).AsNoTracking().ToListAsync();
 
                 // 2. Extract unique dates
                 var startFrom = startDate ?? DateTime.Today;
@@ -504,29 +479,29 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                         DepartmentName = g.First().DepartmentName ?? "",
                         OrganizationID = g.First().OrganizationID ?? 0,
                         OrganizationName = g.First().OrganizationName ?? "",
-                        //ShiftsPerDay = g
-                        //    .Where(x => x.DayDate.HasValue)
-                        //    .ToDictionary(
-                        //        k => k.DayDate.Value.ToString("yyyy-MM-dd"),
-                        //        v => new ShiftVM
-                        //        {
-                        //            ShiftID = v.ShiftID,
-                        //            ShiftName = v.ShiftName ?? "N/A",
-                        //            TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
-                        //            RosterInHolyDayID = v.RosterInHolyDayID
-                        //        })
                         ShiftsPerDay = g
                             .Where(x => x.DayDate.HasValue)
-                            .GroupBy(x => x.DayDate.Value.Date)   // group duplicates by date
                             .ToDictionary(
-                                k => k.Key.ToString("yyyy-MM-dd"),
+                                k => k.DayDate.Value.ToString("yyyy-MM-dd"),
                                 v => new ShiftVM
                                 {
-                                    ShiftID = v.First().ShiftID,
-                                    ShiftName = v.First().ShiftName ?? "-",
-                                    TimeRange = $"{v.First().StartTime?.ToString(@"hh\:mm")} - {v.First().EndTime?.ToString(@"hh\:mm")}",
-                                    RosterInHolyDayID = v.First().RosterInHolyDayID
+                                    ShiftID = v.ShiftID,
+                                    ShiftName = v.ShiftName ?? "N/A",
+                                    TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
+                                    RosterInHolyDayID = v.RosterInHolyDayID
                                 })
+                        //ShiftsPerDay = g
+                        //    .Where(x => x.DayDate.HasValue)
+                        //    .GroupBy(x => x.DayDate.Value.Date)   // group duplicates by date
+                        //    .ToDictionary(
+                        //        k => k.Key.ToString("yyyy-MM-dd"),
+                        //        v => new ShiftVM
+                        //        {
+                        //            ShiftID = v.First().ShiftID,
+                        //            ShiftName = v.First().ShiftName ?? "-",
+                        //            TimeRange = $"{v.First().StartTime?.ToString(@"hh\:mm")} - {v.First().EndTime?.ToString(@"hh\:mm")}",
+                        //            RosterInHolyDayID = v.First().RosterInHolyDayID
+                        //        })
                     })
                     .ToList();
 

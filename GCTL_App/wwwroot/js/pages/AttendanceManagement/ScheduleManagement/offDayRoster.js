@@ -56,7 +56,7 @@
                             clear();
                             loadTableData();
                         } else {
-                            const allFields = ["OrganizationID", "ShiftID", "DayDate", "CompensationTypeID"];
+                            const allFields = ["OrganizationID", "DayDate", "ShiftID", "CompensationTypeID"];
 
                             allFields.forEach(function (fieldId) {
                                 validateField(fieldId, response);
@@ -115,7 +115,7 @@
                     compensationDD.destroy();
                 }
 
-                ['OrganizationID', 'ShiftID', 'DayDate', 'CompensationTypeID'].forEach(function (fieldId) {
+                ['OrganizationID', 'DayDate', 'ShiftID', 'CompensationTypeID'].forEach(function (fieldId) {
                     $('#' + fieldId).removeClass('is-valid is-invalid');
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
@@ -184,11 +184,11 @@
             $('#OrganizationID').on('change', function (e) {
                 e.preventDefault();
 
-                var organizationId = $(this).val();
-                loadBranchByOrganization(organizationId);
-                loadDepartmentsByOrganization(organizationId);
-                loadEmpByOrg(organizationId);
-                loadShiftByOrg(organizationId);
+                var orgId = $(this).val();
+                getEmployeesByOrgBraDepId(orgId, null, null);
+                loadBranchByOrganization(orgId);
+                loadDepartmentsByOrganization(orgId);
+                loadShiftByOrg(orgId);
             });
             // #endregion
 
@@ -229,7 +229,6 @@
             // #endregion
 
 
-
             // #region loadDepartmentsByOrganization
             function loadDepartmentsByOrganization(organizationId) {
                 $.ajax({
@@ -254,19 +253,8 @@
                         if (multiSelectInstance) {
                             multiSelectInstance.update(); // Refresh the UI
                         } else {
-                            // Reinitialize if not already initialized (in case it's dynamically added)
                             new coreui.MultiSelect(select[0]);
                         }
-
-                        //document.getElementById('DepartmentIDs')
-                        //    .addEventListener('changed.coreui.multi-select', function (event) {
-                        //        const orgId = $('#OrganizationID').val();
-
-                        //        const selected = event.value || []; // array of {text, value}
-                        //        const departmentIds = selected.map(x => parseInt(x.value));
-
-                        //        loadEmployeesByFilter(orgId, departmentIds);
-                        //    });
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading departments:', error);
@@ -274,56 +262,6 @@
                 });
             }
             // #endregion
-
-
-
-            // #region loadEmpByOrg
-            function loadEmpByOrg(organizationId) {
-                $.ajax({
-                    url: '/OffDayRoster/GetEmployeeByOrganization',
-                    type: 'GET',
-                    data: { id: organizationId },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees: ', error);
-                    }
-                });
-            }
-            // #endregion
-
 
 
             // #region loadShiftByOrg
@@ -359,7 +297,6 @@
             // #endregion
 
 
-
             // #region BranchID on change
             document.getElementById('BranchIDs')
                 .addEventListener('changed.coreui.multi-select', function (event) {
@@ -368,63 +305,9 @@
                     const selected = event.value || []; // array of {text, value}
                     const branchIds = selected.map(x => parseInt(x.value));
 
-                    loadEmpByOrgBranchId(orgId, branchIds);
+                    getEmployeesByOrgBraDepId(orgId, branchIds, null);
                 });
             // #endregion
-
-
-
-            // #region loadEmpByOrgBranchId/GetEmployeeByBranch
-            function loadEmpByOrgBranchId(organizationId, branchIds = []) {
-                $.ajax({
-                    url: '/OffDayRoster/GetEmployeeByBranch',
-                    type: 'GET',
-                    traditional: true,
-                    data: {
-                        orgId: organizationId,
-                        ids: branchIds
-                    },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees:', error);
-                    }
-                });
-            }
-            // #endregion
-
 
 
             // #region DepartmentIDs on change
@@ -434,24 +317,23 @@
                     const branchIds = $('#BranchIDs').val();
 
                     const selected = event.value || []; // array of {text, value}
-                    const ids = selected.map(x => parseInt(x.value));
+                    const depIds = selected.map(x => parseInt(x.value));
 
-                    loadEmployeesByBranch(orgId, branchIds, ids);
+                    getEmployeesByOrgBraDepId(orgId, branchIds, depIds);
                 });
             // #endregion
 
 
-
-            // #region loadEmployeesByBranch/GetEmployeeByDepartment
-            function loadEmployeesByBranch(orgId, branchIds = [], ids = []) {
+            // #region GetEmployeesByOrgBraDepId
+            function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
                 $.ajax({
-                    url: '/OffDayRoster/GetEmployeeByDepartment',
+                    url: '/OffDayRoster/GetEmployeesByOrgBraDepId',
                     type: 'GET',
                     traditional: true,
                     data: {
                         orgId: orgId,
                         branchIds: branchIds,
-                        depIds: ids
+                        depIds: depIds
                     },
                     success: function (employees) {
                         const select = $('#EmployeeIDs');
@@ -578,7 +460,8 @@
             });
             // #endregion
 
-                        
+
+            // #region toggleCompensationSelect
             function toggleCompensationSelect() {
                 const dayDateVal = $('#DayDate').val().trim();
                 if (dayDateVal) {
@@ -595,6 +478,7 @@
             $('#DayDate').on('input change blur', function () {
                 toggleCompensationSelect();
             });
+            // #endregion
 
 
             // #region Load shift by opening edit shift modal
@@ -688,7 +572,7 @@
             // #endregion
 
 
-
+            // #region CompensationTypeID on change
             $('#CompensationTypeID').on('change', function () {
                 const selectedValue = $(this).val();
                 if (selectedValue === "3") {
@@ -696,7 +580,7 @@
                     //$('#rosterInOffDay-dayExchangeModal').modal('show');
                 }
             });
-            
+            // #endregion
 
 
         });
@@ -775,7 +659,7 @@
                     if (response.isSuccess) {
                         buildRosterTable(response.data, response.uniqueDates);
 
-                        // 👇 NEW CODE: Set date range label
+                        // NEW CODE: Set date range label
                         if (response.uniqueDates && response.uniqueDates.length > 0) {
                             const first = new Date(response.uniqueDates[0]);
                             const last = new Date(response.uniqueDates[response.uniqueDates.length - 1]);
