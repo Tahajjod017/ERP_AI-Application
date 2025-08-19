@@ -57,44 +57,43 @@ namespace GCTL_App.Controllers.CRM
             return View();
         }
 
+       
+
         [HttpGet]
-        public async Task<IActionResult> UniquenessCheck(string queryText, string type, int id)
+        private async Task<bool> IsUniqueAsync(string queryText, string type, int id)
         {
             if (string.IsNullOrEmpty(queryText) || string.IsNullOrEmpty(type))
-            {
-                return BadRequest(new { message = "Query text or type is missing" });
-            }
+                return false;
 
             int? addressId = 0;
-            var customerObj = await _individualAddressesRepository.FirstOrDefaultAsync(u => u.IndividualAddressID == id);
+            var customerObj = await _individualAddressesRepository
+                .FirstOrDefaultAsync(u => u.IndividualAddressID == id);
+
             if (customerObj != null)
-            {
                 addressId = customerObj.AddressID;
-            }
-            else
-            {
-                addressId = 0;
-            }
 
             if (type == "phone")
             {
                 var queryResult = await _addressesRepository
                     .FindAsync(u => (u.Phone == queryText || u.OtherPhone == queryText) && u.AddressID != addressId);
-                return Json(new { unique = queryResult.Count == 0 });
+                return queryResult.Count == 0;
             }
             else if (type == "email")
             {
                 var queryResult = await _addressesRepository
                     .FindAsync(u => u.Email == queryText && u.AddressID != addressId);
-                return Json(new { unique = queryResult.Count == 0 });
+                return queryResult.Count == 0;
             }
-            else
-            {
-                return BadRequest(new { message = "Invalid type parameter" });
-            }
+
+            return false;
         }
 
 
+        public async Task<IActionResult> UniquenessCheck(string queryText, string type, int id)
+        {
+            var isUnique = await IsUniqueAsync(queryText, type, id);
+            return Json(new { unique = isUnique });
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetCustomerList()
@@ -115,7 +114,7 @@ namespace GCTL_App.Controllers.CRM
         }
 
         [HttpGet]
-        public async Task<IActionResult> getCountry(string countryName)
+        public async Task<IActionResult> addCountry(string countryName)
         {
             var countryObj = await _countryRepository.AllActive().Where(e => e.CountryName.Trim().ToLower() == countryName.Trim().ToLower()).FirstOrDefaultAsync();
             if (countryObj == null)
@@ -128,6 +127,17 @@ namespace GCTL_App.Controllers.CRM
             }
 
             return Json(new {countryId = countryObj.CountryID , countryName= countryObj.CountryName});
+        }
+        [HttpGet]
+        public async Task<IActionResult> getCountry(string countryName)
+        {
+            var countryList = await _countryRepository.GetAllAsync();
+            var countrySelectList = countryList.Select(c => new SelectListItem
+            {
+                Value = c.CountryID.ToString(),
+                Text = c.CountryName
+            }).ToList();
+            return Json(countrySelectList);
         }
         [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)
@@ -209,10 +219,16 @@ namespace GCTL_App.Controllers.CRM
         {
             if (ModelState.IsValid && leadsVM != null)
             {
-                if (leadsVM.Customers[0].PrimaryID != 0)
+                var isUnique = await IsUniqueAsync(
+                    leadsVM.Customers[0].Phone,
+                    "phone",
+                    leadsVM.Customers[0].PrimaryID
+                );
+                if (leadsVM.Customers[0].PrimaryID != 0 && isUnique)
                 {
+
                     var result = await _leadCreateService.UpdateLead(leadsVM);
-                    return Json(new { success = true, message = "Lead Created successfully" });
+                    return Ok(result);
                 }
             }
             return Json(new { MessageContent = "Error" });
