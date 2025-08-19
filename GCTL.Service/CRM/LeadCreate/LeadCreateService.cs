@@ -304,7 +304,7 @@ namespace GCTL.Service.CRM.LeadCreate
                     DeletedAt = null,
 
                 };
-                _leadsRepository.AddAsync(leadObj);
+                await _leadsRepository.AddAsync(leadObj);
 
 
                 //foreach (var obj in customerVM.Customers)
