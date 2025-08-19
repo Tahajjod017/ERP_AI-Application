@@ -1,0 +1,35 @@
+﻿@model GCTL_App.ViewModels.PayRollManagements.PayRollSettings.PayRolltaxpercentagePageVM
+
+
+<div class="mt-4 mx-lg-n4">
+    <div class="row g-4">
+        <div class="col-12 col-md-7 col-xl-5 col-xxl-5">
+            <partial name="_PayRollTaxPercentageSave" model="Model.SaveVM" />
+        </div>
+
+        <div class="col-12 col-md-7 col-xl-7 col-xxl-7">
+            <partial name="_PayRolltaxPercentageTableList" />
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/payrollmanagements/payrollsettings/payrolltaxpercentage.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "PayRollTaxPercentageSettigns")'
+            };
+            options.load = () => {
+
+            };
+
+            $.payrolltaxpercentage(options);
+        });
+    </script>
+}

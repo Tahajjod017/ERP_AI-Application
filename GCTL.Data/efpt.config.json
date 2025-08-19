@@ -479,6 +479,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[PSettings]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[SalaryTypes]",
          "ObjectType": 0
       },

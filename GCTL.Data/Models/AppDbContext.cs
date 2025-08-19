@@ -163,6 +163,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<OrganizationBranches> OrganizationBranches { get; set; }
 
+    public virtual DbSet<PSettings> PSettings { get; set; }
+
     public virtual DbSet<Pages> Pages { get; set; }
 
     public virtual DbSet<PassingYears> PassingYears { get; set; }
@@ -250,7 +252,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -513,6 +514,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
 
+  
+
         modelBuilder.Entity<ApplicationUser>()
             .HasDiscriminator<string>("Discriminator")
             .HasValue<ApplicationUser>("ApplicationUser");
@@ -544,6 +547,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(r => r.TenantInfoId)
             .IsRequired(false)
             .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -2863,6 +2867,38 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationBranchesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeID_OrganizationBranches_UpdatedBy");
+        });
+
+        modelBuilder.Entity<PSettings>(entity =>
+        {
+            entity.HasKey(e => e.PSettingID).HasName("PK__PSetting__072FF3AD542439E8");
+
+            entity.ToTable("PSettings", "Payroll");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.TaxPercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PSettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PSettings__Creat__73C51D7B");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PSettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PSettings__Delet__76A18A26");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.PSettings)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__PSettings__Organ__72D0F942");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PSettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PSettings__Updat__74B941B4");
         });
 
         modelBuilder.Entity<Pages>(entity =>

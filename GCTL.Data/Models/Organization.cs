@@ -101,6 +101,8 @@ public partial class Organization
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
+    public virtual ICollection<PSettings> PSettings { get; set; } = new List<PSettings>();
+
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
