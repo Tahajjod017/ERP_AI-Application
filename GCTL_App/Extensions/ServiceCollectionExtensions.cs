@@ -93,6 +93,7 @@ using GCTL.Service.MenuTabs;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
+using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -183,6 +184,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmployeeBenefitsService, EmployeeBenefitsService>();
             services.AddScoped<IPayRollEmpAllowanceService, PayRollEmpAllowanceService>();
             services.AddScoped<IPayRollEmpSalaryService, PayRollEmploSalaryService>();
+            services.AddScoped<IPayRollTaxperCentangeSettingsService, PayRollTaxpercentageSettingsService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();

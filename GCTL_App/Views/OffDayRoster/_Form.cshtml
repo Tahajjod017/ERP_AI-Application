@@ -43,6 +43,14 @@
                 </select>
             </div>
 
+            <div class="col-md">
+                <label class="form-label" asp-for="DayDate">@Html.SmartLocalize("Select Date")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
+                <span id="DayDateError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
             <div class="col-md employee">
                 <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
                 <select class="form-multi-select"
@@ -62,21 +70,13 @@
                     }
                 </select>
             </div>
-        </div>
 
-        <div class="row g-3 mb-3">
             <div class="col-md">
                 <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Shift Name")<span style="color:red;">&nbsp;*</span></label>
                 <select class="form-select" asp-items="@ViewBag.ShiftDD as SelectList" asp-for="ShiftID">
                     <option value="">@Html.SmartLocalize("Select Shift")...</option>
                 </select>
                 <span id="ShiftIDError" class="text-danger" style="display:none;"></span>
-            </div>
-
-            <div class="col-md">
-                <label class="form-label" asp-for="DayDate">@Html.SmartLocalize("Select Date")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
-                <span id="DayDateError" class="text-danger" style="display:none;"></span>
             </div>
 
             <div class="col-md">

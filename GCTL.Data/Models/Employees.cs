@@ -531,6 +531,12 @@ public partial class Employees
 
     public virtual ICollection<Organization> OrganizationUpdatedByNavigation { get; set; } = new List<Organization>();
 
+    public virtual ICollection<PSettings> PSettingsCreatedByNavigation { get; set; } = new List<PSettings>();
+
+    public virtual ICollection<PSettings> PSettingsDeletedByNavigation { get; set; } = new List<PSettings>();
+
+    public virtual ICollection<PSettings> PSettingsUpdatedByNavigation { get; set; } = new List<PSettings>();
+
     public virtual ICollection<PassingYears> PassingYearsCreatedByNavigation { get; set; } = new List<PassingYears>();
 
     public virtual ICollection<PassingYears> PassingYearsDeletedByNavigation { get; set; } = new List<PassingYears>();

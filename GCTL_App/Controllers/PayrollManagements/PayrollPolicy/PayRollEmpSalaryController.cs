@@ -29,7 +29,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             try
             {
 
-                var data = await payRollEmpSalaryService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, organizationId);
+                var data = await payRollEmpSalaryService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, organizationId, imgSrcThumb);
                 return Json(data);
             }
             catch (Exception ex)
