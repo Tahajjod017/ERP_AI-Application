@@ -15,6 +15,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public decimal? Bonus { get; set; }
         public decimal? Deductions { get; set; }
         public decimal ? NetSalary { get; set; }
-        public string EmployeeImage { get; set; }
+        public string? EmployeeImage { get; set; }
+        public decimal? Deduction { get; set; } 
     }
 }

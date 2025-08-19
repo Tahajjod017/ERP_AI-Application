@@ -49,25 +49,37 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                if(model.OrganizationID != 0 && model.DepartmentIDs == null && model.EmployeeIDs == null)
+                int? patternTypeId = model.SpiralPatternTypeID;
+
+                if (model.OrganizationID != 0 && model.DepartmentIDs == null && model.EmployeeIDs == null)
                 {
                     var employees = await _employeeOfficeInfoRepository.FindAsync(e => e.OrganizationID == model.OrganizationID);
 
                     foreach (var employee in employees)
                     {
                         var existingEntity = await _genericRepository.All()
-                            .Where(e => e.OrganizationID == employee.OrganizationID 
+                            .Where(e => e.OrganizationID == employee.OrganizationID
                             && e.DepartmentID == employee.DepartmentID
                             && e.EmployeeID == employee.EmployeeID
-                            && e.StartDate == model.StartDate 
+                            && e.StartDate == model.StartDate
                             && e.EndDate == model.EndDate
                             && e.DeletedAt != null && e.DeletedBy != null)
                             .FirstOrDefaultAsync();
                         if (existingEntity != null)
                         {
                             SpiralPatternAssignList entity = new SpiralPatternAssignList();
-                            entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
-                            entity.SpiralPatternID = model.SpiralPatternID;
+                            if (patternTypeId == 1)
+                            {
+                                entity.SpiralWeeklyPatternID = model.SpiralPatternID;
+                            }
+                            else if (patternTypeId == 2)
+                            {
+                                entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
+                            }
+                            else if (patternTypeId == 3)
+                            {
+                                entity.SpiralMonthlyPatternID = model.SpiralPatternID;
+                            }
                             entity.CreatedBy = model.CreatedBy;
                             entity.CreatedAt = DateTime.Now;
                             entity.LIP = model.LIP;
@@ -81,22 +93,32 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                             entity.OrganizationID = model.OrganizationID;
                             entity.DepartmentID = employee.DepartmentID;
                             entity.EmployeeID = employee.EmployeeID;
-                            entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
-                            entity.SpiralPatternID = model.SpiralPatternID;
+                            if (patternTypeId == 1)
+                            {
+                                entity.SpiralWeeklyPatternID = model.SpiralPatternID;
+                            }
+                            else if (patternTypeId == 2)
+                            {
+                                entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
+                            }
+                            else if (patternTypeId == 3)
+                            {
+                                entity.SpiralMonthlyPatternID = model.SpiralPatternID;
+                            }
                             entity.StartDate = model.StartDate;
                             entity.EndDate = model.EndDate;
                             entity.CreatedBy = model.CreatedBy;
                             entity.CreatedAt = DateTime.Now;
                             entity.LIP = model.LIP;
                             entity.LMAC = model.LMAC;
-                            
+
                             await _genericRepository.AddAsync(entity);
                         }
                     }
                 }
                 else if (model.OrganizationID != null && model.DepartmentIDs != null && model.EmployeeIDs == null)
                 {
-                    foreach(var depId in model.DepartmentIDs)
+                    foreach (var depId in model.DepartmentIDs)
                     {
                         var employees = await _employeeOfficeInfoRepository.FindAsync(e => e.OrganizationID == model.OrganizationID && e.DepartmentID == depId);
                         foreach (var employee in employees)
@@ -112,8 +134,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                             if (existingEntity != null)
                             {
                                 SpiralPatternAssignList entity = new SpiralPatternAssignList();
-                                entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
-                                entity.SpiralPatternID = model.SpiralPatternID;
+                                if (patternTypeId == 1)
+                                {
+                                    entity.SpiralWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 2)
+                                {
+                                    entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 3)
+                                {
+                                    entity.SpiralMonthlyPatternID = model.SpiralPatternID;
+                                }
                                 entity.CreatedBy = model.CreatedBy;
                                 entity.CreatedAt = DateTime.Now;
                                 entity.LIP = model.LIP;
@@ -127,8 +159,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                                 entity.OrganizationID = model.OrganizationID;
                                 entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = employee.EmployeeID;
-                                entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
-                                entity.SpiralPatternID = model.SpiralPatternID;
+                                if (patternTypeId == 1)
+                                {
+                                    entity.SpiralWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 2)
+                                {
+                                    entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 3)
+                                {
+                                    entity.SpiralMonthlyPatternID = model.SpiralPatternID;
+                                }
                                 entity.StartDate = model.StartDate;
                                 entity.EndDate = model.EndDate;
                                 entity.CreatedBy = model.CreatedBy;
@@ -158,8 +200,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                             if (existingEntity != null)
                             {
                                 SpiralPatternAssignList entity = new SpiralPatternAssignList();
-                                entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
-                                entity.SpiralPatternID = model.SpiralPatternID;
+                                if (patternTypeId == 1)
+                                {
+                                    entity.SpiralWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 2)
+                                {
+                                    entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 3)
+                                {
+                                    entity.SpiralMonthlyPatternID = model.SpiralPatternID;
+                                }
                                 entity.CreatedBy = model.CreatedBy;
                                 entity.CreatedAt = DateTime.Now;
                                 entity.LIP = model.LIP;
@@ -173,8 +225,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                                 entity.OrganizationID = model.OrganizationID;
                                 entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = employee.EmployeeID;
-                                entity.SpiralPatternTypeID = model.SpiralPatternTypeID;
-                                entity.SpiralPatternID = model.SpiralPatternID;
+                                if (patternTypeId == 1)
+                                {
+                                    entity.SpiralWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 2)
+                                {
+                                    entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
+                                }
+                                else if (patternTypeId == 3)
+                                {
+                                    entity.SpiralMonthlyPatternID = model.SpiralPatternID;
+                                }
                                 entity.StartDate = model.StartDate;
                                 entity.EndDate = model.EndDate;
                                 entity.CreatedBy = model.CreatedBy;
@@ -205,26 +267,28 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
         {
             try
             {
-                var entity = await _genericRepository.GetByIdAsync(id);
+                var entity = await _genericRepository.AllActive()
+                    .Where(x => x.SpiralPatternAssignListID == id)
+                    .AsNoTracking()
+                    .Select(x => new AssignSpiralPatternEditVM
+                    {
+                        SpiralPatternAssignListID = x.SpiralPatternAssignListID,
+                        EditOrganizationID = x.OrganizationID,
+                        EditDepartmentID = x.DepartmentID,
+                        EditEmployeeID = x.EmployeeID,
+                        EditSpiralPatternID = x.SpiralWeeklyPatternID
+                             ?? x.SpiralBioWeeklyPatternID
+                             ?? x.SpiralMonthlyPatternID,
+                        EditSpiralPatternTypeID = x.SpiralWeeklyPattern.SpiralPatternTypeID
+                             ?? x.SpiralBioWeeklyPattern.SpiralPatternTypeID
+                             ?? x.SpiralMonthlyPattern.SpiralPatternTypeID,
+                        EditStartDate = x.StartDate,
+                        EditEndDate = x.EndDate
+                    }).FirstOrDefaultAsync();
 
-                if (entity == null)
-                {
-                    return null;
-                }
-
-                return new AssignSpiralPatternEditVM
-                {
-                    SpiralPatternAssignListID = entity.SpiralPatternAssignListID,
-                    EditOrganizationID = entity.OrganizationID,
-                    EditDepartmentID = entity.DepartmentID,
-                    EditEmployeeID = entity.EmployeeID,
-                    EditSpiralPatternTypeID = entity.SpiralPatternTypeID,
-                    EditSpiralPatternID = entity.SpiralPatternID,
-                    EditStartDate = entity.StartDate,
-                    EditEndDate = entity.EndDate
-                };
+                return entity;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -247,24 +311,31 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
 
                         join emp in _employeesRepository.All().AsNoTracking() on eoi.EmployeeID equals emp.EmployeeID into empGroup
                         from emp in empGroup.DefaultIfEmpty()
-                        
+
                         join org in _organizationRepository.All().AsNoTracking() on spa.OrganizationID equals org.OrganizationID into orgGroup
                         from org in orgGroup.DefaultIfEmpty()
 
                         join dep in _departments.All().AsNoTracking() on spa.DepartmentID equals dep.DepartmentID into depGroup
                         from dep in depGroup.DefaultIfEmpty()
 
-                        join spt in _spiralPatternTypeRepository.All().AsNoTracking() on spa.SpiralPatternTypeID equals spt.SpiralPatternTypeID into sptGroup
-                        from spt in sptGroup.DefaultIfEmpty()
-                        
-                        join swp in _spiralWeeklyPatternRepository.All().AsNoTracking() on spa.SpiralPatternID equals swp.SpiralWeeklyPatternID into swpGroup
+                        join swp in _spiralWeeklyPatternRepository.All().AsNoTracking() on spa.SpiralWeeklyPatternID equals swp.SpiralWeeklyPatternID into swpGroup
                         from swp in swpGroup.DefaultIfEmpty()
-                        
-                        join sbp in _spiralBioWeeklyPatternRepository.All().AsNoTracking() on spa.SpiralPatternID equals sbp.SpiralBioWeeklyPatternID into sbpGroup
+
+                        join sptW in _spiralPatternTypeRepository.All().AsNoTracking() on swp.SpiralPatternTypeID equals sptW.SpiralPatternTypeID into sptWGroup
+                        from sptW in sptWGroup.DefaultIfEmpty()
+
+                        join sbp in _spiralBioWeeklyPatternRepository.All().AsNoTracking() on spa.SpiralBioWeeklyPatternID equals sbp.SpiralBioWeeklyPatternID into sbpGroup
                         from sbp in sbpGroup.DefaultIfEmpty()
-                        
-                        join smp in _spiralMonthlyPatternRepository.All().AsNoTracking() on spa.SpiralPatternID equals smp.SpiralMonthlyPatternID into smpGroup
+
+                        join sptB in _spiralPatternTypeRepository.All().AsNoTracking() on sbp.SpiralPatternTypeID equals sptB.SpiralPatternTypeID into sptBGroup
+                        from sptB in sptBGroup.DefaultIfEmpty()
+
+                        join smp in _spiralMonthlyPatternRepository.All().AsNoTracking() on spa.SpiralMonthlyPatternID equals smp.SpiralMonthlyPatternID into smpGroup
                         from smp in smpGroup.DefaultIfEmpty()
+
+                        join sptM in _spiralPatternTypeRepository.All().AsNoTracking() on smp.SpiralPatternTypeID equals sptM.SpiralPatternTypeID into sptMGroup
+                        from sptM in sptMGroup.DefaultIfEmpty()
+
                         select new AssignSpiralPatternListVM
                         {
                             SpiralPatternAssignListID = spa.SpiralPatternAssignListID,
@@ -274,14 +345,22 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                             DepartmentName = dep.DepartmentName ?? "-",
                             EmployeeID = spa.EmployeeID,
                             EmployeeName = $"{emp.FirstName} {emp.LastName}",
-                            SpiralPatternTypeID = spa.SpiralPatternTypeID,
-                            SpiralPatternTypeName = spt.SpiralPatternTypeName ?? "-",
-                            SpiralPatternID = spa.SpiralPatternID,
-                            SpiralPatternName =
-                                spa.SpiralPatternTypeID == 1 ? (swp.SpiralWeeklyPatternName ?? "-") :
-                                spa.SpiralPatternTypeID == 2 ? (sbp.SpiralBioWeeklyPatternName ?? "-") :
-                                spa.SpiralPatternTypeID == 3 ? (smp.SpiralMonthlyPatternName ?? "-") :
-                                "-",
+                            SpiralPatternTypeID = sptW != null ? sptW.SpiralPatternTypeID
+                                : sptB != null ? sptB.SpiralPatternTypeID
+                                : sptM != null ? sptM.SpiralPatternTypeID
+                                : 0,
+                            SpiralPatternTypeName = sptW != null ? sptW.SpiralPatternTypeName
+                                : sptB != null ? sptB.SpiralPatternTypeName
+                                : sptM != null ? sptM.SpiralPatternTypeName
+                                : "-",
+                            SpiralPatternID = swp != null ? swp.SpiralWeeklyPatternID
+                                : sbp != null ? sbp.SpiralBioWeeklyPatternID
+                                : smp != null ? smp.SpiralMonthlyPatternID
+                                : 0,
+                            SpiralPatternName = swp != null ? swp.SpiralWeeklyPatternName
+                                : sbp != null ? sbp.SpiralBioWeeklyPatternName
+                                : smp != null ? smp.SpiralMonthlyPatternName
+                                : "-",
                             StartDate = spa.StartDate.HasValue ? spa.StartDate.Value.ToString("dd/MM/yyyy") : "-",
                             EndDate = spa.EndDate.HasValue ? spa.EndDate.Value.ToString("dd/MM/yyyy") : "-"
                         };
@@ -310,7 +389,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                     break;
 
                 case "SpiralPatternTypeName":
-                    query = sortOrder.ToLower() == "asc"? query.OrderBy(x => x.SpiralPatternTypeName) : query.OrderByDescending(x => x.SpiralPatternTypeName);
+                    query = sortOrder.ToLower() == "asc" ? query.OrderBy(x => x.SpiralPatternTypeName) : query.OrderByDescending(x => x.SpiralPatternTypeName);
                     break;
 
                 case "SpiralPatternName":
