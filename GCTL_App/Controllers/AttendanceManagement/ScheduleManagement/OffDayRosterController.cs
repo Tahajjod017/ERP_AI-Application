@@ -86,7 +86,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 }
 
                 // Custom ordered validation message 
-                var orderedKeys = new[] { "OrganizationID", "ShiftID", "DayDate", "CompensationTypeID" };
+                var orderedKeys = new[] { "OrganizationID", "DayDate", "ShiftID", "CompensationTypeID" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -157,15 +157,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByOrganization
-        public async Task<IActionResult> GetEmployeeByOrganization(int? id)
-        {
-            var result = await _commonService.GetEmployeesByOrgId(id);
-            return Json(result);
-        }
-        #endregion
-
-
         #region GetShiftByOrganization
         public async Task<IActionResult> GetShiftByOrganization(int? id)
         {
@@ -175,19 +166,10 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByDepartment
-        public async Task<IActionResult> GetEmployeeByDepartment(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        #region GetEmployeesByOrgBraDepId
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
         {
             var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
-            return Json(result);
-        }
-        #endregion
-
-
-        #region GetEmployeeByBranch
-        public async Task<IActionResult> GetEmployeeByBranch(int? orgId, [FromQuery] List<int>? ids)
-        {
-            var result = await _commonService.GetEmployeesByOrgBraId(orgId, ids);
             return Json(result);
         }
         #endregion
