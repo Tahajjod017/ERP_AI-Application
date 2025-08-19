@@ -11,7 +11,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string TabName { get; set; }
         public int PrimaryID { get; set; }
 
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; }
 
         public string? LastName { get; set; }
 
@@ -34,7 +34,7 @@ namespace GCTL.Core.ViewModels.CRM
 
         public decimal? Longitude { get; set; }
 
-        public string? Phone { get; set; }
+        public string Phone { get; set; }
 
         public string? OtherPhone { get; set; }
 

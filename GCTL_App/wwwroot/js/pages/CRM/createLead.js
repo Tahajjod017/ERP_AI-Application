@@ -451,13 +451,15 @@ $(document).ready(function () {
 
     function setCountry(id, countryName) {
         $.ajax({
-            url: '/CreateLead/getCountry',
+            url: '/CreateLead/addCountry',
             method: 'GET',
             contentType: 'application/json',
             data: { countryName: countryName },
             success: function (response) {
                 console.log("Country response:", response);
-                choiceManager.setChoiceValue(id, response.countryId);
+                getCountryList().then(() => {
+                    choiceManager.setChoiceValue(id, response.countryId);
+                });
             },
             error: function (xhr) {
                 console.error("Failed to set country:", xhr);
@@ -465,7 +467,43 @@ $(document).ready(function () {
             }
         });
     }
+    function getCountryList() {
+        debugger
+        return new Promise((resolve, reject) => {   
+            $.ajax({
+                url: '/CreateLead/getCountry',
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    debugger
+                    console.log("Country List:", response);
+                    document.querySelectorAll('.choiceDD').forEach(function (select) {
+                        select.innerHTML = '';
+                        select.append(new Option('Select Country', ''));
 
+                        response.forEach(item => {
+                            select.append(new Option(item.text, item.value));
+                        });
+                        if (select.choices) {
+                            select.choices.setChoices(
+                                data.map(i => ({ value: i.countryId, label: i.countryName })),
+                                'value',
+                                'label',
+                                true
+                            );
+                        }
+                    });
+                    resolve(200);
+                },
+                error: function (xhr) {
+                    console.error("Failed to set country:", xhr);
+                    toastr.error('Error setting country');
+                }
+            });
+        })
+        
+    }
+    getCountryList();
     function uniquenessCheck(text, type, id) {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -508,9 +546,10 @@ $(document).ready(function () {
         return true;
     }
 
-    $("#modalSaveBtn").on("click", function (e) {
+    $("#modalSaveBtn").on("click", async function (e) {
         e.preventDefault();
-        if (fieldValidation()) {
+        debugger;
+        if (await fieldValidation()) {
             const actionTab = (targetTab === "person" || targetTab === "shipping") ? ["person", "shipping"] : ["company"];
             const data = [];
 
@@ -551,10 +590,12 @@ $(document).ready(function () {
                     console.log("Upsert person response:", response);
                     targetTab = "index";
                     if (response.success) {
-                        $('#addCustomerModal').modal('hide');
-                        toastr.success(response.message);
-                        getCustomerList();
-                        getCustomerInfo(response.result.data);
+                        setTimeout(() => {
+                            $('#addCustomerModal').modal('hide');
+                            toastr.success(response.message);
+                            getCustomerList();
+                            getCustomerInfo(response.result.data);
+                        }, 400);
                     } else {
                         toastr.error(response.message || "Failed to save person");
                     }
@@ -676,14 +717,16 @@ $(document).ready(function () {
         }
     }
 
-    async function runtimeUniquenessCheck() {
+    async function uniquenPhoneCheck() {
+        debugger;
         let isValid = true;
+        debugger;
         const targetedField = targetTab === 'index'
-            ? [[idMapIndex.person.phone, idMapIndex.person.otherPhone, idMapIndex.person.primaryID]]
+            ? [[idMapIndex.person.phone, idMapIndex.person.otherPhone, idMapIndex.person.primaryID, idMapIndex.person.email]]
             : targetTab === 'person'
-                ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID]]
+                ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
                 : targetTab === 'company'
-                    ? [[idMap.company.phone, idMap.company.otherPhone, idMap.company.primaryID]]
+                    ? [[idMap.company.phone, idMap.company.otherPhone, idMap.company.primaryID, idMap.company.email]]
                     : [];
 
         for (const item of targetedField) {
@@ -707,6 +750,10 @@ $(document).ready(function () {
                     console.error("Uniqueness check failed for phone:", error);
                     isValid = false;
                 }
+            } else {
+                $(`#${phoneSelector}`).css('border', '1px solid #ccc')
+                const errorSpan = $(`#${phoneSelector}`).closest(".col-12").find("#errorShow");
+                errorSpan.text("");
             }
 
             if (otherPhone) {
@@ -724,6 +771,11 @@ $(document).ready(function () {
                     console.error("Uniqueness check failed for otherPhone:", error);
                     isValid = false;
                 }
+            } else {
+                const errorSpan = $(`#${otherPhoneSelector}`).closest(".col-12").find("#errorShow");
+                errorSpan.text("");
+                $(`#${otherPhoneSelector}`).css('border', '1px solid #ccc')
+                
             }
         }
 
@@ -731,10 +783,11 @@ $(document).ready(function () {
     }
 
     async function fieldValidation() {
+        debugger;
         const selectedTab = targetListForValidation();
         console.log("Validating fields for tab:", targetTab, "Fields:", selectedTab);
 
-        let isValid = await runtimeUniquenessCheck();
+        let isValid = await uniquenPhoneCheck();
         console.log("Uniqueness check result:", isValid);
 
         let errorCount = 0;
@@ -753,15 +806,17 @@ $(document).ready(function () {
             if (name === '') {
                 target.css('border', '1px solid red');
                 errorCount += 1;
-                isValid = false;
+               
             } else {
                 target.css('border', '1px solid #ccc');
             }
         });
 
         if (errorCount > 0) {
+            isValid = false;
             console.log(`Validation failed with ${errorCount} errors`);
             toastr.warning(errorCount === 1 ? "This field is required" : "These fields are required");
+           
         } else {
             console.log("All fields validated successfully");
         }
@@ -815,4 +870,21 @@ $(document).ready(function () {
     }
 
     runtimeValidationCheck();
+
+
+    $("#sameAsShippingBtn").on("click", async function () {
+        let clickBtnValue = $(this).is(":checked");
+        if (clickBtnValue == true) {
+            for (const item in idMap.person) {
+                $(`#${idMap.shipping[item]}`).val($(`#${idMap.person[item]}`).val() || "")
+                let result = $(`#${idMap.person[item]}`).val();
+
+            }
+            // set country
+            let selectedItem = $("#countryPerson").siblings(".choices__list").find(".choices__item--selectable[aria-selected='true']");
+            let dataValue = selectedItem.attr("data-value");
+            if ($(`#${idMap.person.country}`).data('value') != "")
+                choiceManager.setChoiceValue(idMap.shipping.country, dataValue);
+        }
+    })
 });
