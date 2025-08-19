@@ -10,15 +10,15 @@
                 <h4 class="modal-title">Edit Holiday Settings</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="holidayForm" asp-controller="HolidaySettings" asp-action="Updates" method="post">
+            <form id="holidayEditForm" asp-controller="HolidaySettings" asp-action="Updates" method="post">
                 <div class=" mb-3">
 
                     <div class="row">
-
+                        <input type="hidden" id="HolidayIDEdit" name="HolidayID" value="" />
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Organization</label>
-                                <select class="form-select choiceDD" id="OrganizationEditID" name="OrganizationID" multiple>
+                                <select class="form-select choiceDD" id="OrganizationEditID" asp-items="@ViewBag.OrganizationDD" name="OrganizationID" multiple>
                                     <option value="">Select Organization</option>
                                    
                                 </select>
@@ -27,15 +27,15 @@
 
                         <div class="col-sm-12 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Holiday Title</label>
-                                <input class="form-control" id="exampleFormControlInput" type="text" name="HolidayTitle" placeholder="Holiday Title" required />
+                                <label class="form-label" for="HolidayTitle">Holiday Title</label>
+                                <input class="form-control" id="HolidayTitleedit" type="text" name="HolidayTitle" placeholder="Holiday Title" required />
                             </div>
                         </div>
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="datepicker">Start Date</label>
-                                <input class="form-control datetimepicker flatpickr-input" id="StartDate" type="text" name="StartDate" placeholder="dd/mm/yyyy">
+                                <input class="form-control datetimepicker flatpickr-input" id="StartDateEdit" type="text" name="StartDate" placeholder="dd/mm/yyyy">
                             </div>
                         </div>
 
@@ -44,21 +44,21 @@
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="datepicker">End Date</label>
-                                <input class="form-control datetimepicker flatpickr" id="EndDate" type="text" name="EndDate" placeholder="dd/mm/yyyy">
+                                <input class="form-control datetimepicker flatpickr" id="EndDateEdit" type="text" name="EndDate" placeholder="dd/mm/yyyy">
                             </div>
                         </div>
 
                         <div class="col-sm-12 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Total Day</label>
-                                <input class="form-control" id="TotalDays" type="text" name="TotalDays" placeholder="Total Days" readonly />
+                                <label class="form-label" for="TotalDays">Total Day</label>
+                                <input class="form-control" id="TotalDaysEdit" type="text" name="TotalDays" placeholder="Total Days" readonly />
                             </div>
                         </div>
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
-                                <select class="form-select choiceDD" id="StatusEditID" name="StatusID">
+                                <select class="form-select choiceDD" asp-items="@ViewBag.StatusDD" id="StatusEditID" name="StatusID">
                                     <option value="">Select Holiday Status</option>
                                     
                                 </select>
@@ -68,8 +68,8 @@
 
                         <div class="col-sm-12 col-md-12">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Holiday Description</label>
-                                <textarea class="form-control" name="HolidayDescription" rows="3"></textarea>
+                                <label class="form-label" for="HolidayDescription">Holiday Description</label>
+                                <textarea class="form-control" name="HolidayDescription" id="HolidayDescriptionEdit" rows="3"></textarea>
                             </div>
                         </div>
 

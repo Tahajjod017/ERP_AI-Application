@@ -51,7 +51,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
             {
                 int? patternTypeId = model.SpiralPatternTypeID;
 
+
                 if (model.OrganizationID != 0 && model.DepartmentIDs == null && model.EmployeeIDs == null)
+
                 {
                     var employees = await _employeeOfficeInfoRepository.FindAsync(e => e.OrganizationID == model.OrganizationID);
 
@@ -68,15 +70,18 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                         if (existingEntity != null)
                         {
                             SpiralPatternAssignList entity = new SpiralPatternAssignList();
-                            if (patternTypeId == 1)
+
+
+                            if(patternTypeId == 1)
                             {
                                 entity.SpiralWeeklyPatternID = model.SpiralPatternID;
                             }
-                            else if (patternTypeId == 2)
+                            else if(patternTypeId == 2)
                             {
                                 entity.SpiralBioWeeklyPatternID = model.SpiralPatternID;
                             }
-                            else if (patternTypeId == 3)
+                            else if(patternTypeId == 3)
+
                             {
                                 entity.SpiralMonthlyPatternID = model.SpiralPatternID;
                             }
@@ -351,7 +356,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPatte
                                 : 0,
                             SpiralPatternTypeName = sptW != null ? sptW.SpiralPatternTypeName
                                 : sptB != null ? sptB.SpiralPatternTypeName
+
                                 : sptM != null ? sptM.SpiralPatternTypeName
+
                                 : "-",
                             SpiralPatternID = swp != null ? swp.SpiralWeeklyPatternID
                                 : sbp != null ? sbp.SpiralBioWeeklyPatternID

@@ -24,11 +24,12 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly ILeadCreateService _leadCreateService;
         private readonly IGenericRepository<IndividualAddresses> _individualAddressesRepository;
+        private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly AppDbContext _context;
         private readonly IGenericRepository<Country> _countryRepository;
 
         #endregion
-        public CreateLeadController(AppDbContext context,ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
+        public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -38,6 +39,7 @@ namespace GCTL_App.Controllers.CRM
             _individualAddressesRepository = individualAddressesRepository;
             _employeeTypeRepository = employeeTypeRepository;
             _countryRepository = countryRepository;
+            _addressesRepository = addressesRepository;
             _context = context;
         }
 
@@ -55,6 +57,43 @@ namespace GCTL_App.Controllers.CRM
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> UniquenessCheck(string queryText, string type, int id)
+        {
+            if (string.IsNullOrEmpty(queryText) || string.IsNullOrEmpty(type))
+            {
+                return BadRequest(new { message = "Query text or type is missing" });
+            }
+
+            int? addressId = 0;
+            var customerObj = await _individualAddressesRepository.FirstOrDefaultAsync(u => u.IndividualAddressID == id);
+            if (customerObj != null)
+            {
+                addressId = customerObj.AddressID;
+            }
+            else
+            {
+                addressId = 0;
+            }
+
+            if (type == "phone")
+            {
+                var queryResult = await _addressesRepository
+                    .FindAsync(u => (u.Phone == queryText || u.OtherPhone == queryText) && u.AddressID != addressId);
+                return Json(new { unique = queryResult.Count == 0 });
+            }
+            else if (type == "email")
+            {
+                var queryResult = await _addressesRepository
+                    .FindAsync(u => u.Email == queryText && u.AddressID != addressId);
+                return Json(new { unique = queryResult.Count == 0 });
+            }
+            else
+            {
+                return BadRequest(new { message = "Invalid type parameter" });
+            }
+        }
+
 
 
         [HttpGet]
@@ -67,7 +106,8 @@ namespace GCTL_App.Controllers.CRM
                     {
                         CustomerId = n.IndividualAddressID,
                         FullName = n.Individual.FirstName + " " + n.Individual.LastName,
-                        Type = n.AddressType.AddressTypeName
+                        Type = n.AddressType.AddressTypeName,
+                        Phone = n.Address.Phone
                     })
                     .ToListAsync();
 

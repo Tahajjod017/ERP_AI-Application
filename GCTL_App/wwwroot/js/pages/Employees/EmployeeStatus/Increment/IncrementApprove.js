@@ -1,8 +1,5 @@
 ﻿$(document).ready(function () {
-    const developmentMode = false;
-    if (developmentMode) {
-        toastr.info("Welcome to the Increment Approval Page!");
-    }
+    showDev('js Loaded')
 
     //#region flatpick
 
@@ -102,7 +99,7 @@
                                     <input class="form-check-input" type="checkbox" />
                                 </div>
                             </td>
-                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
+                            <td class="employeeName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" >
                                 <div class="d-flex align-items-center file-name-icon">
                                     <div class="avatar avatar-m avatar-bordered me-4">
                                         <img class="rounded-circle" src="${increment.avatarUrl}" alt="" />
@@ -113,12 +110,12 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="1">${increment.incrementType}</td>
-                            <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="2">${increment.currentSalary}</td>
-                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="3">${increment.proposedSalary}</td>
-                            <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="4">${increment.incrementAmount}</td>
-                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="5">${increment.effectiveDate}</td>
-                            <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="6">
+                            <td class="incrementType align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" >${increment.incrementType}</td>
+                            <td class="currentSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" >${increment.currentSalary}</td>
+                            <td class="proposedSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" >${increment.proposedSalary}</td>
+                            <td class="incrementAmount align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" >${increment.incrementAmount}</td>
+                            <td class="effectiveDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" >${increment.effectiveDate}</td>
+                            <td class="decision align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" >
                                 <a href="#" class="nav-item mx-2 review-increment" data-increment-id="${increment.id}" data-bs-toggle="modal" data-bs-target="#increment_approval_modal" title="Review Increment">
                                     <i class="fas fa-eye text-primary"></i>
                                 </a>
@@ -128,8 +125,8 @@
                     `);
                 });
 
-                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('pendingTblDy'), 'pendingTblDy');
-
+                //DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('pendingTblDy'), 'pendingTblDy');
+                DynamicTableDrag.refreshTableSettings('IncrementPendingTblDy');
 
                 updatePagination("#incrementApprovalTable", data.totalPages, data.totalItems, page, loadPendingIncrements);
                 pendingPage = page;
@@ -192,8 +189,8 @@
                     `);
                 });
 
-                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('approvedTblDy'), 'approvedTblDy');
-
+               // DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('approvedTblDy'), 'approvedTblDy');
+                DynamicTableDrag.refreshTableSettings('IncrementApproveTblDy');
 
                 updatePagination("#approvedIncrementTable", data.totalPages, data.totalItems, page, loadApprovedIncrements);
                 approvedPage = page;

@@ -69,4 +69,21 @@
         });
     }
     loadProcessedTable();
+
+
+    $('.sort').on('click', function () {
+        var tableId = $(this).closest('table').attr('id');
+        var column = $(this).data('sort');
+        var currentSort = $('#' + tableId).data('sort');
+        var direction = (currentSort === column && $('#' + tableId).data('dir') === 'asc') ? 'desc' : 'asc';
+
+        $('#' + tableId).data('sort', column).data('dir', direction).data('page', 1);
+        if (tableId === 'resignPending') {
+            loadPendingTable();
+        } else {
+            loadProcessedTable();
+        }
+    });
+
+
 });

@@ -339,13 +339,7 @@ namespace GCTL_App.Controllers.Employees
 
         }
 
-        //public IActionResult GetLocalHost()
-        //{
-        //    var request = _httpContextAccessor.HttpContext.Request;
-        //    string url = $"{request.Scheme}://{request.Host}";
-
-        //    return Ok(new { LocalHostUrl = url });
-        //}
+        
 
 
         #region Populate Edit Form

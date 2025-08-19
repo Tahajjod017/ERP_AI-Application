@@ -78,7 +78,7 @@
 
 
 
-<!-- Add Employee -->
+<!-- edit Employee -->
 <div class="offcanvas offcanvas-end" id="offcanvasRightANE" tabindex="-1" data-bs-backdrop="false" aria-labelledby="offcanvasRightANELabel" style="width:83%;">
     <div class="offcanvas-header bg-body">
         <h5 id="offcanvasRightANBLabel">Edit Employee Information : <span id="empNameEdit" style="color: #09095e;"></span></h5>
@@ -2232,6 +2232,11 @@
                         <option value="Sort by Last 6 Month">Sort by Last 6 Month</option>
                     </select>
                 </div>
+
+                <div class="dropdown">
+                   <div class="columnDrag tt1"></div>
+                </div>
+
             </div>
         </div>
 
@@ -2264,7 +2269,7 @@
         <div id="listView" class="view-content border-top border-translucent p-3 hidden">
             <div id="employeeListTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table" id="employeeListTable">
+                    <table class="table dyn-tableDrag tt1" id="employeeListTable">
 
 
                         <thead>
