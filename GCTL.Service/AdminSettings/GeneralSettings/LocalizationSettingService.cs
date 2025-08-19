@@ -461,7 +461,9 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 .Select(c => new SelectListItem
                 {
                     Value = c.CurrencyID.ToString(),
-                    Text = c.CurrencyName,
+                    Text = $"{c.CurrencyName} ({c.Symbol})"
+
+,
                 })
                 .ToListAsync();
             // Set first item as selected by default if any exist
