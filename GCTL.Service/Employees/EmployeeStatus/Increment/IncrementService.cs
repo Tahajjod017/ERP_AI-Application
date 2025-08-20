@@ -158,6 +158,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                                 EmployeeName = emp.FirstName + " " + emp.LastName,
                                 Department = department.DepartmentName ?? "N/A",
                                 IncrementType = actionType.EmployeeActionTypeName ?? "N/A",
+                                IncrementTypeId = actionType != null ? actionType.EmployeeActionTypeID : 0,
+
                                 CurrentSalary = ecc.CurrentSalary.HasValue
                                     ? ecc.CurrentSalary.Value.ToString("C")
                                     : "N/A",
@@ -225,6 +227,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                                 EmployeeName = emp.FirstName + " " + emp.LastName,
                                 Department = department.DepartmentName ?? "N/A",
                                 IncrementType = actionType.EmployeeActionTypeName ?? "N/A",
+                                IncrementTypeId = actionType != null ? actionType.EmployeeActionTypeID : 0 , 
                                 CurrentSalary = ecc.CurrentSalary.HasValue
                                     ? ecc.CurrentSalary.Value.ToString("C")
                                     : "N/A",
@@ -263,6 +266,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
         public async Task<object> GetFilteredIncrementsAsync(IncrementFilterModel filter, string imgLink, int? loggedID)
         {
             var query = await GetPendingIncrementQueryAsync(imgLink, loggedID);
+            query = ApplySearch(query, filter);
             query = ApplyFilters(query, filter);
             query = ApplySorting(query, filter);
 
@@ -282,6 +286,8 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
         public async Task<object> GetFilteredApprovedIncrementsAsync(IncrementFilterModel filter, string imgLink, int? loggedID)
         {
             var query = await GetApprovedIncrementQueryAsync(imgLink, loggedID);
+            
+            query = ApplySearch(query, filter);
             query = ApplyFilters(query, filter);
             query = ApplySorting(query, filter);
 
@@ -298,11 +304,31 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
             return new { TotalPages = totalPages, TotalItems = totalItems, Increments = paginatedIncrements };
         }
 
+        
+
+        private IQueryable<IncrementApproveViewModel> ApplySearch(IQueryable<IncrementApproveViewModel> query, IncrementFilterModel filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.SearchInput))
+            {
+                var keyword = filter.SearchInput.Trim().ToLower();
+
+                query = query.Where(p =>
+                    (!string.IsNullOrEmpty(p.EmployeeName) && p.EmployeeName.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(p.Department) && p.Department.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(p.IncrementType) && p.IncrementType.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(p.Status) && p.Status.ToLower().Contains(keyword))
+                );
+            }
+
+            return query;
+        }
+
         private IQueryable<IncrementApproveViewModel> ApplyFilters(IQueryable<IncrementApproveViewModel> query, IncrementFilterModel filter)
         {
             if (!string.IsNullOrEmpty(filter.IncrementType))
             {
-                query = query.Where(p => p.IncrementType.Contains(filter.IncrementType));
+                var type = Convert.ToInt16(filter.IncrementType);
+                query = query.Where(p => p.IncrementTypeId == type);
             }
             if (!string.IsNullOrEmpty(filter.Status))
             {
@@ -443,7 +469,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                     status = new Statuses
                     {
                         StatusName = "Pending",
-                        StatusType = "EmployeeCareerChange",
+                        StatusType = "AppDecPen",
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
@@ -938,7 +964,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
 
         private async Task<Statuses> GetOrCreateStatusAsync(string action, IncrementActionModel actionModel)
         {
-            string statusName = action == "approve" ? "Approved" : "Decline";
+            string statusName = action == "approve" ? "Approved" : "Declined";
             var status = await _statusRepository.AllActive()
                 .FirstOrDefaultAsync(s => s.StatusName.ToLower() == statusName.ToLower());
             if (status == null)
@@ -946,7 +972,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Increment
                 status = new Statuses
                 {
                     StatusName = statusName,
-                    StatusType = "EmployeeCareerChange",
+                    StatusType = "AppDecPen",
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = actionModel.CreatedBy,
                     LIP = actionModel.LIP,

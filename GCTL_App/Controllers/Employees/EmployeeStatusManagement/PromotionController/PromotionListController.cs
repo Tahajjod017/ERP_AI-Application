@@ -21,8 +21,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         private readonly IGenericRepository<EmployeeCareerChanges> _empCarrerRepository;
         private readonly IGenericRepository<EmployeeActionTypes> _empActionRepository;
         private readonly IPromotionService _promotionService;
+        private readonly IGenericRepository<Statuses> _statusRepository;
 
-        public PromotionListController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IPromotionService promotionService, IGenericRepository<EmployeeActionTypes> empActionRepository) : base(translateService, userProfileService)
+
+        public PromotionListController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IPromotionService promotionService, IGenericRepository<EmployeeActionTypes> empActionRepository, IGenericRepository<Statuses> statusRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeOffiRepository = employeeOffiRepository;
@@ -32,6 +34,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
             _empCarrerRepository = empCarrerRepository;
             _promotionService = promotionService;
             _empActionRepository = empActionRepository;
+            _statusRepository = statusRepository;
         }
 
         public IActionResult Index()
@@ -64,6 +67,12 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
                 "DesignationID",
                 "DesignationName"
             );
+
+            ViewBag.IncrementTypeList = new SelectList(
+             _statusRepository.AllActive().Where(r => r.StatusType == "AppDecPen").Select(d => new { d.StatusID, d.StatusName }),
+             "StatusID",
+             "StatusName"
+             );
 
             return View();
         }
@@ -106,7 +115,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
                 // Status filter
                 if (!string.IsNullOrEmpty(filters.Status))
                 {
-                    query = query.Where(x => x.Status.StatusName == filters.Status);
+                    
+                    query = query.Where(x => x.Status.StatusID == Convert.ToInt16(filters.Status));
                 }
 
                 // Date range filter

@@ -1,23 +1,38 @@
-﻿using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment;
+using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManagement
 {
     public class IncrementApproveController : BaseController
     {
         private readonly IincrementService _incrementService;
+        private readonly IGenericRepository<Statuses> _statusRepository;
+        private readonly IGenericRepository<EmployeeActionTypes> _actionRepository;
 
-        public IncrementApproveController( ITranslateService translateService, IUserProfileService userProfileService, IincrementService incrementService)
+
+        public IncrementApproveController(ITranslateService translateService, IUserProfileService userProfileService, IincrementService incrementService, IGenericRepository<Statuses> statusRepository, IGenericRepository<EmployeeActionTypes> actionRepository)
             : base(translateService, userProfileService)
         {
             _incrementService = incrementService;
+            _statusRepository = statusRepository;
+            _actionRepository = actionRepository;
         }
 
         public IActionResult Index()
         {
+            ViewBag.IncrementTypeList = new SelectList(
+                _actionRepository.AllActive().Where(r => r.EmployeeActionTypeName.ToLower() == "increment" || r.EmployeeActionTypeName.ToLower() == "decrement")
+                .Select(d => new { d.EmployeeActionTypeID, d.EmployeeActionTypeName }),
+                "EmployeeActionTypeID",
+                "EmployeeActionTypeName"
+            );
+
             SetSmartPageCode(121900);
             return View();
         }

@@ -925,7 +925,7 @@ namespace GCTL.Service.Employees.EmployeeTermination
 
         private async Task<Statuses> GetOrCreateStatusAsync(string action, PromotionActionModel actionModel)
         {
-            string statusName = action == "approve" ? "Approved" : "Decline";
+            string statusName = action == "approve" ? "Approved" : "Declined";
             var status = await _statusRepository.AllActive()
                 .FirstOrDefaultAsync(s => s.StatusName.ToLower() == statusName.ToLower());
 

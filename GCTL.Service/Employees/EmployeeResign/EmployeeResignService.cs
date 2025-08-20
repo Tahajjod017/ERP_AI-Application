@@ -322,7 +322,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                     status = new Statuses
                     {
                         StatusName = "Pending",
-                        StatusType = "EmployeeCareerChange",
+                        StatusType = "AppDecPen",
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
@@ -834,7 +834,7 @@ namespace GCTL.Service.Employees.EmployeeResign
 
         private async Task<Statuses> GetOrCreateStatusAsync(string action, PromotionActionModel actionModel)
         {
-            string statusName = action == "approve" ? "Approved" : "Decline";
+            string statusName = action == "approve" ? "Approved" : "Declined";
             var status = await _statusRepository.AllActive()
                 .FirstOrDefaultAsync(s => s.StatusName.ToLower() == statusName.ToLower());
 
@@ -843,7 +843,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                 status = new Statuses
                 {
                     StatusName = statusName,
-                    StatusType = "EmployeeCareerChange",
+                    StatusType = "AppDecPen",
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = actionModel.CreatedBy,
                     LIP = actionModel.LIP,

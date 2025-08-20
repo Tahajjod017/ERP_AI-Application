@@ -19,6 +19,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Promotion
 
         public string SortColumn { get; set; }
         public string SortDirection { get; set; }
+        public string SearchInput { get; set; }
     }
 
     

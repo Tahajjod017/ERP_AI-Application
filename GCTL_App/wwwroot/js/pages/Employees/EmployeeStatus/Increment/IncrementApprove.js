@@ -77,9 +77,11 @@
         formData.append("pageSize", pageSize);
         formData.append("incrementType", $("#incrementType").val() || "");
         formData.append("status", $("#statusSelect").val() || "");
+        formData.append("searchInput", $("#searchInputPe").val() || "");
         formData.append("sortBy", $("#sortBy").val() || "");
         formData.append("dateRange", $("#timepicker2").val() || "");
         formData.append("sortColumn", pendingSortColumn);
+        formData.append("sortDirection", pendingSortDirection);
         formData.append("sortDirection", pendingSortDirection);
 
         $.ajax({
@@ -144,6 +146,7 @@
         formData.append("department", $("#approvedDepartment").val() || "");
         formData.append("employeeName", $("#approvedEmployee").val() || "");
         formData.append("incrementType", $("#approvedIncrementType").val() || "");
+        formData.append("searchInput", $("#searchInputAp").val() || "");
         formData.append("sortBy", $("#approvedSort").val() || "");
         formData.append("dateRange", $("#approvedDateRange").val() || "");
         formData.append("sortColumn", approvedSortColumn);
@@ -228,6 +231,27 @@
         approvedPage = 1;
         loadApprovedIncrements(approvedPage);
     });
+
+
+    $('#searchInputAp').on('input', debounce(function () {
+        loadApprovedIncrements(1);
+    }, 500));
+
+    $('#searchInputPe').on('input', debounce(function () {
+        loadPendingIncrements(1);
+    }, 500));
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 
     function updatePagination(containerId, totalPages, totalItems, currentPage, loadFunction) {
         const pagination = $(containerId).find(".pagination");
