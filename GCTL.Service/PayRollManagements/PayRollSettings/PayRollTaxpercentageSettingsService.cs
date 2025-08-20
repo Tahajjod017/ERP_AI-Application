@@ -97,6 +97,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                     var beforeEntity = JsonConvert.DeserializeObject<PayRollTaxpercentageUpdateVM>(JsonConvert.SerializeObject(entity));
 
                     entity.OrganizationID = model.OrganizationID;
+                    entity.TaxPercentage=model.TaxPercentage;
                     entity.UpdatedAt = DateTime.Now;
                     entity.UpdatedBy = model.UpdatedBy;
                     entity.LIP = model.LIP;
@@ -111,7 +112,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
 
                     return true;
                 }
-                catch
+                catch(Exception ex)
                 {
                     await _genericRepository.RollbackTransactionAsync();
                     return false;

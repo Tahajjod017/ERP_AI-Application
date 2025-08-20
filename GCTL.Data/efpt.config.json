@@ -471,7 +471,19 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[CalculationTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeAllowances]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowanceSetup]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowanceTypes]",
          "ObjectType": 0
       },
       {

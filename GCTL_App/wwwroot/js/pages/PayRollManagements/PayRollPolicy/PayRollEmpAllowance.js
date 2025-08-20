@@ -1,6 +1,74 @@
 ﻿
 $(document).ready(function () {
 
+    $(document).on('click', '.addRow', function () {
+        let newRow = `
+    <div class="card shadow-sm rounded-3 mb-3 houseRentRow">
+        
+        <div class="card-body">
+            <div class="row g-3">
+            <div class="text-end  removeRow" style="position: absolute;
+    top:-6px;
+    left: -17px;
+">
+            <button type="button" class="btn btn-sm btn-outline-danger removeRow"  style="width:20px; height:20px; line-height:7px; font-size:12px;">
+        X
+    </button>
+
+            </div>
+ 
+
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <label class="form-label">Min Salary</label>
+                    <input type="text" class="form-control" placeholder="Enter Min Salary" />
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <label class="form-label">Max Salary</label>
+                    <input type="text" class="form-control" placeholder="Enter Max Salary" />
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <label class="form-label">Rate</label>
+                    <select class="form-select">
+                        <option value="">Select %</option>
+                    </select>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <label class="form-label">Effective Date</label>
+                    <div class="input-icon-end position-relative">
+                        <input type="text" class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
+                        <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <label class="form-label">Allowance Depends on</label>
+                    <select class="form-select">
+                        <option value="">Select Salary</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-12">
+                    <label class="form-label">Is Active</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" />
+                        <label class="form-check-label">Active</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+        $("#houseRentContainer").append(newRow);
+    });
+
+    // remove only new rows (with X)
+    $(document).on('click', '.removeRow', function () {
+        $(this).closest('.houseRentRow').remove();
+    });
+
+
+
+
+    //
+
     $("select[name='OrganizationID']").on("changed.coreui.multi-select", function () {
         validateOrganization();
     });
