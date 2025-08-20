@@ -30,14 +30,26 @@ namespace GCTL.Service.CRM
                     on indDddr.AddressID equals address.AddressID
                 join individual in _context.Individuals
                     on indDddr.IndividualID equals individual.IndividualID
+                join leadStatus in _context.LeadStatuses
+                    on lead.LeadStatusID equals leadStatus.LeadStatusID
+                join leadSource in _context.LeadSources
+                    on lead.LeadSourceID equals leadSource.LeadSourceID
+                join leadOwner in _context.Employees
+                    on lead.LeadOwnerID equals leadOwner.EmployeeID
+                orderby lead.LeadID descending
                 select new LeadsTableVM
                 {
                     LeadId = lead.LeadID,
+                    LeadStatus = leadStatus.LeadStatusName,
+                    LeadSourceName = leadSource.LeadSourceName,
+                    LeadOwnerName = leadOwner.FirstName + " " + leadOwner.LastName,
+                    ApproximateDealValue = lead.ApproximateDealValue,
+                    ProbabilityPercentage = lead.ProbabilityPercentage,
+
                     LeadName = lead.LeadName,
                     Phone = address.Phone,
                     Email = address.Email,
                     ContactName = address.FirstName + " " + address.LastName,
-                    CompanyName ="Google",
                     Status = "Active",
                 }
             ).ToListAsync();

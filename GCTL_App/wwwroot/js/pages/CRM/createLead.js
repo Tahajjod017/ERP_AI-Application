@@ -107,22 +107,23 @@ $(document).ready(function () {
                 $('#customerType').val(response.customer.addressTypeName);
 
                 const ids = idMapIndex.person;
-                document.getElementById(ids.primaryID).value = response.customer.individualAddressID;
-                document.getElementById(ids.firstName).value = response.customer.firstName;
-                document.getElementById(ids.lastName).value = response.customer.lastName;
-                document.getElementById(ids.autocomplete).value = response.customer.fullAddress;
-                document.getElementById(ids.street).value = response.customer.street;
-                document.getElementById(ids.city).value = response.customer.city;
-                document.getElementById(ids.additionalAddress).value = response.customer.additionaladdress;
-                document.getElementById(ids.state).value = response.customer.state;
-                document.getElementById(ids.postal_code).value = response.customer.postalCode;
-                document.getElementById(ids.country).value = response.customer.countryName;
-                document.getElementById(ids.countryCode).value = response.customer.countryCode;
-                document.getElementById(ids.latitude).value = response.customer.latitude;
-                document.getElementById(ids.longitude).value = response.customer.longitude;
-                document.getElementById(ids.phone).value = response.customer.phone;
-                document.getElementById(ids.otherPhone).value = response.customer.otherPhone;
-                document.getElementById(ids.email).value = response.customer.email;
+                $("#" + ids.primaryID).val(response.customer.individualAddressID);
+                $("#" + ids.firstName).val(response.customer.firstName);
+                $("#" + ids.lastName).val(response.customer.lastName);
+                $("#" + ids.autocomplete).val(response.customer.fullAddress);
+                $("#" + ids.street).val(response.customer.street);
+                $("#" + ids.city).val(response.customer.city);
+                $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
+                $("#" + ids.state).val(response.customer.state);
+                $("#" + ids.postal_code).val(response.customer.postalCode);
+                $("#" + ids.country).val(response.customer.countryName);
+                $("#" + ids.countryCode).val(response.customer.countryCode);
+                $("#" + ids.latitude).val(response.customer.latitude);
+                $("#" + ids.longitude).val(response.customer.longitude);
+                $("#" + ids.phone).val(response.customer.phone);
+                $("#" + ids.otherPhone).val(response.customer.otherPhone);
+                $("#" + ids.email).val(response.customer.email);
+
 
                 // Re-initialize phone fields
                 initPhoneFields();
@@ -438,14 +439,15 @@ $(document).ready(function () {
                 });
             }
 
-            document.getElementById(ids.city).value = city;
-            document.getElementById(ids.state).value = state;
-            setCountry(ids.country, country);
-            document.getElementById(ids.countryCode).value = countryCode;
-            document.getElementById(ids.postal_code).value = postal_code;
-            document.getElementById(ids.latitude).value = lat;
-            document.getElementById(ids.longitude).value = lng;
-            document.getElementById(ids.street).value = fullStreet;
+            $("#" + ids.city).val(city);
+            $("#" + ids.state).val(state);
+            setCountry(ids.country, country); // keep as is, since it's your own function
+            $("#" + ids.countryCode).val(countryCode);
+            $("#" + ids.postal_code).val(postal_code);
+            $("#" + ids.latitude).val(lat);
+            $("#" + ids.longitude).val(lng);
+            $("#" + ids.street).val(fullStreet);
+
         });
     }
 
@@ -558,22 +560,23 @@ $(document).ready(function () {
                     const ids = idMap[item] || {};
                     data.push({
                         TabName: item,
-                        PrimaryID: document.getElementById(ids.primaryID)?.value ? parseInt(document.getElementById(ids.primaryID).value, 10) : 0,
-                        FirstName: document.getElementById(ids.firstName)?.value || "",
-                        LastName: document.getElementById(ids.lastName)?.value || "",
-                        FullAddress: document.getElementById(ids.autocomplete)?.value || "",
-                        Street: document.getElementById(ids.street)?.value || "",
-                        City: document.getElementById(ids.city)?.value || "",
-                        State: document.getElementById(ids.state)?.value || "",
-                        Additionaladdress: document.getElementById(ids.additionalAddress)?.value || "",
-                        PostalCode: document.getElementById(ids.postal_code)?.value || "",
-                        CountryName: document.getElementById(ids.country)?.value || "",
-                        CountryCode: document.getElementById(ids.countryCode)?.value || "",
-                        Latitude: parseFloat(document.getElementById(ids.latitude)?.value) || null,
-                        Longitude: parseFloat(document.getElementById(ids.longitude)?.value) || null,
+                        PrimaryID: $("#" + ids.primaryID).val() ? parseInt($("#" + ids.primaryID).val(), 10) : 0,
+                        FirstName: $("#" + ids.firstName).val() || "",
+                        LastName: $("#" + ids.lastName).val() || "",
+                        FullAddress: $("#" + ids.autocomplete).val() || "",
+                        Street: $("#" + ids.street).val() || "",
+                        City: $("#" + ids.city).val() || "",
+                        State: $("#" + ids.state).val() || "",
+                        Additionaladdress: $("#" + ids.additionalAddress).val() || "",
+                        PostalCode: $("#" + ids.postal_code).val() || "",
+                        CountryName: $("#" + ids.country).val() || "",
+                        CountryCode: $("#" + ids.countryCode).val() || "",
+                        Latitude: parseFloat($("#" + ids.latitude).val()) || null,
+                        Longitude: parseFloat($("#" + ids.longitude).val()) || null,
                         Phone: getPhoneNumber(ids.phone),
                         OtherPhone: getPhoneNumber(ids.otherPhone),
-                        Email: document.getElementById(ids.email)?.value || ""
+                        Email: $("#" + ids.email).val() || ""
+
                     });
                 }
             });
@@ -613,14 +616,15 @@ $(document).ready(function () {
         if (await fieldValidation()) {
             const actionTab = ["person"];
             const data = {
-                IsIndividualCustomer: document.getElementById("customerType").value === "billing",
-                LeadName: document.getElementById(idMapIndex.indexBase.leadName)?.value || "",
-                LeadStatusID: parseInt(document.getElementById(idMapIndex.indexBase.leadStatusID)?.value) || 0,
-                LeadSourceID: parseInt(document.getElementById(idMapIndex.indexBase.leadSourceID)?.value) || 0,
-                LeadOwnerID: parseInt(document.getElementById(idMapIndex.indexBase.leadOwnerID)?.value) || 0,
-                ApproximateDealValue: parseFloat(document.getElementById(idMapIndex.indexBase.approximateDealValue)?.value) || 0,
-                ProbabilityPercentage: parseFloat(document.getElementById(idMapIndex.indexBase.probabilityPercentage)?.value) || 0,
-                LeadDescription: document.getElementById(idMapIndex.indexBase.leadDescription)?.value || "",
+                IsIndividualCustomer: $("#customerType").val() === "billing",
+                LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
+                LeadStatusID: parseInt($("#" + idMapIndex.indexBase.leadStatusID).val()) || 0,
+                LeadSourceID: parseInt($("#" + idMapIndex.indexBase.leadSourceID).val()) || 0,
+                LeadOwnerID: parseInt($("#" + idMapIndex.indexBase.leadOwnerID).val()) || 0,
+                ApproximateDealValue: parseFloat($("#" + idMapIndex.indexBase.approximateDealValue).val()) || 0,
+                ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
+                LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val() || "",
+
                 Customers: []
             };
 
@@ -630,21 +634,21 @@ $(document).ready(function () {
                 data.Customers.push({
                     TabName: item,
                     PrimaryID: parseInt(customerId, 10) || 0,
-                    FirstName: document.getElementById(ids.firstName)?.value || "",
-                    LastName: document.getElementById(ids.lastName)?.value || "",
-                    FullAddress: document.getElementById(ids.autocomplete)?.value || "",
-                    Street: document.getElementById(ids.street)?.value || "",
-                    City: document.getElementById(ids.city)?.value || "",
-                    State: document.getElementById(ids.state)?.value || "",
-                    Additionaladdress: document.getElementById(ids.additionalAddress)?.value || "",
-                    PostalCode: document.getElementById(ids.postal_code)?.value || "",
-                    CountryName: document.getElementById(ids.country)?.value || "",
-                    CountryCode: document.getElementById(ids.countryCode)?.value || "",
-                    Latitude: parseFloat(document.getElementById(ids.latitude)?.value) || null,
-                    Longitude: parseFloat(document.getElementById(ids.longitude)?.value) || null,
+                    FirstName: $("#" + ids.firstName).val() || "",
+                    LastName: $("#" + ids.lastName).val() || "",
+                    FullAddress: $("#" + ids.autocomplete).val() || "",
+                    Street: $("#" + ids.street).val() || "",
+                    City: $("#" + ids.city).val() || "",
+                    State: $("#" + ids.state).val() || "",
+                    Additionaladdress: $("#" + ids.additionalAddress).val() || "",
+                    PostalCode: $("#" + ids.postal_code).val() || "",
+                    CountryName: $("#" + ids.country).val() || "",
+                    CountryCode: $("#" + ids.countryCode).val() || "",
+                    Latitude: parseFloat($("#" + ids.latitude).val()) || null,
+                    Longitude: parseFloat($("#" + ids.longitude).val()) || null,
                     Phone: getPhoneNumber(ids.phone) || "",
                     OtherPhone: getPhoneNumber(ids.otherPhone) || "",
-                    Email: document.getElementById(ids.email)?.value || ""
+                    Email: $("#" + ids.email).val() || ""
                 });
             });
 
@@ -730,52 +734,86 @@ $(document).ready(function () {
                     : [];
 
         for (const item of targetedField) {
-            const [phoneSelector, otherPhoneSelector, idSelector] = item;
+            const [phoneSelector, otherPhoneSelector, idSelector, emailSelector] = item;
             const phone = getPhoneNumber(phoneSelector);
             const otherPhone = getPhoneNumber(otherPhoneSelector);
+            const email = $("#" + emailSelector).val();
             const id = $(`#${idSelector}`).val() || "0";
+
+            function errorActive(selector, errorMsg) {
+                const errorSpan = $(`#${selector}`).closest(".col-12").find("#errorShow");
+                errorSpan.text(errorMsg);
+                $(`#${selector}`).css('border', '1px solid red');
+                isValid = false;
+            }
+            function errorDeactive(selector) {
+                const errorSpan = $(`#${selector}`).closest(".col-12").find("#errorShow");
+                $(`#${selector}`).css('border', '1px solid #ccc')
+                errorSpan.text("");
+            }
+            function samePhoneNumberCheck() {
+                if (phone && otherPhone) {
+                    if (phone === otherPhone) {
+                        toastr.error("Phone Number and Other Number field value is same");
+                    }
+
+                }
+            }
 
             if (phone) {
                 try {
                     const isUnique = await uniquenessCheck(phone, "phone", id);
-                    const errorSpan = $(`#${phoneSelector}`).closest(".col-12").find("#errorShow");
                     if (isUnique) {
-                        errorSpan.text("");
+                        errorDeactive(phoneSelector);
+                        samePhoneNumberCheck();
                     } else {
-                        errorSpan.text("This phone number is already used");
-                        $(`#${phoneSelector}`).css('border', '1px solid red');
-                        isValid = false;
+                        errorActive(phoneSelector, "This Phone Number Already Used");
+                    }
+                } catch (error) {
+                    console.error("Uniqueness check failed for phone:", error);
+                    isValid = false;
+                }
+            }
+
+
+            if (otherPhone) {
+                try {
+                    const isUnique = await uniquenessCheck(otherPhone, "phone", id);
+                    if (isUnique) {
+                        errorDeactive(otherPhoneSelector);
+                        samePhoneNumberCheck
+                    } else {
+                        errorActive(otherPhoneSelector, "This Other Phone Number Already Used");
                     }
                 } catch (error) {
                     console.error("Uniqueness check failed for phone:", error);
                     isValid = false;
                 }
             } else {
-                $(`#${phoneSelector}`).css('border', '1px solid #ccc')
-                const errorSpan = $(`#${phoneSelector}`).closest(".col-12").find("#errorShow");
-                errorSpan.text("");
+                errorDeactive(otherPhoneSelector);
             }
+            
 
-            if (otherPhone) {
+            if (email) {
                 try {
-                    const isUnique = await uniquenessCheck(otherPhone, "phone", id);
-                    const errorSpan = $(`#${otherPhoneSelector}`).closest(".col-12").find("#errorShow");
-                    if (isUnique) {
-                        errorSpan.text("");
+                    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // simple email regex
+                    let val = regex.test(email);
+                    if (regex.test(email)) {
+                        const isUnique = await uniquenessCheck(email, "email", id);
+                        if (isUnique) {
+                            errorDeactive(emailSelector);
+                        } else {
+                            errorActive(emailSelector, "This Email Already Used");
+                        }
                     } else {
-                        errorSpan.text("This other phone number is already used");
-                        $(`#${otherPhoneSelector}`).css('border', '1px solid red');
-                        isValid = false;
+                        errorActive(emailSelector, "Please enter a valid email address");
                     }
                 } catch (error) {
-                    console.error("Uniqueness check failed for otherPhone:", error);
+                    console.error("Uniqueness check failed for email:", error);
                     isValid = false;
                 }
             } else {
-                const errorSpan = $(`#${otherPhoneSelector}`).closest(".col-12").find("#errorShow");
-                errorSpan.text("");
-                $(`#${otherPhoneSelector}`).css('border', '1px solid #ccc')
-                
+                errorDeactive(emailSelector);
             }
         }
 

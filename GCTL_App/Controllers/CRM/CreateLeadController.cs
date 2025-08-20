@@ -219,12 +219,13 @@ namespace GCTL_App.Controllers.CRM
         {
             if (ModelState.IsValid && leadsVM != null)
             {
-                var isUnique = await IsUniqueAsync(
+                var isUniquePhone = await IsUniqueAsync(
                     leadsVM.Customers[0].Phone,
                     "phone",
                     leadsVM.Customers[0].PrimaryID
                 );
-                if (leadsVM.Customers[0].PrimaryID != 0 && isUnique)
+
+                if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
                 {
 
                     var result = await _leadCreateService.UpdateLead(leadsVM);

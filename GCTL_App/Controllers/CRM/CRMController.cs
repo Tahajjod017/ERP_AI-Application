@@ -48,7 +48,10 @@ namespace GCTL_App.Controllers.CRM
                     (r.LeadName?.ToLower().Contains(searchTerm) ?? false) ||
                     (r.Phone?.ToLower().Contains(searchTerm) ?? false) ||
                     (r.ContactName?.ToLower().Contains(searchTerm) ?? false) ||
-                    (r.CompanyName?.ToLower().Contains(searchTerm) ?? false)
+                    (r.ApproximateDealValue?.ToString().ToLower().Contains(searchTerm) ?? false) ||
+                    (r.ProbabilityPercentage?.ToString().ToLower().Contains(searchTerm) ?? false) ||
+                    (r.Email?.ToString().ToLower().Contains(searchTerm) ?? false) ||
+                    (r.LeadOwnerName?.ToString().ToLower().Contains(searchTerm) ?? false)
                 ).ToList();
             }
 
@@ -57,11 +60,14 @@ namespace GCTL_App.Controllers.CRM
             {
                 leadList = sortColumn switch
                 {
+                    "leadStatus" => sortDirection == "desc" ? leadList.OrderBy(r => r.LeadStatus ?? "").ToList() : leadList.OrderByDescending(r => r.LeadStatus ?? "").ToList(),
+                    "leadSourceName" => sortDirection == "desc" ? leadList.OrderBy(r => r.LeadSourceName ?? "").ToList() : leadList.OrderByDescending(r => r.LeadSourceName ?? "").ToList(),
+                    "leadOwnerName" => sortDirection == "desc" ? leadList.OrderBy(r => r.LeadOwnerName ?? "").ToList() : leadList.OrderByDescending(r => r.LeadOwnerName ?? "").ToList(),
                     "leadName" => sortDirection == "desc" ? leadList.OrderBy(r => r.LeadName ?? "").ToList() : leadList.OrderByDescending(r => r.LeadName ?? "").ToList(),
                     "email" => sortDirection == "desc" ? leadList.OrderBy(r => r.Email ?? "").ToList() : leadList.OrderByDescending(r => r.Email ?? "").ToList(),
                     "phone" => sortDirection == "desc" ? leadList.OrderBy(r => r.Phone ?? "").ToList() : leadList.OrderByDescending(r => r.Phone ?? "").ToList(),
-                    "contactName" => sortDirection == "desc" ? leadList.OrderBy(r => r.ContactName ?? "").ToList() : leadList.OrderByDescending(r => r.ContactName ?? "").ToList(),
-                    "companyName" => sortDirection == "desc" ? leadList.OrderBy(r => r.CompanyName ?? "").ToList() : leadList.OrderByDescending(r => r.CompanyName ?? "").ToList(),
+                    "approximateDealValue" => sortDirection == "desc"? leadList.OrderBy(r => r.ApproximateDealValue ?? 0m).ToList(): leadList.OrderByDescending(r => r.ApproximateDealValue ?? 0m).ToList(),
+                    "probabilityPercentage" => sortDirection == "desc"? leadList.OrderBy(r => r.ProbabilityPercentage ?? 0m).ToList(): leadList.OrderByDescending(r => r.ProbabilityPercentage ?? 0m).ToList(),
                     "status" => sortDirection == "desc" ? leadList.OrderBy(r => r.Status ?? "").ToList() : leadList.OrderByDescending(r => r.Status ?? "").ToList(),
                     _ => leadList
                 };

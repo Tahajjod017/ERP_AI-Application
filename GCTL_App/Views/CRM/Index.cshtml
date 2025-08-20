@@ -11,7 +11,9 @@
                         </div>
                     </div>
 
-
+                    <div class="dropdown me-3">
+                        <div class="columnDrag leadTable" placeholder="Column settings"></div>
+                    </div>
 
 
                     <div class="dropdown me-3">
@@ -31,7 +33,6 @@
                                 <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
                             </div>
                             <select class="form-select" id="pageElementSize" data-choices="data-choices" size="1" name="pageSizeSelectApprove" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                <option value="5">5</option>
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
@@ -47,7 +48,7 @@
             <div class="border-translucent p-3">
                 <div id="processedResignationTable">
                     <div class="table-responsive scrollbar mx-n1 px-1">
-                        <table class="table table-sm fs-9 leads-table dyn-table" id="resignProcessed">
+                        <table class="table table-sm fs-9 leads-table dyn-tableDrag leadTable" id="resignProcessed">
                             <thead>
                                 <tr>
                                     <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -56,11 +57,15 @@
                                         </div>
                                     </th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadName" data-column="0">@Html.SmartLocalize("Leads Name")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="email" data-column="1">@Html.SmartLocalize("Email")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="phone" data-column="2">@Html.SmartLocalize("Phone")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="contactName" data-column="3">@Html.SmartLocalize("Contact Name")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="companyName" data-column="4">@Html.SmartLocalize("Company Name")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="6">@Html.SmartLocalize("Status")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadStatus" data-column="1">@Html.SmartLocalize("leadStatus")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadSourceName" data-column="2">@Html.SmartLocalize("leadSourceName")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadOwnerName" data-column="3">@Html.SmartLocalize("leadOwnerName")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approximateDealValue" data-column="4">@Html.SmartLocalize("approximateDealValue")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="probabilityPercentage" data-column="5">@Html.SmartLocalize("probabilityPercentage")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="email" data-column="6">@Html.SmartLocalize("Email")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="phone" data-column="7">@Html.SmartLocalize("Phone")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="contactName" data-column="8">@Html.SmartLocalize("Contact Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="9">@Html.SmartLocalize("Status")</th>
                                 </tr>
                             </thead>
                             <tbody class="list" id="processed-resignation-body">

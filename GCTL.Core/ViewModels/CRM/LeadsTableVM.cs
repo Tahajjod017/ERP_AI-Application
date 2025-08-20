@@ -10,11 +10,15 @@ namespace GCTL.Core.ViewModels.CRM
     public class LeadsTableVM
     {
         public int LeadId { get; set; }
+        public string? LeadStatus { get; set; }
+        public string? LeadSourceName { get; set; }
+        public string? LeadOwnerName { get; set; }
+        public decimal? ApproximateDealValue { get; set; }
+        public decimal? ProbabilityPercentage { get; set; }
         public string? LeadName { get; set; }
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? ContactName { get; set; }
-        public string? CompanyName { get; set; }
         public string? Status { get; set; }
     }
 
