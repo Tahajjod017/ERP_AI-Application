@@ -86,8 +86,8 @@ namespace GCTL_App.Controllers.Employees
 
                 var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
 
-                var menuTabs = (from rp in _rolePermissionRepository.All()
-                                join mt in _menuTabRepository.All() on rp.MenuTabId equals mt.MenuTabId
+                var menuTabs = (from rp in _rolePermissionRepository.AllActive()
+                                join mt in _menuTabRepository.AllActive() on rp.MenuTabId equals mt.MenuTabId
                                 where roleIds.Contains(rp.RoleId) && mt.ControllerName.StartsWith("Employee")
                                 select mt.ControllerName).Distinct().ToList();
 
@@ -135,73 +135,73 @@ namespace GCTL_App.Controllers.Employees
             #region ViewBagData
 
             ViewBag.EmployeeDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.OrganizationDD = new SelectList(
-                _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+                _organizationRepository.AllActive().Select(o => new { o.OrganizationID, o.OrganizationName }),
                 "OrganizationID",
                 "OrganizationName"
             );
 
             ViewBag.BranchDD = new SelectList(
-                _branchRepository.All().Select(b => new { b.OrganizationBranchID, b.OrganizationBranchName }),
+                _branchRepository.AllActive().Select(b => new { b.OrganizationBranchID, b.OrganizationBranchName }),
                 "OrganizationBranchID",
                 "OrganizationBranchName"
             );
 
             ViewBag.EmployeeTypeDD = new SelectList(
-                _employeeTypeRepository.All().Select(et => new { et.EmployeeTypeID, et.EmployeeTypeName }),
+                _employeeTypeRepository.AllActive().Select(et => new { et.EmployeeTypeID, et.EmployeeTypeName }),
                 "EmployeeTypeID",
                 "EmployeeTypeName"
             );
 
             ViewBag.DepartmentDD = new SelectList(
-                _departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }),
+                _departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }),
                 "DepartmentID",
                 "DepartmentName"
             );
 
             ViewBag.DesignationDD = new SelectList(
-                _designationRepository.All().Select(d => new { d.DesignationID, d.DesignationName }),
+                _designationRepository.AllActive().Select(d => new { d.DesignationID, d.DesignationName }),
                 "DesignationID",
                 "DesignationName"
             );
 
             ViewBag.EmploymentNatureDD = new SelectList(
-                _employmentNatureRepository.All().Select(en => new { en.EmploymentNatureID, en.EmploymentNatureName }),
+                _employmentNatureRepository.AllActive().Select(en => new { en.EmploymentNatureID, en.EmploymentNatureName }),
                 "EmploymentNatureID",
                 "EmploymentNatureName"
             );
 
             ViewBag.SeniorSupervisorDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.ImmediateSupervisorDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.HeadOfDepartmentDD = new SelectList(
-                _employeeRepository.All().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.EmployeeStatusDD = new SelectList(
-                _employeeStatusRepository.All().Where(e=>e.StatusType.ToLower() == "Active/Inactive".ToLower()).Select(es => new { es.StatusID, es.StatusName }),
+                _employeeStatusRepository.AllActive().Where(e=>e.StatusType.ToLower() == "Active/Inactive".ToLower()).Select(es => new { es.StatusID, es.StatusName }),
                 "StatusID",
                 "StatusName"
             );
 
 
-            ViewBag.TimeUnitDD = new SelectList(_provisionPeriodTtimeTypesRepository.All().Select(tu => new { tu.ProvisionPeriodTtimeTypeID, tu.ProvisionPeriodTtimeTypeName }), "ProvisionPeriodTtimeTypeID", "ProvisionPeriodTtimeTypeName");
+            ViewBag.TimeUnitDD = new SelectList(_provisionPeriodTtimeTypesRepository.AllActive().Select(tu => new { tu.ProvisionPeriodTtimeTypeID, tu.ProvisionPeriodTtimeTypeName }), "ProvisionPeriodTtimeTypeID", "ProvisionPeriodTtimeTypeName");
 
 
             //ViewBag.TimeUnitDD = new SelectList(new List<object>{
@@ -364,7 +364,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public IActionResult GetEmployeeSupDD(int id)
         {
-            var a = _employeeRepository.All().Where(e=>e.EmployeeID != id).Select(e => new { id =  e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
+            var a = _employeeRepository.AllActive().Where(e=>e.EmployeeID != id).Select(e => new { id =  e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
                 
             return Ok(a);
         }
@@ -372,7 +372,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public IActionResult GetEmployeeSupDDbyComp(int id, int empID)
         {
-            //var result = _employeeRepository.All()
+            //var result = _employeeRepository.AllActive()
             //    .Where(e => e.EmployeeID != empID && e.EmployeeOfficeInfoEmployee.OrganizationId == id)
             //    .Include(e => e.EmployeeOfficeInfoEmployee)
             //    .Select(e => new
@@ -406,7 +406,7 @@ namespace GCTL_App.Controllers.Employees
 
             var a = _departmentRepository.AllActive().Where(e=>e.DepartmentID == id).Select(u=>u.DepartmentHeadEmpID).FirstOrDefault();
 
-            //var a = _employeeRepository.All().Where(e => e.EmployeeID != id).Select(e => new { id = e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
+            //var a = _employeeRepository.AllActive().Where(e => e.EmployeeID != id).Select(e => new { id = e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
 
             return Ok(a);
         }

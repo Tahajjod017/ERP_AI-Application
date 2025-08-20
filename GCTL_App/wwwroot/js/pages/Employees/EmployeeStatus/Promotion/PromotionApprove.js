@@ -86,11 +86,13 @@
     function loadPendingPromotions(page = 1) {
         const formData = new FormData();
         formData.append("page", page);
-        formData.append("pageSize", pageSize);
+        formData.append("pageSize", $('#pageSizeSelect').val());
         formData.append("promotionType", $("#promotionType").val() || "");
         formData.append("status", $("#statusSelect").val() || "");
         formData.append("sortBy", $("#sortBy").val() || "");
         formData.append("dateRange", $("#timepicker2").val() || "");
+        formData.append("searchInput", $("#searchInputPe").val() || "");
+
 
         formData.append("sortColumn", pendingSortColumn);
         formData.append("sortDirection", pendingSortDirection);
@@ -140,7 +142,8 @@
                     `);
                 });
 
-                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('promPending'), 'promPending');
+                DynamicTableDrag.refreshTableSettings('promPending');
+
 
 
                 // updatePagination("#pending-promotion-pagination", data.totalPages, page, loadPendingPromotions);
@@ -157,12 +160,13 @@
     function loadApprovedPromotions(page = 1) {
         const formData = new FormData();
         formData.append("page", page);
-        formData.append("pageSize", pageSize);
+        formData.append("pageSize", $('#approvePageSizeSelect').val());
         formData.append("department", $("#approvedDepartment").val() || "");
         formData.append("employee", $("#approvedEmployee").val() || "");
         formData.append("promotionType", $("#approvedPromotionType").val() || "");
         formData.append("sortBy", $("#approvedSort").val() || "");
         formData.append("dateRange", $("#approvedDateRange").val() || "");
+        formData.append("searchInput", $("#searchInputAp").val() || "");
 
         formData.append("sortColumn", approvedSortColumn);
         formData.append("sortDirection", approvedSortDirection);
@@ -214,7 +218,8 @@
                     //</td>
                 });
 
-                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('promApprove'), 'promApprove');
+                DynamicTableDrag.refreshTableSettings('promApprove');
+
 
 
 
@@ -417,15 +422,35 @@
     //});
 
 
-    $("#promotionType, #statusSelect, #timepicker2").on("change", function () {
+    $("#promotionType, #statusSelect, #timepicker2 , #pageSizeSelect").on("change", function () {
         pendingPage = 1;
         loadPendingPromotions(pendingPage);
     });
 
-    $("#approvedDepartment, #approvedEmployee, #approvedPromotionType, #approvedDateRange").on("change", function () {
+    $("#approvedDepartment, #approvedEmployee, #approvedPromotionType, #approvedDateRange, #approvePageSizeSelect").on("change", function () {
         approvedPage = 1;
         loadApprovedPromotions(approvedPage);
     });
+
+    $('#searchInputAp').on('input', debounce(function () {
+        loadApprovedPromotions(1);
+    }, 500));
+
+    $('#searchInputPe').on('input', debounce(function () {
+        loadPendingPromotions(1);
+    }, 500));
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 
 
     // Handle pagination clicks

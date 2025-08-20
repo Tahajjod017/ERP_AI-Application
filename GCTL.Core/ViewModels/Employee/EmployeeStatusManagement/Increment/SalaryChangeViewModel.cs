@@ -56,6 +56,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment
         public string Justification { get; set; }
         public string AvatarUrl { get; set; }
         public string Status { get; set; }
+        public int? IncrementTypeId { get; set; }
     }
 
     public class IncrementFilterModel : BaseViewModel
@@ -70,6 +71,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment
         public string SortBy { get; set; }
         public string SortColumn { get; set; }
         public string SortDirection { get; set; }
+        public string SearchInput { get; set; }
     }
 
     public class IncrementActionModel : BaseViewModel

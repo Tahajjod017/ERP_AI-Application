@@ -19,5 +19,6 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Increment
         public int EmployeeActionTypeID { get; set; }
         public string StatusName { get; set; }
         public string EmployeeImageFileName { get; set; }
+        public int StatusId { get; set; }
     }
 }

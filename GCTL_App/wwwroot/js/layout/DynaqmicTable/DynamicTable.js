@@ -1,4 +1,5 @@
 ﻿
+
 //#region Dynamic table version 2
 
 
@@ -871,7 +872,8 @@ const DynamicTableDrag = {
         console.log('Initializing DynamicTableDrag at ' + new Date().toISOString());
         if (typeof Sortable === 'undefined') {
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js';
+            //script.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js';
+            script.src ='/js/layout/DynaqmicTable/cdn.js' ;
             script.onload = () => {
                 console.log('SortableJS loaded');
                 this.initializeTables();

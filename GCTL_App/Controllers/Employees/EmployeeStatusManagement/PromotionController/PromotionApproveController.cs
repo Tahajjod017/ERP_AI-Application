@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionController
 {
@@ -20,8 +21,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         private readonly IGenericRepository<EmployeeCareerChanges> _empCarrerRepository;
         private readonly IGenericRepository<EmployeeActionTypes> _empActionRepository;
         private readonly IPromotionService _promotionService;
+        private readonly IGenericRepository<EmployeeActionTypes> _actionRepository;
 
-        public PromotionApproveController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IGenericRepository<EmployeeActionTypes> empActionRepository, IPromotionService promotionService) : base(translateService, userProfileService)
+
+        public PromotionApproveController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IGenericRepository<EmployeeActionTypes> empActionRepository, IPromotionService promotionService, IGenericRepository<EmployeeActionTypes> actionRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeOffiRepository = employeeOffiRepository;
@@ -31,6 +34,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
             _empCarrerRepository = empCarrerRepository;
             _empActionRepository = empActionRepository;
             _promotionService = promotionService;
+            _actionRepository = actionRepository;
         }
 
         #endregion
@@ -38,6 +42,19 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         public IActionResult Index()
         {
             SetSmartPageCode(121900);
+
+            ViewBag.DepartmentDD = new SelectList(
+                 _departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }),
+                 "DepartmentID",
+                 "DepartmentName"
+             );
+
+            ViewBag.IncrementTypeList = new SelectList(
+                _actionRepository.AllActive().Where(r => r.EmployeeActionTypeName.ToLower() == "promotion" || r.EmployeeActionTypeName.ToLower() == "demotion")
+                .Select(d => new { d.EmployeeActionTypeID, d.EmployeeActionTypeName }),
+                "EmployeeActionTypeID",
+                "EmployeeActionTypeName"
+            );
 
             return View();
         }
