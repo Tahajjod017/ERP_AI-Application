@@ -151,6 +151,12 @@ public partial class Employees
 
     public virtual ICollection<BloodGroup> BloodGroupUpdatedByNavigation { get; set; } = new List<BloodGroup>();
 
+    public virtual ICollection<CalculationTypes> CalculationTypesCreatedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<CalculationTypes> CalculationTypesDeletedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
+
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesCreatedByNavigation { get; set; } = new List<CompensationDayExchanges>();
 
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesDeletedByNavigation { get; set; } = new List<CompensationDayExchanges>();
@@ -244,6 +250,18 @@ public partial class Employees
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoEmployee { get; set; } = new List<EmployeeAdditionalInfo>();
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
+
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupCreatedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
+
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupDeletedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
+
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupUpdatedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
+
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypesCreatedByNavigation { get; set; } = new List<EmployeeAllowanceTypes>();
+
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypesDeletedByNavigation { get; set; } = new List<EmployeeAllowanceTypes>();
+
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypesUpdatedByNavigation { get; set; } = new List<EmployeeAllowanceTypes>();
 
     public virtual ICollection<EmployeeAllowances> EmployeeAllowancesCreatedByNavigation { get; set; } = new List<EmployeeAllowances>();
 

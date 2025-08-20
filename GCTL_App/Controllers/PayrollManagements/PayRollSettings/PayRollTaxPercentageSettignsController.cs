@@ -1,6 +1,8 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollSettings;
+using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.BloodGroups;
 using GCTL.Service.PayRollManagements.PayRollSettings;
@@ -9,22 +11,25 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.BloodGroup;
 using GCTL_App.ViewModels.PayRollManagements.PayRollSettings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
+
 
 namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
 {
     public class PayRollTaxPercentageSettignsController : BaseController
     {
         private readonly IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService;
-        
+        private readonly IGenericRepository<Organization> organization;
 
         #region Services & Repositories
-       
 
-        
-        public PayRollTaxPercentageSettignsController(IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService, ITranslateService translateService, IUserProfileService userProfileService, IBloodGroupService bloodGroupService): base(translateService, userProfileService)
+
+
+        public PayRollTaxPercentageSettignsController(IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService, ITranslateService translateService, IUserProfileService userProfileService, IBloodGroupService bloodGroupService, IGenericRepository<Organization> organization) : base(translateService, userProfileService)
         {
             this.payRollTaxperCentangeSettingsService = payRollTaxperCentangeSettingsService;
+            this.organization = organization;
         }
         #endregion
 
@@ -32,9 +37,10 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
         #region Index
         //[Permission("View", "BloodGroups")]
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             PayRolltaxpercentagePageVM model = new PayRolltaxpercentagePageVM();
+            ViewBag.OrganizationDD = new SelectList( organization.AllActive(), "OrganizationID", "OrganizationName");
             return View(model);
         }
 

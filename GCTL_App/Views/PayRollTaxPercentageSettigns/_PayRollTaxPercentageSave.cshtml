@@ -17,8 +17,11 @@
             <div class="col-sm-12 col-md-12 mb-4">
                 <input type="hidden" asp-for="PSettingID" />
                 <div class="flatpickr-input-container">
-                    <div class="form-floating">
-                        <input class="form-control" asp-for="OrganizationID" type="text" placeholder="@Html.SmartLocalize("Organization Name")" autocomplete="off" />
+                    <div class="form-floating form-floating-advance-select">
+                        <select class="form-select choiceDD" asp-for="OrganizationID" required asp-items="@ViewBag.OrganizationDD as SelectList">
+                            <option value="">Select Organization</option>
+                        </select>
+                       @*  <input class="form-control" asp-for="OrganizationID" type="text" placeholder="@Html.SmartLocalize("Organization Name")" autocomplete="off" /> *@
                         <label asp-for="OrganizationID">@Html.SmartLocalize("Organization Name") <span style="color: red;">*</span></label>
                     </div>
                     <span id="nameError" class="text-danger" style="display:none;"></span>

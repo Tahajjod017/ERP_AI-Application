@@ -50,18 +50,17 @@
                 e.preventDefault();
 
                 var id = $(this).data('id');
-
                 $.ajax({
-                    url: '/BloodGroups/GetById',
+                    url: '/PayRollTaxPercentageSettigns/GetById',
                     method: 'GET',
                     data: { id: id },
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#PayRolltaxSettings-form #PSettingID').val(data.pSettingID);
-                            $('#PayRolltaxSettings-form #OrganizationID').val(data.organizationID);
-                            $('#PayRolltaxSettings-form #TaxPercentage').val(data.taxPercentage);
-
+                            debugger
+                            $('#PSettingID').val(data.pSettingID);
+                            $('#TaxPercentage').val(data.taxPercentage);
+                            choiceManager.setChoiceValue('OrganizationID', data.organizationID);
                             $('#PayRolltaxSettings-form #PayRolltaxSettings-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
@@ -152,8 +151,12 @@
                     }
                 });
                 $('#PayRolltaxSettings-form #PayRolltaxSettings-saveBtn').text('Save');
+
                 loadTableData();
                 toggleBulkActions();
+
+                choiceManager.resetChoice('OrganizationID')
+
             }
 
 

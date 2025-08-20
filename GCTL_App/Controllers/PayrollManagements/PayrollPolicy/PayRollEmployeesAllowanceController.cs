@@ -30,15 +30,19 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             this.payRollEmpAllowanceService = payRollEmpAllowanceService;
         }
 
-        public IActionResult Index()
+        public  IActionResult Index()
         {
             PayRollEmpAllowancePageVM model =new PayRollEmpAllowancePageVM();
+            model.Save.HouseRentAllowances.Add(new HouseRentAllowanceDetailVM());
             ViewBag.OrganizationDD = new SelectList(organization.AllActive(), "OrganizationID", "OrganizationName");
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewBag.YearlyBonusTypeDD = new SelectList(yearlyEndBonusTypes.AllActive(), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
             return View(model);
         }
+
+
+
         #region Save Data
 
         [Route("PayRollEmployeesAllowance/SavePayRollEmpAlowance")]

@@ -36,6 +36,17 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
         public decimal? ConveyanceAllowanceRate { get; set; }
 
         public int? ConAllowDepOnSalaryTypeID { get; set; }
-
+        public List<HouseRentAllowanceDetailVM> HouseRentAllowances { get; set; } = new();
     }
+    public class HouseRentAllowanceDetailVM
+    {
+        public decimal? MinSalary { get; set; }
+        public decimal? MaxSalary { get; set; }
+        public int? Rate { get; set; }
+        public DateTime? EffectiveDate { get; set; }
+        public bool IsActive { get; set; }
+
+        public int HRentDependsOnSalaryTypeID { get; set; }
+    }
+
 }

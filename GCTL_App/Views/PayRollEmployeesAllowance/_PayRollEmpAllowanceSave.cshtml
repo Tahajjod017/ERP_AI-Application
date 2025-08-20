@@ -1,7 +1,7 @@
 ﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.PayRollEmpAllowanceSaveVM
 <form id="payrollEmpAllowanceForm" class="row g-3">
    
-    <div class="col-md-4">
+    <div class="col-md-6">
 
         <div class="mb-3">
             <div class="content-head d-flex justify-content-between align-items-center">
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="mb-3">
             <div class="content-head d-flex justify-content-between align-items-center">
                 <label class="form-label" for="timepicker1">Mobile/Internet Allowance</label>
@@ -30,55 +30,84 @@
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="mb-3">
-            <div class="content-head d-flex justify-content-between align-items-center">
-                <label class="form-label" for="timepicker1">Shift Allowance</label>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" asp-for="IsShiftAllowanceEnabled">
-                </div>
-            </div>
-            <input class="form-control" id="" type="text" placeholder="Ex: 500 tk Per Night Shift" asp-for="ShiftAllowance">
-        </div>
-    </div>
-
-    <div class="col-md-12">
-        <div class="mb-3">
-            <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                <h5>House Rent Allowance</h5>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" asp-for="IsHouseRentAllowanceEnabled">
-                </div>
+  
+   <div class="col-md-12">
+    <div class="mb-3">
+        <div class="content-head d-flex justify-content-between align-items-center border-bottom">
+            <h5>House Rent Allowance</h5>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" asp-for="IsHouseRentAllowanceEnabled">
             </div>
         </div>
     </div>
+</div>
+<div id="houseRentContainer">
+<div class="card shadow-sm rounded-3 mb-3 houseRentRow">
+    <div class="card-body">
+        <div class="row g-3">
+            <!-- Min Salary -->
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <label class="form-label" for="MinSalary">Min Salary</label>
+                <input type="text" asp-for="HouseRentAllowances[0].MinSalary" class="form-control" placeholder="Enter Min Salary" />
+            </div>
 
-    <div class="col-lg-6 col-md-6 col-sm-12">
-        <div class="mb-3">
-            <label class="form-label" for="timepicker1">House Rent Allowance Rate</label>
-            <select class="form-select mb-3 choiceDD" asp-for="HouseRentAllowanceRate" asp-items="@ViewBag.PercenatageDD as SelectList">
-                <option value="">Select %</option>
-               @*  <option>35 %</option>
-                <option>40 %</option>
-                <option>45 %</option>
-                <option>50 %</option>
-                <option>60 %</option>
-                <option>70 %</option>
-                <option>100 %</option> *@
-            </select>
-        </div>
-    </div>
+            <!-- Max Salary -->
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <label class="form-label" for="MaxSalary">Max Salary</label>
+                <input type="text" asp-for="HouseRentAllowances[0].MaxSalary" class="form-control" placeholder="Enter Max Salary" />
+            </div>
+            <!-- Rate -->
 
-    <div class="col-lg-6 col-md-6 col-sm-12">
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <label class="form-label" for="MedicalAllowanceRate">Rate</label>
+                <select class="form-select choiceDD" asp-for="HouseRentAllowances[0].Rate" asp-items="@ViewBag.PercenatageDD as SelectList">
+                    <option value="">Select %</option>
+                </select>
+            </div>
+
+
+
+            <!-- Effective Date -->
+            <div class="col-lg-4 col-md-4 col-sm-12">
+                <label class="form-label" for="ToDate">Effective Date</label>
+                <div class="input-icon-end position-relative">
+                    <input type="text" asp-for="HouseRentAllowances[0].EffectiveDate" class="form-control datetimepicker" readonly required placeholder="dd/mm/yyyy">
+                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                </div>
+            </div>
+               <div class="col-lg-4 col-md-4 col-sm-12">
         <div class="mb-3">
             <label class="form-label" for="timepicker1">Allowance Depends on</label>
-            <select class="form-select choiceDD" asp-items="@ViewBag.SalaryTypesDD as SelectList" asp-for="HRentDependsOnSalaryTypeID">
+            <select class="form-select choiceDD" asp-items="@ViewBag.SalaryTypesDD as SelectList" asp-for="HouseRentAllowances[0].HRentDependsOnSalaryTypeID">
                 <option value="">Select Salary</option>
                 
             </select>
         </div>
-    </div>
+       </div>
+            <!-- IsActive -->
+            <div class="col-lg-2 col-md-2 col-sm-12">
+                <label class="form-label" for="IsActive">Is Active</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="IsActive" />
+                    <label class="form-check-label" for="IsActive">Active</label>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-12 text-end">
+                <button type="button" id="addDetails" class="btn btn-primary mt-3 addRow">
+                    <i class="bi bi-plus-circle"></i> +
+                </button>
+            </div>
 
+
+        </div>
+
+    
+
+    </div>
+</div>
+
+</div>
+ 
     <div class="col-md-12">
         <div class="mb-3">
             <div class="content-head d-flex justify-content-between align-items-center border-bottom">
@@ -95,9 +124,6 @@
             <label class="form-label" for="timepicker1">Medical Allowance Rate</label>
             <select class="form-select mb-3 choiceDD" asp-for="MedicalAllowanceRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-               @*  <option>8 %</option>
-                <option>10 %</option>
-                <option>15 %</option> *@
             </select>
         </div>
     </div>
@@ -128,9 +154,6 @@
             <label class="form-label" for="timepicker1">Conveyance Allowance Rate</label>
             <select class="form-select mb-3 choiceDD" asp-for="ConveyanceAllowanceRate" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                @* <option>8 %</option>
-                <option>10 %</option>
-                <option>15 %</option> *@
             </select>
         </div>
     </div>
@@ -143,8 +166,6 @@
             </select>
         </div>
     </div>
-
-
 
     <div class="col-12">
         <div class="row g-3 justify-content-end">
