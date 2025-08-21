@@ -106,7 +106,8 @@ namespace GCTL_App.Controllers.CRM
                         CustomerId = n.IndividualAddressID,
                         FullName = n.Individual.FirstName + " " + n.Individual.LastName,
                         Type = n.AddressType.AddressTypeName,
-                        Phone = n.Address.Phone
+                        Phone = n.Address.Phone,
+                        Email = n.Address.Email
                     })
                     .ToListAsync();
 
@@ -199,42 +200,39 @@ namespace GCTL_App.Controllers.CRM
 
 
         [HttpPost]
-        public async Task<IActionResult> upsertPerson([FromBody] CustomerVM customerVM)
+        public async Task<IActionResult> InsertPerson([FromBody] CustomerVM customerVM)
         {
             if (ModelState.IsValid)
             {
-                if (customerVM.Customers[0].PrimaryID == 0)
+                if (customerVM.PrimaryID == 0)
                 {
                     var result = await _leadCreateService.CreateLead(customerVM);
                     
-
-
-                    return Json(new { success = true, message = "Saved successfully", result= result });
+                    return Ok(result);
                 } 
             }
-            return Json(new { MessageContent = "Error" });
-
+            return Ok(false); 
         } 
-        public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
-        {
-            if (ModelState.IsValid && leadsVM != null)
-            {
-                var isUniquePhone = await IsUniqueAsync(
-                    leadsVM.Customers[0].Phone,
-                    "phone",
-                    leadsVM.Customers[0].PrimaryID
-                );
+        //public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
+        //{
+        //    if (ModelState.IsValid && leadsVM != null)
+        //    {
+        //        var isUniquePhone = await IsUniqueAsync(
+        //            leadsVM.Customers[0].Phone,
+        //            "phone",
+        //            leadsVM.Customers[0].PrimaryID
+        //        );
 
-                if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
-                {
+        //        if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
+        //        {
 
-                    var result = await _leadCreateService.UpdateLead(leadsVM);
-                    return Ok(result);
-                }
-            }
-            return Json(new { MessageContent = "Error" });
+        //            var result = await _leadCreateService.UpdateLead(leadsVM);
+        //            return Ok(result);
+        //        }
+        //    }
+        //    return Json(new { MessageContent = "Error" });
 
-        }
+        //}
 
     }
 }
