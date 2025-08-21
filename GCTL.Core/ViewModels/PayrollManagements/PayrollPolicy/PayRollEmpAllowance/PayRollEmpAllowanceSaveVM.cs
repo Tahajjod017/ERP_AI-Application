@@ -40,13 +40,18 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
     }
     public class HouseRentAllowanceDetailVM
     {
-        public decimal? MinSalary { get; set; }
-        public decimal? MaxSalary { get; set; }
-        public int? Rate { get; set; }
-        public DateTime? EffectiveDate { get; set; }
-        public bool IsActive { get; set; }
+      
 
-        public int HRentDependsOnSalaryTypeID { get; set; }
+        public decimal? SalaryMin { get; set; }
+
+        public decimal? SalaryMax { get; set; }
+
+        public int? CalculationTypeID { get; set; }
+
+        public decimal? Value { get; set; }
+
+        public DateTime? EffectiveDate { get; set; }
+
     }
 
 }

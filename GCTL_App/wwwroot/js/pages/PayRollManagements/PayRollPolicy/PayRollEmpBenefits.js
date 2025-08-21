@@ -141,7 +141,7 @@
                     var data = res.data;
 
                     $("#EmployeeBenefitIDEdit").val(data.employeeBenefitID);
-                    $('#OrganizationIDEdit').val(d.organizationIDEdit).each(function () {
+                    $('#OrganizationIDEdit').val(data.organizationIDEdit).each(function () {
                         coreui.MultiSelect.getInstance(this)?.update();
                     });
                     $("#HealthInsuranceEdit").val(data.healthInsurance);

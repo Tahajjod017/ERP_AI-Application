@@ -24,13 +24,17 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
     {
         private readonly IGenericRepository<EmployeeAllowances> empAllowance;
         private readonly IUserInfoService userInfoService;
-        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService ) : base(empAllowance)
+        private readonly IGenericRepository<CalculationTypes> calculationTypesRepository;
+        private readonly IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup;
+        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository , IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup ) : base(empAllowance)
         {
             this.empAllowance = empAllowance;
             this.userInfoService = userInfoService;
+            this.calculationTypesRepository = calculationTypesRepository;
+            this.empAlowanceSetup = empAlowanceSetup;
         }
 
-        
+
         #region Get All Dataum
 
         public async Task<PaginationService<EmployeeAllowances, PayRollEmpAllowanceGetAll>.PaginationResult<PayRollEmpAllowanceGetAll>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null)
@@ -163,6 +167,16 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 };
 
                 await empAllowance.AddAsync(entity);
+                var empAllowanceSetups = entityVM.HouseRentAllowances.Select(item => new EmployeeAllowanceSetup
+                {
+                    OrganizationID = entityVM.OrganizationID,
+                    SalaryMax = item.SalaryMax,
+                    SalaryMin = item.SalaryMin,
+                    EffectiveDate = item.EffectiveDate
+                }).ToList();
+
+                await empAlowanceSetup.AddRangeAsync(empAllowanceSetups);
+
 
                 // You may need to commit the transaction here
                 await empAllowance.CommitTransactionAsync();

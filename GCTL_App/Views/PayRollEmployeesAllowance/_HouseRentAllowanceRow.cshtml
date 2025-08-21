@@ -1,0 +1,75 @@
+﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.HouseRentAllowanceDetailVM
+@{
+    var index = ViewData["Index"] as int? ?? 0;
+}
+
+<div class=" houseRentRow">
+    
+        <div class="row g-3">
+            <!-- Min Salary -->
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <label class="form-label">Min Salary</label>
+                <input type="text" name="HouseRentAllowances[@index].SalaryMin" class="form-control" placeholder="Enter Min Salary" />
+            </div>
+
+            <!-- Max Salary -->
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <label class="form-label">Max Salary</label>
+                <input type="text" name="HouseRentAllowances[@index].SalaryMax" class="form-control" placeholder="Enter Max Salary" />
+            </div>
+
+            <!-- Fixed / Percentage Selection -->
+            <div class="col-lg-3 col-md-6 col-sm-12 d-flex align-items-center gap-3">
+                <div class="input-group mb-3">
+                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px; min-width : 125px ;height:37px;">
+                        <option value="">Select One</option>
+                        <option value="Fixed" selected>Fixed</option>
+                        <option value="Percentage">Percentage</option>
+                    </select>
+
+                    <!-- Percentage Rate (Hidden by Default) -->
+                    <div class="percentRate" style="display: none;">
+                        <label class="form-label">Percentage(%)</label>
+                        <select class="form-select choiceDD" id="cc[@index]" name="HouseRentAllowances[@index].Rate" style="max-width:149px;">
+                            <option value="">Select %</option>
+                            @foreach (var item in ViewBag.PercenatageDD as SelectList ?? new SelectList(Enumerable.Empty<object>()))
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Fixed Rate (Hidden by Default) -->
+                    <div class="fixedRate" style="display: none;">
+                        <label class="form-label">Fixed</label>
+                        <input type="text" class="form-control" name="HouseRentAllowances[@index].Rate" placeholder="Enter Fixed Rate" style="max-width: 149px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Allowance Depends On -->
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="row">
+                    <div class="col-lg-10 pe-3 col-md-11 col-sm-11">
+                        <div class="mb-3">
+                            <label class="form-label">Allowance Depends on</label>
+                                <select class="form-select choiceDD" id="add[@index]" name="HouseRentAllowances[@index].HRentDependsOnSalaryTypeID">
+                                    <option value="">Select Salary</option>
+                                    @foreach (var item in ViewBag.SalaryTypesDD as SelectList ?? new SelectList(Enumerable.Empty<object>()))
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-1 px-0 pt-4 col-md-1 col-sm-1">
+                        <button type="button" class="btn btn-sm btn-outline-danger removeRow " >
+                            X
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    
+</div>

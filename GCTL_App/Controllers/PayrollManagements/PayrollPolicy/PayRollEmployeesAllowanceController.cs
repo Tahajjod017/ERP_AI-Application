@@ -42,6 +42,16 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         }
 
 
+        [HttpGet]
+        public IActionResult GetHouseRentAllowanceRow(int index)
+        {
+            var model = new HouseRentAllowanceDetailVM(); // Empty model for rendering
+            ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
+            ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
+            ViewData["Index"] = index;
+            return PartialView("_HouseRentAllowanceRow", model);
+        }
+
 
         #region Save Data
 
