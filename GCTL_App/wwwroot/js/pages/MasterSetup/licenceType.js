@@ -167,6 +167,7 @@
                 $('.licenceType-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#licenceType-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

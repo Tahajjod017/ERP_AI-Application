@@ -262,7 +262,6 @@
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
                 });
-
                 //initOrganizationDD();
                 initShiftDD();
             }

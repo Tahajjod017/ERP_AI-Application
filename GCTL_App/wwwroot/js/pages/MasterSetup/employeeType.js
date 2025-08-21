@@ -165,6 +165,7 @@
                 $('.employeeType-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#employeeType-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

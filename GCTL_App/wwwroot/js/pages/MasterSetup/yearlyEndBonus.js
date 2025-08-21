@@ -167,6 +167,7 @@
                 $('.yearlyEndBonusType-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#yearlyEndBonusType-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

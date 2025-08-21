@@ -168,6 +168,7 @@
                 $('.leadStatus-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#leadStatus-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

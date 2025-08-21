@@ -165,6 +165,7 @@
                 $('.maritalStatus-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#maritalStatus-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

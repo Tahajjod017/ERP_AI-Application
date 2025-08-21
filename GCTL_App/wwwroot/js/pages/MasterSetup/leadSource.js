@@ -168,6 +168,7 @@
                 $('.leadSource-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#leadSource-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

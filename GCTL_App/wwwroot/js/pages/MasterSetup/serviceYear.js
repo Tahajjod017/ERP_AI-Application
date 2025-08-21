@@ -167,6 +167,7 @@
                 $('.serviceYear-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#serviceYear-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

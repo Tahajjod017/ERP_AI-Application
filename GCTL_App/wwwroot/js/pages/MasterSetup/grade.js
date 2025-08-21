@@ -165,6 +165,7 @@
                 $('.grade-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#grade-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

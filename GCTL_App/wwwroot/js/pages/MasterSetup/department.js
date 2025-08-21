@@ -165,6 +165,7 @@
                 $('.department-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#department-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

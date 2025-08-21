@@ -165,6 +165,7 @@
                 $('.religion-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#religion-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

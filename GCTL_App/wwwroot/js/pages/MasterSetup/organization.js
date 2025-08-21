@@ -167,6 +167,7 @@
                 $('.organization-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#organization-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

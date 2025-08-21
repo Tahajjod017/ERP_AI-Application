@@ -27,9 +27,15 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
-                    form.trigger("reset");
+                    clear();
                 } else {
-                    toastr.error(response.message, 'Error');
+                    const allFields = ["OrganizationID", "HolidayTitle", "StartDate", "EndDate", "TotalDays", "StatusID"];
+
+                    allFields.forEach(function (fieldId) {
+                        validateField(fieldId, response);
+                    });
+
+                    toastr.info(response.message, 'Error');
                 }
             },
             error: function (xhr, status, error) {
@@ -38,7 +44,7 @@ $(document).ready(function () {
                     // Redirect to AccessDenied page
                     window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
                 } else {
-                    toastr.error("Unexpected error: " + error, 'Server Error');
+                    toastr.info("Unexpected error: " + error, 'Server Error');
                 }
             }
 
@@ -95,7 +101,6 @@ $(document).on('click', '#edit_holiday_settingBtn', function () {
         method: 'GET',
         data: { id: holidaySettingID },
         success: function (response) {
-            debugger
             if (response.isSuccess) {
                 // Populate the form fields with the existing data  
                 choiceManager.setChoiceValue('OrganizationEditID', response.data.organizationID);
@@ -177,6 +182,21 @@ $('#addHolidayConfig-pageSizeSelect').on('change', function () {
 });
 
 
+$('#holidaySettings_resetBtn').on('click', function (e) {
+    e.preventDefault();
+
+    clear();
+})
+
+function clear() {
+    $('#holidayForm')[0].reset();
+    choiceManager.resetChoice('OrganizationID');
+    choiceManager.resetChoice('StatusID');
+    loadTableData();
+    resetValidation(["OrganizationID", "HolidayTitle", "StartDate", "EndDate", "TotalDays", "StatusID"]);
+}
+
+
 $(document).ready(function () {
     loadTableData();
 
@@ -254,15 +274,14 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap pe-4">${rowIndex}</td>
-                            
-                             <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
-                             <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
-                            <td class="align-middle white-space-nowrap ps-4">${item.startDate}</td>
-                            <td class="align-middle white-space-nowrap ps-4">${item.endDate}</td>
-                            <td class="text-center align-middle white-space-nowrap pe-4">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap pe-4">${item.statusName}</td>
-                             <td class="align-middle white-space-nowrap text-end pe-0">
+                            <td class="align-middle text-start white-space-nowrap">${item.organizationName}</td>
+                             <td class="align-middle white-space-nowrap">${item.holidayTitle}</td>
+                             <td class="align-middle white-space-nowrap">${item.holidayDescription}</td>
+                            <td class="align-middle white-space-nowrap">${item.startDate}</td>
+                            <td class="align-middle white-space-nowrap">${item.endDate}</td>
+                            <td class="text-center align-middle white-space-nowrap">${item.totalDays}</td>
+                            <td class="text-start align-middle white-space-nowrap">${item.statusName}</td>
+                             <td class="align-middle white-space-nowrap text-end">
                           <div class="d-flex justify-content-end align-items-center">
                          <a
                                href="#"

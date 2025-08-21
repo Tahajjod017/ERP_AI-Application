@@ -29,6 +29,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "AssignSpiralPattern")]
         public async Task<IActionResult> Index()
         {
             AssignSpiralPatternPageVM model = new AssignSpiralPatternPageVM();
@@ -46,7 +47,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        //[Permission("Create", "AssignSpiralPattern")]
+        [Permission("Create", "AssignSpiralPattern")]
         //[ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(AssignSpiralPatternSetupVM model)
@@ -179,7 +180,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Delete
-        //[Permission("Delete", "AssignSpiralPattern")]
+        [Permission("Delete", "AssignSpiralPattern")]
         [Route("AssignSpiralPattern/Delete")]
         [HttpPost]
         public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
