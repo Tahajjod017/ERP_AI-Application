@@ -14,6 +14,9 @@ using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
+using GCTL.Service.AdminSettings.SystemSettings.ISmsSettingService;
+using GCTL.Service.AdminSettings.SystemSettings.OtpSettingService;
+using GCTL.Service.AdminSettings.SystemSettings.SmsSettingService;
 using GCTL.Service.AllNotifications;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
@@ -191,6 +194,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IElementPermissionService, ElementPermissionService>();
             services.AddScoped<IEmailSettingService, EmailSettingsService>();
+            services.AddScoped<ISmsSettingsService, SmsSettingsService>();
+            services.AddScoped<IOtpSettingService, OtpSettingService>();
             services.AddScoped<IHolidaySettingService, HolidaySettingService>();
             services.AddScoped<IWeekendSettingService, WeekendSettingService>();
             services.AddScoped<IApprovalSettingService, ApprovalSettingService>();
