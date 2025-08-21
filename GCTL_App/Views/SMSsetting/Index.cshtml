@@ -6,50 +6,47 @@
 
 <div class="col-12 col-md-12 col-lg-12 ">
 
-    <div class="tab-content mt-3" id="myTabContent4">
 
         
-        <div class="tab-pane fade show active" id="tab-smsSettings" role="tabpanel" aria-labelledby="smsSettings-tab">
-
+     
             <div class="col-xl-12">
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="border-bottom mb-3 pb-3">
                             <h4>SMS Settings</h4>
                         </div>
-                        <form action="settings-ui.html">
+                <form id="smsForm" asp-controller="SMSsetting" asp-action="Save" method="post">
                             <div class=" mb-3">
 
                                 <div class="row">
 
                                     <div class="col-sm-6 col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Company Name</label>
-                                            <select class="form-select" aria-label="Default select example">
-                                                <option>GCTL</option>
-                                                <option>CSL</option>
+                                    <label class="form-label" for="OrganizationID">Company Name</label>
+                                    <select class="form-select choiceDD" asp-item="@ViewBag.OrganizationDD" id="OrganizationID" name="OrganizationID">
+                                               
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Server Name</label>
-                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Server Name" />
+                                    <label class="form-label" for="ServerName">Server Name</label>
+                                    <input class="form-control" id="exampleFormControlInput" type="text" name="ServerName" placeholder="Server Name" />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">User Name</label>
-                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="User Name" />
+                                    <label class="form-label" for="UserName">User Name</label>
+                                    <input class="form-control" id="UserName" type="text" name="UserName" placeholder="User Name" />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Password</label>
-                                            <input class="form-control" id="exampleFormControlInput" type="password" placeholder="Password" />
+                                    <label class="form-label" for="Password">Password</label>
+                                    <input class="form-control" id="Password" type="password" name="Password" placeholder="Password" />
                                         </div>
                                     </div>
 
@@ -57,30 +54,30 @@
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Gateway</label>
-                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Gateway" />
+                                    <label class="form-label" for="Gateway">Gateway</label>
+                                    <input class="form-control" id="GatewayId" name="Gateway" type="text" placeholder="Gateway" />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">API</label>
-                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="API" />
+                                    <label class="form-label" for="API">API</label>
+                                    <input class="form-control" id="APIId" name="API" type="text" placeholder="API" />
                                         </div>
                                     </div>
 
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Mobile</label>
-                                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="Mobile" />
+                                    <label class="form-label" for="MobileNumber">Mobile</label>
+                                    <input class="form-control" id="exampleFormControlInput" name="MobileNumber" type="text" placeholder="Mobile" />
                                         </div>
                                     </div>
 
                                     <div class="col-sm-6 col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Priority</label>
-                                            <select class="form-select" aria-label="Default select example">
+                                    <label class="form-label" for="PriorityIndex">Priority</label>
+                                    <select class="form-select choiceDD" id="PriorityIndexId">
                                                 <option>First Priority</option>
                                                 <option>Second Priority</option>
                                                 <option>Third Priority</option>
@@ -90,8 +87,8 @@
 
                                     <div class="col-sm-6 col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label" for="exampleFormControlInput">Status</label>
-                                            <select class="form-select" aria-label="Default select example">
+                                    <label class="form-label" for="IsActive">Status</label>
+                                    <select class="form-select choiceDD" id="IsActiveId">
                                                 <option>Active</option>
                                                 <option>Inactive</option>
                                             </select>
@@ -103,7 +100,7 @@
 
 
                             <div class="d-flex align-items-center justify-content-end">
-                                <button type="button" class="btn btn-outline-light border me-3">Cancel</button>
+                                <button type="button" class="btn btn-light border me-3">Reset</button>
                                 <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </form>
@@ -119,8 +116,6 @@
 
         </div>
 
-    </div>
 
-</div>
 <partial name="_ConfirmDelete" />
 <script src="~/js/pages/adminsettings/systemsettings/smsconfigsettings.js"></script>
