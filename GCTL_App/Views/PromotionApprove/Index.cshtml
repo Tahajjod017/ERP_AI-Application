@@ -1,6 +1,4 @@
-﻿
-
-<!-- Breadcrumb -->
+﻿<!-- Breadcrumb -->
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
     <div class="my-auto mb-2">
         <h2 class="mb-1">@Html.SmartLocalize("Promotion Approval")</h2>
@@ -173,13 +171,13 @@
                 </div>
 
                 @*<div class="dropdown me-3">
-            <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
-                <option value="">@Html.SmartLocalize("Select Status")</option>
-                <option>@Html.SmartLocalize("Approved")</option>
-                <option>@Html.SmartLocalize("Declined")</option>
-                <option>@Html.SmartLocalize("Pending")</option>
-            </select>
-        </div>*@
+                        <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Select Status")</option>
+                            <option>@Html.SmartLocalize("Approved")</option>
+                            <option>@Html.SmartLocalize("Declined")</option>
+                            <option>@Html.SmartLocalize("Pending")</option>
+                        </select>
+                    </div>*@
 
 
             </div>
@@ -188,7 +186,7 @@
         <div class="border-translucent p-3">
             <div id="promotionApprovalTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table dyn-tableDrag PromotionPendingTblDy"  id="promPending">
+                    <table class="table table-sm fs-9 leads-table dyn-tableDrag PromotionPendingTblDy" id="promPending">
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -215,7 +213,7 @@
                     <div class="col-auto d-flex">
                         <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
                         @*<a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>*@
+                            <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>*@
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -315,7 +313,7 @@
                     <div class="col-auto d-flex">
                         <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
                         @*<a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>*@
+                            <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>*@
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -450,6 +448,7 @@
     }
 
     <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionApprove.js"></script>
+    <script src="~/js/pages/Employees/UniversalToolTip.js"></script>
 
 }
 
