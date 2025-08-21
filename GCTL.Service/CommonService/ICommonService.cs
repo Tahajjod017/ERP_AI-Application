@@ -57,7 +57,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetWeekendByOrganization / GetWeekDaysByOrganization
+        #region GetWeekendByOrganization, GetWeekDaysByOrganization, GetEmployeeByWeekent
         Task<IEnumerable<object>> GetWeekendByOrganization(int id);
         Task<IEnumerable<object>> GetWeekDaysByOrganization(int id);
         #endregion

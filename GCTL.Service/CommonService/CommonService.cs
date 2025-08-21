@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralWeeklyPattern> _spiralWeeklyPatterns;
         private readonly IGenericRepository<SpiralBioWeeklyPattern> _spiralBioWeeklyPattern;
         private readonly IGenericRepository<SpiralMonthlyPattern> _spiralMonthlyPattern;
+        private readonly IGenericRepository<Holidays> _holidays;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -42,7 +44,8 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralPatternTypes> spiralPatternTypes,
             IGenericRepository<SpiralWeeklyPattern> spiralWeeklyPatterns,
             IGenericRepository<SpiralBioWeeklyPattern> spiralBioWeeklyPattern,
-            IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPattern)
+            IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPattern,
+            IGenericRepository<Holidays> holidays)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -57,6 +60,7 @@ namespace GCTL.Service.CommonService
             _spiralWeeklyPatterns = spiralWeeklyPatterns;
             _spiralBioWeeklyPattern = spiralBioWeeklyPattern;
             _spiralMonthlyPattern = spiralMonthlyPattern;
+            _holidays = holidays;
         }
         #endregion
 
@@ -471,23 +475,42 @@ namespace GCTL.Service.CommonService
         {
             try
             {
-                // Eager load related entities (Organization and WeekendDays)
-                var weekendSettings = await _weekendSettings.AllActive()
-                    .Include(ws => ws.Organization)
-                    .Where(ws => ws.OrganizationID == id)
-                    .GroupJoin(
-                        _weekendDays.AllActive(),
-                        ws => ws.WeekendSettingID,
-                        wd => wd.WeekendSettingID,
-                        (ws, days) => new
-                        {
-                            WeekendSettingID = ws.WeekendSettingID,
-                            OrganizationName = ws.Organization.OrganizationName ?? "-",
-                            WeekdayNumbers = string.Join(", ", days.Select(d => d.WeekdayNumber)) ?? "-"
-                        })
-                    .ToListAsync();
+                var holidayQuery = await _holidays.AllActive()
+                    .Where(x => x.OrganizationID == id && x.StatusID == 1007)
+                    .Include(x => x.Organization)
+                    .Select(x => new
+                    {
+                        x.HolidayID,
+                        x.Organization.OrganizationName,
+                        x.StartDate,
+                        x.EndDate,
+                    }).ToListAsync();
 
-                return weekendSettings;
+                var holiday = holidayQuery.Select(x => new
+                {
+                    x.HolidayID,
+                    x.OrganizationName,
+                    TotalDays = (x.StartDate.HasValue && x.EndDate.HasValue)
+                        ? string.Join(", ",
+                            Enumerable.Range(0, (x.EndDate.Value - x.StartDate.Value).Days + 1)
+                            .Select(offset => x.StartDate.Value.AddDays(offset).ToString("dd/MM/yy")))
+                        : "-"
+                });
+
+                var weekend = await _weekendSettings.AllActive()
+                    .Where(ws => ws.OrganizationID == id)
+                    .Include(x => x.WeekendDays)
+                    .Include(x => x.Organization)
+                    .Select(x => new
+                    {
+                        WeekendSettingID = x.WeekendSettingID,
+                        OrganizationName = x.Organization.OrganizationName ?? "-",
+                        WeekdayNumbers = string.Join(", ", x.WeekendDays.Select(d => d.WeekdayNumber)) ?? "-"
+                    }).ToListAsync();
+
+                var combined = holiday.Cast<object>().Concat(weekend.Cast<object>());
+
+                return combined;
             }
             catch (Exception ex)
             {
