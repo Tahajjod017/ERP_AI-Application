@@ -19,7 +19,7 @@
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Organization</label>
+                                <label class="form-label">Organization <span style="color: red;">*</span></label>
                                 <select class="form-select choiceDD" id="OrganizationID" name="OrganizationID" multiple>
                                     <option value="">Select Organization</option>
                                     @foreach (var org in ViewBag.Organizations)
@@ -27,20 +27,23 @@
                                         <option value="@org.Value">@org.Text</option>
                                     }
                                 </select>
+                                <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
 
                         <div class="col-sm-12 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Holiday Title</label>
-                                <input class="form-control" id="exampleFormControlInput" type="text" name="HolidayTitle" placeholder="Holiday Title" required />
+                                <label class="form-label" for="exampleFormControlInput">Holiday Title <span style="color: red;">*</span></label>
+                                <input class="form-control" id="exampleFormControlInput" type="text" name="HolidayTitle" placeholder="Holiday Title" />
+                                <span id="HolidayTitleError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="datepicker">Start Date</label>
+                                <label class="form-label" for="datepicker">Start Date <span style="color: red;">*</span></label>
                                 <input class="form-control datetimepicker flatpickr-input" id="StartDate" type="text" name="StartDate" placeholder="dd/mm/yyyy">
+                                <span id="StartDateError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
                         
@@ -48,21 +51,23 @@
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="datepicker">End Date</label>
+                                <label class="form-label" for="datepicker">End Date <span style="color: red;">*</span></label>
                                 <input class="form-control datetimepicker flatpickr" id="EndDate" type="text" name="EndDate" placeholder="dd/mm/yyyy">
+                                <span id="EndDateError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
 
                         <div class="col-sm-12 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Total Day</label>
+                                <label class="form-label" for="exampleFormControlInput">Total Day <span style="color: red;">*</span></label>
                                 <input class="form-control" id="TotalDays" type="text" name="TotalDays" placeholder="Total Days" readonly />
+                                <span id="TotalDaysError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
 
                         <div class="col-sm-6 col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Status</label>
+                                <label class="form-label">Status <span style="color: red;">*</span></label>
                                 <select class="form-select choiceDD" id="StatusID" name="StatusID">
                                     <option value="">Select Holiday Status</option>
                                     @foreach (var status in ViewBag.HolidayStatuses)
@@ -70,6 +75,7 @@
                                         <option value="@status.Value">@status.Text</option>
                                     }
                                 </select>
+                                <span id="StatusIDError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
 
@@ -87,7 +93,7 @@
 
 
                 <div class="d-flex align-items-center justify-content-end">
-                    <button type="reset" class="btn btn-outline-secondary  me-2">Reset</button>
+                    <button type="button" class="btn btn-outline-secondary me-2" id="holidaySettings_resetBtn">Reset</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>

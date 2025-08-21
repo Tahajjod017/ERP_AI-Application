@@ -311,6 +311,7 @@
                 });
                 loadTableData();
                 toggleBulkActions();
+                $('#addShift-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

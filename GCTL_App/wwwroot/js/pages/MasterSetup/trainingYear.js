@@ -167,6 +167,7 @@
                 $('.trainingYear-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#trainingYear-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

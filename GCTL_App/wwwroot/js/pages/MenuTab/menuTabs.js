@@ -80,6 +80,7 @@
                 $('#menuTab-form #menuTab-saveBtn').text('Save');
                 $("#menuTab-check-all").prop('checked', false);
                 $('.menuTab-selectItem').prop('checked', false);
+                $('#menuTab-check-all').prop('checked', false).prop('indeterminate', false);
 
                 if (typeChoices) {
                     typeChoices.setChoiceByValue('');

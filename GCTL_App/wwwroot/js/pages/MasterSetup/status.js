@@ -166,6 +166,7 @@
                 $('.status-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#status-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

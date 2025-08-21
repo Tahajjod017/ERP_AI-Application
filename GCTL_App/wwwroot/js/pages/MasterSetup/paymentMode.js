@@ -165,6 +165,7 @@
                 $('.paymentMode-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#paymentMode-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

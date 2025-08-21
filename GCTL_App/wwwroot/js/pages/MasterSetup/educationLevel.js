@@ -165,6 +165,7 @@
                 $('.educationLevel-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#educationLevel-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

@@ -167,6 +167,7 @@
                 $('.passingYear-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#passingYear-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

@@ -54,8 +54,18 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     await _holidaySettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.HolidayID });
                 }
-                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                // Custom ordered validation message 
+                var orderedKeys = new[] { "OrganizationID", "HolidayTitle", "StartDate", "EndDate", "TotalDays", "StatusID" };
 
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
             }
             catch (Exception ex)
@@ -114,6 +124,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
         }
         #endregion
+
         #region GetAll
         public async Task<IActionResult> GetAlls(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayTitle", string sortOrder = "desc", int? organizationID = null)
         {

@@ -232,16 +232,13 @@
                     spiralPatternDD.destroy();
                 }
 
-                ['OrganizationID', 'SpiralPatternTypeID', 'SpiralPatternID', 'StartDate', 'EndDate'].forEach(function (fieldId) {
-                    $('#' + fieldId).removeClass('is-valid is-invalid');
-                    $('#' + fieldId + 'Error').hide().text('');
-                    $('#' + fieldId).val('');
-                });
+                resetValidation(['OrganizationID', 'SpiralPatternTypeID', 'SpiralPatternID', 'StartDate', 'EndDate']);
 
                 initOrganizationDD();
                 initSpiralPatternTypeDD();
                 initSpiralPatternDD();
                 toggleBulkActions();
+                $('#assignSpiralPattern-check-all').prop('checked', false).prop('indeterminate', false);
                 loadTableData();
             }
             // #endregion
@@ -865,7 +862,7 @@
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
                     }
 
                     var separatePaginationInfo = response.separatePaginationInfo;

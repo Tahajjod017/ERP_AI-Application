@@ -167,6 +167,7 @@
                 $('.country-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#country-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

@@ -7,6 +7,7 @@ using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using SkiaSharp;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class OffDayRosterController : BaseController
     {
         #region Services & repositories
@@ -33,6 +35,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "OffDayRoster")]
         public async Task<IActionResult> Index()
         {
             RosterInOffDayPageVM model = new RosterInOffDayPageVM();
@@ -51,7 +54,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        //[Permission("Create", "OffDayRoster")]
+        [Permission("Create", "OffDayRoster")]
         //[ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(RosterInOffDaySetupVM model)

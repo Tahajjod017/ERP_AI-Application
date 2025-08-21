@@ -165,6 +165,7 @@
                 $('.paymentPeriod-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#paymentPeriod-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

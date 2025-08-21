@@ -229,6 +229,7 @@
 
                 loadTableData();
                 toggleBulkActions();
+                $('#assignDefaultShift-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

@@ -168,6 +168,7 @@
                 $('.service-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#service-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 
