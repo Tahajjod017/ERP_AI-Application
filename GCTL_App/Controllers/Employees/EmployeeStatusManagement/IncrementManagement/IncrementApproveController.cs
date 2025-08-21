@@ -6,6 +6,7 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManagement
 {
@@ -14,15 +15,19 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         private readonly IincrementService _incrementService;
         private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IGenericRepository<EmployeeActionTypes> _actionRepository;
+        private readonly IGenericRepository<EmployeeCareerChangeHistory> _careerHistoryRepository;
 
 
-        public IncrementApproveController(ITranslateService translateService, IUserProfileService userProfileService, IincrementService incrementService, IGenericRepository<Statuses> statusRepository, IGenericRepository<EmployeeActionTypes> actionRepository)
+        public IncrementApproveController(ITranslateService translateService, IUserProfileService userProfileService, IincrementService incrementService, IGenericRepository<Statuses> statusRepository, IGenericRepository<EmployeeActionTypes> actionRepository, IGenericRepository<EmployeeCareerChangeHistory> careerHistoryRepository)
             : base(translateService, userProfileService)
         {
             _incrementService = incrementService;
             _statusRepository = statusRepository;
             _actionRepository = actionRepository;
+            _careerHistoryRepository = careerHistoryRepository;
         }
+
+
 
         public IActionResult Index()
         {
@@ -35,6 +40,33 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
 
             SetSmartPageCode(121900);
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult GetDetails(int id)
+        {
+
+            var app = _careerHistoryRepository.AllActive()
+             .Include(e => e.ApprovalPerson)
+             .Include(s => s.Status)
+             .Where(e => e.EmployeeCareerChangeID == id)
+             .ToList() // Forces client-side evaluation
+             .Select((w, index) => new
+             {
+                 approverStep = index,
+                 statusName = w.Status != null ? w.Status.StatusName : "",
+                 approvarPerson = w.ApprovalPerson.FirstName + " " + w.ApprovalPerson.LastName,
+                 approvarNote = w.Remarks != null ? w.Remarks : "no remarks",
+                 approvedOrDeclineDate = w.CreatedAt.Value.ToString("dd/MM/yyyy hh:mm tt")
+
+             })
+             .ToList();
+
+           
+
+
+
+            return Json(app);
         }
 
         [HttpGet]

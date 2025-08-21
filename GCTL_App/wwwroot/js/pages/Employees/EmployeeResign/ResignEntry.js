@@ -94,6 +94,85 @@
     //#endregion
 
     //#region  table data Function to fetch and
+
+    function approvalStagesTemplate(data) {
+        showDev(data, "tumi reality mene neo");
+        const steps = Array.isArray(data) ? data : [data];
+        let html = `
+        <div class="p-2" style="min-width: 300px;">
+            <h6 class="fw-bold mb-3 text-center border-bottom pb-2">📋 Approval Process</h6>
+            <div class="approval-steps">
+    `;
+
+        steps.forEach((step, index) => {
+            // Determine status color and icon
+            let statusClass = '';
+            let statusIcon = '';
+
+            switch (step.statusName.toLowerCase()) {
+                case 'approved':
+                    statusClass = 'text-success';
+                    statusIcon = '✅';
+                    break;
+                case 'rejected':
+                    statusClass = 'text-danger';
+                    statusIcon = '❌';
+                    break;
+                case 'in progress':
+                    statusClass = 'text-warning';
+                    statusIcon = '⏳';
+                    break;
+                case 'pending':
+                    statusClass = 'text-info';
+                    statusIcon = '📋';
+                    break;
+                case 'not started':
+                    statusClass = 'text-secondary';
+                    statusIcon = '⏸️';
+                    break;
+                default:
+                    statusClass = 'text-muted';
+                    statusIcon = '📄';
+            }
+
+            html += `
+            <div class="approval-step mb-3 p-2 border rounded ${index === steps.length - 1 ? '' : 'border-bottom-0'}">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <span class="fw-bold">${statusIcon} ${step.approverStep}</span>
+                    <span class="badge ${statusClass}">${step.statusName}</span>
+                </div>
+                <div class="step-details">
+                    <p class="mb-1"><strong>Approver:</strong> ${step.approvarPerson}</p>
+                    <p class="mb-1"><strong>Date:</strong> ${step.approvedOrDeclineDate}</p>
+                    <p class="mb-0"><strong>Notes:</strong> <em>${step.approvarNote}</em></p>
+                </div>
+            </div>
+        `;
+        });
+
+        html += `
+            </div>
+            <div class="progress mt-3" style="height: 8px;">
+                <div class="progress-bar" role="progressbar" 
+                     style="width: ${(steps.filter(s => s.statusName.toLowerCase() === 'approved').length / steps.length) * 100}%"
+                     aria-valuenow="${(steps.filter(s => s.statusName.toLowerCase() === 'approved').length / steps.length) * 100}" 
+                     aria-valuemin="0" aria-valuemax="100">
+                </div>
+            </div>
+        </div>
+    `;
+
+        return html;
+    }
+
+    showDev('tooltip')
+  
+        UniversalTooltipService.registerTemplate('approvalStagesTemplate', approvalStagesTemplate);
+        
+   
+      
+  
+
     function loadTableData() {
         $.ajax({
             url: '/EmployeeResign/GetResignations',
@@ -130,7 +209,18 @@
                                              alt="${item.rEmpName}" onerror="this.src='/images/default-avatar.png'" />
                                     </div>
                                     <div class="ms-1">
-                                        <h6 class="fw-bold mb-0">${item.rEmpName}</h6>
+                                        <h6 class="fw-bold mb-0">${item.rEmpName}
+
+                                            <div class="universal-tooltip-container position-relative d-inline-block">
+                                                <i class="fa-solid fa-circle-info universal-tooltip-trigger"
+                                                   data-tooltip-url="/EmployeeResign/GetDetails"
+                                                   data-tooltip-id="${item.resigId}"
+                                                   data-tooltip-data-key="id"
+                                                   data-tooltip-template="approvalStagesTemplate"
+                                                   style="cursor: pointer; font-size: 12px; color: #007bff; margin-left: 5px;"></i>
+                                            </div>
+
+                                        </h6>
                                         <span class="fs-12 fw-normal text-muted">#${item.rEmpCode || 'N/A'}</span>
                                     </div>
                                 </div>

@@ -1,5 +1,23 @@
 ﻿@model GCTL.Core.ViewModels.Employee.EmployeeResign.ResignationPostViewModel
 
+
+    <style>
+        .approval-step {
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+            .approval-step:hover {
+                background: #e9ecef;
+                transform: translateX(2px);
+            }
+
+        .progress-bar {
+            background-color: #28a745;
+            transition: width 0.3s ease;
+        }
+    </style>
+
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-1">
     <div class="my-auto mb-2">
         <h2 class="mb-1">@Html.SmartLocalize("Resignation List")</h2>
@@ -277,4 +295,5 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="~/js/pages/Employees/EmployeeResign/ResignEntry.js"></script>
+    <script src="~/js/pages/Employees/UniversalToolTip.js"></script>
 }

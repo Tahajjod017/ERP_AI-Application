@@ -29,6 +29,41 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
             _statusRepository = statusRepository;
         }
 
+
+        [HttpGet]
+        public IActionResult GetDetails(int id)
+        {
+            // Create dummy approval steps data in timeline format
+            var approvalSteps = new List<object>
+            {
+                new {
+                    approverStep = "1",
+                    statusName = "APPROVED",
+                    approvarPerson = "Joe Biden",
+                    approvarNote = "No Note",
+                    approvedOrDeclineDate = "06-08-2025 4:49 PM"
+                },
+                new {
+                    approverStep = "2",
+                    statusName = "APPROVED",
+                    approvarPerson = "Jeff Bezos",
+                    approvarNote = "No Note",
+                    approvedOrDeclineDate = "06-08-2025 4:51 PM"
+                },
+                //new {
+                //    approverStep = "3",
+                //    statusName = "DECLINED",
+                //    approvarPerson = "Md Shefain",
+                //    approvarNote = "No note",
+                //    approvedOrDeclineDate = "06-08-2025 4:55 PM"
+                //}
+            };
+
+           
+
+            return Json(approvalSteps);
+        }
+
         public IActionResult Index()
         {
             SetSmartPageCode(111800);

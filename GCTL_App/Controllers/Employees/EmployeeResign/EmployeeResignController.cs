@@ -45,6 +45,43 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
         #endregion
 
+
+
+
+        [HttpGet]
+        public IActionResult GetDetails(int id)
+        {
+            
+            var approvalSteps = new List<object>
+            {
+                new {
+                    approverStep = "Stage 1",
+                    statusName = "Pending",
+                    approvarPerson = "Sarah Johnson (HR Manager)",
+                    approvarNote = "Awaiting documentation",
+                    approvedOrDeclineDate = DateTime.Now.AddDays(-2).ToString("yyyy-MM-dd")
+                },
+                new {
+                    approverStep = "Stage 2",
+                    statusName = "In Progress",
+                    approvarPerson = "Michael Chen (Department Head)",
+                    approvarNote = "Under review - checking handover status",
+                    approvedOrDeclineDate = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")
+                },
+                //new {
+                //    approverStep = "Stage 3",
+                //    statusName = "Not Started",
+                //    approvarPerson = "Lisa Rodriguez (Finance Director)",
+                //    approvarNote = "Pending previous approvals",
+                //    approvedOrDeclineDate = "Not yet started"
+                //}
+            };
+
+           
+
+            return Json(approvalSteps);
+        }
+
         #region Index N Table load
 
         public IActionResult Index()
