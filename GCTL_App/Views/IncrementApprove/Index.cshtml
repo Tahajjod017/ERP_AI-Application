@@ -1,6 +1,4 @@
-﻿
-
-<!-- Breadcrumb -->
+﻿<!-- Breadcrumb -->
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
     <div class="my-auto mb-2">
         <h2 class="mb-1">@Html.SmartLocalize("Increment Approval")</h2>
@@ -138,7 +136,7 @@
                 <div class="dropdown me-3">
                     <select class="form-select choiceDD" id="incrementType" asp-items="@ViewBag.IncrementTypeList as SelectList">
                         <option value="">@Html.SmartLocalize("Increment Type")</option>
-                        
+
 
                     </select>
                 </div>
@@ -148,31 +146,31 @@
                 </div>
 
                 @*<div class="dropdown me-3">
-                    <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Select Status")</option>
-                        <option>@Html.SmartLocalize("Approved")</option>
-                        <option>@Html.SmartLocalize("Declined")</option>
-                        <option>@Html.SmartLocalize("Pending")</option>
-                    </select>
-                </div>
+                        <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Select Status")</option>
+                            <option>@Html.SmartLocalize("Approved")</option>
+                            <option>@Html.SmartLocalize("Declined")</option>
+                            <option>@Html.SmartLocalize("Pending")</option>
+                        </select>
+                    </div>
 
-                <div class="dropdown">
-                    <select class="form-select" id="sortBy" data-choices="data-choices" size="1" required="required" name="sortBy" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
-                        <option>@Html.SmartLocalize("Recently Added")</option>
-                        <option>@Html.SmartLocalize("Ascending")</option>
-                        <option>@Html.SmartLocalize("Descending")</option>
-                        <option>@Html.SmartLocalize("Last Month")</option>
-                        <option>@Html.SmartLocalize("Last 7 days")</option>
-                    </select>
-                </div>*@
+                    <div class="dropdown">
+                        <select class="form-select" id="sortBy" data-choices="data-choices" size="1" required="required" name="sortBy" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
+                            <option>@Html.SmartLocalize("Recently Added")</option>
+                            <option>@Html.SmartLocalize("Ascending")</option>
+                            <option>@Html.SmartLocalize("Descending")</option>
+                            <option>@Html.SmartLocalize("Last Month")</option>
+                            <option>@Html.SmartLocalize("Last 7 days")</option>
+                        </select>
+                    </div>*@
             </div>
         </div>
 
         <div class="border-translucent p-3">
             <div id="incrementApprovalTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table dyn-tableDrag IncrementPendingTblDy" id="IncrementPendingTblDy" >
+                    <table class="table table-sm fs-9 leads-table dyn-tableDrag IncrementPendingTblDy" id="IncrementPendingTblDy">
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -180,13 +178,13 @@
                                         <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"increment-approval-body"}' />
                                     </div>
                                 </th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" >@Html.SmartLocalize("Employee Name")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType" >@Html.SmartLocalize("Increment Type")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary" >@Html.SmartLocalize("Current Salary")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary" >@Html.SmartLocalize("Proposed Salary")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount" >@Html.SmartLocalize("Increment Amount")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate" >@Html.SmartLocalize("Effective Date")</th>
-                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision" >@Html.SmartLocalize("Decision")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementType">@Html.SmartLocalize("Increment Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="currentSalary">@Html.SmartLocalize("Current Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="proposedSalary">@Html.SmartLocalize("Proposed Salary")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="incrementAmount">@Html.SmartLocalize("Increment Amount")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="effectiveDate">@Html.SmartLocalize("Effective Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision">@Html.SmartLocalize("Decision")</th>
 
                             </tr>
                         </thead>
@@ -227,24 +225,24 @@
                 </div>
 
                 @*<div class="dropdown me-3">
-                    <select class="form-select" id="approvedDepartment" data-choices="data-choices" size="1" required="required" name="approvedDepartment" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Select department")</option>
-                        <option>@Html.SmartLocalize("Developer")</option>
-                        <option>@Html.SmartLocalize("Finance")</option>
-                        <option>@Html.SmartLocalize("Marketing")</option>
-                        <option>@Html.SmartLocalize("IT Support")</option>
-                    </select>
-                </div>
+                        <select class="form-select" id="approvedDepartment" data-choices="data-choices" size="1" required="required" name="approvedDepartment" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Select department")</option>
+                            <option>@Html.SmartLocalize("Developer")</option>
+                            <option>@Html.SmartLocalize("Finance")</option>
+                            <option>@Html.SmartLocalize("Marketing")</option>
+                            <option>@Html.SmartLocalize("IT Support")</option>
+                        </select>
+                    </div>
 
-                <div class="dropdown me-3">
-                    <select class="form-select" id="approvedEmployee" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Select Employee...")</option>
-                        <option>@Html.SmartLocalize("Galib")</option>
-                        <option>@Html.SmartLocalize("Korim")</option>
-                        <option>@Html.SmartLocalize("Nozib")</option>
-                        <option>@Html.SmartLocalize("Hasan")</option>
-                    </select>
-                </div>*@    
+                    <div class="dropdown me-3">
+                        <select class="form-select" id="approvedEmployee" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Select Employee...")</option>
+                            <option>@Html.SmartLocalize("Galib")</option>
+                            <option>@Html.SmartLocalize("Korim")</option>
+                            <option>@Html.SmartLocalize("Nozib")</option>
+                            <option>@Html.SmartLocalize("Hasan")</option>
+                        </select>
+                    </div>*@
 
                 <div class="dropdown me-3">
                     <div class="input-icon-end position-relative">
@@ -255,7 +253,7 @@
                 <div class="dropdown me-3">
                     <select class="form-select choiceDD" id="approvedIncrementType" asp-items="@ViewBag.IncrementTypeList as SelectList">
                         <option value="">@Html.SmartLocalize("Increment Type")</option>
-                      
+
 
                     </select>
                 </div>
@@ -265,15 +263,15 @@
                 </div>
 
                 @*<div class="dropdown">
-                    <select class="form-select" id="approvedSort" data-choices="data-choices" size="1" required="required" name="approvedSort" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
-                        <option>@Html.SmartLocalize("Recently Added")</option>
-                        <option>@Html.SmartLocalize("Ascending")</option>
-                        <option>@Html.SmartLocalize("Descending")</option>
-                        <option>@Html.SmartLocalize("Last Month")</option>
-                        <option>@Html.SmartLocalize("Last 7 days")</option>
-                    </select>
-                </div>*@
+                        <select class="form-select" id="approvedSort" data-choices="data-choices" size="1" required="required" name="approvedSort" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
+                            <option>@Html.SmartLocalize("Recently Added")</option>
+                            <option>@Html.SmartLocalize("Ascending")</option>
+                            <option>@Html.SmartLocalize("Descending")</option>
+                            <option>@Html.SmartLocalize("Last Month")</option>
+                            <option>@Html.SmartLocalize("Last 7 days")</option>
+                        </select>
+                    </div>*@
             </div>
         </div>
 
@@ -427,6 +425,7 @@
     }
 
     <script src="~/js/pages/Employees/EmployeeStatus/Increment/IncrementApprove.js"></script>
+    <script src="~/js/pages/Employees/UniversalToolTip.js"></script>
 
 }
 

@@ -219,11 +219,114 @@ function populateTable(items) {
                 </td>
                 <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-0" data-column="7">
                     <span class="badge ${getStatusBadgeClass(item.status)}">${item.status}</span>
+                        <div class="universal-tooltip-container position-relative d-inline-block">
+                                <i class="fa-solid fa-circle-info universal-tooltip-trigger"
+                                   data-tooltip-url="/EmployeeResign/GetDetails"
+                                   data-tooltip-id="${item.id}"
+                                   data-tooltip-data-key="id"
+                                   data-tooltip-template="timelineApprovalTemplate"
+                                   style="cursor: pointer; font-size: 12px; color: #007bff; margin-left: 5px;"></i>
+                          </div>
                 </td>
             </tr>
         `);
     });
 }
+
+
+function timelineApprovalTemplate(data) {
+    const steps = Array.isArray(data) ? data : [data];
+    let html = '';
+    
+
+    if (steps.length > 0) {
+        steps.forEach((item, index) => {
+            const approverStep = item.approverStep ?? '';
+            const statusName = item.statusName ?? '';
+            const author = item.approvarPerson ?? '';
+            const statusDescription = item.approvarNote ?? '';
+            const approvedOrDeclineDate = item.approvedOrDeclineDate ?? '';
+
+            // Determine status color
+            let statusColor = 'text-body-secondary';
+            if (statusName === 'APPROVED') statusColor = 'text-success';
+            if (statusName === 'DECLINED') statusColor = 'text-danger';
+            if (statusName === 'PENDING') statusColor = 'text-warning';
+
+            html += `
+
+            <style>
+                .timeline-item-bar {
+                    position: relative;
+                }
+
+                .timeline-bar {
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    height: 20px;
+                    border-right: 2px dashed #dee2e6 !important;
+                }
+
+                .timeline-item:last-child .timeline-bar {
+                    display: none;
+                }
+
+                .icon-item-sm {
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .bg-primary-subtle {
+                    background-color: #e8f4ff !important;
+                }
+
+                .text-primary-dark {
+                    color: #0d6efd !important;
+                }
+            </style>
+
+                <div class="timeline-item" style="margin-bottom:1px">
+                    <div class="timeline-item position-relative">
+                        <div class="row g-md-3">
+                            <div class="col-12 col-md-auto d-flex">
+                                <!--<div class="timeline-item-date order-1 order-md-0 me-md-4">
+                                    <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
+                                        ${approverStep} 
+                                    </p>
+                                </div> -->
+                                <div class="timeline-item-bar position-md-relative me-3 me-md-0">
+                                    <div class="icon-item icon-item-sm rounded-7 shadow-none bg-primary-subtle">
+                                        <span class="fa-solid far fa-file-alt text-primary-dark fs-10"></span>
+                                    </div>
+                                    <span class="timeline-bar border-end border-dashed"></span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="timeline-item-content ps-6 ps-md-3">
+                                    <h5 class="fs-9 lh-sm ${statusColor}">${statusName}</h5>
+                                    <p class="fs-9 mb-0">by <a class="fw-semibold" href="#!">${author}</a></p>
+                                    <h5 class="fs-9 lh-sm">${approvedOrDeclineDate}</h5>
+                                    <p class="fs-9 text-body-secondary">${statusDescription}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    } else {
+        html = '<div class="text-muted" style="color: #999;">No approval steps found</div>';
+    }
+
+    return html;
+}
+
+
+    UniversalTooltipService.registerTemplate('timelineApprovalTemplate', timelineApprovalTemplate);
 
 
 function updatePagination(pagination) {
