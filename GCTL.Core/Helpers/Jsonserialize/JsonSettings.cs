@@ -11,6 +11,5 @@ namespace GCTL.Core.Helpers.Jsonserialize
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
     }
-
     
-}
+    }
