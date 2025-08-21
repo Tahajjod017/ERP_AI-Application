@@ -379,85 +379,166 @@
 
             // #region GetWeekendByOrganization
             $('#OrganizationID').on('change', function () {
-                var selectedId = $(this).val();  // Get the selected OrganizationID
+                const selectedId = $(this).val();
 
-                if (selectedId) {  // Ensure a valid ID is selected (not an empty value)
-                    // Perform the AJAX request to get the weekend settings
-                    $.ajax({
-                        url: '/OffDayRoster/GetWeekendByOrganization',  // Your API endpoint
-                        type: 'GET',
-                        data: { id: selectedId },  // Pass the selected OrganizationID as a query parameter
-                        dataType: 'json',
-                        success: function (data) {
-                            // Prepare an array to store the enabled dates
-                            let enabledDates = [];
-                            let disabledDates = [];
+                if (!selectedId) {
+                    $('#DayDate, #ExchangeDate').prop('disabled', true).each(function () {
+                        this._flatpickr?.clear();
+                    });
+                    return;
+                }
 
-                            // Loop through the weekend settings data
-                            $.each(data, function (index, item) {
-                                // Parse the WeekdayNumbers (comma-separated) into an array of numbers
-                                const weekdayNumbers = item.weekdayNumbers.split(',').map(Number);  // [1, 2, 5]
+                $.getJSON('/OffDayRoster/GetWeekendByOrganization', { id: selectedId }, function (data) {
+                    const enabledDates = [];
+                    const disabledDates = [];
+                    const holidayDates = new Set();
+                    const weekendDays = new Set();
 
-                                // Loop through each month (0-11, where 0 = January and 11 = December)
-                                for (let month = 0; month < 12; month++) {
-                                    const currentYear = new Date().getFullYear();
-
-                                    // Loop through all days in the month (1 to 31)
-                                    for (let day = 1; day <= 31; day++) {
-                                        const date = new Date(currentYear, month, day);
-
-                                        // Skip invalid dates (e.g., February 30, April 31, etc.)
-                                        if (date.getMonth() !== month) continue;
-
-                                        const weekday = date.getDay(); // 0-Sunday, 1-Monday, ..., 6-Saturday
-
-                                        // If the weekday is in the list of enabled weekdays, add the date to the enabledDates array
-                                        if (weekdayNumbers.includes(weekday)) {
-                                            // Format the date as 'Y-m-d' (flatpickr date format)
-                                            const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
-                                            enabledDates.push(formattedDate);
-                                        } else {
-                                            // Otherwise, it's disabled, add to disabledDates
-                                            const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
-                                            disabledDates.push(formattedDate);
-                                        }
-                                    }
-                                }
+                    data.forEach(item => {
+                        // Handle holiday (TotalDays)
+                        if (item.totalDays) {
+                            item.totalDays.split(', ').forEach(d => {
+                                const [day, month, year] = d.split('/');
+                                holidayDates.add(`20${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
                             });
-
-                            $('#DayDate').prop('disabled', false); 
-
-                            flatpickr("#DayDate", {
-                                altInput: true,
-                                altFormat: "d/m/Y",
-                                dateFormat: "Y-m-d",
-                                monthSelectorType: "dropdown",
-                                disableMobile: true,
-                                allowInput: true,
-                                mode: "multiple",
-                                enable: enabledDates 
-                            });
-
-                            flatpickr("#ExchangeDate", {
-                                altInput: true,
-                                altFormat: "d/m/Y",
-                                dateFormat: "Y-m-d",
-                                monthSelectorType: "dropdown",
-                                disableMobile: true,
-                                allowInput: true,
-                                mode: "multiple",
-                                enable: disabledDates 
-                            });
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error fetching weekend settings:', error);
+                        }
+                        // Handle weekend
+                        if (item.weekdayNumbers) {
+                            item.weekdayNumbers.split(',').map(Number).forEach(wd => weekendDays.add(wd));
                         }
                     });
-                } else {
-                    $('#DayDate').prop('disabled', true);
-                    flatpickr("#DayDate").destroy();
-                }
+
+                    // Build the enable/disable arrays for ExchangeDate
+                    for (let month = 0; month < 12; month++) {
+                        const year = new Date().getFullYear();
+                        for (let day = 1; day <= 31; day++) {
+                            const date = new Date(year, month, day);
+                            if (date.getMonth() !== month) continue;
+
+                            const iso = date.toISOString().split('T')[0];
+                            const weekday = date.getDay();
+
+                            if (holidayDates.has(iso) || weekendDays.has(weekday)) {
+                                enabledDates.push(iso);
+                            } else {
+                                disabledDates.push(iso);
+                            }
+                        }
+                    }
+
+                    // Enable both calendars
+                    $('#DayDate, #ExchangeDate').prop('disabled', false);
+
+                    // Calendar 1: DayDate — enable weekends and holiday dates
+                    flatpickr("#DayDate", {
+                        altInput: true,
+                        altFormat: "d/m/Y",
+                        dateFormat: "Y-m-d",
+                        mode: "multiple",
+                        disableMobile: true,
+                        allowInput: true,
+                        enable: [
+                            function (date) {
+                                const iso = date.toISOString().split('T')[0];
+                                return holidayDates.has(iso) || weekendDays.has(date.getDay());
+                            }
+                        ]
+                    });
+
+                    // Calendar 2: ExchangeDate — maintain original enable logic
+                    flatpickr("#ExchangeDate", {
+                        altInput: true,
+                        altFormat: "d/m/Y",
+                        dateFormat: "Y-m-d",
+                        monthSelectorType: "dropdown",
+                        disableMobile: true,
+                        allowInput: true,
+                        mode: "multiple",
+                        enable: disabledDates // using disabled logic as before
+                    });
+                });
             });
+
+
+            //$('#OrganizationID').on('change', function () {
+            //    var selectedId = $(this).val();
+
+            //    if (selectedId) { 
+            //        $.ajax({
+            //            url: '/OffDayRoster/GetWeekendByOrganization', 
+            //            type: 'GET',
+            //            data: { id: selectedId }, 
+            //            dataType: 'json',
+            //            success: function (data) {
+            //                // Prepare an array to store the enabled dates
+            //                let enabledDates = [];
+            //                let disabledDates = [];
+
+            //                // Loop through the weekend settings data
+            //                $.each(data, function (index, item) {
+            //                    // Parse the WeekdayNumbers (comma-separated) into an array of numbers
+            //                    const weekdayNumbers = item.weekdayNumbers.split(',').map(Number);  // [1, 2, 5]
+
+            //                    // Loop through each month (0-11, where 0 = January and 11 = December)
+            //                    for (let month = 0; month < 12; month++) {
+            //                        const currentYear = new Date().getFullYear();
+
+            //                        // Loop through all days in the month (1 to 31)
+            //                        for (let day = 1; day <= 31; day++) {
+            //                            const date = new Date(currentYear, month, day);
+
+            //                            // Skip invalid dates (e.g., February 30, April 31, etc.)
+            //                            if (date.getMonth() !== month) continue;
+
+            //                            const weekday = date.getDay(); // 0-Sunday, 1-Monday, ..., 6-Saturday
+
+            //                            // If the weekday is in the list of enabled weekdays, add the date to the enabledDates array
+            //                            if (weekdayNumbers.includes(weekday)) {
+            //                                // Format the date as 'Y-m-d' (flatpickr date format)
+            //                                const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
+            //                                enabledDates.push(formattedDate);
+            //                            } else {
+            //                                // Otherwise, it's disabled, add to disabledDates
+            //                                const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
+            //                                disabledDates.push(formattedDate);
+            //                            }
+            //                        }
+            //                    }
+            //                });
+
+            //                $('#DayDate').prop('disabled', false); 
+
+            //                flatpickr("#DayDate", {
+            //                    altInput: true,
+            //                    altFormat: "d/m/Y",
+            //                    dateFormat: "Y-m-d",
+            //                    monthSelectorType: "dropdown",
+            //                    disableMobile: true,
+            //                    allowInput: true,
+            //                    mode: "multiple",
+            //                    enable: enabledDates 
+            //                });
+
+            //                flatpickr("#ExchangeDate", {
+            //                    altInput: true,
+            //                    altFormat: "d/m/Y",
+            //                    dateFormat: "Y-m-d",
+            //                    monthSelectorType: "dropdown",
+            //                    disableMobile: true,
+            //                    allowInput: true,
+            //                    mode: "multiple",
+            //                    enable: disabledDates 
+            //                });
+            //            },
+            //            error: function (xhr, status, error) {
+            //                console.error('Error fetching weekend settings:', error);
+            //            }
+            //        });
+            //    } else {
+            //        $('#DayDate').prop('disabled', true);
+            //        flatpickr("#DayDate").destroy();
+            //    }
+            //});
             // #endregion
 
 
