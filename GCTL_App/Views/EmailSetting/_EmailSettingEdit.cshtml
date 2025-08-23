@@ -1,0 +1,91 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="modal fade" id="edit_emailSettings_setting">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Email Setting</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="smtpEditForm" asp-controller="EmailSetting" asp-action="Update" method="post">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="mb-3">
+                            <label class="form-label">Organization</label>
+                            <select class="form-select" name="OrganizationID">
+                                <option value="">Select Organization</option>
+                               
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Server Name</label>
+                            <input class="form-control" type="text" name="ServerName" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">SMTP Authentication Required</label>
+                            <select class="form-select" name="IsSMTPAuthenticationRequired">
+                                <option value="true">YES</option>
+                                <option value="false">NO</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">User Name</label>
+                            <input class="form-control" type="text" name="UserName" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input class="form-control" type="password" name="Password" />
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="mb-3">
+                            <label class="form-label">SSL Required</label>
+                            <select class="form-select" name="IsSSLRequired">
+                                <option value="true">YES</option>
+                                <option value="false">NO</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Port</label>
+                            <select class="form-select" name="PortNumber">
+                                <option value="587">587</option>
+                                <option value="465">465</option>
+                                <option value="25">25</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Priority</label>
+                            <select class="form-select" name="PriorityIndex">
+                                <option value="1">First</option>
+                                <option value="2">Second</option>
+                                <option value="3">Third</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="IsActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="reset" class="btn btn-secondary me-2">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

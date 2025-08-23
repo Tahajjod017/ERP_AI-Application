@@ -91,7 +91,7 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input bloodGroup-selectItem" data-id="${item.emailSettingID}" />
                             </td>
-                            <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
+                           
                              <td class="align-middle white-space-nowrap ps-0">${item.organizationName}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.serverName}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.portNumber}</td>
@@ -100,6 +100,7 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="align-middle white-space-nowrap ps-0">${item.friorityIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.userName}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.password}</td>
+                           
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 bloodGroup-bulkDelete" href="#!" id="bloodGroup-edit" data-id="${item.emailSettingID}"><i class="fas fa-edit"></i></a>
