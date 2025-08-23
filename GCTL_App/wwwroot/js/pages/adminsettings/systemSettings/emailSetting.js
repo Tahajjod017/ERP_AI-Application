@@ -34,9 +34,14 @@ function toggleBulkActions() {
     }
 }
 
+//delete 
+$(document).on('click', '#emailSettingssDelete_singleDelBtn', function () {
+    var emailSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', emailSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
 
-
-
+/////////table
 var currentPage = 1;
 var pageSize = 5;
 
@@ -139,12 +144,28 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="align-middle white-space-nowrap ps-0">${item.friorityIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.userName}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.password}</td>
-                            <td class="align-middle text-end white-space-nowrap pe-2">
-                                <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 bloodGroup-bulkDelete" href="#!" id="bloodGroup-edit" data-id="${item.emailSettingID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 bloodGroup-bulkEdit" href="#!" id="bloodGroup-single-delete" data-id="${item.emailSettingID}"><span class="fas fa-trash"></span></a>
-                                </div>
-                            </td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.isActive}</td>
+                             <td>
+                            <div class="d-flex justify-content-end align-items-center">
+                         <a
+                               href="#"
+                               title="Edit"
+                               id="edit_emailSettings_settingBtn"
+                               data-id="${item.emailSettingID}"
+                               class="btn btn-outline-light btn-icon me-1 " 
+                               data-bs-toggle="modal" 
+                               data-bs-target="#edit_emailSettings_setting"
+                              >
+                               <i class="fas fa-edit text-black"></i>
+                        </a>
+                            <a 
+                              href="#" title="Delete"  data-id="${item.emailSettingID}"
+                              class="btn btn-outline-light btn-icon"  
+                              id="emailSettingssDelete_singleDelBtn" >
+                              <i class="far fa-trash-alt text-black"></i>
+                            </a>
+                          </div>
+                    </td>
                         </tr>
                     `);
                 });
@@ -200,4 +221,68 @@ $(document).on('click', '.page-btn', function () {
     const page = $(this).data('page');
     currentPage = page;
     loadTableData();
+});
+
+/// edit function 
+    //edit
+$(document).on('click', '#edit_emailSettings_settingBtn', function () {
+    var weekendSettingID = $(this).data('id');
+    $('#edit_emailSettings_setting').modal('show'); // Show the edit modal
+
+    // Store the ID in the hidden input field
+    $('#localizationId').val(weekendSettingID);
+
+
+    // Fetch the current data for the weekend setting using the ID (Example: Get the existing values from your backend)
+    $.ajax({
+        url: '/LocalizationSettings/GetById',  // Adjust the URL as per your endpoint
+        type: 'GET',
+        data: { id: weekendSettingID },
+        success: function (data) {
+            
+            //orgazationEditDropdown();
+            choiceManager.setChoiceValue('organizationEditId', data.organizationID);
+            choiceManager.setChoiceValue('languageEditId', data.languageID);
+            choiceManager.setChoiceValue('timezoneEditId', data.timezoneID);
+            choiceManager.setChoiceValue('dateFormatEditId', data.dateFormatID);
+            choiceManager.setChoiceValue('timeFormatEditId', data.timeFormatID);
+            choiceManager.setChoiceValue('currencyEditId', data.currencyID);
+
+
+        },
+        error: function (xhr, status, error) {
+
+        }
+    });
+});
+
+$('#localizationEditForm').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+    var weekendSettingID = $('#localizationId').data('id');  // Get ID from the modal trigger
+    var formData = $(this).serialize(); // Serialize the form data
+
+    // Append the approvalSettingID to the form data
+    // formData += '&approvalSettingID=' + weekendSettingID;
+
+    // Send the data via AJAX
+    $.ajax({
+        url: '/LocalizationSettings/Updates', // Adjust URL if necessary
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                // Handle success
+                toastr.success('Localization setting updated successfully!');
+                $('#edit_Localization_setting').modal('hide'); // Hide the modal
+                loadTableData();
+            } else {
+                // Handle failure
+                toastr.error('Failed to update weekend setting: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle AJAX errors
+            toastr.error('Error: ' + error);
+        }
+    });
 });

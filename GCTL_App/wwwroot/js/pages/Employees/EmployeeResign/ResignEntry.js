@@ -93,87 +93,87 @@
 
     //#endregion
 
+
     //#region  table data Function to fetch and
 
-    function approvalStagesTemplate(data) {
-        showDev(data, "tumi reality mene neo");
-        const steps = Array.isArray(data) ? data : [data];
-        let html = `
-        <div class="p-2" style="min-width: 300px;">
-            <h6 class="fw-bold mb-3 text-center border-bottom pb-2">📋 Approval Process</h6>
-            <div class="approval-steps">
-    `;
+   function approvalStagesTemplate(data) {
+    showDev(data, "tumi reality mene neo");
+    const steps = Array.isArray(data.stageDetails) ? data.stageDetails : [data.stageDetails];
+    let html = `
+    <div class="p-2" style="min-width: 300px;">
+        <h6 class="fw-bold mb-3 text-center border-bottom pb-2">📋 Approval Process <span>${data.approvalDetails}</span></h6>
+        <div class="approval-steps">
+`;
 
-        steps.forEach((step, index) => {
-            // Determine status color and icon
-            let statusClass = '';
-            let statusIcon = '';
+    steps.forEach((step, index) => {
+        // Determine status color and icon
+        let statusClass = '';
+        let statusIcon = '';
 
-            switch (step.statusName.toLowerCase()) {
-                case 'approved':
-                    statusClass = 'text-success';
-                    statusIcon = '✅';
-                    break;
-                case 'rejected':
-                    statusClass = 'text-danger';
-                    statusIcon = '❌';
-                    break;
-                case 'in progress':
-                    statusClass = 'text-warning';
-                    statusIcon = '⏳';
-                    break;
-                case 'pending':
-                    statusClass = 'text-info';
-                    statusIcon = '📋';
-                    break;
-                case 'not started':
-                    statusClass = 'text-secondary';
-                    statusIcon = '⏸️';
-                    break;
-                default:
-                    statusClass = 'text-muted';
-                    statusIcon = '📄';
-            }
-
-            html += `
-            <div class="approval-step mb-3 p-2 border rounded ${index === steps.length - 1 ? '' : 'border-bottom-0'}">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                    <span class="fw-bold">${statusIcon} ${step.approverStep}</span>
-                    <span class="badge ${statusClass}">${step.statusName}</span>
-                </div>
-                <div class="step-details">
-                    <p class="mb-1"><strong>Approver:</strong> ${step.approvarPerson}</p>
-                    <p class="mb-1"><strong>Date:</strong> ${step.approvedOrDeclineDate}</p>
-                    <p class="mb-0"><strong>Notes:</strong> <em>${step.approvarNote}</em></p>
-                </div>
-            </div>
-        `;
-        });
+        switch (step.statusName.toLowerCase()) {
+            case 'approved':
+                statusClass = 'text-success';
+                statusIcon = '✅';
+                break;
+            case 'rejected':
+                statusClass = 'text-danger';
+                statusIcon = '❌';
+                break;
+            case 'in progress':
+                statusClass = 'text-warning';
+                statusIcon = '⏳';
+                break;
+            case 'pending':
+                statusClass = 'text-info';
+                statusIcon = '📋';
+                break;
+            case 'not started':
+                statusClass = 'text-secondary';
+                statusIcon = '⏸️';
+                break;
+            default:
+                statusClass = 'text-muted';
+                statusIcon = '📄';
+        }
 
         html += `
+        <div class="approval-step p-2  ${index === steps.length - 1 ? '' : 'border-bottom-0'}">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+                <span class="fw-bold">${statusIcon} ${step.approverStep}</span>
+                <span class="badge ${statusClass}">${step.statusName}</span>
             </div>
-            <div class="progress mt-3" style="height: 8px;">
-                <div class="progress-bar" role="progressbar" 
-                     style="width: ${(steps.filter(s => s.statusName.toLowerCase() === 'approved').length / steps.length) * 100}%"
-                     aria-valuenow="${(steps.filter(s => s.statusName.toLowerCase() === 'approved').length / steps.length) * 100}" 
-                     aria-valuemin="0" aria-valuemax="100">
-                </div>
+            <div class="step-details">
+                <p class="mb-1"><strong>Approver:</strong> ${step.approvarPerson}</p>
+                <p class="mb-1"><strong>Date:</strong> ${step.approvedOrDeclineDate}</p>
+                <p class="mb-0"><strong>Notes:</strong> <em>${step.approvarNote}</em></p>
             </div>
         </div>
+        <hr/>
     `;
+    });
 
-        return html;
-    }
+    html += `
+     </div>
+        <div class="progress mt-3" style="height: 8px;">
+            <div class="progress-bar" role="progressbar" 
+                 style="width: ${(steps.filter(s => s.statusName.toLowerCase() === 'approved').length / steps.length) * 100}%"
+                 aria-valuenow="${(steps.filter(s => s.statusName.toLowerCase() === 'approved').length / steps.length) * 100}" 
+                 aria-valuemin="0" aria-valuemax="100">
+            </div>
+        </div>
+    </div>
+`;
 
-    showDev('tooltip')
+    return html;
+}
+
+showDev('tooltip')
   
-        UniversalTooltipService.registerTemplate('approvalStagesTemplate', approvalStagesTemplate);
-        
+    UniversalTooltipService.registerTemplate('approvalStagesTemplate', approvalStagesTemplate);
+    
    
-      
-  
-
-    function loadTableData() {
+    
+       function loadTableData() {
         $.ajax({
             url: '/EmployeeResign/GetResignations',
             type: 'GET',
@@ -201,12 +201,14 @@
                                 </div>
                             </td>
                             <td class="rEmpName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1" data-column="0">
+
+                               
+
                                 
 
                                 <div class="d-flex align-items-center file-name-icon">
                                     <div class="avatar avatar-m avatar-bordered me-4">
-                                        <img class="rounded-circle" src="${item.image || '/images/default-avatar.png'}"
-                                             alt="${item.rEmpName}" onerror="this.src='/images/default-avatar.png'" />
+                                        <img class="rounded-circle" src="${item.image || '~/img/No-Image-Placeholder.svg.png'}"    alt="${item.rEmpName}"  />
                                     </div>
                                     <div class="ms-1">
                                         <h6 class="fw-bold mb-0">${item.rEmpName}
@@ -223,9 +225,8 @@
                                         </h6>
                                         <span class="fs-12 fw-normal text-muted">#${item.rEmpCode || 'N/A'}</span>
                                     </div>
+
                                 </div>
-
-
                             </td>
                             <td class="rEmpDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.rEmpDept || item.REmpDept}</td>
                             <td class="resignResons align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.resignResons || item.ResignResons}</td>
@@ -260,6 +261,7 @@
             }
         });
     }
+
 
     // Function to render pagination
     function renderPagination(totalRecords) {

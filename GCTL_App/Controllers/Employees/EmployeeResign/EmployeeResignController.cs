@@ -48,9 +48,16 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
 
 
+
         [HttpGet]
         public IActionResult GetDetails(int id)
         {
+
+
+            var result = _employeeResignService.GetToolTipData(id);
+
+
+
             
             var approvalSteps = new List<object>
             {
@@ -79,8 +86,10 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
            
 
-            return Json(approvalSteps);
+
+            return Json(result);
         }
+
 
         #region Index N Table load
 
