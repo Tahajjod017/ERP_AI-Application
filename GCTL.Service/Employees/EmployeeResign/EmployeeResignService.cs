@@ -1289,6 +1289,8 @@ namespace GCTL.Service.Employees.EmployeeResign
                 approvalDetails = $"{currentStage}/{totalStages}"
             };
         }
+
+        
         #endregion
 
     }
