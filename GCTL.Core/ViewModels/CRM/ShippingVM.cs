@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.CRM
 {
-    public class CustomerBaseVM
+    public class ShippingVM : CustomerVM
     {
-        
+        public int CustomerID { get; set; }
+
     }
 }

@@ -60,7 +60,7 @@
                     var statusBadge = item.status === 'Approved' ? 'badge-phoenix-success' : 'badge-phoenix-danger';
                     tbody.append(`
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle py-1">
+                        <td class="fs-9 align-middle py-1  py-2">
                             <div class="form-check mb-0 fs-8">
                                 <input class="form-check-input" type="checkbox" />
                             </div>

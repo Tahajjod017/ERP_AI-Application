@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
@@ -106,7 +107,8 @@ namespace GCTL_App.Controllers.CRM
                         CustomerId = n.IndividualAddressID,
                         FullName = n.Individual.FirstName + " " + n.Individual.LastName,
                         Type = n.AddressType.AddressTypeName,
-                        Phone = n.Address.Phone
+                        Phone = n.Address.Phone,
+                        Email = n.Address.Email
                     })
                     .ToListAsync();
 
@@ -199,42 +201,59 @@ namespace GCTL_App.Controllers.CRM
 
 
         [HttpPost]
-        public async Task<IActionResult> upsertPerson([FromBody] CustomerVM customerVM)
+        public async Task<IActionResult> InsertPerson([FromBody] CustomerVM customerVM)
         {
             if (ModelState.IsValid)
             {
-                if (customerVM.Customers[0].PrimaryID == 0)
+                if (customerVM.PrimaryID == 0)
                 {
-                    var result = await _leadCreateService.CreateLead(customerVM);
+                    var result = await _leadCreateService.CreatePerson(customerVM);
                     
-
-
-                    return Json(new { success = true, message = "Saved successfully", result= result });
+                    return Ok(result);
                 } 
             }
-            return Json(new { MessageContent = "Error" });
-
-        } 
-        public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
-        {
-            if (ModelState.IsValid && leadsVM != null)
+            var results =  new ReturnView
             {
-                var isUniquePhone = await IsUniqueAsync(
-                    leadsVM.Customers[0].Phone,
-                    "phone",
-                    leadsVM.Customers[0].PrimaryID
-                );
+                Success = false,
+                Message = "Data saved succesfull",
+            };
+            return Ok(results); 
+        } 
 
-                if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
+        [HttpPost]
+        public async Task<IActionResult> InsertShippingAddress([FromBody] ShippingVM shippingVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (shippingVM.PrimaryID == 0)
                 {
-
-                    var result = await _leadCreateService.UpdateLead(leadsVM);
+                    var result = await _leadCreateService.CreateShippingAddress(shippingVM);
+                    
                     return Ok(result);
-                }
+                } 
             }
-            return Json(new { MessageContent = "Error" });
+            return Ok(false); 
+        } 
+        //public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
+        //{
+        //    if (ModelState.IsValid && leadsVM != null)
+        //    {
+        //        var isUniquePhone = await IsUniqueAsync(
+        //            leadsVM.Customers[0].Phone,
+        //            "phone",
+        //            leadsVM.Customers[0].PrimaryID
+        //        );
 
-        }
+        //        if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
+        //        {
+
+        //            var result = await _leadCreateService.UpdateLead(leadsVM);
+        //            return Ok(result);
+        //        }
+        //    }
+        //    return Json(new { MessageContent = "Error" });
+
+        //}
 
     }
 }
