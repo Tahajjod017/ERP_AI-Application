@@ -56,8 +56,8 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="clearanceCompleted">Whether department clearance is completed.</param>
         /// <param name="documentsPrepared">Whether exit documents are prepared.</param>
         /// <returns>A result object indicating success or failure with a message.</returns>
- Task<(bool Success, string Message)> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared);
+        Task<CommonReturnViewModel> ProcessResignation(int resignationId, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared, CommonBaseViewModel? bm);
 
- UniversalApprovalToolTip GetToolTipData(int id);
+         UniversalApprovalToolTip GetToolTipData(int id);
     }
 }
