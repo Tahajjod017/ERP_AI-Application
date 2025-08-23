@@ -31,7 +31,7 @@ public partial class EmployeeAllowanceTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; } = new List<EmployeeAllowanceSetup>();
+    public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

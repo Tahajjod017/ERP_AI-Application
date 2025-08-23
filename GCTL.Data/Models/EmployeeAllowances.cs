@@ -11,32 +11,6 @@ public partial class EmployeeAllowances
 
     public int? OrganizationID { get; set; }
 
-    public bool? IsMobileInternetAllowanceEnabled { get; set; }
-
-    public decimal? MobileInternetAllowance { get; set; }
-
-    public bool? IsShiftAllowanceEnabled { get; set; }
-
-    public decimal? ShiftAllowance { get; set; }
-
-    public bool? IsHouseRentAllowanceEnabled { get; set; }
-
-    public decimal? HouseRentAllowanceRate { get; set; }
-
-    public int? HRentDependsOnSalaryTypeID { get; set; }
-
-    public bool? IsMedicalAllowanceEnabled { get; set; }
-
-    public decimal? MedicalAllowanceRate { get; set; }
-
-    public int? MediAllowDepOnSalaryTypeID { get; set; }
-
-    public bool? IsConveyanceAllowanceEnabled { get; set; }
-
-    public decimal? ConveyanceAllowanceRate { get; set; }
-
-    public int? ConAllowDepOnSalaryTypeID { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }
@@ -53,15 +27,17 @@ public partial class EmployeeAllowances
 
     public int? DeletedBy { get; set; }
 
-    public virtual SalaryTypes ConAllowDepOnSalaryType { get; set; }
+    public int? EmployeeAllowanceTypeID { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual SalaryTypes HRentDependsOnSalaryType { get; set; }
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; } = new List<EmployeeAllowanceSetup>();
 
-    public virtual SalaryTypes MediAllowDepOnSalaryType { get; set; }
+    public virtual EmployeeAllowanceTypes EmployeeAllowanceType { get; set; }
 
     public virtual Organization Organization { get; set; }
 

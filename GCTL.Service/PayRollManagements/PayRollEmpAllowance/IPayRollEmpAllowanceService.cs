@@ -20,5 +20,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         Task<CommonReturnViewModel> SoftDeletePayRollEmpAllowance(DeleteRequestVM deleteRequestVM);
         Task<PaginationService<EmployeeAllowances, PayRollEmpAllowanceGetAll>.PaginationResult<PayRollEmpAllowanceGetAll>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
       string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null);
+        public Task<List<AllowanceTypeNameVM>> GetEmpAllowanceType();
+
     }
 }

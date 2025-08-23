@@ -7,11 +7,7 @@ namespace GCTL.Data.Models;
 
 public partial class EmployeeAllowanceSetup
 {
-    public int EmployeeBenefitID { get; set; }
-
-    public int? EmployeeAllowanceTypeID { get; set; }
-
-    public int? OrganizationID { get; set; }
+    public int EmployeeAllowanceSetupID { get; set; }
 
     public decimal? SalaryMin { get; set; }
 
@@ -22,8 +18,6 @@ public partial class EmployeeAllowanceSetup
     public decimal? Value { get; set; }
 
     public DateTime? EffectiveDate { get; set; }
-
-    public bool? IsActive { get; set; }
 
     public string LIP { get; set; }
 
@@ -41,15 +35,15 @@ public partial class EmployeeAllowanceSetup
 
     public int? DeletedBy { get; set; }
 
+    public int? EmployeeAllowanceID { get; set; }
+
     public virtual CalculationTypes CalculationType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual EmployeeAllowanceTypes EmployeeAllowanceType { get; set; }
-
-    public virtual Organization Organization { get; set; }
+    public virtual EmployeeAllowances EmployeeAllowance { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

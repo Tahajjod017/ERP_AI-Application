@@ -1,6 +1,7 @@
-﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.HouseRentAllowanceDetailVM
+﻿ @model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.HouseRentAllowanceDetailVM
 @{
     var index = ViewData["Index"] as int? ?? 0;
+   
 }
 
 <div class=" houseRentRow">
@@ -45,31 +46,16 @@
                         <input type="text" class="form-control" name="HouseRentAllowances[@index].Rate" placeholder="Enter Fixed Rate" style="max-width: 149px;">
                     </div>
                 </div>
+            
             </div>
-
-            <!-- Allowance Depends On -->
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="row">
-                    <div class="col-lg-10 pe-3 col-md-11 col-sm-11">
-                        <div class="mb-3">
-                            <label class="form-label">Allowance Depends on</label>
-                                <select class="form-select choiceDD" id="add[@index]" name="HouseRentAllowances[@index].HRentDependsOnSalaryTypeID">
-                                    <option value="">Select Salary</option>
-                                    @foreach (var item in ViewBag.SalaryTypesDD as SelectList ?? new SelectList(Enumerable.Empty<object>()))
-                                    {
-                                        <option value="@item.Value">@item.Text</option>
-                                    }
-                                </select>
-                        </div>
-                    </div>
-                    <div class="col-lg-1 px-0 pt-4 col-md-1 col-sm-1">
-                        <button type="button" class="btn btn-sm btn-outline-danger removeRow " >
-                            X
-                        </button>
-                    </div>
-
-                </div>
-            </div>
+        <div class="col-lg-1 px-0 pt-4 col-md-1 col-sm-1">
+            <button type="button" class="btn btn-sm btn-outline-danger removeRow ">
+                X
+            </button>
+        </div>
+            
         </div>
     
-</div>
+</div> 
+
+                        

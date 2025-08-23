@@ -26,12 +26,14 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<CalculationTypes> calculationTypesRepository;
         private readonly IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup;
-        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository , IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup ) : base(empAllowance)
+        private readonly IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository;
+        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup, IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository) : base(empAllowance)
         {
             this.empAllowance = empAllowance;
             this.userInfoService = userInfoService;
             this.calculationTypesRepository = calculationTypesRepository;
             this.empAlowanceSetup = empAlowanceSetup;
+            this.empalowanceTypesRepository = empalowanceTypesRepository;
         }
 
 
@@ -44,7 +46,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
             try
             {
                 // 🔹 Step 3: Base query with includes
-                var query = empAllowance.AllActive().Include(x=>x.Organization).Include(h=>h.HRentDependsOnSalaryType).Include(x=>x.MediAllowDepOnSalaryType).Include(c=>c.ConAllowDepOnSalaryType).OrderByDescending(x => x.EmployeeAllowanceID).AsQueryable();
+                var query = empAllowance.AllActive().Include(x=>x.Organization).OrderByDescending(x => x.EmployeeAllowanceID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -89,23 +91,22 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                    term => b =>
                       string.IsNullOrEmpty(term) ||
                       EF.Functions.Like(b.EmployeeAllowanceID.ToString(), $"%{term}%") ||
-                      EF.Functions.Like((b.MobileInternetAllowance ?? 0).ToString(), $"%{term}%") ||
-                      (b.Organization != null && EF.Functions.Like(b.Organization.OrganizationName, $"%{term}%")) ||
-                      (b.HRentDependsOnSalaryType != null && EF.Functions.Like(b.MediAllowDepOnSalaryType.SalaryTypeName, $"%{term}%")) ||
-                      (b.ConAllowDepOnSalaryType != null && EF.Functions.Like(b.ConAllowDepOnSalaryType.SalaryTypeName, $"%{term}%")) ,
+                     
+                      (b.Organization != null && EF.Functions.Like(b.Organization.OrganizationName, $"%{term}%")) ,
+                     
 
                     b => new PayRollEmpAllowanceGetAll
                     {
                         EmployeeAllowanceID = b.EmployeeAllowanceID,
                         OrganizationName = b.Organization?.OrganizationName ?? string.Empty,
-                        MobileInternetAllowance = b.MobileInternetAllowance ?? 0,
-                        ShiftAllowance = b.ShiftAllowance ?? 0,
-                        HouseRentAllowanceRate = b.HouseRentAllowanceRate ?? 0,
-                        ConveyanceAllowanceRate = b.ConveyanceAllowanceRate ?? 0,
-                        HRentDependsOnSalaryTypeIDName = b.HRentDependsOnSalaryType?.SalaryTypeName ?? string.Empty,
-                        MediAllowDepOnSalaryTypeIDName = b.MediAllowDepOnSalaryType?.SalaryTypeName ?? string.Empty,
-                        MedicalAllowanceRate= b.MedicalAllowanceRate ?? 0,
-                        ConAllowDepOnSalaryTypeIDName = b.ConAllowDepOnSalaryType?.SalaryTypeName ?? string.Empty,
+                        //MobileInternetAllowance = b.MobileInternetAllowance ?? 0,
+                       // ShiftAllowance = b.ShiftAllowance ?? 0,
+                       // HouseRentAllowanceRate = b.HouseRentAllowanceRate ?? 0,
+                        //ConveyanceAllowanceRate = b.ConveyanceAllowanceRate ?? 0,
+                        //HRentDependsOnSalaryTypeIDName = b.HRentDependsOnSalaryType?.SalaryTypeName ?? string.Empty,
+                       // MediAllowDepOnSalaryTypeIDName = b.MediAllowDepOnSalaryType?.SalaryTypeName ?? string.Empty,
+                       // MedicalAllowanceRate= b.MedicalAllowanceRate ?? 0,
+                        //ConAllowDepOnSalaryTypeIDName = b.ConAllowDepOnSalaryType?.SalaryTypeName ?? string.Empty,
                        
                     });
 
@@ -143,23 +144,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 }
 
                 await empAllowance.BeginTransactionAsync();
-
+                int EmployeeAllowanceID = 0;
                 var entity = new EmployeeAllowances
                 {
                     OrganizationID = entityVM.OrganizationID,
-                    IsConveyanceAllowanceEnabled = entityVM.IsConveyanceAllowanceEnabled,
-                    IsMobileInternetAllowanceEnabled = entityVM.IsMobileInternetAllowanceEnabled,
-                    IsMedicalAllowanceEnabled = entityVM.IsMedicalAllowanceEnabled,
-                    MobileInternetAllowance = entityVM.MobileInternetAllowance,
-                    IsHouseRentAllowanceEnabled = entityVM.IsHouseRentAllowanceEnabled,
-                    HouseRentAllowanceRate = entityVM.HouseRentAllowanceRate,
-                    IsShiftAllowanceEnabled = entityVM.IsShiftAllowanceEnabled,
-                    ShiftAllowance = entityVM.ShiftAllowance,
-                    HRentDependsOnSalaryTypeID = entityVM.HRentDependsOnSalaryTypeID,
-                    MediAllowDepOnSalaryTypeID = entityVM.MediAllowDepOnSalaryTypeID,
-                    MedicalAllowanceRate = entityVM.MedicalAllowanceRate,
-                    ConAllowDepOnSalaryTypeID = entityVM.ConAllowDepOnSalaryTypeID,
-                    ConveyanceAllowanceRate = entityVM.ConveyanceAllowanceRate,
+                    IsActive = entityVM.IsActive,
+                    EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -167,12 +157,16 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 };
 
                 await empAllowance.AddAsync(entity);
+                EmployeeAllowanceID=entity.EmployeeAllowanceID;
                 var empAllowanceSetups = entityVM.HouseRentAllowances.Select(item => new EmployeeAllowanceSetup
-                {
-                    OrganizationID = entityVM.OrganizationID,
+                { 
+                   CalculationTypeID = item.CalculationTypeID,
                     SalaryMax = item.SalaryMax,
                     SalaryMin = item.SalaryMin,
-                    EffectiveDate = item.EffectiveDate
+                    EffectiveDate = item.EffectiveDate,
+                    Value = item.Value,
+                    EmployeeAllowanceID= EmployeeAllowanceID
+
                 }).ToList();
 
                 await empAlowanceSetup.AddRangeAsync(empAllowanceSetups);
@@ -217,21 +211,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                         Message = "Employee Allowance record not found!"
                     };
                 }
-                // 2. Update fields
                 entity.OrganizationID = entityVM.OrganizationIDEdit;
-                entity.IsConveyanceAllowanceEnabled = entityVM.IsConveyanceAllowanceEnabledEdit;
-                entity.IsMobileInternetAllowanceEnabled = entityVM.IsMobileInternetAllowanceEnabledEdit;
-                entity.IsMedicalAllowanceEnabled = entityVM.IsMedicalAllowanceEnabledEdit;
-                entity.MobileInternetAllowance = entityVM.MobileInternetAllowanceEdit;
-                entity.IsHouseRentAllowanceEnabled = entityVM.IsHouseRentAllowanceEnabledEdit;
-                entity.HouseRentAllowanceRate = entityVM.HouseRentAllowanceRateEdit;
-                entity.IsShiftAllowanceEnabled = entityVM.IsShiftAllowanceEnabledEdit;
-                entity.ShiftAllowance = entityVM.ShiftAllowanceEdit;
-                entity.HRentDependsOnSalaryTypeID = entityVM.HRentDependsOnSalaryTypeIDEdit;
-                entity.MediAllowDepOnSalaryTypeID = entityVM.MediAllowDepOnSalaryTypeIDEdit;
-                entity.MedicalAllowanceRate = entityVM.MedicalAllowanceRateEdit;
-                entity.ConAllowDepOnSalaryTypeID = entityVM.ConAllowDepOnSalaryTypeIDEdit;
-                entity.ConveyanceAllowanceRate = entityVM.ConveyanceAllowanceRateEdit;
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
@@ -271,19 +251,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 {
                     EmployeeAllowanceID = entity.EmployeeAllowanceID,
                     OrganizationIDEdit = entity.OrganizationID,
-                    IsConveyanceAllowanceEnabledEdit = entity.IsConveyanceAllowanceEnabled,
-                    IsMobileInternetAllowanceEnabledEdit = entity.IsMobileInternetAllowanceEnabled,
-                    IsMedicalAllowanceEnabledEdit = entity.IsMedicalAllowanceEnabled,
-                    MobileInternetAllowanceEdit = entity.MobileInternetAllowance,
-                    IsHouseRentAllowanceEnabledEdit = entity.IsHouseRentAllowanceEnabled,
-                    HouseRentAllowanceRateEdit = entity.HouseRentAllowanceRate,
-                    IsShiftAllowanceEnabledEdit = entity.IsShiftAllowanceEnabled,
-                    ShiftAllowanceEdit = entity.ShiftAllowance,
-                    HRentDependsOnSalaryTypeIDEdit = entity.HRentDependsOnSalaryTypeID,
-                    MediAllowDepOnSalaryTypeIDEdit = entity.MediAllowDepOnSalaryTypeID,
-                    MedicalAllowanceRateEdit = entity.MedicalAllowanceRate,
-                    ConAllowDepOnSalaryTypeIDEdit = entity.ConAllowDepOnSalaryTypeID,
-                    ConveyanceAllowanceRateEdit = entity.ConveyanceAllowanceRate,
+                   
                 };
                 return new CommonReturnViewModel
                 {
@@ -348,9 +316,28 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
             }
         }
 
-       
+
+
+
         #endregion
 
+        #region Get Employee TYpe Name
 
+        public async Task<List<AllowanceTypeNameVM>> GetEmpAllowanceType()
+        {
+            var data = await empalowanceTypesRepository.AllActive()
+                .Select(x => new AllowanceTypeNameVM
+                {
+                    EmployeeAllowanceTypeID = x.EmployeeAllowanceTypeID,
+                    EmployeeAllowanceTypeName = x.EmployeeAllowanceTypeName,
+                    //EffectiveDate = x.EffectiveDate.ToString("yyyy-MM-dd"), // if EffectiveDate is DateTime
+                    IsActive =false,
+                })
+                .ToListAsync();
+
+            return data;
+        }
+
+        #endregion
     }
 }

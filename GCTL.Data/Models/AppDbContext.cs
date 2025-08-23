@@ -34,6 +34,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -520,14 +521,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
         modelBuilder.Entity<Attendance>(entity =>
         {
             entity.HasKey(e => e.AttendanceID).HasName("PK__Attendan__8B69263CCE1244FA");
@@ -1193,7 +1193,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<EmployeeAllowanceSetup>(entity =>
         {
-            entity.HasKey(e => e.EmployeeBenefitID).HasName("PK__Employee__62EF7278D6FC2557");
+            entity.HasKey(e => e.EmployeeAllowanceSetupID).HasName("PK__Employee__62EF7278D6FC2557");
 
             entity.ToTable("EmployeeAllowanceSetup", "Payroll");
 
@@ -1221,13 +1221,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__EmployeeA__Delet__1249A49B");
 
-            entity.HasOne(d => d.EmployeeAllowanceType).WithMany(p => p.EmployeeAllowanceSetup)
-                .HasForeignKey(d => d.EmployeeAllowanceTypeID)
-                .HasConstraintName("FK__EmployeeA__Emplo__0C90CB45");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.EmployeeAllowanceSetup)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK__EmployeeA__Organ__0D84EF7E");
+            entity.HasOne(d => d.EmployeeAllowance).WithMany(p => p.EmployeeAllowanceSetup)
+                .HasForeignKey(d => d.EmployeeAllowanceID)
+                .HasConstraintName("FK_EmployeeAllowances_EmployeeAllowanceID_EmployeeAllowanceSetup");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeAllowanceSetupUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -1268,22 +1264,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("EmployeeAllowances", "Payroll");
 
-            entity.Property(e => e.ConveyanceAllowanceRate).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.HouseRentAllowanceRate).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.MedicalAllowanceRate).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.MobileInternetAllowance).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.ShiftAllowance).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.ConAllowDepOnSalaryType).WithMany(p => p.EmployeeAllowancesConAllowDepOnSalaryType)
-                .HasForeignKey(d => d.ConAllowDepOnSalaryTypeID)
-                .HasConstraintName("FK__EmployeeA__ConAl__0BD1B136");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeAllowancesCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -1293,13 +1280,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__EmployeeA__Delet__0FA2421A");
 
-            entity.HasOne(d => d.HRentDependsOnSalaryType).WithMany(p => p.EmployeeAllowancesHRentDependsOnSalaryType)
-                .HasForeignKey(d => d.HRentDependsOnSalaryTypeID)
-                .HasConstraintName("FK__EmployeeA__HRent__09E968C4");
-
-            entity.HasOne(d => d.MediAllowDepOnSalaryType).WithMany(p => p.EmployeeAllowancesMediAllowDepOnSalaryType)
-                .HasForeignKey(d => d.MediAllowDepOnSalaryTypeID)
-                .HasConstraintName("FK__EmployeeA__MediA__0ADD8CFD");
+            entity.HasOne(d => d.EmployeeAllowanceType).WithMany(p => p.EmployeeAllowances)
+                .HasForeignKey(d => d.EmployeeAllowanceTypeID)
+                .HasConstraintName("FK_EmployeeAllowanceTypes_EmployeeAllowanceTypeID_EmployeeAllowances");
 
             entity.HasOne(d => d.Organization).WithMany(p => p.EmployeeAllowances)
                 .HasForeignKey(d => d.OrganizationID)
