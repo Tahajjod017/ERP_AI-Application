@@ -96,7 +96,6 @@
 
             // #region Delete
             $(document).on('click', settings.bulkDelBtn, function () {
-                debugger
                 var selectedItems = $(".assignSpiralPattern-selectItem:checked");
                 var selectedIds = [];
 

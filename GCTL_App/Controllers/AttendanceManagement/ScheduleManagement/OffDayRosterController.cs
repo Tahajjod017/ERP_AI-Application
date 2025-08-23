@@ -178,6 +178,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetEmployeesByOrgDatesBraDepId
+        public async Task<IActionResult> GetEmployeesByOrgDatesBraDepId(int? orgId, [FromQuery] List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
+        {
+            var result = await _commonService.GetEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, deptIds);
+            return Json(result);
+        }
+        #endregion
+
+
         #region GetWeekendByOrganization
         [HttpGet]
         public async Task<IActionResult> GetWeekendByOrganization(int id)
