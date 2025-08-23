@@ -1,6 +1,28 @@
 ﻿
 $(document).ready(function () {
 
+
+    //#region Month Picker
+    //let today = new Date();
+    //today.setMonth(today.getMonth() - 1);
+    //var currentDate = new Date();
+    $('.flatpickr-input').flatpickr({
+        mode: "single",
+        dateFormat: "F Y",
+        altFormat: "F Y",
+        //defaultDate: today,
+        //maxDate: currentDate,
+        plugins: [
+            new monthSelectPlugin({
+                shorthand: true,
+                dateFormat: "F Y",
+                altFormat: "F Y",
+                theme: "light"
+            })
+        ]
+    });
+    //#endregion
+
     var selected = 'Fixed';
     $('#fixedPercentage').val(selected);
     showHide(selected)
@@ -100,10 +122,10 @@ $(document).ready(function () {
         $(this).closest('.houseRentRow').remove();
     });
 
-
+  
 
     //
-    initializeDatepickerDMY2("HouseRentAllowances_0__EffectiveDate");
+    
     $("select[name='OrganizationID']").on("changed.coreui.multi-select", function () {
         validateOrganization();
     });
@@ -131,24 +153,8 @@ $(document).ready(function () {
            var formData = new FormData();
         
             // --- Append values manually (if you want explicit control) ---
-            formData.append("OrganizationID", $("[name='OrganizationID']").val());
-            formData.append("IsMobileInternetAllowanceEnabled", $("[name='IsMobileInternetAllowanceEnabled']").is(":checked"));
-            formData.append("MobileInternetAllowance", $("[name='MobileInternetAllowance']").val());
-
-            formData.append("IsShiftAllowanceEnabled", $("[name='IsShiftAllowanceEnabled']").is(":checked"));
-            formData.append("ShiftAllowance", $("[name='ShiftAllowance']").val());
-
-            formData.append("IsHouseRentAllowanceEnabled", $("[name='IsHouseRentAllowanceEnabled']").is(":checked"));
-            formData.append("HouseRentAllowanceRate", $("[name='HouseRentAllowanceRate']").val());
-            formData.append("HRentDependsOnSalaryTypeID", $("[name='HRentDependsOnSalaryTypeID']").val());
-
-            formData.append("IsMedicalAllowanceEnabled", $("[name='IsMedicalAllowanceEnabled']").is(":checked"));
-            formData.append("MedicalAllowanceRate", $("[name='MedicalAllowanceRate']").val());
-            formData.append("MediAllowDepOnSalaryTypeID", $("[name='MediAllowDepOnSalaryTypeID']").val());
-
-            formData.append("IsConveyanceAllowanceEnabled", $("[name='IsConveyanceAllowanceEnabled']").is(":checked"));
-            formData.append("ConveyanceAllowanceRate", $("[name='ConveyanceAllowanceRate']").val());
-            formData.append("ConAllowDepOnSalaryTypeID", $("[name='ConAllowDepOnSalaryTypeID']").val());
+              formData.append("OrganizationID", $("[name='OrganizationID']").val());
+              formData.append("IsActive", $("[name='IsActive']").is(":checked"));
 
              $(".houseRentRow").each(function (index) {
                  const $row = $(this);
@@ -156,9 +162,9 @@ $(document).ready(function () {
                  formData.append(`HouseRentAllowances[${index}].SalaryMax`, $row.find("[name*='SalaryMax']").val());
                  formData.append(`HouseRentAllowances[${index}].CalculationTypeID`, $row.find(".fixedPercentageSelect").val());
                  formData.append(`HouseRentAllowances[${index}].Value`, $row.find(".fixedRateInput, .percentRateSelect").filter(":visible").val());
-                 //formData.append(`HouseRentAllowances[${index}].IsActive`, true); 
+                 
              });
-        
+        debugger
             
             $.ajax({
                 url: '/PayRollEmployeesAllowance/SavePayRollEmpAlowance',

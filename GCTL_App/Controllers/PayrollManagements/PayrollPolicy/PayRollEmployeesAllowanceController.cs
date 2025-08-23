@@ -11,6 +11,7 @@ using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OpenQA.Selenium.DevTools.V134.Page;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
@@ -21,16 +22,18 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         private readonly IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes;
         private readonly IGenericRepository<Percentages> percentagesService;
         private readonly IPayRollEmpAllowanceService payRollEmpAllowanceService;
-        public PayRollEmployeesAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, IPayRollEmpAllowanceService payRollEmpAllowanceService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<CalculationTypes> calculationTypes;
+        public PayRollEmployeesAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, IPayRollEmpAllowanceService payRollEmpAllowanceService, IGenericRepository<CalculationTypes> calculationTypes) : base(translateService, userProfileService)
         {
             this.organization = organization;
             this.salaryTypes = salaryTypes;
             this.yearlyEndBonusTypes = yearlyEndBonusTypes;
             this.percentagesService = percentagesService;
             this.payRollEmpAllowanceService = payRollEmpAllowanceService;
+            this.calculationTypes = calculationTypes;
         }
 
-        public  IActionResult Index()
+        public  async Task< IActionResult> Index()
         {
             PayRollEmpAllowancePageVM model =new PayRollEmpAllowancePageVM();
             model.Save.HouseRentAllowances.Add(new HouseRentAllowanceDetailVM());
@@ -38,6 +41,10 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewBag.YearlyBonusTypeDD = new SelectList(yearlyEndBonusTypes.AllActive(), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
+            ViewBag.CalculationTypeDD = new SelectList(calculationTypes.AllActive(), "CalculationTypeID", "CalculationTypeName");
+            var list = await payRollEmpAllowanceService.GetEmpAllowanceType();
+            ViewBag.LIsttt=list;
+
             return View(model);
         }
 
@@ -49,6 +56,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewData["Index"] = index;
+            
             return PartialView("_HouseRentAllowanceRow", model);
         }
 
@@ -62,10 +70,10 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+                //if (!ModelState.IsValid)
+                //{
+                //    return BadRequest(ModelState);
+                //}
                 var data = await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
                 return Json(new { success = true, message = "Saved Successfully" });
             }
@@ -77,6 +85,26 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         }
 
         #endregion
+
+        #region Get Employee allowance Type Name 
+        [Route("PayRollEmployeesAllowance/GetEmpAllowanceType")]
+        [HttpGet]
+        public async Task<IActionResult> GetEmpAllowanceType()
+        {
+            try
+            {
+                var data= await payRollEmpAllowanceService.GetEmpAllowanceType();
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
 
         #region Update Data
         [Route("PayRollEmployeesAllowance/UpdatePayRollEmpAllowance")]
