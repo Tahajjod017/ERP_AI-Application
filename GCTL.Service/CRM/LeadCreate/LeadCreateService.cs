@@ -288,6 +288,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 Leads leadObj = new Leads()
                 {
                     CustomerID = customerIndividualAddressObj.IndividualAddressID,
+                    LeadName = leadsVM.LeadName,
                     IsIndividualCustomer = leadsVM.IsIndividualCustomer,
                     LeadStatusID = leadsVM.LeadStatusID,
                     LeadSourceID = leadsVM.LeadSourceID,
@@ -303,7 +304,7 @@ namespace GCTL.Service.CRM.LeadCreate
                     DeletedAt = null,
 
                 };
-                _leadsRepository.AddAsync(leadObj);
+                await _leadsRepository.AddAsync(leadObj);
 
 
                 //foreach (var obj in customerVM.Customers)

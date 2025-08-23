@@ -1,0 +1,587 @@
+﻿<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="my-auto mb-2">
+        <h2 class="mb-1">@Html.SmartLocalize("Termination Approval")</h2>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="index.html"><i class="ti ti-smart-home"></i></a>
+                </li>
+                <li class="breadcrumb-item">@Html.SmartLocalize("Employee")</li>
+                <li class="breadcrumb-item active" aria-current="page">@Html.SmartLocalize("Termination Approval")</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+        <div class="me-2 mb-2">
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                    <i class="ti ti-file-export me-1"></i>@Html.SmartLocalize("Export")
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end p-3">
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>@Html.SmartLocalize("Export as PDF")</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>@Html.SmartLocalize("Export as Excel")</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="my-4">
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-black-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Voluntary")</p>
+                            <h4>18</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-user-check fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-success">@Html.SmartLocalize("Pending"): 5</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-blue-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Performance Issues")</p>
+                            <h4>12</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-chart-line fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-warning">@Html.SmartLocalize("Pending"): 3</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-purple-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Misconduct")</p>
+                            <h4>8</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-alert-triangle fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-danger">@Html.SmartLocalize("Pending"): 2</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-pink-le">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-start">
+                            <p class="mb-1">@Html.SmartLocalize("Other Reasons")</p>
+                            <h4>6</h4>
+                        </div>
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-2">
+                                <span class="avatar avatar-md d-flex">
+                                    <i class="ti ti-dots fs-5 text-white"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="badge badge-phoenix badge-phoenix-info">@Html.SmartLocalize("Pending"): 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">@Html.SmartLocalize("Waiting for Termination Approval")</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="dropdown me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control" id="pendingSearch" type="text" placeholder="@Html.SmartLocalize("Search...")">
+                    </div>
+                </div>
+                <div class="dropdown me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")"
+                               data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly" style="padding-left: 30px;">
+                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); cursor: pointer;"></span>
+
+                        
+                    </div>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="processedDepartment" data-choices="data-choices" size="1" required="required" name="processedDepartment" asp-items="@ViewBag.DepartmentDD">
+                        <option value="">@Html.SmartLocalize("Select department")</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="processedDesignation" data-choices="data-choices" size="1" required="required" name="processedDesignation" asp-items="@ViewBag.DesignationDD">
+                        <option value="">@Html.SmartLocalize("Select designation")</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="processedTerminationType" data-choices="data-choices" size="1" required="required" name="processedTerminationType" asp-items="@ViewBag.TerminationTypeDD">
+                        <option value="">@Html.SmartLocalize("Select termination type")</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                        </div>
+                        <select class="form-select" id="pageSizeSelectPending" data-choices="data-choices" size="1" name="pageSizeSelectPending" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-translucent p-3">
+            <div id="terminationApprovalTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table dyn-table shefain" id="terminatePending">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"termination-approval-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Department")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position" data-column="2">@Html.SmartLocalize("Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="terminationType" data-column="3">@Html.SmartLocalize("Termination Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason" data-column="4">@Html.SmartLocalize("Reason")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="noticeDate" data-column="5">@Html.SmartLocalize("Notice Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="terminationDate" data-column="6">@Html.SmartLocalize("Termination Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="decision" data-column="7">@Html.SmartLocalize("Decision")</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="pending-termination-body">
+                            <!-- Pending termination rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body totalPending" id="totalPending" data-list-info="data-list-info"></p>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination" id="paginationPending"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+            <h4 class="mb-1">@Html.SmartLocalize("Processed Terminations")</h4>
+            <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                <div class="dropdown me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control" id="processedSearch" type="text" placeholder="@Html.SmartLocalize("Search...")">
+                    </div>
+                </div>
+                <div class="dropdown me-3">
+                    <div class="input-icon-end position-relative">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="approveDateRange" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                    </div>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="approveDepartment" data-choices="data-choices" size="1" required="required" name="approveDepartment" asp-items="@ViewBag.DepartmentDD">
+                        <option value="">@Html.SmartLocalize("Select department")</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="approveDesignation" data-choices="data-choices" size="1" required="required" name="approveDesignation" asp-items="@ViewBag.DesignationDD">
+                        <option value="">@Html.SmartLocalize("Select designation")</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="approveTerminationType" data-choices="data-choices" size="1" required="required" name="approveTerminationType" asp-items="@ViewBag.TerminationTypeDD">
+                        <option value="">@Html.SmartLocalize("Select termination type")</option>
+                    </select>
+                </div>
+                <div class="dropdown me-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                        </div>
+                        <select class="form-select" id="pageSizeSelectApprove" data-choices="data-choices" size="1" name="pageSizeSelectApprove" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-translucent p-3">
+            <div id="processedTerminationTable">
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table dyn-table" id="terminateProcessed">
+                        <thead>
+                            <tr>
+                                <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"processed-termination-body"}' />
+                                    </div>
+                                </th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="employeeName" data-column="0">@Html.SmartLocalize("Employee Name")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="department" data-column="1">@Html.SmartLocalize("Department")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="position" data-column="2">@Html.SmartLocalize("Position")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="terminationType" data-column="3">@Html.SmartLocalize("Termination Type")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="reason" data-column="4">@Html.SmartLocalize("Reason")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="processedDate" data-column="5">@Html.SmartLocalize("Processed Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="terminationDate" data-column="6">@Html.SmartLocalize("Termination Date")</th>
+                                <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="7">@Html.SmartLocalize("Status")</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list" id="processed-termination-body">
+                            <!-- Processed termination rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row align-items-center justify-content-between pe-0 fs-9">
+                    <div class="col-auto d-flex">
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="totalApprove" data-list-info="data-list-info"></p>
+                    </div>
+                    <div class="col-auto d-flex">
+                        <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                        <ul class="mb-0 pagination" id="paginationApprove"></ul>
+                        <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*<div class="modal fade" id="termination_approval_modal" tabindex="-1" aria-labelledby="terminationApprovalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="terminationApprovalModalLabel">@Html.SmartLocalize("Review Termination Request")</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3 text-success">@Html.SmartLocalize("Payable Amount")</h6>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Remaining Salary"):</span>
+                                <span>৳32,500</span>
+                            </div>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Unused Leave"):</span>
+                                <span>৳8,500</span>
+                            </div>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Severance Pay"):</span>
+                                <span>৳25,000</span>
+                            </div>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Gratuity"):</span>
+                                <span>৳45,000</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold text-success">
+                                <span>@Html.SmartLocalize("Total Payable"):</span>
+                                <span>৳111,000</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3 text-danger">@Html.SmartLocalize("Deductible Amount")</h6>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Advance Salary"):</span>
+                                <span>৳0</span>
+                            </div>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Loan Outstanding"):</span>
+                                <span>৳15,000</span>
+                            </div>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Notice Period Shortage"):</span>
+                                <span>৳0</span>
+                            </div>
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>@Html.SmartLocalize("Other Deductions"):</span>
+                                <span>৳3,000</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold text-danger">
+                                <span>@Html.SmartLocalize("Total Deductible"):</span>
+                                <span>৳18,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                                <h5 class="mb-0">@Html.SmartLocalize("Net Settlement Amount"):</h5>
+                                <h4 class="mb-0 text-primary">৳93,000</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label">@Html.SmartLocalize("Settlement Notes")</label>
+                        <textarea class="form-control" rows="3" placeholder="@Html.SmartLocalize("Add any additional notes regarding the settlement...")"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                    <button type="button" class="btn btn-primary">@Html.SmartLocalize("Generate Settlement Letter")</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+<!-- Termination Approval Modal -->
+<div class="modal fade" id="termination_approval_modal" tabindex="-1" aria-labelledby="terminationApprovalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="terminationApprovalModalLabel">@Html.SmartLocalize("Review Termination Request")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Department")</label>
+                            <input type="text" class="form-control" id="modalDepartment" value="IT Department" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Current Position")</label>
+                            <input type="text" class="form-control" id="modalPosition" value="Software Developer" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Employee Name")</label>
+                            <input type="text" class="form-control" id="modalEmployeeId" value="EMP-002" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Termination Type")</label>
+                            <input type="text" class="form-control" id="modalTerminationType" value="Performance Issues" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Years of Service")</label>
+                            <input type="text" class="form-control" id="modalYearsOfService" value="2 Years 8 Months" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Notice Date")</label>
+                            <input type="text" class="form-control" id="modalNoticeDate" value="10 Jan 2024" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Termination Date")</label>
+                            <input type="text" class="form-control" id="modalTerminationDate" value="10 Feb 2024" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Current Salary")</label>
+                            <input type="text" class="form-control" id="modalCurrentSalary" value="৳45,000" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">@Html.SmartLocalize("Pending Dues")</label>
+                            <input type="text" class="form-control" id="modalPendingDues" value="৳0" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("Reason for Termination")</label>
+                    <textarea class="form-control" id="modalTerminationReason" rows="3" readonly>Employee consistently failed to meet performance targets despite multiple warnings and improvement plans. Performance evaluation scores have been below satisfactory for the past 6 months with no sign of improvement.</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("HR Comments (Optional)")</label>
+                    <textarea class="form-control" id="modalHRComments" rows="3" placeholder="@Html.SmartLocalize("Add your comments here...")"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#final_settlement_modal" data-termination-id="">@Html.SmartLocalize("View Settlement Details")</button>
+                <button type="button" class="btn btn-danger me-2" data-action="decline" data-termination-id="">@Html.SmartLocalize("Decline")</button>
+                <button type="button" class="btn btn-success" data-action="approve" data-termination-id="">@Html.SmartLocalize("Approve")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmation_modal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">@Html.SmartLocalize("Confirm Action")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmation_message">@Html.SmartLocalize("Are you sure you want to") <span id="confirmation_action"></span> @Html.SmartLocalize("this termination request?")</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Cancel")</button>
+                <button type="button" class="btn btn-primary" id="confirm_action">@Html.SmartLocalize("Confirm")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Final Settlement Modal -->
+<div class="modal fade" id="final_settlement_modal" tabindex="-1" aria-labelledby="finalSettlementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="finalSettlementModalLabel">@Html.SmartLocalize("Final Settlement Details")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3 text-success">@Html.SmartLocalize("Payable Amount")</h6>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Remaining Salary"):</span>
+                            <span>৳32,500</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Unused Leave"):</span>
+                            <span>৳8,500</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Severance Pay"):</span>
+                            <span>৳25,000</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Gratuity"):</span>
+                            <span>৳45,000</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold text-success">
+                            <span>@Html.SmartLocalize("Total Payable"):</span>
+                            <span>৳111,000</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3 text-danger">@Html.SmartLocalize("Deductible Amount")</h6>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Advance Salary"):</span>
+                            <span>৳0</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Loan Outstanding"):</span>
+                            <span>৳15,000</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Notice Period Shortage"):</span>
+                            <span>৳0</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span>@Html.SmartLocalize("Other Deductions"):</span>
+                            <span>৳3,000</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold text-danger">
+                            <span>@Html.SmartLocalize("Total Deductible"):</span>
+                            <span>৳18,000</span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                            <h5 class="mb-0">@Html.SmartLocalize("Net Settlement Amount"):</h5>
+                            <h4 class="mb-0 text-primary">৳93,000</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label">@Html.SmartLocalize("Settlement Notes")</label>
+                    <textarea class="form-control" rows="3" placeholder="@Html.SmartLocalize("Add any additional notes regarding the settlement...")"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-primary">@Html.SmartLocalize("Generate Settlement Letter")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/Employees/EmployeeTermination/TerminationApprove.js"></script>
+}

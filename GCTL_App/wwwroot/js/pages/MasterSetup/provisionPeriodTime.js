@@ -167,6 +167,7 @@
                 $('.provisionPeriodTime-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#provisionPeriodTime-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

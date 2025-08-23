@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels;
+﻿using EFCore.BulkExtensions;
+using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -93,6 +94,15 @@ namespace GCTL.Core.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task BulkInsertAsync(IEnumerable<T> entities)
+        {
+            await _context.BulkInsertAsync(entities.ToList(), new BulkConfig
+            {
+                PreserveInsertOrder = true,
+                SetOutputIdentity = true
+            });
+        }
+
         public async Task AddAsync(T entity, object model)
         {
             if (entity == null || model == null)
@@ -149,44 +159,62 @@ namespace GCTL.Core.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task BulkUpdateAsync(IEnumerable<T> entities)
+        {
+            await _context.BulkUpdateAsync(entities.ToList(), new BulkConfig
+            {
+                PreserveInsertOrder = true,
+                SetOutputIdentity = false
+            });
+        }
+
         public async Task UpdateAsync(T entity, object model)
         {
-            if (entity == null || model == null)
-                return;
-
-            var modelType = model.GetType();
-            var entityType = entity.GetType();
-
-            var propertiesToUpdate = new[] { "UpdatedBy", "UpdatedAt", "LIP", "LMAC" };
-
-            foreach (var propertyName in propertiesToUpdate)
+            try
             {
-                var entityProperty = entityType.GetProperty(propertyName);
+                if (entity == null || model == null)
+                    return;
 
-                // Skip if entity does not have this property or it's not writable
-                if (entityProperty == null || !entityProperty.CanWrite)
-                    continue;
+                var modelType = model.GetType();
+                var entityType = entity.GetType();
 
-                object value = null;
+                var propertiesToUpdate = new[] { "UpdatedBy", "UpdatedAt", "LIP", "LMAC" };
 
-                if (propertyName == "UpdatedAt")
+                foreach (var propertyName in propertiesToUpdate)
                 {
-                    value = DateTime.UtcNow;
-                }
-                else
-                {
-                    var modelProperty = modelType.GetProperty(propertyName);
-                    if (modelProperty != null)
+                    var entityProperty = entityType.GetProperty(propertyName);
+
+                    // Skip if entity does not have this property or it's not writable
+                    if (entityProperty == null || !entityProperty.CanWrite)
+                        continue;
+
+                    object value = null;
+
+                    if (propertyName == "UpdatedAt")
                     {
-                        value = modelProperty.GetValue(model);
+                        value = DateTime.UtcNow;
                     }
+                    else
+                    {
+                        var modelProperty = modelType.GetProperty(propertyName);
+                        if (modelProperty != null)
+                        {
+                            value = modelProperty.GetValue(model);
+                        }
+                    }
+
+                    entityProperty.SetValue(entity, value);
                 }
 
-                entityProperty.SetValue(entity, value);
+                _context.Set<T>().Update(entity);
+                await _context.SaveChangesAsync();
             }
+            catch (Exception)
+            {
 
-            _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
+                throw;
+            }
+            
         }
 
 

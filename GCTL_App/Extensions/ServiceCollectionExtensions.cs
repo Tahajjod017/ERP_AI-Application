@@ -14,6 +14,9 @@ using GCTL.Service.AdminSettings.OrganizationSettings.HolidayService;
 using GCTL.Service.AdminSettings.OrganizationSettings.WeekendService;
 using GCTL.Service.AdminSettings.SystemSettings.Emailsettingservice;
 using GCTL.Service.AdminSettings.SystemSettings.EmailSettingService;
+using GCTL.Service.AdminSettings.SystemSettings.ISmsSettingService;
+using GCTL.Service.AdminSettings.SystemSettings.OtpSettingService;
+using GCTL.Service.AdminSettings.SystemSettings.SmsSettingService;
 using GCTL.Service.AllNotifications;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
@@ -31,7 +34,7 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
-
+using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadCreate;
 
 using GCTL.Service.ElementPermission;
@@ -52,6 +55,7 @@ using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Employees.EmployeeSalary;
 using GCTL.Service.Employees.EmployeeStatus.Increment;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
+using GCTL.Service.Employees.EmployeeTermination;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.FileHandler;
@@ -90,7 +94,9 @@ using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.MenuTabs;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
+using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
+using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -180,12 +186,16 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmpTransferApprovedOrDeclineService, EmpTransferApprovedOrDeclineService>();
             services.AddScoped<IEmployeeBenefitsService, EmployeeBenefitsService>();
             services.AddScoped<IPayRollEmpAllowanceService, PayRollEmpAllowanceService>();
+            services.AddScoped<IPayRollEmpSalaryService, PayRollEmploSalaryService>();
+            services.AddScoped<IPayRollTaxperCentangeSettingsService, PayRollTaxpercentageSettingsService>();
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IElementPermissionService, ElementPermissionService>();
             services.AddScoped<IEmailSettingService, EmailSettingsService>();
+            services.AddScoped<ISmsSettingsService, SmsSettingsService>();
+            services.AddScoped<IOtpSettingService, OtpSettingService>();
             services.AddScoped<IHolidaySettingService, HolidaySettingService>();
             services.AddScoped<IWeekendSettingService, WeekendSettingService>();
             services.AddScoped<IApprovalSettingService, ApprovalSettingService>();
@@ -254,6 +264,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IincrementService, IncrementService>();
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IEmployeeResign, EmployeeResignService>();
+            services.AddScoped<IEmployeeTermination, EmployeeTerminationService>();
 
 
             #endregion
@@ -263,6 +274,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadStatusService, LeadStatusService>();
             services.AddScoped<ILeadSourceService, LeadSourceService>();
             services.AddScoped<ILeadCreateService, LeadCreateService>();
+            services.AddScoped<ICRMService, CRMService>();
             #endregion
         }
     }

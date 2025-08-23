@@ -1,12 +1,26 @@
-﻿let itiMap = {};
+﻿//const { ajax } = require("jquery"); // Commented out as jQuery is assumed to be globally available
 
-document.addEventListener("DOMContentLoaded", function () {
+let itiMap = {};
+let targetTab = 'index';
 
-    const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6", "#phonePersonIndex", "#otherPhonePersonIndex", "#phone5Index", "#phone6Index"];
+function initPhoneFields() {
+    const phoneIds = [
+        "#phone", "#phone1", "#phone2", "#phone3", "#phone4", "#phone5", "#phone6",
+        "#phonePersonIndex", "#otherPhonePersonIndex", "#phone5Index", "#phone6Index"
+    ];
 
     phoneIds.forEach(selector => {
         const input = document.querySelector(selector);
-        if (!input) return;
+        if (!input) {
+            console.warn(`Phone input ${selector} not found`);
+            return;
+        }
+
+        // Prevent double initialization
+        if (itiMap[selector]) {
+            console.warn(`Phone input ${selector} already initialized`);
+            return;
+        }
 
         const iti = window.intlTelInput(input, {
             separateDialCode: true,
@@ -18,12 +32,15 @@ document.addEventListener("DOMContentLoaded", function () {
         itiMap[selector] = iti;
     });
 
-    console.log("Phone fields initialized", itiMap);
+    console.log("Phone fields initialized:", Object.keys(itiMap));
+}
+
+// Initialize once when DOM ready
+document.addEventListener("DOMContentLoaded", function () {
+    initPhoneFields();
 });
 
-
 $(document).ready(function () {
-
     const list = document.getElementById("customerList");
     const list2 = document.getElementById("searchResults");
     const list3 = document.getElementById("no-results");
@@ -33,7 +50,6 @@ $(document).ready(function () {
     } else {
         list2.style.display = "block";
     }
-
 
     $("#submitBtn").on("click", function (e) {
         e.preventDefault();
@@ -45,24 +61,18 @@ $(document).ready(function () {
             if (iti && iti.isValidNumber()) {
                 anyValid = true;
                 lastValidNumber = iti.getNumber();
-                break; // if you want to stop at first valid input
+                break; // Stop at first valid input
             }
         }
 
         if (anyValid) {
-            console.log(lastValidNumber);
+            console.log("Valid phone number:", lastValidNumber);
         } else {
-            console.log('Invalid number!');
+            console.log("Invalid phone number!");
         }
     });
 
-
-
-    //#region Auto suggest
-
     let customers = [];
-
-
 
     function getCustomerList() {
         $.ajax({
@@ -70,80 +80,62 @@ $(document).ready(function () {
             method: 'GET',
             success: function (data) {
                 customers = data;
-                console.log(customers);
+                console.log("Customer List:", customers);
             },
-            error: function (e) {
-                alert('Failed to load Contact Name' + e.text);
+            error: function (xhr) {
+                console.error("Failed to load customer list:", xhr);
+                toastr.error('Failed to load Contact Name');
             }
         });
-
     }
 
-    // run getCustomerList funciton intialization
+    // Initialize customer list
     getCustomerList();
 
-    // getCustomerInformation while click on any customer item
     function getCustomerInfo(customerId) {
-        console.log(`customerId: ${customerId}`);
+        console.log(`Fetching customer info for ID: ${customerId}`);
         $.ajax({
             url: '/CreateLead/GetCustomerInfo',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(customerId),
             success: function (response) {
-                console.log(response);
-                debugger;
+                document.getElementById("customerInfoContainer").style.display = "block";
+
                 $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
                 $('#customerID').val(response.customer.individualAddressID);
                 $('#customerType').val(response.customer.addressTypeName);
 
-                document.getElementById("personIndexIA_ID").value = response.customer.individualAddressID;
-                document.getElementById("firstNamePersonIndex").value = response.customer.firstName;
-                document.getElementById("lastNamePersonIndex").value = response.customer.lastName;
-                document.getElementById("autocompletePersonIndex").value = response.customer.fullAddress;
-                document.getElementById("streetPersonIndex").value = response.customer.street;
-                document.getElementById("cityPersonIndex").value = response.customer.city;
-                document.getElementById("additionalAddressPersonIndex").value = response.customer.additionaladdress;
-                document.getElementById("statePersonIndex").value = response.customer.state;
-                document.getElementById("postalCodePersonIndex").value = response.customer.postalCode;
-                document.getElementById("countryPersonIndex").value = response.customer.countryName;
-                document.getElementById("countryCodePersonIndex").value = response.customer.countryCode;
-                document.getElementById("latitudePersonIndex").value = response.customer.latitude;
-                document.getElementById("longitudePersonIndex").value = response.customer.longitude;
-                document.getElementById("phonePersonIndex").value = response.customer.phone;
-                document.getElementById("otherPhonePersonIndex").value = response.customer.otherPhone;
-                document.getElementById("emailPersonIndex").value = response.customer.email;
+                const ids = idMapIndex.person;
+                $("#" + ids.primaryID).val(response.customer.individualAddressID);
+                $("#" + ids.firstName).val(response.customer.firstName);
+                $("#" + ids.lastName).val(response.customer.lastName);
+                $("#" + ids.autocomplete).val(response.customer.fullAddress);
+                $("#" + ids.street).val(response.customer.street);
+                $("#" + ids.city).val(response.customer.city);
+                $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
+                $("#" + ids.state).val(response.customer.state);
+                $("#" + ids.postal_code).val(response.customer.postalCode);
+                $("#" + ids.country).val(response.customer.countryName);
+                $("#" + ids.countryCode).val(response.customer.countryCode);
+                $("#" + ids.latitude).val(response.customer.latitude);
+                $("#" + ids.longitude).val(response.customer.longitude);
+                $("#" + ids.phone).val(response.customer.phone);
+                $("#" + ids.otherPhone).val(response.customer.otherPhone);
+                $("#" + ids.email).val(response.customer.email);
 
 
-                // shipping
-                if (response.shipping.firstName) {
-                    document.getElementById("shippingIndexIA_ID").value = response.shipping.individualAddressID;
-                    document.getElementById("firstNameShippingIndex").value = response.shipping.firstName;
-                    document.getElementById("lastNameShippingIndex").value = response.shipping.lastName;
-                    document.getElementById("autocompleteShippingIndex").value = response.shipping.fullAddress;
-                    document.getElementById("streetShippingIndex").value = response.shipping.street;
-                    document.getElementById("cityShippingIndex").value = response.shipping.city;
-                    document.getElementById("additionalAddressShippingIndex").value = response.shipping.additionaladdress;
-                    document.getElementById("stateShippingIndex").value = response.shipping.state;
-                    document.getElementById("postalCodeShippingIndex").value = response.shipping.postalCode;
-                    document.getElementById("countryShippingIndex").value = response.shipping.countryName;
-                    document.getElementById("countryCodeShipingIndex").value = response.shipping.countryCode;
-                    document.getElementById("latitudeShippingIndex").value = response.shipping.latitude;
-                    document.getElementById("longitudeShippingIndex").value = response.shipping.longitude;
-                    document.getElementById("phone5Index").value = response.shipping.phone;
-                    document.getElementById("phone6Index").value = response.shipping.otherPhone;
-                    document.getElementById("emailShippingIndex").value = response.shipping.email;
+                // Re-initialize phone fields
+                initPhoneFields();
 
-                }
-
+                // Trigger validation
             },
-            error: function () {
-                alert('Failed to load Contact Name');
+            error: function (xhr) {
+                console.error("Failed to load customer info:", xhr);
+                toastr.error('Failed to load Contact Name');
             }
         });
     }
-
-
 
     function showSuggestions(query) {
         const $list = $('#customerList');
@@ -154,14 +146,15 @@ $(document).ready(function () {
 
         if (!query) return;
 
+        const q = String(query ?? '').toLowerCase();
         const filtered = customers.filter(item =>
-            item.fullName.toLowerCase().includes(query.toLowerCase())
+            String(item.fullName ?? '').toLowerCase().includes(q) ||
+            String(item.phone ?? '').toLowerCase().includes(q)
         );
-
         if (filtered.length > 0) {
             $list.show();
             filtered.forEach(item => {
-                $list.append(`<button type="button" class="list-group-item list-group-item-action customerName-item" data-id="${item.customerId}" data-type="${item.type}">${item.fullName}</button>`);
+                $list.append(`<button type="button" class="list-group-item list-group-item-action customerName-item" data-id="${item.customerId}" data-type="${item.type}">${item.fullName} (${item.phone})</button>`);
             });
         } else {
             $noResults.show();
@@ -179,7 +172,7 @@ $(document).ready(function () {
         const selected = $(this).text();
         const customerId = $(this).data("id");
         const customerType = $(this).data("type");
-        console.log(customerId);
+        console.log("Selected customer ID:", customerId);
         $('#ContactNameSearch').val(selected);
         $('#customerID').val(customerId);
         $('#customerType').val(customerType);
@@ -195,13 +188,11 @@ $(document).ready(function () {
         $('#searchResults').hide();
         $(this).hide();
     });
-    let targetTab = 'company';
 
     $('#addNewContactNameBtn').on('click', function () {
         targetTab = 'company';
         $('#addCustomerModal').modal('show');
-        //remove
-
+        // Remove active classes
         $('#person-tab').removeClass('active');
         $('#tab-Personal').removeClass('active show');
         $('#person').removeClass('active show');
@@ -210,7 +201,7 @@ $(document).ready(function () {
         $('#addWarehouseTabContent').removeClass('active show');
         $('#addBranchTab').removeClass('active');
         $('#addWarehouseTab').removeClass('active');
-        //active
+        // Add active classes
         $('#company-tab').addClass('active');
         $('#addCompanyTab').addClass('active');
         $('#tab-Company').addClass('active show');
@@ -218,7 +209,9 @@ $(document).ready(function () {
         setTimeout(() => {
             initAutocomplete();
         }, 300);
+        console.log("Target tab:", targetTab);
     });
+
     $("#company-tab").on("click", function () {
         targetTab = 'company';
         $('#person-tab').removeClass('active');
@@ -229,7 +222,6 @@ $(document).ready(function () {
         $('#addWarehouseTabContent').removeClass('active show');
         $('#addBranchTab').removeClass('active');
         $('#addWarehouseTab').removeClass('active');
-        //active
         $('#company-tab').addClass('active');
         $('#addCompanyTab').addClass('active');
         $('#tab-Company').addClass('active show');
@@ -237,12 +229,12 @@ $(document).ready(function () {
         setTimeout(() => {
             initAutocomplete();
         }, 300);
+        console.log("Target tab:", targetTab);
     });
 
     $('#addNewContactNameBtn2').on('click', function () {
         targetTab = 'person';
         $('#addCustomerModal').modal('show');
-        //remove
         $('#company-tab').removeClass('active');
         $('#tab-Company').removeClass('active show');
         $('#company').removeClass('active show');
@@ -250,7 +242,6 @@ $(document).ready(function () {
         $('#addWarehouseTabContent').removeClass('active show');
         $('#shippingAddressTabContent').removeClass('active show');
         $('#shippingAddressTab').removeClass('active');
-        //active
         $('#person-tab').addClass('active');
         $('#tab-Personal').addClass('active show');
         $('#addCustommerTab').addClass('active');
@@ -258,11 +249,11 @@ $(document).ready(function () {
         setTimeout(() => {
             initAutocomplete();
         }, 300);
+        console.log("Target tab:", targetTab);
     });
 
     $("#person-tab").on("click", function () {
         targetTab = 'person';
-        //remove
         $('#company-tab').removeClass('active');
         $('#tab-Company').removeClass('active show');
         $('#company').removeClass('active show');
@@ -270,7 +261,6 @@ $(document).ready(function () {
         $('#addWarehouseTabContent').removeClass('active show');
         $('#shippingAddressTabContent').removeClass('active show');
         $('#shippingAddressTab').removeClass('active');
-        //active
         $('#person-tab').addClass('active');
         $('#tab-Personal').addClass('active show');
         $('#addCustommerTab').addClass('active');
@@ -278,29 +268,28 @@ $(document).ready(function () {
         setTimeout(() => {
             initAutocomplete();
         }, 300);
+        console.log("Target tab:", targetTab);
     });
-    //shipping tab code
+
     $("#shippingAddressTab").on("click", function () {
-        console.log("shipping tag clicked");
         targetTab = 'shipping';
         setTimeout(() => {
             initAutocomplete();
         }, 300);
+        console.log("Target tab:", targetTab);
     });
 
-    $("#closeModal").on('click', function () {
+    $("#closeModal, #closeModal2").on('click', function () {
         $('#addCustomerModal').modal('hide');
+        targetTab = "index";
+        console.log("Target tab:", targetTab);
     });
-    $("#closeModal2").on('click', function () {
-        $('#addCustomerModal').modal('hide');
-    });
-    let autocomplete;
+
     const idMap = {
         company: {
             primaryID: 'personID',
             firstName: 'firstNameCompnay',
             lastName: 'lastNameCompany',
-
             autocomplete: 'autocompleteCompany',
             street: 'streetCompany',
             city: 'cityCompany',
@@ -310,16 +299,15 @@ $(document).ready(function () {
             postal_code: 'postalCodeCompany',
             latitude: 'latitudeCompany',
             longitude: 'longitudeCompany',
-
-            Phone: 'phone3',
+            phone: 'phone3',
             otherPhone: 'phone4',
-            email: 'emailPerson',
+            email: 'emailPerson'
         },
         person: {
             primaryID: 'personID',
             firstName: 'firstNamePerson',
             lastName: 'lastNamePerson',
-            autocomplete: 'autocompletePerson', // full address
+            autocomplete: 'autocompletePerson',
             street: 'streetPerson',
             city: 'cityPerson',
             state: 'statePerson',
@@ -331,13 +319,13 @@ $(document).ready(function () {
             longitude: 'longitudePerson',
             phone: 'phone3',
             otherPhone: 'phone4',
-            email: 'emailPerson',
+            email: 'emailPerson'
         },
         shipping: {
             primaryID: 'shipingID',
             firstName: 'firstNameShiping',
             lastName: 'lastNameShipping',
-            autocomplete: 'autocompleteShiping', // full address
+            autocomplete: 'autocompleteShiping',
             street: 'streetShiping',
             city: 'cityShiping',
             state: 'stateShiping',
@@ -349,38 +337,27 @@ $(document).ready(function () {
             longitude: 'longitudeShiping',
             phone: 'phone5',
             otherPhone: 'phone6',
-            email: 'emailShiping',
+            email: 'emailShiping'
         }
     };
 
-
     const idMapIndex = {
-        company: {
-            primaryID: 'companyID',
-            firstName: 'firstNamePerson',
-            lastName: 'lastNamePerson',
-
-            autocomplete: 'autocompleteCompany',
-            street: 'streetCompany',
-            city: 'cityCompany',
-            state: 'stateCompany',
-            country: 'countryCompany',
-            countryCode: 'countryCodeCompany',
-            postal_code: 'postalCodeCompany',
-            latitude: 'latitudeCompany',
-            longitude: 'longitudeCompany',
-
-            Phone: 'phone3',
-            otherPhone: 'phone4',
-            email: 'emailPerson',
+        indexBase: {
+            customerName: 'ContactNameSearch',
+            leadName: 'leadName',
+            leadStatusID: 'leadStatusId',
+            leadSourceID: 'leadSourceId',
+            leadOwnerID: 'leadOwnerId',
+            approximateDealValue: 'approximateDealValue',
+            probabilityPercentage: 'probabilityPercentage',
+            leadDescription: 'descriptionText'
         },
-        // index person
         person: {
             primaryID: 'personIndexIA_ID',
             primaryType: 'customerType',
             firstName: 'firstNamePersonIndex',
             lastName: 'lastNamePersonIndex',
-            autocomplete: 'autocompletePersonIndex', // full address
+            autocomplete: 'autocompletePersonIndex',
             street: 'streetPersonIndex',
             city: 'cityPersonIndex',
             state: 'statePersonIndex',
@@ -392,44 +369,46 @@ $(document).ready(function () {
             longitude: 'longitudePersonIndex',
             phone: 'phonePersonIndex',
             otherPhone: 'otherPhonePersonIndex',
-            email: 'emailPersonIndex',
+            email: 'emailPersonIndex'
         },
         shipping: {
             primaryID: 'shippingIndexIA_ID',
             firstName: 'firstNameShippingIndex',
             lastName: 'lastNameShippingIndex',
-            autocomplete: 'autocompleteShippingIndex', // full address
+            autocomplete: 'autocompleteShippingIndex',
             street: 'streetShippingIndex',
             city: 'cityShippingIndex',
             state: 'stateShippingIndex',
             additionalAddress: 'additionalAddressShippingIndex',
             country: 'countryShippingIndex',
-            countryCode: 'countryCodeShipingIndex',
+            countryCode: 'countryCodeShippingIndex', // Fixed typo
             postal_code: 'postalCodeShippingIndex',
             latitude: 'latitudeShippingIndex',
             longitude: 'longitudeShippingIndex',
             phone: 'phone5Index',
             otherPhone: 'phone6Index',
-            email: 'emailShippingIndex',
+            email: 'emailShippingIndex'
         }
     };
+
     function initAutocomplete() {
         const ids = idMap[targetTab] || {};
-        const input = document.getElementById(ids.autocomplete);;
+        const input = document.getElementById(ids.autocomplete);
 
-        if (!input) return;
+        if (!input) {
+            console.warn(`Autocomplete input ${ids.autocomplete} not found for tab ${targetTab}`);
+            return;
+        }
 
-        autocomplete = new google.maps.places.Autocomplete(input, {
-            //types: ["address"],
+        const autocomplete = new google.maps.places.Autocomplete(input, {
             types: ["establishment"],
-            fields: ["place_id", "name", "formatted_address", "address_components", "geometry"],
+            fields: ["place_id", "name", "formatted_address", "address_components", "geometry"]
         });
 
         autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace();
             let street_number = "", city = "", state = "", country = "", postal_code = "", route = "", countryCode = "";
-            if (place.address_components.component) {
-            }
+
             for (const component of place.address_components) {
                 if (component.types.includes("street_number")) street_number = component.long_name;
                 if (component.types.includes("route")) route = component.long_name;
@@ -439,19 +418,16 @@ $(document).ready(function () {
                 if (component.types.includes("country")) country = component.long_name;
                 if (component.types.includes("country")) countryCode = component.short_name;
             }
+
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
             const fullStreet = `${street_number} ${route}`.trim();
 
-            // e.g. "#company" or "#person"
-            console.log(`terget tab: ${targetTab}`);
             if (targetTab === 'company') {
                 const company_name = place.name || "";
-                document.getElementById("companyName").value = company_name
+                document.getElementById("companyName").value = company_name;
 
-                // get mobile number
                 const service = new google.maps.places.PlacesService(document.createElement('div'));
-
                 service.getDetails({
                     placeId: place.place_id,
                     fields: ['formatted_phone_number']
@@ -462,31 +438,94 @@ $(document).ready(function () {
                     }
                 });
             }
-            document.getElementById(ids.city).value = city;
-            document.getElementById(ids.state).value = state;
-            document.getElementById(ids.country).value = country;
-            document.getElementById(ids.countryCode).value = countryCode;
-            document.getElementById(ids.postal_code).value = postal_code;
-            document.getElementById(ids.latitude).value = lat;
-            document.getElementById(ids.longitude).value = lng;
-            document.getElementById(ids.street).value = fullStreet;
+
+            $("#" + ids.city).val(city);
+            $("#" + ids.state).val(state);
+            setCountry(ids.country, country); // keep as is, since it's your own function
+            $("#" + ids.countryCode).val(countryCode);
+            $("#" + ids.postal_code).val(postal_code);
+            $("#" + ids.latitude).val(lat);
+            $("#" + ids.longitude).val(lng);
+            $("#" + ids.street).val(fullStreet);
+
         });
     }
-    $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function (e) {
-        const newTab = $(e.target).data('bs-target'); // e.g. "#company" or "#person"
-        if (newTab === '#company') {
-            targetTab = 'company'
-        } else if (newTab === '#person') {
-            targetTab = 'person';
-        }
-        console.log('Activated tab:', newTab);
-        setTimeout(() => {
-            initAutocomplete();
-        }, 300);
-        console.log(targetTab);
-    });
 
-    // Optional: hide suggestion list when clicking outside
+    function setCountry(id, countryName) {
+        $.ajax({
+            url: '/CreateLead/addCountry',
+            method: 'GET',
+            contentType: 'application/json',
+            data: { countryName: countryName },
+            success: function (response) {
+                console.log("Country response:", response);
+                getCountryList().then(() => {
+                    choiceManager.setChoiceValue(id, response.countryId);
+                });
+            },
+            error: function (xhr) {
+                console.error("Failed to set country:", xhr);
+                toastr.error('Error setting country');
+            }
+        });
+    }
+    function getCountryList() {
+        debugger
+        return new Promise((resolve, reject) => {   
+            $.ajax({
+                url: '/CreateLead/getCountry',
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    debugger
+                    console.log("Country List:", response);
+                    document.querySelectorAll('.choiceDD').forEach(function (select) {
+                        select.innerHTML = '';
+                        select.append(new Option('Select Country', ''));
+
+                        response.forEach(item => {
+                            select.append(new Option(item.text, item.value));
+                        });
+                        if (select.choices) {
+                            select.choices.setChoices(
+                                data.map(i => ({ value: i.countryId, label: i.countryName })),
+                                'value',
+                                'label',
+                                true
+                            );
+                        }
+                    });
+                    resolve(200);
+                },
+                error: function (xhr) {
+                    console.error("Failed to set country:", xhr);
+                    toastr.error('Error setting country');
+                }
+            });
+        })
+        
+    }
+    getCountryList();
+    function uniquenessCheck(text, type, id) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/CreateLead/UniquenessCheck',
+                method: 'GET',
+                contentType: 'application/json',
+                data: { queryText: text, type: type, id: id },
+                success: function (response) {
+                    console.log("Uniqueness check response:", response);
+                    resolve(response.unique);
+                },
+                error: function (xhr) {
+                    console.error("Uniqueness check failed:", xhr);
+                    toastr.error('Error checking uniqueness');
+                    reject(xhr);
+                }
+            });
+        });
+    }
+
     $(document).on('click', function (e) {
         if (!$(e.target).closest('#ContactNameSearch, #searchResults').length) {
             $('#searchResults').hide();
@@ -494,299 +533,396 @@ $(document).ready(function () {
     });
 
     function getPhoneNumber(selector) {
-        console.log(selector);
-        const iti = itiMap[selector];
+        const iti = itiMap[`#${selector}`];
         if (iti && iti.isValidNumber()) {
-            anyValid = true;
-            lastValidNumber = iti.getNumber();
-            return lastValidNumber;
+            return iti.getNumber();
         }
-        return null;
+        return "";
     }
 
-    // save data
-    $("#modalSaveBtn").on("click", function (e) {
-        debugger;
-        e.preventDefault();
-        
-        if (validateName()) {
-            const actionTab =
-                (targetTab === "person" || targetTab === "shipping") ? ["person", "shipping"] : ["company"];
-            //console.log(ids.phone);
-            var data = []
-            actionTab.forEach(item => {
-                const ids = idMap[item] || {};
-                data.push({
-                    TabName: item,
-                    PrimaryID: document.getElementById(ids.primaryID).value
-                        ? parseInt(document.getElementById(ids.primaryID).value, 10)
-                        : 0,
-                    FirstName: document.getElementById(ids.firstName).value,
-                    LastName: document.getElementById(ids.lastName).value,
-                    FullAddress: document.getElementById(ids.autocomplete).value,
-                    Street: document.getElementById(ids.street).value,
-                    City: document.getElementById(ids.city).value,
-                    State: document.getElementById(ids.state).value,
-                    Additionaladdress: document.getElementById(ids.additionalAddress).value,
-                    PostalCode: document.getElementById(ids.postal_code).value,
-                    CountryName: document.getElementById(ids.country).value,
-                    CountryCode: document.getElementById(ids.countryCode).value,
-                    Latitude: parseFloat(document.getElementById(ids.latitude).value) || null,
-                    Longitude: parseFloat(document.getElementById(ids.longitude).value) || null,
-                    Phone: getPhoneNumber(`#${ids.phone}`),
-                    OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
-                    Email: document.getElementById(ids.email).value,
-                });
-            });
-            var dataToSend = { Customers: data };
+    function modalValidation(item) {
+        const ids = idMap[item] || {};
+        if (item === "shipping") {
+            return $(`#${ids.firstName}`).val().trim() !== "" && $(`#${ids.lastName}`).val().trim() !== "";
+        }
+        return true;
+    }
 
-            console.log(data);
+    $("#modalSaveBtn").on("click", async function (e) {
+        e.preventDefault();
+        debugger;
+        if (await fieldValidation()) {
+            const actionTab = (targetTab === "person" || targetTab === "shipping") ? ["person", "shipping"] : ["company"];
+            const data = [];
+
+            actionTab.forEach(item => {
+                if (modalValidation(item)) {
+                    const ids = idMap[item] || {};
+                    data.push({
+                        TabName: item,
+                        PrimaryID: $("#" + ids.primaryID).val() ? parseInt($("#" + ids.primaryID).val(), 10) : 0,
+                        FirstName: $("#" + ids.firstName).val() || "",
+                        LastName: $("#" + ids.lastName).val() || "",
+                        FullAddress: $("#" + ids.autocomplete).val() || "",
+                        Street: $("#" + ids.street).val() || "",
+                        City: $("#" + ids.city).val() || "",
+                        State: $("#" + ids.state).val() || "",
+                        Additionaladdress: $("#" + ids.additionalAddress).val() || "",
+                        PostalCode: $("#" + ids.postal_code).val() || "",
+                        CountryName: $("#" + ids.country).val() || "",
+                        CountryCode: $("#" + ids.countryCode).val() || "",
+                        Latitude: parseFloat($("#" + ids.latitude).val()) || null,
+                        Longitude: parseFloat($("#" + ids.longitude).val()) || null,
+                        Phone: getPhoneNumber(ids.phone),
+                        OtherPhone: getPhoneNumber(ids.otherPhone),
+                        Email: $("#" + ids.email).val() || ""
+
+                    });
+                }
+            });
+
+            const dataToSend = { Customers: data };
+            console.log("Modal save data:", dataToSend);
+
             $.ajax({
                 url: '/CreateLead/upsertPerson',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(dataToSend),
                 success: function (response) {
-                    debugger;
-                    console.log(response);
+                    console.log("Upsert person response:", response);
+                    targetTab = "index";
                     if (response.success) {
-                        $('#addCustomerModal').modal('hide');
-                        toastr.success(response.message);
-                        getCustomerList();
-                        getCustomerInfo(response.result.data);
+                        setTimeout(() => {
+                            $('#addCustomerModal').modal('hide');
+                            toastr.success(response.message);
+                            getCustomerList();
+                            getCustomerInfo(response.result.data);
+                        }, 400);
+                    } else {
+                        toastr.error(response.message || "Failed to save person");
                     }
                 },
                 error: function (xhr) {
-                    console.log(xhr);
-                    alert('Error saving person');
+                    console.error("Failed to save person:", xhr);
+                    toastr.error('Error saving person');
                 }
             });
-        };
-
+        }
     });
 
-    $("#indexSaveBtn").on("click", function (e) {
+    $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
-        debugger;
-        console.log(document.getElementById("personIndexIA_ID").value);
-        console.log(document.getElementById("shippingIndexIA_ID").value);
-        customerType = document.getElementById("customerType").value;
-        const actionTab =
-            (customerType === "billing") ? ["person", "shipping"] : ["company"];
-        //console.log(ids.phone);
-        var data = {
-            IsIndividualCustomer: document.getElementById("customerType").value === "billing" ? true : false,
-            LeadStatusID: document.getElementById("leadStatusId").value,
-            LeadSourceID: document.getElementById("leadSourceId").value,
-            LeadOwnerID: document.getElementById("leadOwnerId").value,
-            ApproximateDealValue: document.getElementById("approximateDealValue").value,
-            ProbabilityPercentage: document.getElementById("probabilityPercentage").value,
-            LeadDescription: document.getElementById("descriptionText").value,
-            Customers: []
-        };
+        if (await fieldValidation()) {
+            const actionTab = ["person"];
+            const data = {
+                IsIndividualCustomer: $("#customerType").val() === "billing",
+                LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
+                LeadStatusID: parseInt($("#" + idMapIndex.indexBase.leadStatusID).val()) || 0,
+                LeadSourceID: parseInt($("#" + idMapIndex.indexBase.leadSourceID).val()) || 0,
+                LeadOwnerID: parseInt($("#" + idMapIndex.indexBase.leadOwnerID).val()) || 0,
+                ApproximateDealValue: parseFloat($("#" + idMapIndex.indexBase.approximateDealValue).val()) || 0,
+                ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
+                LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val() || "",
 
-        actionTab.forEach(item => {
-            const ids = idMapIndex[item] || {};
-            $(".customerName-item").data("id");
-            data.Customers.push({
-                TabName: item,
-                PrimaryID: document.getElementById(ids.primaryID).value,
-                FirstName: document.getElementById(ids.firstName).value,
-                LastName: document.getElementById(ids.lastName).value,
-                FullAddress: document.getElementById(ids.autocomplete).value,
-                Street: document.getElementById(ids.street).value,
-                City: document.getElementById(ids.city).value,
-                State: document.getElementById(ids.state).value,
-                Additionaladdress: document.getElementById(ids.additionalAddress).value,
-                PostalCode: document.getElementById(ids.postal_code).value,
-                CountryName: document.getElementById(ids.country).value,
-                CountryCode: document.getElementById(ids.countryCode).value,
-                Latitude: parseFloat(document.getElementById(ids.latitude).value) || null,
-                Longitude: parseFloat(document.getElementById(ids.longitude).value) || null,
-                Phone: getPhoneNumber(`#${ids.phone}`),
-                OtherPhone: getPhoneNumber(`#${ids.otherPhone}`),
-                Email: document.getElementById(ids.email).value,
-            });
-        });
-        var dataToSend = { Customers: data };
+                Customers: []
+            };
 
-        console.log(data);
-        $.ajax({
-            url: '/CreateLead/CreateLead',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (response) {
-                console.log(response);
-                if (response.success) {
-                    $('#addCustomerModal').modal('hide');
-                    toastr.success(response.message);
-                }
-            },
-            error: function (xhr) {
-                console.log(xhr);
-                alert('Error saving person');
-            }
-        });
-    });
-
-
-    // runtime validation check
-    function runtimeValidationCheck() {
-        const selectedTabList = targetTab === 'person' || targetTab == 'shipping'
-            ? [
-                idMap.person.firstName, idMap.person.lastName, idMap.person.autocomplete, idMap.person.postal_code, idMap.person.country, idMap.person.phone, idMap.person.email,
-                idMap.shipping.firstName, idMap.shipping.lastName, idMap.shipping.autocomplete, idMap.shipping.postal_code, idMap.shipping.country, idMap.shipping.phone, idMap.shipping.email
-            ]
-            : [idMap.company.firstName];
-        selectedTabList
-            .filter(Boolean)
-            .forEach(e => {
-                $(document).on('input', `#${e}`, function () {
-                    validateNameOne(this);
-                    console.log("ok, working");
+            actionTab.forEach(item => {
+                const ids = idMapIndex[item] || {};
+                const customerId = document.getElementById("customerID")?.value || "0";
+                data.Customers.push({
+                    TabName: item,
+                    PrimaryID: parseInt(customerId, 10) || 0,
+                    FirstName: $("#" + ids.firstName).val() || "",
+                    LastName: $("#" + ids.lastName).val() || "",
+                    FullAddress: $("#" + ids.autocomplete).val() || "",
+                    Street: $("#" + ids.street).val() || "",
+                    City: $("#" + ids.city).val() || "",
+                    State: $("#" + ids.state).val() || "",
+                    Additionaladdress: $("#" + ids.additionalAddress).val() || "",
+                    PostalCode: $("#" + ids.postal_code).val() || "",
+                    CountryName: $("#" + ids.country).val() || "",
+                    CountryCode: $("#" + ids.countryCode).val() || "",
+                    Latitude: parseFloat($("#" + ids.latitude).val()) || null,
+                    Longitude: parseFloat($("#" + ids.longitude).val()) || null,
+                    Phone: getPhoneNumber(ids.phone) || "",
+                    OtherPhone: getPhoneNumber(ids.otherPhone) || "",
+                    Email: $("#" + ids.email).val() || ""
                 });
             });
-        function validateNameOne(obj) {
-            var name = $(obj).val().trim();
 
-            if (name === '') {
-                $(obj).css('border', '1px solid red');
+            console.log("Index save data:", data);
+
+            $.ajax({
+                url: '/CreateLead/CreateLead',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    console.log("Create lead response:", response);
+                    if (response.success) {
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error(response.message || "Failed to create lead");
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Failed to create lead:", xhr);
+                    toastr.error("Error creating lead");
+                }
+            });
+        } else {
+            console.log("Validation failed");
+        }
+    });
+
+    function targetListForValidation() {
+        if (targetTab === 'person' || targetTab === 'shipping') {
+            let ids = idMap.shipping;
+            let list = [];
+
+            if ($(`#${ids.firstName}`).val().trim() === "" && $(`#${ids.lastName}`).val().trim() === "") {
+                list = [
+                    idMap.person.firstName,
+                    idMap.person.phone
+                ];
+                let removeBorderItemList = [
+                    idMap.shipping.firstName,
+                    idMap.shipping.phone
+                ];
+                removeBorderItemList.forEach(e => removeValidationOne(`#${e}`));
             } else {
-                $(obj).css('border', '1px solid #ccc');
+                list = [
+                    idMap.person.firstName,
+                    idMap.person.phone,
+                    idMap.shipping.firstName,
+                    idMap.shipping.phone
+                ];
             }
+            return list;
+        } else if (targetTab === "company") {
+            return [
+                idMap.company.firstName,
+                idMap.company.phone
+            ];
+        } else if (targetTab === "index") {
+            return [
+                idMapIndex.indexBase.customerName,
+                idMapIndex.indexBase.leadName,
+                idMapIndex.indexBase.leadStatusID,
+                idMapIndex.indexBase.leadSourceID,
+                idMapIndex.indexBase.leadOwnerID,
+                idMapIndex.person.firstName,
+                idMapIndex.person.phone
+            ].filter(Boolean);
+        } else {
+            return [];
         }
     }
 
-
-    // check validation when click on submit btn
-    function validateName() {
+    async function uniquenPhoneCheck() {
         debugger;
-        
-        const selectedTab = targetTab === 'person' || targetTab == 'shipping'
-            ? [
-                idMap.person.firstName, idMap.person.lastName, idMap.person.autocomplete, idMap.person.postal_code, idMap.person.country, idMap.person.phone, idMap.person.email,
-                idMap.shipping.firstName, idMap.shipping.lastName, idMap.shipping.autocomplete, idMap.shipping.postal_code, idMap.shipping.country, idMap.shipping.phone, idMap.shipping.email
-            ]
-            : [idMap.company.firstName];
-
         let isValid = true;
-        //isValid = checkNameUnique();
-        const errorMessages = [];
-        let errorCount = 0;
-        runtimeValidationCheck();
-        //checkNameUnique();
-        selectedTab.filter(Boolean).forEach(e => {
-            const name = $(`#${e}`).val().trim();
+        debugger;
+        const targetedField = targetTab === 'index'
+            ? [[idMapIndex.person.phone, idMapIndex.person.otherPhone, idMapIndex.person.primaryID, idMapIndex.person.email]]
+            : targetTab === 'person'
+                ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
+                : targetTab === 'company'
+                    ? [[idMap.company.phone, idMap.company.otherPhone, idMap.company.primaryID, idMap.company.email]]
+                    : [];
 
-            if (name === '') {
-                $(`#${e}`).css('border', '1px solid red');
-                errorCount += 1;
+        for (const item of targetedField) {
+            const [phoneSelector, otherPhoneSelector, idSelector, emailSelector] = item;
+            const phone = getPhoneNumber(phoneSelector);
+            const otherPhone = getPhoneNumber(otherPhoneSelector);
+            const email = $("#" + emailSelector).val();
+            const id = $(`#${idSelector}`).val() || "0";
+
+            function errorActive(selector, errorMsg) {
+                const errorSpan = $(`#${selector}`).closest(".col-12").find("#errorShow");
+                errorSpan.text(errorMsg);
+                $(`#${selector}`).css('border', '1px solid red');
                 isValid = false;
-            } else {
-                $(`#${e}`).css('border', '1px solid #ccc');;
             }
-        });
+            function errorDeactive(selector) {
+                const errorSpan = $(`#${selector}`).closest(".col-12").find("#errorShow");
+                $(`#${selector}`).css('border', '1px solid #ccc')
+                errorSpan.text("");
+            }
+            function samePhoneNumberCheck() {
+                if (phone && otherPhone) {
+                    if (phone === otherPhone) {
+                        toastr.error("Phone Number and Other Number field value is same");
+                    }
 
-        if (errorCount > 0) {
-            if (errorCount == 1) {
-                toastr.warning("This field is required");
-                
-                
+                }
             }
-            else if (errorCount > 1) {
-                toastr.warning("These fields are required");
+
+            if (phone) {
+                try {
+                    const isUnique = await uniquenessCheck(phone, "phone", id);
+                    if (isUnique) {
+                        errorDeactive(phoneSelector);
+                        samePhoneNumberCheck();
+                    } else {
+                        errorActive(phoneSelector, "This Phone Number Already Used");
+                    }
+                } catch (error) {
+                    console.error("Uniqueness check failed for phone:", error);
+                    isValid = false;
+                }
+            }
+
+
+            if (otherPhone) {
+                try {
+                    const isUnique = await uniquenessCheck(otherPhone, "phone", id);
+                    if (isUnique) {
+                        errorDeactive(otherPhoneSelector);
+                        samePhoneNumberCheck
+                    } else {
+                        errorActive(otherPhoneSelector, "This Other Phone Number Already Used");
+                    }
+                } catch (error) {
+                    console.error("Uniqueness check failed for phone:", error);
+                    isValid = false;
+                }
+            } else {
+                errorDeactive(otherPhoneSelector);
+            }
+            
+
+            if (email) {
+                try {
+                    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // simple email regex
+                    let val = regex.test(email);
+                    if (regex.test(email)) {
+                        const isUnique = await uniquenessCheck(email, "email", id);
+                        if (isUnique) {
+                            errorDeactive(emailSelector);
+                        } else {
+                            errorActive(emailSelector, "This Email Already Used");
+                        }
+                    } else {
+                        errorActive(emailSelector, "Please enter a valid email address");
+                    }
+                } catch (error) {
+                    console.error("Uniqueness check failed for email:", error);
+                    isValid = false;
+                }
+            } else {
+                errorDeactive(emailSelector);
             }
         }
 
         return isValid;
     }
 
-    // //check phoneNumber is unique or not
-    //function checkNameUnique() {
-    //    debugger;
-    //    const selectedTab = targetTab === 'person' || targetTab === 'shipping'
-    //        ? [
-    //            {
-    //                phone: idMap.person.phone,
-    //                phoneWarningDivID: "phonePersonError",
-    //                otherPhone: idMap.person.otherPhone,
-    //                otherPhoneWarningDivID: "otherPhonePersonError"
-    //            },
-    //            {
-    //                phone: idMap.shipping.phone,
-    //                otherPhone: idMap.shipping.otherPhone
-    //            }
-    //        ]
-    //        : [
-    //            {
-    //                phone: idMap.company.phone
-    //            }
-    //        ];
+    async function fieldValidation() {
+        debugger;
+        const selectedTab = targetListForValidation();
+        console.log("Validating fields for tab:", targetTab, "Fields:", selectedTab);
 
-    //    selectedTab.forEach(ids => {
-    //        // Attach input listener to phone
-    //        $(document).on('input', `#${ids.phone}`, function () {
-    //            let phoneVal = $(`#${ids.phone}`).val();
-    //            let otherPhoneVal = $(`#${ids.otherPhone}`).val();
+        let isValid = await uniquenPhoneCheck();
+        console.log("Uniqueness check result:", isValid);
 
-    //            if (phoneVal && otherPhoneVal && phoneVal === otherPhoneVal) {
-    //                $(`#${ids.phoneWarningDivID}`).text("Phone and Other Phone fields cannot be the same");
-    //                toastr.warning("Phone and Other Phone fields cannot be the same");
-    //            } else {
-    //                $(`#${ids.phoneWarningDivID}`).text("");
-    //            }
-    //        });
+        let errorCount = 0;
+        selectedTab.filter(Boolean).forEach(e => {
+            let obj = $(`#${e}`);
+            const name = obj.val().trim();
+            let target;
 
-    //        // Attach input listener to other phone
-    //        $(document).on('input', `#${ids.otherPhone}`, function () {
-    //            let phoneVal = $(`#${ids.phone}`).val();
-    //            let otherPhoneVal = $(`#${ids.otherPhone}`).val();
+            if (obj.closest('.choices').length > 0) {
+                target = obj.closest('.choices').find('.choices__inner');
+            } else {
+                target = obj;
+            }
 
-    //            if (phoneVal && otherPhoneVal && otherPhoneVal === phoneVal) {
-    //                $(`#${ids.otherPhoneWarningDivID}`).text("Phone and Other Phone fields cannot be the same");
-    //                toastr.warning("Phone and Other Phone fields cannot be the same");
-    //            } else {
-    //                $(`#${ids.otherPhoneWarningDivID}`).text("");
-    //            }
-    //        });
-    //    });
-    //}
+            console.log(`Validating field: ${e}, Value: ${name}`);
+            if (name === '') {
+                target.css('border', '1px solid red');
+                errorCount += 1;
+               
+            } else {
+                target.css('border', '1px solid #ccc');
+            }
+        });
+
+        if (errorCount > 0) {
+            isValid = false;
+            console.log(`Validation failed with ${errorCount} errors`);
+            toastr.warning(errorCount === 1 ? "This field is required" : "These fields are required");
+           
+        } else {
+            console.log("All fields validated successfully");
+        }
+
+        return isValid;
+    }
+
+    function fieldValidationOne(obj) {
+        obj = $(obj);
+        const name = obj.val().trim();
+        let target;
+
+        if (obj.closest('.choices').length > 0) {
+            target = obj.closest('.choices').find('.choices__inner');
+        } else {
+            target = obj;
+        }
+
+        if (name === '') {
+            target.css('border', '1px solid red');
+        } else {
+            target.css('border', '1px solid #ccc');
+        }
+    }
+
+    function removeValidationOne(obj) {
+        obj = $(obj);
+        const name = obj.val().trim();
+        let target;
+
+        if (obj.closest('.choices').length > 0) {
+            target = obj.closest('.choices').find('.choices__inner');
+        } else {
+            target = obj;
+        }
+
+        if (name === '') {
+            target.css('border', '1px solid #ccc');
+        }
+    }
+
+    // Runtime validation for input changes
+    function runtimeValidationCheck() {
+        const selectedTabList = targetListForValidation();
+        selectedTabList.filter(Boolean).forEach(e => {
+            $(document).on('input change', `#${e}`, function () {
+                fieldValidationOne(this);
+                console.log(`Validation triggered for ${e}`);
+            });
+        });
+    }
+
+    runtimeValidationCheck();
 
 
+    $("#sameAsShippingBtn").on("click", async function () {
+        let clickBtnValue = $(this).is(":checked");
+        if (clickBtnValue == true) {
+            for (const item in idMap.person) {
+                $(`#${idMap.shipping[item]}`).val($(`#${idMap.person[item]}`).val() || "")
+                let result = $(`#${idMap.person[item]}`).val();
 
-
-
-
-    //$('#confirmAddNationalityBtn').on('click', function () {
-    //    const newNationality = $('#newNationalityName').val().trim();
-
-    //    if (!newNationality) {
-    //        alert('Please enter a nationality name.');
-    //        return;
-    //    }
-
-    //    $.ajax({
-    //        url: '/CreateLead/SaveNationality', // <-- Update with your actual route
-    //        method: 'POST',
-    //        contentType: 'application/json',
-    //        data: JSON.stringify(newNationality),
-    //        success: function (response) {
-    //            if (response.success) {
-    //                customers.push(newNationality);
-    //                $('#ContactNameSearch').val(newNationality);
-    //                $('#searchResults').hide();
-    //                $('#removeContactNameBtn').show();
-    //                $('#addCustomerModal').modal('hide');
-    //            }
-    //        },
-    //        error: function (xhr) {
-    //            alert('Error saving nationality: ' + xhr.responseText);
-    //        }
-    //    });
-    //});
-
-
-    //#endregion 
-
+            }
+            // set country
+            let selectedItem = $("#countryPerson").siblings(".choices__list").find(".choices__item--selectable[aria-selected='true']");
+            let dataValue = selectedItem.attr("data-value");
+            if ($(`#${idMap.person.country}`).data('value') != "")
+                choiceManager.setChoiceValue(idMap.shipping.country, dataValue);
+        }
+    })
 });

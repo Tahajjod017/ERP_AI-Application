@@ -296,16 +296,15 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
                 x => new HolidayViewModel
                 {
                     OrganizationID = x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName ?? "-",
                     OrganizationBranchID = x.OrganizationBranchID,
                     HolidayID = x.HolidayID,
-                    HolidayTitle = x.HolidayTitle??"_",
-                    HolidayDescription = x.HolidayDescription??"_",
-                    StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToString("yyyy-MM-dd") : "_",
-                    EndDate = x.EndDate.HasValue ? x.EndDate.Value.ToString("yyyy-MM-dd") : "_",
+                    HolidayTitle = x.HolidayTitle ?? "-",
+                    HolidayDescription = x.HolidayDescription??"-",
+                    StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToString("yyyy-MM-dd") : "-",
+                    EndDate = x.EndDate.HasValue ? x.EndDate.Value.ToString("yyyy-MM-dd") : "-",
                     TotalDays = x.TotalDays,
-                    StatusName = !string.IsNullOrEmpty(x.Status?.StatusName) ? x.Status.StatusName : "_",
-
-
+                    StatusName = !string.IsNullOrEmpty(x.Status?.StatusName) ? x.Status.StatusName : "-",
                     // CreatedAt = x.CreatedAt,
                     CreatedBy = x.CreatedBy,
                     //UpdatedAt = x.UpdatedAt,

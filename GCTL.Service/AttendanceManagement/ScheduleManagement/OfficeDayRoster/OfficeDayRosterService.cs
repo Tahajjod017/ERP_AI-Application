@@ -252,43 +252,35 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var employees = await _employeeOfficeInfo
-                    .FindAsync(x => x.OrganizationID == model.OrganizationIdAdd
-                    && x.DepartmentID == model.DepartmentIdAdd
-                    && x.EmployeeID == model.EmployeeIdAdd);
-
-                foreach (var employee in employees)
-                {
-                    var existingEntity = await _genericRepository.All()
-                        .Where(x => x.OrganizationID == employee.OrganizationID
-                        && x.DepartmentID == employee.DepartmentID
-                        && x.EmployeeID == employee.EmployeeID
+                var existingEntity = await _genericRepository.All()
+                        .Where(x => x.OrganizationID == model.OrganizationIdAdd
+                        && x.DepartmentID == model.DepartmentIdAdd
+                        && x.EmployeeID == model.EmployeeIdAdd
                         && x.DayDate == model.DayDateAdd)
                         .FirstOrDefaultAsync();
-                    if (existingEntity != null)
-                    {
-                        existingEntity.ShiftID = model.ShiftIdAdd;
-                        existingEntity.LIP = model.LIP;
-                        existingEntity.LMAC = model.LMAC;
-                        existingEntity.CreatedBy = model.CreatedBy;
-                        existingEntity.CreatedAt = DateTime.Now;
+                if (existingEntity != null)
+                {
+                    existingEntity.ShiftID = model.ShiftIdAdd;
+                    existingEntity.LIP = model.LIP;
+                    existingEntity.LMAC = model.LMAC;
+                    existingEntity.CreatedBy = model.CreatedBy;
+                    existingEntity.CreatedAt = DateTime.Now;
 
-                        await _genericRepository.UpdateAsync(existingEntity);
-                    }
-                    else
-                    {
-                        RosterInOfficeDays entity = new RosterInOfficeDays();
-                        entity.OrganizationID = employee.OrganizationID;
-                        entity.DepartmentID = employee.DepartmentID;
-                        entity.EmployeeID = employee.EmployeeID;
-                        entity.ShiftID = model.ShiftIdAdd;
-                        entity.DayDate = model.DayDateAdd;
-                        entity.LIP = model.LIP;
-                        entity.LMAC = model.LMAC;
-                        entity.CreatedBy = model.CreatedBy;
-                        entity.CreatedAt = DateTime.Now;
-                        await _genericRepository.AddAsync(entity);
-                    }
+                    await _genericRepository.UpdateAsync(existingEntity);
+                }
+                else
+                {
+                    RosterInOfficeDays entity = new RosterInOfficeDays();
+                    entity.OrganizationID = model.OrganizationIdAdd;
+                    entity.DepartmentID = model.DepartmentIdAdd;
+                    entity.EmployeeID = model.EmployeeIdAdd;
+                    entity.ShiftID = model.ShiftIdAdd;
+                    entity.DayDate = model.DayDateAdd;
+                    entity.LIP = model.LIP;
+                    entity.LMAC = model.LMAC;
+                    entity.CreatedBy = model.CreatedBy;
+                    entity.CreatedAt = DateTime.Now;
+                    await _genericRepository.AddAsync(entity);
                 }
 
                 await _genericRepository.CommitTransactionAsync();

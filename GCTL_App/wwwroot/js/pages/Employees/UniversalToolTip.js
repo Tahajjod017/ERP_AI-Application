@@ -37,8 +37,10 @@ class UniversalTooltipService {
             top: '0px',
             left: '0px',
             zIndex: this.options.zIndex,
+
             //backgroundColor: 'rgb(255 247 209)',
             backgroundColor: 'rgb(253, 253, 253)',
+
             border: '1px solid #ccc',
             padding: '10px',
             minWidth: '250px',

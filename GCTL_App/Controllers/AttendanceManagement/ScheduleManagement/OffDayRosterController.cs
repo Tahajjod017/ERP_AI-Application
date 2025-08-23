@@ -7,6 +7,7 @@ using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OffDayRoster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using SkiaSharp;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class OffDayRosterController : BaseController
     {
         #region Services & repositories
@@ -33,6 +35,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "OffDayRoster")]
         public async Task<IActionResult> Index()
         {
             RosterInOffDayPageVM model = new RosterInOffDayPageVM();
@@ -51,7 +54,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        //[Permission("Create", "OffDayRoster")]
+        [Permission("Create", "OffDayRoster")]
         //[ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(RosterInOffDaySetupVM model)
@@ -86,7 +89,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 }
 
                 // Custom ordered validation message 
-                var orderedKeys = new[] { "OrganizationID", "ShiftID", "DayDate", "CompensationTypeID" };
+                var orderedKeys = new[] { "OrganizationID", "DayDate", "ShiftID", "CompensationTypeID" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -157,15 +160,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByOrganization
-        public async Task<IActionResult> GetEmployeeByOrganization(int? id)
-        {
-            var result = await _commonService.GetEmployeesByOrgId(id);
-            return Json(result);
-        }
-        #endregion
-
-
         #region GetShiftByOrganization
         public async Task<IActionResult> GetShiftByOrganization(int? id)
         {
@@ -175,19 +169,10 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByDepartment
-        public async Task<IActionResult> GetEmployeeByDepartment(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        #region GetEmployeesByOrgBraDepId
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
         {
             var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
-            return Json(result);
-        }
-        #endregion
-
-
-        #region GetEmployeeByBranch
-        public async Task<IActionResult> GetEmployeeByBranch(int? orgId, [FromQuery] List<int>? ids)
-        {
-            var result = await _commonService.GetEmployeesByOrgBraId(orgId, ids);
             return Json(result);
         }
         #endregion

@@ -166,6 +166,7 @@
                 $('#bloodGroup-form #bloodGroup-saveBtn').text('Save');
                 loadTableData();
                 toggleBulkActions();
+                $('#bloodGroup-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 
@@ -234,11 +235,12 @@
                 const allItems = $('.bloodGroup-selectItem');
                 const checkedItems = $('.bloodGroup-selectItem:checked');
 
-                const allChecked = allItems.length === checkedItems.length;
-                const someChecked = checkedItems.length > 0 && !allChecked;
+                const total = allItems.length;
+                const checkedCount = checkedItems.length;
+                const allChecked = total > 0 && checkedCount === total;
+                const someChecked = checkedCount > 0 && checkedCount < total;
 
-                $('#bloodGroup-check-all').prop('checked', allChecked);
-                $('#bloodGroup-check-all').prop('indeterminate', someChecked);
+                $('#bloodGroup-check-all').prop('checked', allChecked).prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
                     $('#bloodGroup-bulkSelectActions').removeClass('d-none');

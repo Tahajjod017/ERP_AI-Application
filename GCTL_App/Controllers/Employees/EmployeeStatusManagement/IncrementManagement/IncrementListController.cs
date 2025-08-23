@@ -16,8 +16,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
         private readonly IGenericRepository<Designations> _designationRepository;
+        private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IGenericRepository<EmployeeCareerChanges> _empCarrerRepository;
-        public IncrementListController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository) : base(translateService, userProfileService)
+        public IncrementListController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Statuses> statusRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _organizationRepository = organizationRepository;
@@ -25,20 +26,56 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
             _designationRepository = designationRepository;
             _empCarrerRepository = empCarrerRepository;
             _employeeOffiRepository = employeeOffiRepository;
+            _statusRepository = statusRepository;
+        }
+
+
+        [HttpGet]
+        public IActionResult GetDetails(int id)
+        {
+            // Create dummy approval steps data in timeline format
+            var approvalSteps = new List<object>
+            {
+                new {
+                    approverStep = "1",
+                    statusName = "APPROVED",
+                    approvarPerson = "Joe Biden",
+                    approvarNote = "No Note",
+                    approvedOrDeclineDate = "06-08-2025 4:49 PM"
+                },
+                new {
+                    approverStep = "2",
+                    statusName = "APPROVED",
+                    approvarPerson = "Jeff Bezos",
+                    approvarNote = "No Note",
+                    approvedOrDeclineDate = "06-08-2025 4:51 PM"
+                },
+                //new {
+                //    approverStep = "3",
+                //    statusName = "DECLINED",
+                //    approvarPerson = "Md Shefain",
+                //    approvarNote = "No note",
+                //    approvedOrDeclineDate = "06-08-2025 4:55 PM"
+                //}
+            };
+
+           
+
+            return Json(approvalSteps);
         }
 
         public IActionResult Index()
         {
             SetSmartPageCode(111800);
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new
             {
                 id = e.EmployeeID,
                 name = e.FirstName + " " + e.LastName
             }), "id", "name");
 
             ViewBag.OrganizationDD = new SelectList(
-               _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+               _organizationRepository.AllActive().Select(o => new { o.OrganizationID, o.OrganizationName }),
                "OrganizationID",
                "OrganizationName"
            );
@@ -46,15 +83,21 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
 
 
             ViewBag.DepartmentDD = new SelectList(
-                _departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }),
+                _departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }),
                 "DepartmentID",
                 "DepartmentName"
             );
 
             ViewBag.DesignationDD = new SelectList(
-                _designationRepository.All().Select(d => new { d.DesignationID, d.DesignationName }),
+                _designationRepository.AllActive().Select(d => new { d.DesignationID, d.DesignationName }),
                 "DesignationID",
                 "DesignationName"
+            );
+
+            ViewBag.IncrementTypeList = new SelectList(
+                _statusRepository.AllActive().Where(r=>r.StatusType == "AppDecPen").Select(d => new { d.StatusID, d.StatusName }),
+                "StatusID",
+                "StatusName"
             );
 
             return View();
@@ -85,6 +128,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
                             EffectiveDate = ecc.EffectiveDate,
                             EmployeeActionTypeID = (int)ecc.EmployeeActionTypeID,
                             StatusName = ecc.Status != null ? ecc.Status.StatusName : "N/A",
+                            StatusId = ecc.Status != null ? ecc.Status.StatusID : 0,
                             EmployeeImageFileName = emp.EmployeeImageFileName
                         };
 
@@ -103,10 +147,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
             // 🧾 Filter: Increment/Decrement Type
             if (!string.IsNullOrEmpty(incrementType))
             {
-                var type = incrementType.ToLower();
-                query = query.Where(x =>
-                    type == "increment" ? x.EmployeeActionTypeID == 1 :
-                    type == "decrement" ? x.EmployeeActionTypeID == 2 : true);
+                var type = Convert.ToInt16(incrementType); // ✅ convert the string, not the query
+                query = query.Where(x => x.StatusId == type);
             }
 
             // 📅 Filter: Date Range

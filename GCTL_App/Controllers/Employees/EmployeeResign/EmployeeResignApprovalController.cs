@@ -1,5 +1,6 @@
 ﻿
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeResign;
@@ -44,7 +45,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         [HttpGet]
         public async Task<IActionResult> GetPendingResignations(string dateRange, string department, string designation, int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "", string sortDirection = "asc")
         {
-            var resignations = await _employeeResign.GetPendingResignations(dateRange, department, designation, imgSrcThumb);
+            var currentUser = await GetCurrentEmployeeIdAsync();
+
+            var resignations = await _employeeResign.GetPendingResignations(dateRange, department, designation, imgSrcThumb , currentUser);
 
             // Apply search
             if (!string.IsNullOrEmpty(searchTerm))
@@ -96,7 +99,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         [HttpGet]
         public async Task<IActionResult> GetProcessedResignations(string dateRange, string department, string designation, int pageNumber = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "", string sortDirection = "asc")
         {
-            var resignations = await _employeeResign.GetProcessedResignations(dateRange, department, designation, imgSrcThumb);
+            var currentUser = await GetCurrentEmployeeIdAsync();
+
+            var resignations = await _employeeResign.GetProcessedResignations(dateRange, department, designation, imgSrcThumb, currentUser);
 
             // Apply search
             if (!string.IsNullOrEmpty(searchTerm))
@@ -158,14 +163,23 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared)
+        public async Task<IActionResult> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared, CommonBaseViewModel? baseModel)
         {
-            var result = await _employeeResign.ProcessResignation(id, action, hrComments, handoverStatus, assetReturned, clearanceCompleted, documentsPrepared);
-            if (result.Success)
+            try
             {
-                return Ok(new { success = true, message = "Action completed successfully." });
+
+
+                var result = await _employeeResign.ProcessResignation(id, action, hrComments, handoverStatus, assetReturned, clearanceCompleted, documentsPrepared, baseModel);
+                return Ok(result);
+
             }
-            return BadRequest(new { success = false, message = result.Message });
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = ex.Message });
+
+
+            }
+
         }
         #endregion
 

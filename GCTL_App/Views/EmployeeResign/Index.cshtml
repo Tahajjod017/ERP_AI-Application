@@ -1,5 +1,23 @@
 ﻿@model GCTL.Core.ViewModels.Employee.EmployeeResign.ResignationPostViewModel
 
+
+    <style>
+        .approval-step {
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+            .approval-step:hover {
+                background: #e9ecef;
+                transform: translateX(2px);
+            }
+
+        .progress-bar {
+            background-color: #28a745;
+            transition: width 0.3s ease;
+        }
+    </style>
+
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-1">
     <div class="my-auto mb-2">
         <h2 class="mb-1">@Html.SmartLocalize("Resignation List")</h2>
@@ -29,7 +47,7 @@
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div class="me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options="{&quot;mode&quot;:&quot;range&quot;,&quot;dateFormat&quot;:&quot;d/m/y&quot;,&quot;disableMobile&quot;:true}" readonly="readonly">
                     </div>
                 </div>
                 <div class="dropdown">
@@ -97,7 +115,7 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label" for="company">Company</label>
-                                <select class="form-select choiceDD" name="CompanyId" id="company" asp-items="@ViewBag.OrganizationDD" required data-url="@Url.Action("GetEmployeesByCompany", "EmployeeResign")" >
+                                <select class="form-select choiceDD" name="CompanyId" id="company" asp-items="@ViewBag.OrganizationDD" required data-url="@Url.Action("GetEmployeesByCompany", "EmployeeResign")">
                                     <option value="">Select Company</option>
                                 </select>
                             </div>
@@ -161,7 +179,7 @@
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Edit Resignation</h4>
+                <h4 class="modal-title">Edit Resignation</h4><span class="ms-5 text-danger fs-7  blink" id="duplicateMessage"></span>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
@@ -171,7 +189,7 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label" for="editCompany">Company</label>
-                                <select class="form-select choiceDD" id="editCompany" asp-items="@ViewBag.OrganizationDD" required>
+                                <select class="form-select choiceDD" id="editCompany" asp-items="@ViewBag.OrganizationDD" required data-url="@Url.Action("GetEmployeesByCompany", "EmployeeResign")">
                                     <option value="">Select Company</option>
                                 </select>
                             </div>
@@ -249,10 +267,33 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="notDelete_modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="avatar avatar-xl bg-transparent-danger text-danger mb-3">
+                    <i class="fa fa-trash fs-36"></i>
+                </span>
+                <h4 class="mb-1">Cannot Delete</h4>
+                <p class="mb-3">Can not Delete !! Resign is Already is in Approval matrix.</p>
+                <div class="d-flex justify-content-center">
+                    @*<a  class="btn btn-light me-3" data-bs-dismiss="modal">Ok</a>*@
+                    <button type="button" class="btn btn-white border me-2" id="ndCloseBtn" data-bs-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="~/js/pages/Employees/EmployeeResign/ResignEntry.js"></script>
+    <script src="~/js/pages/Employees/UniversalToolTip.js"></script>
 }

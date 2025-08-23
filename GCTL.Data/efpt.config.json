@@ -467,11 +467,31 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[LeadTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[CalculationTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeAllowances]",
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[EmployeeAllowanceSetup]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[EmployeeAllowanceTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[PSettings]",
          "ObjectType": 0
       },
       {
@@ -509,6 +529,10 @@
       {
          "Name": "[dbo].[Prc_GetEmployeesPaged]",
          "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_InsertOrUpdateShifts]",
+         "ObjectType": 1
       }
    ],
    "UiHint": null,
@@ -516,7 +540,6 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
-   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -535,6 +558,5 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false,
-   "UseT4Split": false
+   "UseT4": false
 }

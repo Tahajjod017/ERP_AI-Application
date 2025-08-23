@@ -165,6 +165,7 @@
                 $('.degree-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#degree-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

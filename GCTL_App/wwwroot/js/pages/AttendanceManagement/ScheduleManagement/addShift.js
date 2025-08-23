@@ -66,6 +66,9 @@
                     url: url,
                     type: 'POST',
                     data: formData,
+                    beforeSend: function () {
+                        showLoadingIndicator(); 
+                    },
                     success: function (response) {
                         const allFields = ["ShiftName", "OrganizationIDs"];
 
@@ -82,6 +85,9 @@
                     },
                     error: function (err) {
                         console.log(err);
+                    },
+                    complete: function () {
+                        hideLoadingIndicator();
                     }
                 });
             });
@@ -305,6 +311,7 @@
                 });
                 loadTableData();
                 toggleBulkActions();
+                $('#addShift-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 
@@ -855,7 +862,7 @@
                                     <td class="text-end align-middle white-space-nowrap pe-3">
                                         <div class="row g-3">
                                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkDelete" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>

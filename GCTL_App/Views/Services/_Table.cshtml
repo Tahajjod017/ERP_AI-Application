@@ -45,15 +45,15 @@
             </div>
 
             <div class="table-responsive ms-n1 ps-1 scrollbar">
-                <table class="table fs-9 mb-0 border-top border-translucent">
+                <table class="table fs-9 mb-0 border-top border-translucent dyn-table" id="serviceTable">
                     <thead>
                         <tr>
                             <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input" id="service-check-all" />
                             </th>
-                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Sl. No")</th>
-                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ServiceName">@Html.SmartLocalize("Service Name")</th>
-                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;" data-column="0">@Html.SmartLocalize("Sl. No")</th>
+                            <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ServiceName" data-column="1">@Html.SmartLocalize("Service Name")</th>
+                            <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;" data-column="2">@Html.SmartLocalize("Action")</th>
                         </tr>
                     </thead>
                     <tbody id="service-tBody">

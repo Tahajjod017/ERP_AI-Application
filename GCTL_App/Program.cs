@@ -125,10 +125,8 @@ app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 app.UseRouting();
 
 app.UseAuthentication();
-app.UseMiddleware<LocalizationMiddleware>();
+//app.UseMiddleware<LocalizationMiddleware>();
 app.UseAuthorization();
-//app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
-
 
 app.MapControllerRoute(
     name: "default",

@@ -123,6 +123,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             // Start with a queryable instead of loading all data into memory
             var query = await GetPendingPromotionQueryAsync( imgLink , loggedID);
 
+            
+            query = ApplySearch(query, filter);
+
             // Apply filters at database level
             query = ApplyFilters(query, filter);
 
@@ -154,6 +157,9 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
             // Start with a queryable instead of loading all data into memory
             var query = await GetApprovePromotionQueryAsync( imgLink, loggedID);
 
+            
+            query = ApplySearch(query, filter);
+
             // Apply filters at database level
             query = ApplyFilters(query, filter);
 
@@ -174,6 +180,23 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 .ToListAsync();
 
             return new { TotalPages = totalPages, TotalItems = totalItems, Promotions = paginatedPromotions };
+        }
+
+        private IQueryable<PromotionApproveViewModel> ApplySearch(IQueryable<PromotionApproveViewModel> query, PromotionFilterModel filter)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.SearchInput))
+            {
+                var keyword = filter.SearchInput.Trim().ToLower();
+
+                query = query.Where(p =>
+                    (!string.IsNullOrEmpty(p.EmployeeName) && p.EmployeeName.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(p.Department) && p.Department.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(p.CurrentSalary) && p.CurrentSalary.ToLower().Contains(keyword)) ||
+                    (!string.IsNullOrEmpty(p.Status) && p.Status.ToLower().Contains(keyword))
+                );
+            }
+
+            return query;
         }
 
         #endregion
@@ -550,7 +573,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                     status = new Statuses
                     {
                         StatusName = "Pending",
-                        StatusType = "EmployeeCareerChange",
+                        StatusType = "AppDecPen",
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
@@ -1078,7 +1101,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
 
         private async Task<Statuses> GetOrCreateStatusAsync(string action, PromotionActionModel actionModel)
         {
-            string statusName = action == "approve" ? "Approved" : "Decline";
+            string statusName = action == "approve" ? "Approved" : "Declined";
             var status = await _statusRepository.AllActive()
                 .FirstOrDefaultAsync(s => s.StatusName.ToLower() == statusName.ToLower());
 
@@ -1087,7 +1110,7 @@ namespace GCTL.Service.Employees.EmployeeStatus.Promotion
                 status = new Statuses
                 {
                     StatusName = statusName,
-                    StatusType = "EmployeeCareerChange",
+                    StatusType = "AppDecPen",
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = actionModel.CreatedBy,
                     LIP = actionModel.LIP,

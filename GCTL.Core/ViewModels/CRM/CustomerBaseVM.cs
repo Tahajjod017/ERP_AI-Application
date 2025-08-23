@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string TabName { get; set; }
         public int PrimaryID { get; set; }
 
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; }
 
         public string? LastName { get; set; }
 
@@ -34,10 +35,12 @@ namespace GCTL.Core.ViewModels.CRM
 
         public decimal? Longitude { get; set; }
 
-        public string? Phone { get; set; }
+        public string Phone { get; set; }
 
         public string? OtherPhone { get; set; }
 
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+    ErrorMessage = "Invalid email format")]
         public string? Email { get; set; }
     }
 }

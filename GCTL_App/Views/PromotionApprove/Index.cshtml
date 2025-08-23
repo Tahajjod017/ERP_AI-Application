@@ -1,6 +1,4 @@
-﻿
-
-<!-- Breadcrumb -->
+﻿<!-- Breadcrumb -->
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
     <div class="my-auto mb-2">
         <h2 class="mb-1">@Html.SmartLocalize("Promotion Approval")</h2>
@@ -127,48 +125,68 @@
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
             <h4 class="mb-1">@Html.SmartLocalize("Waiting for Promotion Approval")</h4>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+
+                <div class="me-3">
+                    <input class="form-control" id="searchInputPe" type="text" placeholder="@Html.SmartLocalize("Search by Employee Name")">
+                </div>
+
+                <div class="dropdown me-3">
+                    <div class="columnDrag PromotionPendingTblDy"></div>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="department" asp-items="@ViewBag.DepartmentDD as SelectList">
+                        <option value="">@Html.SmartLocalize("Select department")</option>
+
+                    </select>
+                </div>
+
+
                 <div class="dropdown me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="timepicker2" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="timepicker2" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                     </div>
                 </div>
 
+
                 <div class="dropdown me-3">
-                    <select class="form-select" id="promotionType" data-choices="data-choices" size="1" required="required" name="promotionType" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <select class="form-select choiceDD" id="promotionType" asp-items="@ViewBag.IncrementTypeList as SelectList">
                         <option value="">@Html.SmartLocalize("Promotion Type")</option>
-                        <option>@Html.SmartLocalize("Senior Promotion")</option>
-                        <option>@Html.SmartLocalize("Team Lead Promotion")</option>
-                        <option>@Html.SmartLocalize("Manager Promotion")</option>
-                        <option>@Html.SmartLocalize("Department Head")</option>
+
                     </select>
                 </div>
 
                 <div class="dropdown me-3">
-                    <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Select Status")</option>
-                        <option>@Html.SmartLocalize("Approved")</option>
-                        <option>@Html.SmartLocalize("Declined")</option>
-                        <option>@Html.SmartLocalize("Pending")</option>
-                    </select>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                        </div>
+                        <select class="form-select" id="pageSizeSelect" data-choices="data-choices" size="1" name="pageSizeSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="dropdown">
-                    <select class="form-select" id="sortBy" data-choices="data-choices" size="1" required="required" name="sortBy" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
-                        <option>@Html.SmartLocalize("Recently Added")</option>
-                        <option>@Html.SmartLocalize("Ascending")</option>
-                        <option>@Html.SmartLocalize("Descending")</option>
-                        <option>@Html.SmartLocalize("Last Month")</option>
-                        <option>@Html.SmartLocalize("Last 7 days")</option>
-                    </select>
-                </div>
+                @*<div class="dropdown me-3">
+                        <select class="form-select" id="statusSelect" data-choices="data-choices" size="1" required="required" name="statusSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="">@Html.SmartLocalize("Select Status")</option>
+                            <option>@Html.SmartLocalize("Approved")</option>
+                            <option>@Html.SmartLocalize("Declined")</option>
+                            <option>@Html.SmartLocalize("Pending")</option>
+                        </select>
+                    </div>*@
+
+
             </div>
         </div>
 
         <div class="border-translucent p-3">
             <div id="promotionApprovalTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table dyn-table" id="promPending">
+                    <table class="table table-sm fs-9 leads-table dyn-tableDrag PromotionPendingTblDy" id="promPending">
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -194,8 +212,8 @@
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
                         <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                        <a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        @*<a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                            <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>*@
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -216,59 +234,59 @@
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
             <h4 class="mb-1">@Html.SmartLocalize("Promotion Increments")</h4>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-                <div class="dropdown me-3">
-                    <select class="form-select" id="approvedDepartment" data-choices="data-choices" size="1" required="required" name="approvedDepartment" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Select department")</option>
-                        <option>@Html.SmartLocalize("Developer")</option>
-                        <option>@Html.SmartLocalize("Finance")</option>
-                        <option>@Html.SmartLocalize("Marketing")</option>
-                        <option>@Html.SmartLocalize("IT Support")</option>
-                    </select>
+
+                <div class="me-3">
+                    <input class="form-control" id="searchInputAp" type="text" placeholder="@Html.SmartLocalize("Search by Employee Name")">
                 </div>
 
                 <div class="dropdown me-3">
-                    <select class="form-select" id="approvedEmployee" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Select Employee...")</option>
-                        <option>Galib</option>
-                        <option>Korim</option>
-                        <option>Nozib</option>
-                        <option>Hasan</option>
+                    <div class="columnDrag PromotionApproveTblDy"></div>
+                </div>
+
+                <div class="dropdown me-3">
+                    <select class="form-select choiceDD" id="approvedDepartment" asp-items="@ViewBag.DepartmentDD as SelectList">
+                        <option value="">@Html.SmartLocalize("Select department")</option>
+
                     </select>
                 </div>
+
+
 
                 <div class="dropdown me-3">
                     <div class="input-icon-end position-relative">
-                        <input class="form-control datetimepicker flatpickr-input" id="approvedDateRange" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="approvedDateRange" type="text" placeholder="@Html.SmartLocalize("d/m/y to d/m/y")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                     </div>
                 </div>
 
                 <div class="dropdown me-3">
-                    <select class="form-select" id="approvedPromotionType" data-choices="data-choices" size="1" required="required" name="approvedIncrementType" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <select class="form-select choiceDD" id="approvedPromotionType" asp-items="@ViewBag.IncrementTypeList as SelectList">
                         <option value="">@Html.SmartLocalize("Promotion Type")</option>
-                        <option>@Html.SmartLocalize("Annual Increment")</option>
-                        <option>@Html.SmartLocalize("Performance Bonus")</option>
-                        <option>@Html.SmartLocalize("Promotion Increment")</option>
-                        <option>@Html.SmartLocalize("Special Increment")</option>
+
                     </select>
                 </div>
 
-                <div class="dropdown">
-                    <select class="form-select" id="approvedSort" data-choices="data-choices" size="1" required="required" name="approvedSort" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">@Html.SmartLocalize("Sort by: Last 7 days")</option>
-                        <option>@Html.SmartLocalize("Recently Added")</option>
-                        <option>@Html.SmartLocalize("Ascending")</option>
-                        <option>@Html.SmartLocalize("Descending")</option>
-                        <option>@Html.SmartLocalize("Last Month")</option>
-                        <option>@Html.SmartLocalize("Last 7 days")</option>
-                    </select>
+                <div class="dropdown me-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                        </div>
+                        <select class="form-select" id="approvePageSizeSelect" data-choices="data-choices" size="1" name="pageSizeSelect" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
                 </div>
+
+
             </div>
         </div>
 
         <div class="border-translucent p-3">
             <div id="approvedPromotionTable">
                 <div class="table-responsive scrollbar mx-n1 px-1">
-                    <table class="table table-sm fs-9 leads-table dyn-table" id="promApprove">
+                    <table class="table table-sm fs-9 leads-table dyn-tableDrag PromotionApproveTblDy" id="promApprove">
                         <thead>
                             <tr>
                                 <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -294,8 +312,8 @@
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
                         <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                        <a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        @*<a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                            <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>*@
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -430,6 +448,7 @@
     }
 
     <script src="~/js/pages/Employees/EmployeeStatus/Promotion/PromotionApprove.js"></script>
+    <script src="~/js/pages/Employees/UniversalToolTip.js"></script>
 
 }
 

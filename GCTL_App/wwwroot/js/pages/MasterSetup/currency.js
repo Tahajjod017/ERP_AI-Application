@@ -170,6 +170,7 @@
                 $('.currency-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#currency-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

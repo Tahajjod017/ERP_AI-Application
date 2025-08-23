@@ -151,6 +151,12 @@ public partial class Employees
 
     public virtual ICollection<BloodGroup> BloodGroupUpdatedByNavigation { get; set; } = new List<BloodGroup>();
 
+    public virtual ICollection<CalculationTypes> CalculationTypesCreatedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<CalculationTypes> CalculationTypesDeletedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
+
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesCreatedByNavigation { get; set; } = new List<CompensationDayExchanges>();
 
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesDeletedByNavigation { get; set; } = new List<CompensationDayExchanges>();
@@ -244,6 +250,18 @@ public partial class Employees
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoEmployee { get; set; } = new List<EmployeeAdditionalInfo>();
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
+
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupCreatedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
+
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupDeletedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
+
+    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupUpdatedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
+
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypesCreatedByNavigation { get; set; } = new List<EmployeeAllowanceTypes>();
+
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypesDeletedByNavigation { get; set; } = new List<EmployeeAllowanceTypes>();
+
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypesUpdatedByNavigation { get; set; } = new List<EmployeeAllowanceTypes>();
 
     public virtual ICollection<EmployeeAllowances> EmployeeAllowancesCreatedByNavigation { get; set; } = new List<EmployeeAllowances>();
 
@@ -435,6 +453,12 @@ public partial class Employees
 
     public virtual ICollection<LeadStatuses> LeadStatusesUpdatedByNavigation { get; set; } = new List<LeadStatuses>();
 
+    public virtual ICollection<LeadTypes> LeadTypesCreatedByNavigation { get; set; } = new List<LeadTypes>();
+
+    public virtual ICollection<LeadTypes> LeadTypesDeletedByNavigation { get; set; } = new List<LeadTypes>();
+
+    public virtual ICollection<LeadTypes> LeadTypesUpdatedByNavigation { get; set; } = new List<LeadTypes>();
+
     public virtual ICollection<Leads> LeadsCreatedByNavigation { get; set; } = new List<Leads>();
 
     public virtual ICollection<Leads> LeadsDeletedByNavigation { get; set; } = new List<Leads>();
@@ -524,6 +548,12 @@ public partial class Employees
     public virtual ICollection<Organization> OrganizationDeletedByNavigation { get; set; } = new List<Organization>();
 
     public virtual ICollection<Organization> OrganizationUpdatedByNavigation { get; set; } = new List<Organization>();
+
+    public virtual ICollection<PSettings> PSettingsCreatedByNavigation { get; set; } = new List<PSettings>();
+
+    public virtual ICollection<PSettings> PSettingsDeletedByNavigation { get; set; } = new List<PSettings>();
+
+    public virtual ICollection<PSettings> PSettingsUpdatedByNavigation { get; set; } = new List<PSettings>();
 
     public virtual ICollection<PassingYears> PassingYearsCreatedByNavigation { get; set; } = new List<PassingYears>();
 
@@ -718,6 +748,8 @@ public partial class Employees
     public virtual ICollection<TerminationTypes> TerminationTypesDeletedByNavigation { get; set; } = new List<TerminationTypes>();
 
     public virtual ICollection<TerminationTypes> TerminationTypesUpdatedByNavigation { get; set; } = new List<TerminationTypes>();
+
+    public virtual ICollection<Terminations> TerminationsApprovalPerson { get; set; } = new List<Terminations>();
 
     public virtual ICollection<Terminations> TerminationsCreatedByNavigation { get; set; } = new List<Terminations>();
 

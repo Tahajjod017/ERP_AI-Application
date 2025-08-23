@@ -165,6 +165,7 @@
                 $('.educationBoard-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#educationBoard-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

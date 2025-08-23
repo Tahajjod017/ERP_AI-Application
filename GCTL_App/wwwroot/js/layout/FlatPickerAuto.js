@@ -30,6 +30,38 @@ const flatpickrHelper = {
         }
     },
 
+    //flatpickrHelper.disable('editNoticeDate', 'editResignationDate');
+    disable: function (...elementIds) {
+        elementIds.forEach(elementId => {
+            const normalizedId = elementId.startsWith('#') ? elementId.substring(1) : elementId;
+            const element = document.getElementById(normalizedId);
+
+            if (element && element._flatpickr) {
+                element._flatpickr.set('disable', [() => true]); // disables all dates
+            }
+
+            if (element) {
+                element.readOnly = true;
+            }
+        });
+    },
+
+    //flatpickrHelper.enable('editNoticeDate', 'editResignationDate');
+    enable: function (...elementIds) {
+        elementIds.forEach(elementId => {
+            const normalizedId = elementId.startsWith('#') ? elementId.substring(1) : elementId;
+            const element = document.getElementById(normalizedId);
+
+            if (element && element._flatpickr) {
+                element._flatpickr.set('disable', []); // clears all disabled rules
+            }
+
+            if (element) {
+                element.readOnly = false;
+            }
+        });
+    },
+
 
     ////----- Get Date
     //let dobValue = flatpickrHelper.getDate('dob');

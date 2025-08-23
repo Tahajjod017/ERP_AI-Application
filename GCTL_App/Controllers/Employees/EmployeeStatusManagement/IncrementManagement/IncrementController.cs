@@ -39,14 +39,14 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
             SetSmartPageCode(111700);
             
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.All().Select(e => new
+            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new
             {
                 id = e.EmployeeID,
                 name = e.FirstName + " " + e.LastName
             }), "id", "name");
 
             ViewBag.OrganizationDD = new SelectList(
-               _organizationRepository.All().Select(o => new { o.OrganizationID, o.OrganizationName }),
+               _organizationRepository.AllActive().Select(o => new { o.OrganizationID, o.OrganizationName }),
                "OrganizationID",
                "OrganizationName"
            );
@@ -54,13 +54,13 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.IncrementManag
            
 
             ViewBag.DepartmentDD = new SelectList(
-                _departmentRepository.All().Select(d => new { d.DepartmentID, d.DepartmentName }),
+                _departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }),
                 "DepartmentID",
                 "DepartmentName"
             );
 
             ViewBag.DesignationDD = new SelectList(
-                _designationRepository.All().Select(d => new { d.DesignationID, d.DesignationName }),
+                _designationRepository.AllActive().Select(d => new { d.DesignationID, d.DesignationName }),
                 "DesignationID",
                 "DesignationName"
             );

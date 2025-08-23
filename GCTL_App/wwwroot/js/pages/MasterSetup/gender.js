@@ -165,6 +165,7 @@
                 $('.gender-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#gender-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

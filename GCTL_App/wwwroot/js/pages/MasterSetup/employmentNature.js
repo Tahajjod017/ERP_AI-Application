@@ -165,6 +165,7 @@
                 $('.employmentNature-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#employmentNature-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

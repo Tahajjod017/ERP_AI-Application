@@ -1,5 +1,5 @@
 ﻿
-
+// #region Layout JS
 var phoenixIsRTL = window.config.config.phoenixIsRTL;
 if (phoenixIsRTL) {
     var linkDefault = document.getElementById('style-default');
@@ -32,9 +32,13 @@ if (navbarVertical && navbarVerticalStyle === 'darker') {
     navbarVertical.setAttribute('data-navbar-appearance', 'darker');
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    feather.replace();
+});
+// #endregion
 
 
-
+// #region Show Modal
 function showDeleteModal(deleteCallback) {
     // Show the modal
     $('#confirmDeleteModal').modal('show');
@@ -44,15 +48,31 @@ function showDeleteModal(deleteCallback) {
         $('#confirmDeleteModal').modal('hide');
     });
 };
+// #endregion
 
 
+//#region HideModal
+function hideModal(id) {
+
+    const modalEl = document.getElementById(id);
+    if (!modalEl) return;
+
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+
+    modalInstance.hide();
+}
+//#endregion
 
 
+// #region showLoadingIndicator
 function showLoadingIndicator() {
     if ($('#loadingIndicator').length === 0) {
         $('body').append(`
                     <div id="loadingIndicator" style="display:none; position: fixed; top: 35%; left: 35%; z-index: 9999;">
-                        <img src="/images/spinner4-unscreen.gif" alt="Loading..." />
+                        <img src="/media/indicator/spinner.gif" alt="Loading..." />
                     </div>
                 `);
     }
@@ -63,10 +83,10 @@ function showLoadingIndicator() {
 function hideLoadingIndicator() {
     $("#loadingIndicator").hide();
 }
+// #endregion
 
 
 //#region base Loading indicator 
-
 function showLoadingBaseIndicator(message) {
     // Optional: If you want to show a message, you can add a <h5> or similar in your partial view and control it here.
     if (message) {
@@ -91,17 +111,7 @@ function hideLoadingBaseIndicator() {
         loaderWrapper.style.display = 'none';
     }
 }
-
 //#endregion
-
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    feather.replace();
-});
-
-
 
 
 // #region For sort icon
@@ -114,8 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 // #endregion
-
-
 
 
 // #region For flatpicker datepicker
@@ -145,8 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
 //    });
 //});
 // #endregion
-
-
 
 
 // #region Validation
@@ -181,7 +187,29 @@ function validateField(fieldId, response) {
 }
 // #endregion
 
-//
+
+// #region resetValidation
+function resetValidation(fields) {
+    fields.forEach(function (fieldId) {
+        const $field = $('#' + fieldId);
+        const $errorSpan = $('#' + fieldId + 'Error');
+
+        // Remove validation classes from the native input
+        $field.removeClass('is-valid is-invalid');
+        $errorSpan.hide().text('');
+
+        // Clear the value (works for regular inputs/selects)
+        $field.val('');
+
+        // If Choices.js is used, also clean its validation state
+        const $choicesInner = $field.closest('.choices').find('.choices__inner');
+        if ($choicesInner.length) {
+            $choicesInner.removeClass('border-danger border-success is-invalid is-valid');
+        }
+    });
+}
+// #endregion
+
 
 //#region Dev messgae
 
@@ -209,6 +237,7 @@ function showDev(message, headerText = 'console') {
 
     const toast = document.createElement("div");
 
+   
     Object.assign(toast.style, {
         background: "#333",
         color: "#fff",
@@ -218,10 +247,15 @@ function showDev(message, headerText = 'console') {
         opacity: "0",
         transform: "translateY(20px)",
         transition: "opacity 0.3s ease, transform 0.3s ease",
-        maxWidth: "300px",
-       // minWidth: "300px",
         pointerEvents: "auto",
-        overflow: "hidden",
+        //maxWidth: "300px",
+        //minWidth: "300px",
+        //overflow: "hidden",
+        width: "300px",       // Initial fixed width
+        maxWidth: "800px",    // Allow resizing up to this limit
+        resize: "both", //    "horizontal"
+        overflow: "auto",    
+        
         maxHeight: "450px",
         display: "flex",
         flexDirection: "column",
@@ -328,19 +362,5 @@ function showDev(message, headerText = 'console') {
 
 //#endregion
 
-//#region HideModal
 
-//hideModal('new_resignation');
-function hideModal(id) {
-    const modalEl = document.getElementById(id);
-    if (!modalEl) return;
-
-    let modalInstance = bootstrap.Modal.getInstance(modalEl);
-    if (!modalInstance) {
-        modalInstance = new bootstrap.Modal(modalEl);
-    }
-
-    modalInstance.hide();
-}
-
-//#endregion
+//

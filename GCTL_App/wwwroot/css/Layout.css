@@ -2,11 +2,34 @@
     background: #eff2f6 !important
 }
 
-.card-header {
+/*.card-header {
    
     border-bottom: var(--phoenix-card-border-width) solid rgb(203 208 221 / 0%) !important;
 }
 
 .border-translucent {
     border-color: rgb(203 208 221 / 0%) !important;
+}*/
+
+
+
+.caiCon {
+    position: relative;
+/*    padding-right: 30px !important;*/
+    background-image: url('/img/icons/calender.svg');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    opacity: .8;
+}
+
+.blink {
+    animation: blinker 1.5s linear infinite;
+   
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
 }

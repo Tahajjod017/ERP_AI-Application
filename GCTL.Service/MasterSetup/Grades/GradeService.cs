@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
 using System.IO.Pipelines;
+using GCTL.Core.Helpers.Jsonserialize;
 
 namespace GCTL.Service.MasterSetup.Grades
 {
@@ -92,7 +93,7 @@ namespace GCTL.Service.MasterSetup.Grades
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.GradeName = model.GradeName;
                 entity.UpdatedAt = DateTime.Now;
@@ -102,7 +103,7 @@ namespace GCTL.Service.MasterSetup.Grades
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Grade", ActionName.DataUpdated, beforeEntity, afterEntity, entity.GradeID, model);
 
                 await _genericRepository.CommitTransactionAsync();

@@ -24,10 +24,12 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly ILeadCreateService _leadCreateService;
         private readonly IGenericRepository<IndividualAddresses> _individualAddressesRepository;
+        private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly AppDbContext _context;
+        private readonly IGenericRepository<Country> _countryRepository;
 
         #endregion
-        public CreateLeadController(AppDbContext context,ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
+        public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -36,6 +38,8 @@ namespace GCTL_App.Controllers.CRM
             _leadCreateService = leadCreateService;
             _individualAddressesRepository = individualAddressesRepository;
             _employeeTypeRepository = employeeTypeRepository;
+            _countryRepository = countryRepository;
+            _addressesRepository = addressesRepository;
             _context = context;
         }
 
@@ -47,11 +51,49 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadStatusDD = new SelectList(_leadStatusesTypeRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.EmployeeDD = new SelectList(_employeeTypeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            ViewBag.CountryDD = new SelectList(_countryRepository.AllActive().Select(e => new { e.CountryID, e.CountryName }), "CountryID", "CountryName");
 
 
             return View();
         }
 
+       
+
+        [HttpGet]
+        private async Task<bool> IsUniqueAsync(string queryText, string type, int id)
+        {
+            if (string.IsNullOrEmpty(queryText) || string.IsNullOrEmpty(type))
+                return false;
+
+            int? addressId = 0;
+            var customerObj = await _individualAddressesRepository
+                .FirstOrDefaultAsync(u => u.IndividualAddressID == id);
+
+            if (customerObj != null)
+                addressId = customerObj.AddressID;
+
+            if (type == "phone")
+            {
+                var queryResult = await _addressesRepository
+                    .FindAsync(u => (u.Phone == queryText || u.OtherPhone == queryText) && u.AddressID != addressId);
+                return queryResult.Count == 0;
+            }
+            else if (type == "email")
+            {
+                var queryResult = await _addressesRepository
+                    .FindAsync(u => u.Email == queryText && u.AddressID != addressId);
+                return queryResult.Count == 0;
+            }
+
+            return false;
+        }
+
+
+        public async Task<IActionResult> UniquenessCheck(string queryText, string type, int id)
+        {
+            var isUnique = await IsUniqueAsync(queryText, type, id);
+            return Json(new { unique = isUnique });
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetCustomerList()
@@ -63,11 +105,39 @@ namespace GCTL_App.Controllers.CRM
                     {
                         CustomerId = n.IndividualAddressID,
                         FullName = n.Individual.FirstName + " " + n.Individual.LastName,
-                        Type = n.AddressType.AddressTypeName
+                        Type = n.AddressType.AddressTypeName,
+                        Phone = n.Address.Phone
                     })
                     .ToListAsync();
 
             return Json(customers);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> addCountry(string countryName)
+        {
+            var countryObj = await _countryRepository.AllActive().Where(e => e.CountryName.Trim().ToLower() == countryName.Trim().ToLower()).FirstOrDefaultAsync();
+            if (countryObj == null)
+            {
+                countryObj = new Country()
+                {
+                    CountryName = countryName
+                };
+                await _countryRepository.AddAsync(countryObj);
+            }
+
+            return Json(new {countryId = countryObj.CountryID , countryName= countryObj.CountryName});
+        }
+        [HttpGet]
+        public async Task<IActionResult> getCountry(string countryName)
+        {
+            var countryList = await _countryRepository.GetAllAsync();
+            var countrySelectList = countryList.Select(c => new SelectListItem
+            {
+                Value = c.CountryID.ToString(),
+                Text = c.CountryName
+            }).ToList();
+            return Json(countrySelectList);
         }
         [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)
@@ -144,15 +214,22 @@ namespace GCTL_App.Controllers.CRM
             }
             return Json(new { MessageContent = "Error" });
 
-        }
+        } 
         public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && leadsVM != null)
             {
-                if (leadsVM.Customers[0].PrimaryID != 0)
+                var isUniquePhone = await IsUniqueAsync(
+                    leadsVM.Customers[0].Phone,
+                    "phone",
+                    leadsVM.Customers[0].PrimaryID
+                );
+
+                if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
                 {
+
                     var result = await _leadCreateService.UpdateLead(leadsVM);
-                    return Json(new { success = true, message = "Updated successfully" });
+                    return Ok(result);
                 }
             }
             return Json(new { MessageContent = "Error" });

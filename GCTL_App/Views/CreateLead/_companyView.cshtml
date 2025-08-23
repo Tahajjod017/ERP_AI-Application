@@ -157,9 +157,11 @@
                                                         </div>
                                                         <div class="col-12 mb-3">
                                                             <input class="form-control" id="phone1" type="tel" placeholder="Phone Number" />
+                                                            <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12 mb-3">
                                                             <input class="form-control" id="phone2" type="tel" placeholder="Other Phone" />
+                                                            <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="mb-3 form-floating">
@@ -502,12 +504,14 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
-                                                                    <div class="mb-3 form-floating">
-                                                                        <input id="countryPerson" type="text" class="form-control" placeholder="" required>
-                                                                        <label class="form-label req">Country</label>
-                                                                        <span class="text-danger small"></span>
+                                                                    <div class="form-floating form-floating-advance-select">
+                                                                        <label class="form-label">@Html.SmartLocalize("Country")</label>
+                                                                        <select class="form-select choiceDD" id="countryPerson" asp-items="@ViewBag.CountryDD as SelectList">
+                                                                            <option value="" selected>@Html.SmartLocalize("Select Country")</option>
+                                                                        </select>
                                                                     </div>
                                                                 </div>
+                                                             
                                                             </div>
                                                         </div>
                                                         <div class="col-md-12">
@@ -535,18 +539,18 @@
 
                                                         <div class="col-12 mb-3">
                                                             <input class="form-control" id="phone3" type="tel" placeholder="Phone Number" />
-                                                            <span id="phonePersonError" class="text-danger"></span>
+                                                            <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12 mb-3">
                                                             <input class="form-control" id="phone4" type="tel" placeholder="Other Phone" />
-                                                            <span id="otherPhonePersonError" class="text-danger"></span>
+                                                            <div class="text-danger" id="errorShow"></div>
                                                         </div>
 
                                                         <div class="col-12">
                                                             <div class="mb-3 form-floating">
                                                                 <input type="text" id="emailPerson" class="form-control" placeholder="" required>
                                                                 <label class="form-label req">Email</label>
-                                                                <span class="text-danger small"></span>
+                                                                <div class="text-danger" id="errorShow"></div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -558,7 +562,15 @@
 
                                 <div class="tab-pane fade h-100" id="shippingAddressTabContent" role="tabpanel" aria-labelledby="shippingAddressTab">
                                     <div class="d-flex flex-column h-100">
-                                        <h5 class="mb-3 text-body-highlight">Add Shipping Address</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="text-body-highlight mb-0">Add Shipping Address</h5>
+                                            <div class="form-check mb-0">
+                                                <input class="form-check-input" type="checkbox" value="" id="sameAsShippingBtn">
+                                                <label class="form-check-label" for="flexCheckChecked">
+                                                    Same as Customer Address
+                                                </label>
+                                            </div>
+                                        </div>
                                         <div class="row g-3">
                                             <form action="">
                                                 <input type="number" id="shipingID" name="name" hidden />
@@ -579,7 +591,7 @@
 
                                                         <div class="col-md-12">
                                                             <div class="mb-3 form-floating">
-                                                                <input type="text" id="autocompleteShiping" class="form-control" placeholder="Address" required>
+                                                                <input type="text" id="autocompleteShiping" class="form-control" placeholder="Address">
                                                                 <label class="form-label req">Full Address</label>
                                                                 <span class="text-danger small"></span>
                                                             </div>
@@ -588,14 +600,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="streetShiping" class="form-control" placeholder="Street" required>
+                                                                        <input type="text" id="streetShiping" class="form-control" placeholder="Street">
                                                                         <label class="form-label req">Street</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="cityShiping" class="form-control" placeholder="City" required>
+                                                                        <input type="text" id="cityShiping" class="form-control" placeholder="City">
                                                                         <label class="form-label req">City</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -606,14 +618,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="additionalAddressShiping" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="additionalAddressShiping" class="form-control" placeholder="">
                                                                         <label class="form-label req">Additional Address</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="stateShiping" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="stateShiping" class="form-control" placeholder="">
                                                                         <label class="form-label req">State/Province</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -624,32 +636,40 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input id="postalCodeShiping" type="text" class="form-control" placeholder="" required>
+                                                                        <input id="postalCodeShiping" type="text" class="form-control" placeholder="">
                                                                         <label class="form-label req">Zip/Postal Code</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
+                                                                    <div class="form-floating form-floating-advance-select">
+                                                                        <label class="form-label">@Html.SmartLocalize("Country")</label>
+                                                                        <select class="form-select choiceDD" id="countryShiping" asp-items="@ViewBag.CountryDD as SelectList">
+                                                                            <option value="" selected>@Html.SmartLocalize("Select Country")</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                @* <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
                                                                         <input id="countryShiping" type="text" class="form-control" placeholder="" required>
                                                                         <label class="form-label req">Country</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
-                                                                </div>
+                                                                </div> *@
                                                             </div>
                                                         </div>
                                                         <div class="col-md-12">
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="latitudeShiping" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="latitudeShiping" class="form-control" placeholder="">
                                                                         <label class="form-label req">Latitude</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="longitudeShiping" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="longitudeShiping" class="form-control" placeholder="">
                                                                         <label class="form-label req">Longitude</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -677,15 +697,17 @@
                                                         </div>
                                                         <div class="col-12 mb-3">
                                                             <input class="form-control" id="phone5" type="tel" placeholder="Phone Number" />
+                                                            <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12 mb-3">
                                                             <input class="form-control" id="phone6" type="tel" placeholder="Other Phone" />
+                                                            <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="mb-3 form-floating">
                                                                 <input type="text" id="emailShiping" class="form-control" placeholder="" required>
                                                                 <label class="form-label req">Email</label>
-                                                                <span class="text-danger small"></span>
+                                                                <div class="text-danger" id="errorShow"></div>
                                                             </div>
                                                         </div>
                                                         </div>

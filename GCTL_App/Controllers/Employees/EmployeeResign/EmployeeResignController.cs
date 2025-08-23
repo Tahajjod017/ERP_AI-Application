@@ -1,4 +1,6 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeResign;
@@ -43,8 +45,7 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
         #endregion
 
-<<<<<<< Updated upstream
-=======
+
 
 
 
@@ -52,7 +53,9 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
         public IActionResult GetDetails(int id)
         {
 
+
             var result = _employeeResignService.GetToolTipData(id);
+
 
 
             
@@ -83,15 +86,16 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
            
 
+
             return Json(result);
         }
 
->>>>>>> Stashed changes
+
         #region Index N Table load
 
         public IActionResult Index()
         {
-            SetSmartPageCode(111800);
+            SetSmartPageCode(1196500);
 
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new
@@ -143,6 +147,22 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
 
         #region Edit and Get By ID
 
+       
+
+        [HttpGet]
+        public IActionResult GetResignation(int id)
+        {
+            try
+            {
+                var resignation = _employeeResignService.GetResignationById(id);
+                return Ok(resignation);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }
+
         [HttpPost]
         public IActionResult UpdateResignation([FromForm] int resignationId, [FromForm] ResignationPostViewModel model)
         {
@@ -163,36 +183,16 @@ namespace GCTL_App.Controllers.Employees.EmployeeResign
             }
         }
 
-        [HttpGet]
-        public IActionResult GetResignation(int id)
-        {
-            try
-            {
-                var resignation = _employeeResignService.GetResignationById(id);
-                if (resignation != null)
-                {
-                    return Json(new { success = true, data = resignation });
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Resignation not found." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "An error occurred: " + ex.Message });
-            }
-        }
-
 
         #endregion
 
         [HttpPost]
-        public IActionResult DeleteResignation(int id)
+        public IActionResult DeleteResignation(DeleteRequestVM model)
         {
             try
             {
-                var result = _employeeResignService.DeleteResignation(id);
+                
+                var result = _employeeResignService.DeleteResignation( model);
 
                 return Ok(result);
             }

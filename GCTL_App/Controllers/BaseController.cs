@@ -21,6 +21,7 @@ namespace GCTL_App.Controllers
         
         protected string imgSrc => GetBaseUrl() + "/uploads/employee/images/";
         protected string imgSrcThumb => GetBaseUrl() + "/uploads/employee/images/thumbs/";
+       
 
 
         protected BaseController(ITranslateService translateService, IUserProfileService userProfileService)

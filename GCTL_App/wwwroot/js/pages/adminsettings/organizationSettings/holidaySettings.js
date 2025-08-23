@@ -27,9 +27,15 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
-                    form.trigger("reset");
+                    clear();
                 } else {
-                    toastr.error(response.message, 'Error');
+                    const allFields = ["OrganizationID", "HolidayTitle", "StartDate", "EndDate", "TotalDays", "StatusID"];
+
+                    allFields.forEach(function (fieldId) {
+                        validateField(fieldId, response);
+                    });
+
+                    toastr.info(response.message, 'Error');
                 }
             },
             error: function (xhr, status, error) {
@@ -38,7 +44,7 @@ $(document).ready(function () {
                     // Redirect to AccessDenied page
                     window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
                 } else {
-                    toastr.error("Unexpected error: " + error, 'Server Error');
+                    toastr.info("Unexpected error: " + error, 'Server Error');
                 }
             }
 
@@ -83,9 +89,82 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 
 //edit
 $(document).on('click', '#edit_holiday_settingBtn', function () {
-    var approvalSettingID = $(this).data('id');
+    var holidaySettingID = $(this).data('id');
     $('#edit_holiday_setting').modal('show'); // Show the delete confirmation modal
+
+    // Store the ID in the hidden input field
+    $('#HolidayIDEdit').val(holidaySettingID);
+
+    // Load the existing data for the selected holiday setting
+    $.ajax({
+        url: '/HolidaySettings/GetById',
+        method: 'GET',
+        data: { id: holidaySettingID },
+        success: function (response) {
+            if (response.isSuccess) {
+                // Populate the form fields with the existing data  
+                choiceManager.setChoiceValue('OrganizationEditID', response.data.organizationID);
+                $('#HolidayTitleedit').val(response.data.holidayTitle);
+                $('#HolidayDescriptionEdit').val(response.data.holidayDescription);
+                $('#StartDateEdit').val(response.data.startDate);
+                $('#EndDateEdit').val(response.data.endDate);
+                $('#TotalDaysEdit').val(response.data.totalDays);
+               
+                choiceManager.setChoiceValue('StatusEditID', response.data.statusID);
+                // Initialize the datepicker for the edit form
+                initializeDatepickerDMY("editStartDate, editEndDate"); // For dd/MM/yyyy
+                // For Date restriction with total days count
+                $(document).on('change', "#editStartDate", function () {
+                    const fromDate = $("#editStartDate").val();
+                    updateDatepickerWithMinDateTotalDays("editEndDate", fromDate, {}, "editTotalDays", "editStartDate");
+                });
+            } else {
+                toastr.error(response.message, 'Error');
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle Access Denied error (403)
+            if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+                // Redirect to AccessDenied page
+                window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
+            } else {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        }
+    });
+
    /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$('#holidayEditForm').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+    
+    var formData = $(this).serialize(); // Serialize the form data
+
+    // Append the approvalSettingID to the form data
+    // formData += '&approvalSettingID=' + weekendSettingID;
+
+    // Send the data via AJAX
+    $.ajax({
+        url: '/HolidaySettings/Updates', // Adjust URL if necessary
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                // Handle success
+                toastr.success('Holiday setting updated successfully!');
+                $('#edit_holiday_setting').modal('hide'); // Hide the modal
+                loadTableData();
+            } else {
+                // Handle failure
+                toastr.error('Failed to update weekend setting: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle AJAX errors
+            toastr.error('Error: ' + error);
+        }
+    });
 });
 
 //////////////////////////////Data Table Initialization//////////////////////////////
@@ -101,6 +180,21 @@ $('#addHolidayConfig-pageSizeSelect').on('change', function () {
         loadTableData();
     }
 });
+
+
+$('#holidaySettings_resetBtn').on('click', function (e) {
+    e.preventDefault();
+
+    clear();
+})
+
+function clear() {
+    $('#holidayForm')[0].reset();
+    choiceManager.resetChoice('OrganizationID');
+    choiceManager.resetChoice('StatusID');
+    loadTableData();
+    resetValidation(["OrganizationID", "HolidayTitle", "StartDate", "EndDate", "TotalDays", "StatusID"]);
+}
 
 
 $(document).ready(function () {
@@ -180,15 +274,14 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="text-center text-middle align-middle" style="width: 5%;">
                                 <input type="checkbox" class="form-check-input addHolidayConfig-selectItem" data-id="${item.holidayID}" />
                             </td>
-                            <td class="align-middle text-center white-space-nowrap pe-4">${rowIndex}</td>
-                            
-                             <td class="align-middle white-space-nowrap ">${item.holidayTitle}</td>
-                             <td class="align-middle white-space-nowrap ">${item.holidayDescription}</td>
-                            <td class="align-middle white-space-nowrap ps-4">${item.startDate}</td>
-                            <td class="align-middle white-space-nowrap ps-4">${item.endDate}</td>
-                            <td class="text-center align-middle white-space-nowrap pe-4">${item.totalDays}</td>
-                            <td class=" text-center align-middle white-space-nowrap pe-4">${item.statusName}</td>
-                             <td class="align-middle white-space-nowrap text-end pe-0">
+                            <td class="align-middle text-start white-space-nowrap">${item.organizationName}</td>
+                             <td class="align-middle white-space-nowrap">${item.holidayTitle}</td>
+                             <td class="align-middle white-space-nowrap">${item.holidayDescription}</td>
+                            <td class="align-middle white-space-nowrap">${item.startDate}</td>
+                            <td class="align-middle white-space-nowrap">${item.endDate}</td>
+                            <td class="text-center align-middle white-space-nowrap">${item.totalDays}</td>
+                            <td class="text-start align-middle white-space-nowrap">${item.statusName}</td>
+                             <td class="align-middle white-space-nowrap text-end">
                           <div class="d-flex justify-content-end align-items-center">
                          <a
                                href="#"
@@ -260,8 +353,8 @@ function updatePagination(pageNumbers, currentPage, totalPages) {
     $("#addHolidayConfig-nextPageBtn").prop('disabled', currentPage === totalPages);
 }
 
-$(document).on('click', '.page-btn', function () {
-    const page = $(this).data('page');
-    currentPage = page;
-    loadTableData();
-});
+    $(document).on('click', '.page-btn', function () {
+        const page = $(this).data('page');
+        currentPage = page;
+        loadTableData();
+    });

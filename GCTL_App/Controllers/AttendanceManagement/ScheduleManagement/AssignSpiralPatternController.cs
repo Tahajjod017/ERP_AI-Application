@@ -1,15 +1,19 @@
-﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class AssignSpiralPatternController : BaseController
     {
         #region Services & Repositories
@@ -25,6 +29,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "AssignSpiralPattern")]
         public async Task<IActionResult> Index()
         {
             AssignSpiralPatternPageVM model = new AssignSpiralPatternPageVM();
@@ -42,7 +47,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        //[Permission("Create", "AssignSpiralPattern")]
+        [Permission("Create", "AssignSpiralPattern")]
         //[ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(AssignSpiralPatternSetupVM model)
@@ -125,6 +130,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetEmployeesByOrgBraDepId
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        {
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            return Json(result);
+        }
+        #endregion
+
+
         #region GetAllAsync
         [Route("AssignSpiralPattern/GetAllAsync")]
         [HttpGet]
@@ -143,6 +157,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetSpiralPatternDetails
         public async Task<IActionResult> GetSpiralPatternDetails(int typeId, int id)
         {
             object result = null;
@@ -161,5 +176,35 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
             return Json(result);
         }
+        #endregion
+
+
+        #region Delete
+        [Permission("Delete", "AssignSpiralPattern")]
+        [Route("AssignSpiralPattern/Delete")]
+        [HttpPost]
+        public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                if (requestVM.Ids == null || !requestVM.Ids.Any() || requestVM.Ids.Count == 0)
+                {
+                    return Json(new { isSuccess = false, message = "No data selected to delete." });
+                }
+
+                var result = await _assignSpiralPatternService.SoftDeleteAsync(requestVM);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No data found to delete." });
+                }
+
+                return Json(new { isSuccess = true, message = "Deleted Successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
     }
 }

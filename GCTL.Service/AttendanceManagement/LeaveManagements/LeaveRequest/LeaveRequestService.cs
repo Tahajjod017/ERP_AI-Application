@@ -2024,12 +2024,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
         #endregion
 
-        #region SoftDeleteAsync
-        public Task<MultiDropDown> SoftDeleteAsync(DeleteRequestVM model)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
+       
 
         #region GetDepartmentByCompany
         public async Task<List<MultiDropDown>> GetDepartmentByCompany(int id)

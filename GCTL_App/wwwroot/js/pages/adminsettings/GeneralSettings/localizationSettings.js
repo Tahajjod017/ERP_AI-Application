@@ -1,4 +1,13 @@
-﻿$('#localizationForm').on('submit', function (e) {
+﻿$(document).ready(function () {
+    orgazationDropdown();
+    languageDropdown();
+    timezoneDropdown();
+    dateFormatDropdown();
+    timeFormatDropdown();
+    currencyDropdown();
+});
+
+$('#localizationForm').on('submit', function (e) {
     e.preventDefault();
 
     var form = $(this);
@@ -27,6 +36,157 @@
     });
 });
 
+//update dropdown values for organization, language, timezone, date format, time format, and currency
+function orgazationDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetOrganizations',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('organizationid', simplifiedRoles);
+            
+        },
+        error: function () {
+            console.log("Error fetching organization data.");
+        }
+    });
+}
+function orgazationEditDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetOrganizations',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+           // choiceManager.populateDropdown('organizationEditId', simplifiedRoles);
+        },
+        error: function () {
+            console.log("Error fetching organization data.");
+        }
+    });
+}
+function languageDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetLanguages',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('languageId', simplifiedRoles);
+        },
+        error: function () {
+            console.log("Error fetching language data.");
+        }
+    });
+}
+function timezoneDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetTimezone',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('timezoneId', simplifiedRoles);
+        },
+        error: function () {
+            console.log("Error fetching timezone data.");
+        }
+    });
+}
+function dateFormatDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetDateFormat',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('dateFormatId', simplifiedRoles);
+        },
+        error: function () {
+            console.log("Error fetching date format data.");
+        }
+    });
+}
+function timeFormatDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetTimeFormat',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('timeFormatId', simplifiedRoles);
+        },
+        error: function () {
+            console.log("Error fetching time format data.");
+        }
+    });
+}
+function currencyDropdown() {
+    $.ajax({
+        url: '/LocalizationSettings/GetCurrency',
+        method: 'GET',
+        success: function (response) {
+            const simplifiedRoles = response.map(role => ({
+                id: role.value,
+                name: role.text
+            }));
+            choiceManager.populateDropdown('currencyId', simplifiedRoles);
+        },
+        error: function () {
+            console.log("Error fetching currency data.");
+
+        }
+    });
+}
+
+//delete 
+$(document).on('click', '#localizationSettingsDelete_singleDelBtn', function () {
+    var localizationSettingID = $(this).data('id');
+    $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
+    $('#confirmDeleteBtn').data('id', localizationSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/LocalizationSettings/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
+});
 
 
 
@@ -136,18 +296,18 @@ function loadTableData(sortColumn, sortOrder) {
                          <a
                                href="#"
                                title="Edit"
-                               id="edit_approval_settingBtn"
+                               id="edit_localization_settingBtn"
                                data-id="${item.localizationID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 
-                               data-bs-target="#edit_approval_setting"
+                               data-bs-target="#edit_localization_setting"
                               >
                                <i class="fas fa-edit text-black"></i>
                         </a>
                             <a 
                               href="#" title="Delete"  data-id="${item.localizationID}"
                               class="btn btn-outline-light btn-icon"  
-                              id="approvalSettingsDelete-singleDelBtn" >
+                              id="localizationSettingsDelete_singleDelBtn" >
                               <i class="far fa-trash-alt text-black"></i>
                             </a>
                           </div>
@@ -207,4 +367,67 @@ $(document).on('click', '.page-btn', function () {
     const page = $(this).data('page');
     currentPage = page;
     loadTableData();
+});
+
+//edit
+$(document).on('click', '#edit_localization_settingBtn', function () {
+    var weekendSettingID = $(this).data('id');
+    $('#edit_Localization_setting').modal('show'); // Show the edit modal
+
+    // Store the ID in the hidden input field
+    $('#localizationId').val(weekendSettingID);
+
+
+    // Fetch the current data for the weekend setting using the ID (Example: Get the existing values from your backend)
+    $.ajax({
+        url: '/LocalizationSettings/GetById',  // Adjust the URL as per your endpoint
+        type: 'GET',
+        data: { id: weekendSettingID },
+        success: function (data) {
+            debugger 
+            //orgazationEditDropdown();
+            choiceManager.setChoiceValue('organizationEditId', data.organizationID);
+            choiceManager.setChoiceValue('languageEditId', data.languageID);
+            choiceManager.setChoiceValue('timezoneEditId', data.timezoneID);
+            choiceManager.setChoiceValue('dateFormatEditId', data.dateFormatID);
+            choiceManager.setChoiceValue('timeFormatEditId', data.timeFormatID);
+            choiceManager.setChoiceValue('currencyEditId', data.currencyID);
+
+
+        },
+        error: function (xhr, status, error) {
+
+        }
+    });
+});
+
+$('#localizationEditForm').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+    var weekendSettingID = $('#localizationId').data('id');  // Get ID from the modal trigger
+    var formData = $(this).serialize(); // Serialize the form data
+
+    // Append the approvalSettingID to the form data
+    // formData += '&approvalSettingID=' + weekendSettingID;
+
+    // Send the data via AJAX
+    $.ajax({
+        url: '/LocalizationSettings/Updates', // Adjust URL if necessary
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                // Handle success
+                toastr.success('Localization setting updated successfully!');
+                $('#edit_Localization_setting').modal('hide'); // Hide the modal
+                loadTableData();
+            } else {
+                // Handle failure
+                toastr.error('Failed to update weekend setting: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle AJAX errors
+            toastr.error('Error: ' + error);
+        }
+    });
 });

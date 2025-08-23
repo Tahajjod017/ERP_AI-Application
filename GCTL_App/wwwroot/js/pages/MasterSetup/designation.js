@@ -165,6 +165,7 @@
                 $('.designation-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
+                $('#designation-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 

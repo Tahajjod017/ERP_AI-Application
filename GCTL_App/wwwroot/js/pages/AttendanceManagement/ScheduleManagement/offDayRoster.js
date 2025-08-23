@@ -56,7 +56,7 @@
                             clear();
                             loadTableData();
                         } else {
-                            const allFields = ["OrganizationID", "ShiftID", "DayDate", "CompensationTypeID"];
+                            const allFields = ["OrganizationID", "DayDate", "ShiftID", "CompensationTypeID"];
 
                             allFields.forEach(function (fieldId) {
                                 validateField(fieldId, response);
@@ -115,7 +115,7 @@
                     compensationDD.destroy();
                 }
 
-                ['OrganizationID', 'ShiftID', 'DayDate', 'CompensationTypeID'].forEach(function (fieldId) {
+                ['OrganizationID', 'DayDate', 'ShiftID', 'CompensationTypeID'].forEach(function (fieldId) {
                     $('#' + fieldId).removeClass('is-valid is-invalid');
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
@@ -184,11 +184,11 @@
             $('#OrganizationID').on('change', function (e) {
                 e.preventDefault();
 
-                var organizationId = $(this).val();
-                loadBranchByOrganization(organizationId);
-                loadDepartmentsByOrganization(organizationId);
-                loadEmpByOrg(organizationId);
-                loadShiftByOrg(organizationId);
+                var orgId = $(this).val();
+                getEmployeesByOrgBraDepId(orgId, null, null);
+                loadBranchByOrganization(orgId);
+                loadDepartmentsByOrganization(orgId);
+                loadShiftByOrg(orgId);
             });
             // #endregion
 
@@ -229,7 +229,6 @@
             // #endregion
 
 
-
             // #region loadDepartmentsByOrganization
             function loadDepartmentsByOrganization(organizationId) {
                 $.ajax({
@@ -254,19 +253,8 @@
                         if (multiSelectInstance) {
                             multiSelectInstance.update(); // Refresh the UI
                         } else {
-                            // Reinitialize if not already initialized (in case it's dynamically added)
                             new coreui.MultiSelect(select[0]);
                         }
-
-                        //document.getElementById('DepartmentIDs')
-                        //    .addEventListener('changed.coreui.multi-select', function (event) {
-                        //        const orgId = $('#OrganizationID').val();
-
-                        //        const selected = event.value || []; // array of {text, value}
-                        //        const departmentIds = selected.map(x => parseInt(x.value));
-
-                        //        loadEmployeesByFilter(orgId, departmentIds);
-                        //    });
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading departments:', error);
@@ -274,56 +262,6 @@
                 });
             }
             // #endregion
-
-
-
-            // #region loadEmpByOrg
-            function loadEmpByOrg(organizationId) {
-                $.ajax({
-                    url: '/OffDayRoster/GetEmployeeByOrganization',
-                    type: 'GET',
-                    data: { id: organizationId },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees: ', error);
-                    }
-                });
-            }
-            // #endregion
-
 
 
             // #region loadShiftByOrg
@@ -359,7 +297,6 @@
             // #endregion
 
 
-
             // #region BranchID on change
             document.getElementById('BranchIDs')
                 .addEventListener('changed.coreui.multi-select', function (event) {
@@ -368,63 +305,9 @@
                     const selected = event.value || []; // array of {text, value}
                     const branchIds = selected.map(x => parseInt(x.value));
 
-                    loadEmpByOrgBranchId(orgId, branchIds);
+                    getEmployeesByOrgBraDepId(orgId, branchIds, null);
                 });
             // #endregion
-
-
-
-            // #region loadEmpByOrgBranchId/GetEmployeeByBranch
-            function loadEmpByOrgBranchId(organizationId, branchIds = []) {
-                $.ajax({
-                    url: '/OffDayRoster/GetEmployeeByBranch',
-                    type: 'GET',
-                    traditional: true,
-                    data: {
-                        orgId: organizationId,
-                        ids: branchIds
-                    },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees:', error);
-                    }
-                });
-            }
-            // #endregion
-
 
 
             // #region DepartmentIDs on change
@@ -434,24 +317,23 @@
                     const branchIds = $('#BranchIDs').val();
 
                     const selected = event.value || []; // array of {text, value}
-                    const ids = selected.map(x => parseInt(x.value));
+                    const depIds = selected.map(x => parseInt(x.value));
 
-                    loadEmployeesByBranch(orgId, branchIds, ids);
+                    getEmployeesByOrgBraDepId(orgId, branchIds, depIds);
                 });
             // #endregion
 
 
-
-            // #region loadEmployeesByBranch/GetEmployeeByDepartment
-            function loadEmployeesByBranch(orgId, branchIds = [], ids = []) {
+            // #region GetEmployeesByOrgBraDepId
+            function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
                 $.ajax({
-                    url: '/OffDayRoster/GetEmployeeByDepartment',
+                    url: '/OffDayRoster/GetEmployeesByOrgBraDepId',
                     type: 'GET',
                     traditional: true,
                     data: {
                         orgId: orgId,
                         branchIds: branchIds,
-                        depIds: ids
+                        depIds: depIds
                     },
                     success: function (employees) {
                         const select = $('#EmployeeIDs');
@@ -497,88 +379,170 @@
 
             // #region GetWeekendByOrganization
             $('#OrganizationID').on('change', function () {
-                var selectedId = $(this).val();  // Get the selected OrganizationID
+                const selectedId = $(this).val();
 
-                if (selectedId) {  // Ensure a valid ID is selected (not an empty value)
-                    // Perform the AJAX request to get the weekend settings
-                    $.ajax({
-                        url: '/OffDayRoster/GetWeekendByOrganization',  // Your API endpoint
-                        type: 'GET',
-                        data: { id: selectedId },  // Pass the selected OrganizationID as a query parameter
-                        dataType: 'json',
-                        success: function (data) {
-                            // Prepare an array to store the enabled dates
-                            let enabledDates = [];
-                            let disabledDates = [];
+                if (!selectedId) {
+                    $('#DayDate, #ExchangeDate').prop('disabled', true).each(function () {
+                        this._flatpickr?.clear();
+                    });
+                    return;
+                }
 
-                            // Loop through the weekend settings data
-                            $.each(data, function (index, item) {
-                                // Parse the WeekdayNumbers (comma-separated) into an array of numbers
-                                const weekdayNumbers = item.weekdayNumbers.split(',').map(Number);  // [1, 2, 5]
+                $.getJSON('/OffDayRoster/GetWeekendByOrganization', { id: selectedId }, function (data) {
+                    const enabledDates = [];
+                    const disabledDates = [];
+                    const holidayDates = new Set();
+                    const weekendDays = new Set();
 
-                                // Loop through each month (0-11, where 0 = January and 11 = December)
-                                for (let month = 0; month < 12; month++) {
-                                    const currentYear = new Date().getFullYear();
-
-                                    // Loop through all days in the month (1 to 31)
-                                    for (let day = 1; day <= 31; day++) {
-                                        const date = new Date(currentYear, month, day);
-
-                                        // Skip invalid dates (e.g., February 30, April 31, etc.)
-                                        if (date.getMonth() !== month) continue;
-
-                                        const weekday = date.getDay(); // 0-Sunday, 1-Monday, ..., 6-Saturday
-
-                                        // If the weekday is in the list of enabled weekdays, add the date to the enabledDates array
-                                        if (weekdayNumbers.includes(weekday)) {
-                                            // Format the date as 'Y-m-d' (flatpickr date format)
-                                            const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
-                                            enabledDates.push(formattedDate);
-                                        } else {
-                                            // Otherwise, it's disabled, add to disabledDates
-                                            const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
-                                            disabledDates.push(formattedDate);
-                                        }
-                                    }
-                                }
+                    data.forEach(item => {
+                        // Handle holiday (TotalDays)
+                        if (item.totalDays) {
+                            item.totalDays.split(', ').forEach(d => {
+                                const [day, month, year] = d.split('/');
+                                holidayDates.add(`20${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
                             });
-
-                            $('#DayDate').prop('disabled', false); 
-
-                            flatpickr("#DayDate", {
-                                altInput: true,
-                                altFormat: "d/m/Y",
-                                dateFormat: "Y-m-d",
-                                monthSelectorType: "dropdown",
-                                disableMobile: true,
-                                allowInput: true,
-                                mode: "multiple",
-                                enable: enabledDates 
-                            });
-
-                            flatpickr("#ExchangeDate", {
-                                altInput: true,
-                                altFormat: "d/m/Y",
-                                dateFormat: "Y-m-d",
-                                monthSelectorType: "dropdown",
-                                disableMobile: true,
-                                allowInput: true,
-                                mode: "multiple",
-                                enable: disabledDates 
-                            });
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error fetching weekend settings:', error);
+                        }
+                        // Handle weekend
+                        if (item.weekdayNumbers) {
+                            item.weekdayNumbers.split(',').map(Number).forEach(wd => weekendDays.add(wd));
                         }
                     });
-                } else {
-                    $('#DayDate').prop('disabled', true);
-                    flatpickr("#DayDate").destroy();
-                }
+
+                    // Build the enable/disable arrays for ExchangeDate
+                    for (let month = 0; month < 12; month++) {
+                        const year = new Date().getFullYear();
+                        for (let day = 1; day <= 31; day++) {
+                            const date = new Date(year, month, day);
+                            if (date.getMonth() !== month) continue;
+
+                            const iso = date.toISOString().split('T')[0];
+                            const weekday = date.getDay();
+
+                            if (holidayDates.has(iso) || weekendDays.has(weekday)) {
+                                enabledDates.push(iso);
+                            } else {
+                                disabledDates.push(iso);
+                            }
+                        }
+                    }
+
+                    // Enable both calendars
+                    $('#DayDate, #ExchangeDate').prop('disabled', false);
+
+                    // Calendar 1: DayDate — enable weekends and holiday dates
+                    flatpickr("#DayDate", {
+                        altInput: true,
+                        altFormat: "d/m/Y",
+                        dateFormat: "Y-m-d",
+                        mode: "multiple",
+                        disableMobile: true,
+                        allowInput: true,
+                        enable: [
+                            function (date) {
+                                const iso = date.toISOString().split('T')[0];
+                                return holidayDates.has(iso) || weekendDays.has(date.getDay());
+                            }
+                        ]
+                    });
+
+                    // Calendar 2: ExchangeDate — maintain original enable logic
+                    flatpickr("#ExchangeDate", {
+                        altInput: true,
+                        altFormat: "d/m/Y",
+                        dateFormat: "Y-m-d",
+                        monthSelectorType: "dropdown",
+                        disableMobile: true,
+                        allowInput: true,
+                        mode: "multiple",
+                        enable: disabledDates // using disabled logic as before
+                    });
+                });
             });
+
+
+            //$('#OrganizationID').on('change', function () {
+            //    var selectedId = $(this).val();
+
+            //    if (selectedId) { 
+            //        $.ajax({
+            //            url: '/OffDayRoster/GetWeekendByOrganization', 
+            //            type: 'GET',
+            //            data: { id: selectedId }, 
+            //            dataType: 'json',
+            //            success: function (data) {
+            //                // Prepare an array to store the enabled dates
+            //                let enabledDates = [];
+            //                let disabledDates = [];
+
+            //                // Loop through the weekend settings data
+            //                $.each(data, function (index, item) {
+            //                    // Parse the WeekdayNumbers (comma-separated) into an array of numbers
+            //                    const weekdayNumbers = item.weekdayNumbers.split(',').map(Number);  // [1, 2, 5]
+
+            //                    // Loop through each month (0-11, where 0 = January and 11 = December)
+            //                    for (let month = 0; month < 12; month++) {
+            //                        const currentYear = new Date().getFullYear();
+
+            //                        // Loop through all days in the month (1 to 31)
+            //                        for (let day = 1; day <= 31; day++) {
+            //                            const date = new Date(currentYear, month, day);
+
+            //                            // Skip invalid dates (e.g., February 30, April 31, etc.)
+            //                            if (date.getMonth() !== month) continue;
+
+            //                            const weekday = date.getDay(); // 0-Sunday, 1-Monday, ..., 6-Saturday
+
+            //                            // If the weekday is in the list of enabled weekdays, add the date to the enabledDates array
+            //                            if (weekdayNumbers.includes(weekday)) {
+            //                                // Format the date as 'Y-m-d' (flatpickr date format)
+            //                                const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
+            //                                enabledDates.push(formattedDate);
+            //                            } else {
+            //                                // Otherwise, it's disabled, add to disabledDates
+            //                                const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
+            //                                disabledDates.push(formattedDate);
+            //                            }
+            //                        }
+            //                    }
+            //                });
+
+            //                $('#DayDate').prop('disabled', false); 
+
+            //                flatpickr("#DayDate", {
+            //                    altInput: true,
+            //                    altFormat: "d/m/Y",
+            //                    dateFormat: "Y-m-d",
+            //                    monthSelectorType: "dropdown",
+            //                    disableMobile: true,
+            //                    allowInput: true,
+            //                    mode: "multiple",
+            //                    enable: enabledDates 
+            //                });
+
+            //                flatpickr("#ExchangeDate", {
+            //                    altInput: true,
+            //                    altFormat: "d/m/Y",
+            //                    dateFormat: "Y-m-d",
+            //                    monthSelectorType: "dropdown",
+            //                    disableMobile: true,
+            //                    allowInput: true,
+            //                    mode: "multiple",
+            //                    enable: disabledDates 
+            //                });
+            //            },
+            //            error: function (xhr, status, error) {
+            //                console.error('Error fetching weekend settings:', error);
+            //            }
+            //        });
+            //    } else {
+            //        $('#DayDate').prop('disabled', true);
+            //        flatpickr("#DayDate").destroy();
+            //    }
+            //});
             // #endregion
 
-                        
+
+            // #region toggleCompensationSelect
             function toggleCompensationSelect() {
                 const dayDateVal = $('#DayDate').val().trim();
                 if (dayDateVal) {
@@ -595,6 +559,7 @@
             $('#DayDate').on('input change blur', function () {
                 toggleCompensationSelect();
             });
+            // #endregion
 
 
             // #region Load shift by opening edit shift modal
@@ -688,7 +653,7 @@
             // #endregion
 
 
-
+            // #region CompensationTypeID on change
             $('#CompensationTypeID').on('change', function () {
                 const selectedValue = $(this).val();
                 if (selectedValue === "3") {
@@ -696,7 +661,7 @@
                     //$('#rosterInOffDay-dayExchangeModal').modal('show');
                 }
             });
-            
+            // #endregion
 
 
         });
@@ -775,7 +740,7 @@
                     if (response.isSuccess) {
                         buildRosterTable(response.data, response.uniqueDates);
 
-                        // 👇 NEW CODE: Set date range label
+                        // NEW CODE: Set date range label
                         if (response.uniqueDates && response.uniqueDates.length > 0) {
                             const first = new Date(response.uniqueDates[0]);
                             const last = new Date(response.uniqueDates[response.uniqueDates.length - 1]);

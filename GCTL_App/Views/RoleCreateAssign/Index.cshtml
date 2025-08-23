@@ -179,8 +179,8 @@
                                         <th style="width: 10%;">Sl. No</th>
                                         <th>Company Name</th>
                                         <th>Role Name</th>
-                                        <th>Created By</th>
-                                        <th style="width: 10%;">Action</th>
+                                       @*  <th>Created By</th>
+                                        <th style="width: 10%;">Action</th> *@
                                     </tr>
                                 </thead>
                                 <tbody id="role-tBody">
@@ -264,6 +264,10 @@
     </div>
 </div>
 
+@* td js *@
+@* <td>${item.createdBy}</td>
+<td class="text-center">
+</td> *@
 @section scripts {
     <script src="~/js/pages/authjs/rolemanagement.js"></script>
     <script type="text/javascript">

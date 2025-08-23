@@ -262,7 +262,6 @@
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
                 });
-
                 //initOrganizationDD();
                 initShiftDD();
             }
@@ -655,6 +654,7 @@
 
             // #region Load shift by opening edit shift modal
             $(settings.editShiftModal).on('show.bs.modal', function (e) {
+                debugger
                 var btn = $(e.relatedTarget);
                 var rosterInOfficeDayID = btn.data('id');
                 var shiftId = btn.data('shift-id');

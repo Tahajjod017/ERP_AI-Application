@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;
@@ -15,11 +16,16 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
 
         Task<bool> AddAsync(LocalizationViewModel model);
         Task<bool> UpdateAsync(LocalizationViewModel model);
-       // Task<LocalizationViewModel> GetByIdAsync(int id);
+        // Task<bool> DeleteAsync(int id);
+        Task<LocalizationViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
+        // Task<bool> IsLocalizationUniqueAsync(int? organizationId, int? languageId, int? timezoneId);
+        Task<LocalizationViewModel> GetByIdAsync(int id);
+        // Task<LocalizationViewModel> GetByIdAsync(int id);
         Task<PaginationService<Localizations, LocalizationViewModel>.PaginationResult<LocalizationViewModel>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
             string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<Localizations> GetForOrganizationAsync(int orgId);
         Task<List<SelectListItem>> GetOrganizationsAsync();
+        Task<List<SelectListItem>> GetLanguagesAsync();
         Task<List<SelectListItem>> GetTimeformatAsync();
         Task<List<SelectListItem>> GetTimeZoneAsync();
         Task<List<SelectListItem>> GetDateFormateAsync();

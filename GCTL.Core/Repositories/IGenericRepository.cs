@@ -24,7 +24,7 @@ namespace GCTL.Core.Repository
 
         #region Adds
         Task AddAsync(T entity);
-
+        Task BulkInsertAsync(IEnumerable<T> entities);
         Task AddAsync(T entity, object model);
         Task AddRangeAsync(IEnumerable<T> entities);
         #endregion
@@ -32,6 +32,7 @@ namespace GCTL.Core.Repository
 
         #region Updates
         Task UpdateAsync(T entity);
+        Task BulkUpdateAsync(IEnumerable<T> entities);
         Task UpdateAsync(T entity, object model);
         Task UpdateRangeAsync(IEnumerable<T> entities);
         #endregion

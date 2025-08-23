@@ -156,18 +156,18 @@
                 <li class="breadcrumb-item active">Default</li>
             </ol>
         </nav> *@
-        <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead")</h3>
+        <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead New")</h3>
         <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html">
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
                     <div class="col-sm-12 customerDiv col-md-6 position-relative">
                         <div class="form-floating mbs-4">
-                            <input type="text" id="ContactNameSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
+                            <input type="text" id="ContactNameSearch" class="form-control" required placeholder="@Html.SmartLocalize("Search ContactName...")">
                             <input type="hidden" id="customerID">
                             <input type="hidden" id="customerType">
 
-                            <label for="floatingSelectLitigation">@Html.SmartLocalize("Customer Search")</label>
+                            <label for="floatingSelectLitigation"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
                         </div>
                         <div class="search-results card" id="searchResults">
                             <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
@@ -184,7 +184,7 @@
                     
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <input class="form-control" id="exampleFormControlInput" type="text" placeholder="" />
+                            <input class="form-control" id="leadName" type="text" placeholder="" required />
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Lead Name")</label>
                         </div>
                     </div>
@@ -192,8 +192,8 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Sources") </label>
-                            <select class="form-select choiceDD" id="leadSourceId" asp-items="@ViewBag.LeadSourceDD as SelectList">
-                                <option selected disabled>@Html.SmartLocalize("Select Sources")...</option>
+                            <select class="form-select choiceDD" id="leadSourceId" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                                <option value="" selected>@Html.SmartLocalize("Select Sources")...</option>
                             </select>
                         </div>
                     </div>
@@ -201,8 +201,8 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Status Name")</label>
-                            <select class="form-select choiceDD" id="leadStatusId" asp-items="@ViewBag.LeadStatusDD as SelectList">
-                                <option disabled selected>@Html.SmartLocalize("Select Status")</option>
+                            <select class="form-select choiceDD" id="leadStatusId" asp-items="@ViewBag.LeadStatusDD as SelectList" required>
+                                <option value="" selected>@Html.SmartLocalize("Select Status")</option>
                             </select>
                         </div>
                     </div>
@@ -210,8 +210,8 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
-                            <select class="form-select choiceDD" id="leadOwnerId" asp-items="@ViewBag.EmployeeDD as SelectList">
-                                <option disabled selected>@Html.SmartLocalize("Select Lead Owner")</option>
+                            <select class="form-select choiceDD" id="leadOwnerId" asp-items="@ViewBag.EmployeeDD as SelectList" required>
+                                <option value="" selected>@Html.SmartLocalize("Select Lead Owner")</option>
                             </select>
                         </div>
                     </div>
@@ -224,154 +224,161 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    @* <div class="col-md-6">
                         <div class="form-floating">
 
                             <input class="form-control" id="probabilityPercentage" type="text" placeholder="" />
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Probability (%)")</label>
                         </div>
-                    </div>
-
-
-
+                    </div> *@
+                    <div class="col-md-6">
+                        <label for="completion" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
+                        <div class="d-flex align-items-center">
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="0" oninput="completionValue.innerText = this.value + '%'">
+                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
+                        </div>
+                                            </div>
                     <div class="col-md-12">
                         <div class="form-floating">
                             <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Description")</label>
                         </div>
                     </div>
+
                 </div>
             </div>
-            @* // create person code *@
-            <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8">Custommer Information</h5>
-            <div class="border-top pb-0 mb-3"></div>
-            <div class="row p-0">
-                <div class="col-md-6 col-sm-12">
-                    <div class="row">
-                        <div>
-                            <input type="number" id="personIndexIA_ID" hidden>
-                            <input type="text" name="name" value="" id="countryCodePersonIndex" hidden />
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3 form-floating">
-                                <input type="text" id="autocompletePersonIndex" class="form-control" placeholder="Customer name" required>
-                                <label class="form-label req">Full Address</label>
-                                <span class="text-danger small"></span>
+            <div id="customerInfoContainer" style="display: none;">
+                @* // create person code *@
+                <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8">Custommer Information</h5>
+                <div class="border-top pb-0 mb-3"></div>
+                <div class="row p-0">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="row">
+                            <div>
+                                <input type="number" id="personIndexIA_ID" hidden>
+                                <input type="text" name="name" value="" id="countryCodePersonIndex" hidden />
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="streetPersonIndex" class="form-control" placeholder="Street" required>
-                                        <label class="form-label req">Street</label>
-                                        <span class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="cityPersonIndex" class="form-control" placeholder="City" required>
-                                        <label class="form-label req">City</label>
-                                        <span class="text-danger small"></span>
-                                    </div>
+                            <div class="col-md-12">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="autocompletePersonIndex" class="form-control" placeholder="Customer name">
+                                    <label class="form-label req">Full Address</label>
+                                    <span class="text-danger small"></span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="additionalAddressPersonIndex" class="form-control" placeholder="" required>
-                                        <label class="form-label req">Additional Address</label>
-                                        <span class="text-danger small"></span>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6 pe-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="streetPersonIndex" class="form-control" placeholder="Street">
+                                            <label class="form-label req">Street</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="statePersonIndex" class="form-control" placeholder="" required>
-                                        <label class="form-label req">State/Province</label>
-                                        <span class="text-danger small"></span>
+                                    <div class="col-md-6 ps-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="cityPersonIndex" class="form-control" placeholder="City">
+                                            <label class="form-label req">City</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input id="postalCodePersonIndex" type="text" class="form-control" placeholder="" required>
-                                        <label class="form-label req">Zip/Postal Code</label>
-                                        <span class="text-danger small"></span>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6 pe-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="additionalAddressPersonIndex" class="form-control" placeholder="">
+                                            <label class="form-label req">Additional Address</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input id="countryPersonIndex" type="text" class="form-control" placeholder="" required>
-                                        <label class="form-label req">Country</label>
-                                        <span class="text-danger small"></span>
+                                    <div class="col-md-6 ps-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="statePersonIndex" class="form-control" placeholder="">
+                                            <label class="form-label req">State/Province</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="latitudePersonIndex" class="form-control" placeholder="" required>
-                                        <label class="form-label req">Latitude</label>
-                                        <span class="text-danger small"></span>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6 pe-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input id="postalCodePersonIndex" type="text" class="form-control" placeholder="">
+                                            <label class="form-label req">Zip/Postal Code</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input id="countryPersonIndex" type="text" class="form-control" placeholder="">
+                                            <label class="form-label req">Country</label>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="longitudePersonIndex" class="form-control" placeholder="" required>
-                                        <label class="form-label req">Longitude</label>
-                                        <span class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6 pe-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="latitudePersonIndex" class="form-control" placeholder="">
+                                            <label class="form-label req">Latitude</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="longitudePersonIndex" class="form-control" placeholder="">
+                                            <label class="form-label req">Longitude</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6 col-sm-12">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="firstNamePersonIndex" class="form-control" placeholder="" required>
-                                        <label class="form-label req">First Name</label>
-                                        <span class="text-danger small"></span>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-6 pe-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="firstNamePersonIndex" class="form-control" placeholder="" required>
+                                            <label class="form-label req">First Name</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" id="lastNamePersonIndex" class="form-control" placeholder="" required>
-                                        <label class="form-label req">Last Name</label>
-                                        <span class="text-danger small"></span>
+                                    <div class="col-md-6 ps-1 col-sm-6">
+                                        <div class="mb-3 form-floating">
+                                            <input type="text" id="lastNamePersonIndex" class="form-control" placeholder="">
+                                            <label class="form-label req">Last Name</label>
+                                            <span class="text-danger small"></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <input class="form-control" id="phonePersonIndex" type="tel" placeholder="Phone Number" />
-                        </div>
-                        <div class="col-12 mb-3">
-                            <input class="form-control" id="otherPhonePersonIndex" type="tel" placeholder="Other Phone" />
-                        </div>
+                            <div class="col-12 mb-3">
+                                <input class="form-control" id="phonePersonIndex" type="tel" placeholder="Phone Number" required/>
+                                <div class="text-danger" id="errorShow"></div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <input class="form-control" id="otherPhonePersonIndex" type="tel" placeholder="Other Phone" />
+                                <div class="text-danger" id="errorShow"></div>
+                            </div>
 
-                        <div class="col-12">
-                            <div class="mb-3 form-floating">
-                                <input type="text" id="emailPersonIndex" class="form-control" placeholder="" required>
-                                <label class="form-label req">Email</label>
-                                <span class="text-danger small"></span>
+                            <div class="col-12">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="emailPersonIndex" class="form-control" placeholder="">
+                                    <label class="form-label req">Email</label>
+                                    <span class="text-danger small"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+           
 
-            <!-----  person shiping address code ------>
+            @* <!-----  person shiping address code ------>
 
             <h5 class="text-body-highlight fs-8 mb-2 ms-2 mt-2">Shipping Address</h5>
             <div class="border-top pb-0 mb-3"></div>
@@ -495,7 +502,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div> *@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light me-2">Cancel</button>
@@ -524,105 +531,8 @@
 
 
     <script type="text/javascript">
-        // let itiMap = {};
-        //     document.addEventListener("DOMContentLoaded", function () {
-        //     const phoneIds = ["#phone", "#phone1", "#phone2", "#phone3", "#phone4"];
-
-        //     phoneIds.forEach(selector => {
-        //         const input = document.querySelector(selector);
-        //         if (!input) return;
-
-        //         const iti = window.intlTelInput(input, {
-        //             utilsScript: "https:cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-        //             separateDialCode: true,
-        //             initialCountry: "bd",
-        //             preferredCountries: ["bd", "in", "us"]
-        //         });
-
-        //         input.addEventListener("blur", function () {
-        //             console.log(`${selector} Phone:`, iti.getNumber());
-        //         });
-        //     });
-        // }); 
-
-        // replace
-       
-
-
-
-
-        // load phone field
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const input = document.querySelector("#phone");
-
-        //     const iti = window.intlTelInput(input, {
-        //         utilsScript: "https:cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-        //         separateDialCode: true,
-        //         initialCountry: "bd",
-        //         preferredCountries: ["bd", "in", "us"]
-        //     });
-
-        //     Optional: log the number on blur
-        //     input.addEventListener("blur", function () {
-        //         console.log("Phone:", iti.getNumber());
-        //     });
-        // });
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const input = document.querySelector("#phone1");
-
-        //     const iti = window.intlTelInput(input, {
-        //         utilsScript: "https:cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-        //         separateDialCode: true,
-        //         initialCountry: "bd",
-        //         preferredCountries: ["bd", "in", "us"]
-        //     });
-
-        //     Optional: log the number on blur
-        //     input.addEventListener("blur", function () {
-        //         console.log("Phone:", iti.getNumber());
-        //     });
-       
-        // });
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const input = document.querySelector("#phone2");
-        //     const iti = window.intlTelInput(input, {
-        //         utilsScript: "https:cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-        //         separateDialCode: true,
-        //         initialCountry: "bd",
-        //         preferredCountries: ["bd", "in", "us"]
-        //     });
-        //     Optional: log the number on blur
-        //     input.addEventListener("blur", function () {
-        //         console.log("Phone:", iti.getNumber());
-        //     });
-        // });
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const input = document.querySelector("#phone3");
-        //     const iti = window.intlTelInput(input, {
-        //         utilsScript: "https:cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-        //         separateDialCode: true,
-        //         initialCountry: "bd",
-        //         preferredCountries: ["bd", "in", "us"]
-        //     });
-        //     Optional: log the number on blur
-        //     input.addEventListener("blur", function () {
-        //         console.log("Phone:", iti.getNumber());
-        //     });
-        // });
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     const input = document.querySelector("#phone4");
-        //     const iti = window.intlTelInput(input, {
-        //         utilsScript: "https:cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/utils.js",
-        //         separateDialCode: true,
-        //         initialCountry: "bd",
-        //         preferredCountries: ["bd", "in", "us"]
-        //     });
-        //     Optional: log the number on blur
-        //     input.addEventListener("blur", function () {
-        //         console.log("Phone:", iti.getNumber());
-        //     });
-        // });
              
+
     </script>
     <script src="~/js/pages/CRM/intlTelInput.min.js"></script>
     <script src="~/js/pages/CRM/utils.js"></script>

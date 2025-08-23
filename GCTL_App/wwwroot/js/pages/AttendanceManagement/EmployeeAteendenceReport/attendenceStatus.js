@@ -341,13 +341,25 @@ $(document).ready(function () {
 ///punch ativity
 
 // Data provided (Punch In/Punch Out events)
-const timelineData = [
-    { "type": "Punch In", "time": "10:00 AM", "description": "Punch In " },
-    { "type": "Punch Out", "time": "11:30 AM", "description": "Punch Out " },
-    /*{ "type": "Break", "time": "1:00 PM - 2:00 PM", "description": "Break Time" },*/
-    { "type": "Punch In", "time": "2:10 PM", "description": "Punch In " },
-    { "type": "Punch Out", "time": "7:30 PM", "description": "Punch Out " }
-];
+//let timelineData = [
+//    { "type": "Punch In", "time": "10:00 AM", "description": "Punch In " },
+//    { "type": "Punch Out", "time": "11:30 AM", "description": "Punch Out " },
+//    /*{ "type": "Break", "time": "1:00 PM - 2:00 PM", "description": "Break Time" },*/
+//    { "type": "Punch In", "time": "2:10 PM", "description": "Punch In " },
+//    { "type": "Punch Out", "time": "7:30 PM", "description": "Punch Out " }
+//];
+
+let timelineData = []; 
+// Function to fetch punch activity data from the server
+function fetchPunchActivityData() {
+    $.getJSON(`/EmployeesAttendance/GetEmployeeAttendanceActivity`, function (data) {
+        // data is already an array like [{type, time, description}, ...]
+        timelineData = data;
+        generateTimeline();
+
+    });
+}
+
 
 // Function to generate the timeline dynamically
 function generateTimeline() {
@@ -355,6 +367,7 @@ function generateTimeline() {
 
     // Loop through the timeline data and create timeline items
     timelineData.forEach(item => {
+        debugger
         // Create the timeline item container
         const timelineItem = document.createElement('div');
         timelineItem.classList.add('timeline-item', 'position-relative');
@@ -413,6 +426,7 @@ function generateTimeline() {
 // Call the function to generate the timeline when the page is ready
 $(document).ready(function () {
     generateTimeline();
+    fetchPunchActivityData();
 });
 
 

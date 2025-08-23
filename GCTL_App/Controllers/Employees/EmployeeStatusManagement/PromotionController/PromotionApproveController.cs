@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.Employees.EmployeeStatus.Promotion;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionController
 {
@@ -20,8 +22,12 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         private readonly IGenericRepository<EmployeeCareerChanges> _empCarrerRepository;
         private readonly IGenericRepository<EmployeeActionTypes> _empActionRepository;
         private readonly IPromotionService _promotionService;
+        private readonly IGenericRepository<EmployeeActionTypes> _actionRepository;
+        private readonly IGenericRepository<EmployeeCareerChangeHistory> _careerHistoryRepository;
 
-        public PromotionApproveController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IGenericRepository<EmployeeActionTypes> empActionRepository, IPromotionService promotionService) : base(translateService, userProfileService)
+
+
+        public PromotionApproveController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeOfficeInfo> employeeOffiRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmployeeCareerChanges> empCarrerRepository, IGenericRepository<EmployeeActionTypes> empActionRepository, IPromotionService promotionService, IGenericRepository<EmployeeActionTypes> actionRepository, IGenericRepository<EmployeeCareerChangeHistory> careerHistoryRepository) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _employeeOffiRepository = employeeOffiRepository;
@@ -31,6 +37,8 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
             _empCarrerRepository = empCarrerRepository;
             _empActionRepository = empActionRepository;
             _promotionService = promotionService;
+            _actionRepository = actionRepository;
+            _careerHistoryRepository = careerHistoryRepository;
         }
 
         #endregion
@@ -39,7 +47,47 @@ namespace GCTL_App.Controllers.Employees.EmployeeStatusManagement.PromotionContr
         {
             SetSmartPageCode(121900);
 
+            ViewBag.DepartmentDD = new SelectList(
+                 _departmentRepository.AllActive().Select(d => new { d.DepartmentID, d.DepartmentName }),
+                 "DepartmentID",
+                 "DepartmentName"
+             );
+
+            ViewBag.IncrementTypeList = new SelectList(
+                _actionRepository.AllActive().Where(r => r.EmployeeActionTypeName.ToLower() == "promotion" || r.EmployeeActionTypeName.ToLower() == "demotion")
+                .Select(d => new { d.EmployeeActionTypeID, d.EmployeeActionTypeName }),
+                "EmployeeActionTypeID",
+                "EmployeeActionTypeName"
+            );
+
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult GetDetails(int id)
+        {
+
+            var app = _careerHistoryRepository.AllActive()
+             .Include(e => e.ApprovalPerson)
+             .Include(s => s.Status)
+             .Where(e => e.EmployeeCareerChangeID == id)
+             .ToList() // Forces client-side evaluation
+             .Select((w, index) => new
+             {
+                 approverStep = index,
+                 statusName = w.Status != null ? w.Status.StatusName : "",
+                 approvarPerson = w.ApprovalPerson.FirstName + " " + w.ApprovalPerson.LastName,
+                 approvarNote = w.Remarks != null ? w.Remarks : "no remarks",
+                 approvedOrDeclineDate = w.CreatedAt.Value.ToString("dd/MM/yyyy hh:mm tt")
+
+             })
+             .ToList();
+
+
+
+
+
+            return Json(app);
         }
 
         #region Static Data for Testing
