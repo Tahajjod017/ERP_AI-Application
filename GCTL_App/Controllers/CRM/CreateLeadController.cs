@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
@@ -206,7 +207,27 @@ namespace GCTL_App.Controllers.CRM
             {
                 if (customerVM.PrimaryID == 0)
                 {
-                    var result = await _leadCreateService.CreateLead(customerVM);
+                    var result = await _leadCreateService.CreatePerson(customerVM);
+                    
+                    return Ok(result);
+                } 
+            }
+            var results =  new ReturnView
+            {
+                Success = false,
+                Message = "Data saved succesfull",
+            };
+            return Ok(results); 
+        } 
+
+        [HttpPost]
+        public async Task<IActionResult> InsertShippingAddress([FromBody] ShippingVM shippingVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (shippingVM.PrimaryID == 0)
+                {
+                    var result = await _leadCreateService.CreateShippingAddress(shippingVM);
                     
                     return Ok(result);
                 } 

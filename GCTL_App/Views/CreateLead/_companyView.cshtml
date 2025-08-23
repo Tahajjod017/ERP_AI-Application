@@ -436,7 +436,7 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="firstNamePerson" class="form-control" placeholder="" required>
+                                                                        <input type="text" id="firstNamePerson" class="form-control" placeholder="">
                                                                         <label class="form-label req">First Name</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -557,8 +557,8 @@
                                                 </div>
                                             </div>
                                             <div class="modal-footer border-0 pt-0 pb-2">
-                                                <button type="button" class="btn btn-light" id="closeModal2">Cancel</button>
-                                                <button type="submit" class="btn btn-primary" id="personSaveBtn">Save</button>
+                                                <button type="button" class="btn btn-light" id="goToShippingTab">Save & Add Shipping Address</button>
+                                                <button type="button" class="btn btn-primary" id="personSaveAndExit">Save & Exit</button>
                                             </div>
                                         </form>
                                     </div>
@@ -582,30 +582,29 @@
                                                 <div class="row">
                                                     <!-- Left Section -->
                                                     <div class="col-md-6">
-                                                        <div class="col-12 mb-3 customerDiv position-relative">
+                                                        <div class="col-12 mb-3 customerDiv" id="personCustomerSearchMainDiv">
                                                             <div class="form-floating mbs-4">
-                                                                <input type="text" id="ContactNameSearch" class="form-control" required placeholder="@Html.SmartLocalize("Search ContactName...")">
-                                                                <input type="hidden" id="customerID">
-                                                                <input type="hidden" id="customerType">
+                                                                <input type="text" id="personContactNameSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
+                                                                <input type="hidden" id="personCustomerID">
 
-                                                                <label for="floatingSelectLitigation"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
+                                                                <label for="personContactNameSearch"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
                                                             </div>
                                                             <div class="search-results card" id="searchResults">
-                                                                <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
-                                                                    <!-- ContactName items will be populated here by JavaScript -->
+                                                                <div class="list-group bg-white p-0 border" id="personCustomerList" style="display: none; width:100%; z-index:10012;">
+                                                                    <!-- ContactName items will be populated here -->
                                                                 </div>
-                                                                <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
+                                                                <div class="no-results position-absolute bg-white p-2 border" id="personNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
                                                                     @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
+                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewPersonBtn">@Html.SmartLocalize("Business")</button>
                                                                     <span>Or</span>
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
+                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewPersonContactBtn">@Html.SmartLocalize("Person")</button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-6 pe-1 col-sm-6">
                                                                 <div class="mb-3 form-floating">
-                                                                    <input type="text" id="firstNameShiping" class="form-control" placeholder="" required>
+                                                                    <input type="text" id="firstNameShiping" class="form-control" placeholder="">
                                                                     <label class="form-label req">First Name</label>
                                                                     <span class="text-danger small"></span>
                                                                 </div>
@@ -738,8 +737,7 @@
                                                     
                                                 </div>
                                                 <div class="modal-footer border-0 pt-0 pb-2">
-                                                    <button type="button" class="btn btn-light" id="closeModal2">Cancel</button>
-                                                    <button type="submit" class="btn btn-primary" id="modalSaveBtn">Save</button>
+                                                    <button type="button" class="btn btn-primary" id="shippingAddressSaveBtn">Save</button>
                                                 </div>
                                             </form>
                                         </div>

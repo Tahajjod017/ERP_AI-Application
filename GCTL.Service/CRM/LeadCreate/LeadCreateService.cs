@@ -27,159 +27,288 @@ namespace GCTL.Service.CRM.LeadCreate
             _leadsRepository = leadsRepository;
         }
 
-        public async Task<CommonReturnViewModel> CreateLead(CustomerVM customerVM)
+        public async Task<ReturnView> CreatePerson(CustomerVM customerVM)
         {
-            //try
-            //{
-            //    Individuals individuals = new Individuals();
-            //    var item = await _addressTypesRepository.GetAllAsync();
-            //    int returnID = 0;
-            //    if (!item.Any())
-            //    {
-            //        List<AddressTypes> addressTypes =new List<AddressTypes>();
-            //        var listImte = new string[] { "billing", "shipping" };
-            //        for (int i = 0; i< listImte.Length; i++)
-            //        {
-            //            addressTypes.Add(new AddressTypes()
-            //            {
-            //                AddressTypeName = listImte[i],
-
-            //                CreatedAt = DateTime.UtcNow,
-            //                CreatedBy = customerVM.CreatedBy,
-            //                LIP = customerVM.LIP,
-            //                LMAC = customerVM.LMAC,
-
-            //            });
-            //        }
-            //        await _addressTypesRepository.AddRangeAsync(addressTypes);
-            //    }
-
-            //    foreach(var obj in customerVM)
-            //    {
-            //        var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == obj.CountryName.ToLower());
-
-            //        int countryId;
-            //        if (existingCountry != null)
-            //        {
-            //            // Country found
-            //            countryId = existingCountry.CountryID;
-            //        }
-            //        else
-            //        {
-            //            // 2. new country creation
-            //            var newCountry = new Country
-            //            {
-            //                CountryCode = obj.CountryCode,
-            //                CountryName = obj.CountryName,
-
-            //                CreatedAt = DateTime.UtcNow,
-            //                CreatedBy = customerVM.CreatedBy,
-            //                LIP = customerVM.LIP,
-            //                LMAC = customerVM.LMAC,
-            //                UpdatedAt = DateTime.UtcNow,
-            //                UpdatedBy = customerVM.UpdatedBy ?? null,
-            //                DeletedAt = null,
-            //            };
-
-            //            await _countryRepository.AddAsync(newCountry);
-            //            countryId = newCountry.CountryID;
-            //        }
-
-            //        string serverSiteAddressType = obj.TabName == "person" ? "billing" : obj.TabName;
-            //        var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == serverSiteAddressType);
-
-            //        // individual
-            //        // only this condition will run when item type is billing
-
-            //        if (addressTypeObj.AddressTypeName == "billing")
-            //        {
-            //            individuals = new Individuals()
-            //            {
-            //                FirstName = obj.FirstName,
-            //                LastName = obj.LastName,
-
-            //                CreatedAt = DateTime.UtcNow,
-            //                CreatedBy = customerVM.CreatedBy,
-            //                LIP = customerVM.LIP,
-            //                LMAC = customerVM.LMAC,
-            //                DeletedAt = null,
-            //            };
-            //            await _individualsRepository.AddAsync(individuals);
-            //        }
-
-            //            // Address
-            //            Addresses addresses = new Addresses()
-            //            {
-            //                FullAddress = obj.FullAddress,
-            //                Street = obj.Street,
-            //                City = obj.City,
-            //                State = obj.State,
-            //                Additionaladdress = obj.Additionaladdress,
-            //                PostalCode = obj.PostalCode,
-            //                CountryID = countryId,
-            //                Phone = obj.Phone,
-            //                OtherPhone = obj.OtherPhone,
-            //                Email = obj.Email,
-            //                Latitude = obj.Latitude,
-            //                Longitude = obj.Longitude,
-            //                FirstName = addressTypeObj.AddressTypeName == "shipping" ? obj.FirstName : null,
-            //                LastName = addressTypeObj.AddressTypeName == "shipping" ? obj.LastName : null,
-            //                CreatedAt = DateTime.UtcNow,
-            //                CreatedBy = customerVM.CreatedBy,
-            //                LIP = customerVM.LIP,
-            //                LMAC = customerVM.LMAC,
-            //                UpdatedAt = DateTime.UtcNow,
-            //                UpdatedBy = customerVM.UpdatedBy ?? null,
-            //                DeletedAt = null,
-            //            };
-            //        await _addressesRepository.AddAsync(addresses);
-
-            //        //get all table id
-            //        int addressesId = addresses.AddressID;
-
-            //        IndividualAddresses individualAddresses = new IndividualAddresses()
-            //        {
-            //            AddressTypeID = addressTypeObj.AddressTypeID,
-            //            AddressID = addressesId,
-            //            IndividualID = individuals.IndividualID,
-
-            //            CreatedAt = DateTime.UtcNow,
-            //            CreatedBy = customerVM.CreatedBy,
-            //            LIP = customerVM.LIP,
-            //            LMAC = customerVM.LMAC,
-
-            //            UpdatedAt = DateTime.UtcNow,
-            //            UpdatedBy = customerVM.UpdatedBy ?? null,
-            //            DeletedAt = null,
-            //        };
-            //        await _individualAddressesRepository.AddAsync(individualAddresses);
-            //        if (addressTypeObj.AddressTypeName == "billing")
-            //        {
-            //            returnID = individualAddresses.IndividualAddressID;
-            //        }
-
-            //    }
-            //    return new CommonReturnViewModel
-            //    {
-            //        Success = true,
-            //        Message = "Data saved succesfull",
-            //        Data = returnID,
-            //        //    Data = newCustomer
-            //    };
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    return new CommonReturnViewModel
-            //    {
-            //        Success = false,
-            //        Message = ex.Message,
-            //    };
-            //}
-            return new CommonReturnViewModel
+            try
             {
-                Success = false,
+                Individuals individuals = new Individuals();
+                var items = await _addressTypesRepository.GetAllAsync();
+                int returnID = 0;
+                string returnName = "";
+                int countryId = 0;
+
+                if (!items.Any())
+                {
+                    List<AddressTypes> addressTypes = new List<AddressTypes>();
+                    var listImte = new string[] { "billing", "shipping" };
+                    for (int i = 0; i < listImte.Length; i++)
+                    {
+                        addressTypes.Add(new AddressTypes()
+                        {
+                            AddressTypeName = listImte[i],
+
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+
+                        });
+                    }
+                    await _addressTypesRepository.AddRangeAsync(addressTypes);
+                }
+                    if (customerVM.CountryName != null)
+                    {
+                        var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == customerVM.CountryName.ToLower());
+
+                        
+                        if (existingCountry != null)
+                        {
+                            // Country found
+                            countryId = existingCountry.CountryID;
+                        }
+                        else
+                        {
+                            // 2. new country creation
+                            var newCountry = new Country
+                            {
+                                CountryCode = customerVM.CountryCode,
+                                CountryName = customerVM.CountryName,
+
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = customerVM.CreatedBy,
+                                LIP = customerVM.LIP,
+                                LMAC = customerVM.LMAC,
+                                UpdatedAt = DateTime.UtcNow,
+                                UpdatedBy = customerVM.UpdatedBy ?? null,
+                                DeletedAt = null,
+                            };
+
+                            await _countryRepository.AddAsync(newCountry);
+                            countryId = newCountry.CountryID;
+                        }
+                    }
+                    
+
+             
+                    var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "billing");
+
+                    // individual
+                    // only this condition will run when item type is billing
+
+                    if (addressTypeObj.AddressTypeName == "billing")
+                    {
+                        individuals = new Individuals()
+                        {
+                            FirstName = customerVM.FirstName,
+                            LastName = customerVM.LastName,
+
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = customerVM.CreatedBy,
+                            LIP = customerVM.LIP,
+                            LMAC = customerVM.LMAC,
+                            DeletedAt = null,
+                        };
+                        await _individualsRepository.AddAsync(individuals);
+                        returnName = individuals.FirstName + " " + individuals.LastName;  
+                }
+
+                    // Address
+                    Addresses addresses = new Addresses()
+                    {
+                        FullAddress = customerVM.FullAddress,
+                        Street = customerVM.Street,
+                        City = customerVM.City,
+                        State = customerVM.State,
+                        Additionaladdress = customerVM.Additionaladdress,
+                        PostalCode = customerVM.PostalCode,
+                        CountryID = countryId,
+                        Phone = customerVM.Phone,
+                        OtherPhone = customerVM.OtherPhone,
+                        Email = customerVM.Email,
+                        Latitude = customerVM.Latitude,
+                        Longitude = customerVM.Longitude,
+                        FirstName = null,
+                        LastName = null,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = customerVM.CreatedBy,
+                        LIP = customerVM.LIP,
+                        LMAC = customerVM.LMAC,
+                        UpdatedAt = DateTime.UtcNow,
+                        UpdatedBy = customerVM.UpdatedBy ?? null,
+                        DeletedAt = null,
+                    };
+                    await _addressesRepository.AddAsync(addresses);
+
+                    //get all table id
+                    int addressesId = addresses.AddressID;
+
+                    IndividualAddresses individualAddresses = new IndividualAddresses()
+                    {
+                        AddressTypeID = addressTypeObj.AddressTypeID,
+                        AddressID = addressesId,
+                        IndividualID = individuals.IndividualID,
+
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = customerVM.CreatedBy,
+                        LIP = customerVM.LIP,
+                        LMAC = customerVM.LMAC,
+
+                        UpdatedAt = DateTime.UtcNow,
+                        UpdatedBy = customerVM.UpdatedBy ?? null,
+                        DeletedAt = null,
+                    };
+                    await _individualAddressesRepository.AddAsync(individualAddresses);
+                    returnID = individualAddresses.IndividualAddressID;
+
+
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = "Data saved succesfull",
+                    Id = returnID,
+                    Name = returnName
                 };
+
+            }
+            catch (Exception ex)
+            {
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
+            }
+           
+        }
+        public async Task<CommonReturnViewModel> CreateShippingAddress(ShippingVM shippingVM)
+        {
+            try
+            {
+                var items = await _addressTypesRepository.GetAllAsync();
+                int returnID = 0;
+                int countryId = 0;
+
+                if (!items.Any())
+                {
+                    List<AddressTypes> addressTypes = new List<AddressTypes>();
+                    var listImte = new string[] { "billing", "shipping" };
+                    for (int i = 0; i < listImte.Length; i++)
+                    {
+                        addressTypes.Add(new AddressTypes()
+                        {
+                            AddressTypeName = listImte[i],
+
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = shippingVM.CreatedBy,
+                            LIP = shippingVM.LIP,
+                            LMAC = shippingVM.LMAC,
+
+                        });
+                    }
+                    await _addressTypesRepository.AddRangeAsync(addressTypes);
+                }
+                    if (shippingVM.CountryName != null)
+                    {
+                        var existingCountry = await _countryRepository.FirstOrDefaultAsync(c => c.CountryName.ToLower() == shippingVM.CountryName.ToLower());
+
+                        
+                        if (existingCountry != null)
+                        {
+                            // Country found
+                            countryId = existingCountry.CountryID;
+                        }
+                        else
+                        {
+                            // 2. new country creation
+                            var newCountry = new Country
+                            {
+                                CountryCode = shippingVM.CountryCode,
+                                CountryName = shippingVM.CountryName,
+
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = shippingVM.CreatedBy,
+                                LIP = shippingVM.LIP,
+                                LMAC = shippingVM.LMAC,
+                                UpdatedAt = DateTime.UtcNow,
+                                UpdatedBy = shippingVM.UpdatedBy ?? null,
+                                DeletedAt = null,
+                            };
+
+                            await _countryRepository.AddAsync(newCountry);
+                            countryId = newCountry.CountryID;
+                        }
+                    }
+                    
+
+             
+                    var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "shipping");
+
+                // individual
+                    var individualAddressObj = await _individualAddressesRepository.FirstOrDefaultAsync(u => u.IndividualAddressID == shippingVM.CustomerID);
+
+
+                    Addresses addresses = new Addresses()
+                    {
+                        FullAddress = shippingVM.FullAddress,
+                        Street = shippingVM.Street,
+                        City = shippingVM.City,
+                        State = shippingVM.State,
+                        Additionaladdress = shippingVM.Additionaladdress,
+                        PostalCode = shippingVM.PostalCode,
+                        CountryID = countryId,
+                        Phone = shippingVM.Phone,
+                        OtherPhone = shippingVM.OtherPhone,
+                        Email = shippingVM.Email,
+                        Latitude = shippingVM.Latitude,
+                        Longitude = shippingVM.Longitude,
+                        FirstName = shippingVM.FirstName,
+                        LastName = shippingVM.LastName,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = shippingVM.CreatedBy,
+                        LIP = shippingVM.LIP,
+                        LMAC = shippingVM.LMAC,
+                        UpdatedAt = DateTime.UtcNow,
+                        UpdatedBy = shippingVM.UpdatedBy ?? null,
+                        DeletedAt = null,
+                    };
+                    await _addressesRepository.AddAsync(addresses);
+
+                    //get all table id
+                    int addressesId = addresses.AddressID;
+
+                    IndividualAddresses individualAddresses = new IndividualAddresses()
+                    {
+                        AddressTypeID = addressTypeObj.AddressTypeID,
+                        AddressID = addressesId,
+                        IndividualID = individualAddressObj.IndividualID,
+
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = shippingVM.CreatedBy,
+                        LIP = shippingVM.LIP,
+                        LMAC = shippingVM.LMAC,
+
+                        UpdatedAt = DateTime.UtcNow,
+                        UpdatedBy = shippingVM.UpdatedBy ?? null,
+                        DeletedAt = null,
+                    };
+                    await _individualAddressesRepository.AddAsync(individualAddresses);
+                
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Data saved succesfull",
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
+            }
+           
         }
         public async Task<CommonReturnViewModel> UpdateLead(LeadsVM leadsVM)
         {
