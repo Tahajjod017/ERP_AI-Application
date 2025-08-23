@@ -8,6 +8,7 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
 using GCTL.Core.ViewModels.Employee.EmployeeStatusManagement.Promotion;
+using GCTL.Core.ViewModels.Employee.Universal;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -147,6 +148,7 @@ namespace GCTL.Service.Employees.EmployeeResign
                     ResinDate = e.ResignationDate.Value.ToString("dd/MM/yyyy"),
                     ResNoticeDate = e.NoticeDate.Value.ToString("dd/MM/yyyy"),
                     EmployeeId = e.EmployeeID,
+<<<<<<< Updated upstream
                     CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID,
                     Image = imgSrcThumb + e.Employee.EmployeeImageFileName
 
@@ -181,6 +183,12 @@ namespace GCTL.Service.Employees.EmployeeResign
             // Apply pagination
             var totalRecords = resignations.Count;
             var pagedData = resignations.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+=======
+                    CompanyId = e.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID ?? 0,
+                    Image = e.Employee.EmployeeImageFileName != null ? imgSrcThumb + e.Employee.EmployeeImageFileName : "~/img/No-Image-Placeholder.svg.png"
+                })
+                .ToList();
+>>>>>>> Stashed changes
 
             return new
             {
@@ -1190,10 +1198,77 @@ namespace GCTL.Service.Employees.EmployeeResign
             
         }
 
+
+
         #endregion
 
 
+        #region Uni Tooltip
 
+        public UniversalApprovalToolTip GetToolTipData(int id)
+        {
+            // Fetch all data synchronously to avoid context disposal issues
+            var approvalHistories = _resignationsApprovalHistoryRepository.AllActive()
+                .Include(e => e.ApprovalPerson)
+                .Include(s => s.Status)
+                .Where(e => e.ResignationID == id)
+                .OrderBy(e => e.CreatedAt)
+                .ToList(); // Synchronous execution
+
+            var resignation = _resignationRepository.AllActive()
+                .FirstOrDefault(r => r.ResignationID == id); // Synchronous execution
+
+            // Get all required data for total stages calculation
+            int totalStages = 1; // Default
+            int currentStage = 1; // Default
+
+            if (resignation?.EmployeeID != null)
+            {
+                var employee = _empOfficialRepository.AllActive()
+                    .FirstOrDefault(e => e.EmployeeID == resignation.EmployeeID); // Synchronous
+
+                if (employee != null)
+                {
+                    var approvalType = _approvalTypeRepository.AllActive()
+                        .FirstOrDefault(a => a.ApprovalTypeName.ToLower() == "resignation approval"); // Synchronous
+
+                    if (approvalType != null)
+                    {
+                        var approvalSettings = _approvalSettingRepository.AllActive()
+                            .FirstOrDefault(a => a.ApprovalTypeID == approvalType.ApprovalTypeID
+                                && a.OrganizationID == employee.OrganizationID
+                                && a.OrganizationBranchID == employee.OrganizationBranchID); // Synchronous
+
+                        if (approvalSettings != null)
+                        {
+                            if (approvalSettings.IsEnableThirdApproval) totalStages = 3;
+                            else if (approvalSettings.IsEnableSecondApproval) totalStages = 2;
+                            else totalStages = 1;
+                        }
+                    }
+                }
+
+                currentStage = Math.Min(resignation.ApprovalStep ?? 1, totalStages);
+            }
+
+            var stageDetails = approvalHistories.Select((history, index) => new ApproveStageDetails
+            {
+                approverStep = "Stage " + (index + 1).ToString(),
+                statusName = history.Status?.StatusName ?? "",
+                approvarPerson = history.ApprovalPerson != null
+                    ? $"{history.ApprovalPerson.FirstName} {history.ApprovalPerson.LastName}"
+                    : "Unknown",
+                approvarNote = history.ApprovalPersonNote ?? "no remarks",
+                approvedOrDeclineDate = history.CreatedAt?.ToString("dd/MM/yyyy hh:mm tt") ?? "-"
+            }).ToList();
+
+            return new UniversalApprovalToolTip
+            {
+                StageDetails = stageDetails,
+                approvalDetails = $"{currentStage}/{totalStages}"
+            };
+        }
+        #endregion
 
     }
 }

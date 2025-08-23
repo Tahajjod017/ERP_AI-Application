@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
+using GCTL.Core.ViewModels.Employee.Universal;
 
 namespace GCTL.Service.Employees.EmployeeResign
 {
@@ -54,6 +55,11 @@ namespace GCTL.Service.Employees.EmployeeResign
         /// <param name="clearanceCompleted">Whether department clearance is completed.</param>
         /// <param name="documentsPrepared">Whether exit documents are prepared.</param>
         /// <returns>A result object indicating success or failure with a message.</returns>
+<<<<<<< Updated upstream
         Task<(bool Success, string Message)> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared);
+=======
+        Task<CommonReturnViewModel> ProcessResignation(int id, string action, string hrComments, string handoverStatus, bool assetReturned, bool clearanceCompleted, bool documentsPrepared, CommonBaseViewModel? baseModel);
+        UniversalApprovalToolTip GetToolTipData(int id);
+>>>>>>> Stashed changes
     }
 }
