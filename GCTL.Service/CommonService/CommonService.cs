@@ -10,6 +10,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GCTL.Service.CommonService
 {
@@ -30,6 +31,7 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralBioWeeklyPattern> _spiralBioWeeklyPattern;
         private readonly IGenericRepository<SpiralMonthlyPattern> _spiralMonthlyPattern;
         private readonly IGenericRepository<Holidays> _holidays;
+        private readonly IGenericRepository<SpiralPatternAssignList> _spiralPatternAssignList;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -45,7 +47,8 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralWeeklyPattern> spiralWeeklyPatterns,
             IGenericRepository<SpiralBioWeeklyPattern> spiralBioWeeklyPattern,
             IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPattern,
-            IGenericRepository<Holidays> holidays)
+            IGenericRepository<Holidays> holidays,
+            IGenericRepository<SpiralPatternAssignList> spiralPatternAssignList)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -61,6 +64,7 @@ namespace GCTL.Service.CommonService
             _spiralBioWeeklyPattern = spiralBioWeeklyPattern;
             _spiralMonthlyPattern = spiralMonthlyPattern;
             _holidays = holidays;
+            _spiralPatternAssignList = spiralPatternAssignList;
         }
         #endregion
 
@@ -464,6 +468,73 @@ namespace GCTL.Service.CommonService
                 Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
                 GroupName = x.DepartmentName ?? "-"
             }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetEmployeesByOrgDatesBraDepId
+        public async Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
+        {
+            var data = from spal in _spiralPatternAssignList.AllActive().AsNoTracking()
+
+                       join hod in _holidays.AllActive().AsNoTracking() on spal.OrganizationID equals hod.OrganizationID into hodGroup
+                       from hod in hodGroup.DefaultIfEmpty()
+
+                       join empOi in _employeeOfficeInfo.AllActive().AsNoTracking() on spal.EmployeeID equals empOi.EmployeeID into empOiGroup
+                       from empOi in empOiGroup.DefaultIfEmpty()
+
+                       join emp in _employees.AllActive().AsNoTracking() on spal.EmployeeID equals emp.EmployeeID into empGroup
+                       from emp in empGroup.DefaultIfEmpty()
+
+                       join dep in _departments.AllActive().AsNoTracking() on spal.DepartmentID equals dep.DepartmentID into depGroup
+                       from dep in depGroup.DefaultIfEmpty()
+
+                       select new
+                       {
+                           spal.SpiralPatternAssignListID,
+                           spal.OrganizationID,
+                           empOi.OrganizationBranchID,
+                           spal.EmployeeID,
+                           emp.EmployeeCode,
+                           emp.FirstName,
+                           emp.LastName,
+                           spal.DepartmentID,
+                           dep.DepartmentName,
+                           spal.StartDate,
+                           spal.EndDate,
+                           hod.HolidayTitle,
+                           HolidayStartDate = hod.StartDate, 
+                           HolidayEndDate = hod.EndDate
+                       };
+
+            if (orgId.HasValue && orgId.Value != 0)
+            {
+                data = data.Where(x => x.OrganizationID == orgId.Value);
+            }
+
+            if (dates != null && dates.Any())
+            {
+                data = data.Where(x => dates.Any(date => date.Date >= x.StartDate || date.Date >= x.HolidayStartDate && date.Date <= x.EndDate || date.Date <= x.HolidayEndDate));
+            }
+
+            if (branchIds != null && branchIds.Any())
+            {
+                data = data.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
+            }
+
+            if (deptIds != null && deptIds.Any())
+            {
+                data = data.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
+            }
+
+            var result = await data.Select(x => new CommonSelectVM
+            {
+                Id = x.EmployeeID ?? 0,
+                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
+                GroupName = x.DepartmentName ?? "-"
+            }).Distinct().ToListAsync();
 
             return result;
         }

@@ -52,8 +52,9 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region Load by OrganizationId, BranchId, DepartmentId
+        #region Load by OrganizationId, BranchId, DepartmentId, Date
         Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds);
+        Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds);
         #endregion
 
 

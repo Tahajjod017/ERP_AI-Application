@@ -19,6 +19,12 @@
                 <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
             </div>
 
+            <div class="col-md">
+                <label class="form-label" asp-for="DayDate">@Html.SmartLocalize("Select Date")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
+                <span id="DayDateError" class="text-danger" style="display:none;"></span>
+            </div>
+
             <div class="col-md branch">
                 <label class="form-label" asp-for="BranchIDs">@Html.SmartLocalize("Branch Name")</label>
                 <select class="form-multi-select"
@@ -43,11 +49,6 @@
                 </select>
             </div>
 
-            <div class="col-md">
-                <label class="form-label" asp-for="DayDate">@Html.SmartLocalize("Select Date")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
-                <span id="DayDateError" class="text-danger" style="display:none;"></span>
-            </div>
         </div>
 
         <div class="row g-3 mb-3">
@@ -58,7 +59,6 @@
                         multiple data-coreui-multiple="true"
                         data-coreui-selection-type="counter"
                         data-coreui-search="true"
-                        data-coreui-disabled="true"
                         data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
                     @foreach (var group in employees.GroupBy(e => e.GroupName))
                     {
@@ -81,7 +81,7 @@
             </div>
 
             <div class="col-md">
-                <label class="form-label" asp-for="CompensationTypeID">Compensation Type<span style="color:red;">&nbsp;*</span></label>
+                <label class="form-label" asp-for="CompensationTypeID">@Html.SmartLocalize("Compensation Type")<span style="color:red;">&nbsp;*</span></label>
                 <select class="form-select" asp-for="CompensationTypeID" asp-items="@ViewBag.CompensationDD as SelectList">
                     <option value="">@Html.SmartLocalize("Select Compensation")...</option>
                 </select>
