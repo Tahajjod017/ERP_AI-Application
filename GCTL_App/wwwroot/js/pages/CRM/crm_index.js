@@ -65,7 +65,7 @@
                                 <input class="form-check-input" type="checkbox" />
                             </div>
                         </td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0">${item.leadName}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0"><a class="fw-bold cursor-pointer" href="/LeadDetails/Index/${item.leadId}">${item.leadName}</a></td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.leadStatus}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.leadSourceName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadOwnerName}</td>
@@ -76,6 +76,9 @@
                         <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.contactName}</td>
                         <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="9">
                             <span class="badge badge-phoenix ${statusBadge} fs-9">${item.status}</span>
+                        </td>
+                        <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="10">
+                            <button class="btn btn-sm btn-primary"><i class="fa-solid fa-pen-to-square"></i></button> <button class="btn btn-sm btn-danger"> <i class="fa-solid fa-trash"></i> </button>
                         </td>
                     </tr>
                 `);

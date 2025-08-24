@@ -6,7 +6,8 @@ let itiMap = {};
 let targetTab = 'index';
 const idMap = {
     company: {
-        primaryID: 'personID',
+        primaryID: 'companyId',
+        companyName: 'companyName',
         latitude: 'latitudeCompany',
         longitude: 'longitudeCompany',
         firstName: 'firstNameCompnay',
@@ -208,46 +209,26 @@ $(document).ready(function () {
 
 
     function getCustomerInfo(customerId) {
-        $.ajax({
-            url: '/CreateLead/GetCustomerInfo',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(customerId),
-            success: function (response) {
-                document.getElementById("customerInfoContainer").style.display = "block";
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/CreateLead/GetCustomerInfo',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(customerId),
+                success: function (response) {
+                    resolve(response);
 
-                $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
-                $('#customerID').val(response.customer.individualAddressID);
-                $('#customerType').val(response.customer.addressTypeName);
+                    // Re-initialize phone fields
+                    initPhoneFields();
 
-                const ids = idMapIndex.person;
-                $("#" + ids.primaryID).val(response.customer.individualAddressID);
-                $("#" + ids.firstName).val(response.customer.firstName);
-                $("#" + ids.lastName).val(response.customer.lastName);
-                $("#" + ids.fullAddress).val(response.customer.fullAddress);
-                $("#" + ids.street).val(response.customer.street);
-                $("#" + ids.city).val(response.customer.city);
-                $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
-                $("#" + ids.state).val(response.customer.state);
-                $("#" + ids.postalCode).val(response.customer.postalCode);
-                $("#" + ids.countryName).val(response.customer.countryName);
-                $("#" + ids.countryCode).val(response.customer.countryCode);
-                $("#" + ids.latitude).val(response.customer.latitude);
-                $("#" + ids.longitude).val(response.customer.longitude);
-                $("#" + ids.phone).val(response.customer.phone);
-                $("#" + ids.otherPhone).val(response.customer.otherPhone);
-                $("#" + ids.email).val(response.customer.email);
-
-
-                // Re-initialize phone fields
-                initPhoneFields();
-
-                // Trigger validation
-            },
-            error: function (xhr) {
-                toastr.error('Failed to load Contact Name');
-            }
-        });
+                    // Trigger validation
+                },
+                error: function (xhr) {
+                    toastr.error('Failed to load Contact Name');
+                }
+            });
+        })
+       
     }
 
     function showSuggestions(query) {
@@ -284,6 +265,40 @@ $(document).ready(function () {
             $noResults.show();
         }
     }
+    function showSuggestions2(query) {
+        const $list = $('#personCustomerList');
+        const $noResults = $('#personNoResults');
+        $list.empty();
+        $list.hide();
+        $noResults.hide();
+
+        if (!query) return;
+        const q = String(query ?? '')
+            .toLowerCase()
+            .trim()
+            .replace(/ /g, "")
+            .replace(/-/g, "");
+
+        const filtered = customers.filter(item =>
+            String(item.fullName ?? '').toLowerCase().includes(q) ||
+            String(item.phone ?? '').toLowerCase().includes(q) ||
+            String(item.email ?? '').toLowerCase().includes(q)
+        );
+        if (filtered.length > 0) {
+            $list.show();
+            filtered.forEach(item => {
+                $list.append(`
+  <button type="button" 
+          class="list-group-item list-group-item-action customerName-item2" 
+          data-id="${item.customerId}" 
+          data-type="${item.type}">
+      ${item.fullName} &nbsp; ${item.phone ? `${item.phone}` : ""} &nbsp; 
+      ${item.email ? `${item.email}` : ""} </button>`);
+            });
+        } else {
+            $noResults.show();
+        }
+    }
 
     $('#ContactNameSearch').on('input', function () {
         const query = $(this).val();
@@ -294,10 +309,40 @@ $(document).ready(function () {
 
     $('#personContactNameSearch').on('input', function () {
         const query = $(this).val();
-        $('#searchResults').show();
+        $('#personSearchResults').show();
         $('#removeContactNameBtn').toggle(!!query);
-        showSuggestions(query);
+        showSuggestions2(query);
     });
+
+    function setDataDesktop(id) {
+        getCustomerInfo(id).then(response => {
+            document.getElementById("customerInfoContainer").style.display = "block";
+
+            $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
+            //$('#customerType').val(response.customer.addressTypeName);
+
+            const ids = idMapIndex.person;
+            $("#" + ids.primaryID).val(response.customer.individualAddressID);
+            $("#" + ids.firstName).val(response.customer.firstName);
+            $("#" + ids.lastName).val(response.customer.lastName);
+            $("#" + ids.fullAddress).val(response.customer.fullAddress);
+            $("#" + ids.street).val(response.customer.street);
+            $("#" + ids.city).val(response.customer.city);
+            $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
+            $("#" + ids.state).val(response.customer.state);
+            $("#" + ids.postalCode).val(response.customer.postalCode);
+            $("#" + ids.countryName).val(response.customer.countryName);
+            $("#" + ids.countryCode).val(response.customer.countryCode);
+            $("#" + ids.latitude).val(response.customer.latitude);
+            $("#" + ids.longitude).val(response.customer.longitude);
+            $("#" + ids.phone).val(response.customer.phone);
+            $("#" + ids.otherPhone).val(response.customer.otherPhone);
+            $("#" + ids.email).val(response.customer.email);
+
+            $('#searchResults').hide();
+            $('#removeContactNameBtn').show();
+        });
+    }
 
     $(document).on('click', '.customerName-item', function () {
 
@@ -307,9 +352,67 @@ $(document).ready(function () {
         $('#ContactNameSearch').val(selected);
         $('#customerID').val(customerId);
         $('#customerType').val(customerType);
-        getCustomerInfo(customerId);
-        $('#searchResults').hide();
-        $('#removeContactNameBtn').show();
+        getCustomerInfo(customerId).then(response => {
+            document.getElementById("customerInfoContainer").style.display = "block";
+
+            $('#ContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
+            $('#customerID').val(response.customer.individualAddressID);
+            $('#customerType').val(response.customer.addressTypeName);
+
+            const ids = idMapIndex.person;
+            $("#" + ids.primaryID).val(response.customer.individualAddressID);
+            $("#" + ids.firstName).val(response.customer.firstName);
+            $("#" + ids.lastName).val(response.customer.lastName);
+            $("#" + ids.fullAddress).val(response.customer.fullAddress);
+            $("#" + ids.street).val(response.customer.street);
+            $("#" + ids.city).val(response.customer.city);
+            $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
+            $("#" + ids.state).val(response.customer.state);
+            $("#" + ids.postalCode).val(response.customer.postalCode);
+            $("#" + ids.countryName).val(response.customer.countryName);
+            $("#" + ids.countryCode).val(response.customer.countryCode);
+            $("#" + ids.latitude).val(response.customer.latitude);
+            $("#" + ids.longitude).val(response.customer.longitude);
+            $("#" + ids.phone).val(response.customer.phone);
+            $("#" + ids.otherPhone).val(response.customer.otherPhone);
+            $("#" + ids.email).val(response.customer.email);
+
+            $('#searchResults').hide();
+            $('#removeContactNameBtn').show();
+        });
+
+        
+    });
+    $(document).on('click', '.customerName-item2', function () {
+        debugger;
+        const selected = $(this).text();
+        const customerId = $(this).data("id");
+        $('#personContactNameSearch').val(selected);
+        $('#personCustomerID').val(customerId);
+        getCustomerInfo(customerId).then(response => {
+            ids = idMap.shipping;
+            console.log("response: ", response);
+            $('#personContactNameSearch').val(response.customer.firstName + " " + response.customer.lastName);
+            $('#personCustomerID').val(response.customer.individualAddressID);
+
+            //$("#" + ids.firstName).val(response.customer.firstName);
+            //$("#" + ids.lastName).val(response.customer.lastName);
+            //$("#" + ids.fullAddress).val(response.customer.fullAddress);
+            //$("#" + ids.street).val(response.customer.street);
+            //$("#" + ids.city).val(response.customer.city);
+            //$("#" + ids.additionalAddress).val(response.customer.additionaladdress);
+            //$("#" + ids.state).val(response.customer.state);
+            //$("#" + ids.postalCode).val(response.customer.postalCode);
+            //$("#" + ids.countryName).val(response.customer.countryName);
+            //$("#" + ids.countryCode).val(response.customer.countryCode);
+            //$("#" + ids.latitude).val(response.customer.latitude);
+            //$("#" + ids.longitude).val(response.customer.longitude);
+            //$("#" + ids.phone).val(response.customer.phone);
+            //$("#" + ids.otherPhone).val(response.customer.otherPhone);
+            //$("#" + ids.email).val(response.customer.email);  
+            $('#personSearchResults').hide();
+        });
+        
     });
 
     $('#removeContactNameBtn').on('click', function () {
@@ -614,6 +717,7 @@ $(document).ready(function () {
         
         const ids = idMap[targetTab]
         const data = {};
+        
         data['PrimaryID'] = $("#" + ids.primaryID).val() ? parseInt($("#" + ids.primaryID).val(), 10) : 0;
         data['Latitude'] = parseFloat($("#" + ids.latitude).val()) || null;
         data['Longitude'] = parseFloat($("#" + ids.longitude).val()) || null;
@@ -624,6 +728,48 @@ $(document).ready(function () {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: '/CreateLead/InsertPerson',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    debugger;
+                    if (response.success) {
+                        toastr.success(response.message);
+                        getCustomerList();
+                        getCustomerInfo(response.id);
+                        resolve(response);
+                    } else {
+                        toastr.error(response.message || "Failed to save person");
+                        resolve(response);
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error('Error saving person');
+                    reject(xhr);
+                }
+            });
+        })
+            
+        
+    };
+    async function saveCompany(e) {
+        
+        e.preventDefault();
+        debugger;
+        const ids = idMap[targetTab]
+        const data = {};
+        
+        data['PrimaryID'] = $("#" + ids.primaryID).val() ? parseInt($("#" + ids.primaryID).val(), 10) : 0;
+        data['Latitude'] = parseFloat($("#" + ids.latitude).val()) || null;
+        data['Longitude'] = parseFloat($("#" + ids.longitude).val()) || null;
+
+        Object.entries(ids).slice(3).forEach(([key, value]) => {
+            data[titleizeKeys(key)] = $("#" + value).val() || "";
+        });
+        console.log("data", data);
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '/CreateLead/InsertCompany',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
@@ -711,6 +857,7 @@ $(document).ready(function () {
                     }
                     activeDeactiveClass(removeClassList, addClassList)
                 }
+                setDataDesktop(result.id);
                 await getCustomerList(); 
                 var cusomer = await customers.find(c => c.customerId == result.id);
                 $('#personContactNameSearch').val(cusomer.fullName)
@@ -733,6 +880,26 @@ $(document).ready(function () {
                 if (result.success == true) {
                     $('#addCustomerModal').modal('hide');
                     targetTab = 'index';
+                    setDataDesktop(result.id);
+                }
+                
+            };
+            $(this).prop("disabled", false);
+        } catch (e) {
+            toastr.error("Save Failed")
+        }
+     
+    });
+    $("#companySaveAndExit").on("click", async function (e) {
+        debugger;
+        try {
+            if (true) {
+                $(this).prop("disabled", true);
+                var result = await saveCompany(e);
+                if (result.success == true) {
+                    $('#addCustomerModal').modal('hide');
+                    targetTab = 'index';
+                    setDataDesktop(result.id);
                 }
                 
             };
@@ -755,6 +922,7 @@ $(document).ready(function () {
             $(this).prop("disabled", true);
             var result = await saveShippingAddress(e);   
             if (result.success == true) {
+                setDataDesktop($('#personCustomerID').val());
                 $('#addCustomerModal').modal('hide');
                 clearTabData(idMap.shipping);
                 targetTab = 'index';
@@ -769,7 +937,6 @@ $(document).ready(function () {
     $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
         if (await fieldValidation()) {
-            const actionTab = ["person"];
             const data = {
                 IsIndividualCustomer: $("#customerType").val() === "billing",
                 LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
@@ -778,34 +945,10 @@ $(document).ready(function () {
                 LeadOwnerID: parseInt($("#" + idMapIndex.indexBase.leadOwnerID).val()) || 0,
                 ApproximateDealValue: parseFloat($("#" + idMapIndex.indexBase.approximateDealValue).val()) || 0,
                 ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
-                LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val() || "",
-
-                Customers: []
+                CustomerId: parseInt($("#" + idMapIndex.person.primaryID).val()) || 0,
             };
 
-            actionTab.forEach(item => {
-                const ids = idMapIndex[item] || {};
-                const customerId = document.getElementById("customerID")?.value || "0";
-                data.Customers.push({
-                    TabName: item,
-                    PrimaryID: parseInt(customerId, 10) || 0,
-                    FirstName: $("#" + ids.firstName).val() || "",
-                    LastName: $("#" + ids.lastName).val() || "",
-                    FullAddress: $("#" + ids.fullAddress).val() || "",
-                    Street: $("#" + ids.street).val() || "",
-                    City: $("#" + ids.city).val() || "",
-                    State: $("#" + ids.state).val() || "",
-                    Additionaladdress: $("#" + ids.additionalAddress).val() || "",
-                    PostalCode: $("#" + ids.postal_code).val() || "",
-                    CountryName: $("#" + ids.country).val() || "",
-                    CountryCode: $("#" + ids.countryCode).val() || "",
-                    Latitude: parseFloat($("#" + ids.latitude).val()) || null,
-                    Longitude: parseFloat($("#" + ids.longitude).val()) || null,
-                    Phone: getPhoneNumber(ids.phone) || "",
-                    OtherPhone: getPhoneNumber(ids.otherPhone) || "",
-                    Email: $("#" + ids.email).val() || ""
-                });
-            });
+            console.log(data);
 
             $.ajax({
                 url: '/CreateLead/CreateLead',
@@ -816,6 +959,9 @@ $(document).ready(function () {
                     if (response.success) {
                         toastr.success(response.message);
                         getCustomerList();
+                        clearTabData(idMapIndex.indexBase);
+                        clearTabData(idMapIndex.person);
+                        window.location.href = "/crm/Index";
                     } else {
                         toastr.error(response.message || "Failed to create lead");
                     }
@@ -853,9 +999,7 @@ $(document).ready(function () {
                 idMapIndex.indexBase.leadName,
                 idMapIndex.indexBase.leadStatusID,
                 idMapIndex.indexBase.leadSourceID,
-                idMapIndex.indexBase.leadOwnerID,
-                idMapIndex.person.firstName,
-                idMapIndex.person.phone
+                idMapIndex.indexBase.leadOwnerID,   
             ].filter(Boolean);
         } else {
             return [];
@@ -864,9 +1008,7 @@ $(document).ready(function () {
 
     async function uniquenPhoneCheck() {
         let isValid = true;
-        const targetedField = targetTab === 'index'
-            ? [[idMapIndex.person.phone, idMapIndex.person.otherPhone, idMapIndex.person.primaryID, idMapIndex.person.email]]
-            : targetTab === 'person'
+        const targetedField = targetTab === 'person'
                 ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
                 : targetTab === 'company'
                     ? [[idMap.company.phone, idMap.company.otherPhone, idMap.company.primaryID, idMap.company.email]]
