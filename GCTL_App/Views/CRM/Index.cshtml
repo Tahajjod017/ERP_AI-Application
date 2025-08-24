@@ -48,7 +48,7 @@
             <div class="border-translucent p-3">
                 <div id="processedResignationTable">
                     <div class="table-responsive scrollbar mx-n1 px-1">
-                        <table class="table table-sm fs-9 leads-table dyn-tableDrag leadTable" id="resignProcessed">
+                        <table class="table table-sm fs-9 leads-table dyn-tableDrag leadTable table-hover" id="resignProcessed">
                             <thead>
                                 <tr>
                                     <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -66,6 +66,7 @@
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="phone" data-column="7">@Html.SmartLocalize("Phone")</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="contactName" data-column="8">@Html.SmartLocalize("Contact Name")</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="9">@Html.SmartLocalize("Status")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="10">@Html.SmartLocalize("Action")</th>
                                 </tr>
                             </thead>
                             <tbody class="list" id="processed-resignation-body">

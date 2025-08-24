@@ -215,7 +215,26 @@ namespace GCTL_App.Controllers.CRM
             var results =  new ReturnView
             {
                 Success = false,
-                Message = "Data saved succesfull",
+                Message = "Data not inserted",
+            };
+            return Ok(results); 
+        } 
+        [HttpPost]
+        public async Task<IActionResult> InsertCompany([FromBody] CompanyVM companyVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (companyVM.PrimaryID == 0)
+                {
+                    var result = await _leadCreateService.CreateCompany(companyVM);
+                    
+                    return Ok(result);
+                } 
+            }
+            var results =  new ReturnView
+            {
+                Success = false,
+                Message = "Data not inserted",
             };
             return Ok(results); 
         } 
@@ -233,27 +252,25 @@ namespace GCTL_App.Controllers.CRM
                 } 
             }
             return Ok(false); 
-        } 
-        //public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
-        //{
-        //    if (ModelState.IsValid && leadsVM != null)
-        //    {
-        //        var isUniquePhone = await IsUniqueAsync(
-        //            leadsVM.Customers[0].Phone,
-        //            "phone",
-        //            leadsVM.Customers[0].PrimaryID
-        //        );
+        }
+        public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (leadsVM.CustomerId != 0)
+                {
+                    var result = await _leadCreateService.CreateLead(leadsVM);
+                    return Ok(result);
+                } 
+            }
+            var results = new ReturnView
+            {
+                Success = false,
+                Message = "Data not inserted",
+            };
+            return Ok(results);
 
-        //        if (leadsVM.Customers[0].PrimaryID != 0 && isUniquePhone)
-        //        {
-
-        //            var result = await _leadCreateService.UpdateLead(leadsVM);
-        //            return Ok(result);
-        //        }
-        //    }
-        //    return Json(new { MessageContent = "Error" });
-
-        //}
+        }
 
     }
 }

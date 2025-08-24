@@ -22,7 +22,6 @@ namespace GCTL.Core.ViewModels.CRM
         public decimal? ProbabilityPercentage { get; set; }
 
         public string? LeadDescription { get; set; }
-        public List<CustomerBaseVM> Customers { get; set; }
-
+        public int CustomerId { get; set; }
     }
 }

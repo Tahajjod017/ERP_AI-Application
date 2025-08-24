@@ -15,8 +15,9 @@ namespace GCTL.Service.CRM.LeadCreate
         #region CRUD
        // Task<bool> AddAsync(CreateLeadVM model);
         Task<ReturnView> CreatePerson(CustomerVM customerVM);
+        Task<ReturnView> CreateCompany(CompanyVM companyVM);
         Task<CommonReturnViewModel> CreateShippingAddress(ShippingVM shippingVM);
-        Task<CommonReturnViewModel> UpdateLead(LeadsVM leadsVM);
+        Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM);
         #endregion
     }
 }

@@ -10,7 +10,7 @@ namespace GCTL_App.Controllers.CRM
         {
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? id)
         {
             return View();
         }
