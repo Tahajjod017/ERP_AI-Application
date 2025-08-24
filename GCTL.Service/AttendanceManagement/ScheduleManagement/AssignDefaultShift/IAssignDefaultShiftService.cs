@@ -27,14 +27,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
 
         #region Others
         Task<List<ConflictViewModel>> CheckConflictsAsync(AssignDefaultShiftSetupVM model);
-        Task<List<CommonSelectVM>> GetCompanies();
-        Task<List<CommonSelectVM>> GetDepartments();
-        Task<List<AssignDefaultShiftSetupVM>> GetGroupedEmployees();
-        Task<List<CommonSelectVM>> GetShift();
-        Task<List<AssignDefaultShiftSetupVM>> GetDepartmentByCompany(int id);
-        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByCompany(int id);
-        Task<List<AssignDefaultShiftSetupVM>> GetShiftByCompany(int id);
-        Task<List<AssignDefaultShiftSetupVM>> GetEmployeeByDepartment(List<int> departmentIds);
         #endregion
     }
 }

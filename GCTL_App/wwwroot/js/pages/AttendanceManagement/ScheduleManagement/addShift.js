@@ -855,8 +855,8 @@
                                     <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
                                         <span>${item.organizationName}</span>
                                     </td>
-                                    <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${convertUtcTimeOnlyToLocal(item.startTime ?? '-')}</td>
-                                    <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${convertUtcTimeOnlyToLocal(item.endTime ?? '-')}</td>
+                                    <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startTime ?? '-'}</td>
+                                    <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime ?? '-'}</td>
                                     <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTime ?? '-'}</td>
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime ?? '-'}</td>
                                     <td class="text-end align-middle white-space-nowrap pe-3">
