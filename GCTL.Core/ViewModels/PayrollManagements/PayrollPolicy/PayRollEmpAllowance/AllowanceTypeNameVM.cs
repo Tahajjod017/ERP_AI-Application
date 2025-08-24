@@ -9,9 +9,8 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
     public class AllowanceTypeNameVM
     {
         public int EmployeeAllowanceTypeID { get; set; }
-
         public string? EmployeeAllowanceTypeName { get; set; }
-        public string ? EffectiveDate { get; set; }
-        public bool  IsActive { get; set; }
+        public decimal? Value { get; set; }
+        public bool IsActive { get; set; }
     }
 }

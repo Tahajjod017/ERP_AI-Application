@@ -1,17 +1,10 @@
 ﻿
 $(document).ready(function () {
 
-
-    //#region Month Picker
-    //let today = new Date();
-    //today.setMonth(today.getMonth() - 1);
-    //var currentDate = new Date();
     $('.flatpickr-input').flatpickr({
         mode: "single",
         dateFormat: "F Y",
         altFormat: "F Y",
-        //defaultDate: today,
-        //maxDate: currentDate,
         plugins: [
             new monthSelectPlugin({
                 shorthand: true,
@@ -23,34 +16,21 @@ $(document).ready(function () {
     });
     //#endregion
 
-    var selected = 'Fixed';
-    $('#fixedPercentage').val(selected);
-    showHide(selected)
 
-    $('#fixedPercentage').on('change', function () {
+    //#region Fixed Percentage
+
+    $('.fixedPercentageSelect').val('Fixed');
+    $('.fixedPercentageSelect').each(function () {
         const selected = $(this).val();
-        showHide(selected)
-        
+        showHide($(this), selected);
     });
-   
-
-    function showHide(selected) {
-        if (selected === 'Fixed') {
-            $('#fixedRate').show();
-            $('#percentRate').hide();
-        } else if (selected === 'Percentage') {
-            $('#percentRate').show();
-            $('#fixedRate').hide();
-        } else {
-            $('#fixedRate, #percentRate').hide();
-        }
-    };
-
-
     $(document).on('change', '.fixedPercentageSelect', function () {
         const selected = $(this).val();
-        const $parent = $(this).closest('.input-group');
-
+        showHide($(this), selected);
+    });
+    function showHide($select, selected) {
+        // Find the closest input-group to scope the fixedRate and percentRate elements
+        const $parent = $select.closest('.input-group');
         const $fixedRate = $parent.find('.fixedRate');
         const $percentRate = $parent.find('.percentRate');
 
@@ -64,22 +44,30 @@ $(document).ready(function () {
             $fixedRate.hide();
             $percentRate.hide();
         }
-    });
+    }
+
+    //#endregion
     
+    
+
+    // If no rows exist initially
     if ($(".houseRentRow").length === 0) {
         // Simulate click or directly call AJAX with index 0
+        const $firstContainer = $(".houseRentContainer").first(); // CHANGED
+
         $.ajax({
             url: '/PayRollEmployeesAllowance/GetHouseRentAllowanceRow',
             type: 'GET',
             data: { index: 0 },
             success: function (response) {
-                $("#houseRentContainer").append(response);
-                const firstRow = $("#houseRentContainer .houseRentRow").first();
+                $firstContainer.append(response); // CHANGED
+                const firstRow = $firstContainer.find(".houseRentRow").first(); // CHANGED
                 firstRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
             }
         });
     }
 
+    // Show/Hide Fixed/Percentage fields
     $(document).on('change', '.fixedPercentageSelect', function () {
         const selected = $(this).val();
         const $parent = $(this).closest('.input-group');
@@ -98,16 +86,18 @@ $(document).ready(function () {
         }
     });
 
+    // Add new row
     $(document).on('click', '.addRow', function () {
-        let index = $(".houseRentRow").length; // Current row count for next index
+        const $container = $(this).closest('.houseRentContainer'); 
+        let index = $container.find(".houseRentRow").length; 
 
         $.ajax({
-            url: '/PayRollEmployeesAllowance/GetHouseRentAllowanceRow', // Your controller action
+            url: '/PayRollEmployeesAllowance/GetHouseRentAllowanceRow',
             type: 'GET',
             data: { index: index },
             success: function (response) {
-                $("#houseRentContainer").append(response);
-                const newRow = $("#houseRentContainer .houseRentRow").last();
+                $container.append(response); 
+                const newRow = $container.find('.houseRentRow').last(); 
                 choiceManager.initAll();
                 newRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
             },
@@ -117,16 +107,15 @@ $(document).ready(function () {
         });
     });
 
-    // Remove only new rows
+    // Remove row
     $(document).on('click', '.removeRow', function () {
         $(this).closest('.houseRentRow').remove();
     });
 
-  
 
     //
     
-    $("select[name='OrganizationID']").on("changed.coreui.multi-select", function () {
+    $("select[name='OrganizationID']").on("changed", function () {
         validateOrganization();
     });
 
@@ -145,26 +134,37 @@ $(document).ready(function () {
         }
     }
 
-    $(document).on("click", '#PayRollEmpAllowanceSave', function (e) {
-            e.preventDefault();
+    $(document).on("click", '.PayRollEmpAllowanceSave', function (e) {
+        e.preventDefault();
         if (!validateOrganization()) {
             return;
         }
-           var formData = new FormData();
-        
-            // --- Append values manually (if you want explicit control) ---
-              formData.append("OrganizationID", $("[name='OrganizationID']").val());
-              formData.append("IsActive", $("[name='IsActive']").is(":checked"));
+        const $container = $(this).closest('.card'); 
+        const formData = new FormData();
+        formData.append("OrganizationID", $("select[name='OrganizationID']").val());
+        const employeeAllowanceTypeID = $container.find("input[type='hidden']").val();
+        formData.append("EmployeeAllowanceTypeID", employeeAllowanceTypeID);
+        formData.append("EffectiveDate", $container.find("[name='EffectiveDate']").val());
+        formData.append("IsActive", $container.find("[name='IsActive']").is(":checked"));
 
-             $(".houseRentRow").each(function (index) {
-                 const $row = $(this);
-                 formData.append(`HouseRentAllowances[${index}].SalaryMin`, $row.find("[name*='SalaryMin']").val());
-                 formData.append(`HouseRentAllowances[${index}].SalaryMax`, $row.find("[name*='SalaryMax']").val());
-                 formData.append(`HouseRentAllowances[${index}].CalculationTypeID`, $row.find(".fixedPercentageSelect").val());
-                 formData.append(`HouseRentAllowances[${index}].Value`, $row.find(".fixedRateInput, .percentRateSelect").filter(":visible").val());
-                 
-             });
-        debugger
+        $container.find(".houseRentRow").each(function (index) {
+            const $row = $(this);
+            const calculationType = $row.find(".fixedPercentageSelect").val();
+           
+            formData.append(`HouseRentAllowances[${index}].SalaryMin`, $row.find("[name*='SalaryMin']").val());
+            formData.append(`HouseRentAllowances[${index}].SalaryMax`, $row.find("[name*='SalaryMax']").val());
+            let value;
+            if (calculationType === "Fixed") {
+                value = $row.find(".fixedRate input").val();
+            } else if (calculationType === "Percentage") {
+                value = $row.find(".percentRate select").val(); 
+            }
+            formData.append(`HouseRentAllowances[${index}].Value`, value);
+
+            const calculationTypeID = calculationType === "Fixed" ? 1 : 2;
+            formData.append(`HouseRentAllowances[${index}].CalculationTypeID`, calculationTypeID);
+
+        });
             
             $.ajax({
                 url: '/PayRollEmployeesAllowance/SavePayRollEmpAlowance',
@@ -176,7 +176,7 @@ $(document).ready(function () {
                     if (response.success) {
                         toastr.success(response.message);
                         resetPayRollEmpAllowanceForm();
-
+                        $('.houseRentRow').remove();
                     } else {
                         toastr.error(response.message);
                     }
@@ -197,45 +197,29 @@ $(document).ready(function () {
 
     function resetPayRollEmpAllowanceForm() {
         var form = $("#payrollEmpAllowanceForm");
-
-        // Reset all inputs, selects, checkboxes
         form[0].reset();
-
-        // If you are using bootstrap/coreui "select" with tags/search → reset them manually
-        choiceManager.resetChoice(
-            'HouseRentAllowanceRate',
-            'HRentDependsOnSalaryTypeID',
-            'MedicalAllowanceRate',
-            'MediAllowDepOnSalaryTypeID',
-            'ConveyanceAllowanceRate',
-            'ConAllowDepOnSalaryTypeID'),
-            'OrganizationID'
+        choiceManager.resetChoice('OrganizationID12');
+        $('.houseRentRow .percentRate select').val('');
+        
+        
        
     }
 
     $(document).on('click', '#ResetButton', function (e) {
         e.preventDefault();
         resetPayRollEmpAllowanceForm();
-        resetPayRollEmpAllowanceFormEdit();
+       
     })
 
     function resetPayRollEmpAllowanceFormEdit() {
+        //choiceManager.resetChoice(
+
+        //    'OrganizationID'
+        //);
+
         var form = $("#payrollEmpAllowanceFormUpdate");
-
-        // Reset all inputs, selects, checkboxes
         form[0].reset();
-
-        // If you are using bootstrap/coreui "select" with tags/search → reset them manually
-        choiceManager.resetChoice(
-           
-            'HRentDependsOnSalaryTypeIDEdit',
-            'MediAllowDepOnSalaryTypeIDEdit',
-            'ConAllowDepOnSalaryTypeIDEdit',
-            'HouseRentAllowanceRateEdit',
-            'MedicalAllowanceRateEdit',
-            'ConveyanceAllowanceRateEdit'
-        );
-
+        
 
     }
 
@@ -266,16 +250,7 @@ $(document).ready(function () {
                     $('#payrollEmpAllowanceFormUpdate input[name="EmployeeAllowanceID"]').val(d.employeeAllowanceID);
                     choiceManager.setChoiceValue('OrganizationIDEdit', d.organizationIDEdit);
 
-                    $('#payrollEmpAllowanceFormUpdate input[name="IsMobileInternetAllowanceEnabledEdit"]').prop('checked', d.isMobileInternetAllowanceEnabledEdit);
-                    $('#payrollEmpAllowanceFormUpdate input[name="MobileInternetAllowanceEdit"]').val(d.mobileInternetAllowanceEdit);
-
-                    $('#payrollEmpAllowanceFormUpdate input[name="IsShiftAllowanceEnabledEdit"]').prop('checked', d.isShiftAllowanceEnabledEdit);
-                    $('#payrollEmpAllowanceFormUpdate input[name="ShiftAllowanceEdit"]').val(d.shiftAllowanceEdit);
-
-                    $('#payrollEmpAllowanceFormUpdate input[name="IsHouseRentAllowanceEnabledEdit"]').prop('checked', d.isHouseRentAllowanceEnabledEdit);
-                    setFormattedChoiceValue('HouseRentAllowanceRateEdit', d.houseRentAllowanceRateEdit);
-                    choiceManager.setChoiceValue('HRentDependsOnSalaryTypeIDEdit', d.hRentDependsOnSalaryTypeIDEdit)
-
+                    
                     $('#payrollEmpAllowanceFormUpdate input[name="IsMedicalAllowanceEnabledEdit"]').prop('checked', d.isMedicalAllowanceEnabledEdit);
                     setFormattedChoiceValue('MedicalAllowanceRateEdit', d.medicalAllowanceRateEdit);
                     choiceManager.setChoiceValue('MediAllowDepOnSalaryTypeIDEdit', d.mediAllowDepOnSalaryTypeIDEdit);
@@ -480,7 +455,6 @@ $(document).ready(function () {
                             <td class="providantFundS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.medicalAllowanceRate || ''}</td>
                             <td class="FestivalBonusR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mediAllowDepOnSalaryTypeIDName || ''}</td>
                             <td class="FestivalBonusS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.conveyanceAllowanceRate || ''}</td>
-                            <td class="performanceBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.conAllowDepOnSalaryTypeIDName || ''}</td>
                             <td class="align-middle white-space-nowrap text-end pe-3">
                               <div class="d-flex justify-content-end align-items-center">
                                   <a href="#" class="nav-item mx-2" title="Edit" data-bs-toggle="modal" data-bs-target="#edit_alloance"  id="EditEmpAllowance" data-id="${item.employeeAllowanceID}">

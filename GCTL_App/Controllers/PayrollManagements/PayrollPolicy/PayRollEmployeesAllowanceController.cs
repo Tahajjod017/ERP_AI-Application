@@ -36,13 +36,24 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         public  async Task< IActionResult> Index()
         {
             PayRollEmpAllowancePageVM model =new PayRollEmpAllowancePageVM();
+            var list = await payRollEmpAllowanceService.GetEmpAllowanceType() ?? new List<AllowanceTypeNameVM>();
+
+
+            // Ensure HouseRentAllowances has the same number of items as the list
+            foreach (var item in list)
+            {
+                model.Save.HouseRentAllowances.Add(new HouseRentAllowanceDetailVM
+                {
+                    EmployeeAllowanceTypeID = item.EmployeeAllowanceTypeID,
+                    IsActive = item.IsActive,
+                });
+            }
             model.Save.HouseRentAllowances.Add(new HouseRentAllowanceDetailVM());
             ViewBag.OrganizationDD = new SelectList(organization.AllActive(), "OrganizationID", "OrganizationName");
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewBag.YearlyBonusTypeDD = new SelectList(yearlyEndBonusTypes.AllActive(), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
             ViewBag.CalculationTypeDD = new SelectList(calculationTypes.AllActive(), "CalculationTypeID", "CalculationTypeName");
-            var list = await payRollEmpAllowanceService.GetEmpAllowanceType();
             ViewBag.LIsttt=list;
 
             return View(model);
