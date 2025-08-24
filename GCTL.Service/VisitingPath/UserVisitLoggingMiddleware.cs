@@ -63,7 +63,7 @@ namespace GCTL.Service.VisitingPath
                     await dbContext.SaveChangesAsync();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

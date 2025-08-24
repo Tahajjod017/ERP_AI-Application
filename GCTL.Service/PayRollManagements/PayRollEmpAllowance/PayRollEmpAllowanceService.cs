@@ -142,14 +142,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                         Message = "Employee Allowance record not found!"
                     };
                 }
-
                 await empAllowance.BeginTransactionAsync();
                 int EmployeeAllowanceID = 0;
                 var entity = new EmployeeAllowances
                 {
                     OrganizationID = entityVM.OrganizationID,
                     IsActive = entityVM.IsActive,
-                    EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
+                     EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -160,13 +159,17 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 EmployeeAllowanceID=entity.EmployeeAllowanceID;
                 var empAllowanceSetups = entityVM.HouseRentAllowances.Select(item => new EmployeeAllowanceSetup
                 { 
-                   CalculationTypeID = item.CalculationTypeID,
+                    CalculationTypeID =item.CalculationTypeID,
                     SalaryMax = item.SalaryMax,
                     SalaryMin = item.SalaryMin,
-                    EffectiveDate = item.EffectiveDate,
+                    EffectiveDate = entityVM.EffectiveDate,
                     Value = item.Value,
-                    EmployeeAllowanceID= EmployeeAllowanceID
-
+                    EmployeeAllowanceID= EmployeeAllowanceID,
+                    LIP= entityVM.LIP,
+                    LMAC= entityVM.LMAC,
+                    CreatedAt= DateTime.Now,
+                    CreatedBy= entityVM.CreatedBy,
+                    
                 }).ToList();
 
                 await empAlowanceSetup.AddRangeAsync(empAllowanceSetups);
@@ -330,8 +333,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 {
                     EmployeeAllowanceTypeID = x.EmployeeAllowanceTypeID,
                     EmployeeAllowanceTypeName = x.EmployeeAllowanceTypeName,
-                    //EffectiveDate = x.EffectiveDate.ToString("yyyy-MM-dd"), // if EffectiveDate is DateTime
-                    IsActive =false,
+                    
                 })
                 .ToListAsync();
 
