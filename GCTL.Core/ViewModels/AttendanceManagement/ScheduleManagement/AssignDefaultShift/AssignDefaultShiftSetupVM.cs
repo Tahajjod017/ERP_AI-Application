@@ -11,10 +11,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDef
     {
         public int DefaultShiftID { get; set; }
                 
-        [Required(ErrorMessage = "Organization is required!")]
+        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Organization")]
         public int? OrganizationID { get; set; }
 
-        [Required(ErrorMessage = "Shift is required!")]
+        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Shift")]
         public int? ShiftID { get; set; }
 
         public string? ShiftName { get; set; }

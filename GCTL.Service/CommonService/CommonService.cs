@@ -150,17 +150,24 @@ namespace GCTL.Service.CommonService
         #region GetEmployeesGroupedByDepartment
         public async Task<List<CommonSelectVM>> GetEmpGroupedByDep()
         {
-            var data = await (from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+            var data = await (from emp in _employees.AllActive().AsNoTracking()
 
-                              join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
-                              from emp in empGroup.DefaultIfEmpty()
+                              join empOi in _employeeOfficeInfo.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
+                              from empOi in empOiGroup.DefaultIfEmpty()
+
+                              where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
+                              where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
+                              join org in _organization.AllActive() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+                              from org in orgGroup.DefaultIfEmpty()
 
                               join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                               from dep in depGroup.DefaultIfEmpty()
 
                               select new CommonSelectVM
                               {
-                                  Id = empOi.EmployeeID ?? 0,
+                                  Id = emp.EmployeeID,
                                   Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
                                   GroupName = dep.DepartmentName ?? "-"
                               }).ToListAsync();
@@ -345,6 +352,8 @@ namespace GCTL.Service.CommonService
                               join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
                               from emp in empGroup.DefaultIfEmpty()
 
+                              where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
                               join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                               from dep in depGroup.DefaultIfEmpty()
 
@@ -369,6 +378,8 @@ namespace GCTL.Service.CommonService
                         join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
                         from emp in empGroup.DefaultIfEmpty()
 
+                        where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
                         join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                         from dep in depGroup.DefaultIfEmpty()
 
@@ -377,10 +388,10 @@ namespace GCTL.Service.CommonService
                             empOi.OrganizationID,
                             empOi.OrganizationBranchID,
                             empOi.EmployeeID,
-                            emp.FirstName,
-                            emp.LastName,
-                            emp.EmployeeCode,
-                            DepartmentName = dep.DepartmentName ?? "No Department"
+                            FirstName = emp.FirstName ?? "-",
+                            LastName = emp.LastName ?? "-",
+                            EmployeeCode = emp.EmployeeCode ?? "-",
+                            DepartmentName = dep.DepartmentName ?? "-"
                         };
 
             if (orgId.HasValue && orgId.Value != 0)
@@ -427,24 +438,34 @@ namespace GCTL.Service.CommonService
         #region GetEmployeesByOrgBraDepId
         public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds)
         {
-            var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+            var query = from emp in _employees.AllActive().AsNoTracking()
 
-                        join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
-                        from emp in empGroup.DefaultIfEmpty()
+                        join empOi in _employeeOfficeInfo.AllActive().AsNoTracking() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
+                        from empOi in empOiGroup.DefaultIfEmpty()
+
+                        where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
+                        join org in _organization.AllActive().AsNoTracking() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+                        from org in orgGroup.DefaultIfEmpty()
+
+                        join bra in _organizationBranches.AllActive().AsNoTracking() on empOi.OrganizationBranchID equals bra.OrganizationBranchID into braGroup
+                        from bra in braGroup.DefaultIfEmpty()
                         
                         join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                         from dep in depGroup.DefaultIfEmpty()
                         
                         select new
                         {
+                            emp.EmployeeID,
+                            FirstName = emp.FirstName ?? "-",
+                            LastName = emp.LastName ?? "-",
+                            EmployeeCode = emp.EmployeeCode ?? "-",
                             empOi.OrganizationID,
+                            OrganizationName = org.OrganizationName ?? "-",
                             empOi.OrganizationBranchID,
+                            OrganizationBranchName = bra.OrganizationBranchName ?? "-",
                             empOi.DepartmentID,
-                            empOi.EmployeeID,
-                            emp.FirstName,
-                            emp.LastName,
-                            emp.EmployeeCode,
-                            DepartmentName = dep.DepartmentName ?? "No Department"
+                            DepartmentName = dep.DepartmentName ?? "-"
                         };
 
             if (orgId.HasValue && orgId.Value != 0)
@@ -464,7 +485,7 @@ namespace GCTL.Service.CommonService
 
             var result = await query.Select(x => new CommonSelectVM
             {
-                Id = x.EmployeeID ?? 0,
+                Id = x.EmployeeID,
                 Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
                 GroupName = x.DepartmentName ?? "-"
             }).ToListAsync();
@@ -477,66 +498,87 @@ namespace GCTL.Service.CommonService
         #region GetEmployeesByOrgDatesBraDepId
         public async Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
         {
-            var data = from spal in _spiralPatternAssignList.AllActive().AsNoTracking()
-
-                       join hod in _holidays.AllActive().AsNoTracking() on spal.OrganizationID equals hod.OrganizationID into hodGroup
-                       from hod in hodGroup.DefaultIfEmpty()
-
-                       join empOi in _employeeOfficeInfo.AllActive().AsNoTracking() on spal.EmployeeID equals empOi.EmployeeID into empOiGroup
-                       from empOi in empOiGroup.DefaultIfEmpty()
-
-                       join emp in _employees.AllActive().AsNoTracking() on spal.EmployeeID equals emp.EmployeeID into empGroup
-                       from emp in empGroup.DefaultIfEmpty()
-
-                       join dep in _departments.AllActive().AsNoTracking() on spal.DepartmentID equals dep.DepartmentID into depGroup
-                       from dep in depGroup.DefaultIfEmpty()
-
-                       select new
-                       {
-                           spal.SpiralPatternAssignListID,
-                           spal.OrganizationID,
-                           empOi.OrganizationBranchID,
-                           spal.EmployeeID,
-                           emp.EmployeeCode,
-                           emp.FirstName,
-                           emp.LastName,
-                           spal.DepartmentID,
-                           dep.DepartmentName,
-                           spal.StartDate,
-                           spal.EndDate,
-                           hod.HolidayTitle,
-                           HolidayStartDate = hod.StartDate, 
-                           HolidayEndDate = hod.EndDate
-                       };
-
-            if (orgId.HasValue && orgId.Value != 0)
+            try
             {
-                data = data.Where(x => x.OrganizationID == orgId.Value);
+                var data = from emp in _employees.AllActive().AsNoTracking()
+
+                           join empOi in _employeeOfficeInfo.AllActive().AsNoTracking() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
+                           from empOi in empOiGroup.DefaultIfEmpty()
+
+                           where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
+                           join org in _organization.AllActive().AsNoTracking() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+                           from org in orgGroup.DefaultIfEmpty()
+
+                           join bra in _organizationBranches.AllActive().AsNoTracking() on empOi.OrganizationBranchID equals bra.OrganizationBranchID into braGroup
+                           from bra in braGroup.DefaultIfEmpty()
+
+                           join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                           from dep in depGroup.DefaultIfEmpty()
+
+                           join spal in _spiralPatternAssignList.AllActive().AsNoTracking() on empOi.EmployeeID equals spal.EmployeeID into spalGroup
+                           from spal in spalGroup.DefaultIfEmpty()
+
+                           join hod in _holidays.AllActive().AsNoTracking() on empOi.OrganizationID equals hod.OrganizationID into hodGroup
+                           from hod in hodGroup.DefaultIfEmpty()
+
+                           select new
+                           {
+                               emp.EmployeeID,
+                               FirstName = emp.FirstName ?? "-",
+                               LastName = emp.LastName ?? "-",
+                               EmployeeCode = emp.EmployeeCode ?? "-",
+                               empOi.OrganizationID,
+                               OrganizationName = org.OrganizationName ?? "-",
+                               empOi.OrganizationBranchID,
+                               OrganizationBranchName = bra.OrganizationBranchName ?? "-",
+                               empOi.DepartmentID,
+                               DepartmentName = dep.DepartmentName ?? "-",
+                               spal.SpiralPatternAssignListID,
+                               spal.StartDate,
+                               spal.EndDate,
+                               HolidayTitle = hod.HolidayTitle ?? "-",
+                               HolidayStartDate = hod.StartDate,
+                               HolidayEndDate = hod.EndDate
+                           };
+
+                if (orgId.HasValue && orgId.Value != 0)
+                {
+                    data = data.Where(x => x.OrganizationID == orgId.Value);
+                }
+
+                if (dates != null && dates.Any())
+                {
+                    data = data.Where(x => dates.Any(date => date.Date >= x.StartDate || date.Date >= x.HolidayStartDate && date.Date <= x.EndDate || date.Date <= x.HolidayEndDate));
+                }
+                //if (dates != null && dates.Any())
+                //{
+                //    data = data.Where(x => dates.Any(date => date.Date >= x.HolidayStartDate && date.Date <= x.HolidayEndDate));
+                //}
+
+                if (branchIds != null && branchIds.Any())
+                {
+                    data = data.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
+                }
+
+                if (deptIds != null && deptIds.Any())
+                {
+                    data = data.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
+                }
+
+                var result = await data.Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
+                    GroupName = x.DepartmentName ?? "-"
+                }).Distinct().ToListAsync();
+
+                return result;
             }
-
-            if (dates != null && dates.Any())
+            catch (Exception ex)
             {
-                data = data.Where(x => dates.Any(date => date.Date >= x.StartDate || date.Date >= x.HolidayStartDate && date.Date <= x.EndDate || date.Date <= x.HolidayEndDate));
+                throw new Exception("Error fetching employees", ex);
             }
-
-            if (branchIds != null && branchIds.Any())
-            {
-                data = data.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
-            }
-
-            if (deptIds != null && deptIds.Any())
-            {
-                data = data.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
-            }
-
-            var result = await data.Select(x => new CommonSelectVM
-            {
-                Id = x.EmployeeID ?? 0,
-                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
-                GroupName = x.DepartmentName ?? "-"
-            }).Distinct().ToListAsync();
-
-            return result;
         }
         #endregion
 
@@ -547,7 +589,7 @@ namespace GCTL.Service.CommonService
             try
             {
                 var holidayQuery = await _holidays.AllActive()
-                    .Where(x => x.OrganizationID == id && x.StatusID == 1007)
+                    .Where(x => x.OrganizationID == id && x.StatusID == 1)
                     .Include(x => x.Organization)
                     .Select(x => new
                     {
@@ -560,7 +602,7 @@ namespace GCTL.Service.CommonService
                 var holiday = holidayQuery.Select(x => new
                 {
                     x.HolidayID,
-                    x.OrganizationName,
+                    OrganizationName = x.OrganizationName ?? "-",
                     TotalDays = (x.StartDate.HasValue && x.EndDate.HasValue)
                         ? string.Join(", ",
                             Enumerable.Range(0, (x.EndDate.Value - x.StartDate.Value).Days + 1)

@@ -1,22 +1,27 @@
 ﻿using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
+using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class AssignDefaultShiftController : BaseController
     {
         #region Services & Repositories
         private readonly IAssignDefaultShiftService _assignDefaultShiftService;
+        private readonly ICommonService _commonService;
 
-        public AssignDefaultShiftController(ITranslateService translateService, IUserProfileService userProfileService, IAssignDefaultShiftService assignDefaultShiftService) : base(translateService, userProfileService)
+        public AssignDefaultShiftController(ITranslateService translateService, IUserProfileService userProfileService, IAssignDefaultShiftService assignDefaultShiftService, ICommonService commonService) : base(translateService, userProfileService)
         {
             _assignDefaultShiftService = assignDefaultShiftService;
+            _commonService = commonService;
         }
         #endregion
 
@@ -24,16 +29,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #region Index
         public async Task<IActionResult> Index()
         {
-            AssignDefaultShiftPageVM model = new AssignDefaultShiftPageVM();
+            try
+            {
+                AssignDefaultShiftPageVM model = new AssignDefaultShiftPageVM();
 
-            SetSmartPageCode(202900);
+                SetSmartPageCode(202900);
 
-            ViewBag.OrganizationDD = new SelectList(await _assignDefaultShiftService.GetCompanies(), "Id", "Name");
-            ViewBag.DepartmentDD = new SelectList(await _assignDefaultShiftService.GetDepartments(), "Id", "Name");
-            ViewBag.ShiftDD = new SelectList(await _assignDefaultShiftService.GetShift(), "Id", "Name");
-            ViewBag.EmployeeList = await _assignDefaultShiftService.GetGroupedEmployees();
+                ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+                ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
+                ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");
+                ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
 
-            return View(model);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return View(new AssignDefaultShiftPageVM());
+            }
         }
         #endregion
 
@@ -164,36 +177,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByDepartment
+        #region GetDepartmentByOrganization
         [HttpGet]
-        public async Task<JsonResult> GetEmployeeByDepartment(string departmentIds)
+        public async Task<IActionResult> GetDepartmentByOrganization(int? id)
         {
-            var deptIds = !string.IsNullOrEmpty(departmentIds)
-                ? departmentIds.Split(',').Select(int.Parse).ToList()
-                : new List<int>();
-
-            var data = await _assignDefaultShiftService.GetEmployeeByDepartment(deptIds);
-            return Json(data);
+            var result = await _commonService.GetDepartmentsByOrgId(id);
+            return Json(result);
         }
         #endregion
 
 
-        #region GetDepartmentByCompany
+        #region GetEmployeesByOrgBraDepId
         [HttpGet]
-        public async Task<JsonResult> GetDepartmentByCompany(int id)
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
         {
-            var data = await _assignDefaultShiftService.GetDepartmentByCompany(id);
-            return Json(data);
-        }
-        #endregion
-
-
-        #region GetEmployeeByCompany
-        [HttpGet]
-        public async Task<JsonResult> GetEmployeeByCompany(int id)
-        {
-            var data = await _assignDefaultShiftService.GetEmployeeByCompany(id);
-            return Json(data);
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            return Json(result);
         }
         #endregion
 
@@ -202,7 +201,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         [HttpGet]
         public async Task<JsonResult> GetShiftByCompany(int id)
         {
-            var data = await _assignDefaultShiftService.GetShiftByCompany(id);
+            var data = await _commonService.GetShiftsByOrgId(id);
             return Json(data);
         }
         #endregion
