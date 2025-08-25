@@ -157,6 +157,30 @@ public partial class Employees
 
     public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
 
+    public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddressesCreatedByNavigation { get; set; } = new List<CompanyBranchAddresses>();
+
+    public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddressesDeletedByNavigation { get; set; } = new List<CompanyBranchAddresses>();
+
+    public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddressesUpdatedByNavigation { get; set; } = new List<CompanyBranchAddresses>();
+
+    public virtual ICollection<CompanyBranches> CompanyBranchesCreatedByNavigation { get; set; } = new List<CompanyBranches>();
+
+    public virtual ICollection<CompanyBranches> CompanyBranchesDeletedByNavigation { get; set; } = new List<CompanyBranches>();
+
+    public virtual ICollection<CompanyBranches> CompanyBranchesUpdatedByNavigation { get; set; } = new List<CompanyBranches>();
+
+    public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddressesCreatedByNavigation { get; set; } = new List<CompanyWarehouseAddresses>();
+
+    public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddressesDeletedByNavigation { get; set; } = new List<CompanyWarehouseAddresses>();
+
+    public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddressesUpdatedByNavigation { get; set; } = new List<CompanyWarehouseAddresses>();
+
+    public virtual ICollection<CompanyWarehouses> CompanyWarehousesCreatedByNavigation { get; set; } = new List<CompanyWarehouses>();
+
+    public virtual ICollection<CompanyWarehouses> CompanyWarehousesDeletedByNavigation { get; set; } = new List<CompanyWarehouses>();
+
+    public virtual ICollection<CompanyWarehouses> CompanyWarehousesUpdatedByNavigation { get; set; } = new List<CompanyWarehouses>();
+
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesCreatedByNavigation { get; set; } = new List<CompensationDayExchanges>();
 
     public virtual ICollection<CompensationDayExchanges> CompensationDayExchangesDeletedByNavigation { get; set; } = new List<CompensationDayExchanges>();
@@ -184,6 +208,18 @@ public partial class Employees
     public virtual ICollection<Currencies> CurrenciesDeletedByNavigation { get; set; } = new List<Currencies>();
 
     public virtual ICollection<Currencies> CurrenciesUpdatedByNavigation { get; set; } = new List<Currencies>();
+
+    public virtual ICollection<CustomerAddresses> CustomerAddressesCreatedByNavigation { get; set; } = new List<CustomerAddresses>();
+
+    public virtual ICollection<CustomerAddresses> CustomerAddressesDeletedByNavigation { get; set; } = new List<CustomerAddresses>();
+
+    public virtual ICollection<CustomerAddresses> CustomerAddressesUpdatedByNavigation { get; set; } = new List<CustomerAddresses>();
+
+    public virtual ICollection<Customers1> Customers1CreatedByNavigation { get; set; } = new List<Customers1>();
+
+    public virtual ICollection<Customers1> Customers1DeletedByNavigation { get; set; } = new List<Customers1>();
+
+    public virtual ICollection<Customers1> Customers1UpdatedByNavigation { get; set; } = new List<Customers1>();
 
     public virtual ICollection<Customers> CustomersCreatedByNavigation { get; set; } = new List<Customers>();
 
@@ -422,18 +458,6 @@ public partial class Employees
     public virtual ICollection<Holidays> HolidaysDeletedByNavigation { get; set; } = new List<Holidays>();
 
     public virtual ICollection<Holidays> HolidaysUpdatedByNavigation { get; set; } = new List<Holidays>();
-
-    public virtual ICollection<IndividualAddresses> IndividualAddressesCreatedByNavigation { get; set; } = new List<IndividualAddresses>();
-
-    public virtual ICollection<IndividualAddresses> IndividualAddressesDeletedByNavigation { get; set; } = new List<IndividualAddresses>();
-
-    public virtual ICollection<IndividualAddresses> IndividualAddressesUpdatedByNavigation { get; set; } = new List<IndividualAddresses>();
-
-    public virtual ICollection<Individuals> IndividualsCreatedByNavigation { get; set; } = new List<Individuals>();
-
-    public virtual ICollection<Individuals> IndividualsDeletedByNavigation { get; set; } = new List<Individuals>();
-
-    public virtual ICollection<Individuals> IndividualsUpdatedByNavigation { get; set; } = new List<Individuals>();
 
     public virtual ICollection<Employees> InverseCreatedByNavigation { get; set; } = new List<Employees>();
 

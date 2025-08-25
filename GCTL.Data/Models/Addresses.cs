@@ -53,11 +53,15 @@ public partial class Addresses
 
     public string LastName { get; set; }
 
+    public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddresses { get; set; } = new List<CompanyBranchAddresses>();
+
+    public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddresses { get; set; } = new List<CompanyWarehouseAddresses>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employees DeletedByNavigation { get; set; }
+    public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();
 
-    public virtual ICollection<IndividualAddresses> IndividualAddresses { get; set; } = new List<IndividualAddresses>();
+    public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

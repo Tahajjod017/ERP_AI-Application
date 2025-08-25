@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AddressTypes
+public partial class CompanyWarehouseAddresses
 {
-    public int AddressTypeID { get; set; }
+    public int CompanyWarehouseAddressID { get; set; }
 
-    public string AddressTypeName { get; set; }
+    public int? WarehouseID { get; set; }
+
+    public int? AddressTypeID { get; set; }
+
+    public int? AddressID { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,15 +31,15 @@ public partial class AddressTypes
 
     public int? DeletedBy { get; set; }
 
-    public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddresses { get; set; } = new List<CompanyBranchAddresses>();
+    public virtual Addresses Address { get; set; }
 
-    public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddresses { get; set; } = new List<CompanyWarehouseAddresses>();
+    public virtual AddressTypes AddressType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
-
-    public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public virtual CompanyWarehouses Warehouse { get; set; }
 }

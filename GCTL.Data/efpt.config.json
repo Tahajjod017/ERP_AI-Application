@@ -4,6 +4,7 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.0",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -23,11 +24,27 @@
          "ObjectType": 0
       },
       {
-         "Name": "[Customer].[IndividualAddresses]",
+         "Name": "[Customer].[CompanyBranchAddresses]",
          "ObjectType": 0
       },
       {
-         "Name": "[Customer].[Individuals]",
+         "Name": "[Customer].[CompanyBranches]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[CompanyWarehouseAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[CompanyWarehouses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[CustomerAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[Customers]",
          "ObjectType": 0
       },
       {
@@ -540,6 +557,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -547,6 +565,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -558,5 +577,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }
