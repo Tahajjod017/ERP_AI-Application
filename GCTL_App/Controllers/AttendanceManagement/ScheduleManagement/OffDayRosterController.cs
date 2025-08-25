@@ -169,20 +169,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeesByOrgBraDepId
-        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
-        {
-            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
-            return Json(result);
-        }
-        #endregion
-
-
         #region GetEmployeesByOrgDatesBraDepId
         public async Task<IActionResult> GetEmployeesByOrgDatesBraDepId(int? orgId, [FromQuery] List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
         {
-            var result = await _commonService.GetEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, deptIds);
-            return Json(result);
+            try
+            {
+                var result = await _commonService.GetEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, deptIds);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
         #endregion
 

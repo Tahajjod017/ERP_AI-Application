@@ -16,6 +16,8 @@
         var updateEmpShift = settings.baseUrl + "/UpdateEmpShiftAsync";
         $(() => {
 
+            let dayDatePicker = null;
+            let exchangeDatePicker = null;
 
 
             // #region Save
@@ -119,7 +121,8 @@
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
                 });
-
+                dayDatePicker.clear();
+                exchangeDatePicker.clear();
                 $('#DayDate').prop('disabled', true);
                 flatpickr("#DayDate").destroy();
 
@@ -143,17 +146,6 @@
             }
             document.addEventListener('DOMContentLoaded', initOrganizationDD);
             initOrganizationDD();
-
-
-            //function initBranchDD() {
-            //    branchDD = new Choices('#BranchIDs', {
-            //        removeItemButton: true,
-            //        shouldSort: false,
-            //        placeholderValue: 'Select Branch...'
-            //    });
-            //}
-            //document.addEventListener('DOMContentLoaded', initBranchDD);
-            //initBranchDD();
 
 
             function initShiftDD() {
@@ -184,7 +176,7 @@
                 e.preventDefault();
 
                 var orgId = $(this).val();
-                getEmployeesByOrgBraDepId(orgId, null, null);
+                getEmployeesByOrgDatesBraDepId(orgId, null, null, null);
                 loadBranchByOrganization(orgId);
                 loadDepartmentsByOrganization(orgId);
                 loadShiftByOrg(orgId);
@@ -324,59 +316,6 @@
             // #endregion
 
 
-            // #region GetEmployeesByOrgBraDepId
-            function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
-                $.ajax({
-                    url: '/OffDayRoster/GetEmployeesByOrgBraDepId',
-                    type: 'GET',
-                    traditional: true,
-                    data: {
-                        orgId: orgId,
-                        branchIds: branchIds,
-                        depIds: depIds
-                    },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees:', error);
-                    }
-                });
-            }
-            // #endregion
-
-
             // #region DayDate on change
             $('#DayDate').on('change', function () {
                 var dates = $(this).val().split(',');
@@ -452,16 +391,17 @@
                 }
 
                 $.getJSON('/OffDayRoster/GetWeekendByOrganization', { id: selectedId }, function (data) {
-                    const holidayDates = new Set();
+                    //const holidayDates = new Set();
+                    const holidayDates = new Map();
                     const weekendDays = new Set();
 
                     data.forEach(item => {
-                        // Handle holiday (TotalDays)
                         if (item.totalDays) {
-                            item.totalDays.split(', ').forEach(d => {
+                            item.totalDays.split(', ').forEach((d, i) => {
                                 const [day, month, year] = d.split('/');
                                 const isoDate = `20${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                                holidayDates.add(isoDate);
+                                const title = item.holidayTitle?.split(', ')[i] || "Holiday"; // fallback
+                                holidayDates.set(isoDate, title);
                             });
                         }
 
@@ -496,110 +436,149 @@
                     // Enable both fields
                     $('#DayDate, #ExchangeDate').prop('disabled', false);
 
-                    // Init DayDate flatpickr
-                    flatpickr("#DayDate", {
+                    dayDatePicker = flatpickr("#DayDate", {
                         altInput: true,
                         altFormat: "d/m/Y",
                         dateFormat: "Y-m-d",
-                        mode: "multiple",
+                        //mode: "multiple",
                         disableMobile: true,
                         allowInput: true,
-                        enable: dayDateEnabled
+                        // enable: dayDateEnabled, // optional
+                        //onChange: function (selectedDates) {
+                        //    if (selectedDates.length) {
+                        //        exchangeDatePicker.set('minDate', selectedDates[0]);
+                        //    }
+                        //},
+                        onChange: function (selectedDates) {
+                            if (selectedDates.length) {
+                                const nextDay = new Date(selectedDates[0]);
+                                nextDay.setDate(nextDay.getDate() + 1); // Add one day
+                                exchangeDatePicker.set('minDate', nextDay);
+                            }
+                        },
+                        onDayCreate: function (dObj, dStr, fp, dayElem) {
+                            const date = dayElem.dateObj;
+                            const iso = date.toLocaleDateString('en-CA');
+                            const weekday = date.getDay();
+                            if (holidayDates.has(iso)) {
+                                dayElem.classList.add("flatpickr-holiday");
+                                dayElem.setAttribute("title", holidayDates.get(iso));
+                            } else if (weekendDays.has(weekday)) {
+                                dayElem.classList.add("flatpickr-weekend");
+                                dayElem.setAttribute("title", "Weekend");
+                            }
+                        }
                     });
 
-                    // Init ExchangeDate flatpickr
-                    flatpickr("#ExchangeDate", {
+                    exchangeDatePicker = flatpickr("#ExchangeDate", {
                         altInput: true,
                         altFormat: "d/m/Y",
                         dateFormat: "Y-m-d",
-                        mode: "multiple",
+                        //mode: "multiple",
                         disableMobile: true,
                         allowInput: true,
-                        enable: exchangeDateEnabled
+                        enable: exchangeDateEnabled,
+                        onChange: function (selectedDates) {
+                            if (selectedDates.length) {
+                                // Set maxDate on DayDate
+                                dayDatePicker.set('maxDate', selectedDates[0]);
+                            }
+                        },
+                        onDayCreate: function (dObj, dStr, fp, dayElem) {
+                            const date = dayElem.dateObj;
+                            const iso = date.toLocaleDateString('en-CA');
+                            const weekday = date.getDay();
+                            if (holidayDates.has(iso)) {
+                                dayElem.classList.add("flatpickr-holiday");
+                                dayElem.setAttribute("title", holidayDates.get(iso));
+                            } else if (weekendDays.has(weekday)) {
+                                dayElem.classList.add("flatpickr-weekend");
+                                dayElem.setAttribute("title", "Weekend");
+                            }
+                        }
                     });
+
                 });
             });
 
 
-
             //$('#OrganizationID').on('change', function () {
-            //    var selectedId = $(this).val();
+            //    const selectedId = $(this).val();
 
-            //    if (selectedId) { 
-            //        $.ajax({
-            //            url: '/OffDayRoster/GetWeekendByOrganization', 
-            //            type: 'GET',
-            //            data: { id: selectedId }, 
-            //            dataType: 'json',
-            //            success: function (data) {
-            //                // Prepare an array to store the enabled dates
-            //                let enabledDates = [];
-            //                let disabledDates = [];
+            //    if (!selectedId) {
+            //        $('#DayDate, #ExchangeDate').prop('disabled', true).each(function () {
+            //            this._flatpickr?.clear();
+            //        });
+            //        return;
+            //    }
 
-            //                // Loop through the weekend settings data
-            //                $.each(data, function (index, item) {
-            //                    // Parse the WeekdayNumbers (comma-separated) into an array of numbers
-            //                    const weekdayNumbers = item.weekdayNumbers.split(',').map(Number);  // [1, 2, 5]
+            //    $.getJSON('/OffDayRoster/GetWeekendByOrganization', { id: selectedId }, function (data) {
+            //        const holidayDates = new Set();
+            //        const weekendDays = new Set();
 
-            //                    // Loop through each month (0-11, where 0 = January and 11 = December)
-            //                    for (let month = 0; month < 12; month++) {
-            //                        const currentYear = new Date().getFullYear();
-
-            //                        // Loop through all days in the month (1 to 31)
-            //                        for (let day = 1; day <= 31; day++) {
-            //                            const date = new Date(currentYear, month, day);
-
-            //                            // Skip invalid dates (e.g., February 30, April 31, etc.)
-            //                            if (date.getMonth() !== month) continue;
-
-            //                            const weekday = date.getDay(); // 0-Sunday, 1-Monday, ..., 6-Saturday
-
-            //                            // If the weekday is in the list of enabled weekdays, add the date to the enabledDates array
-            //                            if (weekdayNumbers.includes(weekday)) {
-            //                                // Format the date as 'Y-m-d' (flatpickr date format)
-            //                                const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
-            //                                enabledDates.push(formattedDate);
-            //                            } else {
-            //                                // Otherwise, it's disabled, add to disabledDates
-            //                                const formattedDate = date.toISOString().split('T')[0];  // 'YYYY-MM-DD'
-            //                                disabledDates.push(formattedDate);
-            //                            }
-            //                        }
-            //                    }
+            //        data.forEach(item => {
+            //            // Handle holiday (TotalDays)
+            //            if (item.totalDays) {
+            //                item.totalDays.split(', ').forEach(d => {
+            //                    const [day, month, year] = d.split('/');
+            //                    const isoDate = `20${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            //                    holidayDates.add(isoDate);
             //                });
+            //            }
 
-            //                $('#DayDate').prop('disabled', false); 
-
-            //                flatpickr("#DayDate", {
-            //                    altInput: true,
-            //                    altFormat: "d/m/Y",
-            //                    dateFormat: "Y-m-d",
-            //                    monthSelectorType: "dropdown",
-            //                    disableMobile: true,
-            //                    allowInput: true,
-            //                    mode: "multiple",
-            //                    enable: enabledDates 
-            //                });
-
-            //                flatpickr("#ExchangeDate", {
-            //                    altInput: true,
-            //                    altFormat: "d/m/Y",
-            //                    dateFormat: "Y-m-d",
-            //                    monthSelectorType: "dropdown",
-            //                    disableMobile: true,
-            //                    allowInput: true,
-            //                    mode: "multiple",
-            //                    enable: disabledDates 
-            //                });
-            //            },
-            //            error: function (xhr, status, error) {
-            //                console.error('Error fetching weekend settings:', error);
+            //            // Handle weekend days
+            //            if (item.weekdayNumbers) {
+            //                item.weekdayNumbers.split(',').map(Number).forEach(wd => weekendDays.add(wd));
             //            }
             //        });
-            //    } else {
-            //        $('#DayDate').prop('disabled', true);
-            //        flatpickr("#DayDate").destroy();
-            //    }
+
+            //        const currentYear = new Date().getFullYear();
+            //        const dayDateEnabled = [];
+            //        const exchangeDateEnabled = [];
+
+            //        // Generate both lists by iterating through the full year
+            //        for (let month = 0; month < 12; month++) {
+            //            for (let day = 1; day <= 31; day++) {
+            //                const date = new Date(currentYear, month, day);
+            //                if (date.getMonth() !== month) continue; // skip invalid days
+
+            //                //const iso = date.toISOString().split('T')[0];
+            //                const iso = date.toLocaleDateString('en-CA');
+            //                const weekday = date.getDay();
+
+            //                if (holidayDates.has(iso) || weekendDays.has(weekday)) {
+            //                    dayDateEnabled.push(iso);          // Enable in DayDate
+            //                } else {
+            //                    exchangeDateEnabled.push(iso);     // Enable in ExchangeDate
+            //                }
+            //            }
+            //        }
+
+            //        // Enable both fields
+            //        $('#DayDate, #ExchangeDate').prop('disabled', false);
+
+            //        // Init DayDate flatpickr
+            //        flatpickr("#DayDate", {
+            //            altInput: true,
+            //            altFormat: "d/m/Y",
+            //            dateFormat: "Y-m-d",
+            //            mode: "multiple",
+            //            disableMobile: true,
+            //            allowInput: true,
+            //            enable: dayDateEnabled
+            //        });
+
+            //        // Init ExchangeDate flatpickr
+            //        flatpickr("#ExchangeDate", {
+            //            altInput: true,
+            //            altFormat: "d/m/Y",
+            //            dateFormat: "Y-m-d",
+            //            mode: "multiple",
+            //            disableMobile: true,
+            //            allowInput: true,
+            //            enable: exchangeDateEnabled
+            //        });
+            //    });
             //});
             // #endregion
 
@@ -727,6 +706,8 @@
             });
             // #endregion
 
+
+            
 
         });
 
