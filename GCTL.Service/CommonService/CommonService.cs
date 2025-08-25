@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,9 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralMonthlyPattern> _spiralMonthlyPattern;
         private readonly IGenericRepository<Holidays> _holidays;
         private readonly IGenericRepository<SpiralPatternAssignList> _spiralPatternAssignList;
+        private readonly IGenericRepository<SpiralWeeklyPatternDetails> _spiralWeeklyPatternDetails;
+        private readonly IGenericRepository<SpiralBioWeeklyPatternDetails> _spiralBioWeeklyPatternDetails;
+        private readonly IGenericRepository<SpiralMonthlyPatternDetails> _spiralMonthlyPatternDetails;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -48,7 +52,10 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralBioWeeklyPattern> spiralBioWeeklyPattern,
             IGenericRepository<SpiralMonthlyPattern> spiralMonthlyPattern,
             IGenericRepository<Holidays> holidays,
-            IGenericRepository<SpiralPatternAssignList> spiralPatternAssignList)
+            IGenericRepository<SpiralPatternAssignList> spiralPatternAssignList,
+            IGenericRepository<SpiralWeeklyPatternDetails> spiralWeeklyPatternDetails,
+            IGenericRepository<SpiralBioWeeklyPatternDetails> spiralBioWeeklyPatternDetails,
+            IGenericRepository<SpiralMonthlyPatternDetails> spiralMonthlyPatternDetails)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -65,6 +72,9 @@ namespace GCTL.Service.CommonService
             _spiralMonthlyPattern = spiralMonthlyPattern;
             _holidays = holidays;
             _spiralPatternAssignList = spiralPatternAssignList;
+            _spiralWeeklyPatternDetails = spiralWeeklyPatternDetails;
+            _spiralBioWeeklyPatternDetails = spiralBioWeeklyPatternDetails;
+            _spiralMonthlyPatternDetails = spiralMonthlyPatternDetails;
         }
         #endregion
 
@@ -516,11 +526,35 @@ namespace GCTL.Service.CommonService
                            join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                            from dep in depGroup.DefaultIfEmpty()
 
-                           join spal in _spiralPatternAssignList.AllActive().AsNoTracking() on empOi.EmployeeID equals spal.EmployeeID into spalGroup
-                           from spal in spalGroup.DefaultIfEmpty()
+                           join wes in _weekendSettings.AllActive().AsNoTracking() on empOi.OrganizationID equals wes.OrganizationID into wesGroup
+                           from wes in wesGroup.DefaultIfEmpty()
+
+                           join wed in _weekendDays.AllActive().AsNoTracking() on wes.WeekendSettingID equals wed.WeekendSettingID into wedGroup
+                           from wed in wedGroup.DefaultIfEmpty()
 
                            join hod in _holidays.AllActive().AsNoTracking() on empOi.OrganizationID equals hod.OrganizationID into hodGroup
                            from hod in hodGroup.DefaultIfEmpty()
+
+                           join spal in _spiralPatternAssignList.AllActive().AsNoTracking() on empOi.EmployeeID equals spal.EmployeeID into spalGroup
+                           from spal in spalGroup.DefaultIfEmpty()
+
+                           join swp in _spiralWeeklyPatterns.AllActive().AsNoTracking() on spal.SpiralWeeklyPatternID equals swp.SpiralWeeklyPatternID into swpGroup
+                           from swp in swpGroup.DefaultIfEmpty()
+
+                           join swpd in _spiralWeeklyPatternDetails.AllActive().AsNoTracking() on swp.SpiralWeeklyPatternID equals swpd.SpiralWeeklyPatternID into swpdGroup
+                           from swpd in swpdGroup.DefaultIfEmpty()
+
+                           join sbp in _spiralBioWeeklyPattern.AllActive().AsNoTracking() on spal.SpiralBioWeeklyPatternID equals sbp.SpiralBioWeeklyPatternID into sbpGroup
+                           from sbp in sbpGroup.DefaultIfEmpty()
+
+                           join sbpd in _spiralBioWeeklyPatternDetails.AllActive().AsNoTracking() on sbp.SpiralBioWeeklyPatternID equals sbpd.SpiralBioWeeklyPatternID into sbpdGroup
+                           from sbpd in sbpdGroup.DefaultIfEmpty()
+
+                           join smp in _spiralMonthlyPattern.AllActive().AsNoTracking() on spal.SpiralMonthlyPatternID equals smp.SpiralMonthlyPatternID into smpGroup
+                           from smp in smpGroup.DefaultIfEmpty()
+
+                           join smpd in _spiralMonthlyPatternDetails.AllActive().AsNoTracking() on smp.SpiralMonthlyPatternID equals smpd.SpiralMonthlyPatternID into smpdGroup
+                           from smpd in smpdGroup.DefaultIfEmpty()
 
                            select new
                            {
@@ -534,44 +568,95 @@ namespace GCTL.Service.CommonService
                                OrganizationBranchName = bra.OrganizationBranchName ?? "-",
                                empOi.DepartmentID,
                                DepartmentName = dep.DepartmentName ?? "-",
-                               spal.SpiralPatternAssignListID,
-                               spal.StartDate,
-                               spal.EndDate,
+                               weekendDay = wed.WeekdayNumber,
                                HolidayTitle = hod.HolidayTitle ?? "-",
                                HolidayStartDate = hod.StartDate,
-                               HolidayEndDate = hod.EndDate
+                               HolidayEndDate = hod.EndDate,
+                               SpiralStartDate = spal.StartDate,
+                               SpiralEndDate = spal.EndDate,
+                               WeeklyPatternDay = swpd != null ? swpd.DayOfWeek : (int?)null
                            };
 
+                // Apply organization filter
                 if (orgId.HasValue && orgId.Value != 0)
                 {
                     data = data.Where(x => x.OrganizationID == orgId.Value);
                 }
 
-                if (dates != null && dates.Any())
-                {
-                    data = data.Where(x => dates.Any(date => date.Date >= x.StartDate || date.Date >= x.HolidayStartDate && date.Date <= x.EndDate || date.Date <= x.HolidayEndDate));
-                }
-                //if (dates != null && dates.Any())
-                //{
-                //    data = data.Where(x => dates.Any(date => date.Date >= x.HolidayStartDate && date.Date <= x.HolidayEndDate));
-                //}
-
+                // Apply branch filter
                 if (branchIds != null && branchIds.Any())
                 {
                     data = data.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
                 }
 
+                // Apply department filter
                 if (deptIds != null && deptIds.Any())
                 {
                     data = data.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
                 }
 
-                var result = await data.Select(x => new CommonSelectVM
+                // Materialize the query
+                var resultList = await data.ToListAsync();
+
+                // Filter by Dates (Holiday, Weekend, Spiral Pattern)
+                //if (dates != null && dates.Any())
+                //{
+                //    var weekdayNumbers = dates.Select(d => (int)d.DayOfWeek).Distinct().ToList();
+
+                //    resultList = resultList.Where(x =>
+                //        // ✅ Weekend match
+                //        (x.weekendDay.HasValue && weekdayNumbers.Contains(x.weekendDay.Value))
+
+                //        // ✅ Holiday match
+                //        || (x.HolidayStartDate.HasValue && x.HolidayEndDate.HasValue && dates.Any(date => date.Date >= x.HolidayStartDate.Value.Date && date.Date <= x.HolidayEndDate.Value.Date))
+
+                //        // ✅ Spiral pattern match (only if both start & end are present)
+                //        || (x.SpiralStartDate.HasValue && x.SpiralEndDate.HasValue && dates.Any(date => date.Date >= x.SpiralStartDate.Value.Date && date.Date <= x.SpiralEndDate.Value.Date))
+                //    ).ToList();
+                //}
+
+                if (dates != null && dates.Any())
                 {
-                    Id = x.EmployeeID,
-                    Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
-                    GroupName = x.DepartmentName ?? "-"
-                }).Distinct().ToListAsync();
+                    var weekdays = dates.Select(d => (int)d.DayOfWeek).Distinct().ToList();
+
+                    resultList = resultList.Where(x =>
+                        // Weekend match
+                        (x.weekendDay.HasValue && weekdays.Contains(x.weekendDay.Value))
+
+                        // Holiday range
+                        || (x.HolidayStartDate.HasValue && x.HolidayEndDate.HasValue
+                            && dates.Any(d => d.Date >= x.HolidayStartDate.Value.Date
+                                            && d.Date <= x.HolidayEndDate.Value.Date))
+
+                        //// Spiral date range
+                        //|| (x.SpiralStartDate.HasValue && x.SpiralEndDate.HasValue
+                        //    && dates.Any(d => d.Date >= x.SpiralStartDate.Value.Date
+                        //                      && d.Date <= x.SpiralEndDate.Value.Date))
+
+                        // Spiral pattern match: both date range AND weekday must match
+                        || (
+                            x.SpiralStartDate.HasValue && x.SpiralEndDate.HasValue
+                            && x.WeeklyPatternDay.HasValue
+                            && dates.Any(d =>
+                                d.Date >= x.SpiralStartDate.Value.Date &&
+                                d.Date <= x.SpiralEndDate.Value.Date &&
+                                (int)d.DayOfWeek == x.WeeklyPatternDay.Value
+                            )
+                        )
+                    ).ToList();
+                }
+
+                // Final projection to view model
+                var result = resultList
+                    .GroupBy(x => x.EmployeeID)
+                    .Select(x => x.First())
+                    .Select(x => new CommonSelectVM
+                    {
+                        Id = x.EmployeeID,
+                        Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                        GroupName = x.DepartmentName
+                    })
+                    .ToList();
 
                 return result;
             }
@@ -580,6 +665,100 @@ namespace GCTL.Service.CommonService
                 throw new Exception("Error fetching employees", ex);
             }
         }
+
+
+        //public async Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
+        //{
+        //    try
+        //    {
+        //        var data = from emp in _employees.AllActive().AsNoTracking()
+
+        //                   join empOi in _employeeOfficeInfo.AllActive().AsNoTracking() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
+        //                   from empOi in empOiGroup.DefaultIfEmpty()
+
+        //                   where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
+        //                   join org in _organization.AllActive().AsNoTracking() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+        //                   from org in orgGroup.DefaultIfEmpty()
+
+        //                   join bra in _organizationBranches.AllActive().AsNoTracking() on empOi.OrganizationBranchID equals bra.OrganizationBranchID into braGroup
+        //                   from bra in braGroup.DefaultIfEmpty()
+
+        //                   join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+        //                   from dep in depGroup.DefaultIfEmpty()
+
+        //                   join wes in _weekendSettings.AllActive().AsNoTracking() on empOi.OrganizationID equals wes.OrganizationID into wesGroup
+        //                   from wes in wesGroup.DefaultIfEmpty()
+
+        //                   join wed in _weekendDays.AllActive().AsNoTracking() on wes.WeekendSettingID equals wed.WeekendSettingID into wedGroup
+        //                   from wed in wedGroup.DefaultIfEmpty()
+
+        //                   join spal in _spiralPatternAssignList.AllActive().AsNoTracking() on empOi.EmployeeID equals spal.EmployeeID into spalGroup
+        //                   from spal in spalGroup.DefaultIfEmpty()
+
+        //                   join hod in _holidays.AllActive().AsNoTracking() on empOi.OrganizationID equals hod.OrganizationID into hodGroup
+        //                   from hod in hodGroup.DefaultIfEmpty()
+
+        //                   select new
+        //                   {
+        //                       emp.EmployeeID,
+        //                       FirstName = emp.FirstName ?? "-",
+        //                       LastName = emp.LastName ?? "-",
+        //                       EmployeeCode = emp.EmployeeCode ?? "-",
+        //                       empOi.OrganizationID,
+        //                       OrganizationName = org.OrganizationName ?? "-",
+        //                       empOi.OrganizationBranchID,
+        //                       OrganizationBranchName = bra.OrganizationBranchName ?? "-",
+        //                       empOi.DepartmentID,
+        //                       DepartmentName = dep.DepartmentName ?? "-",
+        //                       wes.WeekendSettingID,
+        //                       weekendDays = wes.WeekendDays.Select(d => d.WeekdayNumber).ToList(),
+        //                       spal.SpiralPatternAssignListID,
+        //                       spal.StartDate,
+        //                       spal.EndDate,
+        //                       HolidayTitle = hod.HolidayTitle ?? "-",
+        //                       HolidayStartDate = hod.StartDate,
+        //                       HolidayEndDate = hod.EndDate
+        //                   };
+
+        //        if (orgId.HasValue && orgId.Value != 0)
+        //        {
+        //            data = data.Where(x => x.OrganizationID == orgId.Value);
+        //        }
+
+        //        //if (dates != null && dates.Any())
+        //        //{
+        //        //    data = data.Where(x => dates.Any(date => date.Date >= x.StartDate || date.Date >= x.HolidayStartDate && date.Date <= x.EndDate || date.Date <= x.HolidayEndDate));
+        //        //}
+        //        if (dates != null && dates.Any())
+        //        {
+        //            data = data.Where(x => dates.Any(date => date.Date >= x.HolidayStartDate && date.Date <= x.HolidayEndDate));
+        //        }
+
+        //        if (branchIds != null && branchIds.Any())
+        //        {
+        //            data = data.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
+        //        }
+
+        //        if (deptIds != null && deptIds.Any())
+        //        {
+        //            data = data.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
+        //        }
+
+        //        var result = await data.Select(x => new CommonSelectVM
+        //        {
+        //            Id = x.EmployeeID,
+        //            Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
+        //            GroupName = x.DepartmentName ?? "-"
+        //        }).Distinct().ToListAsync();
+
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Error fetching employees", ex);
+        //    }
+        //}
         #endregion
 
 
@@ -594,6 +773,7 @@ namespace GCTL.Service.CommonService
                     .Select(x => new
                     {
                         x.HolidayID,
+                        x.HolidayTitle,
                         x.Organization.OrganizationName,
                         x.StartDate,
                         x.EndDate,
@@ -602,6 +782,7 @@ namespace GCTL.Service.CommonService
                 var holiday = holidayQuery.Select(x => new
                 {
                     x.HolidayID,
+                    x.HolidayTitle,
                     OrganizationName = x.OrganizationName ?? "-",
                     TotalDays = (x.StartDate.HasValue && x.EndDate.HasValue)
                         ? string.Join(", ",

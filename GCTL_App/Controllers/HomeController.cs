@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using NodaTime.Text;
 using NodaTime;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GCTL_App.Controllers
 {
+    [Authorize]
     public class HomeController : BaseController
     {
         private readonly ILocalizationContext _loc;
