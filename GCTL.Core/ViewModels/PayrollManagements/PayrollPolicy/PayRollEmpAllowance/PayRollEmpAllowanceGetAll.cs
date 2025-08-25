@@ -10,21 +10,22 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
     {
         public int EmployeeAllowanceID { get; set; }
         public string? OrganizationName { get; set; }
+       public List<AllowanceTypeVM> allowanceTypes { get; set; } = new(); 
+        
+    }
 
-        public decimal? MobileInternetAllowance { get; set; }
-
-        public decimal? ShiftAllowance { get; set; }
-
-        public decimal? HouseRentAllowanceRate { get; set; }
-
-        public string? HRentDependsOnSalaryTypeIDName { get; set; }
-
-        public decimal? MedicalAllowanceRate { get; set; }
-
-        public string? MediAllowDepOnSalaryTypeIDName { get; set; }
-
-        public decimal? ConveyanceAllowanceRate { get; set; }
-
-        public string? ConAllowDepOnSalaryTypeIDName { get; set; }
+   public class AllowanceTypeVM
+    {
+        public int EmployeeAllowanceID { get; set; }
+        public DateTime? EffectiveDate { get; set; }
+        public bool IsActive { get; set; }
+        public List<DetailsVM> detailsVMs { get; set; } = new();
+    }
+    public class DetailsVM
+    {
+        public decimal? MinSalary { get; set; }
+        public decimal? MaxSalary { get; set; }
+        public decimal? Value { get; set; }
+        public int ? CalculationType { get; set; }
     }
 }

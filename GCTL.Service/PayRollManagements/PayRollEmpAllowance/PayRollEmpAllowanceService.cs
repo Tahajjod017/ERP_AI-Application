@@ -59,16 +59,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 }
                 Expression<Func<EmployeeAllowances, object>> orderByExpression = currentSortColumn?.ToLower() switch
                 {
-                    //"companyname" => x => x.Organization.OrganizationName,
-                    //"helthinsurance" => x => x.HealthInsurance,
-                    //"ec" => x => x.ProvidentFundEmployeeContrebution,
-                    //"oc" => x => x.ProvidentFundOrganizationContrebution,
-                    //"time" => x => x.ProvidentFundMinimumServiceYear,
-                    //"salaryof" => x => x.ProvidentFundOnSalaryType.SalaryTypeName,
-                    //"rate" => x => x.FastivalBonusRate,
-                    //"festivalbonus" => x => x.FastivalBonusOnSalaryType.SalaryTypeName,
-                    //"performancebonus" => x => x.PerformanceBonus,
-                    //"yearendbonus" => x => x.YearlyEndBonusType.YearlyEndBonusTypeName,
+                   
                     _ => x => x.EmployeeAllowanceID
                 };
 
@@ -99,14 +90,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     {
                         EmployeeAllowanceID = b.EmployeeAllowanceID,
                         OrganizationName = b.Organization?.OrganizationName ?? string.Empty,
-                        //MobileInternetAllowance = b.MobileInternetAllowance ?? 0,
-                       // ShiftAllowance = b.ShiftAllowance ?? 0,
-                       // HouseRentAllowanceRate = b.HouseRentAllowanceRate ?? 0,
-                        //ConveyanceAllowanceRate = b.ConveyanceAllowanceRate ?? 0,
-                        //HRentDependsOnSalaryTypeIDName = b.HRentDependsOnSalaryType?.SalaryTypeName ?? string.Empty,
-                       // MediAllowDepOnSalaryTypeIDName = b.MediAllowDepOnSalaryType?.SalaryTypeName ?? string.Empty,
-                       // MedicalAllowanceRate= b.MedicalAllowanceRate ?? 0,
-                        //ConAllowDepOnSalaryTypeIDName = b.ConAllowDepOnSalaryType?.SalaryTypeName ?? string.Empty,
+                        
                        
                     });
 
@@ -340,6 +324,15 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
             return data;
         }
 
+
+
+        #endregion
+
+        #region Get By Data
+        public Task<List<PayRollEmpAllowanceGetAll>> GetDataByID(int employeeAllowanceID)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }
