@@ -24,20 +24,20 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeTypeRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly ILeadCreateService _leadCreateService;
-        private readonly IGenericRepository<IndividualAddresses> _individualAddressesRepository;
+        private readonly IGenericRepository<CustomerAddresses> _customerAddressesRepository;
         private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly AppDbContext _context;
         private readonly IGenericRepository<Country> _countryRepository;
 
         #endregion
-        public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<IndividualAddresses> individualAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
+        public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
             _leadStatusesTypeRepository = leadStatusesTypeRepository;
             _customersRepository = customersRepository;
             _leadCreateService = leadCreateService;
-            _individualAddressesRepository = individualAddressesRepository;
+            _customerAddressesRepository = customerAddressesRepository;
             _employeeTypeRepository = employeeTypeRepository;
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -67,8 +67,8 @@ namespace GCTL_App.Controllers.CRM
                 return false;
 
             int? addressId = 0;
-            var customerObj = await _individualAddressesRepository
-                .FirstOrDefaultAsync(u => u.IndividualAddressID == id);
+            var customerObj = await _customerAddressesRepository
+                .FirstOrDefaultAsync(u => u.CustomerAddressID == id);
 
             if (customerObj != null)
                 addressId = customerObj.AddressID;
@@ -99,13 +99,13 @@ namespace GCTL_App.Controllers.CRM
         [HttpGet]
         public async Task<IActionResult> GetCustomerList()
         {
-            var customers = await _individualAddressesRepository
+            var customers = await _customerAddressesRepository
                     .Find(u => u.AddressType.AddressTypeName == "billing")
-                    .OrderBy(n => n.Individual.FirstName + n.Individual.LastName)
+                    .OrderBy(n => n.Customer.FullName)
                     .Select(n => new
                     {
-                        CustomerId = n.IndividualAddressID,
-                        FullName = n.Individual.FirstName + " " + n.Individual.LastName,
+                        CustomerId = n.CustomerAddressID,
+                        FullName = n.Customer.FullName,
                         Type = n.AddressType.AddressTypeName,
                         Phone = n.Address.Phone,
                         Email = n.Address.Email
@@ -142,20 +142,37 @@ namespace GCTL_App.Controllers.CRM
             return Json(countrySelectList);
         }
         [HttpPost]
+        public async Task<IActionResult> getCompanyList(string countryName)
+        {
+
+            var companyList = await _customerAddressesRepository.AllActive().Where(u=> u.AddressType.AddressTypeName == "company").Include(c=>c.Customer).ToListAsync();
+            var companySelectList = companyList
+    .Where(c => c.Customer != null) // ensure Customer exists
+    .Select(c => new SelectListItem
+    {
+        Value = c.CustomerAddressID.ToString(),
+        Text = c.Customer.FullName
+    }).ToList();
+
+            if (companySelectList.Any())
+                return Json(companySelectList);
+
+            return BadRequest("No companies found.");
+        }
+        [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)
         {
-            var customerObj = await (from add in _context.IndividualAddresses
-                                     join ind in _context.Individuals
-                                     on add.IndividualID equals ind.IndividualID
+            var customerObj = await (from add in _context.CustomerAddresses
+                                     join ind in _context.Customers
+                                     on add.CustomerID equals ind.CustomerID
                                      join address in _context.Addresses on add.AddressID equals address.AddressID
                                      join country in _context.Country on address.CountryID equals country.CountryID
-                                     where add.IndividualAddressID == id
+                                     where add.CustomerAddressID == id
                                      select new
                                      {
-                                         add.IndividualAddressID,
+                                         add.CustomerAddressID,
                                          add.AddressType.AddressTypeName,
-                                         ind.FirstName,
-                                         ind.LastName,
+                                         ind.FullName,
                                          address.FullAddress,
                                          address.Street,
                                          address.City,
@@ -171,14 +188,14 @@ namespace GCTL_App.Controllers.CRM
                                          address.Email
                                      }).FirstOrDefaultAsync();
 
-            var individualId = await _context.IndividualAddresses.Where(x => x.IndividualAddressID == id).Select(x => x.IndividualID).FirstOrDefaultAsync();
-            var shippingObj = await (from add in _context.IndividualAddresses
+            var customerId = await _context.CustomerAddresses.Where(x => x.CustomerAddressID == id).Select(x => x.CustomerAddressID).FirstOrDefaultAsync();
+            var shippingObj = await (from add in _context.CustomerAddresses
                                      join address in _context.Addresses on add.AddressID equals address.AddressID
                                      join country in _context.Country on address.CountryID equals country.CountryID
-                                     where add.AddressType.AddressTypeName == "shipping" && add.IndividualID == individualId
+                                     where add.AddressType.AddressTypeName == "shipping" && add.CustomerID == customerId
                                      select new
                                      {
-                                         add.IndividualAddressID,
+                                         add.CustomerAddressID,
                                          address.FullAddress,
                                          address.Street,
                                          address.City,
@@ -239,6 +256,49 @@ namespace GCTL_App.Controllers.CRM
             return Ok(results); 
         } 
 
+        public async Task<IActionResult> InsertBranch([FromBody] BranchVM branchVM)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    if (branchVM.PrimaryID == 0)
+                    {
+                        var result = await _leadCreateService.CreateBranch(branchVM);
+                        return Ok(result);
+                    }
+                }
+                return Ok(false);
+            }
+            catch (Exception)
+            {
+                return Ok(false);
+            }
+            
+        } 
+        public async Task<IActionResult> InsertWarehouse([FromBody] BranchVM branchVM)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    if (branchVM.PrimaryID == 0)
+                    {
+                        var result = await _leadCreateService.CreateBranch(branchVM);
+                        return Ok(result);
+                    }
+                }
+                return Ok(false);
+            }
+            catch (Exception)
+            {
+                return Ok(false);
+            }
+            
+        } 
+
         [HttpPost]
         public async Task<IActionResult> InsertShippingAddress([FromBody] ShippingVM shippingVM)
         {
@@ -253,7 +313,8 @@ namespace GCTL_App.Controllers.CRM
             }
             return Ok(false); 
         }
-        public async Task<IActionResult> CreateLead([FromBody] LeadsVM leadsVM)
+        [HttpPost]
+        public async Task<IActionResult> CreateLeadData([FromBody] LeadsVM leadsVM)
         {
             if (ModelState.IsValid)
             {

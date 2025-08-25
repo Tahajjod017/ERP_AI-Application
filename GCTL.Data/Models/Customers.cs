@@ -9,33 +9,9 @@ public partial class Customers
 {
     public int CustomerID { get; set; }
 
-    public string FirstName { get; set; }
+    public string FullName { get; set; }
 
-    public string LastName { get; set; }
-
-    public string FullAddress { get; set; }
-
-    public string Street { get; set; }
-
-    public string City { get; set; }
-
-    public string State { get; set; }
-
-    public string Additionaladdress { get; set; }
-
-    public string PostalCode { get; set; }
-
-    public int? CountryID { get; set; }
-
-    public decimal? Latitude { get; set; }
-
-    public decimal? Longitude { get; set; }
-
-    public string Phone { get; set; }
-
-    public string OtherPhone { get; set; }
-
-    public string Email { get; set; }
+    public bool? IsPerson { get; set; }
 
     public string LIP { get; set; }
 
@@ -53,9 +29,13 @@ public partial class Customers
 
     public int? DeletedBy { get; set; }
 
-    public virtual Country Country { get; set; }
+    public virtual ICollection<CompanyBranches> CompanyBranches { get; set; } = new List<CompanyBranches>();
+
+    public virtual ICollection<CompanyWarehouses> CompanyWarehouses { get; set; } = new List<CompanyWarehouses>();
 
     public virtual Employees CreatedByNavigation { get; set; }
+
+    public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();
 
     public virtual Employees DeletedByNavigation { get; set; }
 

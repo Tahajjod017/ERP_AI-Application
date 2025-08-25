@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Individuals
+public partial class CustomerAddresses
 {
-    public int IndividualID { get; set; }
+    public int CustomerAddressID { get; set; }
 
-    public string FirstName { get; set; }
+    public int? AddressTypeID { get; set; }
 
-    public string LastName { get; set; }
+    public int? AddressID { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,11 +29,17 @@ public partial class Individuals
 
     public int? DeletedBy { get; set; }
 
+    public int? CustomerID { get; set; }
+
+    public virtual Addresses Address { get; set; }
+
+    public virtual AddressTypes AddressType { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employees DeletedByNavigation { get; set; }
+    public virtual Customers Customer { get; set; }
 
-    public virtual ICollection<IndividualAddresses> IndividualAddresses { get; set; } = new List<IndividualAddresses>();
+    public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -24,12 +24,12 @@ namespace GCTL.Service.CRM
         {
             var query = await (
                 from lead in _leadsGenericRepository.AllActive()
-                join indDddr in _context.IndividualAddresses
-                    on lead.CustomerID equals indDddr.IndividualAddressID
+                join indDddr in _context.CustomerAddresses
+                    on lead.CustomerID equals indDddr.CustomerAddressID
                 join address in _context.Addresses
                     on indDddr.AddressID equals address.AddressID
-                join individual in _context.Individuals
-                    on indDddr.IndividualID equals individual.IndividualID
+                join individual in _context.Customers
+                    on indDddr.CustomerID equals individual.CustomerID
                 join leadStatus in _context.LeadStatuses
                     on lead.LeadStatusID equals leadStatus.LeadStatusID
                 join leadSource in _context.LeadSources
