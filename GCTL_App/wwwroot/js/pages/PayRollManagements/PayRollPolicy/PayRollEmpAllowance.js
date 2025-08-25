@@ -147,6 +147,8 @@ $(document).ready(function () {
         formData.append("EffectiveDate", $container.find("[name='EffectiveDate']").val());
         formData.append("IsActive", $container.find("[name='IsActive']").is(":checked"));
 
+        
+
         $container.find(".houseRentRow").each(function (index) {
             const $row = $(this);
             const calculationType = $row.find(".fixedPercentageSelect").val();
@@ -176,7 +178,6 @@ $(document).ready(function () {
                     if (response.success) {
                         toastr.success(response.message);
                         resetPayRollEmpAllowanceForm();
-                        $('.houseRentRow').remove();
                     } else {
                         toastr.error(response.message);
                     }
@@ -194,15 +195,20 @@ $(document).ready(function () {
         
     });
 
-
+   
     function resetPayRollEmpAllowanceForm() {
-        var form = $("#payrollEmpAllowanceForm");
-        form[0].reset();
-        choiceManager.resetChoice('OrganizationID12');
-        $('.houseRentRow .percentRate select').val('');
-        
-        
+        const $form = $('#payrollEmpAllowanceForm');
+
+        // Reset all form fields
+        $form[0].reset();
+        choiceManager.resetChoice('OrganizationID');
+        $form.find('.flatpickr-input').each(function () {
+            if (this._flatpickr) {
+                this._flatpickr.clear();
+            }
+        });
        
+        
     }
 
     $(document).on('click', '#ResetButton', function (e) {
@@ -212,11 +218,7 @@ $(document).ready(function () {
     })
 
     function resetPayRollEmpAllowanceFormEdit() {
-        //choiceManager.resetChoice(
-
-        //    'OrganizationID'
-        //);
-
+        
         var form = $("#payrollEmpAllowanceFormUpdate");
         form[0].reset();
         

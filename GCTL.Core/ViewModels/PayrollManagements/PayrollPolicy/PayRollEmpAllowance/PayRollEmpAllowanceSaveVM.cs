@@ -18,7 +18,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
     public class HouseRentAllowanceDetailVM
     {
 
-        public bool IsActive { get; set; }
+         public bool IsActive { get; set; }
         public decimal? SalaryMin { get; set; }
 
         public decimal? SalaryMax { get; set; }

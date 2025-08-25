@@ -38,7 +38,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             PayRollEmpAllowancePageVM model =new PayRollEmpAllowancePageVM();
             var list = await payRollEmpAllowanceService.GetEmpAllowanceType() ?? new List<AllowanceTypeNameVM>();
 
-
+            
             // Ensure HouseRentAllowances has the same number of items as the list
             foreach (var item in list)
             {
@@ -66,7 +66,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             var model = new HouseRentAllowanceDetailVM(); // Empty model for rendering
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
-            ViewData["Index"] = index;
+            ViewData["Index"] = index + 1;
             
             return PartialView("_HouseRentAllowanceRow", model);
         }
