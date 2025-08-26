@@ -157,6 +157,11 @@
         background-color: #e0e0e0 !important;
         color: #000 !important;
     }
+
+    .companyName-item.active {
+        background-color: #007bff;
+        color: white;
+    }
 </style>
 
 
@@ -184,16 +189,15 @@
 
                             <label for="floatingSelectLitigation"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
                         </div>
-                        <div class="search-results card" id="searchResults">
-                            <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
-                                <!-- ContactName items will be populated here by JavaScript -->
-                            </div>
-                            <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
-                                @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
-                                <span>Or</span>
-                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
-                            </div>
+
+                        <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
+                            <!-- ContactName items will be populated here by JavaScript -->
+                        </div>
+                        <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
+                            @Html.SmartLocalize("Item Not Found. Are you add new item?")
+                            <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
+                            <span>Or</span>
+                            <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
                         </div>
                     </div>
                     
@@ -262,20 +266,21 @@
 
                 </div>
             </div>
+
             <div id="customerInfoContainer" style="display: none;">
                 @* // create person code *@
-                <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8">Custommer Information</h5>
+                <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8" id="iInformationTitle"></h5>
                 <div class="border-top pb-0 mb-3"></div>
                 <div class="row p-0">
                     <div class="col-md-6 col-sm-12">
                         <div class="row">
                             <div>
-                                <input type="number" id="personIndexIA_ID" hidden>
-                                <input type="text" name="name" value="" id="countryCodePersonIndex" hidden />
+                                <input type="number" id="iCID" hidden>
+                                <input type="text" value="" id="iCountryCode" hidden />
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3 form-floating">
-                                    <input type="text" id="autocompletePersonIndex" class="form-control" placeholder="Customer name">
+                                    <input type="text" id="iFullAddress" class="form-control" placeholder="Customer name" readonly>
                                     <label class="form-label req">Full Address</label>
                                     <span class="text-danger small"></span>
                                 </div>
@@ -284,14 +289,14 @@
                                 <div class="row">
                                     <div class="col-md-6 pe-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="streetPersonIndex" class="form-control" placeholder="Street">
+                                            <input type="text" id="iStreet" class="form-control" placeholder="Street" readonly>
                                             <label class="form-label req">Street</label>
                                             <span class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 ps-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="cityPersonIndex" class="form-control" placeholder="City">
+                                            <input type="text" id="iCity" class="form-control" placeholder="City" readonly>
                                             <label class="form-label req">City</label>
                                             <span class="text-danger small"></span>
                                         </div>
@@ -302,14 +307,14 @@
                                 <div class="row">
                                     <div class="col-md-6 pe-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="additionalAddressPersonIndex" class="form-control" placeholder="">
+                                            <input type="text" id="iAdditionalAddress" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">Additional Address</label>
                                             <span class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 ps-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="statePersonIndex" class="form-control" placeholder="">
+                                            <input type="text" id="iState" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">State/Province</label>
                                             <span class="text-danger small"></span>
                                         </div>
@@ -320,14 +325,14 @@
                                 <div class="row">
                                     <div class="col-md-6 pe-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input id="postalCodePersonIndex" type="text" class="form-control" placeholder="">
+                                            <input id="iPostalCode" type="text" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">Zip/Postal Code</label>
                                             <span class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 ps-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input id="countryPersonIndex" type="text" class="form-control" placeholder="">
+                                            <input id="iCountry" type="text" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">Country</label>
                                         </div>
                                     </div>
@@ -337,13 +342,13 @@
                                 <div class="row">
                                     <div class="col-md-6 pe-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="latitudePersonIndex" class="form-control" placeholder="">
+                                            <input type="text" id="iLatitude" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">Latitude</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6 ps-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="longitudePersonIndex" class="form-control" placeholder="">
+                                            <input type="text" id="iLongitude" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">Longitude</label>
                                         </div>
                                     </div>
@@ -357,14 +362,14 @@
                                 <div class="row">
                                     <div class="col-md-6 pe-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="firstNamePersonIndex" class="form-control" placeholder="" required>
+                                            <input type="text" id="iFirstName" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">First Name</label>
                                             <span class="text-danger small"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 ps-1 col-sm-6">
                                         <div class="mb-3 form-floating">
-                                            <input type="text" id="lastNamePersonIndex" class="form-control" placeholder="">
+                                            <input type="text" id="iLastName" class="form-control" placeholder="" readonly>
                                             <label class="form-label req">Last Name</label>
                                             <span class="text-danger small"></span>
                                         </div>
@@ -372,17 +377,17 @@
                                 </div>
                             </div>
                             <div class="col-12 mb-3">
-                                <input class="form-control" id="phonePersonIndex" type="tel" placeholder="Phone Number" required/>
+                                <input class="form-control" id="iPhone" type="tel" placeholder="Phone Number" readonly />
                                 <div class="text-danger" id="errorShow"></div>
                             </div>
                             <div class="col-12 mb-3">
-                                <input class="form-control" id="otherPhonePersonIndex" type="tel" placeholder="Other Phone" />
+                                <input class="form-control" id="iOtherPhone" type="tel" placeholder="Other Phone" readonly />
                                 <div class="text-danger" id="errorShow"></div>
                             </div>
 
                             <div class="col-12">
                                 <div class="mb-3 form-floating">
-                                    <input type="text" id="emailPersonIndex" class="form-control" placeholder="">
+                                    <input type="text" id="iEmail" class="form-control" placeholder="" readonly>
                                     <label class="form-label req">Email</label>
                                     <span class="text-danger small"></span>
                                 </div>
@@ -391,7 +396,6 @@
                     </div>
                 </div>
             </div>
-           
 
             @* <!-----  person shiping address code ------>
 

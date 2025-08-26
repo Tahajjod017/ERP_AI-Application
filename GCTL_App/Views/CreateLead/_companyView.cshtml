@@ -199,11 +199,10 @@
                                                                 <input type="hidden" id="bCId">
 
                                                                 <label for="personContactNameSearch"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
-                                                            </div>
-                                                            <div class="search-results card" id="bSearchResults">
-                                                                <div class="list-group bg-white p-0 border" id="bCustomerList" style="display: none; width:100%; z-index:10012;">
+                                                                <div class="list-group bg-white p-0 border position-absolute" id="bCustomerList" style="display: none; width:100%; z-index:10012;">
                                                                     <!-- ContactName items will be populated here -->
                                                                 </div>
+
                                                                 <div class="no-results position-absolute bg-white p-2 border" id="bNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
                                                                     @Html.SmartLocalize("Item Not Found. Are you add new item?")
                                                                     <button type="button" class="btn btn-sm btn-link p-0" id="bAddNewBtn">@Html.SmartLocalize("Business")</button>
@@ -211,6 +210,7 @@
                                                                     <button type="button" class="btn btn-sm btn-link p-0" id="bAddNewContactBtn">@Html.SmartLocalize("Person")</button>
                                                                 </div>
                                                             </div>
+                                                           
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-12">
@@ -356,16 +356,16 @@
                                                     <!-- Left Section -->
                                                     <div class="col-md-6">
                                                         <div class="col-12 mb-3 customerDiv" id="personCustomerSearchMainDiv">
-                                                            <div class="form-floating mbs-4">
+                                                            <div class="form-floating mbs-4 position-lg-relative">
                                                                 <input type="text" id="wCompanySearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
-                                                                <input type="hidden" id="bCId">
+                                                                <input type="hidden" id="wCId">
 
                                                                 <label for="personContactNameSearch"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
-                                                            </div>
-                                                            <div class="search-results card" id="wSearchResults">
-                                                                <div class="list-group bg-white p-0 border" id="wCustomerList" style="display: none; width:100%; z-index:10012;">
+                                                                
+                                                                <div class="list-group bg-white p-0 border position-absolute" id="wCustomerList" style="display: none; width:100%; z-index:10012;">
                                                                     <!-- ContactName items will be populated here -->
                                                                 </div>
+                                                                
                                                                 <div class="no-results position-absolute bg-white p-2 border" id="wNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
                                                                     @Html.SmartLocalize("Item Not Found. Are you add new item?")
                                                                     <button type="button" class="btn btn-sm btn-link p-0" id="wAddNewBtn">@Html.SmartLocalize("Business")</button>
@@ -378,7 +378,7 @@
                                                             <div class="col-md-12">
                                                                 <div class="mb-3 form-floating">
                                                                     <input type="text" id="wName" class="form-control" placeholder="Address">
-                                                                    <label class="form-label">Branch Name</label>
+                                                                    <label class="form-label">Warehouse Name</label>
                                                                     <span class="text-danger small"></span>
                                                                 </div>
                                                             </div>
@@ -684,57 +684,58 @@
                                         </div>
                                         <div class="row g-3">
                                             <form action="">
-                                                <input type="number" id="shipingID" name="name" hidden />
-                                                <input type="text" name="name" value="" id="countryCodeShiping" hidden />
+                                                <input type="number" id="sId" name="name" hidden />
+                                                <input type="text" name="name" value="" id="sCountryCode" hidden />
                                                 <div class="row">
                                                     <!-- Left Section -->
                                                     <div class="col-md-6">
                                                         <div class="col-12 mb-3 customerDiv" id="personCustomerSearchMainDiv">
-                                                            <div class="form-floating mbs-4">
-                                                                <input type="text" id="personContactNameSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
-                                                                <input type="hidden" id="personCustomerID">
+                                                            <div class="form-floating mbs-4 position-relative">
+                                                                <input type="text" id="personSearch" class="form-control" placeholder="@Html.SmartLocalize("Search ContactName...")">
+                                                                <input type="hidden" id="sCId">
 
                                                                 <label for="personContactNameSearch"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
-                                                            </div>
-                                                            <div class="search-results card" id="personSearchResults">
-                                                                <div class="list-group bg-white p-0 border" id="personCustomerList" style="display: none; width:100%; z-index:10012;">
+                                                                
+                                                                <div class="list-group bg-white p-0 border position-absolute" id="sCustomerList" style="display: none; width:100%; z-index:10012;">
                                                                     <!-- ContactName items will be populated here -->
                                                                 </div>
-                                                                <div class="no-results position-absolute bg-white p-2 border" id="personNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
+
+                                                                <div class="no-results position-absolute bg-white p-2 border" id="sNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
                                                                     @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewPersonBtn">@Html.SmartLocalize("Business")</button>
+                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="sAddNewBtn">@Html.SmartLocalize("Business")</button>
                                                                     <span>Or</span>
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewPersonContactBtn">@Html.SmartLocalize("Person")</button>
+                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="sAddNewContactBtn">@Html.SmartLocalize("Person")</button>
                                                                 </div>
                                                             </div>
+                                                           
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-md-6 pe-1 col-sm-6">
                                                                 <div class="mb-3 form-floating">
-                                                                    <input type="text" id="firstNameShiping" class="form-control" placeholder="">
+                                                                    <input type="text" id="sFirstName" class="form-control" placeholder="">
                                                                     <label class="form-label req">First Name</label>
                                                                     <span class="text-danger small"></span>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6 ps-1 col-sm-6">
                                                                 <div class="mb-3 form-floating">
-                                                                    <input type="text" id="lastNameShipping" class="form-control" placeholder="">
+                                                                    <input type="text" id="sLastName" class="form-control" placeholder="">
                                                                     <label class="form-label">Last Name</label>
                                                                     <span class="text-danger small"></span>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="col-12 mb-3">
-                                                            <input class="form-control" id="phone5" type="tel" placeholder="Phone Number" />
+                                                            <input class="form-control" id="sPhone" type="tel" placeholder="Phone Number" />
                                                             <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12 mb-3">
-                                                            <input class="form-control" id="phone6" type="tel" placeholder="Other Phone" />
+                                                            <input class="form-control" id="sOtherPhone" type="tel" placeholder="Other Phone" />
                                                             <div class="text-danger" id="errorShow"></div>
                                                         </div>
                                                         <div class="col-12">
                                                             <div class="mb-3 form-floating">
-                                                                <input type="text" id="emailShiping" class="form-control" placeholder="">
+                                                                <input type="text" id="sEmail" class="form-control" placeholder="">
                                                                 <label class="form-label">Email</label>
                                                                 <div class="text-danger" id="errorShow"></div>
                                                             </div>
@@ -755,7 +756,7 @@
 
                                                         <div class="col-md-12">
                                                             <div class="mb-3 form-floating">
-                                                                <input type="text" id="autocompleteShiping" class="form-control" placeholder="Address">
+                                                                <input type="text" id="sFullAddress" class="form-control" placeholder="Address">
                                                                 <label class="form-label">Full Address</label>
                                                                 <span class="text-danger small"></span>
                                                             </div>
@@ -764,14 +765,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="streetShiping" class="form-control" placeholder="Street">
+                                                                        <input type="text" id="sStreet" class="form-control" placeholder="Street">
                                                                         <label class="form-label">Street</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="cityShiping" class="form-control" placeholder="City">
+                                                                        <input type="text" id="sCity" class="form-control" placeholder="City">
                                                                         <label class="form-label">City</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -782,14 +783,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="additionalAddressShiping" class="form-control" placeholder="">
+                                                                        <input type="text" id="sAdditionalAddress" class="form-control" placeholder="">
                                                                         <label class="form-label">Additional Address</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="stateShiping" class="form-control" placeholder="">
+                                                                        <input type="text" id="sState" class="form-control" placeholder="">
                                                                         <label class="form-label">State/Province</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -800,7 +801,7 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input id="postalCodeShiping" type="text" class="form-control" placeholder="">
+                                                                        <input id="sPostalCode" type="text" class="form-control" placeholder="">
                                                                         <label class="form-label">Zip/Postal Code</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
@@ -808,7 +809,7 @@
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="form-floating form-floating-advance-select">
                                                                         <label class="form-label">@Html.SmartLocalize("Country")</label>
-                                                                        <select class="form-select choiceDD" id="countryShiping" asp-items="@ViewBag.CountryDD as SelectList">
+                                                                        <select class="form-select choiceDD" id="sCountry" asp-items="@ViewBag.CountryDD as SelectList">
                                                                             <option value="" selected>@Html.SmartLocalize("Select Country")</option>
                                                                         </select>
                                                                     </div>
@@ -826,14 +827,14 @@
                                                             <div class="row">
                                                                 <div class="col-md-6 pe-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="latitudeShiping" class="form-control" placeholder="">
+                                                                        <input type="text" id="sLatitude" class="form-control" placeholder="">
                                                                         <label class="form-label">Latitude</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-6 ps-1 col-sm-6">
                                                                     <div class="mb-3 form-floating">
-                                                                        <input type="text" id="longitudeShiping" class="form-control" placeholder="">
+                                                                        <input type="text" id="sLongitude" class="form-control" placeholder="">
                                                                         <label class="form-label">Longitude</label>
                                                                         <span class="text-danger small"></span>
                                                                     </div>

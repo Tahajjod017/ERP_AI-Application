@@ -100,7 +100,7 @@ namespace GCTL_App.Controllers.CRM
         public async Task<IActionResult> GetCustomerList()
         {
             var customers = await _customerAddressesRepository
-                    .Find(u => u.AddressType.AddressTypeName == "billing")
+                    .Find(u => u.AddressType.AddressTypeName == "billing" || u.AddressType.AddressTypeName == "company")
                     .OrderBy(n => n.Customer.FullName)
                     .Select(n => new
                     {
@@ -142,23 +142,55 @@ namespace GCTL_App.Controllers.CRM
             return Json(countrySelectList);
         }
         [HttpPost]
-        public async Task<IActionResult> getCompanyList(string countryName)
+        public async Task<IActionResult> getCompanyList()
         {
 
             var companyList = await _customerAddressesRepository.AllActive().Where(u=> u.AddressType.AddressTypeName == "company").Include(c=>c.Customer).ToListAsync();
             var companySelectList = companyList
-    .Where(c => c.Customer != null) // ensure Customer exists
-    .Select(c => new SelectListItem
-    {
-        Value = c.CustomerAddressID.ToString(),
-        Text = c.Customer.FullName
-    }).ToList();
+                .Where(c => c.Customer != null) // ensure Customer exists
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CustomerAddressID.ToString(),
+                    Text = c.Customer.FullName
+                }).ToList();
 
             if (companySelectList.Any())
                 return Json(companySelectList);
 
             return BadRequest("No companies found.");
         }
+
+        public async Task<IActionResult> getPersonList([FromBody] string query)
+        {
+ 
+            if (string.IsNullOrWhiteSpace(query))
+                return Json(new List<SelectListItem>());
+
+            var personList = await _customerAddressesRepository
+                .AllActive()
+                .Where(u => u.AddressType.AddressTypeName == "billing")
+                .Include(c => c.Customer)
+                .Where(c => c.Customer.FullName.Contains(query)) 
+                .OrderBy(c => c.Customer.FullName)               
+                .Take(5)                                        
+                .ToListAsync();
+
+            var personSelectList = personList
+                .Where(c => c.Customer != null)
+                .Select(c => new SelectListItem
+                {
+                    Value = c.CustomerAddressID.ToString(),
+                    Text = c.Customer.FullName
+                })
+                .ToList();
+
+            if (personSelectList.Any())
+                return Json(personSelectList);
+
+            return BadRequest("No companies found.");
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)
         {
@@ -185,7 +217,9 @@ namespace GCTL_App.Controllers.CRM
                                          address.Longitude,
                                          address.Phone,
                                          address.OtherPhone,
-                                         address.Email
+                                         address.Email,
+                                         address.FirstName,
+                                         address.LastName,
                                      }).FirstOrDefaultAsync();
 
             var customerId = await _context.CustomerAddresses.Where(x => x.CustomerAddressID == id).Select(x => x.CustomerAddressID).FirstOrDefaultAsync();
@@ -277,16 +311,16 @@ namespace GCTL_App.Controllers.CRM
             }
             
         } 
-        public async Task<IActionResult> InsertWarehouse([FromBody] BranchVM branchVM)
+        public async Task<IActionResult> InsertWarehouse([FromBody] WarehouseVM warehouseVM)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
 
-                    if (branchVM.PrimaryID == 0)
+                    if (warehouseVM.PrimaryID == 0)
                     {
-                        var result = await _leadCreateService.CreateBranch(branchVM);
+                        var result = await _leadCreateService.CreateWarehouse(warehouseVM);
                         return Ok(result);
                     }
                 }

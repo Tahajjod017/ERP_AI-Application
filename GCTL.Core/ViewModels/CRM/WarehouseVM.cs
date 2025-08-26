@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.CRM
 {
-    public class CompanyVM : BaseViewModel
+    public class WarehouseVM : BaseViewModel
     {
         public int PrimaryID { get; set; }
-        public string CompanyName{get; set;}   
+        public int CompanyID { get; set; }
+        public string? WareHouseName { get; set; }
 
         public string? FirstName { get; set; }
 

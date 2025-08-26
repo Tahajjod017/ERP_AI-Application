@@ -10,7 +10,8 @@ namespace GCTL.Core.ViewModels.CRM
     public class BranchVM : BaseViewModel
     {
         public int PrimaryID { get; set; }
-        public string CompanyID { get; set; }
+        public int CompanyID { get; set; }
+        public string? BranchName { get; set; }
 
         public string? FirstName { get; set; }
 
@@ -28,7 +29,7 @@ namespace GCTL.Core.ViewModels.CRM
 
         public string? PostalCode { get; set; }
 
-        public string? CountryName { get; set; }
+        public int? CountryID { get; set; }
         public string? CountryCode { get; set; }
 
         public decimal? Latitude { get; set; }
