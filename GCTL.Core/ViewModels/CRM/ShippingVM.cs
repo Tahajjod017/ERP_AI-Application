@@ -9,7 +9,7 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class ShippingVM : CustomerVM
     {
-        public int CustomerID { get; set; }
+        public int PersonID { get; set; }
 
     }
 }
