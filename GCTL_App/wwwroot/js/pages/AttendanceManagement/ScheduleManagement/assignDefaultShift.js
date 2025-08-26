@@ -25,6 +25,7 @@
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
+                $(settings.saveBtn).prop('disabled', true);
 
                 const token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
 
@@ -95,10 +96,14 @@
                     url: url,
                     type: 'POST',
                     data: formData,
+                    beforeSend: function () {
+                        showLoadingIndicator();
+                    },
                     success: function (response) {
                         if (response.isSuccess === true) {
                             clear();
                             toastr.success(response.message);
+                            $(settings.saveBtn).prop('disabled', false);
                         } else {
                             const allFields = ["OrganizationID", "ShiftID"];
 
@@ -110,6 +115,9 @@
                     },
                     error: function (err) {
                         console.error('Save failed:', err);
+                    },
+                    complete: function () {
+                        hideLoadingIndicator();
                     }
                 });
             }
@@ -230,7 +238,7 @@
 
                 var organizationId = $(this).val();
                 getDepartmentByOrganization(organizationId);
-                getEmployeesByOrgBraDepId(organizationId, null, null);
+                getEmployeesByOrgBraDepId(organizationId, [], []);
                 loadShiftsByCompany(organizationId);
             });
             // #endregion
@@ -290,71 +298,149 @@
 
 
             // #region GetEmployeesByOrgBraDepId
-            function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        url: '/AssignDefaultShift/GetEmployeesByOrgBraDepId',
-                        type: 'GET',
-                        traditional: true,
-                        data: {
-                            orgId: orgId,
-                            branchIds: branchIds,
-                            depIds: depIds
-                        },
-                        success: function (employees) {
-                            const select = $('#EmployeeIDs');
-                            select.empty();
+            //function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
+            //    return new Promise((resolve, reject) => {
+            //        $.ajax({
+            //            url: '/AssignDefaultShift/GetEmployeesByOrgBraDepId',
+            //            type: 'GET',
+            //            traditional: true,
+            //            data: {
+            //                orgId: orgId,
+            //                branchIds: branchIds,
+            //                depIds: depIds
+            //            },
+            //            success: function (employees) {
+            //                const select = $('#EmployeeIDs');
+            //                select.empty();
 
-                            const grouped = {};
+            //                const grouped = {};
 
-                            // Group employees by GroupName (DepartmentName)
-                            employees.forEach(emp => {
-                                const group = emp.groupName || 'No Department';
-                                if (!grouped[group]) {
-                                    grouped[group] = [];
-                                }
-                                grouped[group].push(emp);
-                            });
+            //                // Group employees by GroupName (DepartmentName)
+            //                employees.forEach(emp => {
+            //                    const group = emp.groupName || 'No Department';
+            //                    if (!grouped[group]) {
+            //                        grouped[group] = [];
+            //                    }
+            //                    grouped[group].push(emp);
+            //                });
 
-                            // Build <optgroup> structure
-                            Object.keys(grouped).forEach(group => {
-                                const optgroup = $('<optgroup>').attr('label', group);
-                                grouped[group].forEach(emp => {
-                                    optgroup.append(
-                                        $('<option>').val(emp.id).text(emp.name)
-                                    );
-                                });
-                                select.append(optgroup);
-                            });
+            //                // Build <optgroup> structure
+            //                Object.keys(grouped).forEach(group => {
+            //                    const optgroup = $('<optgroup>').attr('label', group);
+            //                    grouped[group].forEach(emp => {
+            //                        optgroup.append(
+            //                            $('<option>').val(emp.id).text(emp.name)
+            //                        );
+            //                    });
+            //                    select.append(optgroup);
+            //                });
 
-                            const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+            //                const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
 
-                            if (multiSelectInstance) {
-                                multiSelectInstance.update(); // Refresh UI
-                            } else {
-                                new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                            }
-                            resolve();
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error loading employees:', error);
-                            reject (error);
-                        }
+            //                if (multiSelectInstance) {
+            //                    multiSelectInstance.update(); // Refresh UI
+            //                } else {
+            //                    new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
+            //                }
+            //                resolve();
+            //            },
+            //            error: function (xhr, status, error) {
+            //                console.error('Error loading employees:', error);
+            //                reject (error);
+            //            }
+            //        });
+            //    });
+            //}
+
+            async function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
+                try {
+                    const url = new URL('/AssignDefaultShift/GetEmployeesByOrgBraDepId', window.location.origin);
+                    const params = new URLSearchParams();
+
+                    if (orgId) params.append('orgId', orgId);
+                    branchIds.forEach(id => params.append('branchIds', id));
+                    depIds.forEach(id => params.append('depIds', id));
+
+                    url.search = params.toString();
+
+                    const response = await fetch(url, {
+                        method: 'GET'
                     });
-                });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const employees = await response.json();
+
+                    const select = document.getElementById('EmployeeIDs');
+                    select.innerHTML = '';
+
+                    const grouped = {};
+
+                    // Group employees by GroupName (DepartmentName)
+                    employees.forEach(emp => {
+                        const group = emp.groupName || 'No Department';
+                        if (!grouped[group]) {
+                            grouped[group] = [];
+                        }
+                        grouped[group].push(emp);
+                    });
+
+                    // Build <optgroup> structure
+                    Object.keys(grouped).forEach(group => {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = group;
+
+                        grouped[group].forEach(emp => {
+                            const option = document.createElement('option');
+                            option.value = emp.id;
+                            option.textContent = emp.name;
+                            optgroup.appendChild(option);
+                        });
+
+                        select.appendChild(optgroup);
+                    });
+
+                    const multiSelectInstance = coreui.MultiSelect.getInstance(select);
+
+                    if (multiSelectInstance) {
+                        multiSelectInstance.update();
+                    } else {
+                        new coreui.MultiSelect(select);
+                    }
+
+                } catch (error) {
+                    console.error('Error loading employees:', error);
+                }
             }
             // #endregion
 
 
             // #region DepartmentIDs on change
-            document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function (event) {
-                const orgId = $('#OrganizationID').val();
+            //document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function (event) {
+            //    const orgId = $('#OrganizationID').val();
 
-                const selected = event.value || []; // array of {text, value}
-                const depIds = selected.map(x => parseInt(x.value));
+            //    const selected = event.value || []; // array of {text, value}
+            //    const depIds = selected.map(x => parseInt(x.value));
 
-                getEmployeesByOrgBraDepId(orgId, null, depIds);
-            });
+            //    getEmployeesByOrgBraDepId(orgId, [], depIds);
+            //});
+            
+            let debounceTimer;
+
+            document.getElementById('DepartmentIDs')
+                .addEventListener('changed.coreui.multi-select', function () {
+                    clearTimeout(debounceTimer);
+
+                    debounceTimer = setTimeout(() => {
+                        const orgId = $('#OrganizationID').val();
+                        const selectedOptions = $('#DepartmentIDs').val() || []; // standard jQuery val()
+                        const depIds = selectedOptions.map(x => parseInt(x));
+
+                        getEmployeesByOrgBraDepId(orgId, [], depIds);
+                    }, 300);
+                });
             // #endregion
 
 

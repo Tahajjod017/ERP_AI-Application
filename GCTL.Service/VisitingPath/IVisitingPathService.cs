@@ -1,5 +1,4 @@
-﻿using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
-using GCTL.Core.ViewModels.VisitingVM;
+﻿using GCTL.Core.ViewModels.VisitingVM;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;

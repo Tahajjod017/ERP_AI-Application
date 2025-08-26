@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
-using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;
