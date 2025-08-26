@@ -1,5 +1,4 @@
-﻿using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
-using GCTL.Core.ViewModels.MenuTab;
+﻿using GCTL.Core.ViewModels.MenuTab;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using System;

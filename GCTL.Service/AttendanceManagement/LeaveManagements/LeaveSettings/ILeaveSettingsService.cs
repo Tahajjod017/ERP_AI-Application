@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Core.Helpers;
-using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
 {

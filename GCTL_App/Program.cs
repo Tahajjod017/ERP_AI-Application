@@ -1,15 +1,16 @@
+using GCTL.Core.SeedData;
+using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
-using GCTL.Service.AccessPermissions;
 using GCTL.Service;
+using GCTL.Service.AccessPermissions;
+using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
+using GCTL.Service.RolePermissions;
+using GCTL.Service.VisitingPath;
+using GCTL_App.EmailServicesMethod;
 using GCTL_App.Extensions;
 using Microsoft.AspNetCore.Identity;
-using GCTL.Service.ActionLogAudit;
-using GCTL.Service.VisitingPath;
-using GCTL.Service.RolePermissions;
-using GCTL_App.EmailServicesMethod;
 using QuestPDF.Infrastructure;
-using GCTL.Service.AdminSettings.GeneralSettings;
-using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,24 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 
 var app = builder.Build();
+
+#region Seed data before running app using bogus
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var seeder = services.GetRequiredService<DataSeeder>();
+    var context = services.GetRequiredService<AppDbContext>();
+
+    if (!context.Employees.Any())
+        await seeder.SeedEmployeesAsync(context);
+
+    if (!context.EmployeeOfficeInfo.Any())
+        await seeder.SeedEmployeeOfficeInfoAsync(context);
+
+    if (!context.Shifts.Any())
+        await seeder.SeedShiftsAsync(context);
+}
+#endregion
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

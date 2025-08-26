@@ -5,10 +5,12 @@ using GCTL.Service.MenuTabs;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MenuTab;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.MenuTab
 {
+    [Authorize]
     public class MenuTabsController : BaseController
     {
         #region Services & Repositories

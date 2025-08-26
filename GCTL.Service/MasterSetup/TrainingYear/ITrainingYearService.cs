@@ -1,5 +1,4 @@
 ﻿using GCTL.Core.Helpers;
-using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
 using GCTL.Core.ViewModels.MasterSetup.TrainingYear;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;

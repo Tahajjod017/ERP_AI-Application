@@ -1,10 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
-using GCTL.Core.ViewModels.MasterSetup.ActionTakens;
-using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using Newtonsoft.Json;

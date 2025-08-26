@@ -2,6 +2,7 @@
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
+using GCTL.Core.SeedData;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AdminSettings.GeneralSettings;
@@ -62,7 +63,6 @@ using GCTL.Service.FileHandler;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Language;
-using GCTL.Service.MasterSetup.ActionTakens;
 using GCTL.Service.MasterSetup.BloodGroups;
 using GCTL.Service.MasterSetup.Countries;
 using GCTL.Service.MasterSetup.Currency;
@@ -136,9 +136,9 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICommonService, CommonService>();
             #endregion
 
+            services.AddScoped<DataSeeder>();
 
             #region Added by Md. Rakib Hasan
-            services.AddScoped<IActionTakenService, ActionTakenService>();
             services.AddScoped<IBloodGroupService, BloodGroupService>();
             services.AddScoped<ICountryService, CountryService>();
             services.AddScoped<ICurrencyService, CurrencyService>();
