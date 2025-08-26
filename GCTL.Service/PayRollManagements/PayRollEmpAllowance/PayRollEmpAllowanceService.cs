@@ -10,6 +10,7 @@ using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,80 +37,54 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
             this.empalowanceTypesRepository = empalowanceTypesRepository;
         }
 
-
-        #region Get All Dataum
-
-        public async Task<PaginationService<EmployeeAllowances, PayRollEmpAllowanceGetAll>.PaginationResult<PayRollEmpAllowanceGetAll>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null)
+        public async Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync()
         {
-#nullable disable
-
+            var result = new CommonReturnViewModel();
             try
             {
-                // 🔹 Step 3: Base query with includes
-                var query = empAllowance.AllActive().Include(x=>x.Organization).OrderByDescending(x => x.EmployeeAllowanceID).AsQueryable();
-                if (query == null)
+                var allowanceEntities = await empAllowance.AllActive().Include(x => x.EmployeeAllowanceSetup).Include(x=>x.EmployeeAllowanceType).ToListAsync();
+
+                if (!allowanceEntities.Any())
                 {
-                    throw new InvalidOperationException("query source is null.");
-                }
-
-                if (organizationId.HasValue)
-                {
-
-                    query = query.Where(x => x.OrganizationID == organizationId);
-                }
-                Expression<Func<EmployeeAllowances, object>> orderByExpression = currentSortColumn?.ToLower() switch
-                {
-                   
-                    _ => x => x.EmployeeAllowanceID
-                };
-
-                query = currentSortOrder?.ToLower() == "desc"
-                    ? query.OrderByDescending(orderByExpression)
-                    : query.OrderBy(orderByExpression);
-
-                // For approver Step
-
-
-                //
-                var result = await PaginationService<EmployeeAllowances, PayRollEmpAllowanceGetAll>.GetPaginatedData(
-                    query,
-                    pageNumber,
-                    pageSize,
-                    searchTerm,
-                    currentSortColumn,
-                    currentSortOrder,
-
-                   term => b =>
-                      string.IsNullOrEmpty(term) ||
-                      EF.Functions.Like(b.EmployeeAllowanceID.ToString(), $"%{term}%") ||
-                     
-                      (b.Organization != null && EF.Functions.Like(b.Organization.OrganizationName, $"%{term}%")) ,
-                     
-
-                    b => new PayRollEmpAllowanceGetAll
+                    return new CommonReturnViewModel
                     {
-                        EmployeeAllowanceID = b.EmployeeAllowanceID,
-                        OrganizationName = b.Organization?.OrganizationName ?? string.Empty,
-                        
-                       
-                    });
+                        Success = false,
+                        Message = "No Employee Allowance records found!"
+                    };
+                }
 
-                return result;
+                var allowanceDataList = allowanceEntities.Select(entity => new PayRollEmpAllowanceGetAll
+                {
+                    EmployeeAllowanceID = entity.EmployeeAllowanceID,
+                    OrganizationID = entity.OrganizationID,
+                    EmployeeAllowanceTypeID = entity.EmployeeAllowanceTypeID,
+                    EmployeeAllowanceTypeName=entity.EmployeeAllowanceType.EmployeeAllowanceTypeName,
+                    IsActive = entity.IsActive,
+                    EffectiveDate = entity.EmployeeAllowanceSetup.FirstOrDefault()?.EffectiveDate,
+                    HouseRentAllowances = entity.EmployeeAllowanceSetup.Select(x => new HouseRentAllowanceDetailGetVM
+                    {
+                        SalaryMin = x.SalaryMin,
+                        SalaryMax = x.SalaryMax,
+                        Value = x.Value,
+                        CalculationTypeID = x.CalculationTypeID,
+                        CalculationType = x.CalculationTypeID == 1 ? "Fixed" : "Percentage",
+                        EffectiveDate = x.EffectiveDate
+                    }).ToList()
+                }).ToList();
 
+                result.Success = true;
+                result.Data = allowanceDataList;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error : {ex.Message}");
-
-                return new PaginationService<EmployeeAllowances, PayRollEmpAllowanceGetAll>.PaginationResult<PayRollEmpAllowanceGetAll>
-                {
-                    Data = new List<PayRollEmpAllowanceGetAll>(),
-                    TotalCount = 0
-                };
+                result.Success = false;
+                result.Message = "An error occurred while retrieving data.";
+                result.Errors.Add(ex.Message);
             }
+
+            return result;
         }
 
-        #endregion
 
         #region Save Data 
         public async Task<CommonReturnViewModel> SavePayRollEmpAllowance(PayRollEmpAllowanceSaveVM entityVM)
@@ -118,7 +93,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
             try
             {
-                if (entityVM == null || entityVM.OrganizationID == null)
+                if (entityVM == null || entityVM?.OrganizationID is null or <= 0)
                 {
                     return new CommonReturnViewModel
                     {
@@ -126,13 +101,23 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                         Message = "Employee Allowance record not found!"
                     };
                 }
+                var empallowanceType = await empAllowance.FirstOrDefaultAsync(x=>x.EmployeeAllowanceTypeID==entityVM.EmployeeAllowanceTypeID);
+                if (empallowanceType !=null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Already Exists Allowance Type"
+                    };
+                }
+                
                 await empAllowance.BeginTransactionAsync();
                 int EmployeeAllowanceID = 0;
                 var entity = new EmployeeAllowances
                 {
                     OrganizationID = entityVM.OrganizationID,
                     IsActive = entityVM.IsActive,
-                     EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
+                    EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -181,14 +166,30 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
             return result;
         }
+
+
+
         #endregion
         #region Update By ID
-        public async Task<CommonReturnViewModel> UpdatePayRollEmpAllowance([FromBody]PayRollEmpAllowanceUpdate entityVM)
+
+        public async Task<CommonReturnViewModel> UpdatePayRollEmpAllowance(PayRollEmpAllowanceUpdate entityVM)
         {
-            await empAllowance.BeginTransactionAsync();
+            var result = new CommonReturnViewModel();
+
+            if (entityVM == null || entityVM.OrganizationID <= 0 || entityVM.EmployeeAllowanceID <= 0)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Invalid Employee Allowance data!"
+                };
+            }
+
             try
             {
-                // 1. Get existing entity
+                await empAllowance.BeginTransactionAsync();
+
+                // 1. Get existing EmployeeAllowance
                 var entity = await empAllowance.GetByIdAsync(entityVM.EmployeeAllowanceID);
                 if (entity == null)
                 {
@@ -198,33 +199,83 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                         Message = "Employee Allowance record not found!"
                     };
                 }
-                entity.OrganizationID = entityVM.OrganizationIDEdit;
+
+                // Optional: Check for duplicate EmployeeAllowanceTypeID (excluding current)
+                var exists = await empAllowance.FirstOrDefaultAsync(x =>
+                    x.EmployeeAllowanceTypeID == entityVM.EmployeeAllowanceTypeID &&
+                    x.EmployeeAllowanceID != entityVM.EmployeeAllowanceID);
+
+                if (exists != null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Already exists allowance type!"
+                    };
+                }
+
+                // 2. Update main EmployeeAllowance entity
+                entity.OrganizationID = entityVM.OrganizationID;
+                entity.IsActive = entityVM.IsActive;
+                entity.EmployeeAllowanceTypeID = entityVM.EmployeeAllowanceTypeID;
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
-                 entity.UpdatedBy = entityVM.UpdatedBy;
-                // 3. Update DB
+                entity.UpdatedBy = entityVM.UpdatedBy;
+
                 await empAllowance.UpdateAsync(entity);
+
+                // 3. Update HouseRentAllowances
+                // First remove existing setups
+                // Get all active setups for this EmployeeAllowanceID
+                var hasExistingSetups = await empAlowanceSetup.AllActive()
+                               .AnyAsync(x => x.EmployeeAllowanceID == entityVM.EmployeeAllowanceID);
+
+                if (hasExistingSetups)
+                {
+                    await empAlowanceSetup.RemoveRangeAsync(x => x.EmployeeAllowanceID == entityVM.EmployeeAllowanceID);
+                }
+
+                // Add new setups
+                var newSetups = entityVM.HouseRentAllowances.Select(item => new EmployeeAllowanceSetup
+                {
+                    EmployeeAllowanceID = entity.EmployeeAllowanceID,
+                    CalculationTypeID = item.CalculationTypeID,
+                    SalaryMin = item.SalaryMin,
+                    SalaryMax = item.SalaryMax,
+                    Value = item.Value,
+                    EffectiveDate = entityVM.EffectiveDate,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = entityVM.UpdatedBy
+                }).ToList();
+
+                await empAlowanceSetup.AddRangeAsync(newSetups);
+
+                // 4. Commit transaction
                 await empAllowance.CommitTransactionAsync();
 
-                // 4. Return success
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Data = entity.EmployeeAllowanceID,
-                    Message="Updated Successfully"
+                    Data = entity,
+                    Message = "Updated Successfully"
                 };
             }
             catch (Exception ex)
             {
                 await empAllowance.RollbackTransactionAsync();
-                return new CommonReturnViewModel
-                {
-                    Success = false,
-                    Message = "Error updating Employee Allowance: " + ex.Message
-                };
+                result.Success = false;
+                result.Message = "An error occurred while updating.";
+                result.Errors.Add(ex.Message);
             }
+
+            return result;
         }
+
+
+        
 
         #endregion
 
@@ -329,10 +380,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         #endregion
 
         #region Get By Data
-        public Task<List<PayRollEmpAllowanceGetAll>> GetDataByID(int employeeAllowanceID)
-        {
-            throw new NotImplementedException();
-        }
+       
         #endregion
     }
 }

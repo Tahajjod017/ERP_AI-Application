@@ -10,14 +10,6 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
     {
         public int EmployeeAllowanceTypeID { get; set; }
         public string? EmployeeAllowanceTypeName { get; set; }
-        public decimal? Value { get; set; }
         public bool IsActive { get; set; }
-        public decimal? SalaryMin { get; set; }
-
-        public decimal? SalaryMax { get; set; }
-
-        public int? CalculationTypeID { get; set; }
-
-      
     }
 }

@@ -85,114 +85,6 @@
         box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
     }
 </style>
-
-@* <form id="payrollEmpAllowanceForm" class="row g-3">
-
-    <div class="col-md-6">
-
-        <div class="mb-3">
-            <div class="content-head d-flex justify-content-between align-items-center">
-                <label class="form-label" for="organizerSingle">Company Name</label>
-                <div class="form-check form-switch">
-                </div>
-            </div>
-            <select class="form-multi-select choiceDD" asp-for="OrganizationID" id="OrganizationID12" asp-items="@ViewBag.OrganizationDD">
-                <option value="">Select Company</option>
-            </select>
-            <span id="OrganizationID-error" class="text-danger"></span>
-        </div>
-    </div>
-
-   
-  
-    
-    @if (list.Any())
-    {
-        @for (int i = 0; i < list.Count; i++)
-        {
-            var item = list[i];
-            <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
-                <div class="card-body">
-                    <div class="houseRentContainer">
-                        <div class="row">
-
-                            <div class="col-lg-4 col-md-6 col-sm-12 mt-4">
-                                <h5>@item.EmployeeAllowanceTypeName</h5>
-                                <input type="hidden" asp-for="HouseRentAllowances[@i].EmployeeAllowanceTypeID" value="@item.EmployeeAllowanceTypeID" />
-                            </div>
-
-                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                <label class="form-label" for="year-month-picker-@i">Effective Date</label>
-                                <div class="input-icon-end position-relative">
-                                    <input class="form-control ps-6 flatpickr-input"
-                                           id="year-month-picker-@i"
-                                           type="text"
-                                           readonly="readonly"
-                                           asp-for="EffectiveDate"
-                                           placeholder="Select Month">
-                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                                </div>
-                            </div>
-                            <div class="col-auto d-flex align-items-center mt-3">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                                    <label class="form-check-label ms-2">Active</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-lg-4 col-md-6 col-sm-12">
-                                <label class="form-label" for="MinSalary">Min Salary</label>
-                                <input type="text" asp-for="HouseRentAllowances[@i].SalaryMin" class="form-control" placeholder="Enter Min Salary" />
-                            </div>
-                            <div class="col-lg-4 col-md-6 col-sm-12">
-                                <label class="form-label" for="MaxSalary">Max Salary</label>
-                                <input type="text" asp-for="HouseRentAllowances[@i].SalaryMax" class="form-control" placeholder="Enter Max Salary" />
-                            </div>
-                            <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                <div class="input-group mb-3">
-                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                        <option value="">Select One</option>
-                                        <option value="Fixed">Fixed</option>
-                                        <option value="Percentage">Percentage</option>
-                                    </select>
-                                    <div class="percentRate" style="display: none;">
-                                        <label class="form-label" for="percentRate-@i">Percentage(%)</label>
-                                        <select class="form-select choiceDD" id="percentRate-@i" asp-items="@ViewBag.PercenatageDD as SelectList" style="max-width:185px;">
-                                            <option value="">Select %</option>
-                                        </select>
-                                    </div>
-                                    <div class="fixedRate" style="display: none;">
-                                        <label class="form-label" for="fixedRate-@i">Fixed</label>
-                                        <input type="text" asp-for="HouseRentAllowances[@i].Value"  class="form-control" placeholder="Enter Fixed Rate" style="max-width: 185px;">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 px-0 col-md-1 col-sm-1">
-                                <button type="button" id="addDetails" class="btn btn-primary px-3 mt-4 addRow">
-                                    <i class="bi bi-plus-circle"></i>+
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-3 justify-content-end">
-
-                        <div class="col-auto">
-                            <button class="btn btn-primary px-5 PayRollEmpAllowanceSave" id="PayRollEmpAllowanceSave" style="margin-right: 2.5rem !important;">Save</button>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        }
-    }
-    else
-    {
-        <p>No allowance types available.</p>
-    }
-</form> *@
-
 <form id="payrollEmpAllowanceForm" class="row g-3">
 
     <div class="col-md-6">
@@ -207,7 +99,7 @@
             <span id="OrganizationID-error" class="text-danger"></span>
         </div>
     </div>
-     @if (list.Any())
+    @if (list.Any())
     {
         <div class="accordion" id="accordionPanelsStayOpenExample">
             @for (int i = 0; i < list.Count; i++)
@@ -219,11 +111,10 @@
                 var percentRateId = $"percentRate-{i}";
                 var fixedRateId = $"fixedRate-{i}";
                 var isFirst = i == 0;
-
                 var buttonClass = isFirst ? "accordion-button" : "accordion-button collapsed";
                 var collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
                 var ariaExpanded = isFirst.ToString().ToLower();
-                
+
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="@headingId">
                         <button class="@buttonClass" type="button"
@@ -237,101 +128,100 @@
                     <div id="@collapseId" class="@collapseClass" aria-labelledby="@headingId">
                         <div class="accordion-body">
                             <!-- Start of first row -->
-                            <form id="payrollEmpAllowanceForm" class="row g-3">
-
-                                        <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
-                                            <div class="card-body">
-                                                <div class="houseRentContainer">
-                                                    <div class="row">
-
-                                                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                    <input type="hidden" asp-for="HouseRentAllowances[@i].EmployeeAllowanceTypeID" value="@item.EmployeeAllowanceTypeID" />
-                                                            <label class="form-label" for="year-month-picker-@i">Effective Date</label>
-                                                            <div class="input-icon-end position-relative">
-                                                                <input class="form-control ps-6 flatpickr-input"
-                                                                       id="year-month-picker-@i"
-                                                                       type="text"
-                                                                       readonly="readonly"
-                                                                       asp-for="EffectiveDate"
-                                                                       placeholder="Select Month">
-                                                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                                                            </div>
-                                                        </div>
-                                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                    <div class="form-check form-switch mt-4" style="margin-left: 16.5rem !important;">
-                                                                <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                                                                <label class="form-check-label ms-2">Active</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
 
-                                            <div class="row g-3 houseRentRow">
-                                                        <div class="col-lg-4 col-md-6 col-sm-12">
-                                                            <label class="form-label" for="MinSalary">Min Salary</label>
-                                                            <input type="text" asp-for="HouseRentAllowances[@i].SalaryMin" class="form-control" placeholder="Enter Min Salary" />
-                                                        </div>
-                                                        <div class="col-lg-4 col-md-6 col-sm-12">
-                                                            <label class="form-label" for="MaxSalary">Max Salary</label>
-                                                            <input type="text" asp-for="HouseRentAllowances[@i].SalaryMax" class="form-control" placeholder="Enter Max Salary" />
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                                            <div class="input-group mb-3">
-                                                                <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                                                    <option value="">Select One</option>
-                                                                    <option value="Fixed">Fixed</option>
-                                                                    <option value="Percentage">Percentage</option>
-                                                                </select>
-                                                                <div class="percentRate" style="display: none;">
-                                                                    <label class="form-label" for="percentRate-@i">Percentage(%)</label>
-                                                                    <select class="form-select choiceDD" id="percentRate-@i" asp-items="@ViewBag.PercenatageDD as SelectList" style="max-width:185px;">
-                                                                        <option value="">Select %</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="fixedRate" style="display: none;">
-                                                                    <label class="form-label" for="fixedRate-@i">Fixed</label>
-                                                                    <input type="text" asp-for="HouseRentAllowances[@i].Value" class="form-control" placeholder="Enter Fixed Rate" style="max-width: 185px;">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-1 px-0 col-md-1 col-sm-1">
-                                                            <button type="button" id="addDetails" class="btn btn-primary px-3 mt-4 addRow">
-                                                                <i class="bi bi-plus-circle"></i>+
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                            
+                            <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
+                                <div class="card-body">
+                                    <div class="houseRentContainer">
+                                        <div class="row">
+
+                                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                                <input type="hidden" asp-for="HouseRentAllowances[@i].EmployeeAllowanceTypeID" value="@item.EmployeeAllowanceTypeID" />
+                                                <input type="hidden" id="EmployeeAllowanceID_@i" asp-for="EmployeeAllowanceID" />
+                                                <label class="form-label" for="year-month-picker-@i">Effective Date</label>
+                                                <div class="input-icon-end position-relative">
+                                                    <input class="form-control ps-6 flatpickr-input"
+                                                           id="year-month-picker-@i"
+                                                           type="text"
+                                                           readonly="readonly"
+                                                           asp-for="EffectiveDate"
+                                                           placeholder="Select Month">
+                                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                                 </div>
-                                                <div class="row g-3 justify-content-end">
-
-                                                    <div class="col-auto">
-                                                        <button class="btn btn-primary px-5 PayRollEmpAllowanceSave"  style="margin-right: 2.5rem !important;">Save</button>
-                                                    </div>
-                                                </div>
-
                                             </div>
-
+                                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                                <div class="form-check form-switch mt-4" style="margin-left: 16.5rem !important;">
+                                                    <input class="form-check-input" type="checkbox" id="IsActive_@i" asp-for="IsActive">
+                                                    <label class="form-check-label ms-2">Active</label>
+                                                </div>
+                                            </div>
                                         </div>
-                                    
-                                
-                                
-                            </form>
+
+                                        <div class="row g-3 houseRentRow">
+                                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <label class="form-label" for="MinSalary">Min Salary</label>
+                                                <input type="text" asp-for="HouseRentAllowances[@i].SalaryMin" class="form-control" placeholder="Enter Min Salary" />
+                                            </div>
+                                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <label class="form-label" for="MaxSalary">Max Salary</label>
+                                                <input type="text" asp-for="HouseRentAllowances[@i].SalaryMax" class="form-control" placeholder="Enter Max Salary" />
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
+                                                <div class="input-group mb-3">
+                                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
+                                                        <option value="">Select One</option>
+                                                        <option value="Fixed">Fixed</option>
+                                                        <option value="Percentage">Percentage</option>
+                                                    </select>
+                                                    <input type="hidden" name="HouseRentAllowances[@i].CalculationTypeID" id="hidden-calculation-type-@i" value="">
+                                                    <div class="percentRate" style="display: none;">
+                                                        <label class="form-label" for="percentRate-@i">Percentage(%)</label>
+                                                        <select class="form-select choiceDD" id="percentRate-@i" asp-items="@ViewBag.PercenatageDD as SelectList" style="max-width:185px;">
+                                                            <option value="">Select %</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="fixedRate" style="display: none;">
+                                                        <label class="form-label" for="fixedRate-@i">Fixed</label>
+                                                        <input type="text" asp-for="HouseRentAllowances[@i].Value" class="form-control" placeholder="Enter Fixed Rate" style="max-width: 185px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-1 px-0 col-md-1 col-sm-1">
+                                                <button type="button" id="addDetails" class="btn btn-primary px-3 mt-4 addRow">
+                                                    <i class="bi bi-plus-circle"></i>+
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row g-3 justify-content-end">
+
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary px-5 PayRollEmpAllowanceSave" style="margin-right: 2.5rem !important;">Save</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
                         </div>
                     </div>
-                   
+
                 </div>
-                
+
             }
         </div>
 
-        
+
     }
     else
     {
         <p>No allowance types available.</p>
-    } 
+    }
 
-  
+
 
 </form>
 

@@ -9,33 +9,25 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
     public class PayRollEmpAllowanceUpdate:BaseViewModel
     {
         public int EmployeeAllowanceID { get; set; }
-        public int? OrganizationIDEdit { get; set; }
+        public int? OrganizationID { get; set; }
+        public int? EmployeeAllowanceTypeID { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime? EffectiveDate { get; set; }
+        public List<HouseRentAllowanceDetailVMUpdate> HouseRentAllowances { get; set; } = new();
+    }
 
-        public bool IsMobileInternetAllowanceEnabledEdit { get; set; }
+    public class HouseRentAllowanceDetailVMUpdate
+    {
 
-        public decimal? MobileInternetAllowanceEdit { get; set; }
+        public bool IsActive { get; set; }
+        public decimal? SalaryMin { get; set; }
 
-        public bool IsShiftAllowanceEnabledEdit { get; set; }
+        public decimal? SalaryMax { get; set; }
 
-        public decimal? ShiftAllowanceEdit { get; set; }
+        public int? CalculationTypeID { get; set; }
 
-        public bool IsHouseRentAllowanceEnabledEdit { get; set; }
+        public decimal? Value { get; set; }
 
-        public decimal? HouseRentAllowanceRateEdit { get; set; }
-
-        public int? HRentDependsOnSalaryTypeIDEdit { get; set; }
-
-        public bool IsMedicalAllowanceEnabledEdit { get; set; }
-
-        public decimal? MedicalAllowanceRateEdit { get; set; }
-
-        public int? MediAllowDepOnSalaryTypeIDEdit { get; set; }
-
-        public bool IsConveyanceAllowanceEnabledEdit { get; set; }
-
-        public decimal? ConveyanceAllowanceRateEdit { get; set; }
-
-        public int? ConAllowDepOnSalaryTypeIDEdit { get; set; }
-
+        public int? EmployeeAllowanceTypeID { get; set; }
     }
 }

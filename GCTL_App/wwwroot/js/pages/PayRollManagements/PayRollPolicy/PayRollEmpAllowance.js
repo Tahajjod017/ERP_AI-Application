@@ -178,6 +178,7 @@ $(document).ready(function () {
                     if (response.success) {
                         toastr.success(response.message);
                         resetPayRollEmpAllowanceForm();
+                        loadPayRollEmpAllowanceData();
                     } else {
                         toastr.error(response.message);
                     }
@@ -233,39 +234,207 @@ $(document).ready(function () {
         choiceManager.setChoiceValue(fieldName, formattedValue);
     }
 
-    $(document).on('click', '#EditEmpAllowance', function () {
-        var id = $(this).data('id');
+    $(document).ready(function () {
+        loadPayRollEmpAllowanceData();
+    });
 
+    function loadPayRollEmpAllowanceData() {
         $.ajax({
-            url: '/PayRollEmployeesAllowance/GetByIdPayRollEmpAllowance',  // <-- your API endpoint
+            url: '/PayRollEmployeesAllowance/GetAllDataAfterSave',
             type: 'GET',
-            data: { id: id },
             success: function (res) {
-                if (res.success) {
-                    var d = res.data;
-                    console.log("Get By Id"+d)
-                    // Populate form fields
-                    $('#OrganizationIDEdit').val(d.organizationIDEdit).each(function () {
-                        coreui.MultiSelect.getInstance(this)?.update();
+                if (res.success && res.data && res.data.length > 0) {
+                    res.data.forEach((item, index) => {
+                        console.log("Get All Data" + item)
+                        let picker = document.querySelector(`#year-month-picker-${index}`);
+                        if (picker && item.effectiveDate) {
+                            try {
+                                const date = new Date(item.effectiveDate);
+                                if (isNaN(date.getTime())) throw new Error("Invalid date");
+                                // Format to "F Y" (e.g., "May 2025")
+                                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                    "July", "August", "September", "October", "November", "December"];
+                                const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                                picker._flatpickr.setDate(formattedDate, true);
+                                picker.value = formattedDate;
+                            } catch (e) {
+                                console.error(`Failed to set date for index ${index}:`, e.message);
+                            }
+                        }
+                        let checkbox = document.querySelector(`#IsActive_${index}`);
+                        if (checkbox && item.hasOwnProperty('isActive')) {
+                            checkbox.checked = item.isActive === true || item.isActive === 'true';
+                        }
+                        let allowanceIdInput = document.querySelector(`#EmployeeAllowanceID_${index}`);
+                        if (allowanceIdInput && item.hasOwnProperty('employeeAllowanceID'))
+                        {
+                            allowanceIdInput.value = item.employeeAllowanceID;
+                        }
+                        debugger
+                        let rowIndex = 0;
+                        const $container = $('#payrollEmpAllowanceForm');
+                        if (item.houseRentAllowances && item.houseRentAllowances.length > 0) {
+                            const hra = item.houseRentAllowances[0]; 
+                            console.log(`HRA Data:`, JSON.stringify(hra));
+                            const $row = $container.find('.houseRentRow').eq(rowIndex);
+                            // Set SalaryMin and SalaryMax
+                            const $minSalaryInput = $row.find('[name*="SalaryMin"]');
+                            if ($minSalaryInput.length && hra.salaryMin != null) {
+                                $minSalaryInput.val(hra.salaryMin);
+                                console.log(`Set SalaryMin_${rowIndex} to:`, hra.salaryMin);
+                            }
+
+                            // Set SalaryMax
+                            const $maxSalaryInput = $row.find('[name*="SalaryMax"]');
+                            if ($maxSalaryInput.length && hra.salaryMax != null) {
+                                $maxSalaryInput.val(hra.salaryMax);
+                                console.log(`Set SalaryMax_${rowIndex} to:`, hra.salaryMax);
+                            }
+
+
+                            // Set CalculationType and Value
+                            let fixedPercentageSelect = document.querySelector(`#fixedPercentageSelect_${index}`);
+                            let fixedRateInput = document.querySelector(`#fixedRate-${index}`);
+                            let percentRateSelect = document.querySelector(`#percentRate-${index}`);
+                            let hiddenCalcTypeInput = document.querySelector(`#hidden-calculation-type-${index}`);
+                            if (fixedPercentageSelect && hra.calculationType) {
+                                fixedPercentageSelect.value = hra.calculationType;
+                                $(`#percentRateContainer_${index}`).toggle(hra.calculationType === 'Percentage');
+                                $(`#fixedRateContainer_${index}`).toggle(hra.calculationType === 'Fixed');
+                                if (hiddenCalcTypeInput) hiddenCalcTypeInput.value = hra.calculationType;
+                                if (hra.calculationType === 'Fixed' && fixedRateInput) {
+                                    fixedRateInput.value = hra.value;
+                                } else if (hra.calculationType === 'Percentage' && percentRateSelect) {
+                                    percentRateSelect.value = hra.value;
+                                }
+                            }
+                        }
+
                     });
-
-                    $('#payrollEmpAllowanceFormUpdate input[name="EmployeeAllowanceID"]').val(d.employeeAllowanceID);
-                    choiceManager.setChoiceValue('OrganizationIDEdit', d.organizationIDEdit);
-
-                    
-                    $('#payrollEmpAllowanceFormUpdate input[name="IsMedicalAllowanceEnabledEdit"]').prop('checked', d.isMedicalAllowanceEnabledEdit);
-                    setFormattedChoiceValue('MedicalAllowanceRateEdit', d.medicalAllowanceRateEdit);
-                    choiceManager.setChoiceValue('MediAllowDepOnSalaryTypeIDEdit', d.mediAllowDepOnSalaryTypeIDEdit);
-
-                    $('#payrollEmpAllowanceFormUpdate input[name="IsConveyanceAllowanceEnabledEdit"]').prop('checked', d.isConveyanceAllowanceEnabledEdit);
-                    setFormattedChoiceValue('ConveyanceAllowanceRateEdit', d.conveyanceAllowanceRateEdit);
-                    choiceManager.setChoiceValue('ConAllowDepOnSalaryTypeIDEdit', d.conAllowDepOnSalaryTypeIDEdit);
+                    toastr.success(res.message || "Data loaded successfully");
                 } else {
-                    alert("Error: " + res.message);
+                    toastr.warning(res.message || "No data found.");
                 }
+            },
+            //success: function (res) {
+            //    console.log('Full res.data:', JSON.stringify(res.data));
+            //    if (res.success && res.data && res.data.length > 0) {
+            //        const $container = $('#payrollEmpAllowanceForm');
+            //        const monthNames = ["January", "February", "March", "April", "May", "June",
+            //            "July", "August", "September", "October", "November", "December"];
+            //        let rowIndex = 0;
+
+            //        res.data.forEach((item) => {
+            //            if (item.houseRentAllowances && item.houseRentAllowances.length > 0) {
+            //                item.houseRentAllowances.forEach((hra) => {
+            //                    const $row = $container.find('.houseRentRow').eq(rowIndex);
+            //                    if (!$row.length) {
+            //                        console.warn(`No houseRentRow found for rowIndex ${rowIndex}`);
+            //                        return;
+            //                    }
+            //                    console.log(`Processing row ${rowIndex}, HRA:`, JSON.stringify(hra));
+
+            //                    // Set SalaryMin
+            //                    const $minSalaryInput = $row.find('[name*="SalaryMin"]');
+            //                    if ($minSalaryInput.length && hra.salaryMin != null) {
+            //                        $minSalaryInput.val(hra.salaryMin);
+            //                        console.log(`Set SalaryMin_${rowIndex} to:`, hra.salaryMin);
+            //                    }
+
+            //                    // Set SalaryMax
+            //                    const $maxSalaryInput = $row.find('[name*="SalaryMax"]');
+            //                    if ($maxSalaryInput.length && hra.salaryMax != null) {
+            //                        $maxSalaryInput.val(hra.salaryMax);
+            //                        console.log(`Set SalaryMax_${rowIndex} to:`, hra.salaryMax);
+            //                    }
+
+            //                    // Set CalculationType and Value
+            //                    const $fixedPercentageSelect = $row.find('.fixedPercentageSelect');
+            //                    const $hiddenCalcTypeInput = $row.find(`[name*="CalculationTypeID"]`);
+            //                    if ($fixedPercentageSelect.length && hra.calculationType) {
+            //                        $fixedPercentageSelect.val(hra.calculationType);
+            //                        $(`#percentRateContainer_${rowIndex}`).toggle(hra.calculationType === 'Percentage');
+            //                        $(`#fixedRateContainer_${rowIndex}`).toggle(hra.calculationType === 'Fixed');
+            //                        const calculationTypeID = hra.calculationType === 'Fixed' ? 1 : hra.calculationType === 'Percentage' ? 2 : '';
+            //                        if ($hiddenCalcTypeInput.length) {
+            //                            $hiddenCalcTypeInput.val(calculationTypeID);
+            //                            console.log(`Set hidden-calculation-type-${rowIndex} to:`, calculationTypeID);
+            //                        }
+            //                        if (hra.calculationType === 'Fixed') {
+            //                            const $fixedRateInput = $row.find('.fixedRate input');
+            //                            if ($fixedRateInput.length && hra.value != null) {
+            //                                $fixedRateInput.val(hra.value);
+            //                                console.log(`Set fixedRate-${rowIndex} to:`, hra.value);
+            //                            }
+            //                        } else if (hra.calculationType === 'Percentage') {
+            //                            const $percentRateSelect = $row.find('.percentRate select');
+            //                            if ($percentRateSelect.length && hra.value != null) {
+            //                                $percentRateSelect.val(hra.value);
+            //                                console.log(`Set percentRate-${rowIndex} to:`, hra.value);
+            //                            }
+            //                        }
+            //                    }
+
+            //                    // Set EffectiveDate
+            //                    const $picker = $row.closest('.card-body').find('.flatpickr-input');
+            //                    const $hiddenDateInput = $row.closest('.card-body').find('[name*="EffectiveDate"][type="hidden"]');
+            //                    if ($picker.length && hra.effectiveDate) {
+            //                        try {
+            //                            const date = new Date(hra.effectiveDate);
+            //                            if (isNaN(date.getTime())) throw new Error("Invalid date");
+            //                            const displayDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            //                            const serverDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-01`;
+            //                            $picker[0]._flatpickr.setDate(displayDate, true);
+            //                            $picker.val(displayDate);
+            //                            if ($hiddenDateInput.length) {
+            //                                $hiddenDateInput.val(serverDate);
+            //                                console.log(`Set hidden-effective-date-${rowIndex} to:`, serverDate);
+            //                            }
+            //                        } catch (e) {
+            //                            console.error(`Failed to set date for row ${rowIndex}:`, e.message);
+            //                        }
+            //                    }
+
+            //                    // Set IsActive
+            //                    const $checkbox = $row.closest('.card-body').find('[name*="IsActive"]');
+            //                    if ($checkbox.length && item.hasOwnProperty('isActive')) {
+            //                        $checkbox.prop('checked', item.isActive === true || item.isActive === 'true');
+            //                        console.log(`Set IsActive_${rowIndex} to:`, $checkbox.prop('checked'));
+            //                    }
+
+            //                    // Set EmployeeAllowanceID
+            //                    const $allowanceIdInput = $row.closest('.card-body').find('[name*="EmployeeAllowanceID"]');
+            //                    if ($allowanceIdInput.length && item.hasOwnProperty('employeeAllowanceID')) {
+            //                        $allowanceIdInput.val(item.employeeAllowanceID);
+            //                        console.log(`Set EmployeeAllowanceID_${rowIndex} to:`, item.employeeAllowanceID);
+            //                    }
+
+            //                    rowIndex++;
+            //                });
+            //            }
+            //        });
+
+            //        toastr.success(res.message || "Data loaded successfully");
+            //    } else {
+            //        toastr.warning(res.message || "No data found.");
+            //    }
+            //},
+            error: function (err) {
+                console.error("Error fetching data:", err);
+                toastr.error("Failed to load payroll employee allowance data.");
             }
         });
-    });
+    }
+
+   
+
+        // Initialize dropdown states
+        $('.fixedPercentageSelect').each(function () {
+            const selected = $(this).val();
+            showHide($(this), selected);
+        });
+    
+
 
     // Save/Update Button
     $(document).on('click', '#PayRollEmpAllowanceUpdate', function (e) {
@@ -303,8 +472,6 @@ $(document).ready(function () {
     });
 
  
-
-
     //#region Delete Soft Leave Request
     $(document).on('click', '#SoftDeletePayRollEmpAllowanceDelete-singleDelBtn', function () {
         var id = $(this).data('id');
@@ -335,197 +502,197 @@ $(document).ready(function () {
     //#endregion
 
     // #region  Data Table for Peresonal
-    var currentPage = 1;
-    var pageSize = 5;
+    //var currentPage = 1;
+    //var pageSize = 5;
 
-    $('#payRollEmp-pageSizeSelect').on('change', function () {
-        var selectedSize = $(this).val();
+    //$('#payRollEmp-pageSizeSelect').on('change', function () {
+    //    var selectedSize = $(this).val();
 
-        if (selectedSize) {
-            pageSize = parseInt(selectedSize, 10);
-            currentPage = 1;
-            loadTableData();
-        }
-    });
+    //    if (selectedSize) {
+    //        pageSize = parseInt(selectedSize, 10);
+    //        currentPage = 1;
+    //        loadTableData();
+    //    }
+    //});
 
-    $(document).ready(function () {
-        loadTableData();
+    //$(document).ready(function () {
+    //    loadTableData();
 
-        $("#payRollEmp-searchInput").on("input", function () {
-            currentPage = 1;
-            loadTableData();
-        });
+    //    $("#payRollEmp-searchInput").on("input", function () {
+    //        currentPage = 1;
+    //        loadTableData();
+    //    });
 
-        $("#payRollEmp-prevPageBtn").on('click', function () {
-            if (currentPage > 1) {
-                currentPage--;
-                loadTableData();
-            }
-        });
+    //    $("#payRollEmp-prevPageBtn").on('click', function () {
+    //        if (currentPage > 1) {
+    //            currentPage--;
+    //            loadTableData();
+    //        }
+    //    });
 
-        $("#payRollEmp-nextPageBtn").on('click', function () {
-            currentPage++;
-            loadTableData();
-        });
-    });
-    let currentSortColumn = '';
-    let currentSortOrder = '';
+    //    $("#payRollEmp-nextPageBtn").on('click', function () {
+    //        currentPage++;
+    //        loadTableData();
+    //    });
+    //});
+    //let currentSortColumn = '';
+    //let currentSortOrder = '';
 
-    $('th.sort').on('click', function () {
-        const column = $(this).data('sort');
-        if (currentSortColumn === column) {
-            currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-        } else {
-            currentSortColumn = column;
-            currentSortOrder = 'asc';
-        }
+    //$('th.sort').on('click', function () {
+    //    const column = $(this).data('sort');
+    //    if (currentSortColumn === column) {
+    //        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+    //    } else {
+    //        currentSortColumn = column;
+    //        currentSortOrder = 'asc';
+    //    }
 
-        loadTableData(currentSortColumn, currentSortOrder);
-        updateSortingIndicator(column, currentSortOrder);
-    });
-    function updateSortingIndicator() {
-        $('th.sort').each(function () {
-            const $th = $(this);
-            const column = $th.data('sort');
-            $th.find('.sort-icon').remove();
+    //    loadTableData(currentSortColumn, currentSortOrder);
+    //    updateSortingIndicator(column, currentSortOrder);
+    //});
+    //function updateSortingIndicator() {
+    //    $('th.sort').each(function () {
+    //        const $th = $(this);
+    //        const column = $th.data('sort');
+    //        $th.find('.sort-icon').remove();
 
-            if (column === currentSortColumn) {
-                const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
-                $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
-            } else {
-                $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
-            }
-        });
-    }
+    //        if (column === currentSortColumn) {
+    //            const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+    //            $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
+    //        } else {
+    //            $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
+    //        }
+    //    });
+    //}
 
-    $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
+    //$(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
 
-        currentPage = 1;
-        loadTableData();
-    });
+    //    currentPage = 1;
+    //    loadTableData();
+    //});
 
-    $('#OrganizationIDD').on('changed.coreui.multi-select', function () {
-        currentPage = 1;
-        loadTableData(); // Make AJAX call or reload the table
-    });
+    //$('#OrganizationIDD').on('changed.coreui.multi-select', function () {
+    //    currentPage = 1;
+    //    loadTableData(); // Make AJAX call or reload the table
+    //});
 
-    // Filtering according to formdate to ToDate
+    //// Filtering according to formdate to ToDate
 
-    function loadTableData(currentSortColumn, currentSortOrder) {
-        var searchTerm = $("#payRollEmp-searchInput").val();
-        const organizationId = $('#OrganizationIDD').val();
+    //function loadTableData(currentSortColumn, currentSortOrder) {
+    //    var searchTerm = $("#payRollEmp-searchInput").val();
+    //    const organizationId = $('#OrganizationIDD').val();
 
-        $.ajax({
-            url: '/PayRollEmployeesAllowance/GetAllTableListAsync',
-            method: 'GET',
-            traditional: true,
-            data: {
-                pageNumber: currentPage,
-                pageSize: pageSize,
-                searchTerm: searchTerm,
-                currentSortColumn: currentSortColumn,
-                currentSortOrder: currentSortOrder,
-                organizationId: organizationId,
-            },
-            success: function (response) {
+    //    $.ajax({
+    //        url: '/PayRollEmployeesAllowance/GetAllTableListAsync',
+    //        method: 'GET',
+    //        traditional: true,
+    //        data: {
+    //            pageNumber: currentPage,
+    //            pageSize: pageSize,
+    //            searchTerm: searchTerm,
+    //            currentSortColumn: currentSortColumn,
+    //            currentSortOrder: currentSortOrder,
+    //            organizationId: organizationId,
+    //        },
+    //        success: function (response) {
 
 
 
-                console.log("Datassssss", response);
-                var tableBody = $("#PayRollEmployeeAllowance-body");
-                tableBody.empty();
-                var totalItems = response.paginationInfo.totalItems;
+    //            console.log("Datassssss", response);
+    //            var tableBody = $("#PayRollEmployeeAllowance-body");
+    //            tableBody.empty();
+    //            var totalItems = response.paginationInfo.totalItems;
 
-                if (response.data.length > 0) {
-                    response.data.forEach(function (item, index) {
+    //            if (response.data.length > 0) {
+    //                response.data.forEach(function (item, index) {
 
-                        if (currentSortOrder === 'asc') {
-                            rowIndex = (currentPage - 1) * pageSize + index + 1;
-                        } else {
-                            rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
-                        }
+    //                    if (currentSortOrder === 'asc') {
+    //                        rowIndex = (currentPage - 1) * pageSize + index + 1;
+    //                    } else {
+    //                        rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
+    //                    }
 
-                        tableBody.append(`
-                      <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                                <span>${item.organizationName}</span>
-                            </td>
-                            <td class="helthInsurance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mobileInternetAllowance || ''} tk</td>
-                            <td class="providantFundEC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.shiftAllowance}%</td>
-                            <td class="providantFundOC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.houseRentAllowanceRate}%</td>
-                            <td class="providantFundT align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.hRentDependsOnSalaryTypeIDName}</td>
-                            <td class="providantFundS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.medicalAllowanceRate || ''}</td>
-                            <td class="FestivalBonusR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mediAllowDepOnSalaryTypeIDName || ''}</td>
-                            <td class="FestivalBonusS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.conveyanceAllowanceRate || ''}</td>
-                            <td class="align-middle white-space-nowrap text-end pe-3">
-                              <div class="d-flex justify-content-end align-items-center">
-                                  <a href="#" class="nav-item mx-2" title="Edit" data-bs-toggle="modal" data-bs-target="#edit_alloance"  id="EditEmpAllowance" data-id="${item.employeeAllowanceID}">
-                                      <i class="fas fa-edit text-black"></i>
-                                  </a>
+    //                    tableBody.append(`
+    //                  <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+    //                        <td class="companyName align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
+    //                            <span>${item.organizationName}</span>
+    //                        </td>
+    //                        <td class="helthInsurance align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mobileInternetAllowance || ''} tk</td>
+    //                        <td class="providantFundEC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.shiftAllowance}%</td>
+    //                        <td class="providantFundOC align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.houseRentAllowanceRate}%</td>
+    //                        <td class="providantFundT align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.hRentDependsOnSalaryTypeIDName}</td>
+    //                        <td class="providantFundS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.medicalAllowanceRate || ''}</td>
+    //                        <td class="FestivalBonusR align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mediAllowDepOnSalaryTypeIDName || ''}</td>
+    //                        <td class="FestivalBonusS align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.conveyanceAllowanceRate || ''}</td>
+    //                        <td class="align-middle white-space-nowrap text-end pe-3">
+    //                          <div class="d-flex justify-content-end align-items-center">
+    //                              <a href="#" class="nav-item mx-2" title="Edit" data-bs-toggle="modal" data-bs-target="#edit_alloance"  id="EditEmpAllowance" data-id="${item.employeeAllowanceID}">
+    //                                  <i class="fas fa-edit text-black"></i>
+    //                              </a>
 
-                                  <a href="#" title="Delete" data-id="${item.employeeAllowanceID}"
-                                     class="btn btn-outline-light btn-icon"
-                                     id="SoftDeletePayRollEmpAllowanceDelete-singleDelBtn">
-                                      <i class="far fa-trash-alt text-black"></i>
-                                  </a>
-                              </div>
-                           </td>
+    //                              <a href="#" title="Delete" data-id="${item.employeeAllowanceID}"
+    //                                 class="btn btn-outline-light btn-icon"
+    //                                 id="SoftDeletePayRollEmpAllowanceDelete-singleDelBtn">
+    //                                  <i class="far fa-trash-alt text-black"></i>
+    //                              </a>
+    //                          </div>
+    //                       </td>
 
-                        </tr>
-                   `);
-                    });
-                } else {
-                    tableBody.append('<tr><td colspan="10" class="text-center">No data available</td></tr>');
-                }
+    //                    </tr>
+    //               `);
+    //                });
+    //            } else {
+    //                tableBody.append('<tr><td colspan="10" class="text-center">No data available</td></tr>');
+    //            }
 
-                var paginationInfo = response.paginationInfo;
+    //            var paginationInfo = response.paginationInfo;
 
-                $("#payRollEmp-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                $("#payRollEmp-totalCount").text(`(${paginationInfo.totalItems})`);
+    //            $("#payRollEmp-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+    //            $("#payRollEmp-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
-            }
-        });
-    }
+    //            updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+    //        }
+    //    });
+    //}
 
-    function updatePagination(pageNumbers, currentPage, totalPages) {
-        const paginationLinks = $("#payRollEmp-paginationLinks");
-        paginationLinks.empty();
-        // Window size (number of pages before/after the current page)
-        const windowSize = 1;
+    //function updatePagination(pageNumbers, currentPage, totalPages) {
+    //    const paginationLinks = $("#payRollEmp-paginationLinks");
+    //    paginationLinks.empty();
+    //    // Window size (number of pages before/after the current page)
+    //    const windowSize = 1;
 
-        const createPageButton = (page) => `
-                <li class="page-item ${page === currentPage ? 'active' : ''}">
-                    <button class="page-link page-btn" data-page="${page}">${page}</button>
-                </li>
-            `;
+    //    const createPageButton = (page) => `
+    //            <li class="page-item ${page === currentPage ? 'active' : ''}">
+    //                <button class="page-link page-btn" data-page="${page}">${page}</button>
+    //            </li>
+    //        `;
 
-        // Helper function for ellipsis
-        const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
-        // Add "First Page" and ellipsis if needed
-        if (currentPage > windowSize + 1) {
-            paginationLinks.append(createPageButton(1), addEllipsis());
-        }
-        // Add page number buttons within the window range
-        const startPage = Math.max(1, currentPage - windowSize);
-        const endPage = Math.min(totalPages, currentPage + windowSize);
-        for (let i = startPage; i <= endPage; i++) {
-            paginationLinks.append(createPageButton(i));
-        }
-        // Add ellipsis and "Last Page" button if needed
-        if (currentPage < totalPages - windowSize) {
-            paginationLinks.append(addEllipsis(), createPageButton(totalPages));
-        }
-        // Disable or enable previous/next buttons
-        $("#payRollEmp-prevPageBtn").prop('disabled', currentPage === 1);
-        $("#payRollEmp-nextPageBtn").prop('disabled', currentPage === totalPages);
-    }
+    //    // Helper function for ellipsis
+    //    const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+    //    // Add "First Page" and ellipsis if needed
+    //    if (currentPage > windowSize + 1) {
+    //        paginationLinks.append(createPageButton(1), addEllipsis());
+    //    }
+    //    // Add page number buttons within the window range
+    //    const startPage = Math.max(1, currentPage - windowSize);
+    //    const endPage = Math.min(totalPages, currentPage + windowSize);
+    //    for (let i = startPage; i <= endPage; i++) {
+    //        paginationLinks.append(createPageButton(i));
+    //    }
+    //    // Add ellipsis and "Last Page" button if needed
+    //    if (currentPage < totalPages - windowSize) {
+    //        paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+    //    }
+    //    // Disable or enable previous/next buttons
+    //    $("#payRollEmp-prevPageBtn").prop('disabled', currentPage === 1);
+    //    $("#payRollEmp-nextPageBtn").prop('disabled', currentPage === totalPages);
+    //}
 
-    $(document).on('click', '.page-btn', function () {
-        const page = $(this).data('page');
-        currentPage = page;
-        loadTableData();
-    });
+    //$(document).on('click', '.page-btn', function () {
+    //    const page = $(this).data('page');
+    //    currentPage = page;
+    //    loadTableData();
+    //});
     //#endregion
 
 

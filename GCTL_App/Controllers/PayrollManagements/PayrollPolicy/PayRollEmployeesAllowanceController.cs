@@ -11,7 +11,9 @@ using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium.DevTools.V134.Page;
+using System.Security.Claims;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
@@ -23,7 +25,9 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         private readonly IGenericRepository<Percentages> percentagesService;
         private readonly IPayRollEmpAllowanceService payRollEmpAllowanceService;
         private readonly IGenericRepository<CalculationTypes> calculationTypes;
-        public PayRollEmployeesAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, IPayRollEmpAllowanceService payRollEmpAllowanceService, IGenericRepository<CalculationTypes> calculationTypes) : base(translateService, userProfileService)
+        private readonly AppDbContext appDb;
+        private readonly IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoService;
+        public PayRollEmployeesAllowanceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, IPayRollEmpAllowanceService payRollEmpAllowanceService, IGenericRepository<CalculationTypes> calculationTypes, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoService) : base(translateService, userProfileService)
         {
             this.organization = organization;
             this.salaryTypes = salaryTypes;
@@ -31,6 +35,8 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             this.percentagesService = percentagesService;
             this.payRollEmpAllowanceService = payRollEmpAllowanceService;
             this.calculationTypes = calculationTypes;
+            this.appDb = appDb;
+            this.employeeOfficeInfoService = employeeOfficeInfoService;
         }
 
         public  async Task< IActionResult> Index()
@@ -38,7 +44,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             PayRollEmpAllowancePageVM model =new PayRollEmpAllowancePageVM();
             var list = await payRollEmpAllowanceService.GetEmpAllowanceType() ?? new List<AllowanceTypeNameVM>();
 
-            
+
             // Ensure HouseRentAllowances has the same number of items as the list
             foreach (var item in list)
             {
@@ -48,8 +54,14 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                     IsActive = item.IsActive,
                 });
             }
+            
             model.Save.HouseRentAllowances.Add(new HouseRentAllowanceDetailVM());
-            ViewBag.OrganizationDD = new SelectList(organization.AllActive(), "OrganizationID", "OrganizationName");
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+            var organizationId = await employeeOfficeInfoService.AllActive().Where(x => x.EmployeeID == employeeId).Select(x => x.OrganizationID).FirstOrDefaultAsync();
+            var organizationList = organization.AllActive().ToList();
+            model.Save.HouseRentAllowances.Add(new HouseRentAllowanceDetailVM());
+            ViewBag.OrganizationDD = new SelectList( organizationList,"OrganizationID", "OrganizationName",organizationId );
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewBag.YearlyBonusTypeDD = new SelectList(yearlyEndBonusTypes.AllActive(), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
@@ -86,7 +98,11 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                 //    return BadRequest(ModelState);
                 //}
                 var data = await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
-                return Json(new { success = true, message = "Saved Successfully" });
+                if (data.Success) 
+                {
+                    return Json(new { success =data.Success, message =data.Message });
+                }
+                return Json(new { success = data.Success, message = data.Message });
             }
             catch (Exception ex)
             {
@@ -116,6 +132,23 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 
         #endregion
 
+        #region Get All Data after saving
+        [Route("PayRollEmployeesAllowance/GetAllDataAfterSave")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllDataAfterSave()
+        {
+            try
+            {
+                var data = await payRollEmpAllowanceService.GetPayRollEmpAllowanceByIdAsync();
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+        #endregion
 
         #region Update Data
         [Route("PayRollEmployeesAllowance/UpdatePayRollEmpAllowance")]
@@ -164,29 +197,6 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                 throw;
             }
         }
-        #endregion
-
-        #region Get All Data List
-
-        [Route("PayRollEmployeesAllowance/GetAllTableListAsync")]
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null)
-        {
-            try
-            {
-
-                var data = await payRollEmpAllowanceService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, organizationId);
-                return Json(data);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return BadRequest(ex.Message);
-            }
-        }
-
-
         #endregion
 
         #region Delete Leave Request
