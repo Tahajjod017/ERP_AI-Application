@@ -1,5 +1,5 @@
 ﻿@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.PayRollEmpAllowanceUpdate
-<form id="payrollEmpAllowanceFormUpdate" class="row g-3">
+@* <form id="payrollEmpAllowanceFormUpdate" class="row g-3">
 
     <div class="col-md-4">
 
@@ -59,13 +59,7 @@
             <label class="form-label" for="timepicker1">House Rent Allowance Rate</label>
             <select class="form-select mb-3 choiceDD" asp-for="HouseRentAllowanceRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                @*  <option>35 %</option>
-                <option>40 %</option>
-                <option>45 %</option>
-                <option>50 %</option>
-                <option>60 %</option>
-                <option>70 %</option>
-                <option>100 %</option> *@
+              
             </select>
         </div>
     </div>
@@ -96,9 +90,7 @@
             <label class="form-label" for="timepicker1">Medical Allowance Rate</label>
             <select class="form-select mb-3 choiceDD" asp-for="MedicalAllowanceRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                @*  <option>8 %</option>
-                <option>10 %</option>
-                <option>15 %</option> *@
+               
             </select>
         </div>
     </div>
@@ -129,9 +121,7 @@
             <label class="form-label" for="timepicker1">Conveyance Allowance Rate</label>
             <select class="form-select mb-3 choiceDD" asp-for="ConveyanceAllowanceRateEdit" asp-items="@ViewBag.PercenatageDD as SelectList">
                 <option value="">Select %</option>
-                @* <option>8 %</option>
-                <option>10 %</option>
-                <option>15 %</option> *@
+               
             </select>
         </div>
     </div>
@@ -157,4 +147,4 @@
             </div>
         </div>
     </div>
-</form>
+</form> *@

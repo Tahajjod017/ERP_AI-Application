@@ -8,7 +8,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowa
 {
     public class PayRollEmpAllowanceSaveVM : BaseViewModel
     {
-
+        public int EmployeeAllowanceID { get; set; }
         public int? OrganizationID { get; set; }
         public int? EmployeeAllowanceTypeID { get; set; }
         public bool IsActive { get; set; }

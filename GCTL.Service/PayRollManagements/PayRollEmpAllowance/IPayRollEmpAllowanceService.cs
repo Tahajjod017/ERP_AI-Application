@@ -18,10 +18,8 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         Task<CommonReturnViewModel> UpdatePayRollEmpAllowance(PayRollEmpAllowanceUpdate entityVM);
         Task<CommonReturnViewModel> GetByIdPayRollEmpAllowance(int employeeAllowanceID);
         Task<CommonReturnViewModel> SoftDeletePayRollEmpAllowance(DeleteRequestVM deleteRequestVM);
-        Task<PaginationService<EmployeeAllowances, PayRollEmpAllowanceGetAll>.PaginationResult<PayRollEmpAllowanceGetAll>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-      string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null);
         public Task<List<AllowanceTypeNameVM>> GetEmpAllowanceType();
-        public Task<List<PayRollEmpAllowanceGetAll>>GetDataByID(int employeeAllowanceID);
+        Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync();
 
     }
 }
