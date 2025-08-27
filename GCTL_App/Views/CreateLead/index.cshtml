@@ -181,24 +181,26 @@
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
-                    <div class="col-sm-12 customerDiv col-md-6 position-relative">
-                        <div class="form-floating mbs-4">
+                    <div class="col-sm-12 customerDiv col-md-6">
+                        <div class="form-floating mbs-4 position-relative">
                             <input type="text" id="ContactNameSearch" class="form-control" required placeholder="@Html.SmartLocalize("Search ContactName...")">
                             <input type="hidden" id="customerID">
                             <input type="hidden" id="customerType">
 
                             <label for="floatingSelectLitigation"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
+
+                            <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
+                                <!-- ContactName items will be populated here by JavaScript -->
+                            </div>
+                            <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
+                                @Html.SmartLocalize("Item Not Found. Are you add new item?")
+                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
+                                <span>Or</span>
+                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
+                            </div>
                         </div>
 
-                        <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
-                            <!-- ContactName items will be populated here by JavaScript -->
-                        </div>
-                        <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
-                            @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                            <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
-                            <span>Or</span>
-                            <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
-                        </div>
+                       
                     </div>
                     
                     <div class="col-md-6">
