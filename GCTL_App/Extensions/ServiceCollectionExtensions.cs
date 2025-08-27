@@ -93,6 +93,7 @@ using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.MasterSetup.TrainingYear;
 using GCTL.Service.MasterSetup.YearlyEndBonusType;
 using GCTL.Service.MenuTabs;
+using GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
@@ -173,7 +174,7 @@ namespace GCTL_App.Extensions
             #endregion
 
 
-            //Siam 
+            #region //Siam 
             services.AddScoped<IActionLogService, ActionLogService>();
             services.AddScoped<IUserInfoService, UserInfoService>();
             services.AddScoped<IVisitingPathService, VisitingPathService>();
@@ -188,6 +189,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPayRollEmpAllowanceService, PayRollEmpAllowanceService>();
             services.AddScoped<IPayRollEmpSalaryService, PayRollEmploSalaryService>();
             services.AddScoped<IPayRollTaxperCentangeSettingsService, PayRollTaxpercentageSettingsService>();
+            services.AddScoped<IEmpAllowanceTypeOrganizationService, EmpAllowanceTypeOrganizationService>();
+            #endregion
 
             #region Asad
             services.AddScoped<IUserProfileService, UserProfileService>();

@@ -219,7 +219,7 @@ namespace GCTL.Service.MenuTabs
 
             try
             {
-                var menuTabs = await _genericRepository.AllActive().Where(x=>x.Type=="Secondary" && x.ParentId==2).ToListAsync();
+                var menuTabs = await _genericRepository.AllActive().Where(x=>x.Type=="Secondary" && x.ParentId==18).ToListAsync();
 
                 var result = menuTabs.Select(m => new MasterSetupCategoryVM
                 {

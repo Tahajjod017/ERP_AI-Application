@@ -1,0 +1,24 @@
+﻿@model GCTL_App.ViewModels.PayRollManagements.AllowanceType.EmpAllowanceOrganizationPageVM
+
+
+<div class="mt-4 mx-lg-n4">
+    <div class="row g-4">
+        <div class="col-12 col-md-7 col-xl-5 col-xxl-5">
+            <partial name="_Save" model="Model.Save" />
+        </div>
+
+        <div class="col-12 col-md-7 col-xl-7 col-xxl-7">
+            <partial name="_TableList" />
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/payrollmanagements/payrollsettings/EmpAllowanceOrganization.js"></script>
+    
+}

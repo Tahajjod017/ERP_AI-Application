@@ -47,8 +47,8 @@ $(document).ready(function () {
     }
 
     //#endregion
-    
-    
+
+
 
     // If no rows exist initially
     if ($(".houseRentRow").length === 0) {
@@ -88,18 +88,30 @@ $(document).ready(function () {
 
     // Add new row
     $(document).on('click', '.addRow', function () {
-        const $container = $(this).closest('.houseRentContainer'); 
-        let index = $container.find(".houseRentRow").length; 
+        const $container = $(this).closest('.houseRentContainer');
+        let index = $container.find(".houseRentRow").length;
 
         $.ajax({
             url: '/PayRollEmployeesAllowance/GetHouseRentAllowanceRow',
             type: 'GET',
             data: { index: index },
             success: function (response) {
-                $container.append(response); 
-                const newRow = $container.find('.houseRentRow').last(); 
-                choiceManager.initAll();
-                newRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
+                //$container.append(response);
+                //const newRow = $container.find('.houseRentRow').last();
+                //choiceManager.initAll();
+                //newRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
+                $container.find('.addRow').closest('div.col-lg-12').remove();
+
+                // Append new row with X button
+                $container.append(response);
+
+                const $newRow = $container.find('.houseRentRow').last();
+                $newRow.find('.removeRow').show(); // make sure X button is visible
+
+                // Move + button to last row
+                $container.append('<div class="col-lg-12 mt-2 text-end"><button type="button" class="btn btn-primary addRow">+ Add Row</button></div>');
+
+                $newRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
             },
             error: function () {
                 toastr.error("Failed to add new row.");
@@ -112,6 +124,11 @@ $(document).ready(function () {
         $(this).closest('.houseRentRow').remove();
     });
 
+    //
+
+
+   
+ 
 
     //
     
