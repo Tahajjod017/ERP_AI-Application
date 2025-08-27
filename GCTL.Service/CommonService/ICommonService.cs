@@ -33,6 +33,7 @@ namespace GCTL.Service.CommonService
 
         #region Load Paginated
         Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 10);
+        Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50);
         #endregion
 
 

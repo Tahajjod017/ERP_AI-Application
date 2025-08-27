@@ -22,6 +22,58 @@
         $(() => {
 
 
+
+            
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const select = document.getElementById("employeeSelect");
+                const multiSelect = coreui.MultiSelect.getOrCreateInstance(select);
+
+                const container = select.closest('.multi-select-container');
+
+                const observer = new MutationObserver(() => {
+                    const searchBox = container.querySelector('.multi-select-search input');
+                    if (searchBox) {
+                        observer.disconnect(); // stop once found
+
+                        searchBox.addEventListener("input", async function () {
+                            const searchTerm = this.value;
+
+                            const response = await fetch(`/AssignDefaultShift/SearchEmployees?search=${encodeURIComponent(searchTerm)}`);
+                            const data = await response.json();
+
+                            select.innerHTML = "";
+
+                            const groups = {};
+                            data.forEach(emp => {
+                                if (!groups[emp.groupName]) groups[emp.groupName] = [];
+                                groups[emp.groupName].push(emp);
+                            });
+
+                            Object.keys(groups).forEach(groupName => {
+                                const optgroup = document.createElement("optgroup");
+                                optgroup.label = groupName;
+                                groups[groupName].forEach(emp => {
+                                    const option = document.createElement("option");
+                                    option.value = emp.id;
+                                    option.textContent = emp.name;
+                                    optgroup.appendChild(option);
+                                });
+                                select.appendChild(optgroup);
+                            });
+
+                            multiSelect.update();
+                        });
+                    }
+                });
+
+                observer.observe(container, { childList: true, subtree: true });
+            });
+
+
+
+
+
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();

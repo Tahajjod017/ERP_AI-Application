@@ -55,17 +55,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         {
             var result = await _commonService.SearchOrganizations(search, page, pageSize);
 
-            //return Json(new
-            //{
-            //    items = result.Items,
-            //    hasMore = result.HasMore
-            //});
             return Json(new
             {
                 items = result.Items.Select(x => new {
                     value = x.Id,
                     label = x.Name,
-                    group = x.GroupName // Optional: only if you want to group
+                    group = x.GroupName 
                 }),
                 hasMore = result.HasMore
             });
