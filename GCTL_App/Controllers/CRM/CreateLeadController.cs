@@ -75,14 +75,20 @@ namespace GCTL_App.Controllers.CRM
 
             if (type == "phone")
             {
-                var queryResult = await _addressesRepository
-                    .FindAsync(u => (u.Phone == queryText || u.OtherPhone == queryText) && u.AddressID != addressId);
+                var queryResult = await _customerAddressesRepository
+                    .FindAsync(u => (u.Address.Phone == queryText || u.Address.OtherPhone == queryText) && (u.AddressType.AddressTypeName == "billing" || u.AddressType.AddressTypeName == "company") && u.AddressID != addressId);
+
+
+                //var queryResult = await _addressesRepository
+                //    .FindAsync(u => (u.Phone == queryText || u.OtherPhone == queryText) && u.AddressID != addressId);
+                
+                
                 return queryResult.Count == 0;
             }
             else if (type == "email")
             {
-                var queryResult = await _addressesRepository
-                    .FindAsync(u => u.Email == queryText && u.AddressID != addressId);
+                var queryResult = await _customerAddressesRepository
+                   .FindAsync(u => u.Address.Email == queryText  && (u.AddressType.AddressTypeName == "billing" || u.AddressType.AddressTypeName == "company") && u.AddressID != addressId);
                 return queryResult.Count == 0;
             }
 
@@ -134,10 +140,10 @@ namespace GCTL_App.Controllers.CRM
         public async Task<IActionResult> getCountry(string countryName)
         {
             var countryList = await _countryRepository.GetAllAsync();
-            var countrySelectList = countryList.Select(c => new SelectListItem
+            var countrySelectList = countryList.Select(c => new 
             {
-                Value = c.CountryID.ToString(),
-                Text = c.CountryName
+                id = c.CountryID,
+                name = c.CountryName
             }).ToList();
             return Json(countrySelectList);
         }
@@ -160,35 +166,35 @@ namespace GCTL_App.Controllers.CRM
             return BadRequest("No companies found.");
         }
 
-        public async Task<IActionResult> getPersonList([FromBody] string query)
+        [HttpPost]
+        public async Task<IActionResult> GetPersonList([FromBody] string query)
         {
- 
             if (string.IsNullOrWhiteSpace(query))
                 return Json(new List<SelectListItem>());
 
-            var personList = await _customerAddressesRepository
+            query = query.Trim();
+
+            var results = await _customerAddressesRepository
                 .AllActive()
                 .Where(u => u.AddressType.AddressTypeName == "billing")
-                .Include(c => c.Customer)
-                .Where(c => c.Customer.FullName.Contains(query)) 
-                .OrderBy(c => c.Customer.FullName)               
-                .Take(5)                                        
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.CustomerAddressID,
+                    Name = c.Customer.FullName,
+                    Email = c.Address.Email,
+                    Phone = c.Address.Phone
+                })
+                .Where(x => x.Name != null && EF.Functions.Like(x.Name, $"%{query}%"))
+                .OrderByDescending(x => x.Name == query)                   // exact match first
+                .ThenByDescending(x => EF.Functions.Like(x.Name, $"{query}%")) // then starts with
+                .ThenBy(x => x.Name)                                      // then alphabetical
+                .Take(5)
                 .ToListAsync();
 
-            var personSelectList = personList
-                .Where(c => c.Customer != null)
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CustomerAddressID.ToString(),
-                    Text = c.Customer.FullName
-                })
-                .ToList();
-
-            if (personSelectList.Any())
-                return Json(personSelectList);
-
-            return BadRequest("No companies found.");
+            return Json(results);
         }
+
 
 
         [HttpPost]
@@ -198,56 +204,75 @@ namespace GCTL_App.Controllers.CRM
                                      join ind in _context.Customers
                                      on add.CustomerID equals ind.CustomerID
                                      join address in _context.Addresses on add.AddressID equals address.AddressID
-                                     join country in _context.Country on address.CountryID equals country.CountryID
+                                     join country in _context.Country on address.CountryID equals country.CountryID into countryGroup
+                                     from country in countryGroup.DefaultIfEmpty()
                                      where add.CustomerAddressID == id
                                      select new
                                      {
-                                         add.CustomerAddressID,
-                                         add.AddressType.AddressTypeName,
-                                         ind.FullName,
-                                         address.FullAddress,
-                                         address.Street,
-                                         address.City,
-                                         address.Additionaladdress,
-                                         address.State,
-                                         address.PostalCode,
-                                         country.CountryName,
-                                         country.CountryCode,
-                                         address.Latitude,
-                                         address.Longitude,
-                                         address.Phone,
-                                         address.OtherPhone,
-                                         address.Email,
-                                         address.FirstName,
-                                         address.LastName,
+                                         //add.CustomerAddressID,
+                                         //add.AddressType.AddressTypeName,
+                                         //ind.FullName,
+                                         //address.FullAddress,
+                                         //address.Street,
+                                         //address.City,
+                                         //address.Additionaladdress,
+                                         //address.State,
+                                         //address.PostalCode,
+                                         //country != null ? country.CountryName : null,
+                                         //country.CountryCode,
+                                         //address.Latitude,
+                                         //address.Longitude,
+                                         //address.Phone,
+                                         //address.OtherPhone,
+                                         //address.Email,
+                                         //address.FirstName,
+                                         //address.LastName,
+                                         FullName = ind.FullName,
+                                         CustomerAddressID = add.CustomerAddressID,
+                                         AddressTypeName = add.AddressType.AddressTypeName,
+                                         FullAddress = address.FullAddress,
+                                         Street = address.Street,
+                                         City = address.City,
+                                         Additionaladdress = address.Additionaladdress,
+                                         State = address.State,
+                                         PostalCode = address.PostalCode,
+                                         CountryName = country != null ? country.CountryName : null,
+                                         CountryCode = country != null ? country.CountryCode : null,
+                                         Latitude = address.Latitude,
+                                         Longitude = address.Longitude,
+                                         Phone = address.Phone,
+                                         OtherPhone = address.OtherPhone,
+                                         Email = address.Email,
+                                         FirstName = address.FirstName,
+                                         LastName = address.LastName
                                      }).FirstOrDefaultAsync();
 
-            var customerId = await _context.CustomerAddresses.Where(x => x.CustomerAddressID == id).Select(x => x.CustomerAddressID).FirstOrDefaultAsync();
-            var shippingObj = await (from add in _context.CustomerAddresses
-                                     join address in _context.Addresses on add.AddressID equals address.AddressID
-                                     join country in _context.Country on address.CountryID equals country.CountryID
-                                     where add.AddressType.AddressTypeName == "shipping" && add.CustomerID == customerId
-                                     select new
-                                     {
-                                         add.CustomerAddressID,
-                                         address.FullAddress,
-                                         address.Street,
-                                         address.City,
-                                         address.Additionaladdress,
-                                         address.State,
-                                         address.PostalCode,
-                                         country.CountryName,
-                                         country.CountryCode,
-                                         address.Latitude,
-                                         address.Longitude,
-                                         address.Phone,
-                                         address.OtherPhone,
-                                         address.Email,
-                                         address.FirstName,
-                                         address.LastName
-                                     }).FirstOrDefaultAsync();
+            //var customerId = await _context.CustomerAddresses.Where(x => x.CustomerAddressID == id).Select(x => x.CustomerAddressID).FirstOrDefaultAsync();
+            //var shippingObj = await (from add in _context.CustomerAddresses
+            //                         join address in _context.Addresses on add.AddressID equals address.AddressID
+            //                         join country in _context.Country on address.CountryID equals country.CountryID
+            //                         where add.AddressType.AddressTypeName == "shipping" && add.CustomerID == customerId
+            //                         select new
+            //                         {
+            //                             add.CustomerAddressID,
+            //                             address.FullAddress,
+            //                             address.Street,
+            //                             address.City,
+            //                             address.Additionaladdress,
+            //                             address.State,
+            //                             address.PostalCode,
+            //                             country.CountryName,
+            //                             country.CountryCode,
+            //                             address.Latitude,
+            //                             address.Longitude,
+            //                             address.Phone,
+            //                             address.OtherPhone,
+            //                             address.Email,
+            //                             address.FirstName,
+            //                             address.LastName
+            //                         }).FirstOrDefaultAsync();
 
-            return Json(new { customer = customerObj, shipping = shippingObj });
+            return Json(new { customer = customerObj });
         }
 
 
