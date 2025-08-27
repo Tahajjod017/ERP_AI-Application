@@ -1,14 +1,18 @@
-﻿using GCTL.Core.Repository;
+﻿using Azure;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
+using QuestPDF.Helpers;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -120,6 +124,35 @@ namespace GCTL.Service.CommonService
                 HasMore = (page * pageSize) < totalCount
             };
         }
+
+
+        public async Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50)
+        {
+            var employees = await (from emp in _employees.AllActive().AsNoTracking()
+
+                                   join empOi in _employeeOfficeInfo.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
+                                   from empOi in empOiGroup.DefaultIfEmpty()
+
+                                   where emp.IsActive == true && empOi.EmploymentStatusId == 1 &&
+                                         (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName + " " + emp.EmployeeCode).Contains(search))
+
+                                   join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                                   from dep in depGroup.DefaultIfEmpty()
+
+                                   orderby emp.FirstName
+
+                                   select new CommonSelectVM
+                                   {
+                                       Id = emp.EmployeeID,
+                                       Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
+                                       GroupName = dep.DepartmentName ?? "-"
+                                   })
+                           .Take(pageSize) // limit per request
+                           .ToListAsync();
+
+            return employees;
+        }
+
         #endregion
 
 
@@ -166,11 +199,6 @@ namespace GCTL.Service.CommonService
                               from empOi in empOiGroup.DefaultIfEmpty()
 
                               where emp.IsActive == true && empOi.EmploymentStatusId == 1
-
-                              where emp.IsActive == true && empOi.EmploymentStatusId == 1
-
-                              join org in _organization.AllActive() on empOi.OrganizationID equals org.OrganizationID into orgGroup
-                              from org in orgGroup.DefaultIfEmpty()
 
                               join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                               from dep in depGroup.DefaultIfEmpty()

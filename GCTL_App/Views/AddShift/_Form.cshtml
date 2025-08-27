@@ -16,20 +16,24 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        @* <div class="mb-3">
                             <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
                             <select class="form-multi-select coreUiDD" asp-for="OrganizationIDs" asp-items="ViewBag.OrganizationDD as SelectList" 
                                 multiple data-coreui-selection-type="counter"
                                 data-coreui-search="true"
                                 data-coreui-placeholder="@Html.SmartLocalize("Select Organization")...">
                             </select>
-                            @* <select class="form-multi-select coreUiDD"
+                        </div> *@
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="OrganizationIDs">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+                            <select class="form-multi-select coreUiDD"
                                     id="OrganizationIDs"
                                     multiple
                                     data-coreui-selection-type="counter"
                                     data-coreui-search="true"
                                     data-coreui-placeholder="@Html.SmartLocalize("Select Organization")...">
-                            </select> *@
+                            </select>
                         </div>
                         <span id="OrganizationIDsError" class="text-danger" style="display:none;"></span>
                     </div>

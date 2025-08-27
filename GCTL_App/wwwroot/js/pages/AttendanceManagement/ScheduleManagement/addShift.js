@@ -24,6 +24,11 @@
         $(() => {
 
 
+
+            
+
+
+            // #region Save 
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
@@ -91,9 +96,10 @@
                     }
                 });
             });
+            // #endregion
 
 
-
+            // #region modal update btn on click
             $(settings.modalUpdateBtn).on('click', function (e) {
                 e.preventDefault();
                 /*var formData = new FormData($('#addShift-Addform')[0]);*/
@@ -150,9 +156,10 @@
                     }
                 });
             });
+            // #endregion
 
 
-
+            // #region Edit 
             $(document).on('click', settings.editBtn, function (e) {
                 e.preventDefault();
 
@@ -221,10 +228,10 @@
                     }
                 });
             });
+            // #endregion
 
 
-
-
+            // #region Delete
             $(document).on('click', settings.bulkDelBtn, function () {
                 var selectedItems = $(".addShift-selectItem:checked");
                 var selectedIds = [];
@@ -283,10 +290,10 @@
                     toastr.error("Invalid action.");
                 }
             });
+            // #endregion
 
 
-
-
+            // #region Clear
             $(settings.resetBtn).on('click', function () {
                 clear();
             });
@@ -313,42 +320,10 @@
                 toggleBulkActions();
                 $('#addShift-check-all').prop('checked', false).prop('indeterminate', false);
             }
+            // #endregion
 
 
-
-
-            //$('#ShiftName').on('input', function () {
-            //    validateName();
-            //});
-
-
-            function validateName() {
-                var name = $('#ShiftName').val().trim();
-
-                if (name === '') {
-                    $('#ShiftName').css('border', '1px solid red');
-                } else {
-                    $('#ShiftName').css('border', '1px solid #ccc');
-                }
-            }
-
-            function validateCompany() {
-                var selectedOrgs = $('#OrganizationIDs').val();
-
-                if (!selectedOrgs || selectedOrgs.length === 0) {
-                    $('.coreUiDD').css({
-                        'border': '1px solid red',
-                        'border-radius': '7px'
-                    });
-                } else {
-                    $('.coreUiDD').css({
-                        'border': '1px solid #ccc',
-                        'border-radius': '7px'
-                    })
-                }
-            }
-
-
+            // #region Duplicate check
             $(document).ready(function () {
                 $('#ShiftName').on('input', function () {
                     checkNameUnique();
@@ -397,12 +372,10 @@
                     }
                 });
             }
+            // #endregion
 
 
-
-
-
-
+            // #region toggleBulkActions
             $(document).ready(function () {
                 $('#addShift-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
@@ -415,7 +388,6 @@
                     toggleBulkActions();
                 });
             });
-
 
 
             function toggleBulkActions() {
@@ -440,10 +412,10 @@
                     $('#addShift-tBody .addShift-bulkEdit').removeClass('disabled');
                 }
             }
+            // #endregion
 
 
-
-
+            // #region IsLatCount, IsAutomaticORManualBreakTime, IsAllowStartAndEndTime, IsAllowOvertime on change
             $('#IsLateCount').on('change', function (e) {
                 e.preventDefault();
 
@@ -493,9 +465,10 @@
                     $('#addShift-DisableOvertime').addClass('d-none');
                 }
             });
+            // #endregion
 
 
-
+            // #region flatpicker
             $(".timepicker-12hr").flatpickr({
                 enableTime: true,       // ✅ Enables time selection (hours & minutes)
                 noCalendar: true,       // ✅ Hides the calendar view, showing only the time picker
@@ -531,7 +504,7 @@
             //        console.log(`${this.id}: ${timeStr}`);
             //    }
             //});
-
+            // #endregion
 
 
 
@@ -612,119 +585,327 @@
 
 
 
-            //// #region CoreUI Multiselect with Pagination
+            // #region CoreUI Multiselect with Pagination + Search (fixed)
+            let page = 1;
+            let term = '';
+            const pageSize = 20;
+
+            let hasMore = true;
+            let loading = false;
+            let debounce;
+            let scrollPosition = 0;
+
+            const selectEl = document.getElementById('OrganizationIDs');
+            if (!selectEl) return;
+
+            const apiUrl = '/AddShift/SearchOrganizations';
+            const ms = coreui.MultiSelect.getOrCreateInstance(selectEl); // CoreUI instance
+
+            // Attach search handler to the current DOM search input (safe to call multiple times)
+            function ensureSearchHandler() {
+                const wrapper = selectEl.nextElementSibling;
+                if (!wrapper) return;
+                const searchInput = wrapper.querySelector('.form-multi-select-search');
+                const box = wrapper.querySelector('.form-multi-select-options');
+                if (!searchInput) return;
+                if (searchInput.dataset.listenerAttached) return; // already attached
+
+                searchInput.dataset.listenerAttached = '1';
+
+                // prevent dropdown from closing when focus/mousedown inside input occurs
+                searchInput.addEventListener('mousedown', (e) => e.stopPropagation());
+
+                // the input handler: debounced server search
+                searchInput.addEventListener('input', (e) => {
+                    const val = e.target.value.trim();
+                    clearTimeout(debounce);
+
+                    if (val.length < 3) {
+                        // too short → clear results (but keep selected options)
+                        addOptions([], { reset: true });
+                        page = 1;
+                        term = '';
+                        hasMore = false;
+                        if (box) box.scrollTop = 0;
+                        return;
+                    }
+
+                    // wait for 1 seconds of no typing before sending request
+                    debounce = setTimeout(() => {
+                        term = val;
+                        page = 1; // reset paging for fresh search
+                        hasMore = true;
+                        fetchPage({ append: false });
+                        if (box) box.scrollTop = 0;
+                    }, 1000); // 1 second delay on search
+                });
+            }
+
+            // append <option> nodes to <select>, then refresh CoreUI
+            function addOptions(items, { reset = false } = {}) {
+                // For remember the scroll position
+                const wrapper = selectEl.nextElementSibling;
+                const box = wrapper?.querySelector('.form-multi-select-options');
+                if (box) {
+                    scrollPosition = box.scrollTop;
+                }
+
+                // keep already selected options so tags remain
+                if (reset) {
+                    const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
+                    [...selectEl.options].forEach(o => { if (!keep.has(o.value)) o.remove(); });
+                }
+
+                // avoid duplicates
+                const existing = new Set([...selectEl.options].map(o => String(o.value)));
+                for (const it of (items || [])) {
+                    const v = String(it.value);
+                    if (existing.has(v)) continue;
+                    const opt = document.createElement('option');
+                    opt.value = v;
+                    opt.textContent = it.label;
+                    selectEl.appendChild(opt);
+                }
+
+                // preserve open state + search value while updating
+                const wrapperBefore = selectEl.nextElementSibling;
+                const oldSearchInput = wrapperBefore?.querySelector('.form-multi-select-search');
+                const oldSearchValue = oldSearchInput ? oldSearchInput.value : '';
+                const oldSelStart = oldSearchInput?.selectionStart;
+                const oldSelEnd = oldSearchInput?.selectionEnd;
+
+                const wasOpen = !!ms._isShown;
+                ms.update(); // rebuild dropdown UI
+
+                if (wasOpen) {
+                    ms.show();
+                }
+
+                // re-attach handlers to the new input and restore text/caret
+                ensureSearchHandler();
+
+                const wrapperAfter = selectEl.nextElementSibling;
+                const newSearchInput = wrapperAfter?.querySelector('.form-multi-select-search');
+                if (newSearchInput && oldSearchValue) {
+                    try {
+                        newSearchInput.value = oldSearchValue;
+                        if (typeof oldSelStart === 'number' && typeof oldSelEnd === 'number') {
+                            newSearchInput.setSelectionRange(oldSelStart, oldSelEnd);
+                        }
+                    } catch (err) {
+                        // ignore selection-range errors in some browsers
+                    }
+                }
+
+                // Restore scroll position after a small delay to ensure DOM is ready
+                setTimeout(() => {
+                    const wrapper = selectEl.nextElementSibling;
+                    const box = wrapper?.querySelector('.form-multi-select-options');
+                    if (box) {
+                        if (reset) {
+                            // new search → always scroll to top
+                            box.scrollTop = 0;
+                            scrollPosition = 0;
+                        } else {
+                            // infinite scroll append → restore position
+                            box.scrollTop = scrollPosition;
+                        }
+                    }
+                }, 10);
+
+
+                // rebind scroll for the newly-created options container
+                rebindScroll();
+            }
+
+            async function fetchPage({ append }) {
+                if (loading || (!hasMore && append)) return;
+                loading = true;
+                try {
+                    const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
+                    const data = await res.json();
+
+                    addOptions(data.items, { reset: !append });
+                    hasMore = !!data.hasMore;
+
+                    if (append) {
+                        page += 1;
+                    } else {
+                        // we've just loaded page 1 for a fresh search; next scroll should fetch page 2
+                        page = 2;
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    loading = false;
+                }
+            }
+
+            function rebindScroll() {
+                const wrapper = selectEl.nextElementSibling;
+                const box = wrapper?.querySelector('.form-multi-select-options');
+                if (!box) return;
+
+                // If we already attached to this box DOM node, skip
+                if (box.dataset.infiniteAttached) return;
+                box.dataset.infiniteAttached = '1';
+
+                // prevent dropdown from closing when interacting with the scroll area (optional)
+                // If you previously needed to stopImmediatePropagation for CoreUI, you can uncomment:
+                // ['mousedown', 'mouseup', 'click'].forEach(evt => box.addEventListener(evt, e => e.stopImmediatePropagation()));
+
+                box.addEventListener('scroll', () => {
+                    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+                        if (hasMore && !loading) fetchPage({ append: true });
+                    }
+                });
+            }
+
+            // on open, wire search + initial load
+            selectEl.addEventListener('shown.coreui.multi-select', () => {
+                const wrapper = selectEl.nextElementSibling;
+                const searchInput = wrapper?.querySelector('.form-multi-select-search');
+                const box = wrapper?.querySelector('.form-multi-select-options');
+
+                // ensure handler on first open too
+                ensureSearchHandler();
+
+                // first open: load first page (empty term)
+                if (selectEl.options.length === 0) {
+                    page = 1; term = ''; hasMore = true;
+                    fetchPage({ append: false });
+                }
+
+                rebindScroll();
+            });
+            // #endregion
+
+
+
+
+            // #region CoreUI Multiselect with Pagination
             //const selectEl = document.getElementById('OrganizationIDs');
             //if (!selectEl) return;
 
             //const apiUrl = '/AddShift/SearchOrganizations';
-            //const pageSize = 10;
+            //const pageSize = 20;
+            //const ms = coreui.MultiSelect.getOrCreateInstance(selectEl); // CoreUI instance
 
-            //let currentPage = 1;
-            //let currentSearch = '';
+            //// state
+            //let page = 1;
+            //let term = '';
             //let hasMore = true;
             //let loading = false;
-            //let debounceTimer = null;
+            //let debounce;
+            //let scrollPosition = 0;
 
-            //const coreUiSelect = coreui.MultiSelect.getInstance(selectEl) || new coreui.MultiSelect(selectEl);
-            //console.log('MultiSelect initialized');
 
-            //// Load options from server
-            //async function loadOptions(search, page, append = false) {
+            //// append <option> nodes to <select>, then refresh CoreUI
+            //function addOptions(items, { reset = false } = {}) {
+
+            //    // For remember the scroll position
+            //    //const wrapper = selectEl.nextElementSibling;
+            //    //const box = wrapper?.querySelector('.form-multi-select-options');
+            //    //if (box) {
+            //    //    scrollPosition = box.scrollTop;
+            //    //}
+
+
+            //    // keep already selected options so tags remain
+            //    if (reset) {
+            //        const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
+            //        [...selectEl.options].forEach(o => { if (!keep.has(o.value)) o.remove(); });
+            //    }
+
+            //    // avoid duplicates
+            //    const existing = new Set([...selectEl.options].map(o => String(o.value)));
+            //    for (const it of (items || [])) {
+            //        const v = String(it.value);
+            //        if (existing.has(v)) continue;
+            //        const opt = document.createElement('option');
+            //        opt.value = v;
+            //        opt.textContent = it.label;
+            //        selectEl.appendChild(opt);
+            //    }
+
+            //    ms.update(); // rebuild dropdown UI (required)
+            //    //ms.show(); // open after rebuild with new element
+            //    //// Restore scroll position after a small delay to ensure DOM is ready
+            //    //setTimeout(() => {
+            //    //    const wrapper = selectEl.nextElementSibling;
+            //    //    const box = wrapper?.querySelector('.form-multi-select-options');
+            //    //    if (box) {
+            //    //        box.scrollTop = scrollPosition;
+            //    //    }
+            //    //}, 10);
+            //    rebindScroll(); // dropdown DOM may be rebuilt
+            //}
+
+            //async function fetchPage({ append }) {
             //    if (loading || (!hasMore && append)) return;
-
             //    loading = true;
             //    try {
-            //        const res = await fetch(`${apiUrl}?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+            //        const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
             //        const data = await res.json();
-
-            //        const wrapper = selectEl.nextElementSibling;
-            //        const optionsContainer = wrapper.querySelector('.form-multi-select-options');
-
-            //        if (!append) {
-            //            optionsContainer.innerHTML = '';
-            //            currentPage = 1;
-            //        }
-
-            //        if (data.items && data.items.length) {
-            //            data.items.forEach(item => {
-            //                const opt = document.createElement('div');
-            //                opt.className = 'form-multi-select-option';
-            //                opt.dataset.value = item.value;
-            //                opt.innerText = item.label;
-            //                optionsContainer.appendChild(opt);
-            //            });
-            //        } else if (!append) {
-            //            optionsContainer.innerHTML = '<div class="form-multi-select-options-empty">No results found</div>';
-            //        }
-
-            //        hasMore = data.hasMore;
-            //        if (append) currentPage++;
-            //    } catch (err) {
-            //        console.error('Fetch error:', err);
+            //        addOptions(data.items, { reset: !append });
+            //        hasMore = !!data.hasMore;
+            //        if (append) page += 1;
+            //    } catch (e) {
+            //        console.error(e);
             //    } finally {
             //        loading = false;
             //    }
             //}
 
-            //// On dropdown open
-            //selectEl.addEventListener('shown.coreui.multi-select', function () {
+            //function rebindScroll() {
+            //    const wrapper = selectEl.nextElementSibling;
+            //    const box = wrapper?.querySelector('.form-multi-select-options');
+            //    if (!box || box.dataset.infiniteAttached) return;
+
+            //    box.dataset.infiniteAttached = '1';
+            //    box.addEventListener('scroll', () => {
+            //        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+            //            if (hasMore && !loading) fetchPage({ append: true });
+            //        }
+            //    });
+            //}
+
+            //// on open, wire search + initial load
+            //selectEl.addEventListener('shown.coreui.multi-select', () => {
             //    const wrapper = selectEl.nextElementSibling;
             //    const searchInput = wrapper?.querySelector('.form-multi-select-search');
-            //    const optionsBox = wrapper?.querySelector('.form-multi-select-options');
+            //    const box = wrapper?.querySelector('.form-multi-select-options');
 
-            //    if (!searchInput || !optionsBox) return;
+            //    // first open: load first page (empty term)
+            //    if (selectEl.options.length === 0) {
+            //        page = 1; term = ''; hasMore = true;
+            //        fetchPage({ append: false });
+            //    }
 
-            //    // Reset state on open
-            //    currentPage = 1;
-            //    hasMore = true;
-            //    currentSearch = '';
-            //    optionsBox.innerHTML = '<div class="form-multi-select-options-empty">Type 3 or more characters</div>';
+            //    if (searchInput && !searchInput.dataset.listenerAttached) {
+            //        searchInput.dataset.listenerAttached = '1';
+            //        searchInput.addEventListener('input', e => {
+            //            const val = e.target.value.trim();
+            //            clearTimeout(debounce);
 
-            //    // Only attach once
-            //    if (!searchInput.dataset.listenerAttached) {
-            //        searchInput.dataset.listenerAttached = "true";
-
-            //        searchInput.addEventListener('input', function (e) {
-            //            const term = e.target.value;
-            //            currentSearch = term;
-
-            //            clearTimeout(debounceTimer);
-
-            //            if (term.length < 3) {
-            //                optionsBox.innerHTML = '<div class="form-multi-select-options-empty">Type 3 or more characters</div>';
+            //            if (val.length < 3) {
+            //                // clear non-selected options when search too short
+            //                addOptions([], { reset: true });
+            //                page = 1; term = ''; hasMore = false;
+            //                if (box) box.scrollTop = 0;
             //                return;
             //            }
 
-            //            debounceTimer = setTimeout(() => {
-            //                currentPage = 1;
-            //                hasMore = true;
-            //                loadOptions(term, currentPage);
-            //            }, 500);
-            //        });
-
-            //        // Scroll to load more
-            //        optionsBox.addEventListener('scroll', () => {
-            //            if (optionsBox.scrollTop + optionsBox.clientHeight >= optionsBox.scrollHeight - 10) {
-            //                if (hasMore && !loading) {
-            //                    loadOptions(currentSearch, currentPage + 1, true);
-            //                }
-            //            }
-            //        });
-
-            //        // Option click
-            //        optionsBox.addEventListener('click', function (e) {
-            //            const opt = e.target.closest('.form-multi-select-option');
-            //            if (opt) {
-            //                const value = opt.dataset.value;
-            //                const label = opt.innerText;
-            //                coreUiSelect.add(value, label); // Add to selection
-            //            }
+            //            debounce = setTimeout(() => {
+            //                term = val; page = 1; hasMore = true;
+            //                fetchPage({ append: false });
+            //            }, 300);
             //        });
             //    }
-            //});
-            //// #endregion
 
-            
+            //    rebindScroll();
+            //});
+            // #endregion
             
             
             
