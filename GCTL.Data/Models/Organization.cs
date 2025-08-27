@@ -77,6 +77,8 @@ public partial class Organization
 
     public virtual ICollection<EmailSettings> EmailSettings { get; set; } = new List<EmailSettings>();
 
+    public virtual ICollection<EmployeeAllowanceTypes> EmployeeAllowanceTypes { get; set; } = new List<EmployeeAllowanceTypes>();
+
     public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
 
     public virtual ICollection<EmployeeBenefits> EmployeeBenefits { get; set; } = new List<EmployeeBenefits>();

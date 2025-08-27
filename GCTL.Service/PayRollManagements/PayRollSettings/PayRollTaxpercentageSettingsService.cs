@@ -1,6 +1,8 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
+using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollSettings;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -13,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.PayRollManagements.PayRollSettings
 {
@@ -27,7 +30,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                 _genericRepository = genericRepository;
                 _userInfoService = userInfoService;
             }
-            #endregion
+        #endregion
 
 
             #region AddAsync
@@ -181,11 +184,11 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                         item.DeletedBy = requestVM.DeletedBy;
                         item.LIP = requestVM.LIP;
                         item.LMAC = requestVM.LMAC;
-                    }
+                }
 
                     await _genericRepository.UpdateRangeAsync(data);
-
-                    await _userInfoService.ActionLogDeleteAsync("Blood Group", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                
+                await _userInfoService.ActionLogDeleteAsync("Blood Group", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                     await _genericRepository.CommitTransactionAsync();
 
