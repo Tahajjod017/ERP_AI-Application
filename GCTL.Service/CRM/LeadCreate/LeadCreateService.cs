@@ -568,63 +568,77 @@ namespace GCTL.Service.CRM.LeadCreate
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "warehouse");
 
                 // individual
-                var compnayAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(u => u.CustomerAddressID == warehouseVM.CompanyID);
+                var compnayAddressObj = await _customerAddressesRepository.AllActive().Include(c => c.Customer).FirstOrDefaultAsync(u => u.CustomerAddressID == warehouseVM.CompanyID);
+                int returnID = 0;
+                string returnName = "";
 
-                CompanyWarehouses companyWarehouses = new CompanyWarehouses
-                {
-                    WarehouseName = warehouseVM.WareHouseName,
-                    CustomerID = compnayAddressObj.CustomerID,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = warehouseVM.CreatedBy,
-                    LIP = warehouseVM.LIP,
-                    LMAC = warehouseVM.LMAC,
-                };
-                await _companyWarehousesRepository.AddAsync(companyWarehouses);
+                if (compnayAddressObj != null) {
 
-                Addresses addresses = new Addresses()
-                {
-                    FullAddress = warehouseVM.FullAddress,
-                    Street = warehouseVM.Street,
-                    City = warehouseVM.City,
-                    State = warehouseVM.State,
-                    Additionaladdress = warehouseVM.Additionaladdress,
-                    PostalCode = warehouseVM.PostalCode,
-                    CountryID = countryObj?.CountryID,
-                    Phone = warehouseVM.Phone,
-                    OtherPhone = warehouseVM.OtherPhone,
-                    Email = warehouseVM.Email,
-                    Latitude = warehouseVM.Latitude,
-                    Longitude = warehouseVM.Longitude,
-                    FirstName = warehouseVM.FirstName,
-                    LastName = warehouseVM.LastName,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = warehouseVM.CreatedBy,
-                    LIP = warehouseVM.LIP,
-                    LMAC = warehouseVM.LMAC,
+                    returnName = compnayAddressObj.Customer.FullName;
+                    returnID = compnayAddressObj.CustomerAddressID;
 
-                };
-                await _addressesRepository.AddAsync(addresses);
+                    CompanyWarehouses companyWarehouses = new CompanyWarehouses
+                    {
+                        WarehouseName = warehouseVM.WareHouseName,
+                        CustomerID = compnayAddressObj.CustomerID,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = warehouseVM.CreatedBy,
+                        LIP = warehouseVM.LIP,
+                        LMAC = warehouseVM.LMAC,
+                    };
+                    await _companyWarehousesRepository.AddAsync(companyWarehouses);
+
+                    Addresses addresses = new Addresses()
+                    {
+                        FullAddress = warehouseVM.FullAddress,
+                        Street = warehouseVM.Street,
+                        City = warehouseVM.City,
+                        State = warehouseVM.State,
+                        Additionaladdress = warehouseVM.Additionaladdress,
+                        PostalCode = warehouseVM.PostalCode,
+                        CountryID = countryObj?.CountryID,
+                        Phone = warehouseVM.Phone,
+                        OtherPhone = warehouseVM.OtherPhone,
+                        Email = warehouseVM.Email,
+                        Latitude = warehouseVM.Latitude,
+                        Longitude = warehouseVM.Longitude,
+                        FirstName = warehouseVM.FirstName,
+                        LastName = warehouseVM.LastName,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = warehouseVM.CreatedBy,
+                        LIP = warehouseVM.LIP,
+                        LMAC = warehouseVM.LMAC,
+
+                    };
+                    await _addressesRepository.AddAsync(addresses);
 
 
-                CompanyWarehouseAddresses companyWarehouseAddress = new CompanyWarehouseAddresses()
-                {
-                    AddressTypeID = addressTypeObj.AddressTypeID,
-                    AddressID = addresses.AddressID,
-                    WarehouseID = companyWarehouses.WarehouseID,
+                    CompanyWarehouseAddresses companyWarehouseAddress = new CompanyWarehouseAddresses()
+                    {
+                        AddressTypeID = addressTypeObj.AddressTypeID,
+                        AddressID = addresses.AddressID,
+                        WarehouseID = companyWarehouses.WarehouseID,
 
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = warehouseVM.CreatedBy,
-                    LIP = warehouseVM.LIP,
-                    LMAC = warehouseVM.LMAC,
-                };
-                await _companyWarehouseAddressesRepository.AddAsync(companyWarehouseAddress);
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = warehouseVM.CreatedBy,
+                        LIP = warehouseVM.LIP,
+                        LMAC = warehouseVM.LMAC,
+                    };
+                    await _companyWarehouseAddressesRepository.AddAsync(companyWarehouseAddress);
 
+                    return new ReturnView
+                    {
+                        Success = true,
+                        Message = "Data saved succesfull",
+                        Id = returnID,
+                        Name = returnName
+                    };
+                }
                 return new ReturnView
                 {
-                    Success = true,
-                    Message = "Data saved succesfull",
+                    Success = false,
+                    Message = "Data is not insert",
                 };
-
             }
             catch (Exception ex)
             {

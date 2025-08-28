@@ -18,12 +18,12 @@
 
                     <div class="dropdown me-3">
                         <div class="input-icon-end position-relative">
-                            <input class="form-control datetimepicker flatpickr-input caiCon" id="dateRange" type="text" placeholder="@Html.SmartLocalize("Select Date Range")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="dateRange2" type="text" placeholder="@Html.SmartLocalize("Select Date Range")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                         </div>
                     </div>
                     <div class="dropdown me-3">
-                        <select class="form-select choiceDD" id="approveDepartment" data-choices="data-choices" size="1" required="required" name="customerType" asp-items="@ViewBag.DepartmentDD">
-                            <option value="">@Html.SmartLocalize("Select department")</option>
+                        <select class="form-select choiceDD" id="customerType" data-choices="data-choices" size="1" required="required" name="customerType" asp-items="@ViewBag.ServiceTypeDD">
+                            <option value="">@Html.SmartLocalize("Select Type")</option>
                         </select>
                     </div>
 
