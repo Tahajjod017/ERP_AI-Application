@@ -4,19 +4,14 @@
     
 
     $(document).on('click', '#AllowanceType-saveBtn',function (e) {
-        alert('Button clicked');
-
         e.preventDefault();
-
         var token = $('#AllowanceType-form input[name="__RequestVerificationToken"]').val();
-
         var formData = {
             __RequestVerificationToken: token,
             EmployeeAllowanceTypeID: $('#EmployeeAllowanceTypeID').val(),
-            OrganizationID: $('#OrganizationID').val(),
+            OrganizationIDs: $('#OrganizationIDs').val(),
             EmployeeAllowanceTypeName: $('#EmployeeAllowanceTypeName').val(),
         }
-
         var id = $('#AllowanceType-form #EmployeeAllowanceTypeID').val();
         var url = '';
         if (id > 0) {
@@ -24,19 +19,21 @@
         } else {
             url = '/EmpAllowanceOrganization/Create';
         }
-        debugger
         $.ajax({
             url: url,
             type: 'POST',
             data: formData,
+            traditional: true,
+            dataType: 'json',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
             success: function (res) {
                 console.log(res); 
-                debugger
+                $('#nameError').hide();
                 if (res.success) {
-                    debugger
                     toastr.success(res.message);
                     resetAllowanceTypeForm();
                 } else {
+                    
                     toastr.info(res.message);
                 }
             },
@@ -46,24 +43,31 @@
         });
     });
 
+
+    //
+
+    
+
+    //
     $(document).on('click', '#EmpAllowanceOrganization-edit', function () {
         var id = $(this).data('id');
         if (!id)
         {
             toastr.error("Id Not Found")
         }
-        debugger
+       
         $.ajax({
             url: '/EmpAllowanceOrganization/GetByID',
             type: 'GET',
             data: {id:id},
             success: function (res) {
                 if (res.success) {
-                    debugger
                     d = res.data;
-
                     $('#EmployeeAllowanceTypeID').val(d.employeeAllowanceTypeID);
-                        choiceManager.setChoiceValue('OrganizationID', d.organizationID);
+                    choiceManager.setChoiceValue('OrganizationIDs', d.organizationID);
+                    $('#OrganizationIDs').val(d.organizationID).each(function () {
+                        coreui.MultiSelect.getInstance(this)?.update();
+                    });
                     $('#EmployeeAllowanceTypeName').val(d.employeeAllowanceTypeName);
                    
                 } else {
@@ -87,11 +91,12 @@
         $('#EmployeeAllowanceTypeName').val('');
         $('#EmployeeAllowanceTypeID').val('');
 
-        // Reset your custom choice manager for OrganizationID
-        if (typeof choiceManager !== 'undefined' && choiceManager.resetChoice) {
-            choiceManager.resetChoice('OrganizationID');
+        const orgSelect = document.getElementById('OrganizationIDs');
+        const orgInstance = coreui.MultiSelect.getInstance(orgSelect);
+        if (orgInstance) {
+            orgInstance.deselectAll();
         }
-
+        loadTableData();
         // Clear validation errors if any
         $('.field-validation-error').text('');
     }
@@ -119,6 +124,7 @@
                             $('.EmpAllowanceOrganization-selectItem').prop('checked', false);
                             clear();
                         } else {
+                            
                             toastr.error(response.message);
                         }
                     },

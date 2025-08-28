@@ -9,6 +9,7 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.AllowanceType;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.Identity.Client;
 
 
@@ -32,23 +33,57 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
         }
 
         #region Save 
-        [ValidateAntiForgeryToken]
+        
         [Route("EmpAllowanceOrganization/Create")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EmpAllowanceTypeOrganizationSaveVM model)
         {
             try
             {
-                var data = await empAllowanceTypeOrganizationService.SaveAsync(model);
-                return Json(  new {Success=true, Message="Saved Successfully" });
+               var data = await empAllowanceTypeOrganizationService.SaveAsync(model);
+                return Json(new { Success = data.Success, Message = data.Message });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                Console.WriteLine(ex.ToString());
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.ToString()
+                });
             }
         }
         #endregion
+
+        #region Update
+        [Route("EmpAllowanceOrganization/Update")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult> Update(EmpAllowanceTypeOrganizationSaveVM model)
+        {
+
+            try
+            {
+               
+                    var data = await empAllowanceTypeOrganizationService.UpdateAsync(model);
+                    return Json(new { Success = data.Success, Message =data.Message });
+               
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "An error occurred while fetching the data.",
+                    Details = ex.Message
+                });
+            }
+        }
+        #endregion
+
         #region Get By data
         [Route("EmpAllowanceOrganization/GetByID")]
         [HttpGet]
@@ -56,8 +91,16 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
         {
             try
             {
-                var data = await empAllowanceTypeOrganizationService.GetByIdAsync(id);
 
+                if (id == 0)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = $"Not Found ID {id}."
+                    });
+                }
+                var data = await empAllowanceTypeOrganizationService.GetByIdAsync(id);
                 if (data == null)
                 {
                     return BadRequest(new
@@ -66,7 +109,6 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
                         Message = $"No record found for ID {id}."
                     });
                 }
-
                 return Json(new
                 {
                     Success = true,
@@ -75,9 +117,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
             }
             catch (Exception ex)
             {
-                // Log the exception if needed
                 Console.WriteLine(ex.Message);
-
                 return BadRequest(new
                 {
                     Success = false,
@@ -96,15 +136,16 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
             return Json(result);
         }
         #endregion
+        #region Delete
         //[Permission("Delete", "BloodGroups")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {
             try
             {
-                
+
                 var data = await empAllowanceTypeOrganizationService.SoftDeleteAsync(requestVM);
-                
+
 
                 return Json(data);
             }
@@ -113,5 +154,22 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+        #endregion
+        #region Get Company
+        [HttpGet]
+        public async  Task<IActionResult> GetComapany(int id)
+        {
+            try
+            {
+                var data = await empAllowanceTypeOrganizationService.SelectAsync(id);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
     }
 }

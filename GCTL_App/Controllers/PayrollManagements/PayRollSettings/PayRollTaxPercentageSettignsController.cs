@@ -78,7 +78,6 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
         }
         #endregion
 
-
         #region Update
         //[Permission("Edit", "BloodGroups")]
         [ValidateAntiForgeryToken]

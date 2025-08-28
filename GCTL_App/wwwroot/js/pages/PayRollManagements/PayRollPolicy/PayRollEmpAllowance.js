@@ -287,7 +287,6 @@ $(document).ready(function () {
                         {
                             allowanceIdInput.value = item.employeeAllowanceID;
                         }
-                        debugger
                         let rowIndex = 0;
                         const $container = $('#payrollEmpAllowanceForm');
                         if (item.houseRentAllowances && item.houseRentAllowances.length > 0) {
