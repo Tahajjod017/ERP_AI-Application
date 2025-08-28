@@ -173,6 +173,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 $(document).ready(function () {
     let companyList = []
+    let allCustomerList = []
+
     const list = document.getElementById("customerList");
     const list2 = document.getElementById("searchResults");
     const list3 = document.getElementById("no-results");
@@ -329,50 +331,48 @@ $(document).ready(function () {
   //      }
   //  }
 
-    function showCompanySuggestions(query, listDiv, noResutlDiv) {
-        const $listDiv = $('#' + listDiv);
-        const $noResultsDiv = $('#' + noResutlDiv);
+  //  function showCompanySuggestions(listDiv, noResutlDiv) {
+  //      const $listDiv = $('#' + listDiv);
+  //      const $noResultsDiv = $('#' + noResutlDiv);
+  //      $listDiv.empty();
+  //      $listDiv.hide();
+  //      $noResultsDiv.hide();
+
+  //      if (!query) return;
+  //      const q = String(query ?? '')
+  //          .toLowerCase()
+  //          .trim();
+
+  //      const filtered = companyList.filter(item =>
+  //          String(item.text ?? '').toLowerCase().includes(q)
+  //      );
+  //      if (filtered.length > 0) {
+  //          $listDiv.show();
+  //          filtered.forEach(item => {
+  //              $listDiv.append(`
+  //<button type="button" 
+  //        class="list-group-item list-group-item-action companyName-item" 
+  //        data-id="${item.value}"">
+  //    ${item.text} </button>`);
+  //          });
+  //      } else {
+  //          $noResultsDiv.show();
+  //      }
+  //  }
+    function showCompanySuggestions(listDiv, noResutlDiv) {
+        const $listDiv = $(listDiv);
+        const $noResultsDiv = $(noResutlDiv);
         $listDiv.empty();
         $listDiv.hide();
         $noResultsDiv.hide();
 
-        if (!query) return;
-        const q = String(query ?? '')
-            .toLowerCase()
-            .trim();
-
-        const filtered = companyList.filter(item =>
-            String(item.text ?? '').toLowerCase().includes(q)
-        );
-        if (filtered.length > 0) {
+        if (companyList.length > 0) {
             $listDiv.show();
-            filtered.forEach(item => {
+            companyList.forEach(item => {
                 $listDiv.append(`
   <button type="button" 
           class="list-group-item list-group-item-action companyName-item" 
-          data-id="${item.value}"">
-      ${item.text} </button>`);
-            });
-        } else {
-            $noResultsDiv.show();
-        }
-    }
-    function showPersonSuggestions(listDiv, noResutlDiv) {
-        const $listDiv = $('#' + listDiv);
-        const $noResultsDiv = $('#' + noResutlDiv);
-        $listDiv.empty();
-        $listDiv.hide();
-        $noResultsDiv.hide();
-
-        console.log(personSearchList);
-
-        if (personSearchList.length > 0) {
-            $listDiv.show();
-            personSearchList.forEach(item => {
-                $listDiv.append(`
-  <button type="button" 
-          class="list-group-item list-group-item-action personName-item" 
-          data-id="${item.id}">
+          data-id="${item.id}" data-text="${item.name}">
       ${item.name} ${item.phone} ${item.email}</button>`);
             });
         } else {
@@ -380,13 +380,48 @@ $(document).ready(function () {
         }
     }
 
-    $('#ContactNameSearch').on('input', function () {
-        const query = $(this).val();
-        $('#customerList').show();
-        $('#noResults').show();
-        $('#removeContactNameBtn').toggle(!!query);
-        showSuggestions(query);
-    });
+    function showPersonSuggestions(listDiv, noResutlDiv) {
+        const $listDiv = $(listDiv);
+        const $noResultsDiv = $(noResutlDiv);
+        $listDiv.empty();
+        $listDiv.hide();
+        $noResultsDiv.hide();
+
+        if (personSearchList.length > 0) {
+            $listDiv.show();
+            personSearchList.forEach(item => {
+                $listDiv.append(`
+  <button type="button" 
+          class="list-group-item list-group-item-action personName-item" 
+          data-id="${item.id}" data-text="${item.name}">
+      ${item.name} ${item.phone} ${item.email}</button>`);
+            });
+        } else {
+            $noResultsDiv.show();
+        }
+    }
+    function showAllCustomerSuggestions(listDiv, noResutlDiv) {
+        const $listDiv = $(listDiv);
+        const $noResultsDiv = $(noResutlDiv);
+        $listDiv.empty();
+        $listDiv.hide();
+        $noResultsDiv.hide();
+
+        if (allCustomerList.length > 0) {
+            $listDiv.show();
+            allCustomerList.forEach(item => {
+                $listDiv.append(`
+  <button type="button" 
+          class="list-group-item list-group-item-action customerName-item" 
+          data-id="${item.id}" data-text="${item.name}">
+      ${item.name} ${item.phone} ${item.email}</button>`);
+            });
+        } else {
+            $noResultsDiv.show();
+        }
+    }
+
+
 
     //$('#personContactNameSearch').on('input', function () {
     //    const query = $(this).val();
@@ -396,9 +431,11 @@ $(document).ready(function () {
     //});
 
     function setDataDesktop(id) {
-        debugger;
+
+        $('#customerList').hide();
+        $('#noResults').hide();
+
         getCustomerInfo(id).then(response => {
-            console.log(response);
             document.getElementById("customerInfoContainer").style.display = "block";
 
             let title = "";
@@ -444,7 +481,6 @@ $(document).ready(function () {
         $('#customerType').val(customerType);
         getCustomerInfo(customerId).then(response => {
             document.getElementById("customerInfoContainer").style.display = "block";
-            console.log(response);
             let title = "";
             if (response.customer.addressTypeName === "billing") {
                 title = "Person Information"
@@ -495,16 +531,18 @@ $(document).ready(function () {
 
     });
     $(document).on('click', '.companyName-item', function () {
-        const selected = $(this).text().trim();
+        const selected = $(this).data("text").trim();
         const customerId = $(this).data("id");
         let tabSymble = targetTab == "branch" ? "b" : targetTab == "warehouse" ? 'w' : '';
-        $('#' + tabSymble + 'CompanySearch').val(selected).trigger('input');
+        $('#' + tabSymble + 'CompanySearch').val(selected);
         $('#' + tabSymble + 'CId').val(customerId);
         $('#' + tabSymble + 'CustomerList').hide();
         $('#' + tabSymble + 'NoResults').hide();
     });
+;
+
     $(document).on('click', '.personName-item', function () {
-        const selected = $(this).text().trim();
+        const selected = $(this).data("text").trim();
         const customerId = $(this).data("id");
 
         $('#personSearch').val(selected);
@@ -514,52 +552,86 @@ $(document).ready(function () {
     });
 
     // Handle arrow keys + enter
-    let activeIndex = -1;
-    $(document).on("keydown", "#wCompanySearch", function (e) {
-        const $items = $("#wCustomerList .companyName-item");
-        if ($items.length === 0) return;
 
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            activeIndex = (activeIndex + 1) % $items.length;
-            updateActiveItem($items, activeIndex);
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            activeIndex = (activeIndex - 1 + $items.length) % $items.length;
-            updateActiveItem($items, activeIndex);
-        } else if (e.key === "Enter") {
-            e.preventDefault();
-            if (activeIndex >= 0) $items.eq(activeIndex).trigger("click");
-        }
-    });
+    function searchNavigation(inputSelector, listSelector, itemSelector) {
+        let activeIndex = -1;
+        //let activeIndex = 0;
+        $(document).on("keydown", inputSelector, function (e) {
+            const $items = $(listSelector + " " + itemSelector);
+            if ($items.length === 0) return;
+
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % $items.length;
+                updateActiveItem($items, activeIndex);
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + $items.length) % $items.length;
+                updateActiveItem($items, activeIndex);
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                if (activeIndex >= 0) $items.eq(activeIndex).trigger("click");
+            }
+        });
+
+        $(document).on("input", inputSelector, function () {
+            activeIndex = - 1;
+            //activeIndex = 0;
+        });
+    }
+    
+
+
+    searchNavigation("#wCompanySearch", "#wCustomerList", ".companyName-item");
+    searchNavigation("#bCompanySearch", "#bCustomerList", ".companyName-item");
+    searchNavigation("#personSearch", "#sCustomerList", ".personName-item");
+
+    //let activeIndex = -1;
+    //$(document).on("keydown", "#wCompanySearch", function (e) {
+    //    const $items = $("#wCustomerList .companyName-item");
+    //    if ($items.length === 0) return;
+
+    //    if (e.key === "ArrowDown") {
+    //        e.preventDefault();
+    //        activeIndex = (activeIndex + 1) % $items.length;
+    //        updateActiveItem($items, activeIndex);
+    //    } else if (e.key === "ArrowUp") {
+    //        e.preventDefault();
+    //        activeIndex = (activeIndex - 1 + $items.length) % $items.length;
+    //        updateActiveItem($items, activeIndex);
+    //    } else if (e.key === "Enter") {
+    //        e.preventDefault();
+    //        if (activeIndex >= 0) $items.eq(activeIndex).trigger("click");
+    //    }
+    //});
+    //// Reset index when typing
+    //$(document).on("input", "#wCompanySearch", function () {
+    //    activeIndex = -1;
+    //});
+
     // Reset index when typing
-    $(document).on("input", "#wCompanySearch", function () {
-        activeIndex = -1;
-    });
+    //let bActiveIndex = -1;
+    //$(document).on("keydown", "#bCompanySearch", function (e) {
+    //    const $items = $("#bCustomerList .companyName-item");
+    //    if ($items.length === 0) return;
 
-    // Reset index when typing
-    let bActiveIndex = -1;
-    $(document).on("keydown", "#bCompanySearch", function (e) {
-        const $items = $("#bCustomerList .companyName-item");
-        if ($items.length === 0) return;
+    //    if (e.key === "ArrowDown") {
+    //        e.preventDefault();
+    //        bActiveIndex = (bActiveIndex + 1) % $items.length;
+    //        updateActiveItem($items, bActiveIndex);
+    //    } else if (e.key === "ArrowUp") {
+    //        e.preventDefault();
+    //        bActiveIndex = (bActiveIndex - 1 + $items.length) % $items.length;
+    //        updateActiveItem($items, bActiveIndex);
+    //    } else if (e.key === "Enter") {
+    //        e.preventDefault();
+    //        if (bActiveIndex >= 0) $items.eq(bActiveIndex).trigger("click");
+    //    }
+    //});
 
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
-            bActiveIndex = (bActiveIndex + 1) % $items.length;
-            updateActiveItem($items, bActiveIndex);
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            bActiveIndex = (bActiveIndex - 1 + $items.length) % $items.length;
-            updateActiveItem($items, bActiveIndex);
-        } else if (e.key === "Enter") {
-            e.preventDefault();
-            if (bActiveIndex >= 0) $items.eq(bActiveIndex).trigger("click");
-        }
-    });
-
-    $(document).on("input", "#bCompanySearch", function () {
-        bActiveIndex = -1;
-    });
+    //$(document).on("input", "#bCompanySearch", function () {
+    //    bActiveIndex = -1;
+    //});
 
     // Highlight helper
     function updateActiveItem($items, index) {
@@ -767,7 +839,6 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 success: function (response) {
                     showDev(response,"contry");
-                    console.log(response);
 
                     choiceManager.populateDropdown(id, response)
                     
@@ -815,6 +886,24 @@ $(document).ready(function () {
         
     }
     
+    function getAllCustomerList(query) {
+        return new Promise((resolve, reject) => {   
+            $.ajax({
+                url: '/CreateLead/getAllCustomerList',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(query),
+                success: function (response) {
+                    allCustomerList = response;
+                    resolve(200);
+                },
+                error: function (xhr) {
+                    toastr.error('Error setting country');
+                }
+            });
+        })
+        
+    }
     function getPersonList(query) {
         return new Promise((resolve, reject) => {   
             $.ajax({
@@ -833,6 +922,24 @@ $(document).ready(function () {
         })
         
     }
+    function getCompnayList(query) {
+        return new Promise((resolve, reject) => {   
+            $.ajax({
+                url: '/CreateLead/getCompnayList',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(query),
+                success: function (response) {
+                    companyList = response;
+                    resolve(200);
+                },
+                error: function (xhr) {
+                    toastr.error('Error setting country');
+                }
+            });
+        })
+        
+    }
 
     async function initCompany() {
         await getCompanyList();
@@ -840,31 +947,148 @@ $(document).ready(function () {
 
     initCompany();
 
-    $("#bCompanySearch").on("input", async function () {
-        $('#bCustomerList').show();
-        $('#bNoResults').show();
-        showCompanySuggestions($(this).val(), 'bCustomerList','bNoResults');
-    })
-    $("#wCompanySearch").on("input", async function () {
-        try {
-            $('#wCustomerList').show();
-            $('#wNoResults').show();
-            await showCompanySuggestions($(this).val(), 'wCustomerList', 'wNoResults');
-        } catch (err) {
-            console.error("Error in showCompanySuggestions:", err);
-        }
-    });
-    $("#personSearch").on("input", async function () {
-        try {
-            $('#sCustomerList').show();
-            $('#sNoResults').show();
-            await getPersonList($(this).val());
-            await showPersonSuggestions('sCustomerList', 'sNoResults');
+    //$("#bCompanySearch").on("input", async function () {
+    //    $('#bCustomerList').show();
+    //    $('#bNoResults').show();
+    //    showCompanySuggestions($(this).val(), 'bCustomerList','bNoResults');
+    //})
+    //$("#wCompanySearch").on("input", async function () {
+    //    try {
+    //        $('#wCustomerList').show();
+    //        $('#wNoResults').show();
+    //        await showCompanySuggestions($(this).val(), 'wCustomerList', 'wNoResults');
+    //    } catch (err) {
+    //        console.error("Error in showCompanySuggestions:", err);
+    //    }
+    //});
 
-        } catch (err) {
-            console.error("Error in showCompanySuggestions:", err);
-        }
-    });
+    // 1: search input box id
+    // 2: search result show div id
+    // 3: if result found then noResult div id
+    //$('#ContactNameSearch').on('input', function () {
+    //    const query = $(this).val();
+    //    $('#customerList').show();
+    //    $('#noResults').show();
+    //    $('#removeContactNameBtn').toggle(!!query);
+        //showSuggestions(query);
+    //});
+    iSerachInitial('#ContactNameSearch', '#customerList', '#noResults')
+    cSerachInitial('#bCompanySearch', '#bCustomerList', '#bNoResults')
+    cSerachInitial('#wCompanySearch', '#wCustomerList', '#wNoResults')
+    pSerachInitial('#personSearch', '#sCustomerList', '#sNoResults')
+    function iSerachInitial(searchFieldSelector, listShowSelector, noResultSelector) {
+        let typingTimer;
+        let delay = 200;
+
+        $(searchFieldSelector).on("input", async function () {
+            let query = $(this).val();
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(async function () {
+                console.log("User stoppedTyping value: ", query);
+                try {
+                    if (query.length === 0) {
+                        $(listShowSelector).hide();
+                        $(noResultSelector).hide();
+                    } else {
+                        $(listShowSelector).show();
+                        await getAllCustomerList(query);
+                        await showAllCustomerSuggestions(listShowSelector, noResultSelector);
+                        $(noResultSelector).show();
+                    }
+                } catch (err) {
+                    console.error("Error in showCompanySuggestions:", err);
+                }
+            }, delay)
+
+
+        });
+
+    } 
+    function pSerachInitial(searchFieldSelector, listShowSelector, noResultSelector) {
+        let typingTimer;
+        let delay = 200;
+
+        $(searchFieldSelector).on("input", async function () {
+            let query = $(this).val();
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(async function () {
+                console.log("User stoppedTyping value: ", query);
+                try {
+                    if (query.length === 0) {
+                        $(listShowSelector).hide();
+                        $(noResultSelector).hide();
+                    } else {
+                        $(listShowSelector).show();
+                        await getPersonList(query);
+                        await showPersonSuggestions(listShowSelector, noResultSelector);
+                        $(noResultSelector).show();
+                    }
+                } catch (err) {
+                    console.error("Error in showCompanySuggestions:", err);
+                }
+            }, delay)
+
+
+        });
+
+    } 
+    function cSerachInitial(searchFieldSelector, listShowSelector, noResultSelector) {
+        let typingTimer;
+        let delay = 200;
+
+        $(searchFieldSelector).on("input", async function () {
+            let query = $(this).val();
+            clearTimeout(typingTimer);
+
+            typingTimer = setTimeout(async function () {
+                console.log("User stoppedTyping value: ", query);
+                try {
+                    if (query.length === 0) {
+                        $(listShowSelector).hide();
+                        $(noResultSelector).hide();
+                    } else {
+                        $(listShowSelector).show();
+                        await getCompnayList(query);
+                        await showCompanySuggestions(listShowSelector, noResultSelector);
+                        $(noResultSelector).show();
+                    }
+                } catch (err) {
+                    console.error("Error in showCompanySuggestions:", err);
+                }
+            }, delay)
+
+
+        });
+
+    } 
+   
+    
+
+
+    //let typingTimer;
+    //let delay = 500;
+    //$("#personSearch").on("input", async function () {
+    //    let query = $(this).val();
+    //    clearTimeout(typingTimer);
+    //    typingTimer = setTimeout(async function () {
+    //        console.log("User stoppedTyping value: ", query);
+    //        try {
+    //            if (query.length === 0) {
+    //                $('#sCustomerList').hide();
+    //                $('#sNoResults').hide();
+    //            } else {
+    //                $('#sCustomerList').show();
+    //                await getPersonList(query);
+    //                await showPersonSuggestions('sCustomerList', 'sNoResults');
+    //                $('#sNoResults').show();
+    //            }
+    //        } catch (err) {
+    //            console.error("Error in showCompanySuggestions:", err);
+    //        }
+    //    }, delay)
+
+        
+    //});
 
     getCountryList();
     function uniquenessCheck(text, type, id) {
@@ -899,13 +1123,13 @@ $(document).ready(function () {
         return "";
     }
 
-    function modalValidation(item) {
-        const ids = idMap[item] || {};
-        if (item === "shipping") {
-            return $(`#${ids.firstName}`).val().trim() !== "" && $(`#${ids.lastName}`).val().trim() !== "";
-        }
-        return true;
-    }
+    //function modalValidation(item) {
+    //    const ids = idMap[item] || {};
+    //    if (item === "shipping") {
+    //        return $(`#${ids.firstName}`).val().trim() !== "" && $(`#${ids.lastName}`).val().trim() !== "";
+    //    }
+    //    return true;
+    //}
 
     function titleizeKeys(key) {
         return key.charAt(0).toUpperCase() + key.slice(1);
@@ -938,8 +1162,6 @@ $(document).ready(function () {
                 data[titleizeKeys(key)] = $("#" + value).val() || "";
             }
         });
-
-        console.log(data);
 
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -1176,6 +1398,7 @@ $(document).ready(function () {
                     }
                     activeDeactiveClass(removeClassList, addClassList)
                 }
+                await mapInit();
                 setDataDesktop(result.id);
                 await getCustomerList(); 
                 var customer = await customers.find(c => c.customerId == result.id);
@@ -1251,6 +1474,7 @@ $(document).ready(function () {
                         "addBranchTabContent": "active show",
 
                     }
+                    await mapInit();
                     activeDeactiveClass(removeClassList, addClassList)
                 }
                 setDataDesktop(result.id);
@@ -1314,6 +1538,7 @@ $(document).ready(function () {
                         "addWarehouseTabContent": "active show",
 
                     }
+                    await mapInit();
                     activeDeactiveClass(removeClassList, addClassList)
                     $('#bCompanySearch').val("");
                 }
@@ -1392,7 +1617,6 @@ $(document).ready(function () {
                 CustomerId: parseInt($("#" + idMapIndex.demoField.customerID).val()) || 0,
                 LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val(),
             };
-            console.log(data);
 
             $.ajax({
                 url: '/CreateLead/CreateLeadData',
@@ -1451,7 +1675,6 @@ $(document).ready(function () {
             ];
         } else if (targetTab === "index") {
             return [
-                idMapIndex.indexBase.customerName,
                 idMapIndex.indexBase.leadName,
                 idMapIndex.indexBase.leadStatusID,
                 idMapIndex.indexBase.leadSourceID,
@@ -1461,12 +1684,16 @@ $(document).ready(function () {
             return [];
         }
     }
+    function exListForValidation() {
+       return targetTab === "shipping" ? 'personSearch'
+            : targetTab === 'branch' ? 'bCompanySearch'
+                : targetTab === "warehouse" ? 'wCompanySearch'
+                    : targetTab === "index" ? idMapIndex.indexBase.customerName
+                        : "";
+    }
     function extraFieldIdValidation() {
         return new Promise((resove, reject) => {
-            let tergetField = targetTab === "shipping" ? 'personSearch'
-                : targetTab === 'branch' ? 'bCompanySearch'
-                    : targetTab === "warehouse" ? 'wCompanySearch'
-                        : "";
+            let tergetField = exListForValidation();
 
             if (tergetField != "") {
                 let hiddenFieldVal = $("#" + tergetField).siblings(".idBank")
@@ -1490,7 +1717,6 @@ $(document).ready(function () {
     }
 
     async function uniquenPhoneCheck() {
-        debugger;
         let isValid = true;
         const targetedField = targetTab === 'person' ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
             //: targetTab === 'shipping' ? [[idMap.shipping.phone, idMap.shipping.otherPhone, idMap.shipping.primaryID, idMap.shipping.email]]
@@ -1590,6 +1816,8 @@ $(document).ready(function () {
 
     async function fieldValidation() {
         const selectedTab = targetListForValidation();
+        runtimeValidationCheck();
+        exRuntimeValidationCheck();
         let isValid = true;
         isValid = await uniquenPhoneCheck();
         isValid = isValid === false ? false :  await extraFieldIdValidation();
@@ -1625,6 +1853,10 @@ $(document).ready(function () {
         return isValid;
     }
 
+    function idFieldValidationOne(fieldSelector) {
+
+
+    }
     function fieldValidationOne(obj) {
         obj = $(obj);
         const name = obj.val().trim();
@@ -1643,21 +1875,21 @@ $(document).ready(function () {
         }
     }
 
-    function removeValidationOne(obj) {
-        obj = $(obj);
-        const name = obj.val().trim();
-        let target;
+    //function removeValidationOne(obj) {
+    //    obj = $(obj);
+    //    const name = obj.val().trim();
+    //    let target;
 
-        if (obj.closest('.choices').length > 0) {
-            target = obj.closest('.choices').find('.choices__inner');
-        } else {
-            target = obj;
-        }
+    //    if (obj.closest('.choices').length > 0) {
+    //        target = obj.closest('.choices').find('.choices__inner');
+    //    } else {
+    //        target = obj;
+    //    }
 
-        if (name === '') {
-            target.css('border', '1px solid #ccc');
-        }
-    }
+    //    if (name === '') {
+    //        target.css('border', '1px solid #ccc');
+    //    }
+    //}
 
     // Runtime validation for input changes
     function runtimeValidationCheck() {
@@ -1668,8 +1900,27 @@ $(document).ready(function () {
             });
         });
     }
+    function exRuntimeValidationCheck() {
+        const selectedTab = exListForValidation();
+        if (!selectedTab) return; // exit if no valid ID
 
-    runtimeValidationCheck();
+        // Bind **once** using delegated event
+        $(document).off('input change', `#${selectedTab}`); // remove old handlers first
+
+        $(document).on('input change', `#${selectedTab}`, function () {
+            let $idBank = $(this).siblings('.idBank'); // the related hidden field
+            let fieldValue = parseInt($idBank.val()) || 0;
+
+            if (fieldValue === 0) {
+                $(this).css('border', '1px solid red');
+            } else {
+                $(this).css('border', '1px solid #ccc');
+            }
+        });
+    }
+
+
+    //runtimeValidationCheck();
 
 
     $("#sameAsShippingBtn").on("click", async function () {

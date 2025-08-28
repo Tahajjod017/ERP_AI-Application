@@ -196,6 +196,65 @@ namespace GCTL_App.Controllers.CRM
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> getAllCustomerList([FromBody] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return Json(new List<SelectListItem>());
+
+            query = query.Trim();
+
+            var results = await _customerAddressesRepository
+                .AllActive()
+                .Where(u => u.AddressType.AddressTypeName == "company" | u.AddressType.AddressTypeName == "billing")
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.CustomerAddressID,
+                    Name = c.Customer.FullName,
+                    Email = c.Address.Email,
+                    Phone = c.Address.Phone
+                })
+                .Where(x => x.Name != null && EF.Functions.Like(x.Name, $"%{query}%"))
+                .OrderByDescending(x => x.Name == query)                   // exact match first
+                .ThenByDescending(x => EF.Functions.Like(x.Name, $"{query}%")) // then starts with
+                .ThenBy(x => x.Name)                                      // then alphabetical
+                .Take(5)
+                .ToListAsync();
+
+            return Json(results);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> getCompnayList([FromBody] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return Json(new List<SelectListItem>());
+
+            query = query.Trim();
+
+            var results = await _customerAddressesRepository
+                .AllActive()
+                .Where(u => u.AddressType.AddressTypeName == "company")
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.CustomerAddressID,
+                    Name = c.Customer.FullName,
+                    Email = c.Address.Email,
+                    Phone = c.Address.Phone
+                })
+                .Where(x => x.Name != null && EF.Functions.Like(x.Name, $"%{query}%"))
+                .OrderByDescending(x => x.Name == query)                   // exact match first
+                .ThenByDescending(x => EF.Functions.Like(x.Name, $"{query}%")) // then starts with
+                .ThenBy(x => x.Name)                                      // then alphabetical
+                .Take(5)
+                .ToListAsync();
+
+            return Json(results);
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)

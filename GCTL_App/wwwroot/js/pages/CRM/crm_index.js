@@ -1,40 +1,67 @@
 ﻿$('document').ready(function () {
+    let typingTimer;
+    let delay = 300;
 
-    $("#dataSearch").on("input change", function () {
-        loadProcessedTable();
+    $("#dataSearch, #pageElementSize, #dateRange2, #customerType").on("change", function () {
+        console.log("Hello");
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(async function () {
+            loadProcessedTable();
+        }, delay);
     })
-    $("#pageElementSize").on("input change", function () {
-        loadProcessedTable();
-    })
+
 
     function updatePaginationApprove(totalCount, page, size) {
-        debugger;
-        var totalPages = Math.ceil(totalCount / size);
-        var pagination = $('#pageNumber');
+        const totalPages = Math.ceil(totalCount / size);
+        const pagination = $('#pageNumber');
         pagination.empty();
 
-        for (var i = 1; i <= totalPages; i++) {
-            var activeClass = i === page ? 'active' : '';
-            pagination.append(`<li class="page-item ${activeClass}"><button class="page-link">${i}</button></li>`);
+        const maxVisible = 5; // max page buttons to show
+        let startPage = Math.max(1, page - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+        // adjust startPage if we're near the end
+        startPage = Math.max(1, endPage - maxVisible + 1);
+
+        // Previous button
+        const prevDisabled = page === 1 ? 'disabled' : '';
+        pagination.append(`<li class="page-item ${prevDisabled}"><button class="page-link" data-page="${page - 1}">&laquo;</button></li>`);
+
+        // Page number buttons
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === page ? 'active' : '';
+            pagination.append(`<li class="page-item ${activeClass}"><button class="page-link" data-page="${i}">${i}</button></li>`);
         }
+
+        // Next button
+        const nextDisabled = page === totalPages ? 'disabled' : '';
+        pagination.append(`<li class="page-item ${nextDisabled}"><button class="page-link" data-page="${page + 1}">&raquo;</button></li>`);
 
         $('#totalApprove').text(`Showing ${(page - 1) * size + 1} to ${Math.min(page * size, totalCount)} of ${totalCount} entries`);
     }
-    $('#pageNumber').on('click', '.page-link', function (e) {
+
+    // Click handler
+    $('#pageNumber').off('click', '.page-link').on('click', '.page-link', function (e) {
         e.preventDefault();
-        var selectedPage = parseInt($(this).text()); // get page number from button text
-        $('#pageNumber').data('page', selectedPage); // store selected page
-        loadProcessedTable(); // reload table with new page
+        const selectedPage = parseInt($(this).data('page'));
+        const totalPages = Math.ceil($('#resignProcessed').data('total') / $('#pageElementSize').val());
+        if (selectedPage >= 1 && selectedPage <= totalPages) {
+            $('#pageNumber').data('page', selectedPage);
+            loadProcessedTable();
+        }
     });
 
     function loadProcessedTable() {
+        let typingTimer;
+        let delay = 200;
+        console.log("outpu: " , search);
         var page = $('#pageNumber').data('page');
         //var size = $('#resignProcessed').data('size');
         var size = $('#pageElementSize').val();
         var search = $('#dataSearch').val();
         var sort = $('#resignProcessed').data('sort');
         var dir = $('#resignProcessed').data('dir');
-        var dateRange = $('#dateRange').val();
+        var dateRange = $('#dateRange2').val();
         var customerType = $('#customerType').val();
         console.log(`page: ${page}, size: ${size}, search: ${search}, sort: ${sort}, dir: ${sort}, dateRange: ${dateRange}, customerType: ${customerType}`)
 
@@ -51,7 +78,6 @@
                 sortDirection: dir
             },
             success: function (data) {
-                debugger;
                 showDev(data, 'Approve Table')
                 console.log(data);
                 var tbody = $('#processed-resignation-body');
