@@ -25,13 +25,13 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
         #region Repositories & Services
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<EmployeeAllowanceTypes> empAllowanceTypes;
-
         public EmpAllowanceTypeOrganizationService(IGenericRepository<EmployeeAllowanceTypes> empAllowanceTypes, IUserInfoService userInfoService) : base(empAllowanceTypes)
         {
             this.empAllowanceTypes = empAllowanceTypes;
             _userInfoService = userInfoService;
         }
-
+        #endregion
+        #region Get All Data
         public async Task<PaginationService<EmployeeAllowanceTypes, GetAllTable>.PaginationResult<GetAllTable>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "", string sortOrder = "desc")
         {
             try
@@ -44,11 +44,11 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     query = sortColumn switch
                     {
-                        "PSettingID" => sortOrder == "desc" ? query.OrderByDescending(x => x.EmployeeAllowanceTypeID) : query.OrderBy(x => x.EmployeeAllowanceTypeID),
+                        "EmployeeAllowanceTypeID" => sortOrder == "desc" ? query.OrderByDescending(x => x.EmployeeAllowanceTypeID) : query.OrderBy(x => x.EmployeeAllowanceTypeID),
                         "OrganizationName" => sortOrder == "desc"
                             ? query.OrderByDescending(x => x.Organization != null ? x.Organization.OrganizationName : null)
                             : query.OrderBy(x => x.Organization != null ? x.Organization.OrganizationName : null),
-                        "TaxPercentage" => sortOrder == "desc" ? query.OrderByDescending(x => x.EmployeeAllowanceTypeName) : query.OrderBy(x => x.EmployeeAllowanceTypeName),
+                        "EmployeeAllowanceTypeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.EmployeeAllowanceTypeName) : query.OrderBy(x => x.EmployeeAllowanceTypeName),
                         _ => query.OrderBy(x => x.EmployeeAllowanceTypeID)
                     };
                 }
@@ -67,7 +67,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                     sortColumn,
                     sortOrder,
                     term => x => (x.Organization != null && EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%")) ||
-                 EF.Functions.Like(x.EmployeeAllowanceTypeName.ToString(), $"%{term}%"),
+                    EF.Functions.Like(x.EmployeeAllowanceTypeName.ToString(), $"%{term}%"),
 
                     x => new GetAllTable
                     {
@@ -85,78 +85,112 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 throw; // Optionally wrap in a custom exception
             }
         }
-        public async Task<CommonReturnViewModel> SaveAsync([FromBody]EmpAllowanceTypeOrganizationSaveVM EntityVM)
-        {
-            var result = new CommonReturnViewModel();
+        #endregion
 
+        #region Save Data
+        public async Task<CommonReturnViewModel> SaveAsync(EmpAllowanceTypeOrganizationSaveVM EntityVM)
+        {
             // Validate input
             if (EntityVM == null)
             {
-                result.Success = false;
-                result.Message = "Data cannot be null";
-                return result;
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Invalid request data."
+                };
             }
-            var exists = await empAllowanceTypes.AllActive().AnyAsync(x => x.OrganizationID == EntityVM.OrganizationID
-               && x.EmployeeAllowanceTypeName == EntityVM.EmployeeAllowanceTypeName
-               && x.EmployeeAllowanceTypeID != EntityVM.EmployeeAllowanceTypeID);
+            if (EntityVM.OrganizationIDs == null || !EntityVM.OrganizationIDs.Any())
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Organization is required."
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(EntityVM.EmployeeAllowanceTypeName))
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Allowance Type Name is required."
+                };
+            }
+
+
+
+            // Check for duplicates
+            var exists = await empAllowanceTypes.AllActive().AnyAsync(x =>
+      EntityVM.OrganizationIDs.Contains((int)x.OrganizationID) &&
+      x.EmployeeAllowanceTypeName.Trim() == EntityVM.EmployeeAllowanceTypeName.Trim() &&
+      x.EmployeeAllowanceTypeID != EntityVM.EmployeeAllowanceTypeID);
 
             if (exists)
             {
-                result.Success = false;
-                result.Message = "Organization and Allowance already exists";
-                return result;
-            }
-
-            // Additional validation
-            if (string.IsNullOrWhiteSpace(EntityVM.EmployeeAllowanceTypeName))
-            {
-                result.Success = false;
-                result.Message = "Employee Allowance Type Name is required";
-                return result;
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "This organization and allowance type already exists."
+                };
             }
 
             try
             {
                 await empAllowanceTypes.BeginTransactionAsync();
-
-                EmployeeAllowanceTypes Entity = new EmployeeAllowanceTypes
+                var entities = EntityVM.OrganizationIDs.Select(orgId => new EmployeeAllowanceTypes
                 {
-                    OrganizationID = EntityVM.OrganizationID,
+                    OrganizationID = orgId,
                     EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim(),
                     LIP = EntityVM.LIP,
                     LMAC = EntityVM.LMAC,
                     CreatedAt = DateTime.Now,
-                    CreatedBy = EntityVM.CreatedBy,
-                };
-
-                await empAllowanceTypes.AddAsync(Entity);
+                    CreatedBy = EntityVM.CreatedBy
+                }).ToList();
+                await empAllowanceTypes.AddRangeAsync(entities);
                 await empAllowanceTypes.CommitTransactionAsync();
-
-                result.Success = true;
-                result.Message = "Saved Successfully";
-                result.Data = Entity; // Optionally return the created entity
+                foreach (var entity in entities)
+                {
+                    await _userInfoService.ActionLogAsync(
+                        "Allowance Type",
+                        ActionName.DataAdd,
+                        null,
+                        entity,
+                        entity.EmployeeAllowanceTypeID,
+                        EntityVM
+                    );
+                }
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Saved successfully.",
+                    Data = EntityVM
+                };
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex);
                 await empAllowanceTypes.RollbackTransactionAsync();
-                result.Success = false;
-                result.Message = "An error occurred while saving. Please try again.";
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while saving. Please try again."
+                };
             }
-
-            return result;
         }
+        #endregion
+
+        #region Get by Id Data
         public async Task<EmpAllowanceTypeOrganizationSaveVM> GetByIdAsync(int id)
         {
             try
             {
-                var data =await empAllowanceTypes.GetByIdAsync(id);
+                var data = await empAllowanceTypes.GetByIdAsync(id);
                 var result = new EmpAllowanceTypeOrganizationSaveVM
-                { 
-                  EmployeeAllowanceTypeID = data.EmployeeAllowanceTypeID,  
-                OrganizationID= data.OrganizationID,
-                 EmployeeAllowanceTypeName= data.EmployeeAllowanceTypeName,
-                
+                {
+                    EmployeeAllowanceTypeID = data.EmployeeAllowanceTypeID,
+                    OrganizationID = data.OrganizationID,
+                    EmployeeAllowanceTypeName = data.EmployeeAllowanceTypeName,
+
                 };
                 return result;
             }
@@ -166,72 +200,90 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 throw;
             }
         }
+        #endregion
 
+        #region Update Data
         public async Task<CommonReturnViewModel> UpdateAsync(EmpAllowanceTypeOrganizationSaveVM EntityVM)
         {
 
-            var result = new CommonReturnViewModel();
 
-            // Validate input
-            if (EntityVM == null)
+            var exists = await empAllowanceTypes.AllActive().AnyAsync(x =>
+    EntityVM.OrganizationIDs.Contains((int)x.OrganizationID) &&
+    x.EmployeeAllowanceTypeName.Trim() == EntityVM.EmployeeAllowanceTypeName.Trim() &&
+    x.EmployeeAllowanceTypeID != EntityVM.EmployeeAllowanceTypeID);
+
+
+            if (exists)
             {
-                result.Success = false;
-                result.Message = "Data cannot be null";
-                return result;
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Organization and Allowance already exists"
+                };
             }
-            //var exists = await empAllowanceTypes.AllActive().AnyAsync(x => x.OrganizationID == EntityVM.OrganizationID
-            //   && x.EmployeeAllowanceTypeName == EntityVM.EmployeeAllowanceTypeName
-            //   && x.EmployeeAllowanceTypeID != EntityVM.EmployeeAllowanceTypeID);
 
-            //if (exists)
-            //{
-            //    result.Success = false;
-            //    result.Message = "Organization and Allowance already exists";
-            //    return result;
-            //}
-
-            //// Additional validation
-            //if (string.IsNullOrWhiteSpace(EntityVM.EmployeeAllowanceTypeName))
-            //{
-            //    result.Success = false;
-            //    result.Message = "Employee Allowance Type Name is required";
-            //    return result;
-            //}
+            // Additional validation
+            if (string.IsNullOrWhiteSpace(EntityVM.EmployeeAllowanceTypeName))
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Employee Allowance Type Name is required"
+                };
+            }
 
             try
             {
                 await empAllowanceTypes.BeginTransactionAsync();
-                var Entity= await empAllowanceTypes.GetByIdAsync(EntityVM.EmployeeAllowanceTypeID);
+                var entity = await empAllowanceTypes.GetByIdAsync(EntityVM.EmployeeAllowanceTypeID);
+                var beforeEntity = JsonConvert.DeserializeObject<EmpAllowanceTypeOrganizationSaveVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                if (entity == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Record not found"
+                    };
+                }
 
-                Entity.OrganizationID = EntityVM.OrganizationID;
-                Entity.EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim();
-                Entity.LIP = EntityVM.LIP;
-                Entity.LMAC = EntityVM.LMAC;
-                Entity.UpdatedAt = DateTime.Now;
-                Entity.UpdatedBy = EntityVM.UpdatedBy;
-                
+                foreach (var item in EntityVM.OrganizationIDs)
+                {
+                    entity.OrganizationID = item;
+                    entity.EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim();
+                    entity.LIP = EntityVM.LIP;
+                    entity.LMAC = EntityVM.LMAC;
+                    entity.UpdatedAt = DateTime.Now;
+                    entity.UpdatedBy = EntityVM.UpdatedBy;
+                }
 
-                await empAllowanceTypes.AddAsync(Entity);
+                await empAllowanceTypes.UpdateAsync(entity);
+                var afterEntity = JsonConvert.DeserializeObject<EmpAllowanceTypeOrganizationSaveVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("Allowance Type", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeAllowanceTypeID, EntityVM);
                 await empAllowanceTypes.CommitTransactionAsync();
 
-                result.Success = true;
-                result.Message = "Saved Successfully";
-                result.Data = Entity; // Optionally return the created entity
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Updated Successfully",
+                    Data = entity
+                };
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex);
                 await empAllowanceTypes.RollbackTransactionAsync();
-                result.Success = false;
-                result.Message = "An error occurred while saving. Please try again.";
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "An error occurred while updating. Please try again."
+                };
             }
-
-            return result;
         }
-        public static readonly JsonSerializerSettings IgnoreReferenceLoop = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        };
+
+        #endregion
+
+        #region Delete 
+
         public async Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             await empAllowanceTypes.BeginTransactionAsync();
@@ -248,10 +300,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 }
 
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<EmpAllowanceTypeOrganizationSaveVM>>(
-             JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop)
-         );
-
+                var beforeEntity = JsonConvert.DeserializeObject<List<EmpAllowanceTypeOrganizationSaveVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.EmployeeAllowanceTypeID).ToList();
 
                 foreach (var item in data)
@@ -269,8 +318,8 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
 
                 return new CommonReturnViewModel
                 {
-                    Success= true,
-                    Message = $"{data.Count} data(s) deleted successfully."
+                    Success = true,
+                    Message = "Deleted successfully."
                 };
             }
             catch (Exception ex)
@@ -280,7 +329,31 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
             }
         }
 
-        
+        #endregion
+        #region Get Company 
+
+        public async Task<CommonSelectVM> SelectAsync(int id)
+        {
+            try
+            {
+                var data=await empAllowanceTypes.AllActive().Where(x=>x.OrganizationID==id).FirstOrDefaultAsync();
+                if (data ==null)
+                {
+                   
+                }
+                var result = new CommonSelectVM
+                {
+                    Id=data.OrganizationID,
+                    Name=data.EmployeeAllowanceTypeName
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

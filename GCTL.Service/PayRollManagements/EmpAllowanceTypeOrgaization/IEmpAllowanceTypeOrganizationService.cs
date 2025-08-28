@@ -23,6 +23,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
         Task<EmpAllowanceTypeOrganizationSaveVM> GetByIdAsync(int id);
         Task<PaginationService<EmployeeAllowanceTypes, GetAllTable>.PaginationResult<GetAllTable>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "", string sortOrder = "desc");
+        Task<CommonSelectVM> SelectAsync(int  id);
         #endregion
 
     }
@@ -30,7 +31,6 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
     public class GetAllTable
     {
         public int EmployeeAllowanceTypeID { get; set; }
-
         public string? EmployeeAllowanceTypeName { get; set; }
         public string? OrganizationName { get; set; }
     }
