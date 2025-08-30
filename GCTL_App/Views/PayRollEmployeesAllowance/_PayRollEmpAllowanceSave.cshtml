@@ -88,7 +88,7 @@
 <form id="payrollEmpAllowanceForm" class="row g-3">
 
     <div class="col-md-6">
-
+        <input type="hidden" name="EmployeeAllowanceID" />
         <div class="mb-0">
             <div class="content-head d-flex justify-content-between align-items-center">
                 <label class="form-label" for="organizerSingle">Company Name</label>
@@ -98,8 +98,37 @@
             </select>
             <span id="OrganizationID-error" class="text-danger"></span>
         </div>
+       
     </div>
-    @if (list.Any())
+
+    <div class="card">
+       
+        <div id="EmployeeAllowanceAccordion"></div>
+    </div>
+
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*  <div class="col-auto">
+                            <button class="btn btn-phoenix-primary px-5" id="ResetButton">Cancel</button>
+</div> *@
+
+@*     @if (list.Any())
     {
         <div class="accordion" id="accordionPanelsStayOpenExample">
             @for (int i = 0; i < list.Count; i++)
@@ -220,12 +249,5 @@
     {
         <p>No allowance types available.</p>
     }
+ *@
 
-
-
-</form>
-
-
-@*  <div class="col-auto">
-                            <button class="btn btn-phoenix-primary px-5" id="ResetButton">Cancel</button>
-</div> *@

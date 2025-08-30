@@ -20,6 +20,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         Task<CommonReturnViewModel> SoftDeletePayRollEmpAllowance(DeleteRequestVM deleteRequestVM);
         public Task<List<AllowanceTypeNameVM>> GetEmpAllowanceType();
         Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync();
-
+        Task<List<CommonSelectVM>> SelectAsync(int id);
     }
 }

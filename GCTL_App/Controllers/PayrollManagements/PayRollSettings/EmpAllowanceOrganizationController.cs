@@ -42,7 +42,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
             try
             {
                var data = await empAllowanceTypeOrganizationService.SaveAsync(model);
-                return Json(new { Success = data.Success, Message = data.Message });
+               return Json(new { Success = data.Success, Message = data.Message });
             }
             catch (Exception ex)
             {
