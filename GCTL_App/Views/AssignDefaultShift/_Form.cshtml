@@ -32,7 +32,7 @@
         <div class="col-md-4">
             <div class="mb-3 three">
                 <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Select Employee")</label>
-                @* <select class="form-multi-select" asp-for="EmployeeIDs" 
+                <select class="form-multi-select" asp-for="EmployeeIDs" 
                     multiple data-coreui-multiple="true" 
                     data-coreui-selection-type="counter" 
                     data-coreui-search="true"
@@ -46,18 +46,7 @@
                             }
                         </optgroup>
                     }
-                </select> *@
-                <div class="mb-3">
-                    <label class="form-label" asp-for="EmployeeIDs">Select Employee</label>
-                    <select class="form-multi-select"
-                            asp-for="EmployeeIDs"
-                            multiple
-                            data-coreui-multiple="true"
-                            data-coreui-selection-type="counter"
-                            data-coreui-search="true"
-                            data-coreui-placeholder="Search employee...">
-                    </select>
-                </div>
+                </select>
             </div>
         </div>
 

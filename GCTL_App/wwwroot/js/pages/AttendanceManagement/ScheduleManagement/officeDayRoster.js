@@ -830,34 +830,6 @@
             });
         });
 
-        $('th.sort').on('click', function () {
-            const column = $(this).data('sort');
-            if (currentSortColumn === column) {
-                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSortColumn = column;
-                currentSortOrder = 'asc';
-            }
-
-            loadTableData(currentSortColumn, currentSortOrder);
-            updateSortingIndicator(column, currentSortOrder);
-        });
-
-        function updateSortingIndicator() {
-            $('th.sort').each(function () {
-                const $th = $(this);
-                const column = $th.data('sort');
-                $th.find('.sort-icon').remove();
-
-                if (column === currentSortColumn) {
-                    const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
-                    $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
-                } else {
-                    $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
-                }
-            });
-        }
-
         $('#timeFrame').on('change', function () {
             const days = parseInt($(this).val(), 10);
             loadTableData(currentSortColumn, currentSortOrder, days);
@@ -890,7 +862,7 @@
             //const paginationInfo = result.paginationInfo;
 
             // Render header
-            let headerHtml = `<th class="align-middle text-center text-uppercase text-nowrap">Employee Name</th>`;
+            let headerHtml = `<th class="sort align-middle text-center text-uppercase text-nowrap">Employee Name</th>`;
             headers.forEach(h => {
                 headerHtml += `<th class="align-middle text-center text-uppercase text-nowrap">${h.day}<br>${h.date}</th>`;
             });
@@ -919,19 +891,41 @@
                     const title = (emp.holidayTitle || "").split(',')[i] || "Holiday";
                     holidayMap[date.trim()] = title.trim();
                 });
+                const leaveMap = {};
+                (emp.leaveDates || "").split(',').forEach((date, i) => {
+                    const title = (emp.leaveTypeName || "").split(',')[i] || "Leave";
+                    leaveMap[date.trim()] = title.trim();
+                });
                 headers.forEach(h => {
                     const dateObj = new Date(h.date);
                     const weekdayNumber = dateObj.getDay(); // Sunday = 0, Saturday = 6
                     const shift = shiftMap[h.date];
                     const holidayTitle = holidayMap[h.date];
+                    const leaveTypeName = leaveMap[h.date];
                     const isWeekend = weekendDays.includes(weekdayNumber);
                     if (holidayTitle) {
                         bodyHtml += `
                         <td class="holiday-cell align-middle text-center">
                             <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
-                                <p class="fs-10 mb-1">${shift?.timeRange || ''}</p>
-                                <p class="fs-10 mb-1">${shift?.shiftName || ''}</p>
                                 <p class="fs-10 mb-0 p-1 bg-light text-info">${holidayTitle}</p>
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
+                                    id="rosterInOfficeDays-editBtn"
+                                    data-id="${emp.rosterInOfficeDayID || ''}" 
+                                    data-date="${h.date}" 
+                                    data-shift-id="${emp.shiftID || ''}"
+                                    data-organization-id="${emp.organizationID}" 
+                                    data-dep-id="${emp.departmentID}" 
+                                    data-emp-id="${emp.employeeID}" 
+                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            </div>
+                        </td>`;
+                    } else if (leaveTypeName) {
+                        bodyHtml += `
+                        <td class="holiday-cell align-middle text-center">
+                            <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
+                                <p class="fs-10 mb-0 p-1 bg-light text-info">${leaveTypeName}</p>
                                 <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
                                     id="rosterInOfficeDays-editBtn"
                                     data-id="${emp.rosterInOfficeDayID || ''}" 
@@ -1051,13 +1045,13 @@
         $("#chevron-left").on("click", function () {
             const days = getDaysToShow();
             currentStartDate.setDate(currentStartDate.getDate() - days); // Go back one page
-            loadTableData(currentSortColumn, currentSortOrder, days, currentStartDate);
+            loadTableData(days, currentStartDate);
         });
 
         $("#chevron-right").on("click", function () {
             const days = getDaysToShow();
             currentStartDate.setDate(currentStartDate.getDate() + days); // Go forward one page
-            loadTableData(currentSortColumn, currentSortOrder, days, currentStartDate);
+            loadTableData(days, currentStartDate);
         });
 
 
@@ -1096,7 +1090,7 @@
         $(document).on('click', '.page-btn', function () {
             const page = $(this).data('page');
             currentPage = page;
-            loadTableData(currentSortColumn, currentSortOrder);
+            loadTableData();
         });
         // #endregion
     }

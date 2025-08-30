@@ -38,7 +38,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
                 ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
                 ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");
-                //ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
+                ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
 
                 return View(model);
             }
@@ -51,12 +51,14 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region SearchEmployees
         [HttpGet("SearchEmployees")]
         public async Task<IActionResult> SearchEmployees(string search, int pageSize = 50)
         {
             var result = await _commonService.SearchEmployees(search, pageSize);
             return Json(result);
         }
+        #endregion
 
 
         #region Create

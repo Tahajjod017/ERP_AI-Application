@@ -384,96 +384,197 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
 
 
         #region GetAllAsync
-        public async Task<SeparatePaginationResult<RosterInOfficeDaysListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        public async Task<SeparatePaginationResult<RosterInOfficeDaysListVM>> GetAllAsync(
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            int daysToShow = 7,
+            DateTime? startDate = null)
         {
             startDate ??= DateTime.Today;
             var endDate = startDate.Value.AddDays(daysToShow);
 
-            var query = _genericRepository.AllActive().AsNoTracking()
-                .Include(x => x.Shift)
-                .Include(x => x.Organization).ThenInclude(x => x.WeekendSettings).ThenInclude(x => x.WeekendDays)
-                .Include(x => x.Organization).ThenInclude(x => x.Holidays)
-                .Include(x => x.Department)
-                .Include(x => x.Employee).ThenInclude(x => x.EmployeeOfficeInfoEmployee)
-                .Where(x => x.DeletedAt == null && x.DayDate >= startDate || x.DayDate < endDate);
+            // Base query with projection to lightweight DTO
+            var baseQuery = _genericRepository.AllActive()
+                .AsNoTracking()
+                .Where(x => x.DeletedAt == null && x.DayDate >= startDate && x.DayDate < endDate)
+                .Select(x => new
+                {
+                    x.EmployeeID,
+                    EmployeeCode = x.Employee.EmployeeCode,
+                    EmployeeFirstName = x.Employee.FirstName,
+                    EmployeeLastName = x.Employee.LastName,
+                    x.OrganizationID,
+                    OrganizationName = x.Organization.OrganizationName,
+                    WeekendSettings = x.Organization.WeekendSettings.SelectMany(ws => ws.WeekendDays).Select(wd => (int)wd.WeekdayNumber).Distinct(),
+                    Holidays = x.Organization.Holidays.Where(h => h.StartDate <= endDate && h.EndDate >= startDate).Select(h => new { h.StartDate, h.EndDate, h.HolidayTitle }),
+                    Leaves = x.Employee.LeaveApplicationsEmployee.Where(l => l.IsFinalApproved == true)
+                        .Select(l => new
+                        {
+                            l.LeaveApplicationID,
+                            l.FromDate,
+                            l.ToDate,
+                            l.IsFullDay,
+                            l.PartialFromTime,
+                            l.PartialToTime,
+                            LeaveTypeName = l.LeaveType != null ? l.LeaveType.LeaveTypeName : null
+                        }),
+                    x.DepartmentID,
+                    DepartmentName = x.Department.DepartmentName,
+                    x.ShiftID,
+                    ShiftName = x.Shift.ShiftName,
+                    ShiftStartTime = x.Shift.StartTime,
+                    ShiftEndTime = x.Shift.EndTime,
+                    x.DayDate,
+                    x.RosterInOfficeDayID
+                });
 
-            // Apply search filtering
-            if (!string.IsNullOrEmpty(searchTerm))
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 searchTerm = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
-
-                query = query.Where(x =>
-                    EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
-                    EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%")
+                baseQuery = baseQuery.Where(x =>
+                    EF.Functions.Like(x.ShiftName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.OrganizationName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.EmployeeFirstName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.EmployeeLastName, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.EmployeeCode, $"%{searchTerm}%") ||
+                    EF.Functions.Like(x.DepartmentName, $"%{searchTerm}%")
                 );
             }
 
-            // Group by EmployeeID
-            var grouped = await query
-                .GroupBy(x => x.EmployeeID)
+            // Get total count for pagination
+            var totalCount = await baseQuery.Select(x => x.EmployeeID).Distinct().CountAsync();
+
+            // Fetch paged EmployeeIDs
+            var pagedEmployeeIds = await baseQuery.Select(x => x.EmployeeID).Distinct().OrderBy(id => id)
+                .Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
 
-            var transformed = grouped.Select(g =>
+            if (!pagedEmployeeIds.Any())
+                return new SeparatePaginationResult<RosterInOfficeDaysListVM>
+                {
+                    Data = new List<RosterInOfficeDaysListVM>(),
+                    TotalCount = 0,
+                    SeparatePaginationInfo = new SeparatePaginationInfo
+                    {
+                        StartItem = 0,
+                        EndItem = 0,
+                        TotalItems = 0,
+                        CurrentPage = pageNumber,
+                        TotalPages = 0,
+                        PageNumbers = new List<int>()
+                    }
+                };
+
+            // Fetch roster data for selected employees
+            var rosterData = await baseQuery.Where(x => pagedEmployeeIds.Contains(x.EmployeeID)).ToListAsync();
+
+            // Group in memory
+            var grouped = rosterData.GroupBy(x => x.EmployeeID);
+
+            var result = grouped.Select(g =>
             {
                 var first = g.First();
+
+                // Assigned dates
                 var assignedDates = g.Select(x =>
-                    $"{x.DayDate:yyyy-MM-dd}|{x.Shift?.ShiftName ?? "-"}|{(x.Shift != null ? $"{x.Shift.StartTime:hh\\:mm} - {x.Shift.EndTime:hh\\:mm}" : "-")}")
-                    .ToList();
+                    $"{x.DayDate:yyyy-MM-dd}|{x.ShiftName ?? "-"}|{(x.ShiftName != null ? $"{x.ShiftStartTime:hh\\:mm} - {x.ShiftEndTime:hh\\:mm}" : "-")}"
+                );
 
-                var org = first.Organization;
-                var weekendNumbers = org?.WeekendSettings?
-                    .SelectMany(ws => ws.WeekendDays)
-                    .Select(wd => (int)wd.WeekdayNumber)
-                    .Where(n => n >= 0 && n <= 6)
-                    .Distinct()
-                    .ToList() ?? new List<int>();
+                // Weekend numbers
+                var weekendNumbers = g.SelectMany(x => x.WeekendSettings).Distinct();
 
-                var holidayEntries = org?.Holidays?
-                    .Where(h => h.StartDate <= endDate && h.EndDate >= startDate)
+                // Expand holidays
+                var holidayEntries = g.SelectMany(x => x.Holidays)
                     .SelectMany(h =>
                     {
-                        var entries = new List<(DateTime Date, string Title)>();
-                        for (var date = h.StartDate.Value; date <= h.EndDate.Value; date = date.AddDays(1))
+                        var list = new List<(DateTime Date, string Title)>();
+                        for (var d = h.StartDate.Value; d <= h.EndDate.Value; d = d.AddDays(1))
+                            if (d >= startDate && d < endDate)
+                                list.Add((d, h.HolidayTitle));
+                        return list;
+                    }).ToList();
+
+                // Expand leaves
+                //var leaveEntries = g.SelectMany(x => x.Leaves)
+                //    .SelectMany(l =>
+                //    {
+                //        var list = new List<(DateTime Date, bool IsFullDay, TimeOnly? FromTime, TimeOnly? ToTime, string? LeaveTypeName)>();
+                //        var from = l.FromDate.ToDateTime(TimeOnly.MinValue);
+                //        var to = l.ToDate.ToDateTime(TimeOnly.MinValue);
+                //        for (var d = from; d <= to; d = d.AddDays(1))
+                //        {
+                //            if (d >= startDate && d < endDate)
+                //                list.Add((d, l.IsFullDay, l.PartialFromTime, l.PartialToTime, l.LeaveTypeName));
+                //        }
+                //        return list;
+                //    }).ToList();
+
+                // Expand leaves
+                var leaveEntries = g.SelectMany(x => x.Leaves)
+                    .SelectMany(l =>
+                    {
+                        var list = new List<(DateTime Date, string LeaveInfo)>();
+                        var from = l.FromDate.ToDateTime(TimeOnly.MinValue);
+                        var to = l.ToDate.ToDateTime(TimeOnly.MinValue);
+
+                        for (var d = from; d <= to; d = d.AddDays(1))
                         {
-                            entries.Add((date, h.HolidayTitle));
+                            if (d >= startDate && d < endDate)
+                            {
+                                string leaveInfo;
+
+                                if (l.IsFullDay)
+                                {
+                                    leaveInfo = l.LeaveTypeName ?? "-";
+                                }
+                                else
+                                {
+                                    // Include partial time for partial-day leave
+                                    var fromTime = l.PartialFromTime?.ToString("hh\\:mm") ?? "-";
+                                    var toTime = l.PartialToTime?.ToString("hh\\:mm") ?? "-";
+                                    leaveInfo = $"{l.LeaveTypeName ?? "-"} ({fromTime} - {toTime})";
+                                }
+
+                                list.Add((d, leaveInfo));
+                            }
                         }
-                        return entries;
-                    })
-                    .Where(h => h.Date >= startDate && h.Date < endDate)
+                        return list;
+                    }).OrderBy(l => l.Date)
                     .ToList();
 
+                // Make sure leaveEntries are ordered by Date
+                //var orderedLeaveEntries = leaveEntries.OrderBy(l => l.Date).Distinct().ToList();
+
+                // Map to LeaveDates and LeaveTypeName in same order
+                var orderedLeaveDates = leaveEntries.Select(l => l.Date.ToString("yyyy-MM-dd"));
+                var orderedLeaveTypes = leaveEntries.Select(l => l.LeaveInfo);
+                
                 return new RosterInOfficeDaysListVM
                 {
                     RosterInOfficeDayID = first.RosterInOfficeDayID,
                     OrganizationID = first.OrganizationID,
-                    OrganizationName = org?.OrganizationName ?? "-",
+                    OrganizationName = first.OrganizationName ?? "-",
                     DepartmentID = first.DepartmentID,
-                    DepartmentName = first.Department?.DepartmentName ?? "-",
+                    DepartmentName = first.DepartmentName ?? "-",
                     EmployeeID = first.EmployeeID ?? 0,
-                    EmployeeName = $"{first.Employee?.FirstName} {first.Employee?.LastName} ({first.Employee?.EmployeeCode})",
+                    EmployeeName = $"{first.EmployeeFirstName} {first.EmployeeLastName} ({first.EmployeeCode})",
                     ShiftID = first.ShiftID ?? 0,
-                    ShiftName = first.Shift?.ShiftName ?? "-",
-                    TimeRange = first.Shift != null ? $"{first.Shift.StartTime:hh\\:mm} - {first.Shift.EndTime:hh\\:mm}" : "-",
                     AssignedDates = string.Join(",", assignedDates),
                     WeekdayNumber = string.Join(",", weekendNumbers),
-                    HolidayDates = string.Join(",", holidayEntries.Select(h => h.Date.ToString("yyyy-MM-dd"))),
-                    HolidayTitle = string.Join(",", holidayEntries.Select(h => h.Title))
+                    HolidayDates = string.Join(",", holidayEntries.Select(h => h.Date.ToString("yyyy-MM-dd")).Distinct()),
+                    HolidayTitle = string.Join(",", holidayEntries.Select(h => h.Title).Distinct()),
+                    //LeaveDates = string.Join(",", orderedLeaveEntries.Select(l => l.Date.ToString("yyyy-MM-dd"))),
+                    //LeaveTypeName = string.Join(",", orderedLeaveEntries.Select(l => l.LeaveTypeName ?? "-"))
+                    LeaveDates = string.Join(",", orderedLeaveDates),
+                    LeaveTypeName = string.Join(",", orderedLeaveTypes)
                 };
             }).ToList();
 
-            var totalCount = transformed.Count;
-            var pagedData = transformed
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
             return new SeparatePaginationResult<RosterInOfficeDaysListVM>
             {
-                Data = pagedData,
+                Data = result,
                 TotalCount = totalCount,
                 SeparatePaginationInfo = new SeparatePaginationInfo
                 {
@@ -486,6 +587,126 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster
                 }
             };
         }
+
+
+        //public async Task<SeparatePaginationResult<RosterInOfficeDaysListVM>> GetAllAsync(
+        //    int pageNumber = 1,
+        //    int pageSize = 5,
+        //    string searchTerm = "",
+        //    int daysToShow = 7,
+        //    DateTime? startDate = null)
+        //{
+        //    startDate ??= DateTime.Today;
+        //    var endDate = startDate.Value.AddDays(daysToShow);
+
+        //    // Base query
+        //    var query = _genericRepository.AllActive()
+        //        .AsNoTracking()
+        //        .Include(x => x.Shift)
+        //        .Include(x => x.Organization).ThenInclude(o => o.WeekendSettings).ThenInclude(ws => ws.WeekendDays)
+        //        .Include(x => x.Organization).ThenInclude(o => o.Holidays)
+        //        .Include(x => x.Department)
+        //        .Include(x => x.Employee)
+        //        .Where(x => x.DayDate >= startDate && x.DayDate < endDate);
+
+        //    // Search filter
+        //    if (!string.IsNullOrEmpty(searchTerm))
+        //    {
+        //        searchTerm = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+        //        query = query.Where(x =>
+        //            EF.Functions.Like(x.Shift.ShiftName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Organization.OrganizationName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Employee.FirstName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Employee.LastName, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Employee.EmployeeCode, $"%{searchTerm}%") ||
+        //            EF.Functions.Like(x.Department.DepartmentName, $"%{searchTerm}%"));
+        //    }
+
+        //    // Materialize employees grouped
+        //    var grouped = await query
+        //        .GroupBy(x => new
+        //        {
+        //            x.EmployeeID,
+        //            EmpName = x.Employee.FirstName + " " + x.Employee.LastName + " (" + x.Employee.EmployeeCode + ")",
+        //            OrgID = x.OrganizationID,
+        //            OrgName = x.Organization.OrganizationName,
+        //            DeptID = x.DepartmentID,
+        //            DeptName = x.Department.DepartmentName,
+        //            ShiftID = x.ShiftID
+        //        })
+        //        .Select(g => new
+        //        {
+        //            g.Key.EmployeeID,
+        //            g.Key.EmpName,
+        //            g.Key.OrgID,
+        //            g.Key.OrgName,
+        //            g.Key.DeptID,
+        //            g.Key.DeptName,
+        //            g.Key.ShiftID,
+        //            RosterInOfficeDayID = g.Min(x => x.RosterInOfficeDayID),
+        //            AssignedDates = g.Select(x => new { x.DayDate, ShiftName = x.Shift.ShiftName, x.Shift.StartTime, x.Shift.EndTime}).ToList(),
+        //            WeekendNumbers = g.SelectMany(x => x.Organization.WeekendSettings.SelectMany(ws => ws.WeekendDays)).Select(wd => (int)wd.WeekdayNumber).Distinct().ToList(),
+        //            Holidays = g.SelectMany(x => x.Organization.Holidays.Where(h => h.StartDate <= endDate && h.EndDate >= startDate)).Distinct().ToList()
+        //        }).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        //    // Now handle holiday expansion in memory
+        //    var result = grouped.Select(g =>
+        //    {
+        //        // expand assigned dates
+        //        var assignedDates = g.AssignedDates.Select(x =>
+        //            $"{x.DayDate:yyyy-MM-dd}|{x.ShiftName ?? "-"}|{(x.ShiftName != null ? $"{x.StartTime:hh\\:mm} - {x.EndTime:hh\\:mm}" : "-")}"
+        //        );
+
+        //        // expand holiday ranges in memory
+        //        var holidayEntries = g.Holidays
+        //            .SelectMany(h =>
+        //            {
+        //                var dates = new List<(DateTime Date, string Title)>();
+        //                var start = h.StartDate.Value;
+        //                var end = h.EndDate.Value;
+        //                for (var d = start; d <= end; d = d.AddDays(1))
+        //                {
+        //                    if (d >= startDate && d < endDate)
+        //                        dates.Add((d, h.HolidayTitle));
+        //                }
+        //                return dates;
+        //            }).ToList();
+
+        //        return new RosterInOfficeDaysListVM
+        //        {
+        //            EmployeeID = g.EmployeeID ?? 0,
+        //            EmployeeName = g.EmpName,
+        //            OrganizationID = g.OrgID,
+        //            OrganizationName = g.OrgName ?? "-",
+        //            DepartmentID = g.DeptID,
+        //            DepartmentName = g.DeptName ?? "-",
+        //            ShiftID = g.ShiftID ?? 0,
+        //            RosterInOfficeDayID = g.RosterInOfficeDayID,
+        //            AssignedDates = string.Join(",", assignedDates),
+        //            WeekdayNumber = string.Join(",", g.WeekendNumbers),
+        //            HolidayDates = string.Join(",", holidayEntries.Select(h => h.Date.ToString("yyyy-MM-dd")).Distinct()),
+        //            HolidayTitle = string.Join(",", holidayEntries.Select(h => h.Title).Distinct()),
+        //        };
+        //    }).ToList();
+
+        //    // total count
+        //    var totalCount = await query.Select(x => x.EmployeeID).Distinct().CountAsync();
+
+        //    return new SeparatePaginationResult<RosterInOfficeDaysListVM>
+        //    {
+        //        Data = result,
+        //        TotalCount = totalCount,
+        //        SeparatePaginationInfo = new SeparatePaginationInfo
+        //        {
+        //            StartItem = (pageNumber - 1) * pageSize + 1,
+        //            EndItem = Math.Min(pageNumber * pageSize, totalCount),
+        //            TotalItems = totalCount,
+        //            CurrentPage = pageNumber,
+        //            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+        //            PageNumbers = Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
+        //        }
+        //    };
+        //}
         #endregion
 
 

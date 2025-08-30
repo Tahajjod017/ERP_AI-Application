@@ -379,12 +379,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
 
         #region GetAllAsync
         public async Task<(List<RosterInOffDayListVM> Data, List<string> UniqueDates, SeparatePaginationInfo Pagination)> GetAllAsync(
-            int pageNumber = 1,
-            int pageSize = 5,
-            string searchTerm = "",
-            string sortColumn = "RosterInHolyDayID",
-            string sortOrder = "desc",
-            int daysToShow = 7,
+            int pageNumber = 1, 
+            int pageSize = 5, 
+            string searchTerm = "", 
+            string sortColumn = "RosterInHolyDayID", 
+            string sortOrder = "desc", 
+            int daysToShow = 7, 
             DateTime? startDate = null)
         {
             try
@@ -490,18 +490,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster
                                     TimeRange = $"{v.StartTime?.ToString(@"hh\:mm")} - {v.EndTime?.ToString(@"hh\:mm")}",
                                     RosterInHolyDayID = v.RosterInHolyDayID
                                 })
-                        //ShiftsPerDay = g
-                        //    .Where(x => x.DayDate.HasValue)
-                        //    .GroupBy(x => x.DayDate.Value.Date)   // group duplicates by date
-                        //    .ToDictionary(
-                        //        k => k.Key.ToString("yyyy-MM-dd"),
-                        //        v => new ShiftVM
-                        //        {
-                        //            ShiftID = v.First().ShiftID,
-                        //            ShiftName = v.First().ShiftName ?? "-",
-                        //            TimeRange = $"{v.First().StartTime?.ToString(@"hh\:mm")} - {v.First().EndTime?.ToString(@"hh\:mm")}",
-                        //            RosterInHolyDayID = v.First().RosterInHolyDayID
-                        //        })
                     })
                     .ToList();
 

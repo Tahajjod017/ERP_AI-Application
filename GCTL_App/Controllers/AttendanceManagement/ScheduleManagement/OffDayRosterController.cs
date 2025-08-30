@@ -236,13 +236,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 var (data, uniqueDates, pagination) = await _offDayRosterService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
 
-                return Json(new
-                {
-                    isSuccess = true,
-                    data,
-                    uniqueDates,
-                    pagination
-                });
+                return Json(new { isSuccess = true, data, uniqueDates, pagination });
             }
             catch (Exception ex)
             {
