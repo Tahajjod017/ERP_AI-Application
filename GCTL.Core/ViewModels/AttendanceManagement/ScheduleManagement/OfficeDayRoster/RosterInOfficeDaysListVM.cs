@@ -40,5 +40,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDay
         public string? HolidayTitle { get; set; }
 
         public string? HolidayDates { get; set; }
+
+        public string? LeaveDates { get; set; }
+
+        public string? LeaveTypeName { get; set; }
     }
 }

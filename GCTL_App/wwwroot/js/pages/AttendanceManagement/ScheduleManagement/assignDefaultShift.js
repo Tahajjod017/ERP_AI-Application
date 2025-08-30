@@ -22,58 +22,6 @@
         $(() => {
 
 
-
-            
-
-            document.addEventListener("DOMContentLoaded", function () {
-                const select = document.getElementById("employeeSelect");
-                const multiSelect = coreui.MultiSelect.getOrCreateInstance(select);
-
-                const container = select.closest('.multi-select-container');
-
-                const observer = new MutationObserver(() => {
-                    const searchBox = container.querySelector('.multi-select-search input');
-                    if (searchBox) {
-                        observer.disconnect(); // stop once found
-
-                        searchBox.addEventListener("input", async function () {
-                            const searchTerm = this.value;
-
-                            const response = await fetch(`/AssignDefaultShift/SearchEmployees?search=${encodeURIComponent(searchTerm)}`);
-                            const data = await response.json();
-
-                            select.innerHTML = "";
-
-                            const groups = {};
-                            data.forEach(emp => {
-                                if (!groups[emp.groupName]) groups[emp.groupName] = [];
-                                groups[emp.groupName].push(emp);
-                            });
-
-                            Object.keys(groups).forEach(groupName => {
-                                const optgroup = document.createElement("optgroup");
-                                optgroup.label = groupName;
-                                groups[groupName].forEach(emp => {
-                                    const option = document.createElement("option");
-                                    option.value = emp.id;
-                                    option.textContent = emp.name;
-                                    optgroup.appendChild(option);
-                                });
-                                select.appendChild(optgroup);
-                            });
-
-                            multiSelect.update();
-                        });
-                    }
-                });
-
-                observer.observe(container, { childList: true, subtree: true });
-            });
-
-
-
-
-
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
@@ -201,6 +149,7 @@
             // #endregion
 
 
+            let suppressDepartmentChange = false;
             // #region On click edit button GetByIdAsync
             $(document).on('click', settings.editBtn, async function (e) {
                 e.preventDefault();
@@ -214,12 +163,15 @@
 
                         organizationDD.setChoiceByValue(data.organizationID.toString());
 
+                        suppressDepartmentChange = true; // Disable event temporarily
+
                         await getDepartmentByOrganization(data.organizationID);
                         $('#DepartmentIDs').val(data.departmentID).each(function () {
                             coreui.MultiSelect.getInstance(this)?.update();
                         });
+                        suppressDepartmentChange = false; // Re-enable event
 
-                        await getEmployeesByOrgBraDepId(data.organizationID, null, data.departmentID);
+                        await getEmployeesByOrgBraDepId(data.organizationID, [], data.departmentID);
                         $('#EmployeeIDs').val(data.employeeID).each(function () {
                             coreui.MultiSelect.getInstance(this)?.update();
                         });
@@ -239,6 +191,7 @@
                     }
 
                 } catch (error) {
+                    suppressDepartmentChange = false; // Always reset on error too
                     console.error("Edit load failed:", error);
                 }
             });
@@ -469,30 +422,16 @@
             // #endregion
 
 
-            // #region DepartmentIDs on change
-            //document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function (event) {
-            //    const orgId = $('#OrganizationID').val();
+            // #region DepartmentIDs on change  
+            document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function () {
+                if (suppressDepartmentChange) return;
 
-            //    const selected = event.value || []; // array of {text, value}
-            //    const depIds = selected.map(x => parseInt(x.value));
+                const orgId = $('#OrganizationID').val();
+                const selectedOptions = $('#DepartmentIDs').val() || [];
+                const depIds = selectedOptions.map(x => parseInt(x));
 
-            //    getEmployeesByOrgBraDepId(orgId, [], depIds);
-            //});
-            
-            let debounceTimer;
-
-            document.getElementById('DepartmentIDs')
-                .addEventListener('changed.coreui.multi-select', function () {
-                    clearTimeout(debounceTimer);
-
-                    debounceTimer = setTimeout(() => {
-                        const orgId = $('#OrganizationID').val();
-                        const selectedOptions = $('#DepartmentIDs').val() || []; // standard jQuery val()
-                        const depIds = selectedOptions.map(x => parseInt(x));
-
-                        getEmployeesByOrgBraDepId(orgId, [], depIds);
-                    }, 300);
-                });
+                getEmployeesByOrgBraDepId(orgId, [], depIds);
+            });
             // #endregion
 
 
