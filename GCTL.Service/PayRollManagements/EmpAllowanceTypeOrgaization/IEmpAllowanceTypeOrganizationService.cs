@@ -18,7 +18,6 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
         Task<CommonReturnViewModel> SaveAsync(EmpAllowanceTypeOrganizationSaveVM EntityVM);
         Task<CommonReturnViewModel> UpdateAsync(EmpAllowanceTypeOrganizationSaveVM EntityVM);
         #region CRUD
-       
         Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<EmpAllowanceTypeOrganizationSaveVM> GetByIdAsync(int id);
         Task<PaginationService<EmployeeAllowanceTypes, GetAllTable>.PaginationResult<GetAllTable>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
