@@ -183,7 +183,7 @@
 
                     <div class="col-sm-12 customerDiv col-md-6">
                         <div class="form-floating mbs-4 position-relative">
-                            <input type="text" id="ContactNameSearch" class="form-control" required placeholder="@Html.SmartLocalize("Search ContactName...")">
+                            <input type="text" id="ContactNameSearch" class="form-control searchField" required placeholder="@Html.SmartLocalize("Search ContactName...")">
                             <input type="hidden" id="customerID" class="idBank">
                             <input type="hidden" id="customerType">
 
@@ -333,9 +333,11 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 ps-1 col-sm-6">
-                                        <div class="mb-3 form-floating">
-                                            <input id="iCountry" type="text" class="form-control" placeholder="" readonly>
-                                            <label class="form-label req">Country</label>
+                                        <div class="form-floating form-floating-advance-select">
+                                            <label class="form-label">@Html.SmartLocalize("Country")</label>
+                                            <select class="form-select choiceDD" id="iCountry" asp-items="@ViewBag.CountryDD as SelectList" disabled>
+                                                <option value="" selected>@Html.SmartLocalize("Select Country")</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

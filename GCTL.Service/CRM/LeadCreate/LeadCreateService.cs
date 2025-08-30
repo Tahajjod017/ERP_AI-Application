@@ -3,6 +3,8 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using SkiaSharp;
 
 
 namespace GCTL.Service.CRM.LeadCreate
@@ -19,9 +21,9 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<CompanyWarehouseAddresses> _companyWarehouseAddressesRepository;
         private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
         private readonly IGenericRepository<CompanyBranchAddresses> _companyBranchAddressesRepository;
+        private readonly AppDbContext _context;
 
-
-        public LeadCreateService(IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
+        public LeadCreateService(AppDbContext context, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -33,6 +35,7 @@ namespace GCTL.Service.CRM.LeadCreate
             _companyWarehouseAddressesRepository = companyWarehouseAddressesRepository;
             _companyBranchesRepository = companyBranchesRepository;
             _companyBranchAddressesRepository = companyBranchAddressesRepository;
+            _context = context;
         }
 
         public async Task<ReturnView> CreatePerson(CustomerVM customerVM)
@@ -648,6 +651,40 @@ namespace GCTL.Service.CRM.LeadCreate
                     Message = ex.Message,
                 };
             }
+        }
+
+        public async Task<object?> getcustomerInfo(int? id = 0)
+        {
+            var customerObj = await(from add in _context.CustomerAddresses
+                                    join ind in _context.Customers
+                                    on add.CustomerID equals ind.CustomerID
+                                    join address in _context.Addresses on add.AddressID equals address.AddressID
+                                    join country in _context.Country on address.CountryID equals country.CountryID into countryGroup
+                                    from country in countryGroup.DefaultIfEmpty()
+                                    where add.CustomerAddressID == id
+                                    select new
+                                    {
+                                        FullName = ind.FullName,
+                                        CustomerAddressID = add.CustomerAddressID,
+                                        AddressTypeName = add.AddressType.AddressTypeName,
+                                        FullAddress = address.FullAddress,
+                                        Street = address.Street,
+                                        City = address.City,
+                                        Additionaladdress = address.Additionaladdress,
+                                        State = address.State,
+                                        PostalCode = address.PostalCode,
+                                        CountryID = country != null ? country.CountryID : 0,
+                                        CountryCode = country != null ? country.CountryCode : null,
+                                        Latitude = address.Latitude,
+                                        Longitude = address.Longitude,
+                                        Phone = address.Phone,
+                                        OtherPhone = address.OtherPhone,
+                                        Email = address.Email,
+                                        FirstName = address.FirstName,
+                                        LastName = address.LastName
+                                    }).FirstOrDefaultAsync();
+
+            return customerObj;
         }
     }
 }
