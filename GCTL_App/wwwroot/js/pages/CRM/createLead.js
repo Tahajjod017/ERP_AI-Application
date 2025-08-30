@@ -106,6 +106,7 @@ const idMap = {
 const idMapIndex = {
     indexBase: {
         customerName: 'ContactNameSearch',
+        customerID: 'customerID',
         leadName: 'leadName',
         leadStatusID: 'leadStatusId',
         leadSourceID: 'leadSourceId',
@@ -115,7 +116,6 @@ const idMapIndex = {
         leadDescription: 'descriptionText'
     },
     demoField: {
-        customerID:'iCID',
         latitude: 'iLatitude',
         longitude: 'iLongitude',
         firstName: 'iFirstName',
@@ -437,7 +437,7 @@ $(document).ready(function () {
 
         getCustomerInfo(id).then(response => {
             document.getElementById("customerInfoContainer").style.display = "block";
-
+            console.log(response);
             let title = "";
             if (response.customer.addressTypeName === "billing") {
                 title = "Person Information"
@@ -447,10 +447,10 @@ $(document).ready(function () {
 
             $("#iInformationTitle").text(title);
             $('#ContactNameSearch').val(response.customer.fullName);
-
-
+            $("#customerID").val(response.customer.customerAddressID);
+            debugger;
             const ids = idMapIndex.demoField;
-            $("#" + ids.customerID).val(response.customer.individualAddressID);
+           
             $("#" + ids.firstName).val(response.customer.firstName);
             $("#" + ids.lastName).val(response.customer.lastName);
             $("#" + ids.fullAddress).val(response.customer.fullAddress);
@@ -459,7 +459,7 @@ $(document).ready(function () {
             $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
             $("#" + ids.state).val(response.customer.state);
             $("#" + ids.postalCode).val(response.customer.postalCode);
-            $("#" + ids.countryID).val(response.customer.countryID);
+            choiceManager.setChoiceValue(ids.countryID, response.customer.countryID);
             $("#" + ids.countryCode).val(response.customer.countryCode);
             $("#" + ids.latitude).val(response.customer.latitude);
             $("#" + ids.longitude).val(response.customer.longitude);
@@ -467,12 +467,37 @@ $(document).ready(function () {
             $("#" + ids.otherPhone).val(response.customer.otherPhone);
             $("#" + ids.email).val(response.customer.email);
 
+            exExruntimeValidationCheck('#ContactNameSearch');
             $('#searchResults').hide();
             $('#removeContactNameBtn').show();
         });
     }
 
+    function exExruntimeValidationCheck(inputEl) {
+        debugger // exit if no valid ID
+
+        let $idBank = $(inputEl).siblings('.idBank'); // the related hidden field
+        let fieldValue = parseInt($idBank.val()) || 0;
+
+        if (fieldValue === 0) {
+            $(inputEl).css('border', '1px solid red');
+        } else {
+            $(inputEl).css('border', '1px solid #ccc');
+        }
+    }
+
+
+    $("#ContactNameSearch, #personSearch, #bCompanySearch, #wCompanySearch").on("change", function () {
+        let $idBank = $(this).siblings('.idBank');
+        $idBank.val(0);  // reset hidden field to 0
+        let fieldValue = parseInt($idBank.val()) || 0;
+
+        $(this).css('border', fieldValue === 0 ? '1px solid red' : '1px solid #ccc');
+    });
+
+
     $(document).on('click', '.customerName-item', function () {
+        
         const selected = $(this).text().trim();
         const customerId = $(this).data("id");
         const customerType = $(this).data("type");
@@ -480,6 +505,8 @@ $(document).ready(function () {
         $('#customerID').val(customerId);
         $('#customerType').val(customerType);
         getCustomerInfo(customerId).then(response => {
+            debugger;
+            console.log(response);
             document.getElementById("customerInfoContainer").style.display = "block";
             let title = "";
             if (response.customer.addressTypeName === "billing") {
@@ -502,7 +529,7 @@ $(document).ready(function () {
             $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
             $("#" + ids.state).val(response.customer.state);
             $("#" + ids.postalCode).val(response.customer.postalCode);
-            $("#" + ids.countryID).val(response.customer.countryID);
+            choiceManager.setChoiceValue(ids.countryID, response.customer.countryID);
             $("#" + ids.countryCode).val(response.customer.countryCode);
             $("#" + ids.latitude).val(response.customer.latitude);
             $("#" + ids.longitude).val(response.customer.longitude);
@@ -512,24 +539,12 @@ $(document).ready(function () {
 
             $('#customerList').hide();
             $('#noResults').hide();
+            exExruntimeValidationCheck('#ContactNameSearch');
         });
 
 
     });
-    $(document).on('click', '.customerName-item2', function () {
-        const selected = $(this).text().trim();
-        const customerId = $(this).data("id");
-        $('#personContactNameSearch').val(selected);
-        $('#personCustomerID').val(customerId);
-        $('#personSearchResults').hide();
-        getCustomerInfo(customerId).then(response => {
-            ids = idMap.shipping;
-            $('#personContactNameSearch').val(response.customer.fullName);
-            $('#personCustomerID').val(response.customer.individualAddressID);
-           
-        });
 
-    });
     $(document).on('click', '.companyName-item', function () {
         const selected = $(this).data("text").trim();
         const customerId = $(this).data("id");
@@ -538,6 +553,9 @@ $(document).ready(function () {
         $('#' + tabSymble + 'CId').val(customerId);
         $('#' + tabSymble + 'CustomerList').hide();
         $('#' + tabSymble + 'NoResults').hide();
+        exExruntimeValidationCheck('#' + tabSymble + 'CompanySearch');
+
+
     });
 ;
 
@@ -549,6 +567,7 @@ $(document).ready(function () {
         $('#sCId').val(customerId);
         $('#sCustomerList').hide();
         $('#sNoResults').hide();
+        exExruntimeValidationCheck('#personSearch');
     });
 
     // Handle arrow keys + enter
@@ -586,53 +605,7 @@ $(document).ready(function () {
     searchNavigation("#bCompanySearch", "#bCustomerList", ".companyName-item");
     searchNavigation("#personSearch", "#sCustomerList", ".personName-item");
 
-    //let activeIndex = -1;
-    //$(document).on("keydown", "#wCompanySearch", function (e) {
-    //    const $items = $("#wCustomerList .companyName-item");
-    //    if ($items.length === 0) return;
-
-    //    if (e.key === "ArrowDown") {
-    //        e.preventDefault();
-    //        activeIndex = (activeIndex + 1) % $items.length;
-    //        updateActiveItem($items, activeIndex);
-    //    } else if (e.key === "ArrowUp") {
-    //        e.preventDefault();
-    //        activeIndex = (activeIndex - 1 + $items.length) % $items.length;
-    //        updateActiveItem($items, activeIndex);
-    //    } else if (e.key === "Enter") {
-    //        e.preventDefault();
-    //        if (activeIndex >= 0) $items.eq(activeIndex).trigger("click");
-    //    }
-    //});
-    //// Reset index when typing
-    //$(document).on("input", "#wCompanySearch", function () {
-    //    activeIndex = -1;
-    //});
-
-    // Reset index when typing
-    //let bActiveIndex = -1;
-    //$(document).on("keydown", "#bCompanySearch", function (e) {
-    //    const $items = $("#bCustomerList .companyName-item");
-    //    if ($items.length === 0) return;
-
-    //    if (e.key === "ArrowDown") {
-    //        e.preventDefault();
-    //        bActiveIndex = (bActiveIndex + 1) % $items.length;
-    //        updateActiveItem($items, bActiveIndex);
-    //    } else if (e.key === "ArrowUp") {
-    //        e.preventDefault();
-    //        bActiveIndex = (bActiveIndex - 1 + $items.length) % $items.length;
-    //        updateActiveItem($items, bActiveIndex);
-    //    } else if (e.key === "Enter") {
-    //        e.preventDefault();
-    //        if (bActiveIndex >= 0) $items.eq(bActiveIndex).trigger("click");
-    //    }
-    //});
-
-    //$(document).on("input", "#bCompanySearch", function () {
-    //    bActiveIndex = -1;
-    //});
-
+   
     // Highlight helper
     function updateActiveItem($items, index) {
         $items.removeClass("active");
@@ -947,31 +920,6 @@ $(document).ready(function () {
 
     initCompany();
 
-    //$("#bCompanySearch").on("input", async function () {
-    //    $('#bCustomerList').show();
-    //    $('#bNoResults').show();
-    //    showCompanySuggestions($(this).val(), 'bCustomerList','bNoResults');
-    //})
-    //$("#wCompanySearch").on("input", async function () {
-    //    try {
-    //        $('#wCustomerList').show();
-    //        $('#wNoResults').show();
-    //        await showCompanySuggestions($(this).val(), 'wCustomerList', 'wNoResults');
-    //    } catch (err) {
-    //        console.error("Error in showCompanySuggestions:", err);
-    //    }
-    //});
-
-    // 1: search input box id
-    // 2: search result show div id
-    // 3: if result found then noResult div id
-    //$('#ContactNameSearch').on('input', function () {
-    //    const query = $(this).val();
-    //    $('#customerList').show();
-    //    $('#noResults').show();
-    //    $('#removeContactNameBtn').toggle(!!query);
-        //showSuggestions(query);
-    //});
     iSerachInitial('#ContactNameSearch', '#customerList', '#noResults')
     cSerachInitial('#bCompanySearch', '#bCustomerList', '#bNoResults')
     cSerachInitial('#wCompanySearch', '#wCustomerList', '#wNoResults')
@@ -1062,33 +1010,6 @@ $(document).ready(function () {
 
     } 
    
-    
-
-
-    //let typingTimer;
-    //let delay = 500;
-    //$("#personSearch").on("input", async function () {
-    //    let query = $(this).val();
-    //    clearTimeout(typingTimer);
-    //    typingTimer = setTimeout(async function () {
-    //        console.log("User stoppedTyping value: ", query);
-    //        try {
-    //            if (query.length === 0) {
-    //                $('#sCustomerList').hide();
-    //                $('#sNoResults').hide();
-    //            } else {
-    //                $('#sCustomerList').show();
-    //                await getPersonList(query);
-    //                await showPersonSuggestions('sCustomerList', 'sNoResults');
-    //                $('#sNoResults').show();
-    //            }
-    //        } catch (err) {
-    //            console.error("Error in showCompanySuggestions:", err);
-    //        }
-    //    }, delay)
-
-        
-    //});
 
     getCountryList();
     function uniquenessCheck(text, type, id) {
@@ -1436,6 +1357,7 @@ $(document).ready(function () {
     });
     $("#companySaveAndExit").on("click", async function (e) {
         e.preventDefault();
+        debugger;
         try {
             if (await fieldValidation()) {
                 $(this).prop("disabled", true);
@@ -1607,6 +1529,7 @@ $(document).ready(function () {
     $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
         if (await fieldValidation()) {
+            debugger;
             const data = {
                 LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
                 LeadStatusID: parseInt($("#" + idMapIndex.indexBase.leadStatusID).val()) || 0,
@@ -1614,10 +1537,10 @@ $(document).ready(function () {
                 LeadOwnerID: parseInt($("#" + idMapIndex.indexBase.leadOwnerID).val()) || 0,
                 ApproximateDealValue: parseFloat($("#" + idMapIndex.indexBase.approximateDealValue).val()) || 0,
                 ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
-                CustomerId: parseInt($("#" + idMapIndex.demoField.customerID).val()) || 0,
+                CustomerId: parseInt($("#" + idMapIndex.indexBase.customerID).val()) || 0,
                 LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val(),
             };
-
+            debugger;
             $.ajax({
                 url: '/CreateLead/CreateLeadData',
                 method: 'POST',
@@ -1815,13 +1738,14 @@ $(document).ready(function () {
     }
 
     async function fieldValidation() {
+        debugger
         const selectedTab = targetListForValidation();
         runtimeValidationCheck();
-        exRuntimeValidationCheck();
         let isValid = true;
         isValid = await uniquenPhoneCheck();
-        isValid = isValid === false ? false :  await extraFieldIdValidation();
-
+        //isValid = isValid === false ? false :  await extraFieldIdValidation();
+        //isValid = isValid === false ? false : await exRuntimeValidationCheck();
+        debugger
         let errorCount = 0;
         selectedTab.filter(Boolean).forEach(e => {
             let obj = $(`#${e}`);
@@ -1875,22 +1799,6 @@ $(document).ready(function () {
         }
     }
 
-    //function removeValidationOne(obj) {
-    //    obj = $(obj);
-    //    const name = obj.val().trim();
-    //    let target;
-
-    //    if (obj.closest('.choices').length > 0) {
-    //        target = obj.closest('.choices').find('.choices__inner');
-    //    } else {
-    //        target = obj;
-    //    }
-
-    //    if (name === '') {
-    //        target.css('border', '1px solid #ccc');
-    //    }
-    //}
-
     // Runtime validation for input changes
     function runtimeValidationCheck() {
         const selectedTabList = targetListForValidation();
@@ -1901,22 +1809,23 @@ $(document).ready(function () {
         });
     }
     function exRuntimeValidationCheck() {
-        const selectedTab = exListForValidation();
-        if (!selectedTab) return; // exit if no valid ID
+        debugger;
+        return new Promise((resolve, reject) => {
+            const selectedTab = exListForValidation();
+        //    if (!selectedTab) return; // exit if no valid ID
+        //    let $idBank = $(selectedTab).siblings('.idBank'); // the related hidden field
+        //    let fieldValue = parseInt($idBank.val()) || 0;
 
-        // Bind **once** using delegated event
-        $(document).off('input change', `#${selectedTab}`); // remove old handlers first
-
-        $(document).on('input change', `#${selectedTab}`, function () {
-            let $idBank = $(this).siblings('.idBank'); // the related hidden field
-            let fieldValue = parseInt($idBank.val()) || 0;
-
-            if (fieldValue === 0) {
-                $(this).css('border', '1px solid red');
-            } else {
-                $(this).css('border', '1px solid #ccc');
-            }
-        });
+        //    if (fieldValue === 0) {
+        //        $(selectedTab).css('border', '1px solid red');
+        //        resolve(true);
+        //    } else {
+        //        $(selectedTab).css('border', '1px solid #ccc');
+        //        resolve(false);
+        //    }
+        resolve(false);
+        })
+       
     }
 
 
@@ -1937,7 +1846,7 @@ $(document).ready(function () {
                 success: function (response) {
 
                     $('#personContactNameSearch').val(response.customer.fullName);
-                    $('#personCustomerID').val(response.customer.individualAddressID);
+                    $('#personCustomerID').val(response.customer.customerAddressID);
 
                     $("#" + ids.firstName).val(response.customer.firstName);
                     $("#" + ids.lastName).val(response.customer.lastName);
@@ -1954,6 +1863,7 @@ $(document).ready(function () {
                     $("#" + ids.phone).val(response.customer.phone);
                     $("#" + ids.otherPhone).val(response.customer.otherPhone);
                     $("#" + ids.email).val(response.customer.email);
+
                     // Trigger validation
                 },
                 error: function (xhr) {

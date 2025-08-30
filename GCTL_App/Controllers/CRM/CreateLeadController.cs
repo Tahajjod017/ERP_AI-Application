@@ -268,24 +268,6 @@ namespace GCTL_App.Controllers.CRM
                                      where add.CustomerAddressID == id
                                      select new
                                      {
-                                         //add.CustomerAddressID,
-                                         //add.AddressType.AddressTypeName,
-                                         //ind.FullName,
-                                         //address.FullAddress,
-                                         //address.Street,
-                                         //address.City,
-                                         //address.Additionaladdress,
-                                         //address.State,
-                                         //address.PostalCode,
-                                         //country != null ? country.CountryName : null,
-                                         //country.CountryCode,
-                                         //address.Latitude,
-                                         //address.Longitude,
-                                         //address.Phone,
-                                         //address.OtherPhone,
-                                         //address.Email,
-                                         //address.FirstName,
-                                         //address.LastName,
                                          FullName = ind.FullName,
                                          CustomerAddressID = add.CustomerAddressID,
                                          AddressTypeName = add.AddressType.AddressTypeName,
@@ -295,7 +277,7 @@ namespace GCTL_App.Controllers.CRM
                                          Additionaladdress = address.Additionaladdress,
                                          State = address.State,
                                          PostalCode = address.PostalCode,
-                                         CountryName = country != null ? country.CountryName : null,
+                                         CountryID = country != null ? country.CountryID : 0,
                                          CountryCode = country != null ? country.CountryCode : null,
                                          Latitude = address.Latitude,
                                          Longitude = address.Longitude,
@@ -305,31 +287,6 @@ namespace GCTL_App.Controllers.CRM
                                          FirstName = address.FirstName,
                                          LastName = address.LastName
                                      }).FirstOrDefaultAsync();
-
-            //var customerId = await _context.CustomerAddresses.Where(x => x.CustomerAddressID == id).Select(x => x.CustomerAddressID).FirstOrDefaultAsync();
-            //var shippingObj = await (from add in _context.CustomerAddresses
-            //                         join address in _context.Addresses on add.AddressID equals address.AddressID
-            //                         join country in _context.Country on address.CountryID equals country.CountryID
-            //                         where add.AddressType.AddressTypeName == "shipping" && add.CustomerID == customerId
-            //                         select new
-            //                         {
-            //                             add.CustomerAddressID,
-            //                             address.FullAddress,
-            //                             address.Street,
-            //                             address.City,
-            //                             address.Additionaladdress,
-            //                             address.State,
-            //                             address.PostalCode,
-            //                             country.CountryName,
-            //                             country.CountryCode,
-            //                             address.Latitude,
-            //                             address.Longitude,
-            //                             address.Phone,
-            //                             address.OtherPhone,
-            //                             address.Email,
-            //                             address.FirstName,
-            //                             address.LastName
-            //                         }).FirstOrDefaultAsync();
 
             return Json(new { customer = customerObj });
         }

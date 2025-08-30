@@ -1,4 +1,6 @@
-﻿
+﻿@using GCTL.Core.ViewModels.CRM
+@model CustomerInfoVM
+
     <div class="pb-9">
         <div class="row align-items-center justify-content-between g-3 mb-4">
             <div class="col-12 col-md-auto">
@@ -25,7 +27,7 @@
                         <div class="card-body">
                             <div class="row align-items-center g-3">
                                 <div class="col-12 col-sm-auto flex-1">
-                                    <h3 class="fw-bolder mb-2 line-clamp-1">Start-Up three Growth Suite</h3>
+                                    <h3 class="fw-bolder mb-2 line-clamp-1">@Model.LeadName</h3>
                                     <!-- <div class="d-flex align-items-center mb-4">
                                       <h5 class="mb-0 me-4">USD $12,000.00</h5>
                                       <h5 class="fw-semibold"><span class="d-inline-block lh-sm me-1" data-feather="grid" style="height:16px;width:16px;"></span><span class="d-inline-block lh-sm">Financial</span></h5>
@@ -34,7 +36,7 @@
                                         <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
                                             <div class="avatar avatar-xl me-3"><img class="rounded-circle" src="../../assets/img/team/72x72/58.webp" alt="" /></div>
                                             <div>
-                                                <h5>Ansolo Lazinatov</h5>
+                                            <h5>@Model.FullName</h5>
                                                 <div class="dropdown">
                                                     <a class="text-body-secondary dropdown-toggle text-decoration-none dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
                                                         Owner<span class="fa-solid fa-caret-down text-body-secondary fs-9 ms-2"></span>
@@ -69,11 +71,11 @@
                                         </div>
                                     </div>
                                     <div class="progress mb-2 px-3 bg-white" style="height:25px">
-                                        <input class="form-range" id="customRange1" type="range" />
+                                    <input class="form-range" id="customRange1" value="@Model.Probability" type="range" />
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <p class="mb-0"> Probability</p>
-                                        <div><span class="d-inline-block lh-sm me-1" data-feather="clock" style="height:16px;width:16px;"></span><span class="d-inline-block lh-sm"> Dec 15, 05:00AM</span></div>
+                                        <div><span class="d-inline-block lh-sm me-1" data-feather="clock" style="height:16px;width:16px;"></span><span class="d-inline-block lh-sm"> @Model.Created</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -81,7 +83,7 @@
                     </div>
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="mb-2">Custommer Information</h4>
+                            <h4 class="mb-2">Custommer Information</h4> 
                             <table>
 
                             <tr class="text-center align-middle">
@@ -103,7 +105,7 @@
                                 <td class="align-middle text-center px-2">:</td>
 
                                 <td class="align-middle text-center">
-                                    <span>Jackson Pollock</span>
+                                    <span>@Model.FullName</span>
                                 </td>
                             </tr>
                             <tr class="text-center align-middle">
@@ -125,7 +127,7 @@
                                 <td class="align-middle text-center px-2">:</td>
 
                                 <td class="align-middle text-center">
-                                    <span>Jackson Pollock</span>
+                                    <span>@Model.Phone</span>
                                 </td>
                             </tr>
                             <tr class="text-center align-middle">
@@ -147,7 +149,7 @@
                                 <td class="align-middle text-center px-2">:</td>
 
                                 <td class="align-middle text-center">
-                                    <span>Jackson Pollock</span>
+                                    <span>@Model.Email</span>
                                 </td>
                             </tr>
                             <tr class="text-center align-middle">
@@ -191,7 +193,7 @@
                                 <td class="align-middle text-center px-2">:</td>
 
                                 <td class="align-middle text-center">
-                                    <span>Jackson Pollock</span>
+                                    <span>@Model.Created</span>
                                 </td>
                             </tr>
                             <tr class="text-center align-middle">

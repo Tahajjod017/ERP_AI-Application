@@ -20,6 +20,7 @@ namespace GCTL.Service.CRM.LeadCreate
         Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM);
         Task<ReturnView> CreateBranch(BranchVM branchVM);
         Task<ReturnView> CreateWarehouse(WarehouseVM warehouseVM);
+        public Task<object?> getcustomerInfo(int? id);
         #endregion
     }
 }
