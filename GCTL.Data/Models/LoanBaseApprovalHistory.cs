@@ -5,11 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Services
+public partial class LoanBaseApprovalHistory
 {
-    public int ServiceID { get; set; }
+    public int BaseApprovalHistoryID { get; set; }
 
-    public string ServiceName { get; set; }
+    public int? LoanID { get; set; }
+
+    public int? ApproveByID { get; set; }
+
+    public int? StatusID { get; set; }
+
+    public int? ApprovalStep { get; set; }
+
+    public string ApproverNote { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,13 +35,15 @@ public partial class Services
 
     public int? DeletedBy { get; set; }
 
+    public virtual Employees ApproveBy { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<LeadServices> LeadServices { get; set; } = new List<LeadServices>();
+    public virtual Loan Loan { get; set; }
 
-    public virtual ICollection<LeadTypes> LeadTypes { get; set; } = new List<LeadTypes>();
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -1,6 +1,13 @@
 ﻿@using GCTL.Core.ViewModels.CRM
 @model CustomerInfoVM
 
+<style>
+    .option-btn.active {
+        background-color: #0d6efd; /* Bootstrap primary */
+        color: white;
+        border-color: #0d6efd;
+    }
+</style>
     <div class="pb-9">
         <div class="row align-items-center justify-content-between g-3 mb-4">
             <div class="col-12 col-md-auto">
@@ -230,14 +237,8 @@
                         <div class="row g-4 g-xl-1 g-xxl-3 justify-content-between">
                             <div class="col-md-4">
                                 <label for="form-control">Lead Source</label>
-                                <select class="form-select mb-3" id="organizerSingle2" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                    <option value="referrals">Referrals</option>
-                                    <option value="former_clients">Former Clients</option>
-                                    <option value="competitors">Competitors</option>
-                                    <option value="business_sales">Business &amp; sales</option>
-                                    <option value="google_resources">Google resources</option>
-                                    <option value="linkedin">Linkedin</option>
-                                    <option value="marketing">Marketing</option>
+                            <select class="form-select mb-3" id="leadSource" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                                    <option value="" disabled>select</option>
                                 </select>
                             </div>
 
@@ -268,13 +269,17 @@
                 <div class="card mb-5">
                     <div class="card-body">
                         <div class="mb-4">
-                            <button class="btn btn-phoenix-secondary me-1 mb-1" type="button"><span class="fs-7 mb-2 fa-solid fa-phone me-2 tab-icon-color"></span><br>Call</button>
-                            <button class="btn btn-phoenix-secondary  me-1 mb-1" type="button"><span class="fs-7 mb-2 fa-solid fa-envelope me-2 tab-icon-color"></span><br>Email</button>
-                            <button class="btn btn-phoenix-secondary  me-1 mb-1" type="button"><span class="fs-7 mb-2 fa-solid fa-clipboard me-2 tab-icon-color"></span><br>Offline Meeting</button>
-                            <button class="btn btn-phoenix-secondary  me-1 mb-1" type="button"><span class="fs-7 mb-2 fa-solid fa-video me-2 tab-icon-color"></span><br>Online Meeting</button>
-                            <button class="btn btn-phoenix-secondary  me-1 mb-1" type="button"><span class="fs-7 mb-2 fa-solid fa-file-archive me-2 tab-icon-color"></span><br>Quatation</button>
-                            <button class="btn btn-phoenix-secondary  me-1 mb-1" type="button"><span class="fs-7 mb-2 fa-solid fa-file me-2 tab-icon-color"></span><br>Rev. Quatation</button>
-                        </div>
+                        @foreach (var item in ViewBag.LeadActivityTypes)
+                        {
+                            <button class="btn btn-phoenix-secondary me-1 mb-1 option-btn"
+                                    type="button"
+                                    data-id="@item.LeadActivityTypeID">
+                                <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
+                                <br>@item.LeadActivityName
+                            </button>
+                        }
+
+                        </div> 
 
                         <div class="col-md-12">
                             <div class="mb-1">
@@ -282,7 +287,7 @@
                                     <div class="col-6">
                                         <label class="text-body-highlight fw-bold mb-2">Set Date and Time</label>
                                         <div class="input-group mb-3">
-                                            <input class="form-control datetimepicker" id="datetimepicker" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                                        <input class="form-control datetimepicker" id="lDetailsDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                                             <span class="input-group-text " id="basic-addon2">
                                                 <span class="fs-7 fa-solid far fa-calendar me-2 tab-icon-color"></span>
                                             </span>
@@ -310,18 +315,18 @@
                           </div>
                         </div> -->
 
-
+                        <input type="number" id="leadID" value="@Model.LeadID" hidden/>
 
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="text-body-highlight mb-2">Note </label>
-                                <textarea class="form-control" id="exampleTextarea" rows="3"> </textarea>
+                                <textarea class="form-control" id="lDetailsText" rows="3"> </textarea>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between">
 
-                            <button type="submit" class="btn btn-primary">Add Activity</button>
+                            <button type="submit" id="addLDetails" class="btn btn-primary">Add Activity</button>
 
                             <div>
                                 <button type="submit" data-bs-toggle="modal" data-bs-target="#wonCentered" class="btn btn-phoenix-secondary rounded-pill">
@@ -1495,4 +1500,6 @@
             </div>
         </div>
     </div>
-    
+@section Scripts {
+    <script src="~/js/pages/CRM/lead_details.js"></script>
+}

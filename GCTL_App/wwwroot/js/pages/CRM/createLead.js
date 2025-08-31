@@ -1088,7 +1088,7 @@ $(document).ready(function () {
             $.ajax({
                 url: '/CreateLead/InsertPerson',
                 method: 'POST',
-                contentType: 'application/json',
+                contentType: 'application/json', 
                 data: JSON.stringify(data),
                 success: function (response) {
                     if (response.success) {

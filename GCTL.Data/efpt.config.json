@@ -4,6 +4,7 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.0",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -471,7 +472,19 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[LeadActivityTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadDetails]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Lead].[Leads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadServices]",
          "ObjectType": 0
       },
       {
@@ -504,6 +517,18 @@
       },
       {
          "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[Loan]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[LoanBaseApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[LoanInstallmentPeriods]",
          "ObjectType": 0
       },
       {
@@ -556,6 +581,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -563,6 +589,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -574,5 +601,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }

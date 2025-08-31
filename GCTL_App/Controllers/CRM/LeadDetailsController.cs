@@ -1,9 +1,12 @@
-﻿using GCTL.Core.ViewModels.CRM;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.CRM.LeadCreate;
+using GCTL.Service.CRM.LeadDetails;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,14 +16,27 @@ namespace GCTL_App.Controllers.CRM
     {
         private readonly ILeadCreateService _leadCreateService;
         private readonly AppDbContext _context;
-        public LeadDetailsController(AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
+        private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesRepository;
+        private readonly ILeadDetailsService _leadDetailsService;
+        public LeadDetailsController(IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
+            _leadSourceTypeRepository = leadSourceTypeRepository;
+            _leadDetailsService = leadDetailsService;
+            _leadActivityTypesRepository = leadActivityTypesRepository;
             _context = context;
         }
 
         public async Task<IActionResult> Index(int? id)
         {
+
+            await _leadDetailsService.CreateLeadActivateTypes();
+
+
+            ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
+            ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
+            
             var customerObj = await(from lead in _context.Leads
                                     join cAddress in _context.CustomerAddresses
                                     on lead.CustomerID equals cAddress.CustomerAddressID
@@ -59,9 +75,29 @@ namespace GCTL_App.Controllers.CRM
                 return View(customerObj);
             } else
             {
-                CustomerInfoVM obj = new CustomerInfoVM();
+                CustomerInfoVM obj = new ();
                 return View(obj);
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CeateLeadDetail([FromBody] LeadDetailsVM leadDetailsVM)
+        {
+            try
+            {
+
+                if (leadDetailsVM.LeadID != 0)
+                {
+                    bool result = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM);
+                    return Ok(new { result = result, message = "Data added successfully" });
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
+
+            }
+            return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
         }
     }
 }

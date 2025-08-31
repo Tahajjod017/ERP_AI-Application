@@ -82,7 +82,6 @@ namespace GCTL.Service.CRM.LeadCreate
                         CreatedBy = customerVM.CreatedBy,
                         LIP = customerVM.LIP,
                         LMAC = customerVM.LMAC,
-                        DeletedAt = null,
                     };
                     await _customersRepository.AddAsync(customerObj);
                     returnName = customerObj.FullName;

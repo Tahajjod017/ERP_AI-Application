@@ -47,7 +47,11 @@ public partial class Leads
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<LeadDetails> LeadDetails { get; set; } = new List<LeadDetails>();
+
     public virtual Employees LeadOwner { get; set; }
+
+    public virtual ICollection<LeadServices> LeadServices { get; set; } = new List<LeadServices>();
 
     public virtual LeadSources LeadSource { get; set; }
 
