@@ -465,6 +465,18 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<LeadActivityTypes> LeadActivityTypesCreatedByNavigation { get; set; } = new List<LeadActivityTypes>();
+
+    public virtual ICollection<LeadActivityTypes> LeadActivityTypesDeletedByNavigation { get; set; } = new List<LeadActivityTypes>();
+
+    public virtual ICollection<LeadActivityTypes> LeadActivityTypesUpdatedByNavigation { get; set; } = new List<LeadActivityTypes>();
+
+    public virtual ICollection<LeadDetails> LeadDetailsCreatedByNavigation { get; set; } = new List<LeadDetails>();
+
+    public virtual ICollection<LeadDetails> LeadDetailsDeletedByNavigation { get; set; } = new List<LeadDetails>();
+
+    public virtual ICollection<LeadDetails> LeadDetailsUpdatedByNavigation { get; set; } = new List<LeadDetails>();
+
     public virtual ICollection<LeadSources> LeadSourcesCreatedByNavigation { get; set; } = new List<LeadSources>();
 
     public virtual ICollection<LeadSources> LeadSourcesDeletedByNavigation { get; set; } = new List<LeadSources>();
@@ -534,6 +546,30 @@ public partial class Employees
     public virtual ICollection<LicenceTypes> LicenceTypesDeletedByNavigation { get; set; } = new List<LicenceTypes>();
 
     public virtual ICollection<LicenceTypes> LicenceTypesUpdatedByNavigation { get; set; } = new List<LicenceTypes>();
+
+    public virtual ICollection<Loan> LoanApprovalPerson { get; set; } = new List<Loan>();
+
+    public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistoryApproveBy { get; set; } = new List<LoanBaseApprovalHistory>();
+
+    public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistoryCreatedByNavigation { get; set; } = new List<LoanBaseApprovalHistory>();
+
+    public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistoryDeletedByNavigation { get; set; } = new List<LoanBaseApprovalHistory>();
+
+    public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistoryUpdatedByNavigation { get; set; } = new List<LoanBaseApprovalHistory>();
+
+    public virtual ICollection<Loan> LoanCreatedByNavigation { get; set; } = new List<Loan>();
+
+    public virtual ICollection<Loan> LoanDeletedByNavigation { get; set; } = new List<Loan>();
+
+    public virtual ICollection<Loan> LoanEmployee { get; set; } = new List<Loan>();
+
+    public virtual ICollection<LoanInstallmentPeriods> LoanInstallmentPeriodsCreatedByNavigation { get; set; } = new List<LoanInstallmentPeriods>();
+
+    public virtual ICollection<LoanInstallmentPeriods> LoanInstallmentPeriodsDeletedByNavigation { get; set; } = new List<LoanInstallmentPeriods>();
+
+    public virtual ICollection<LoanInstallmentPeriods> LoanInstallmentPeriodsUpdatedByNavigation { get; set; } = new List<LoanInstallmentPeriods>();
+
+    public virtual ICollection<Loan> LoanUpdatedByNavigation { get; set; } = new List<Loan>();
 
     public virtual ICollection<Localizations> LocalizationsCreatedByNavigation { get; set; } = new List<Localizations>();
 

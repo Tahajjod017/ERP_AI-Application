@@ -62,15 +62,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     //"yearendbonus" => x => x.YearlyEndBonusType.YearlyEndBonusTypeName,
                     _ => x => x.EmployeeBaseBenefitID
                 };
-
                 query = currentSortOrder?.ToLower() == "desc"
                     ? query.OrderByDescending(orderByExpression)
                     : query.OrderBy(orderByExpression);
 
-                // For approver Step
-
-
-                //
                 var result = await PaginationService<EmployeeBaseBenefits, PayRollEmpSalaryGetAllVM>.GetPaginatedData(
                     query,
                     pageNumber,
@@ -78,13 +73,9 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     searchTerm,
                     currentSortColumn,
                     currentSortOrder,
-
                    term => b =>
                       string.IsNullOrEmpty(term) ||
                       EF.Functions.Like(b.EmployeeBaseBenefitID.ToString(), $"%{term}%"),
-
-
-
                      b => new PayRollEmpSalaryGetAllVM
                     {
                         EmployeeId = b.EmployeeID,

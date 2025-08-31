@@ -1,0 +1,14 @@
+﻿@model GCTL_App.ViewModels.PayRollManagements.LoanManagent.PayrollLoanEntryPageVM
+
+@await Html.PartialAsync("_Save", Model.Save)
+
+<partial name="_ConfirmDelete" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/payrollmanagements/LoanManagements/PayRollEntryEntry.js"></script> 
+
+}
