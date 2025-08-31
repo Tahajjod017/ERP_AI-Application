@@ -130,7 +130,7 @@
     //#region Get By Id Data
     $(document).on('click', '#EditEmpBenefits', function () {
         const employeeBenefitID = $(this).data('id');
-
+        debugger
         $.ajax({
             url: '/EmployeeBenefits/GetByIdEmpBenefits',
             type: 'GET',
@@ -139,11 +139,14 @@
             success: function (res) {
                 if (res.success && res.data) {
                     var data = res.data;
-
+                    debugger
                     $("#EmployeeBenefitIDEdit").val(data.employeeBenefitID);
-                    $('#OrganizationIDEdit').val(data.organizationIDEdit).each(function () {
+                    $('#OrganizationIDEdit').val(data.organizationID).each(function () {
                         coreui.MultiSelect.getInstance(this)?.update();
                     });
+
+                   
+
                     $("#HealthInsuranceEdit").val(data.healthInsurance);
                     $("#IsHealthInsuranceEnabledEdit").prop('checked', data.isHealthInsuranceEnabled);
                     $("#IsPerformanceBonusEnabledEdit").prop('checked', data.isPerformanceBonusEnabled);

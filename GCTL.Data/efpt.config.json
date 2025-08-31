@@ -471,6 +471,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[LeadActivityTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadDetails]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Lead].[Leads]",
          "ObjectType": 0
       },
@@ -504,6 +512,18 @@
       },
       {
          "Name": "[Payroll].[EmployeeBenefits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[Loan]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[LoanBaseApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[LoanInstallmentPeriods]",
          "ObjectType": 0
       },
       {
