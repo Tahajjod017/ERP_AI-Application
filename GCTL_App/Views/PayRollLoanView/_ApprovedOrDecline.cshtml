@@ -1,0 +1,81 @@
+﻿
+<form class="row g-3 mb-2">
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label" for="timepicker1">Employee Name</label>
+            <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="tags" data-coreui-search="true">
+                <optgroup label="Developer">
+                    <option value="2" selected>Alam</option>
+                    <option value="3">Momin</option>
+                </optgroup>
+                <optgroup label="Designer">
+                    <option value="4">Name (id)</option>
+                    <option value="5">Name (id)</option>
+                </optgroup>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label" for="timepicker1">Loan Amount</label>
+            <input class="form-control" id="timepicker1" type="text" placeholder="Ex: 50000" value="120000">
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label" for="timepicker1">Tenure Month</label>
+            <select class="form-select">
+                <option value="">Select Month...</option>
+                <option>6 Months</option>
+                <option>8 Months</option>
+                <option selected>12 Months</option>
+                <option>18 Months</option>
+                <option>24 Months</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label" for="datepicker">Issue Date</label>
+            <input class="form-control datetimepicker flatpickr-input" id="datepicker" value="01/02/2025" type="text" placeholder="dd/mm/yyyy" data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}" readonly="readonly">
+
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label" for="datepicker">Installment Start Date</label>
+            <input class="form-control datetimepicker flatpickr-input" id="datepicker" type="text" placeholder="dd/mm/yyyy" value="01/03/2025" data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}" readonly="readonly">
+
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label class="form-label" for="pb">Approved By</label>
+            <input class="form-control" id="" type="text" placeholder="Ex- Finance Director" value="Finance Director">
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="mb-2">
+            <label class="form-label">Note</label>
+            <textarea id="ApprovalNote" class="form-control" rows="2" placeholder="Note"></textarea>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="d-flex justify-content-end align-items-center gap-3 mt-1 mb-4 me-3">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="ApprovalStatus" id="approveRadio" value="true">
+                <label class="form-check-label" for="approveRadio">Approve</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="ApprovalStatus" id="declineRadio" value="false">
+                <label class="form-check-label" for="declineRadio">Decline</label>
+            </div>
+
+            <button id="ApplyLeaveSubmitButtonApproval" class="btn btn-primary">Approved</button>
+        </div>
+    </div>
+</form>
+
+
+
