@@ -271,7 +271,7 @@ function loadUserTableData(sortColumn, sortOrder) {
                                     data-user-id="${item.id}" title="Reset Password" data-bs-placement="top">
                                     <span class="fas fa-key"></span>
                                 </a>
-                                ${statusButtonHtml}  <!-- Active/Inactive button with text -->
+                               <!-- Active/Inactive button with text -->
                                 
                             </div>
                         </td>

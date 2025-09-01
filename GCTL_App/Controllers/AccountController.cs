@@ -546,8 +546,124 @@ namespace GCTL_App.Controllers
             TempData["Email"] = email;
             return RedirectToAction("TwoStepPage");
         }
+        public async Task<IActionResult> GetEmployeeCodes()
+        {
+            var employeeCodes = await _Db.Employees
+                .Where(e => e.DeletedAt == null && (e.HasUser != true || e.HasUser == null)
+                && (e.IsActive == true || e.IsActive == null)) // Only active employees
+                .Select(e => new
+                {
+                    id = e.EmployeeID,
+                    code = $"{e.EmployeeCode} - {(e.FirstName + " " + e.LastName).Trim()}",
+                    name = (e.FirstName + " " + e.LastName).Trim()
 
+                })
+                .ToListAsync();
 
+            return Ok(employeeCodes);
+        }
+
+        [HttpPost]
+        [Route("Account/CreateUsers")]
+        public async Task<IActionResult> CreateUsers([FromBody] List<CreateUserRequest> users)
+        {
+            if (users == null || !users.Any())
+                return Json(new { success = false, message = "No user data received." });
+
+            foreach (var user in users)
+            {
+                //  Extract clean employee code
+                var pureCode = user.EmployeeCode?.Split(" - ")[0]?.Trim();
+
+                if (string.IsNullOrEmpty(pureCode))
+                {
+                    return Json(new { success = false, message = "Invalid employee code format." });
+                }
+
+                //  Check if employee exists
+                var employee = await _Db.Employees
+                    .FirstOrDefaultAsync(e => e.EmployeeCode == pureCode && e.DeletedAt == null);
+
+                if (employee == null)
+                {
+                    return Json(new { success = false, message = $"Employee not found for code: {pureCode}" });
+                }
+
+                //  Check if user already exists
+                var existingUser = await _Db.Users
+                    .FirstOrDefaultAsync(u => u.EmployeeId == employee.EmployeeID);
+
+                if (existingUser != null)
+                {
+                    return Json(new { success = false, message = $"User already exists for employee code: {pureCode}" });
+                }
+
+                //  Create new user
+                var applicationUser = new ApplicationUser
+                {
+                    //UserName = employee.EmployeeCode,
+                    UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
+                    Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
+                    EmployeeId = employee.EmployeeID,
+                   // IsPasswordResetRequired = true // Set to true to force password change on first login,
+
+                };
+
+                var result = await _userManager.CreateAsync(applicationUser, "##Emp123%");
+
+                if (result.Succeeded)
+                {
+                    employee.HasUser = true;
+                    employee.UpdatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    var errorMessages = result.Errors.Select(e => e.Description).ToList();
+                    return Json(new { success = false, message = $"Failed to create user for {pureCode}", errors = errorMessages });
+                }
+            }
+
+            await _Db.SaveChangesAsync();
+            return Json(new { success = true, message = "Users created successfully! default password: ##Emp123%" });
+        }
+        [HttpPost]
+        [Route("Account/ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("No user ID provided.");
+
+            // Find the user by ID
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found.");
+
+            // Generate password reset token
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            // Reset password to a new default password
+            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, "##Emp123%");
+
+            if (resetResult.Succeeded)
+            {
+                //   Mark password as needing reset
+               // user.IsPasswordResetRequired = true;
+
+                // Save changes
+                await _userManager.UpdateAsync(user);
+
+                return Ok(new { message = "Password reset successfully! New default password is ##Emp123%." });
+            }
+            else
+            {
+                foreach (var error in resetResult.Errors)
+                {
+                    // Log errors if needed
+                    Console.WriteLine(error.Description);
+                }
+                return BadRequest("Password reset failed.");
+            }
+        }
         public async Task<IActionResult> TwoStepPage()
         {
             return View();
