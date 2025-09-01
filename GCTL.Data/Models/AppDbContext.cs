@@ -2638,7 +2638,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LeadActivityIcon).HasMaxLength(50);
             entity.Property(e => e.LeadActivityName).HasMaxLength(50);
 
-            entity.Property(e => e.PeriodText).HasMaxLength(50);
+           // entity.Property(e => e.PeriodText).HasMaxLength(50);
 
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
