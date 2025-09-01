@@ -4,7 +4,7 @@
 
 }
 
-@* <div class="houseRentRow">
+<div class="houseRentRow">
 
     <div class="row g-3">
         <div class="col-lg-4 col-md-6 col-sm-12">
@@ -22,9 +22,9 @@
                     <option value="Fixed" selected>Fixed</option>
                     <option value="Percentage">Percentage</option>
                 </select>
-                <input type="hidden" class="CalculationTypeID" name="HouseRentAllowances[@index].CalculationTypeID" />
+                <input type="hidden" class="calculationTypeName" name="HouseRentAllowances[@index].CalculationTypeIDName" />
                 <div class="percentRate" style="display: none;">
-                    <select class="form-select choiceDD" id="cc[@index]" name="HouseRentAllowances[@index].Rate" style="max-width:186px;">
+                    <select class="form-select choiceDD" id="cc[@index]" name="HouseRentAllowances[@index].Rate" style="max-width:149px;">
                         <option value="">Select %</option>
                         @foreach (var item in ViewBag.PercenatageDD as SelectList ?? new SelectList(Enumerable.Empty<object>()))
                         {
@@ -33,7 +33,7 @@
                     </select>
                 </div>
                 <div class="fixedRate" style="display: none;">
-                    <input type="text" class="form-control" name="HouseRentAllowances[@index].Rate" placeholder="Enter Fixed Rate" style="max-width:186px;">
+                    <input type="text" class="form-control" name="HouseRentAllowances[@index].Rate" placeholder="Enter Fixed Rate" style="max-width: 145px;">
                 </div>
             </div>
 
@@ -47,4 +47,4 @@
     </div>
 
 </div>
- *@
+

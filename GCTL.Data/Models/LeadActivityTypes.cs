@@ -9,9 +9,11 @@ public partial class LeadActivityTypes
 {
     public int LeadActivityTypeID { get; set; }
 
+
     public string LeadActivityIcon { get; set; }
 
     public string LeadActivityName { get; set; }
+
 
     public string LIP { get; set; }
 

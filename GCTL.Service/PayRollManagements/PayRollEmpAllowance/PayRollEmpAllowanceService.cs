@@ -379,8 +379,36 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
         #endregion
 
-        #region Get By Data
-       
+        #region Get Allowance Type 
+
+        public async Task<List<CommonSelectVM>> SelectAsync(int id)
+        {
+            try
+            {
+                var data = await empalowanceTypesRepository
+                    .AllActive()
+                    .Where(x => x.OrganizationID == id).ToListAsync(); 
+
+                if (data == null || !data.Any())
+                {
+                    return new List<CommonSelectVM>(); 
+                }
+
+                var result = data.Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeAllowanceTypeID, // Assuming this is the unique ID
+                    Name = x.EmployeeAllowanceTypeName
+                }).ToList();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+        
         #endregion
     }
 }

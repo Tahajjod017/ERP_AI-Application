@@ -231,7 +231,6 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                     Message = "Employee Allowance Type Name is required"
                 };
             }
-
             try
             {
                 await empAllowanceTypes.BeginTransactionAsync();
@@ -245,7 +244,6 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                         Message = "Record not found"
                     };
                 }
-
                 foreach (var item in EntityVM.OrganizationIDs)
                 {
                     entity.OrganizationID = item;
@@ -255,12 +253,10 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                     entity.UpdatedAt = DateTime.Now;
                     entity.UpdatedBy = EntityVM.UpdatedBy;
                 }
-
                 await empAllowanceTypes.UpdateAsync(entity);
                 var afterEntity = JsonConvert.DeserializeObject<EmpAllowanceTypeOrganizationSaveVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Allowance Type", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeAllowanceTypeID, EntityVM);
                 await empAllowanceTypes.CommitTransactionAsync();
-
                 return new CommonReturnViewModel
                 {
                     Success = true,
@@ -330,7 +326,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
         }
 
         #endregion
-        #region Get Company 
+        #region Get Allowance Type 
 
         public async Task<CommonSelectVM> SelectAsync(int id)
         {
@@ -339,20 +335,20 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 var data=await empAllowanceTypes.AllActive().Where(x=>x.OrganizationID==id).FirstOrDefaultAsync();
                 if (data ==null)
                 {
-                   
+                    return new CommonSelectVM();
                 }
                 var result = new CommonSelectVM
                 {
                     Id=data.OrganizationID,
                     Name=data.EmployeeAllowanceTypeName
                 };
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                Console.WriteLine(ex.Message);
                 throw;
             }
-            throw new NotImplementedException();
         }
         #endregion
     }

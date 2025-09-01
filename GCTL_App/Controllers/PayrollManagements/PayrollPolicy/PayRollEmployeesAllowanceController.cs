@@ -78,10 +78,12 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             var model = new HouseRentAllowanceDetailVM(); // Empty model for rendering
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
-            ViewData["Index"] = index + 1;
+            ViewData["Index"] = index;
             
             return PartialView("_HouseRentAllowanceRow", model);
         }
+
+       
 
 
         #region Save Data
@@ -218,5 +220,24 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             }
         }
         #endregion
+
+        #region Get Allowance Type according to Organization
+        [Route("PayRollEmployeesAllowance/SelectAllowanceTypeAsync")]
+        [HttpGet]
+        public async Task<IActionResult> SelectAsync(int id)
+        {
+            try
+            {
+                var data = await payRollEmpAllowanceService.SelectAsync(id);
+                return Json(data);    
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+            
+       #endregion
     }
 }

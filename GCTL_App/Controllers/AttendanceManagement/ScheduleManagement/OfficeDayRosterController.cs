@@ -113,11 +113,11 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "RosterInOfficeDayID", string sortOrder = "desc", int daysToShow = 7, DateTime? startDate = null)
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null)
         {
             try
             {
-                var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, daysToShow, startDate);
+                var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, daysToShow, startDate);
 
                 return Json(result);
             }
@@ -126,6 +126,34 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+
+        #region GetEmployeesPaged
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null)
+        {
+            var result = await _assignDefaultShiftService.GetPagedEmployeesAsync(pageNumber, pageSize, searchTerm);
+
+            int totalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
+
+            return Json(new
+            {
+                data = result.Data,
+                totalCount = result.TotalCount,
+                pageNumber,
+                pageSize,
+                totalPages,
+                currentPage = pageNumber,
+                pageNumbers = Enumerable.Range(1, totalPages).ToList()
+            });
+            //return Json(new
+            //{
+            //    data = result.Data,
+            //    totalCount = result.TotalCount,
+            //    result = result
+            //});
+        }
+        #endregion
+
         #endregion
 
 
@@ -242,34 +270,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         {
             var result = await _commonService.GetEmployeesByOrgBraId(orgId, ids);
             return Json(result);
-        }
-        #endregion
-
-
-        #region GetEmployeesPaged
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeesPaged(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null)
-        {
-            var result = await _assignDefaultShiftService.GetPagedEmployeesAsync(pageNumber, pageSize, searchTerm);
-
-            int totalPages = (int)Math.Ceiling((double)result.TotalCount / pageSize);
-
-            return Json(new
-            {
-                data = result.Data,
-                totalCount = result.TotalCount,
-                pageNumber,
-                pageSize,
-                totalPages,
-                currentPage = pageNumber,
-                pageNumbers = Enumerable.Range(1, totalPages).ToList()
-            });
-            //return Json(new
-            //{
-            //    data = result.Data,
-            //    totalCount = result.TotalCount,
-            //    result = result
-            //});
         }
         #endregion
     }

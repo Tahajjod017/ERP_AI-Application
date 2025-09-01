@@ -158,6 +158,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LeadDetails> LeadDetails { get; set; }
 
+
     public virtual DbSet<LeadServices> LeadServices { get; set; }
 
     public virtual DbSet<LeadSources> LeadSources { get; set; }
@@ -639,13 +640,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //});
 
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Organization)
         .WithMany(o => o.AspNetUsers)
@@ -671,6 +673,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(r => r.TenantInfoId)
         .IsRequired(false)
         .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -2631,8 +2634,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+
             entity.Property(e => e.LeadActivityIcon).HasMaxLength(50);
             entity.Property(e => e.LeadActivityName).HasMaxLength(50);
+
+            entity.Property(e => e.PeriodText).HasMaxLength(50);
+
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadActivityTypesCreatedByNavigation)
@@ -2683,6 +2690,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__LeadDetai__Updat__33758E3C");
         });
+
 
         modelBuilder.Entity<LeadServices>(entity =>
         {
