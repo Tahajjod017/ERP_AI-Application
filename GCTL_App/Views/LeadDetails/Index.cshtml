@@ -111,7 +111,7 @@
 
                                 <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-center">
+                                <td class="align-middle text-start">
                                     <span>@Model.FullName</span>
                                 </td>
                             </tr>
@@ -133,7 +133,7 @@
 
                                 <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-center">
+                                <td class="align-middle text-start">
                                     <span>@Model.Phone</span>
                                 </td>
                             </tr>
@@ -155,7 +155,7 @@
 
                                 <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-center">
+                                <td class="align-middle text-start">
                                     <span>@Model.Email</span>
                                 </td>
                             </tr>
@@ -177,7 +177,7 @@
 
                                 <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-center">
+                                <td class="align-middle text-start">
                                     <span>Jackson Pollock</span>
                                 </td>
                             </tr>
@@ -199,7 +199,7 @@
 
                                 <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-center">
+                                <td class="align-middle text-start">
                                     <span>@Model.Created</span>
                                 </td>
                             </tr>
@@ -221,7 +221,7 @@
 
                                 <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-center">
+                                <td class="align-middle text-start">
                                     <span>Jackson Pollock</span>
                                 </td>
                             </tr>
@@ -516,7 +516,17 @@
                 </div> -->
                 <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 pb-1 mb-6" id="myTab" role="tablist" style="overflow-y: hidden;">
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link active" id="activity-tab" data-bs-toggle="tab" href="#tab-activity" role="tab" aria-controls="tab-activity" aria-selected="false" tabindex="-1"> <span class="fa-solid fa-chart-line me-2 tab-icon-color"></span>Activity</a></li>
-                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="notes-tab" data-bs-toggle="tab" href="#tab-notes" role="tab" aria-controls="tab-notes" aria-selected="false" tabindex="-1"> <span class="fa-solid fa-clipboard me-2 tab-icon-color"></span>Notes</a></li>
+                @foreach (var item in ViewBag.LeadActivityTypes)
+                {
+                    @* <button class="btn btn-phoenix-secondary me-1 mb-1 option-btn"
+                            type="button"
+                            data-id="@item.LeadActivityTypeID">
+                        <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
+                        <br>@item.LeadActivityName
+                    </button> *@
+
+                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@item.LeadActivityName-tab" data-bs-toggle="tab" href="#tab-@item.LeadActivityName" role="tab" aria-controls="tab-@item.LeadActivityName" aria-selected="true"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
+                }
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="meeting-tab" data-bs-toggle="tab" href="#tab-meeting" role="tab" aria-controls="tab-meeting" aria-selected="true"> <span class="fa-solid fa-video me-2 tab-icon-color"></span>Meeting</a></li>
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="call-tab" data-bs-toggle="tab" href="#tab-call" role="tab" aria-controls="tab-call" aria-selected="true"> <span class="fa-solid fa-phone me-2 tab-icon-color"></span>Call</a></li>
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="emails-tab" data-bs-toggle="tab" href="#tab-emails" role="tab" aria-controls="tab-emails" aria-selected="true"> <span class="fa-solid fa-envelope me-2 tab-icon-color"></span>Emails </a></li>
@@ -530,7 +540,7 @@
                             <div class="col-12 col-sm-auto">
                                 <div class="search-box mb-2 mb-sm-0">
                                     <form class="position-relative">
-                                        <input class="form-control search-input search" type="search" placeholder="Search Activity" aria-label="Search" />
+                                        <input class="form-control search-input search" id="searchActivity" type="search" placeholder="Search Activity" aria-label="Search" />
                                         <span class="fas fa-search search-box-icon"></span>
 
                                     </form>
@@ -542,98 +552,13 @@
                         </div>
 
 
+                        <div id="allActivity"></div>
 
-
-                        <div class="border-bottom border-translucent py-4">
-                            <div class="d-flex">
-                                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-primary-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-clipboard text-primary-dark"></span></div>
-                                <div class="flex-1">
-                                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                        <div class="flex-1 me-2">
-                                            <h5 class="text-body-highlight lh-sm">Assigned as a director for Project The Chewing Gum Attack</h5>
-                                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Jackson Pollock</a></p>
-                                        </div>
-                                        <div class="fs-9"><span class="fa-regular fa-calendar-days text-primary me-2"></span><span class="fw-semibold">22 September, 2022, 4:33 PM</span></div>
-                                    </div>
-                                    <p class="fs-9 mb-0">Utilizing best practices to better leverage our assets, we must engage in black sky leadership thinking, not the usual band-aid solution. </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border-bottom border-translucent py-4">
-                            <div class="d-flex">
-                                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-info-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-video text-info-600"></span></div>
-                                <div class="flex-1">
-                                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                        <div class="flex-1 me-2">
-                                            <h5 class="text-body-highlight lh-sm">Onboarding Meeting</h5>
-                                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Jackson Pollock</a></p>
-                                        </div>
-                                        <div class="fs-9"><span class="fa-regular fa-calendar-days text-primary me-2"></span><span class="fw-semibold">20 September, 2022, 5:31pm</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border-bottom border-translucent py-4">
-                            <div class="d-flex">
-                                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-success-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-square-check text-success-dark"></span></div>
-                                <div class="flex-1">
-                                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                        <div class="flex-1 me-2">
-                                            <h5 class="text-body-highlight lh-sm">Designing the dungeon</h5>
-                                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Jackson Pollock</a></p>
-                                        </div>
-                                        <div class="fs-9"><span class="fa-regular fa-calendar-days text-primary me-2"></span><span class="fw-semibold">19 September, 2022, 4:39pm </span></div>
-                                    </div>
-                                    <p class="fs-9 mb-0">To get off the runway and paradigm shift, we should take brass tacks with above-the-board actionable analytics, ramp up with viral partnering, not the usual goat rodeo putting socks on an octopus. </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border-bottom border-translucent py-4">
-                            <div class="d-flex">
-                                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-warning-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-phone-alt text-warning-dark"></span></div>
-                                <div class="flex-1">
-                                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                        <div class="flex-1 me-2">
-                                            <h5 class="text-body-highlight lh-sm">Purchasing-Related Vendors</h5>
-                                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Ansolo Lazinatov</a></p>
-                                        </div>
-                                        <div class="fs-9"><span class="fa-regular fa-calendar-days text-primary me-2"></span><span class="fw-semibold">22 September, 2022, 4:30pm</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border-bottom border-translucent py-4">
-                            <div class="d-flex">
-                                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-danger-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-envelope text-danger-dark"></span></div>
-                                <div class="flex-1">
-                                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                        <div class="flex-1 me-2">
-                                            <h5 class="text-body-highlight lh-sm">Quary about purchased soccer socks</h5>
-                                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Ansolo Lazinatov</a></p>
-                                        </div>
-                                        <div class="fs-9"><span class="fa-regular fa-calendar-days text-primary me-2"></span><span class="fw-semibold">15 September, 2022, 3:33pm</span></div>
-                                    </div>
-                                    <p class="fs-9 mb-0">I’ve come across your posts and found some favorable deals on your page. I’ve added a load of products to the cart and I don’t know the payment options you avail. Also, can you enlighten me about any discount.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4">
-                            <div class="d-flex">
-                                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-primary-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-paperclip text-primary-dark"></span></div>
-                                <div class="flex-1">
-                                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                        <div class="flex-1 me-2">
-                                            <h5 class="text-body-highlight lh-sm">Added image</h5>
-                                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Ansolo Lazinatov</a></p>
-                                        </div>
-                                        <div class="fs-9"><span class="fa-regular fa-calendar-days text-primary me-2"></span><span class="fw-semibold">11 September, 2022, 12:15am </span></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
+                        
                     </div>
 
-                    <div class="tab-pane fade" id="tab-notes" role="tabpanel" aria-labelledby="notes-tab">
+                    @* <div class="tab-pane fade" id="tab-notes" role="tabpanel" aria-labelledby="notes-tab">
                         <h2 class="mb-4">Notes</h2>
                         <textarea class="form-control mb-3" id="notes" rows="4"> </textarea>
                         <div class="row gy-4">
@@ -668,7 +593,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> *@
 
                     <div class="tab-pane fade" id="tab-meeting" role="tabpanel" aria-labelledby="meeting-tab">
                         <h2 class="mb-4">Meeting</h2>

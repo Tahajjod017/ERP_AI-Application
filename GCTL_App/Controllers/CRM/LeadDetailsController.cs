@@ -5,9 +5,11 @@ using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetails;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
 
 
 namespace GCTL_App.Controllers.CRM
@@ -18,13 +20,15 @@ namespace GCTL_App.Controllers.CRM
         private readonly AppDbContext _context;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesRepository;
+        private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly ILeadDetailsService _leadDetailsService;
-        public LeadDetailsController(IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
+        public LeadDetailsController(IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
             _leadSourceTypeRepository = leadSourceTypeRepository;
             _leadDetailsService = leadDetailsService;
             _leadActivityTypesRepository = leadActivityTypesRepository;
+            _leadDetailsRepository = leadDetailsRepository;
             _context = context;
         }
 
@@ -98,6 +102,54 @@ namespace GCTL_App.Controllers.CRM
 
             }
             return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> getActivityInfo([FromBody] LeadDetailsVM leadDetailsVM)
+        {
+            try
+            {
+
+                if (leadDetailsVM.LeadID != 0)
+                {
+                    bool result = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM);
+                    return Ok(new { result = result, message = "Data added successfully" });
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
+
+            }
+            return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> getActivityList(int id, string query, int page)
+        {
+            const int pageSize = 10; // Number of items per page
+            int skip = (page - 1) * pageSize; // Calculate how many items to skip
+
+            // Fetch filtered and paginated data using LIKE
+            var list = await _leadDetailsRepository
+            .Find(u => string.IsNullOrEmpty(query)
+                || EF.Functions.Like(u.ActivityDateTime.ToString(), $"%{query}%")
+                || EF.Functions.Like(u.ActivityNote, $"%{query}%")
+                || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")
+                )
+            .Skip(skip)
+            .OrderByDescending(e => e.CreatedAt)
+            .Take(pageSize).Select(e => new
+            {
+                e.ActivityDateTime,
+                e.ActivityNote,
+                e.LeadActivityType.LeadActivityName,
+                e.LeadActivityType.LeadActivityIcon
+            })
+            .ToListAsync();
+            return Ok(list);
+
         }
     }
 }

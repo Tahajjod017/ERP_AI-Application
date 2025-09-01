@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,9 +37,10 @@ namespace GCTL.Service.CRM.LeadDetails
                     new LeadActivityTypes{LeadActivityIcon = "fa-phone", LeadActivityName = "Call", CreatedAt = DateTime.UtcNow},
                     new LeadActivityTypes{LeadActivityIcon = "fa-envelope", LeadActivityName = "Email", CreatedAt = DateTime.UtcNow},
                     new LeadActivityTypes{LeadActivityIcon = "fa-handshake", LeadActivityName = "Offline Meeting", CreatedAt = DateTime.UtcNow},
-                    new LeadActivityTypes{LeadActivityIcon = "fa-internet-explorer", LeadActivityName = "Online Meeting", CreatedAt = DateTime.UtcNow},
+                    new LeadActivityTypes{LeadActivityIcon = "fa-vr-cardboard", LeadActivityName = "Online Meeting", CreatedAt = DateTime.UtcNow},
                     new LeadActivityTypes{LeadActivityIcon = "fa-quote-left", LeadActivityName = "Quatation", CreatedAt = DateTime.UtcNow},
                     new LeadActivityTypes{LeadActivityIcon = "fa-angles-right", LeadActivityName = "Rev. Quatation", CreatedAt = DateTime.UtcNow},
+                    new LeadActivityTypes{LeadActivityIcon = "fa-file", LeadActivityName = "Attachment", CreatedAt = DateTime.UtcNow},
                 };
 
                 await _leadActivityTypesGenericRepository.AddRangeAsync(items);
@@ -49,10 +51,21 @@ namespace GCTL.Service.CRM.LeadDetails
 
         public async Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM)
         {
+
+            if (!leadDetailsVM.ActivityDateTime.HasValue)
+            {
+                return false; 
+            }
+
+            // Convert local time to UTC
+            var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
+            var utcDateTime = localDateTime.ToUniversalTime();
+
+
             var leadObj = new GCTL.Data.Models.LeadDetails()
             {
                 LeadID = leadDetailsVM.LeadID,
-                ActivityDateTime = leadDetailsVM.ActivityDateTime,
+                ActivityDateTime = utcDateTime,
                 LeadActivityTypeID = leadDetailsVM.LeadActivityTypeID,
                 ActivityNote = leadDetailsVM.ActivityNote,
 

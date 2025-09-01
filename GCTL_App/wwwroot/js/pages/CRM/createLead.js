@@ -236,6 +236,21 @@ $(document).ready(function () {
 
     initCutomer();
 
+    //$("#leadOwnerId").select2({
+    //    ajax: {
+    //        url: '/Employee/GetLeadWonerList',   // your controller action
+    //        dataType: 'json',
+    //        delay: 250,                // debounce
+    //        data: function (params) {
+    //            debugger;
+    //            return { query: params.term }; // send search term
+    //        },
+    //        processResults: function (data) {
+    //            return { results: data };
+    //        }
+    //    },
+    //    minimumInputLength: 2 // only search after 2 chars
+    //})
 
     function getCustomerInfo(customerId) {
         return new Promise((resolve, reject) => {
@@ -262,40 +277,40 @@ $(document).ready(function () {
     }
 
 
-    function showSuggestions(query) {
-        const $list = $('#customerList');
-        const $noResults = $('#noResults');
-        $list.empty();
-        $list.hide();
-        $noResults.hide();
+  //  function showSuggestions(query) {
+  //      const $list = $('#customerList');
+  //      const $noResults = $('#noResults');
+  //      $list.empty();
+  //      $list.hide();
+  //      $noResults.hide();
 
-        if (!query) return;
-        const q = String(query ?? '')
-            .toLowerCase()
-            .trim()
-            .replace(/ /g, "")
-            .replace(/-/g, "");
+  //      if (!query) return;
+  //      const q = String(query ?? '')
+  //          .toLowerCase()
+  //          .trim()
+  //          .replace(/ /g, "")
+  //          .replace(/-/g, "");
 
-        const filtered = customers.filter(item =>
-            String(item.fullName ?? '').toLowerCase().includes(q) ||
-            String(item.phone ?? '').toLowerCase().includes(q) ||
-            String(item.email ?? '').toLowerCase().includes(q)
-        );
-        if (filtered.length > 0) {
-            $list.show();
-            filtered.forEach(item => {
-                $list.append(`
-  <button type="button" 
-          class="list-group-item list-group-item-action customerName-item" 
-          data-id="${item.customerId}" 
-          data-type="${item.type}">
-      ${item.fullName} &nbsp; ${item.phone ? `${item.phone}` : ""} &nbsp; 
-      ${item.email ? `${item.email}` : ""} </button>`);
-            });
-        } else {
-            $noResults.show();
-        }
-    }
+  //      const filtered = customers.filter(item =>
+  //          String(item.fullName ?? '').toLowerCase().includes(q) ||
+  //          String(item.phone ?? '').toLowerCase().includes(q) ||
+  //          String(item.email ?? '').toLowerCase().includes(q)
+  //      );
+  //      if (filtered.length > 0) {
+  //          $list.show();
+  //          filtered.forEach(item => {
+  //              $list.append(`
+  //<button type="button" 
+  //        class="list-group-item list-group-item-action customerName-item" 
+  //        data-id="${item.customerId}" 
+  //        data-type="${item.type}">
+  //    ${item.fullName} &nbsp; ${item.phone ? `${item.phone}` : ""} &nbsp; 
+  //    ${item.email ? `${item.email}` : ""} </button>`);
+  //          });
+  //      } else {
+  //          $noResults.show();
+  //      }
+  //  }
   //  function showSuggestions2(query) {
   //      const $list = $('#personCustomerList');
   //      const $noResults = $('#personNoResults');
@@ -491,7 +506,10 @@ $(document).ready(function () {
         let $idBank = $(this).siblings('.idBank');
         $idBank.val(0);  // reset hidden field to 0
         let fieldValue = parseInt($idBank.val()) || 0;
-
+        debugger
+        if (this.id == 'ContactNameSearch') {
+            $("#customerInfoContainer").hide()
+        }
         $(this).css('border', fieldValue === 0 ? '1px solid red' : '1px solid #ccc');
     });
 
@@ -1525,11 +1543,125 @@ $(document).ready(function () {
         
     });
 
+    // load employee
+
+    //let currentPage = 1;
+    //let search = "";
+    //function updateEmployee() {
+    //    $.ajax({
+    //        url: '/CreateLead/GetEmployeeList',
+    //        method: 'GET',
+    //        contentType: 'application/json',
+    //        data: { query: search, page: currentPage },
+    //        success: function (response) {
+    //            debugger
+    //            showDev(response, "employee");
+    //            const leadOwnerSelect = $('#leadOwnerId');
+    //            //$('#leadOwnerId').empty();
+    //            console.log(response)
+    //            response.forEach((value, index) => {
+    //                leadOwnerSelect.append(`
+    //                    <option value="${value.employeeID}">${value.firstName} ${value.lastName}</option>
+    //                `);
+
+    //                //choiceManager.setChoiceValue('leadOwnerId', data.employeeIDEdit);
+
+    //               })
+    //        },
+    //        error: function (jqXHR, textStatus, errorThrown) {
+    //            console.log(jqXHR, textStatus, errorThrown);
+    //            toastr.error("An error occurred: " + textStatus);
+    //        }
+    //    });
+    //}
+    //updateEmployee();
+
+    //$('#leadOwnerContainer').on('scroll', function () {
+    //    const container = $(this);
+    //    if (!loading && container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 10) {
+    //        currentPage++;
+    //        updateEmployee(); // append more employees
+    //    }
+    //});
+
+    let currentPage = 1;
+    let search = "";
+    let loading = false; // Add loading flag to prevent multiple simultaneous requests
+
+    // Initialize Choices.js for #leadOwnerId
+    const leadOwnerSelect = new Choices('#leadOwnerId', {
+        searchEnabled: true,
+        placeholderValue: 'Select Lead Owner',
+        removeItemButton: true,
+        shouldSort: false // Prevent sorting to maintain server order
+    });
+
+    function updateEmployee() {
+        if (loading) return; // Prevent multiple requests
+        loading = true;
+
+        $.ajax({
+            url: '/CreateLead/GetEmployeeList', // Verify this URL matches your controller route
+            method: 'GET',
+            data: { query: search, page: currentPage },
+            success: function (response) {
+                console.log('Response:', response);
+                // Assuming response is an array of { employeeID, firstName, lastName }
+                if (Array.isArray(response) && response.length > 0) {
+                    // Convert response to Choices.js format
+                    const newChoices = response.map(employee => ({
+                        value: employee.employeeID,
+                        label: `${employee.firstName} ${employee.lastName}`
+                    }));
+
+                    // Append new choices to existing ones
+                    leadOwnerSelect.setChoices(newChoices, 'value', 'label', false);
+
+                    // Optional: If you want to clear previous options, uncomment the following
+                    // leadOwnerSelect.clearChoices();
+                    // leadOwnerSelect.setChoices(newChoices, 'value', 'label', true);
+                } else {
+                    console.log('No more data to load');
+                    toastr.info('No more employees to load.');
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log('AJAX Error:', {
+                    status: jqXHR.status,
+                    statusText: jqXHR.statusText,
+                    textStatus: textStatus,
+                    errorThrown: errorThrown,
+                    responseText: jqXHR.responseText
+                });
+                toastr.error('Failed to load employees: ' + textStatus);
+            },
+            complete: function () {
+                loading = false; // Reset loading flag
+            }
+        });
+    }
+
+    // Initial load
+    updateEmployee();
+
+    // Scroll event for infinite scrolling
+    $('#leadOwnerContainer').on('scroll', function () {
+        const container = $(this);
+        if (!loading && container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 10) {
+            currentPage++;
+            updateEmployee(); // Fetch next page of employees
+        }
+    });
 
     $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
+
+        let services = $("#serviceTypes").val();
+  
         if (await fieldValidation()) {
             debugger;
+
+
             const data = {
                 LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
                 LeadStatusID: parseInt($("#" + idMapIndex.indexBase.leadStatusID).val()) || 0,
@@ -1539,6 +1671,7 @@ $(document).ready(function () {
                 ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
                 CustomerId: parseInt($("#" + idMapIndex.indexBase.customerID).val()) || 0,
                 LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val(),
+                ServiceTypeIds: $("#serviceTypes").val() || [],
             };
             debugger;
             $.ajax({
@@ -1547,6 +1680,7 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (response) {
+
                     if (response.success) {
                         toastr.success(response.message);
                         getCustomerList();
@@ -1601,7 +1735,7 @@ $(document).ready(function () {
                 idMapIndex.indexBase.leadName,
                 idMapIndex.indexBase.leadStatusID,
                 idMapIndex.indexBase.leadSourceID,
-                idMapIndex.indexBase.leadOwnerID,   
+                //idMapIndex.indexBase.leadOwnerID,   
             ].filter(Boolean);
         } else {
             return [];
@@ -1743,8 +1877,8 @@ $(document).ready(function () {
         runtimeValidationCheck();
         let isValid = true;
         isValid = await uniquenPhoneCheck();
-        //isValid = isValid === false ? false :  await extraFieldIdValidation();
-        //isValid = isValid === false ? false : await exRuntimeValidationCheck();
+        isValid = isValid === false ? false :  await extraFieldIdValidation();
+        isValid = isValid === false ? false : await exRuntimeValidationCheck();
         debugger
         let errorCount = 0;
         selectedTab.filter(Boolean).forEach(e => {
@@ -1809,20 +1943,21 @@ $(document).ready(function () {
         });
     }
     function exRuntimeValidationCheck() {
-        debugger;
+        
         return new Promise((resolve, reject) => {
+            debugger;
             const selectedTab = exListForValidation();
-        //    if (!selectedTab) return; // exit if no valid ID
-        //    let $idBank = $(selectedTab).siblings('.idBank'); // the related hidden field
-        //    let fieldValue = parseInt($idBank.val()) || 0;
+            if (!selectedTab) return; // exit if no valid ID
+            let $idBank = $(selectedTab).siblings('.idBank'); // the related hidden field
+            let fieldValue = parseInt($idBank.val()) || 0;
 
-        //    if (fieldValue === 0) {
-        //        $(selectedTab).css('border', '1px solid red');
-        //        resolve(true);
-        //    } else {
-        //        $(selectedTab).css('border', '1px solid #ccc');
-        //        resolve(false);
-        //    }
+            if (fieldValue === 0) {
+                $(selectedTab).css('border', '1px solid red');
+                resolve(true);
+            } else {
+                $(selectedTab).css('border', '1px solid #ccc');
+                resolve(false);
+            }
         resolve(false);
         })
        
