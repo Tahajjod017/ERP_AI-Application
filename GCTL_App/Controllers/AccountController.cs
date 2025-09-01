@@ -51,11 +51,38 @@ namespace GCTL_App.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user2 = await _Db.Users
+                            .Include(u => u.Employees)  // Make sure to include the Employee to check IsActive and DeletedAt
+                            .FirstOrDefaultAsync(u => u.Employees.Email == model.Email);
                 // Step 1: Attempt login
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
+                    if (user2.IsPasswordResetRequired)
+                    {
+                        var user3 = await _userManager.FindByEmailAsync(model.Email);
+                        var claims2 = new List<Claim>
+                                {
+                                    new Claim(ClaimTypes.NameIdentifier, user3.Id),
+                                    new Claim(ClaimTypes.Name, user3.UserName),
+                                    new Claim(ClaimTypes.Email, model.Email)
+                                };
+
+                        var claimsIdentity2 = new ClaimsIdentity(claims2, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsPrincipal2 = new ClaimsPrincipal(claimsIdentity2);
+
+                        var authProps2 = new AuthenticationProperties
+                        {
+                            IsPersistent = model.RememberMe,
+                            ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                        };
+
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal2, authProps2);
+
+                        // Redirect to force password change
+                        return RedirectToAction("ForceChangePassword", "Account");
+                    }
                     // Step 2: Get user
                     var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -605,7 +632,7 @@ namespace GCTL_App.Controllers
                     UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
                     Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
                     EmployeeId = employee.EmployeeID,
-                   // IsPasswordResetRequired = true // Set to true to force password change on first login,
+                    IsPasswordResetRequired = true // Set to true to force password change on first login,
 
                 };
 
@@ -647,7 +674,7 @@ namespace GCTL_App.Controllers
             if (resetResult.Succeeded)
             {
                 //   Mark password as needing reset
-               // user.IsPasswordResetRequired = true;
+                user.IsPasswordResetRequired = true;
 
                 // Save changes
                 await _userManager.UpdateAsync(user);
@@ -820,7 +847,66 @@ namespace GCTL_App.Controllers
         //       .HasDiscriminator<string>("Discriminator")
         //       .HasValue<ApplicationUser>("ApplicationUser");
 
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ForceChangePassword()
+        {
+            return View();
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("Account/ForceChangePassword")]
+        public async Task<IActionResult> ForceChangePassword(ForcePasswordRequest model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                TempData["AlertType"] = "danger";
+                TempData["AlertMessage"] = "User not found. Please log in again.";
+                return RedirectToAction("Login", "Account");
+            }
+            // Check if the new password is same as the current one
+            var passwordHasher = new PasswordHasher<IdentityUser>();
+            var verificationResult = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, model.NewPassword);
+
+            if (verificationResult == PasswordVerificationResult.Success)
+            {
+                TempData["AlertType"] = "warning";
+                TempData["AlertMessage"] = "You cannot reuse your previous password. Please choose a new one.";
+                return View(model);
+            }
+            // Directly generate a password reset token
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, resetToken, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                user.IsPasswordResetRequired = false;
+                await _userManager.UpdateAsync(user);
+                TempData["AlertType"] = "success";
+                TempData["AlertMessage"] = "Password updated successfully. Please log in again.";
+
+                await _signInManager.SignOutAsync(); // Optional: log user out after password change
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                TempData["AlertType"] = "danger";
+                TempData["AlertMessage"] = "Password update failed. Please check your inputs.";
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(model);
+            }
+        }
 
     }
 }
