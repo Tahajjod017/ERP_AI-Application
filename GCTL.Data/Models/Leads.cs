@@ -51,6 +51,8 @@ public partial class Leads
 
     public virtual Employees LeadOwner { get; set; }
 
+    public virtual ICollection<LeadServices> LeadServices { get; set; } = new List<LeadServices>();
+
     public virtual LeadSources LeadSource { get; set; }
 
     public virtual LeadStatuses LeadStatus { get; set; }

@@ -31,6 +31,8 @@ public partial class Services
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<LeadServices> LeadServices { get; set; } = new List<LeadServices>();
+
     public virtual ICollection<LeadTypes> LeadTypes { get; set; } = new List<LeadTypes>();
 
     public virtual Employees UpdatedByNavigation { get; set; }

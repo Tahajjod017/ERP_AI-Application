@@ -21,7 +21,7 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Services> _serviceTypeRepository;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesTypeRepository;
-        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeTypeRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly ILeadCreateService _leadCreateService;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressesRepository;
@@ -38,7 +38,7 @@ namespace GCTL_App.Controllers.CRM
             _customersRepository = customersRepository;
             _leadCreateService = leadCreateService;
             _customerAddressesRepository = customerAddressesRepository;
-            _employeeTypeRepository = employeeTypeRepository;
+            _employeeRepository = employeeTypeRepository;
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
             _context = context;
@@ -51,14 +51,24 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadStatusDD = new SelectList(_leadStatusesTypeRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
-            ViewBag.EmployeeDD = new SelectList(_employeeTypeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+            //ViewBag.EmployeeDD = new SelectList(_employeeTypeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.CountryDD = new SelectList(_countryRepository.AllActive().Select(e => new { e.CountryID, e.CountryName }), "CountryID", "CountryName");
 
 
             return View();
         }
 
-       
+        //public async Task<IActionResult> GetLeadWonerList(string query)
+        //{
+        //    var employees = await _employeeRepository.AllActive()
+        //        .Where(e => e.FirstName.Contains(query) || e.LastName.Contains(query))
+        //        .Select(e => new { id = e.EmployeeID, text = e.FirstName + " " + e.LastName })
+        //        .Take(10) // limit results
+        //        .ToListAsync();
+
+        //    return Json(employees);
+        //}
+
 
         [HttpGet]
         private async Task<bool> IsUniqueAsync(string queryText, string type, int id)
@@ -405,6 +415,30 @@ namespace GCTL_App.Controllers.CRM
                 Message = "Data not inserted",
             };
             return Ok(results);
+
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeList(string query, int page)
+       {
+            const int pageSize = 10; // Number of items per page
+            int skip = (page - 1) * pageSize; // Calculate how many items to skip
+
+            // Fetch filtered and paginated data using LIKE
+            var list = await _employeeRepository
+            .Find(u => string.IsNullOrEmpty(query)
+                || EF.Functions.Like(u.FirstName.ToString(), $"%{query}%")
+                || EF.Functions.Like(u.LastName, $"%{query}%")
+                )
+            .Skip(skip)
+            .OrderByDescending(e => e.CreatedAt)
+            .Take(pageSize).Select(e => new
+            {
+                e.FirstName,
+                e.LastName,
+                e.EmployeeID,
+            })
+            .ToListAsync();
+            return Ok(list);
 
         }
 

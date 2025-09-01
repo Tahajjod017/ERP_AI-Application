@@ -23,5 +23,7 @@ namespace GCTL.Core.ViewModels.CRM
 
         public string? LeadDescription { get; set; }
         public int CustomerId { get; set; }
+        public List<int> ServiceTypeIds { get; set; } = new List<int>();
+
     }
 }
