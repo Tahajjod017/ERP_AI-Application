@@ -1,30 +1,18 @@
-﻿@{
-    var mainTab = "CompanySetting";
-    var subTab = "DesignationSettings";
-}
+﻿
 
-<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
-<partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
-
-
-<div class="col-xl-12 mt-3">
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="border-bottom d-flex align-items-center justify-content-between pb-3 mb-3">
-                <h4>Designation Settings</h4>
-
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="modal fade" id="edit_designation_setting">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Designation Settings</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-
-            <form id="designationSettingsForm" asp-controller="DesignationSettings" asp-action="Create" method="post">
+            <form id="designationSettingsForm" asp-controller="DesignationSettings" asp-action="Updates" method="post">
                 <div class="mb-3">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div>
-                                <h6 class="mb-3">Basic Information</h6>
-                            </div>
-                        </div>
-                    </div>
+                    
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
@@ -58,17 +46,8 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
+
         </div>
     </div>
-  
-   
 </div>
 
-
-<partial name="_ConfirmDelete" />
-<partial name="_DesignationSettingTable"/>
-<partial name="_DesignationEdit" />
-@section Scripts {
-    <script src="~/js/pages/adminsettings/organizationsettings/designationsetting.js"></script>
-
-}
