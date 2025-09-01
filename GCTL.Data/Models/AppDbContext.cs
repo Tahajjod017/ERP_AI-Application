@@ -2634,12 +2634,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-
             entity.Property(e => e.LeadActivityIcon).HasMaxLength(50);
             entity.Property(e => e.LeadActivityName).HasMaxLength(50);
-
-            entity.Property(e => e.PeriodText).HasMaxLength(50);
-
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadActivityTypesCreatedByNavigation)
