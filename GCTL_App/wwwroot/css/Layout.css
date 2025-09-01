@@ -10,8 +10,13 @@
 .border-translucent {
     border-color: rgb(203 208 221 / 0%) !important;
 }*/
-
-
+/*Added ruby 404*/
+label.req::after {
+    content: " *"; /* The asterisk after the label text */
+    color: red; /* Only the asterisk is red */
+    margin-left: 2px; /* Optional spacing */
+    font-weight: bold; /* Optional bold */
+}
 
 .caiCon {
     position: relative;

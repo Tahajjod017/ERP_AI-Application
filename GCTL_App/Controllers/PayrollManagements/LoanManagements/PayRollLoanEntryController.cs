@@ -1,6 +1,8 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
+using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollLoanManagement;
 using GCTL.Service.UserProfile;
@@ -17,16 +19,24 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
     {
         private IGenericRepository<LoanInstallmentPeriods> loanInstallment;
         private readonly IPayRollLoanEntryService payRollLoanEntryService;
-        public PayRollLoanEntryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LoanInstallmentPeriods> loanInstallment, IPayRollLoanEntryService payRollLoanEntryService) : base(translateService, userProfileService)
+        private readonly ICommonService _commonService;
+       
+        public PayRollLoanEntryController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LoanInstallmentPeriods> loanInstallment, IPayRollLoanEntryService payRollLoanEntryService, ICommonService commonService) : base(translateService, userProfileService)
         {
             this.loanInstallment = loanInstallment;
             this.payRollLoanEntryService = payRollLoanEntryService;
+            _commonService = commonService;
+           
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             PayrollLoanEntryPageVM model = new PayrollLoanEntryPageVM();
-            ViewBag.LoanInstallmentDD = new SelectList(loanInstallment.AllActive(), "LoanInstallmentPeriodID", "PeriodText");
+            ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+            ViewBag.DepartmentDD = await _commonService.GetDepartments();
+            ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
+            ViewBag.LoanInstallmentDD = new SelectList(loanInstallment.AllActive(), "PeriodValue", "PeriodText");
+          
             return View(model);
         }
 
@@ -35,6 +45,14 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
         [HttpPost]
         public async Task<IActionResult> SaveAsync(LoanSaveVM model)
         {
+            if (!ModelState.IsValid)
+            {
+                // Return all errors
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                               .Select(e => e.ErrorMessage)
+                                               .ToList();
+                return Json(new { Success = false, Message = "Validation Failed.", Errors = errors });
+            }
 
             try
             {
@@ -46,6 +64,15 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
 
                 throw;
             }
+        }
+        #endregion
+
+
+        #region GetEmployeesByOrgBraDepId
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        {
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            return Json(result);
         }
         #endregion
     }

@@ -9,6 +9,21 @@
 //        }
 //    });
 //}
+function initializeMonthYearPicker(selector) {
+    $(selector).flatpickr({
+        altInput: true,
+        altFormat: "F Y",
+        dateFormat: "Y-m", // This is the format that will be submitted (e.g., 2025-09)
+        plugins: [
+            new monthSelectPlugin({
+                shorthand: true,
+                dateFormat: "F Y", // Displayed in the picker
+                altFormat: "F Y",  // Shown in the input
+                theme: "light"
+            })
+        ]
+    });
+}
 
 function initializeDatepickerDMY(dateIds) {
     dateIds.split(',').forEach(function (id) {
