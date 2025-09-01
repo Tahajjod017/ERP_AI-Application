@@ -66,6 +66,85 @@ $(document).on('click', '#confirmDeleteBtn', function () {
     }
 });
 
+$(document).on('click', '#edit_branch_settingBtn', function () {
+  //  var holidaySettingID = $(this).data('id');
+    $('#edit_branch_setting').modal('show'); // Show the delete confirmation modal
+
+    // Store the ID in the hidden input field
+    //$('#HolidayIDEdit').val(holidaySettingID);
+
+    //// Load the existing data for the selected holiday setting
+    //$.ajax({
+    //    url: '/HolidaySettings/GetById',
+    //    method: 'GET',
+    //    data: { id: holidaySettingID },
+    //    success: function (response) {
+    //        if (response.isSuccess) {
+    //            // Populate the form fields with the existing data  
+    //            choiceManager.setChoiceValue('OrganizationEditID', response.data.organizationID);
+    //            $('#HolidayTitleedit').val(response.data.holidayTitle);
+    //            $('#HolidayDescriptionEdit').val(response.data.holidayDescription);
+    //            $('#StartDateEdit').val(response.data.startDate);
+    //            $('#EndDateEdit').val(response.data.endDate);
+    //            $('#TotalDaysEdit').val(response.data.totalDays);
+
+    //            choiceManager.setChoiceValue('StatusEditID', response.data.statusID);
+    //            // Initialize the datepicker for the edit form
+    //            initializeDatepickerDMY("editStartDate, editEndDate"); // For dd/MM/yyyy
+    //            // For Date restriction with total days count
+    //            $(document).on('change', "#editStartDate", function () {
+    //                const fromDate = $("#editStartDate").val();
+    //                updateDatepickerWithMinDateTotalDays("editEndDate", fromDate, {}, "editTotalDays", "editStartDate");
+    //            });
+    //        } else {
+    //            toastr.error(response.message, 'Error');
+    //        }
+    //    },
+    //    error: function (xhr, status, error) {
+    //        // Handle Access Denied error (403)
+    //        if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+    //            // Redirect to AccessDenied page
+    //            window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
+    //        } else {
+    //            toastr.error("Unexpected error: " + error, 'Server Error');
+    //        }
+    //    }
+    //});
+
+    /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$('#holidayEditForm').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    //var formData = $(this).serialize(); // Serialize the form data
+
+    //// Append the approvalSettingID to the form data
+    //// formData += '&approvalSettingID=' + weekendSettingID;
+
+    //// Send the data via AJAX
+    //$.ajax({
+    //    url: '/HolidaySettings/Updates', // Adjust URL if necessary
+    //    type: 'POST',
+    //    data: formData,
+    //    success: function (response) {
+    //        if (response.isSuccess) {
+    //            // Handle success
+    //            toastr.success('Holiday setting updated successfully!');
+    //            $('#edit_holiday_setting').modal('hide'); // Hide the modal
+    //            loadTableData();
+    //        } else {
+    //            // Handle failure
+    //            toastr.error('Failed to update weekend setting: ' + response.message);
+    //        }
+    //    },
+    //    error: function (xhr, status, error) {
+    //        // Handle AJAX errors
+    //        toastr.error('Error: ' + error);
+    //    }
+    //});
+});
+
 
 // Function to load table data
 var currentPage = 1;
@@ -175,7 +254,7 @@ function loadTableData(sortColumn, sortOrder) {
                          <a
                                href="#"
                                title="Edit"
-                               id="edit_approval_settingBtn"
+                               id="edit_branch_settingBtn"
                                data-id="${item.organizationBranchID}"
                                class="btn btn-outline-light btn-icon me-1 " 
                                data-bs-toggle="modal" 
