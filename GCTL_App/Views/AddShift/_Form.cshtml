@@ -10,9 +10,9 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" asp-for="ShiftName">@Html.SmartLocalize("Shift Name")<span style="color:red;">&nbsp;*</span></label>
-                            <input class="form-control" asp-for="ShiftName" type="text" placeholder="@Html.SmartLocalize("Enter Name")" />
+                            <input class="form-control" asp-for="ShiftName" type="text" placeholder="@Html.SmartLocalize("Enter Name")" required />
                         </div>
-                        <span id="ShiftNameError" class="text-danger" style="display:none;"></span>
+                        <span asp-validation-for="ShiftName" id="ShiftNameError" class="text-danger" style="display:none;"></span>
                     </div>
 
                     <div class="col-md-6">
@@ -32,10 +32,10 @@
                                     multiple
                                     data-coreui-selection-type="counter"
                                     data-coreui-search="true"
-                                    data-coreui-placeholder="@Html.SmartLocalize("Select Organization")...">
+                                    data-coreui-placeholder="@Html.SmartLocalize("Select Organization")..." required >
                             </select>
                         </div>
-                        <span id="OrganizationIDsError" class="text-danger" style="display:none;"></span>
+                        <span asp-validation-for="OrganizationIDs" id="OrganizationIDsError" class="text-danger" style="display:none;"></span>
                     </div>
 
                     <div class="col-md-6">

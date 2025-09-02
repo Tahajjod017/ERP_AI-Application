@@ -36,6 +36,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 SetSmartPageCode(202900);
 
                 ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+                ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
                 ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
                 ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");
                 ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();

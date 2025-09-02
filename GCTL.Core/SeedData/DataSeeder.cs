@@ -20,9 +20,6 @@ namespace GCTL.Core.SeedData
 
         public async Task SeedEmployeesAsync(AppDbContext context)
         {
-            //if (context.Employees.Any())
-            //    return; 
-
             var employeeFaker = new Faker<Employees>()
                 .RuleFor(e => e.FirstName, f => f.Name.FirstName())
                 .RuleFor(e => e.LastName, f => f.Name.LastName())
@@ -59,10 +56,6 @@ namespace GCTL.Core.SeedData
             if (!context.Employees.Any())
                 return;
 
-            // Avoid duplicate office info
-            if (context.EmployeeOfficeInfo.Any())
-                return;
-
             var employeeIds = await context.Employees
                 .Select(e => e.EmployeeID)
                 .ToListAsync();
@@ -95,9 +88,6 @@ namespace GCTL.Core.SeedData
 
         public async Task SeedShiftsAsync(AppDbContext context)
         {
-            if (context.Shifts.Any())
-                return; // Avoid reseeding
-
             var faker = new Faker();
 
             // Step 1: Get all existing organizations
@@ -158,7 +148,5 @@ namespace GCTL.Core.SeedData
             var randomDateTime = faker.Date.Between(startDateTime, endDateTime);
             return TimeOnly.FromDateTime(randomDateTime);
         }
-
-
     }
 }

@@ -14,6 +14,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDef
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Organization")]
         public int? OrganizationID { get; set; }
 
+        public List<int>? BranchIDs { get; set; }
+        public string? BranchName { get; set; }
+
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Shift")]
         public int? ShiftID { get; set; }
 
