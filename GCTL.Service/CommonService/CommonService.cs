@@ -208,7 +208,7 @@ namespace GCTL.Service.CommonService
                                   Id = emp.EmployeeID,
                                   Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
                                   GroupName = dep.DepartmentName ?? "-"
-                              }).ToListAsync();
+                              }).Take(100).ToListAsync();
             return data;
         }
         #endregion
@@ -221,7 +221,7 @@ namespace GCTL.Service.CommonService
             {
                 Id = x.ShiftID,
                 Name = $"{x.ShiftName} ({x.StartTime} - {x.EndTime})" ?? "-"
-            }).ToListAsync();
+            }).Take(100).ToListAsync();
 
             return result;
         }

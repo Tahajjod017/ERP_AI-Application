@@ -24,13 +24,147 @@
         $(() => {
 
 
+            //function validateCoreUIMultiselect($select) {
+            //    const value = $select.val();
+            //    const fieldName = $select.attr('name');
+            //    const $error = $('[asp-validation-for="' + fieldName + '"]');
+            //    const $coreUIWrapper = $select.next('.form-multi-select.coreUiDD');
+
+            //    if (!value || value.length === 0) {
+            //        $coreUIWrapper.css({
+            //            borderColor: '#FF0000',
+            //            outline: '0',
+            //            borderWidth: '1px',
+            //            borderStyle: 'solid',
+            //            borderRadius: '0.375rem',
+            //        });
+            //        $error.text('This field is required.').show();
+            //        return false;
+            //    } else {
+            //        // Clear styles and error if valid
+            //        $coreUIWrapper.css({
+            //            borderColor: '',
+            //            outline: '',
+            //            borderWidth: '',
+            //            borderStyle: '',
+            //            borderRadius: '',
+            //        });
+            //        $error.text('').hide();
+            //        return true;
+            //    }
+            //}
+
+
+
+
+            //$(settings.addform).on('submit', function () {
+            //    $(this).find('input[required], select[required], textarea[required]').each(function () {
+            //        const $field = $(this);
+
+            //        if (!$field.valid()) {
+            //            if ($field.hasClass('coreUiDD')) {
+            //                // Add CoreUI invalid styles + show error
+            //                validateCoreUIMultiselect($field);
+            //                // Don't add 'is-invalid' class on the hidden select itself
+            //            } else {
+            //                // Normal inputs just get the bootstrap class
+            //                $field.addClass('is-invalid');
+            //            }
+            //        } else {
+            //            // On valid, remove all invalid indicators (both CoreUI and normal)
+            //            if ($field.hasClass('coreUiDD')) {
+            //                clearCoreUIMultiselectValidation($field);
+            //            } else {
+            //                $field.removeClass('is-invalid');
+            //            }
+            //        }
+            //    });
+            //});
+
+
+            //$('input[required], select[required], textarea[required]').on('keyup change', function () {
+            //    const $field = $(this);
+
+            //    if ($field.hasClass('coreUiDD')) {
+            //        validateCoreUIMultiselect($field);
+            //    } else {
+            //        if ($field.valid()) {
+            //            $field.removeClass('is-invalid');
+            //        } else {
+            //            $field.addClass('is-invalid');
+            //        }
+            //    }
+            //});
+
+
 
             
+            //$(settings.addform).on('submit', function () {
+            //    $(this).find('input[required], select[required], textarea[required]').each(function () {
+            //        if (!$(this).valid()) {
+            //            $(this).addClass('is-invalid'); 
+            //        } else {
+            //            $(this).removeClass('is-invalid'); 
+            //        }
+            //    });
+            //});
+            
+            //$('input[required], select[required], textarea[required]').on('keyup change', function () {
+            //    if ($(this).valid()) {
+            //        $(this).removeClass('is-invalid');
+            //    }
+            //});
 
 
             // #region Save 
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
+
+                //var $form = $(settings.addform);
+
+                //// Run validation check on all required fields
+                //var isFormValid = true;
+
+                //$form.find('input[required], select[required], textarea[required]').each(function () {
+                //    const $field = $(this);
+                //    const isCoreUIMulti = $field.hasClass('coreUiDD');
+
+                //    if (isCoreUIMulti) {
+                //        // Use custom CoreUI validation for multiselect
+                //        const isValid = validateCoreUIMultiselect($field);
+                //        if (!isValid) {
+                //            isFormValid = false;
+                //        } else {
+                //            clearCoreUIMultiselectValidation($field);
+                //        }
+                //    } else {
+                //        // Normal fields validated by jQuery Validate
+                //        if (!$field.valid()) {
+                //            $field.addClass('is-invalid');
+                //            isFormValid = false;
+                //        } else {
+                //            $field.removeClass('is-invalid');
+                //        }
+                //    }
+                //});
+
+                //$form.find('input[required], select[required], textarea[required]').each(function () {
+                //    const $field = $(this);
+                //    const isCoreUIMulti = $field.hasClass('coreUiDD');
+
+                //    if (!$(this).valid()) {
+                //        $(this).addClass('is-invalid');
+                //        isFormValid = false;
+                //    } else {
+                //        $(this).removeClass('is-invalid');
+                //    }
+                //});
+
+
+                //// 🚫 If form is invalid, stop here
+                //if (!isFormValid) {
+                //    return;
+                //}
 
                 /*var formData = new FormData($('#addShift-Addform')[0]);*/
 

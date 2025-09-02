@@ -5,58 +5,66 @@
 }
 
 <form asp-action="Create" asp-controller="AssignDefaultShift" id="assignDefaultShift-addForm" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <div class="row">
-        <div class="col-md-4">
-            <div class="mb-3 one">
-                <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Select Organization")<span style="color:red;">&nbsp;*</span></label>
-                <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                    <option value="">@Html.SmartLocalize("Select Organization")...</option>
-                </select>
-            </div>
+    <div class="row g-3">
+        @Html.AntiForgeryToken()
+
+        <div class="col-md-3">
+            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+            <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                <option value="">@Html.SmartLocalize("Select Organization")...</option>
+            </select>
             <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
         </div>
 
-        <div class="col-md-4">
-            <div class="mb-3 two">
-                <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Select Department")</label>
-                <select class="form-multi-select" asp-for="DepartmentIDs" asp-items="@ViewBag.DepartmentDD as SelectList" 
-                    multiple data-coreui-multiple="true" 
-                    data-coreui-selection-type="counter" 
+        <div class="col-md-3 branch">
+            <label class="form-label" asp-for="BranchIDs">@Html.SmartLocalize("Branch Name")</label>
+            <select class="form-multi-select"
+                    asp-for="BranchIDs"
+                    asp-items="@ViewBag.BrnchDD as SelectList"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
                     data-coreui-search="true"
-                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
-                </select>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="mb-3 three">
-                <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Select Employee")</label>
-                <select class="form-multi-select" asp-for="EmployeeIDs" 
-                    multiple data-coreui-multiple="true" 
-                    data-coreui-selection-type="counter" 
-                    data-coreui-search="true"
-                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
-                    @foreach (var group in employees.GroupBy(e => e.GroupName))
-                    {
-                        <optgroup label="@group.Key">
-                            @foreach (var emp in group)
-                            {
-                                <option value="@emp.Id">@emp.Name</option>
-                            }
-                        </optgroup>
-                    }
-                </select>
-            </div>
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Branch")...">
+            </select>
         </div>
 
-        <div id="div" class=" p-3 rounded mb-3">
-            <div class="col-md-12">
-                <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Select Shift")<span style="color:red;">&nbsp;*</span></label>
-                <select class="form-select" asp-for="ShiftID" asp-items="ViewBag.ShiftDD as SelectList">
-                    <option value="">@Html.SmartLocalize("Select Shift")...</option>
-                </select>
-            </div>
+        <div class="col-md-3 department">
+            <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department Name")</label>
+            <select class="form-multi-select"
+                    asp-for="DepartmentIDs"
+                    asp-items="@ViewBag.DepartmentDD as SelectList"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
+            </select>
+        </div>
+
+        <div class="col-md-3 employee">
+            <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
+            <select class="form-multi-select"
+                    asp-for="EmployeeIDs"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
+                @foreach (var group in employees.GroupBy(e => e.GroupName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.Id">@emp.Name</option>
+                        }
+                    </optgroup>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label" asp-for="ShiftID">@Html.SmartLocalize("Select Shift")<span style="color:red;">&nbsp;*</span></label>
+            <select class="form-select" asp-for="ShiftID" asp-items="ViewBag.ShiftDD as SelectList">
+                <option value="">@Html.SmartLocalize("Select Shift")...</option>
+            </select>
             <span id="ShiftIDError" class="text-danger" style="display:none;"></span>
         </div>
     </div>
