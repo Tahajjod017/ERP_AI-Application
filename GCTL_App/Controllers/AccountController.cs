@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Microsoft.AspNetCore.Authorization;
 using GCTL_App.EmailServicesMethod;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace GCTL_App.Controllers
 {
@@ -624,6 +626,8 @@ namespace GCTL_App.Controllers
                 {
                     return Json(new { success = false, message = $"User already exists for employee code: {pureCode}" });
                 }
+                // Generate random password
+                var randomPassword = GeneratePassword12();
 
                 //  Create new user
                 var applicationUser = new ApplicationUser
@@ -632,11 +636,12 @@ namespace GCTL_App.Controllers
                     UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
                     Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
                     EmployeeId = employee.EmployeeID,
-                    IsPasswordResetRequired = true // Set to true to force password change on first login,
+                    IsPasswordResetRequired = true, // Set to true to force password change on first login,
+                    DefaultPass = randomPassword // <-- save password here
 
                 };
 
-                var result = await _userManager.CreateAsync(applicationUser, "##Emp123%");
+                var result = await _userManager.CreateAsync(applicationUser, randomPassword);
 
                 if (result.Succeeded)
                 {
@@ -653,6 +658,37 @@ namespace GCTL_App.Controllers
             await _Db.SaveChangesAsync();
             return Json(new { success = true, message = "Users created successfully! default password: ##Emp123%" });
         }
+        private static string GeneratePassword12()
+        {
+            const int wordLen = 7; // 7 letters + 3 digits + 2 specials = 12
+            var sb = new StringBuilder(12);
+
+            // 7 letters, capitalize first
+            for (int i = 0; i < wordLen; i++)
+            {
+                char c = (char)('a' + RandomNumberGenerator.GetInt32(26));
+                if (i == 0) c = char.ToUpperInvariant(c);
+                sb.Append(c);
+            }
+
+            // 3 digits
+            for (int i = 0; i < 3; i++)
+                sb.Append(RandomNumberGenerator.GetInt32(10)); // 0..9
+
+            // "%$"
+            sb.Append('%').Append('$');
+
+            return sb.ToString(); // always length 12
+        }
+        private string GenerateRandomPassword(int length = 12)
+        {
+            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+";
+            var random = new Random();
+            return new string(Enumerable.Repeat(valid, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+
         [HttpPost]
         [Route("Account/ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] string userId)
@@ -668,8 +704,10 @@ namespace GCTL_App.Controllers
             // Generate password reset token
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
+            var randomPassword = GeneratePassword12();
+
             // Reset password to a new default password
-            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, "##Emp123%");
+            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, randomPassword);
 
             if (resetResult.Succeeded)
             {
@@ -889,6 +927,7 @@ namespace GCTL_App.Controllers
             if (result.Succeeded)
             {
                 user.IsPasswordResetRequired = false;
+                user.DefaultPass = null; // Clear the default password
                 await _userManager.UpdateAsync(user);
                 TempData["AlertType"] = "success";
                 TempData["AlertMessage"] = "Password updated successfully. Please log in again.";

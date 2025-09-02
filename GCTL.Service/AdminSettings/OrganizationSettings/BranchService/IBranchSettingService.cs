@@ -20,6 +20,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
         Task<BranchSettingsVM> GetByIdAsync(int id);
         Task<PaginationService<OrganizationBranches, BranchSettingsVM>.PaginationResult<BranchSettingsVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "OrganizationBranchID", string sortOrder = "desc", int? organizationID = null);
+
         #endregion
 
         #region Others

@@ -56,6 +56,41 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
         #endregion
 
+        public async Task<IActionResult> GetById(int id)
+        {
+            var designation = await _designationSettingService.GetByIdAsync(id);
+            if (designation == null)
+            {
+                return Json(new { isSuccess = false, message = "No record found." });
+            }
+            return Json(new { isSuccess = true, data = designation });
+        }
+        #region update
+        [HttpPost]
+        public async Task<IActionResult> Updates(DesignationVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var uniqueName = await _designationSettingService.IsNameUniqueAsync(model.DesignationName, model.DesignationID);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    await _designationSettingService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully.", lastId = model.DesignationName });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
         #region delete 
 
         [HttpPost]

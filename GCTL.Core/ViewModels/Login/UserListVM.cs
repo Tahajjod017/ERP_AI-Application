@@ -15,6 +15,7 @@ namespace GCTL.Core.ViewModels.Login
         public string Role { get; set; } // You can later load real role here
         public string Status { get; set; }
         public string IsActive { get; set; }
+        public string DefaultPass { get; set; }
     }
 
 }

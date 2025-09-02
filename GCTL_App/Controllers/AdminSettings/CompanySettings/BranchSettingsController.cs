@@ -66,6 +66,41 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
         #endregion
 
+        #region edit
+        public async Task<IActionResult> GetById(int id)
+        {
+            var branch = await _branchSettingService.GetByIdAsync(id);
+            if (branch == null)
+            {
+                return Json(new { isSuccess = false, message = "No record found against this id." });
+            }
+            return Json(new { isSuccess = true, data = branch });
+        }
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Updates(BranchSettingsVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var uniqueName = await _branchSettingService.IsNameUniqueAsync(model.OrganizationBranchName);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    await _branchSettingService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully.", lastId = model.OrganizationBranchName });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
         #region delete 
 
         [HttpPost]

@@ -1,11 +1,15 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
@@ -15,15 +19,19 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
     {
         private readonly ICompanySettingService _companySettingService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public CompanySettingsController(ITranslateService translateService, IUserProfileService userProfileService, ICompanySettingService companySettingService, IWebHostEnvironment webHostEnvironment) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Country> _genericRepositoryCouyntry;
+        public CompanySettingsController(ITranslateService translateService, IUserProfileService userProfileService, ICompanySettingService companySettingService, IWebHostEnvironment webHostEnvironment, IGenericRepository<Country> genericRepositoryCouyntry) : base(translateService, userProfileService)
         {
             _companySettingService = companySettingService;
             _webHostEnvironment = webHostEnvironment;
+            _genericRepositoryCouyntry = genericRepositoryCouyntry;
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
+            //ViewBag.ViewBag.CountryID = new SelectList(_genericRepositoryCouyntry.AllActive(), "CountryID", "CountryName");
+            //ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             return View();
         }
 
@@ -119,6 +127,49 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
             catch (Exception ex)
             {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> GetById(int id)
+        {
+            var data = await _companySettingService.GetByIdAsync(id);
+            if (data == null)
+            {
+                return Json(new { isSuccess = false, message = "No data found against this id." });
+            }
+            ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
+            return PartialView("_Edit", data);
+        }
+
+        public async Task<IActionResult> Updates(CompanySettingsVM model)
+        {
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Optional: You can add any custom validation if required, like checking if Organization already exists or other checks
+                    // For instance, check if the Localization already exists based on certain properties (OrganizationID, LanguageID, etc.)
+                    //var uniqueCheck = await _localizationSettingService.IsLocalizationUniqueAsync(model.OrganizationID, model.LanguageID, model.TimezoneID);
+                    //if (!uniqueCheck)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This Localization already exists!" });
+                    //}
+                    // Update the Localization record based on the provided model
+                    var result = await _companySettingService.UpdateAsync(model);
+                    // Return success response
+                    return Json(new { isSuccess = true, message = "Organization updated successfully." });
+                }
+                // Get the first error message if model state is invalid
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                // Return failure response with the error message
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                // Log exception here if needed
+                // Return failure response with exception message
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }

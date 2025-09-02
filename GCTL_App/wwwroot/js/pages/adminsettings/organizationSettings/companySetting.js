@@ -159,7 +159,51 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 $(document).on('click', '#edit_organization_settingBtn', function () {
     var approvalSettingID = $(this).data('id');
     $('#edit_organization_setting').modal('show'); // Show the delete confirmation modal
+
+     Store the ID in the hidden input field
+    $('#HolidayIDEdit').val(holidaySettingID);
+
+    // Load the existing data for the selected holiday setting
+    $.ajax({
+        url: '/CompanySettings/GetById',
+        method: 'GET',
+        data: { id: holidaySettingID },
+        success: function (response) {
+            if (response.isSuccess) {
+                // Populate the form fields with the existing data
+               
+                $('#OrganizationNameEdit').val(response.data.holidayTitle);
+                $('#EmailAddressEdit').val(response.data.holidayDescription);
+                $('#PhoneEdit').val(response.data.startDate);
+                $('#FaxEdit').val(response.data.endDate);
+                $('#WebAddressEdit').val(response.data.totalDays);
+                $('#StreetEdit').val(response.data.totalDays);
+                $('#CityEdit').val(response.data.totalDays);
+                $('#CityEdit').val(response.data.totalDays);
+                $('#PostCodeEdit').val(response.data.totalDays);
+                $('#LatitudeEdit').val(response.data.totalDays);
+                $('#LongitudeEdit').val(response.data.totalDays);
+
+                choiceManager.setChoiceValue('CountryIDEdit', response.data.statusID);
+                // Initialize the datepicker for the edit form
+               
+            } else {
+                toastr.error(response.message, 'Error');
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle Access Denied error (403)
+            if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+                // Redirect to AccessDenied page
+                window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
+            } else {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        }
+    });
+
     /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
+
 });
 
 

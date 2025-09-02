@@ -33,8 +33,8 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
 
         public IActionResult Index()
-        {
-           ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+        { 
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             ViewBag.LanguageDD = new SelectList(_languageListGeneric.AllActive(), "ID", "LanguageName");
             ViewBag.TimeZoneDD = new SelectList(_timeZoneListGeneric.AllActive(), "TimezoneID", "TimezoneName");
             ViewBag.TimeFormatDD = new SelectList(_timeFormatGeneric.AllActive(), "TimeFormatID", "DisplayText");
