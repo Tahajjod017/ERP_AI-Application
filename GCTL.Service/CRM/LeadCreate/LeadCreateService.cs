@@ -25,7 +25,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<LeadServices> _leadServicesRepository;
         private readonly AppDbContext _context;
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository,  IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -37,6 +37,7 @@ namespace GCTL.Service.CRM.LeadCreate
             _companyWarehouseAddressesRepository = companyWarehouseAddressesRepository;
             _companyBranchesRepository = companyBranchesRepository;
             _companyBranchAddressesRepository = companyBranchAddressesRepository;
+            _leadServicesRepository = leadServicesRepository;
             _context = context;
         }
 
