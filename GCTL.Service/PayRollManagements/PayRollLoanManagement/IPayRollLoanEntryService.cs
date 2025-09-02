@@ -16,9 +16,13 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
     {
       Task<CommonReturnViewModel> SaveAsync(LoanSaveVM entityVM);
       Task<CommonReturnViewModel> UpdateAsync(LoanUpdateVM entityVM);
-      Task<CommonReturnViewModel> DeleteAsync(DeleteRequestVM deleteRequestVM);
+
+        Task<CommonReturnViewModel> UpdateFromAppDecAsync(PayRollLoanViewDeclineApprovedVM entityVM);
+        Task<CommonReturnViewModel> DeleteAsync(DeleteRequestVM deleteRequestVM);
       Task<CommonReturnViewModel> GetByAsync(int id);
         Task<PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
        string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "",  int? organizationId = null, List<int> departmentIds = null, List<int> employeeIds = null);
+     Task<List<CommonSelectVM>> SelectAsync();
+    Task<CommonReturnViewModel>GetByIdApprovedOrDecline(int id);
     }
 }

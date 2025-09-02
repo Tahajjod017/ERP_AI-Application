@@ -1,64 +1,158 @@
-﻿
-<form class="row g-3 mb-2">
-    <div class="col-md-4">
+﻿@model GCTL.Core.ViewModels.PayrollManagements.LoanManagement.PayRollLoanViewDeclineApprovedVM
+
+@{
+    var employees = ViewBag.EmployeeDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+}
+
+<style>
+    .flatpickr-monthSelect-months {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 10px 1px 3px 1px;
+    }
+
+
+    .flatpickr-monthSelect-month {
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: #393939;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        position: relative;
+        text-align: center;
+        width: 100%;
+    }
+
+
+        .flatpickr-monthSelect-month.flatpickr-disabled {
+            color: #eee;
+        }
+
+            .flatpickr-monthSelect-month.flatpickr-disabled:hover,
+            .flatpickr-monthSelect-month.flatpickr-disabled:focus {
+                cursor: not-allowed;
+                background: none !important;
+            }
+
+
+    .flatpickr-monthSelect-theme-dark {
+        background: #3f4458;
+    }
+
+        .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+            .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.selected {
+                background-color: #80cbc4;
+                color: #fff;
+                border-color: #80cbc4;
+            }
+
+
+    .flatpickr-monthSelect-month.today {
+        border-color: #959ea9;
+    }
+
+    .flatpickr-monthSelect-month.selected,
+    .flatpickr-monthSelect-month.startRange,
+    .flatpickr-monthSelect-month.endRange {
+        background-color: #569ff7;
+        box-shadow: none;
+        color: #fff;
+        border-color: #569ff7;
+    }
+
+
+    .flatpickr-monthSelect-month.startRange {
+        border-radius: 50px 0 0 50px;
+    }
+
+    .flatpickr-monthSelect-month.endRange {
+        border-radius: 0 50px 50px 0;
+    }
+
+    .flatpickr-monthSelect-month.inRange {
+        border-radius: 0;
+        box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
+    }
+</style>
+<form id="loanForm" class="row g-3 mb-2">
+
+
+    <div class="col-md-12">
         <div class="mb-3">
-            <label class="form-label" for="timepicker1">Employee Name</label>
-            <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="tags" data-coreui-search="true">
-                <optgroup label="Developer">
-                    <option value="2" selected>Alam</option>
-                    <option value="3">Momin</option>
-                </optgroup>
-                <optgroup label="Designer">
-                    <option value="4">Name (id)</option>
-                    <option value="5">Name (id)</option>
-                </optgroup>
+            <label class="form-label req" asp-for="EmployeeIDs">Employee</label>
+            <input asp-for="LoanID" hidden />
+            <select class="form-select choiceDD" asp-for="EmployeeIDs" disabled>
+                <option value="">Select Employee</option>
+                @if (employees != null)
+                {
+                    foreach (var emp in employees)
+                    {
+                        <option value="@emp.Id">@emp.Name</option>
+                    }
+                }
             </select>
         </div>
+        <span asp-validation-for="EmployeeIDs" class="text-danger"></span>
     </div>
-    <div class="col-md-4">
-        <div class="mb-3">
-            <label class="form-label" for="timepicker1">Loan Amount</label>
-            <input class="form-control" id="timepicker1" type="text" placeholder="Ex: 50000" value="120000">
+    <div class="col-md-6">
+        <div class="mb-1">
+            <label class="form-label req" for="timepicker1">Loan Amount</label>
+            <input class="form-control" asp-for="LoanAmount" type="text" placeholder="Ex: 50000">
         </div>
+        <span asp-validation-for="LoanAmount" class="text-danger"></span>
     </div>
 
-    <div class="col-md-4">
-        <div class="mb-3">
-            <label class="form-label" for="timepicker1">Tenure Month</label>
-            <select class="form-select">
-                <option value="">Select Month...</option>
-                <option>6 Months</option>
-                <option>8 Months</option>
-                <option selected>12 Months</option>
-                <option>18 Months</option>
-                <option>24 Months</option>
+    <div class="col-md-6">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Installment Period</label>
+            <select class="form-select choiceDD" asp-for="LoanInstallmentPeriodID" asp-items="@ViewBag.LoanInstallmentDD as SelectList">
+                <option value="">Select Month</option>
             </select>
         </div>
+        <span asp-validation-for="LoanInstallmentPeriodID" class="text-danger"></span>
     </div>
-    <div class="col-md-4">
-        <div class="mb-3">
-            <label class="form-label" for="datepicker">Issue Date</label>
-            <input class="form-control datetimepicker flatpickr-input" id="datepicker" value="01/02/2025" type="text" placeholder="dd/mm/yyyy" data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}" readonly="readonly">
+
+
+    <div class="col-md-6">
+
+        <div class="mb-1 flatpickr-input-container">
+            <label class="form-label req">Issue Date</label>
+
+            <div class="input-icon-end position-relative flatpickr">
+                <input type="text" asp-for="IssueDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+            </div>
 
         </div>
+        <span asp-validation-for="IssueDate" class="text-danger"></span>
     </div>
-    <div class="col-md-4">
-        <div class="mb-3">
-            <label class="form-label" for="datepicker">Installment Start Date</label>
-            <input class="form-control datetimepicker flatpickr-input" id="datepicker" type="text" placeholder="dd/mm/yyyy" value="01/03/2025" data-options="{&quot;disableMobile&quot;:true,&quot;dateFormat&quot;:&quot;d/m/Y&quot;}" readonly="readonly">
 
+    <div class="col-md-6">
+        <div class="mb-1 ">
+            <label class="form-label req">Installment Start Date</label>
+
+            <div class="input-icon-end position-relative">
+                <input type="text" asp-for="StartDate" class="form-control StartDateMOnthYear" required placeholder="Select Month">
+                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+            </div>
         </div>
+        <span asp-validation-for="StartDate" class="text-danger"></span>
     </div>
-    <div class="col-md-4">
-        <div class="mb-3">
-            <label class="form-label" for="pb">Approved By</label>
-            <input class="form-control" id="" type="text" placeholder="Ex- Finance Director" value="Finance Director">
-        </div>
-    </div>
+    @* <div class="col-md-8">
+        <p id="loanSummary" class="fw-bold mt-4"></p>
+    </div> *@
     <div class="col-md-12">
         <div class="mb-2">
             <label class="form-label">Note</label>
-            <textarea id="ApprovalNote" class="form-control" rows="2" placeholder="Note"></textarea>
+            <textarea asp-for="ApproverNote" class="form-control" rows="2" placeholder="Note"></textarea>
         </div>
     </div>
     <div class="col-12">

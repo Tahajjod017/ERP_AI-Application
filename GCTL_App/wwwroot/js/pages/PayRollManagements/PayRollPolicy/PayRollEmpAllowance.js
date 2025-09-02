@@ -560,7 +560,8 @@ $(document).ready(function () {
                                         $effectiveDateInput[0]._flatpickr.setDate(formattedDate, true);
                                     }
                                 }
-                            } catch (e) {
+                            } catch (e)
+                            {
                                 console.error(`Failed to set date for index ${index}:`, e.message);
                             }
                         }

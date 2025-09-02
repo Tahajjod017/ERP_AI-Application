@@ -132,15 +132,10 @@
     // Reset Function
     function resetForm() {
         var $form = $('#loanForm');
-
-        // Reset native form fields
         $form[0].reset();
         choiceManager.resetChoice('LoanInstallmentPeriodID')
-        // Reset multi-selects (CoreUI)
-        $form.find('.form-multi-select').each(function () {
-            $(this).val([]).trigger('change');
-        });
-
+        choiceManager.resetChoice('OrganizationID')
+        resetCoreuiMultiSelect('.form-multi-select');
         // Clear flatpickr datepickers
         $form.find('.datetimepicker').each(function () {
             if (this._flatpickr) {
@@ -149,9 +144,25 @@
                 $(this).val('');
             }
         });
+        
     }
 
-
+    function resetCoreuiMultiSelect(selector) {
+        document.querySelectorAll(selector).forEach(select => {
+            try {
+                const instance = coreui?.MultiSelect?.getInstance(select);
+                if (instance && typeof instance.clear === 'function') {
+                    instance.clear();
+                } else {
+                    // Fallback: manually deselect all options
+                    Array.from(select.options).forEach(option => option.selected = false);
+                    select.dispatchEvent(new Event('change'));
+                }
+            } catch (err) {
+                console.error('Error resetting CoreUI MultiSelect:', err);
+            }
+        });
+    }
 
     // #region OrganizationID on change
     $('#OrganizationID').on('change', function (e) {

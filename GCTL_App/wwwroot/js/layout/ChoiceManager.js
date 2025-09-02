@@ -169,7 +169,34 @@ class UniversalChoices {
         });
     }
 
-    
+    resetAllChoices() {
+        // Find all select elements with class 'choiceDD'
+        const selects = document.querySelectorAll("select.choiceDD");
+
+        selects.forEach(selectElement => {
+            const id = selectElement.id || "(no id)";
+
+            // If there is a Choices instance for this select, destroy it
+            const instance = this.instances[selectElement.id];
+            if (instance) {
+                instance.destroy();
+                if (deb) console.debug(`Destroyed Choices instance for ID: ${id}`);
+            }
+
+            // Reset the select element to default (first option or empty)
+            selectElement.selectedIndex = 0;
+            $(selectElement).val('').trigger('change');
+
+            // Recreate the Choices instance
+            try {
+                const config = { ...this.defaultConfig };
+                this.instances[selectElement.id] = new Choices(selectElement, config);
+                if (deb) console.debug(`Recreated Choices instance for ID: ${id}`);
+            } catch (error) {
+                console.error(`Failed to recreate Choices for ID: ${id}`, error);
+            }
+        });
+    }
 
 
     //#endregion

@@ -57,7 +57,7 @@
                 <div class="mb-3">
                     <label  class="form-label">Organization</label>
                     <select class="form-select choiceDD" id="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                        <option value="">@Html.SmartLocalize("Select Organization")...</option>
+                        <option value="">@Html.SmartLocalize("Select Organization")</option>
                     </select>
                     <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
                 </div>
@@ -140,7 +140,7 @@
             </div>
         </div>
         <div class="table-responsive ms-n1 ps-1 scrollbar">
-            <table class="table fs-9 mb-0 border-top border-translucent">
+            <table class="table fs-9 mb-0 border-top border-translucent table-hover table-striped">
                 <thead>
                     <tr>
                         <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">

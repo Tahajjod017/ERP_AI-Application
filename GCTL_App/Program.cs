@@ -140,7 +140,7 @@ app.Use(async (context, next) =>
 
 
 
-app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
+//app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 app.UseRouting();
 
 app.UseAuthentication();
