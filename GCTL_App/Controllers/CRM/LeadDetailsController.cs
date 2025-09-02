@@ -131,12 +131,19 @@ namespace GCTL_App.Controllers.CRM
         [HttpGet]
         public async Task<IActionResult> getActivityList(int id, string query, int page, string type)
         {
+            int leadDetailsTypeID = 0;
+            if (!string.IsNullOrEmpty(type))
+            {
+                var leadDetailsTypeObj = await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityName == type);
+                leadDetailsTypeID = leadDetailsTypeObj.LeadActivityTypeID;
+            }
+
             const int pageSize = 10; // Number of items per page
             int skip = (page - 1) * pageSize; // Calculate how many items to skip
 
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
-            .Find(u => u.LeadID == id && (string.IsNullOrEmpty(query)
+            .Find(u => u.LeadID == id && (leadDetailsTypeID == 0 || u.LeadActivityTypeID == leadDetailsTypeID) && (string.IsNullOrEmpty(query)
                 || EF.Functions.Like(u.ActivityDateTime.ToString(), $"%{query}%")
                 || EF.Functions.Like(u.ActivityNote, $"%{query}%")
                 || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")

@@ -8,7 +8,7 @@
         border-color: #0d6efd;
     }
 
-    #activity {
+    .activity-site {
         max-height: 560px; /* adjust to your desired height */
         overflow-y: auto;
         scrollbar-width: none;
@@ -19,8 +19,8 @@
             display: none;
         }
 </style>
-    <div class="pb-9">
-        <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="pb-1">
+        <div class="row align-items-center justify-content-between g-3">
             <div class="col-12 col-md-auto">
                 <h2 class="mb-0">Lead Details</h2>
             </div>
@@ -519,14 +519,9 @@
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link active" id="activity-tab" data-bs-toggle="tab" href="#tab-activity" role="tab" aria-controls="tab-activity" aria-selected="false" tabindex="-1"> <span class="fa-solid fa-chart-line me-2 tab-icon-color"></span>Activity</a></li>
                 @foreach (var item in ViewBag.LeadActivityTypes)
                 {
-                    @* <button class="btn btn-phoenix-secondary me-1 mb-1 option-btn"
-                            type="button"
-                            data-id="@item.LeadActivityTypeID">
-                        <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
-                        <br>@item.LeadActivityName
-                    </button> *@
+                    var safeName = item.LeadActivityName.Replace(" ", "-"); // replace spaces
 
-                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@item.LeadActivityName-tab" data-bs-toggle="tab" href="#tab-@item.LeadActivityName" role="tab" aria-controls="tab-@item.LeadActivityName" aria-selected="true"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
+                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@safeName-tab" data-bs-toggle="tab" href="#tab-@safeName" role="tab" aria-controls="tab-@safeName" aria-selected="true"> <span class="fa-solid @safeName me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
                 }
                     @* <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="meeting-tab" data-bs-toggle="tab" href="#tab-meeting" role="tab" aria-controls="tab-meeting" aria-selected="true"> <span class="fa-solid fa-video me-2 tab-icon-color"></span>Meeting</a></li>
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="call-tab" data-bs-toggle="tab" href="#tab-call" role="tab" aria-controls="tab-call" aria-selected="true"> <span class="fa-solid fa-phone me-2 tab-icon-color"></span>Call</a></li>
@@ -534,8 +529,11 @@
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="attachments-tab" data-bs-toggle="tab" href="#tab-attachments" role="tab" aria-controls="tab-attachments" aria-selected="true"> <span class="fa-solid fa-paperclip me-2 tab-icon-color"></span>Attachments</a></li> *@
                 </ul>
                 <div class="tab-content" id="myTabContent">
+                </div>
 
-                    <div class="tab-pane fade active show" id="tab-activity" role="tabpanel" aria-labelledby="activity-tab">
+                @* <div class="tab-content" id="myTabContent"> *@
+
+                    @* <div class="tab-pane fade active show" id="tab-activity" role="tabpanel" aria-labelledby="activity-tab">
                         <h2 class="mb-4">Activity</h2>
                         <div class="row align-items-center g-3 justify-content-between justify-content-start">
                             <div class="col-12 col-sm-auto">
@@ -551,13 +549,13 @@
                               <button class="btn btn-phoenix-primary px-6" type="button" data-bs-toggle="modal" data-bs-target="#addActivity">Add Activity</button>
                             </div> -->
                         </div>
+ *@
 
-
-                    <div id="activity"></div>
+                    @* <div id="activity"></div>
 
                         
                         
-                    </div>
+                    </div> *@
 
                     @* <div class="tab-pane fade" id="tab-notes" role="tabpanel" aria-labelledby="notes-tab">
                         <h2 class="mb-4">Notes</h2>
@@ -596,7 +594,7 @@
                         </div>
                     </div> *@
 
-                    <div class="tab-pane fade" id="tab-meeting" role="tabpanel" aria-labelledby="meeting-tab">
+                    @* <div class="tab-pane fade" id="tab-meeting" role="tabpanel" aria-labelledby="meeting-tab">
                         <h2 class="mb-4">Meeting</h2>
                         <div class="row align-items-center g-2 flex-wrap justify-content-start mb-3">
                             <div class="col-12 col-sm-auto">
@@ -1420,7 +1418,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> *@
 
                 </div>
             </div>
