@@ -7,9 +7,20 @@
         color: white;
         border-color: #0d6efd;
     }
+
+    .activity-site {
+        max-height: 560px; /* adjust to your desired height */
+        overflow-y: auto;
+        scrollbar-width: none;
+        margin-top: 22px;
+    }
+
+        #tab-activity::-webkit-scrollbar {
+            display: none;
+        }
 </style>
-    <div class="pb-9">
-        <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="pb-1">
+        <div class="row align-items-center justify-content-between g-3">
             <div class="col-12 col-md-auto">
                 <h2 class="mb-0">Lead Details</h2>
             </div>
@@ -161,28 +172,6 @@
                             </tr>
                             <tr class="text-center align-middle">
                                 <td class="d-flex align-items-center my-2">
-                                    <div class="d-flex bg-info-subtle rounded-circle flex-center me-2" style="width:26px; height:26px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                             class="text-success-dark" data-feather="edit">
-                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="9" cy="7" r="4"></circle>
-                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="fw-bold">Modified By</span>
-                                </td>
-
-                                <td class="align-middle text-center px-2">:</td>
-
-                                <td class="align-middle text-start">
-                                    <span>Jackson Pollock</span>
-                                </td>
-                            </tr>
-                            <tr class="text-center align-middle">
-                                <td class="d-flex align-items-center my-2">
                                     <div class="d-flex bg-primary-subtle rounded-circle flex-center me-2" style="width:26px; height:26px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                              viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -299,6 +288,16 @@
                                 </div>
                             </div>
                         </div>
+                    <div class="mb-1" id="file-field" style="display:none;">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="text-body-highlight fw-bold mb-2">File</label>
+                                <div class="mb-3">
+                                    <input class="form-control" type="file" id="formFile">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                         <!-- <div class="form-outline" data-mdb-datetimepicker-init data-mdb-input-init>
                           <input type="text" class="form-control" placeholder="22/12/2020, 11:12 PM" id="datetimepickerExample" />
@@ -316,6 +315,8 @@
                         </div> -->
 
                         <input type="number" id="leadID" value="@Model.LeadID" hidden/>
+
+
 
                         <div class="col-md-12">
                             <div class="mb-3">
@@ -518,29 +519,27 @@
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link active" id="activity-tab" data-bs-toggle="tab" href="#tab-activity" role="tab" aria-controls="tab-activity" aria-selected="false" tabindex="-1"> <span class="fa-solid fa-chart-line me-2 tab-icon-color"></span>Activity</a></li>
                 @foreach (var item in ViewBag.LeadActivityTypes)
                 {
-                    @* <button class="btn btn-phoenix-secondary me-1 mb-1 option-btn"
-                            type="button"
-                            data-id="@item.LeadActivityTypeID">
-                        <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
-                        <br>@item.LeadActivityName
-                    </button> *@
+                    var safeName = item.LeadActivityName.Replace(" ", "-"); // replace spaces
 
-                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@item.LeadActivityName-tab" data-bs-toggle="tab" href="#tab-@item.LeadActivityName" role="tab" aria-controls="tab-@item.LeadActivityName" aria-selected="true"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
+                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@safeName-tab" data-bs-toggle="tab" href="#tab-@safeName" role="tab" aria-controls="tab-@safeName" aria-selected="true"> <span class="fa-solid @safeName me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
                 }
-                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="meeting-tab" data-bs-toggle="tab" href="#tab-meeting" role="tab" aria-controls="tab-meeting" aria-selected="true"> <span class="fa-solid fa-video me-2 tab-icon-color"></span>Meeting</a></li>
+                    @* <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="meeting-tab" data-bs-toggle="tab" href="#tab-meeting" role="tab" aria-controls="tab-meeting" aria-selected="true"> <span class="fa-solid fa-video me-2 tab-icon-color"></span>Meeting</a></li>
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="call-tab" data-bs-toggle="tab" href="#tab-call" role="tab" aria-controls="tab-call" aria-selected="true"> <span class="fa-solid fa-phone me-2 tab-icon-color"></span>Call</a></li>
                     <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="emails-tab" data-bs-toggle="tab" href="#tab-emails" role="tab" aria-controls="tab-emails" aria-selected="true"> <span class="fa-solid fa-envelope me-2 tab-icon-color"></span>Emails </a></li>
-                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="attachments-tab" data-bs-toggle="tab" href="#tab-attachments" role="tab" aria-controls="tab-attachments" aria-selected="true"> <span class="fa-solid fa-paperclip me-2 tab-icon-color"></span>Attachments</a></li>
+                    <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="attachments-tab" data-bs-toggle="tab" href="#tab-attachments" role="tab" aria-controls="tab-attachments" aria-selected="true"> <span class="fa-solid fa-paperclip me-2 tab-icon-color"></span>Attachments</a></li> *@
                 </ul>
                 <div class="tab-content" id="myTabContent">
+                </div>
 
-                    <div class="tab-pane fade active show" id="tab-activity" role="tabpanel" aria-labelledby="activity-tab">
+                @* <div class="tab-content" id="myTabContent"> *@
+
+                    @* <div class="tab-pane fade active show" id="tab-activity" role="tabpanel" aria-labelledby="activity-tab">
                         <h2 class="mb-4">Activity</h2>
                         <div class="row align-items-center g-3 justify-content-between justify-content-start">
                             <div class="col-12 col-sm-auto">
                                 <div class="search-box mb-2 mb-sm-0">
                                     <form class="position-relative">
-                                        <input class="form-control search-input search" id="searchActivity" type="search" placeholder="Search Activity" aria-label="Search" />
+                                        <input class="form-control search-input search ms-1" id="searchActivity" type="search" placeholder="Search Activity" aria-label="Search" />
                                         <span class="fas fa-search search-box-icon"></span>
 
                                     </form>
@@ -550,13 +549,13 @@
                               <button class="btn btn-phoenix-primary px-6" type="button" data-bs-toggle="modal" data-bs-target="#addActivity">Add Activity</button>
                             </div> -->
                         </div>
+ *@
 
-
-                        <div id="allActivity"></div>
+                    @* <div id="activity"></div>
 
                         
                         
-                    </div>
+                    </div> *@
 
                     @* <div class="tab-pane fade" id="tab-notes" role="tabpanel" aria-labelledby="notes-tab">
                         <h2 class="mb-4">Notes</h2>
@@ -595,7 +594,7 @@
                         </div>
                     </div> *@
 
-                    <div class="tab-pane fade" id="tab-meeting" role="tabpanel" aria-labelledby="meeting-tab">
+                    @* <div class="tab-pane fade" id="tab-meeting" role="tabpanel" aria-labelledby="meeting-tab">
                         <h2 class="mb-4">Meeting</h2>
                         <div class="row align-items-center g-2 flex-wrap justify-content-start mb-3">
                             <div class="col-12 col-sm-auto">
@@ -1419,7 +1418,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> *@
 
                 </div>
             </div>

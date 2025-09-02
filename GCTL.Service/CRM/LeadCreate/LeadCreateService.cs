@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
+using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,9 +22,10 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<CompanyWarehouseAddresses> _companyWarehouseAddressesRepository;
         private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
         private readonly IGenericRepository<CompanyBranchAddresses> _companyBranchAddressesRepository;
+        private readonly IGenericRepository<LeadServices> _leadServicesRepository;
         private readonly AppDbContext _context;
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository,  IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -35,6 +37,7 @@ namespace GCTL.Service.CRM.LeadCreate
             _companyWarehouseAddressesRepository = companyWarehouseAddressesRepository;
             _companyBranchesRepository = companyBranchesRepository;
             _companyBranchAddressesRepository = companyBranchAddressesRepository;
+            _leadServicesRepository = leadServicesRepository;
             _context = context;
         }
 
@@ -432,7 +435,24 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
                 await _leadsRepository.AddAsync(leadObj);
 
+                if (leadsVM.ServiceTypeIds != null && leadsVM.ServiceTypeIds.Count > 0)
+                {
+                    List<LeadServices> services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                    {
+                        LeadID = leadObj.LeadID,
+                        ServiceID = serviceId,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = leadsVM.CreatedBy,
+                        LIP = leadsVM.LIP,
+                        LMAC = leadsVM.LMAC,
+                    }).ToList();
+                    await _leadServicesRepository.AddRangeAsync(services);
+                }
 
+                //List<LeadServices> services = new()
+                //{
+                //    new LeadServices{LeadID = leadObj.LeadID, ServiceID = leadsVM.ServiceTypeIds[0]}
+                //};
 
                 //}
                 return new CommonReturnViewModel
@@ -531,6 +551,8 @@ namespace GCTL.Service.CRM.LeadCreate
                         DeletedAt = null,
                     };
                     await _companyBranchAddressesRepository.AddAsync(companyWarehouseAddress);
+                    
+
 
                     return new ReturnView
                     {
