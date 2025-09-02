@@ -59,30 +59,30 @@ namespace GCTL_App.Controllers
 
                 if (result.Succeeded)
                 {
-                    if (user2.IsPasswordResetRequired)
-                    {
-                        var user3 = await _userManager.FindByEmailAsync(model.Email);
-                        var claims2 = new List<Claim>
-                                {
-                                    new Claim(ClaimTypes.NameIdentifier, user3.Id),
-                                    new Claim(ClaimTypes.Name, user3.UserName),
-                                    new Claim(ClaimTypes.Email, model.Email)
-                                };
+                    //if (user2.IsPasswordResetRequired==true)
+                    //{
+                    //    var user3 = await _userManager.FindByEmailAsync(model.Email);
+                    //    var claims2 = new List<Claim>
+                    //            {
+                    //                new Claim(ClaimTypes.NameIdentifier, user3.Id),
+                    //                new Claim(ClaimTypes.Name, user3.UserName),
+                    //                new Claim(ClaimTypes.Email, model.Email)
+                    //            };
 
-                        var claimsIdentity2 = new ClaimsIdentity(claims2, CookieAuthenticationDefaults.AuthenticationScheme);
-                        var claimsPrincipal2 = new ClaimsPrincipal(claimsIdentity2);
+                    //    var claimsIdentity2 = new ClaimsIdentity(claims2, CookieAuthenticationDefaults.AuthenticationScheme);
+                    //    var claimsPrincipal2 = new ClaimsPrincipal(claimsIdentity2);
 
-                        var authProps2 = new AuthenticationProperties
-                        {
-                            IsPersistent = model.RememberMe,
-                            ExpiresUtc = DateTime.UtcNow.AddDays(1)
-                        };
+                    //    var authProps2 = new AuthenticationProperties
+                    //    {
+                    //        IsPersistent = model.RememberMe,
+                    //        ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                    //    };
 
-                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal2, authProps2);
+                    //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal2, authProps2);
 
-                        // Redirect to force password change
-                        return RedirectToAction("ForceChangePassword", "Account");
-                    }
+                    //    // Redirect to force password change
+                    //    return RedirectToAction("ForceChangePassword", "Account");
+                    //}
                     // Step 2: Get user
                     var user = await _userManager.FindByEmailAsync(model.Email);
 
