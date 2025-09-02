@@ -102,16 +102,16 @@
             <form id="loanForm" class="row g-3 mb-2">
 
                 <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label asp-for="OrganizationID" class="form-label">Organization</label>
                         <select class="form-select choiceDD" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                            <option value="">@Html.SmartLocalize("Select Organization")...</option>
+                            <option value="">@Html.SmartLocalize("Select Organization")</option>
                         </select>
                         <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="form-label" asp-for="DepartmentIDs">Department</label>
                         <select class="form-multi-select" asp-for="DepartmentIDs"
                                 multiple data-coreui-selection-type="counter"
@@ -131,7 +131,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label class="form-label req" asp-for="EmployeeIDs">Employee</label>
                         <select class="form-multi-select" asp-for="EmployeeIDs"
                                 multiple data-coreui-selection-type="counter"

@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
-using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollLoanManagement;
@@ -9,8 +8,7 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.LoanManagent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Identity.Client;
-using OpenQA.Selenium.BiDi.Modules.Script;
+
 
 
 namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
@@ -48,12 +46,9 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
             if (!ModelState.IsValid)
             {
                 // Return all errors
-                var errors = ModelState.Values.SelectMany(v => v.Errors)
-                                               .Select(e => e.ErrorMessage)
-                                               .ToList();
-                return Json(new { Success = false, Message = "Validation Failed.", Errors = errors });
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { Success = false, Message = "Validation Failed.", Errors = errors });   
             }
-
             try
             {
                 var data = await payRollLoanEntryService.SaveAsync(model);

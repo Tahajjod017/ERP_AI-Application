@@ -13,11 +13,11 @@ function initializeMonthYearPicker(selector) {
     $(selector).flatpickr({
         altInput: true,
         altFormat: "F Y",
-        dateFormat: "Y-m", // This is the format that will be submitted (e.g., 2025-09)
+        dateFormat: "Y-m-d",
         plugins: [
             new monthSelectPlugin({
                 shorthand: true,
-                dateFormat: "F Y", // Displayed in the picker
+                dateFormat: "Y-m-d",
                 altFormat: "F Y",  // Shown in the input
                 theme: "light"
             })

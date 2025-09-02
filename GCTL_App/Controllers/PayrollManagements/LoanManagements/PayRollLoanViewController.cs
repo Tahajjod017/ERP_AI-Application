@@ -1,9 +1,13 @@
-﻿using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
+using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollLoanManagement;
 using GCTL.Service.UserProfile;
+using GCTL_App.ViewModels.PayRollManagements.LoanManagent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
@@ -14,18 +18,24 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
     {
         private readonly ICommonService _commonService;
         private readonly IPayRollLoanEntryService payRollLoanEntryService;
-        public PayRollLoanViewController(ITranslateService translateService, IUserProfileService userProfileService, ICommonService commonService, IPayRollLoanEntryService payRollLoanEntryService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<LoanInstallmentPeriods> loanInstallment;
+        public PayRollLoanViewController(ITranslateService translateService, IUserProfileService userProfileService, ICommonService commonService, IPayRollLoanEntryService payRollLoanEntryService, IGenericRepository<LoanInstallmentPeriods> loanInstallment) : base(translateService, userProfileService)
         {
             _commonService = commonService;
             this.payRollLoanEntryService = payRollLoanEntryService;
+            this.loanInstallment = loanInstallment;
         }
 
         public async Task<IActionResult> Index()
         {
+            PayRollLoanViewPageVM model = new PayRollLoanViewPageVM();
+            model.Save = new PayRollLoanViewDeclineApprovedVM();
             ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
-            return View();
+            ViewBag.EmployeeDD = await payRollLoanEntryService.SelectAsync();
+            ViewBag.LoanInstallmentDD = new SelectList(loanInstallment.AllActive(), "LoanInstallmentPeriodID", "PeriodText");
+            return View(model);
         }
 
         #region GetEmployeesByOrgBraDepId
@@ -58,5 +68,48 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
             }
         }
         #endregion
+        #region Get ByData for Approved or Decline
+        [Route("PayRollLoanView/GetByIdApprovedOrDecline")]
+        [HttpGet]
+        public async Task<IActionResult> GetByIdApprovedOrDecline(int id)
+        {
+            try
+            {
+                var data = await payRollLoanEntryService.GetByIdApprovedOrDecline(id);
+                return Json(new { Success = data.Success, Data=data.Data});
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+        #region Update   Approved or Decline
+
+        [Route("PayRollLoanView/UpdateFromAppDecAsync")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateFromAppDecAsync([FromBody]PayRollLoanViewDeclineApprovedVM formdata)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Return all errors
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { Success = false, Message = "Validation Failed.", Errors = errors });
+            }
+
+            try
+            {
+                var data = await payRollLoanEntryService.UpdateFromAppDecAsync(formdata);
+                return Json(new { Success = data.Success, Message = data.Message });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
     }
 }

@@ -1,6 +1,161 @@
 ﻿$(document).ready(function () {
 
 
+    $(document).on('click', '#ApplyLeaveSubmitButtonApproval', function (e) {
+        e.preventDefault();
+
+        //if (!validateLoanForm()) {
+        //    return;
+        //}
+        const approvalStatus = $('input[name="ApprovalStatus"]:checked').val();
+        const isApproved = approvalStatus === "true";
+
+        const formdata = {
+             LoanID: parseInt ($('#LoanID').val()),
+             IssueDate: flatpickrHelper.getDate('IssueDate'),
+            StartDate: flatpickrHelper.getDate('StartDate'),
+            EmployeeIDs: parseInt(choiceManager.getChoiceValue('EmployeeIDs')),
+            LoanInstallmentPeriodID: parseInt(choiceManager.getChoiceValue('LoanInstallmentPeriodID')),
+             Approved: isApproved,
+             Declined: !isApproved,
+             ApproverNote: $('#ApproverNote').val(),
+             LoanAmount: $('#LoanAmount').val()
+        };
+        console.log(formdata);
+        $.ajax({
+            url: '/PayRollLoanView/UpdateFromAppDecAsync',
+            type: 'POST',
+            data: JSON.stringify(formdata),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    resetForm();
+                    var applyModalEl = document.getElementById('ApprovedDeclineModal');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+                } else {
+                    toastr.error("Failed: " + response.message);
+                }
+                if (response.errors) {
+                    response.errors.forEach(err => toastr.error(err));
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("An error occurred: " + error);
+            }
+        });
+    });
+
+
+    function resetForm() {
+        var $form = $('#loanForm');
+
+        // Reset native form fields
+        $form[0].reset();
+        choiceManager.resetChoice('LoanInstallmentPeriodID')
+        choiceManager.resetChoice('EmployeeIDs')
+        // Reset multi-selects (CoreUI)
+       
+
+        // Clear flatpickr datepickers
+        $form.find('.datetimepicker').each(function () {
+            if (this._flatpickr) {
+                this._flatpickr.clear();
+            } else {
+                $(this).val('');
+            }
+        });
+    }
+
+
+    
+
+    
+
+
+    $(document).on('click', '.edit-loan', function () {
+        const loanId = $(this).data('id');
+        $.ajax({
+            url: '/PayRollLoanView/GetByIdApprovedOrDecline', 
+            type: 'GET',
+            dataType:'json',
+            data: { id: loanId },
+            success: function (response) {
+               
+                if (response.success) {
+                    const data = response.data;
+
+                    // Fill form fields
+                    $('#loanForm').find('[name="LoanID"]').val(data.loanID);
+                    choiceManager.setChoiceValue('EmployeeIDs', data.employeeIDs);
+                    $('#loanForm').find('[name="LoanAmount"]').val(data.loanAmount);
+                    choiceManager.setChoiceValue('LoanInstallmentPeriodID', data.loanInstallmentPeriodID);
+                    flatpickrHelper.setDate('IssueDate', data.issueDate);
+                    
+
+                    const $effectiveDateInput = $(`#StartDate`);
+                    if ($effectiveDateInput.length && data.startDate) {
+                        try {
+                            const date = new Date(data.startDate);
+                            if (!isNaN(date.getTime())) {
+                                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                    "July", "August", "September", "October", "November", "December"];
+                                const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                                $effectiveDateInput.val(formattedDate);
+                                if ($effectiveDateInput[0]._flatpickr) {
+                                    $effectiveDateInput[0]._flatpickr.setDate(formattedDate, true);
+                                }
+                            }
+                        } catch (e) {
+                            console.error(`Failed to set date for index ${index}:`, e.message);
+                        }
+                    }
+                    
+                } else {
+                    toastr.error(response.message || 'Failed to load loan data.');
+                }
+            },
+            error: function (err) {
+                console.error(err);
+                toastr.error('An error occurred while fetching loan data.');
+            }
+        });
+    });
+
+
+    initializeDatepickerDMY("IssueDate");
+    initializeMonthYearPicker(".StartDateMOnthYear");
+    function calculateLoanSummary() {
+        let loanAmount = parseFloat($("#LoanAmount").val()) || 0;
+        let months = parseInt($("#LoanInstallmentPeriodID").val()) || 0;
+        let startDate = $("#StartDate").val();
+
+        if (loanAmount > 0 && months > 0 && startDate) {
+            let perMonth = (loanAmount / months).toFixed(2);
+            let date = new Date(startDate);
+            if (!isNaN(date)) {
+                date.setMonth(date.getMonth() + months - 1); // End date (inclusive)
+                let endMonth = date.toLocaleString('default', { month: 'long' });
+                let endYear = date.getFullYear();
+                $("#loanSummary").text(
+                    `Per Month Payment:${perMonth} tk/month. 
+                    It will end in ${endMonth} ${endYear}.`
+                );
+            }
+        } else {
+            $("#loanSummary").text("");
+        }
+    }
+
+    $(document).on("change keyup", "#LoanAmount, #LoanInstallmentPeriodID, #StartDate", calculateLoanSummary);
+
+   
+
     // #region OrganizationID on change
     $('#OrganizationID').on('change', function (e) {
         e.preventDefault();
@@ -289,9 +444,9 @@
                           <div class="d-flex  align-items-center">
                               <a href="#"
                                  title="View"
-                                 id="LeaveRequestEditButton"
+                                
                                  data-id="${item.loanID}"
-                                 class="btn btn-outline-light btn-icon d-flex align-items-center justify-content-center"
+                                 class="edit-loan btn btn-outline-light btn-icon d-flex align-items-center justify-content-center"
                                  data-bs-toggle="modal"
                                  data-bs-target="#ApprovedDeclineModal">
                                   <i class="fas fa-eye text-primary"></i>

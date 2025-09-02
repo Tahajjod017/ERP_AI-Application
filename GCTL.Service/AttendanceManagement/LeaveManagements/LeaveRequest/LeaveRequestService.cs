@@ -1035,39 +1035,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
             }
 
-            // Case 1: Self-approval is allowed and not blocked
-            //if (approvalSettings.AllowSelfApproval == true && isSelfApprover &&
-            //    !IsSelfApprovalBlocked(entityVM.EmployeeID, entityVM.CreatedBy, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
-            //{
-            //    approvalPersonId = entityVM.CreatedBy;
-            //    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
-            //}
-            //// Case 2: Self-approval is blocked, use SelfExceptionApprovalID if valid
-            //else if (isSelfApprover && approvalSettings.AllowSelfApproval == false && approvalSettings.SelfExceptionApprovalID.HasValue &&
-            //         !IsSelfApprovalBlocked(entityVM.EmployeeID, approvalSettings.SelfExceptionApprovalID.Value, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
-            //{
-            //    approvalPersonId = approvalSettings.SelfExceptionApprovalID.Value;
-            //}
-            //// Case 3: Normal approval flow
-            //else
-            //{
-            //    foreach (var (id, isDesignation) in approvalFlow)
-            //    {
-            //        if (approvalPersonId != null) break;
-
-            //        var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
-            //        if (resolvedId.HasValue && !IsSelfApprovalBlocked(entityVM.EmployeeID, resolvedId, approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
-            //        {
-            //            approvalPersonId = resolvedId;
-            //        }
-            //    }
-            //}
-
-            //
-
-
-            //
-         
+            
             // Step 2: Self-approval logic for known fixed levels
             if (isSelfApprover)
             {
