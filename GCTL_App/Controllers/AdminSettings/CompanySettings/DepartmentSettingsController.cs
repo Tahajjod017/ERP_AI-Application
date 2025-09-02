@@ -57,7 +57,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         //[Permission("Update", "HolidaySettings")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Update(DepartmentSettingsVM model)
+        public async Task<IActionResult> Updates(DepartmentSettingsVM model)
         {
             try
             {
