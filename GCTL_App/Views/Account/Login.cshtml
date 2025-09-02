@@ -5,9 +5,23 @@
 @await Html.PartialAsync("_Alerts")
 @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
 {
-    <div class="alert alert-danger">
+    <div id="tempAlert"
+         class="alert alert-danger fade show text-center"
+         style="position:fixed; top:20px; left:50%; transform:translateX(-50%);
+                padding:15px 16px; font-size:14px; max-width:1757px; width:100%;
+                margin:0; z-index:1050;">
         @ViewData["ErrorMessage"]
     </div>
+
+    <script>
+        setTimeout(function () {
+            const el = document.getElementById('tempAlert');
+            if (el) {
+                el.classList.remove('show'); // triggers Bootstrap fade-out
+                setTimeout(() => el.remove(), 500); // fully remove after fade
+            }
+        }, 7000);
+    </script>
 }
 
 
