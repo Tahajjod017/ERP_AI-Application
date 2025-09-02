@@ -125,19 +125,22 @@ namespace GCTL_App.Controllers.CRM
             return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
         }
 
+
+        // geting all acitity list
+
         [HttpGet]
-        public async Task<IActionResult> getActivityList(int id, string query, int page)
+        public async Task<IActionResult> getActivityList(int id, string query, int page, string type)
         {
             const int pageSize = 10; // Number of items per page
             int skip = (page - 1) * pageSize; // Calculate how many items to skip
 
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
-            .Find(u => string.IsNullOrEmpty(query)
+            .Find(u => u.LeadID == id && (string.IsNullOrEmpty(query)
                 || EF.Functions.Like(u.ActivityDateTime.ToString(), $"%{query}%")
                 || EF.Functions.Like(u.ActivityNote, $"%{query}%")
                 || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")
-                )
+                ))
             .Skip(skip)
             .OrderByDescending(e => e.CreatedAt)
             .Take(pageSize).Select(e => new
@@ -145,11 +148,36 @@ namespace GCTL_App.Controllers.CRM
                 e.ActivityDateTime,
                 e.ActivityNote,
                 e.LeadActivityType.LeadActivityName,
-                e.LeadActivityType.LeadActivityIcon
+                e.LeadActivityType.LeadActivityIcon,
+                CreatedByName = e.CreatedByNavigation != null ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}" : null 
             })
             .ToListAsync();
             return Ok(list);
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> getUpcommingList(int id, int page)
+        {
+            var currentDate = DateTime.UtcNow;
+
+            const int pageSize = 10; // Number of items per page
+            int skip = (page - 1) * pageSize; // Calculate how many items to skip
+
+            // Fetch filtered and paginated data using LIKE
+            var list = await _leadDetailsRepository
+            .Find(u => u.LeadID == id && u.ActivityDateTime >= currentDate)
+            .Skip(skip)
+            .OrderByDescending(e => e.CreatedAt)
+            .Take(pageSize).Select(e => new
+            {
+                e.ActivityDateTime,
+                e.ActivityNote,
+                e.LeadActivityType.LeadActivityName,
+                e.LeadActivityType.LeadActivityIcon,
+                CreatedByName = e.CreatedByNavigation != null ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}" : null 
+            })
+            .ToListAsync();
+            return Ok(list);
         }
     }
 }
