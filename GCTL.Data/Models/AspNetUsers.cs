@@ -63,6 +63,10 @@ public partial class AspNetUsers
 
     public int? TenantInfoId { get; set; }
 
+    public bool IsPasswordResetRequired { get; set; }
+
+    public string DefaultPass { get; set; }
+
     public virtual ICollection<AspNetUserClaims> AspNetUserClaims { get; set; } = new List<AspNetUserClaims>();
 
     public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; } = new List<AspNetUserLogins>();

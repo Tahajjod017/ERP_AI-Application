@@ -9,12 +9,12 @@
 <style>
     .flatpickr-monthSelect-months {
         display: grid;
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 10px; 
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
         margin: 10px 1px 3px 1px;
     }
 
-   
+
     .flatpickr-monthSelect-month {
         background: none;
         border: 1px solid transparent;
@@ -22,14 +22,14 @@
         box-sizing: border-box;
         color: #393939;
         cursor: pointer;
-        display: flex; 
+        display: flex;
         justify-content: center;
         padding: 10px;
         position: relative;
         text-align: center;
-        width: 100%; 
+        width: 100%;
     }
- 
+
 
         .flatpickr-monthSelect-month.flatpickr-disabled {
             color: #eee;
@@ -41,7 +41,7 @@
                 background: none !important;
             }
 
-   
+
     .flatpickr-monthSelect-theme-dark {
         background: #3f4458;
     }
@@ -56,7 +56,7 @@
                 border-color: #80cbc4;
             }
 
-   
+
     .flatpickr-monthSelect-month.today {
         border-color: #959ea9;
     }
@@ -70,7 +70,7 @@
         border-color: #569ff7;
     }
 
-   
+
     .flatpickr-monthSelect-month.startRange {
         border-radius: 50px 0 0 50px;
     }
@@ -84,138 +84,123 @@
         box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
     }
 </style>
-<div class="mb-2">
-   
 
-    <div class="card mt-2">
 
-        <div class="card-header mb-2">
-            <div class="d-flex justify-content-between">
-                <h4 class="mb-1">Employee Loan</h4>
 
-                <div class="dropdown start-0">
-                </div>
 
-            </div>
+<form id="loanForm" class="row g-3 mb-2  p-3">
+
+    <div class="col-md-4">
+        <div class="mb-1">
+            <label asp-for="OrganizationID" class="form-label">Organization</label>
+            <select class="form-select choiceDD" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                <option value="">@Html.SmartLocalize("Select Organization")</option>
+            </select>
+            <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
         </div>
-        <div class="card-body">
-            <form id="loanForm" class="row g-3 mb-2">
-
-                <div class="col-md-4">
-                    <div class="mb-1">
-                        <label asp-for="OrganizationID" class="form-label">Organization</label>
-                        <select class="form-select choiceDD" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                            <option value="">@Html.SmartLocalize("Select Organization")</option>
-                        </select>
-                        <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="mb-1">
-                        <label class="form-label" asp-for="DepartmentIDs">Department</label>
-                        <select class="form-multi-select" asp-for="DepartmentIDs"
-                                multiple data-coreui-selection-type="counter"
-                                data-coreui-placeholder="@Html.SmartLocalize("Select Department")"
-                                data-coreui-search="true">
-                            @foreach (var group in departments.GroupBy(e => e.GroupName))
-                            {
-                                <optgroup label="@group.Key">
-                                    @foreach (var emp in group)
-                                    {
-                                        <option value="@emp.Id">@emp.Name</option>
-                                    }
-                                </optgroup>
-                            }
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="mb-1">
-                        <label class="form-label req" asp-for="EmployeeIDs">Employee</label>
-                        <select class="form-multi-select" asp-for="EmployeeIDs"
-                                multiple data-coreui-selection-type="counter"
-                                data-coreui-placeholder="@Html.SmartLocalize("Select Employee")"
-                                data-coreui-search="true">
-                            @foreach (var group in employees.GroupBy(e => e.GroupName))
-                            {
-                                <optgroup label="@group.Key">
-                                    @foreach (var emp in group)
-                                    {
-                                        <option value="@emp.Id">@emp.Name</option>
-                                    }
-                                </optgroup>
-                            }
-                        </select>
-                    </div>
-                    <span asp-validation-for="EmployeeIDs" class="text-danger"></span>
-                </div>
-                <div class="col-md-4">
-                    <div class="mb-1">
-                        <label class="form-label req" for="timepicker1">Loan Amount</label>
-                        <input class="form-control" asp-for="LoanAmount" type="text" placeholder="Ex: 50000">
-                    </div>
-                    <span asp-validation-for="LoanAmount" class="text-danger"></span>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="mb-1">
-                        <label class="form-label" for="timepicker1">Installment Period</label>
-                        <select class="form-select choiceDD" asp-for="LoanInstallmentPeriodID" asp-items="@ViewBag.LoanInstallmentDD as SelectList">
-                            <option value="">Select Month</option>
-                        </select>
-                    </div>
-                    <span asp-validation-for="LoanInstallmentPeriodID" class="text-danger"></span>
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="mb-1 flatpickr-input-container">
-                        <label class="form-label req">Issue Date</label>
-
-                        <div class="input-icon-end position-relative flatpickr">
-                            <input type="text" asp-for="IssueDate"  class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
-                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                        </div>
-
-                      
-                    </div>
-                    <span asp-validation-for="IssueDate" class="text-danger"></span>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="mb-1 ">
-                        <label class="form-label req">Installment Start Date</label>
-
-                        <div class="input-icon-end position-relative">
-                            <input type="text" asp-for="StartDate" class="form-control StartDateMOnthYear"  required placeholder="Select Month">
-                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                        </div>
-                       
-                       
-                    </div>
-                    <span asp-validation-for="StartDate" class="text-danger"></span>
-                   
-                </div>
-                <div class="col-md-8">
-                    <p id="loanSummary" class="fw-bold mt-4"></p>
-                </div>
-               <div class="col-12">
-                    <div class="row g-3 justify-content-end">
-                        <div class="col-auto">
-                            <button class="btn btn-phoenix-primary px-5" id="ResetButton">Cancel</button>
-                        </div>
-                        <div class="col-auto">
-                            <button  type="button" id="SaveButton" class="btn btn-primary px-5">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-1">
+            <label class="form-label" asp-for="DepartmentIDs">Department</label>
+            <select class="form-multi-select" asp-for="DepartmentIDs"
+                    multiple data-coreui-selection-type="counter"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")"
+                    data-coreui-search="true">
+                @foreach (var group in departments.GroupBy(e => e.GroupName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.Id">@emp.Name</option>
+                        }
+                    </optgroup>
+                }
+            </select>
         </div>
-
     </div>
 
-</div>
+    <div class="col-md-4">
+        <div class="mb-1">
+            <label class="form-label req" asp-for="EmployeeIDs">Employee</label>
+            <select class="form-multi-select" asp-for="EmployeeIDs"
+                    multiple data-coreui-selection-type="counter"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")"
+                    data-coreui-search="true">
+                @foreach (var group in employees.GroupBy(e => e.GroupName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.Id">@emp.Name</option>
+                        }
+                    </optgroup>
+                }
+            </select>
+        </div>
+        <span asp-validation-for="EmployeeIDs" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-1">
+            <label class="form-label req" for="timepicker1">Loan Amount</label>
+            <input class="form-control" asp-for="LoanAmount" type="text" placeholder="Ex: 50000">
+        </div>
+        <span asp-validation-for="LoanAmount" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Installment Period</label>
+            <select class="form-select choiceDD" asp-for="LoanInstallmentPeriodID" asp-items="@ViewBag.LoanInstallmentDD as SelectList">
+                <option value="">Select Month</option>
+            </select>
+        </div>
+        <span asp-validation-for="LoanInstallmentPeriodID" class="text-danger"></span>
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="mb-1 flatpickr-input-container">
+            <label class="form-label req">Issue Date</label>
+
+            <div class="input-icon-end position-relative flatpickr">
+                <input type="text" asp-for="IssueDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+            </div>
+
+
+        </div>
+        <span asp-validation-for="IssueDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <div class="mb-1 ">
+            <label class="form-label req">Installment Start Date</label>
+
+            <div class="input-icon-end position-relative">
+                <input type="text" asp-for="StartDate" class="form-control StartDateMOnthYear" required placeholder="Select Month">
+                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+            </div>
+
+
+        </div>
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+
+    </div>
+    <div class="col-md-8">
+        <p id="loanSummary" class="fw-bold mt-4"></p>
+    </div>
+    <div class="col-12">
+        <div class="row g-3 justify-content-end">
+            <div class="col-auto">
+                <button class="btn btn-phoenix-primary px-5" id="ResetButton">Cancel</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" id="SaveButton" class="btn btn-primary px-5">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
 
 

@@ -1,7 +1,48 @@
 ﻿@model GCTL_App.ViewModels.PayRollManagements.LoanManagent.PayrollLoanEntryPageVM
 
-@await Html.PartialAsync("_Save", Model.Save)
+<div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb">
+    <div class="my-auto mb-1">
+        <h2 class="mb-1">Loan</h2>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap ">
+        <div class="me-2 mb-1">
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                    <i class="ti ti-file-export me-1"></i>Export
+                </a>
+                <ul class="dropdown-menu  dropdown-menu-end p-3">
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-pdf me-1"></i>Export as PDF</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="dropdown-item rounded-1"><i class="ti ti-file-type-xls me-1"></i>Export as Excel </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="mb-2">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#apply_loan" class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Apply Loan</a>
+        </div>
+        <div class="head-icons ms-2">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="apply_loan" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Loan</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
+            @await Html.PartialAsync("_Save", Model.Save)
+        </div>
+    </div>
+</div>
+
+
+
+<partial name="_TableLilstLaon" />
 <partial name="_ConfirmDelete" />
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 @section Scripts {
@@ -9,7 +50,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script src="~/js/pages/payrollmanagements/LoanManagements/PayRollEntryEntry.js"></script>
+    <script src="~/js/pages/payrollmanagements/LoanManagements/PayRollLoanEntry.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 }

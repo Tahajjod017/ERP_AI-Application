@@ -1,15 +1,20 @@
 ﻿using GCTL.Core.Enums;
 using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
+using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AttendanceManagement.LeaveManagements;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
+using Newtonsoft.Json;
 using QuestPDF.Helpers;
 using System;
 using System.Collections.Generic;
@@ -17,6 +22,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
 {
@@ -32,7 +38,8 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
         private readonly IGenericRepository<ApprovalTypes> approvalTypesRepository;
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
         private readonly IGenericRepository<Statuses> status;
-        public PayRollLoanEntryService(IGenericRepository<Loan> loanRepository, IGenericRepository<LoanInstallmentPeriods> loanInstallment, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<LoanBaseApprovalHistory> loanBaseHistory, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> status) : base(loanRepository)
+        private readonly IUserInfoService _userInfoService;
+        public PayRollLoanEntryService(IGenericRepository<Loan> loanRepository, IGenericRepository<LoanInstallmentPeriods> loanInstallment, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<LoanBaseApprovalHistory> loanBaseHistory, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> status, IUserInfoService userInfoService) : base(loanRepository)
         {
             this.loanRepository = loanRepository;
             this.loanInstallment = loanInstallment;
@@ -44,6 +51,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
             this.approvalTypesRepository = approvalTypesRepository;
             this.approvaldesignation = approvaldesignation;
             this.status = status;
+            _userInfoService = userInfoService;
         }
         #region Save Data
 
@@ -149,7 +157,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                     return new CommonReturnViewModel
                     {
                         Success = false,
-                        Message = "No valid approver found. Transfer request cannot be self-approved."
+                        Message = "No valid approver found cannot be self-approved."
                     };
                 }
                 //
@@ -169,11 +177,11 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 };
 
                 await loanRepository.AddAsync(loan);
+                await _userInfoService.ActionLogAsync("Loan Entry", ActionName.DataAdd, null, loan, loan.LoanID, entityVM);
                 await loanRepository.CommitTransactionAsync();
-
                 result.Success = true;
                 result.Message = "Loan Saved Successfully.";
-                result.Data = loan; // Optionally return the saved loan
+                result.Data = loan; 
             }
             catch (DbUpdateException ex)
             {
@@ -230,7 +238,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
 
         }
         #region
-        
+
         #endregion
         public async Task<CommonReturnViewModel> UpdateFromAppDecAsync(PayRollLoanViewDeclineApprovedVM entityVM)
         {
@@ -245,9 +253,6 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
 
             try
             {
-
-                //
-
                 var offf = await empoffi.AllActive()
                    .Where(x => x.EmployeeID == entityVM.EmployeeIDs)
                    .Select(x => new { x.EmployeeID, x.OrganizationID, x.OrganizationBranchID, x.DepartmentID, x.DesignationID, x.ImmediateSupervisorId, x.SeniorSupervisorId, x.HeadOfDepartmentId }).FirstOrDefaultAsync();
@@ -384,6 +389,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 // Fetch existing loan from repository
                 await loanRepository.BeginTransactionAsync();
                 var loan = await loanRepository.GetByIdAsync(entityVM.LoanID);
+                var beforeEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(loan, JsonSettings.IgnoreReferenceLoop));
                 if (loan == null)
                 {
                     return new CommonReturnViewModel
@@ -394,33 +400,37 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 }
                 // Update fields
                 //loan.EmployeeID = entityVM.EmployeeIDs ;
-                loan.LoanAmount = entityVM.LoanAmount ;
-                loan.LoanInstallmentPeriodID = entityVM.LoanInstallmentPeriodID ;
-                loan.IssueDate = entityVM.IssueDate ;
-                loan.StartDate = entityVM.StartDate ;
-                loan.ApprovalStage = approvalStep; 
+                loan.LoanAmount = entityVM.LoanAmount;
+                loan.LoanInstallmentPeriodID = entityVM.LoanInstallmentPeriodID;
+                loan.IssueDate = entityVM.IssueDate;
+                loan.StartDate = entityVM.StartDate;
+                loan.ApprovalStage = approvalStep;
                 loan.ApprovalPersonID = approvalPersonId; //
-                loan.IsFinalApproved=isFinalApproval;
-                loan.UpdatedAt=DateTime.Now ;
+                loan.IsFinalApproved = isFinalApproval;
+                loan.UpdatedAt = DateTime.Now;
                 loan.UpdatedBy = entityVM.UpdatedBy;
-                loan.LIP=entityVM.LIP ;
-                loan.LMAC=entityVM.LMAC ;
+                loan.StatusID = statusId;
+                loan.LIP = entityVM.LIP;
+                loan.LMAC = entityVM.LMAC;
                 await loanRepository.UpdateAsync(loan);
+                var afterEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(loan, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("Loan Approver", ActionName.DataUpdated, beforeEntity, afterEntity, loan.LoanID, entityVM);
                 var loanBase = new LoanBaseApprovalHistory
-                { 
-                
-                LoanID=entityVM.LoanID,
-                ApproveByID=approvalPersonId,
-                ApprovalStep=approvalStep,
-                ApproverNote=entityVM.ApproverNote,
-                StatusID=statusId,
-                LIP=entityVM.LIP,
-                LMAC=entityVM.LMAC,
-                CreatedAt=DateTime.Now, 
-                CreatedBy=entityVM.CreatedBy,
+                {
+
+                    LoanID = entityVM.LoanID,
+                    ApproveByID = entityVM.CreatedBy,
+                    ApprovalStep = approvalStep,
+                    ApproverNote = entityVM.ApproverNote,
+                    StatusID = statusId,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = entityVM.CreatedBy,
                 };
 
                 await loanBaseHistory.AddAsync(loanBase);
+                await _userInfoService.ActionLogAsync("Loan History", ActionName.DataAdd, null, loanBase, loanBase.BaseApprovalHistoryID, entityVM);
                 await loanRepository.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {
@@ -435,7 +445,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 {
                     Success = false,
                     Message = $"Database error: {ex.Message}"
-                     
+
                 };
             }
             catch (Exception ex)
@@ -576,8 +586,152 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
             throw new NotImplementedException();
         }
 
-        #region get all Datum
-        public async Task<PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? organizationId = null, List<int> departmentIds = null, List<int> employeeIds = null)
+
+        #region get all Datum LoanView
+        public async Task<PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>> LoanEntryList(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? organizationId = null, List<int> departmentIds = null, List<int> employeeIds = null)
+        {
+            try
+            {
+
+                var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+                var roleName = await (from user in appDb.Users
+                                      join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                      join role in appDb.Roles on userRole.RoleId equals role.Id
+                                      where user.Id == userId
+                                      select role.Name).FirstOrDefaultAsync();
+
+                // 🔹 Step 3: Base query with includes
+                var query = loanRepository.AllActive().Include(x=>x.Status).Include(x => x.Employee).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
+                if (query == null)
+                {
+                    throw new InvalidOperationException("query source is null.");
+                }
+
+                // 🔹 Step 4: Filter if not SuperAdmin
+                if (string.IsNullOrEmpty(roleName) || !string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => x.EmployeeID == employeeId);
+                }
+
+
+                // Get all EmployeeOfficeInfo for filtering
+                var officeInfoQuery = empoffi.AllActive().AsQueryable();
+
+                if (organizationId.HasValue)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => x.OrganizationID == organizationId)
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (departmentIds?.Any() == true)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => departmentIds.Contains(x.DepartmentID ?? 0))
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (employeeIds?.Any() == true)
+                {
+                    query = query.Where(x => employeeIds.Contains((int)x.EmployeeID));
+                }
+
+                //
+                Expression<Func<Loan, object>> orderByExpression = currentSortColumn?.ToLower() switch
+                {
+                    "empid" => x => x.EmployeeID,  // Employee Id
+                    "empname" => x => x.Employee.FirstName + " " + x.Employee.LastName,  // Employee Name
+                    "empdept" => x => empoffi.AllActive()
+                                              .Where(e => e.EmployeeID == x.EmployeeID)
+                                              .Select(m => m.Department != null ? m.Department.DepartmentName : "")
+                                              .FirstOrDefault(),  // Department
+                    "emploanamount" => x => x.LoanAmount ?? 0,  // Loan Amount
+                    //"empearlypayamount" => x => x.EarlyPayment ?? 0,  // Early Payment
+                    "tenuremonth" => x => x.LoanInstallmentPeriod != null ? x.LoanInstallmentPeriod.PeriodText : "",  // Tenure Month
+                    "monthlyemi" => x => (x.LoanAmount.HasValue && x.LoanInstallmentPeriod.PeriodValue.HasValue == true)
+                                        ? x.LoanAmount.Value / x.LoanInstallmentPeriod.PeriodValue.Value : 0,  // Monthly EMI
+                    "outstandindbalance" => x => (x.LoanAmount ?? 0) - ((x.LoanInstallmentPeriod.PeriodValue.HasValue)
+                                         ? (x.LoanAmount ?? 0) / x.LoanInstallmentPeriod.PeriodValue.Value * x.LoanInstallmentPeriod.PeriodValue.Value
+                                         : 0),
+                    _ => x => x.LoanID  //
+                };
+
+                query = currentSortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(orderByExpression)
+                    : query.OrderBy(orderByExpression);
+
+
+                // For approver Step
+                //
+                var approvalStepsMap = await loanBaseHistory.AllActive().GroupBy(x => x.LoanID).ToDictionaryAsync(g => g.Key, g => g.Select(x => x.ApprovalStep ?? 0).ToList());
+                var result = await PaginationService<Loan, LoanViewGetAllVM>.GetPaginatedData(
+
+
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+
+                    currentSortColumn,
+                    currentSortOrder,
+
+                   term => b =>
+                      EF.Functions.Like(b.LoanID.ToString(), $"%{term}%") ||
+                     EF.Functions.Like(b.Employee.FirstName + " " + b.Employee.LastName, $"%{term}%") ||
+                     EF.Functions.Like(empoffi.AllActive()
+                        .Where(e => e.EmployeeID == b.EmployeeID)
+                        .Select(m => m.Department != null ? m.Department.DepartmentName : "")
+                        .FirstOrDefault(), $"%{term}%") ||
+                      EF.Functions.Like((b.LoanAmount ?? 0).ToString(), $"%{term}%") ||
+                      //EF.Functions.Like((b.EarlyPayment ?? 0).ToString(), $"%{term}%") ||       
+                      EF.Functions.Like(b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText : "", $"%{term}%") ||
+                      EF.Functions.Like(((b.LoanAmount ?? 0) / (b.LoanInstallmentPeriod.PeriodValue ?? 1)).ToString(), $"%{term}%") ||
+                      EF.Functions.Like(((b.LoanAmount ?? 0) - (b.LoanInstallmentPeriod.PeriodValue ?? 0)).ToString(), $"%{term}%"),
+                    b => new LoanViewGetAllVM
+                    {
+                        LoanID = b.LoanID,
+                        ApplicationDate= b.CreatedAt?.ToString("dd-MM-yyyy hh:mm tt") ?? "",
+                        EmployeeID = b.EmployeeID,
+                        LoanAmount = b.LoanAmount ?? 0,
+                        StatusName = b.Status?.StatusName ?? "",
+                        TenureMonth = b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText : "",
+                        MonthlyEMI = (b.LoanAmount.HasValue && b.LoanInstallmentPeriod?.PeriodValue.HasValue == true)
+                 ? b.LoanAmount.Value / b.LoanInstallmentPeriod.PeriodValue.Value : 0,
+                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : "",
+
+                        EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
+                        EmployeeDepartment = empoffi.AllActive()
+                        .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault(),
+                        ApproverStep =b.ApprovalStage   //approvalStepsMap.ContainsKey(b.LoanID) ? approvalStepsMap[b.LoanID] : new List<int>()
+                    });
+
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error : {ex.Message}");
+
+                return new PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>
+                {
+                    Data = new List<LoanViewGetAllVM>(),
+                    TotalCount = 0
+                };
+            }
+        }
+
+        #endregion
+
+
+        #region get all Datum LoanAbove
+        public async Task<PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>> GetAllTableAboveAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? organizationId = null, List<int> departmentIds = null, List<int> employeeIds = null)
         {
             try
             {
@@ -634,18 +788,26 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 //
                 Expression<Func<Loan, object>> orderByExpression = currentSortColumn?.ToLower() switch
                 {
-                    "employeename" => x => x.Employee.FirstName + " " + x.Employee.LastName,
-
-                    _ => x => x.LoanID
+                    "empid" => x => x.EmployeeID,  
+                    "empname" => x => x.Employee.FirstName + " " + x.Employee.LastName, 
+                    "empdept" => x => empoffi.AllActive()
+                                              .Where(e => e.EmployeeID == x.EmployeeID)
+                                              .Select(m => m.Department != null ? m.Department.DepartmentName : "")
+                                              .FirstOrDefault(), 
+                    "emploanamount" => x => x.LoanAmount ?? 0,  
+                    //"empearlypayamount" => x => x.EarlyPayment ?? 0,  // Early Payment
+                    "tenuremonth" => x => x.LoanInstallmentPeriod != null ? x.LoanInstallmentPeriod.PeriodText : "",  
+                    "monthlyemi" => x => (x.LoanAmount.HasValue && x.LoanInstallmentPeriod.PeriodValue.HasValue == true)
+                                        ? x.LoanAmount.Value / x.LoanInstallmentPeriod.PeriodValue.Value : 0,  
+                    "outstandindbalance" => x => (x.LoanAmount ?? 0) - ((x.LoanInstallmentPeriod.PeriodValue.HasValue )
+                                         ? (x.LoanAmount ?? 0) / x.LoanInstallmentPeriod.PeriodValue.Value * x.LoanInstallmentPeriod.PeriodValue.Value
+                                         : 0),  
+                    _ => x => x.LoanID  //
                 };
 
                 query = currentSortOrder?.ToLower() == "desc"
                     ? query.OrderByDescending(orderByExpression)
                     : query.OrderBy(orderByExpression);
-
-
-                // For approver Step
-                //
                 var result = await PaginationService<Loan, LoanViewGetAllVM>.GetPaginatedData(
 
 
@@ -658,22 +820,29 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                     currentSortOrder,
 
                    term => b =>
-                      EF.Functions.Like(b.LoanID.ToString(), $"%{term}%") ||
-                      EF.Functions.Like(b.Employee.FirstName + " " + b.Employee.LastName, $"%{term}%"),
+                      EF.Functions.Like(b.LoanID.ToString(), $"%{term}%") ||                    
+                     EF.Functions.Like(b.Employee.FirstName + " " + b.Employee.LastName, $"%{term}%") ||  
+                     EF.Functions.Like(empoffi.AllActive()
+                        .Where(e => e.EmployeeID == b.EmployeeID)
+                        .Select(m => m.Department != null ? m.Department.DepartmentName : "")
+                        .FirstOrDefault(), $"%{term}%") ||                    
+                      EF.Functions.Like((b.LoanAmount ?? 0).ToString(), $"%{term}%") ||        
+                      //EF.Functions.Like((b.EarlyPayment ?? 0).ToString(), $"%{term}%") ||       
+                      EF.Functions.Like(b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText : "", $"%{term}%") ||  
+                      EF.Functions.Like(((b.LoanAmount ?? 0) / (b.LoanInstallmentPeriod.PeriodValue ?? 1)).ToString(), $"%{term}%") || 
+                      EF.Functions.Like(((b.LoanAmount ?? 0) - (b.LoanInstallmentPeriod.PeriodValue ?? 0)).ToString(), $"%{term}%")  ,  
                     b => new LoanViewGetAllVM
                     {
                         LoanID = b.LoanID,
                         EmployeeID = b.EmployeeID,
-                        LoanAmount = b.LoanAmount ?? 0, // safely default to 0 if null
-                        TenureMonth = b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText : "",
-                        MonthlyEMI = (b.LoanAmount.HasValue && b.LoanInstallmentPeriod?.PeriodValue.HasValue == true)
-                 ? b.LoanAmount.Value / b.LoanInstallmentPeriod.PeriodValue.Value : 0,
-                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : "",
-
+                        LoanAmount = b.LoanAmount ?? 0,
+                        TenureMonth = b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText ?? "" : "",
+                        MonthlyEMI = (b.LoanAmount.HasValue && b.LoanInstallmentPeriod != null && b.LoanInstallmentPeriod.PeriodValue.HasValue)
+                         ? b.LoanAmount.Value / b.LoanInstallmentPeriod.PeriodValue.Value : 0,
+                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName ?? ""} {b.Employee.LastName ?? ""}".Trim() : "",
                         EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
-
-                        EmployeeDepartment = empoffi.AllActive()
-                        .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault()
+                        StatusName = b.Status != null ? b.Status.StatusName ?? "" : "",
+                        EmployeeDepartment = empoffi.AllActive() .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName ?? "" : "").FirstOrDefault() ?? ""
                     });
 
 
@@ -692,6 +861,132 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
             }
         }
 
+        #endregion
+
+        #region Below Table 
+
+        public async Task<PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? organizationId = null, List<int> departmentIds = null, List<int> employeeIds = null)
+        {
+            try
+            {
+
+                var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+                var roleName = await (from user in appDb.Users
+                                      join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                      join role in appDb.Roles on userRole.RoleId equals role.Id
+                                      where user.Id == userId
+                                      select role.Name).FirstOrDefaultAsync();
+                bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
+                // 🔹 Step 3: Base query with includes
+                var query = loanRepository.AllActive().Include(x => x.Employee).Include(x => x.LoanBaseApprovalHistory).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
+                if (query == null)
+                {
+                    throw new InvalidOperationException("query source is null.");
+                }
+                var officeInfoQuery = empoffi.AllActive().AsQueryable();
+
+                if (organizationId.HasValue)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => x.OrganizationID == organizationId).Select(x => x.EmployeeID).ToListAsync();
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (departmentIds?.Any() == true)
+                {
+                    var empIds = await officeInfoQuery
+                        .Where(x => departmentIds.Contains(x.DepartmentID ?? 0))
+                        .Select(x => x.EmployeeID)
+                        .ToListAsync();
+
+                    query = query.Where(x => empIds.Contains(x.EmployeeID));
+                }
+
+                if (employeeIds?.Any() == true)
+                {
+                    query = query.Where(x => employeeIds.Contains((int)x.EmployeeID));
+                }
+
+                //
+                Expression<Func<Loan, object>> orderByExpression = currentSortColumn?.ToLower() switch
+                {
+                    "empid" => x => x.EmployeeID,
+                    "empname" => x => x.Employee.FirstName + " " + x.Employee.LastName,  // Employee Name
+                    "empdept" => x => empoffi.AllActive().Where(e => e.EmployeeID == x.EmployeeID).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault(),
+                    "emploanamount" => x => x.LoanAmount ?? 0,
+                    //"empearlypayamount" => x => x.EarlyPayment ?? 0,  // Early Payment
+                    "tenuremonth" => x => x.LoanInstallmentPeriod != null ? x.LoanInstallmentPeriod.PeriodText : "",  // Tenure Month
+                    "monthlyemi" => x => (x.LoanAmount.HasValue && x.LoanInstallmentPeriod.PeriodValue.HasValue == true)
+                                        ? x.LoanAmount.Value / x.LoanInstallmentPeriod.PeriodValue.Value : 0,  // Monthly EMI
+                    "outstandindbalance" => x => (x.LoanAmount ?? 0) - ((x.LoanInstallmentPeriod.PeriodValue.HasValue)
+                                         ? (x.LoanAmount ?? 0) / x.LoanInstallmentPeriod.PeriodValue.Value * x.LoanInstallmentPeriod.PeriodValue.Value : 0),
+                    _ => x => x.LoanID
+                };
+
+                query = currentSortOrder?.ToLower() == "desc"
+                    ? query.OrderByDescending(orderByExpression)
+                    : query.OrderBy(orderByExpression);
+
+                if (!isSuperAdmin)
+                {
+                    query = query.Where(x => x.LoanBaseApprovalHistory.Any(h => h.ApproveByID == employeeId));
+                }
+
+                // For approver Step
+                //
+                var result = await PaginationService<Loan, LoanViewGetAllVM>.GetPaginatedData(
+
+
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+
+                    currentSortColumn,
+                    currentSortOrder,
+
+                   term => b =>
+                      EF.Functions.Like(b.LoanID.ToString(), $"%{term}%") ||
+                     EF.Functions.Like(b.Employee.FirstName + " " + b.Employee.LastName, $"%{term}%") ||
+                     EF.Functions.Like(empoffi.AllActive()
+                        .Where(e => e.EmployeeID == b.EmployeeID)
+                        .Select(m => m.Department != null ? m.Department.DepartmentName : "")
+                        .FirstOrDefault(), $"%{term}%") ||
+                      EF.Functions.Like((b.LoanAmount ?? 0).ToString(), $"%{term}%") ||
+                      //EF.Functions.Like((b.EarlyPayment ?? 0).ToString(), $"%{term}%") ||       
+                      EF.Functions.Like(b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText : "", $"%{term}%") ||
+                      EF.Functions.Like(((b.LoanAmount ?? 0) / (b.LoanInstallmentPeriod.PeriodValue ?? 1)).ToString(), $"%{term}%") ||
+                      EF.Functions.Like(((b.LoanAmount ?? 0) - (b.LoanInstallmentPeriod.PeriodValue ?? 0)).ToString(), $"%{term}%"),
+                    b => new LoanViewGetAllVM
+                    {
+
+                        LoanID = b.LoanID,
+                        EmployeeID = b.EmployeeID,
+                        StatusName = loanBaseHistory.AllActive().Include(x => x.Status).Where(x => x.LoanID == b.LoanID && x.ApproveByID == employeeId).Select(x => x.Status.StatusName).FirstOrDefault(),  //b.Status.StatusName ?? "",
+                        LoanAmount = b.LoanAmount ?? 0,
+                        TenureMonth = b.LoanInstallmentPeriod != null ? b.LoanInstallmentPeriod.PeriodText : "",
+                        MonthlyEMI = (b.LoanAmount.HasValue && b.LoanInstallmentPeriod?.PeriodValue.HasValue == true)
+                      ? b.LoanAmount.Value / b.LoanInstallmentPeriod.PeriodValue.Value : 0,
+                        EmployeeName = b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : "",
+                        EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault()
+                    });
+
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error : {ex.Message}");
+
+                return new PaginationService<Loan, LoanViewGetAllVM>.PaginationResult<LoanViewGetAllVM>
+                {
+                    Data = new List<LoanViewGetAllVM>(),
+                    TotalCount = 0
+                };
+            }
+        }
         #endregion
 
         public async Task<List<CommonSelectVM>> SelectAsync()
@@ -723,9 +1018,42 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 throw new ApplicationException("An error occurred while fetching employee data.", ex);
             }
         }
-        
+
 
         #endregion
+
+        #region Loan Step
+        public async Task<List<PayRollLoanStep>> PayRollLoanStep(int id)
+        {
+            try
+            {
+                var result = await loanBaseHistory.AllActive()
+                 .Where(x => x.LoanID == id)
+                 .AsNoTracking()
+                 .Select(lb => new PayRollLoanStep
+                 {
+                     ApprovarNote = lb.ApproverNote ?? string.Empty,
+                     ApproverStep = lb.ApprovalStep ?? 0,
+                     ApprovarPerson = lb.ApproveBy != null
+                         ? lb.ApproveBy.FirstName + " " + lb.ApproveBy.LastName
+                         : string.Empty,
+                     StatusName = lb.Status != null ? lb.Status.StatusName : string.Empty,
+                     ApprovedOrDeclineDate = DateTimeHelpers.FormatDateTime(lb.CreatedAt)
+                 })
+                 .OrderBy(x => x.ApproverStep)
+                 .ToListAsync();
+
+
+
+                return result ?? new List<PayRollLoanStep>();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
 
 
     }

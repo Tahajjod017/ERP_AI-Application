@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollLoanManagement;
@@ -8,6 +9,7 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.LoanManagent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 
 
@@ -37,6 +39,60 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
           
             return View(model);
         }
+
+
+        #region Get All Data List
+
+        [Route("PayRollLoanView/LoanEntryList")]
+
+        [HttpGet]
+        public async Task<IActionResult> LoanEntryList(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null,
+    List<int> departmentIds = null,
+    List<int> employeeIds = null)
+        {
+            try
+            {
+                string url = GetEmployeePictureURL();
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var data = await payRollLoanEntryService.LoanEntryList(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, organizationId, departmentIds, employeeIds);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region  Loan Step
+        [Route("PayRollLoanView/PayRollLoanStep")]
+
+        [HttpGet]
+        public async Task<IActionResult> PayRollLoanStep(int id)
+        {
+
+            try
+            {
+
+
+                if (id == 0)
+                    return BadRequest("loan not found in claims.");
+
+
+                var data = await payRollLoanEntryService.PayRollLoanStep(id);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+        }
+        #endregion
+
 
         #region Save 
         [Route("PayRollLoanEntry/SaveAsync")]

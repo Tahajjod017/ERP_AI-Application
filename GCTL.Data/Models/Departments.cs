@@ -39,6 +39,8 @@ public partial class Departments
 
     public virtual Employees DepartmentHeadEmp { get; set; }
 
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShifts { get; set; } = new List<EmployeeFinalShifts>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromDepartment { get; set; } = new List<EmployeeTransfer>();

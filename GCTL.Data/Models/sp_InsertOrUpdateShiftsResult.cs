@@ -5,10 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL.Data.Models
 {
-    public partial class GetPaginatedEmployeeAttendanceResult
+    public partial class sp_InsertOrUpdateShiftsResult
     {
-        public int? EmployeeID { get; set; }
-        public DateOnly AttendanceDate { get; set; }
-        public string AttendanceStatus { get; set; }
     }
 }

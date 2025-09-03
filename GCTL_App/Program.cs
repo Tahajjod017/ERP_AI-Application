@@ -129,7 +129,7 @@ app.Use(async (context, next) =>
         context.Response.Cookies.Append("Language", "en", new CookieOptions
         {
             HttpOnly = true,
-            Secure = !app.Environment.IsDevelopment(), // Secure in production
+            Secure = !app.Environment.IsDevelopment(), 
             SameSite = SameSiteMode.Lax
         });
     }

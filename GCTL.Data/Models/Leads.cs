@@ -43,6 +43,8 @@ public partial class Leads
 
     public string LeadName { get; set; }
 
+    public int? PriorityID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -58,6 +60,8 @@ public partial class Leads
     public virtual LeadStatuses LeadStatus { get; set; }
 
     public virtual ICollection<LeadTypes> LeadTypes { get; set; } = new List<LeadTypes>();
+
+    public virtual Priorities Priority { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
