@@ -5,7 +5,7 @@
             baseUrl: '/',
         }, options);
 
-        var gridUrl = settings.baseUrl + "/GetAll";
+        var getAll = settings.baseUrl + "/GetAll";
         $(() => {
 
 
@@ -16,10 +16,10 @@
         // #region Table With Pagination
         var currentPage = 1;
         var pageSize = 5;
-        let currentSortColumn = 'DefaultShiftID';
+        let currentSortColumn = 'EmployeeID';
         let currentSortOrder = 'desc';
 
-        $('#rosterInOfficeDays-pageSizeSelect').on('change', function () {
+        $('#employeeShiftView-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
             if (selectedSize) {
                 pageSize = parseInt(selectedSize, 10);
@@ -31,19 +31,19 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#rosterInOfficeDays-searchInput").on("input", function () {
+            $("#employeeShiftView-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#rosterInOfficeDays-prevPageBtn").on('click', function () {
+            $("#employeeShiftView-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#rosterInOfficeDays-nextPageBtn").on('click', function () {
+            $("#employeeShiftView-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
@@ -128,14 +128,14 @@
                             <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
                                 <p class="fs-10 mb-0 p-1 bg-light text-info">${holidayTitle}</p>
                                 <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
-                                    id="rosterInOfficeDays-editBtn"
+                                    id="employeeShiftView-editBtn"
                                     data-id="${emp.rosterInOfficeDayID || ''}" 
                                     data-date="${h.date}" 
                                     data-shift-id="${emp.shiftID || ''}"
                                     data-organization-id="${emp.organizationID}" 
                                     data-dep-id="${emp.departmentID}" 
                                     data-emp-id="${emp.employeeID}" 
-                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                    data-bs-target="#employeeShiftView-editShiftModal">
                                     <i class="fas fa-pen"></i>
                                 </a>
                             </div>
@@ -146,14 +146,14 @@
                             <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
                                 <p class="fs-10 mb-0 p-1 bg-light text-info">${leaveTypeName}</p>
                                 <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
-                                    id="rosterInOfficeDays-editBtn"
+                                    id="employeeShiftView-editBtn"
                                     data-id="${emp.rosterInOfficeDayID || ''}" 
                                     data-date="${h.date}" 
                                     data-shift-id="${emp.shiftID || ''}"
                                     data-organization-id="${emp.organizationID}" 
                                     data-dep-id="${emp.departmentID}" 
                                     data-emp-id="${emp.employeeID}" 
-                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                    data-bs-target="#employeeShiftView-editShiftModal">
                                     <i class="fas fa-pen"></i>
                                 </a>
                             </div>
@@ -166,14 +166,14 @@
                             <div class="position-relative badge ${badgeClass} shift-block px-4 py-2" style="border-left:5px solid ${leftColor};">
                                 <p class="fs-10 mb-1">${shift.timeRange}</p>
                                 <p class="fs-10 mb-1">${shift.shiftName}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal" id="rosterInOfficeDays-editBtn"
+                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal" id="employeeShiftView-editBtn"
                                     data-id="${emp.rosterInOfficeDayID}" 
                                     data-date="${h.date}" 
                                     data-shift-id="${emp.shiftID}"
                                     data-organization-id="${emp.organizationID}" 
                                     data-dep-id="${emp.departmentID}" 
                                     data-emp-id="${emp.employeeID}" 
-                                    data-bs-target="#rosterInOfficeDays-editShiftModal">
+                                    data-bs-target="#employeeShiftView-editShiftModal">
                                     <i class="fas fa-pen"></i>
                                 </a>
                             </div>
@@ -225,7 +225,7 @@
 
 
         function loadTableData(daysToShow = getDaysToShow(), startDate = currentStartDate) {
-            var searchTerm = $("#rosterInOfficeDays-searchInput").val();
+            var searchTerm = $("#employeeShiftView-searchInput").val();
             $.ajax({
                 //url: settings.baseUrl + '/GetEmployeesPaged',
                 url: getAll,
@@ -276,7 +276,7 @@
 
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#rosterInOfficeDays-paginationLinks");
+            const paginationLinks = $("#employeeShiftView-paginationLinks");
             paginationLinks.empty();
             const windowSize = 1;
 
@@ -301,8 +301,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
 
-            $("#rosterInOfficeDays-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#rosterInOfficeDays-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#employeeShiftView-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#employeeShiftView-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         // 🔁 Page button click
