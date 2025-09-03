@@ -32,6 +32,7 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
@@ -172,6 +173,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IOffDayRosterService, OffDayRosterService>();
             services.AddScoped<ICreateSpiralPatternService, CreateSpiralPatternService>();
             services.AddScoped<IAssignSpiralPatternService, AssignSpiralPatternService>();
+            services.AddScoped<IEmployeeShiftViewService, EmployeeShiftViewService>();
             #endregion
 
 
