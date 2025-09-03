@@ -19,6 +19,7 @@ $(function () {
     // Config & State
     // ==============================
     const activityListDiv = "#activity-list";
+    const upcomingListDiv = "#upcoming-activity";
     const options = {
         day: '2-digit',
         month: 'short',
@@ -29,58 +30,16 @@ $(function () {
     };
 
     let currentPage = 1;
-    let loading = false;
+    let currentPage2 = 1;
+  
     let lastSearch = "";
-    let noMoreDataDown = false;
+
+
+    let loading = false, noMoreDataDown = false;
+    let loading2 = false, noMoreDataDown2 = false;
+
     let loadedIds = new Set();
-
-    // ==============================
-    // Add Lead Details
-    // ==============================
-    //$('#addLDetails').on('click', function (e) {
-    //    e.preventDefault();
-        
-    //    const buttonID = $(".option-btn.active").data('id');
-    //    const date = $("#lDetailsDate").val();
-    //    const text = $("#lDetailsText").val();
-    //    const id = $("#leadID").val();
-    //    const fileInput = $('#formFile')[0];
-    //    const file = fileInput.files[0];
-
-    //    console.log(fileInput);
-    //    console.log(file);
-    //    const convertedDate = convertToISODateTime(date);
-
-    //    const data = {
-    //        LeadID: id,
-    //        LeadActivityTypeID: buttonID,
-    //        ActivityDateTime: convertedDate,
-    //        ActivityNote: text,
-    //        File: file
-    //    };
-    //    showDev(data);
-
-
-    //    $.ajax({
-    //        url: '/LeadDetails/CeateLeadDetail',
-    //        method: 'POST',
-    //        contentType: false, 
-    //        processData: false, 
-    //        data: data,
-    //        success: function (response) {
-    //            toastr.success(response.message);
-    //            resetAndReload();
-    //            debugger;
-    //            $(".option-btn").removeClass("active");
-
-    //            $("#lDetailsDate").val("");
-    //            text = $("#lDetailsText").val("");
-    //        },
-    //        error: function (error) {
-    //            toastr.error(error.message || "Error adding lead detail");
-    //        }
-    //    });
-    //});
+    let loadedIds2 = new Set();
 
 
     $('#addLDetails').on('click', function (e) {
@@ -107,11 +66,6 @@ $(function () {
         formData.append("ActivityNote", text || "");
         if (file) formData.append("File", file);
 
-        // Debug
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
-
         $.ajax({
             url: '/LeadDetails/CeateLeadDetail',
             method: 'POST',
@@ -121,6 +75,7 @@ $(function () {
             success: function (response) {
                 toastr.success(response.message);
                 resetAndReload();
+                resetAndReloadUpcoming();
                 $(".option-btn").removeClass("active");
                 $("#lDetailsDate").val("");
                 $("#lDetailsText").val("");
@@ -136,20 +91,23 @@ $(function () {
     // ==============================
     // Infinite scroll inside activity-list
     // ==============================
-    $('#activity-list').on("scroll", function () {
-        console.log("Scrolling")
+    $('#activity-list, #upcoming-activity',).on("scroll", function () {
         const container = $(this);
+        const containerName = container.attr('id');
         const scrollTop = container.scrollTop();
         const innerHeight = container.innerHeight();
         const scrollHeight = container[0].scrollHeight;
 
-        // Debug
-        console.log("ScrollTop:", scrollTop, "InnerHeight:", innerHeight, "ScrollHeight:", scrollHeight);
-
-        if (!loading && !noMoreDataDown && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
-            console.log("?? Reached bottom ? loading page", currentPage + 1);
-            currentPage++;
-            updateActivate(currentPage, "down");
+        if (containerName === 'activity-list') {
+            if (!loading && !noMoreDataDown && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
+                currentPage++;
+                updateActivate(currentPage, "down");
+            }
+        } else if (containerName === 'upcoming-activity') {
+            if (!loading2 && !noMoreDataDown2 && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
+                currentPage2++;
+                updateUpcomingActivate(currentPage2)
+            }
         }
     });
 
@@ -184,49 +142,83 @@ $(function () {
     // Fetch activity data
     // ==============================
     function updateActivate(page = 1, direction = "down") {
-        if (loading) return;
-        loading = true;
+    if (loading) return;
+    loading = true;
 
-        const tabName = $("#myTab .nav-link.active").text().trim();
-        const search = $("#search-activity").val() || "";
+    const tabName = $("#myTab .nav-link.active").text().trim();
+    const search = $("#search-activity").val() || "";
+    const id = $("#leadID").val();
+    const typeD = tabName === "All Activity" ? "" : tabName;
+
+    $.ajax({
+        url: '/LeadDetails/getActivityList',
+        method: 'GET',
+        contentType: 'application/json',
+        data: { id, query: search, page, type: typeD },
+        success: function (response) {
+            if (!response || response.length === 0) {
+                noMoreDataDown = true;
+                return;
+            }
+
+            response.forEach(item => {
+                if (!item.leadDetailID) return; // skip invalid
+                if (!loadedIds.has(item.leadDetailID)) {
+                    loadedIds.add(item.leadDetailID);
+                    const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+                    $(activityListDiv).append(renderActivity(item, activityDate));
+                }
+            });
+        },
+        complete: function () { loading = false;},
+        error: function (jqXHR, textStatus) {
+            toastr.error("Error: " + textStatus);
+        }
+    });
+
+        
+    }
+    // ==============================
+    // Fetch upcoming activity data
+    // ==============================
+    function updateUpcomingActivate(page = 1, direction = "down") {
+        if (loading2) return;
+        loading2 = true;
         const id = $("#leadID").val();
-        const typeD = tabName === "All Activity" ? "" : tabName;
-
         $.ajax({
-            url: '/LeadDetails/getActivityList',
+            url: '/LeadDetails/GetUpcomingActivityList',
             method: 'GET',
             contentType: 'application/json',
-            data: { id, query: search, page, type: typeD },
+            data: { id, page },
             success: function (response) {
-                console.log(response);
                 if (!response || response.length === 0) {
-                    noMoreDataDown = true;
+                    noMoreDataDown2 = true;
                     return;
                 }
 
                 response.forEach(item => {
-                    console.log(item.leadDetailID);
-                    if (!item.leadDetailID) return; // skip invalid
-                    if (!loadedIds.has(item.leadDetailID)) {
-                        loadedIds.add(item.leadDetailID);
+                    if (!item.leadDetailID) return;
+                    if (!loadedIds2.has(item.leadDetailID)) {
+                        loadedIds2.add(item.leadDetailID);
                         const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                        $(activityListDiv).append(renderActivity(item, activityDate));
+                        $('#upcoming-activity').append(renderActivity(item, activityDate));
                     }
                 });
             },
-            complete: function () { loading = false; },
+            complete: function () { loading2 = false;},
             error: function (jqXHR, textStatus) {
                 toastr.error("Error: " + textStatus);
             }
+
         });
     }
-
+    
     // ==============================
     // Render a single activity
     // ==============================
     function renderActivity(value, activityDate) {
         return `
-            <div class="border-bottom border-translucent py-4">
+            <div class="border-bottom border-translucent py-3 mx-3">
                 <div class="d-flex">
                     <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
                          style="width:25px; height:25px">
@@ -269,6 +261,32 @@ $(function () {
     }
 
     // ==============================
+    // update Lead Source value
+    // ==============================
+
+    $("#leadSource").on("change", function () {
+        let fieldValue = $(this).val();
+        let fieldName = "source";
+        let leadID = $("#leadID").val();
+
+        $.ajax({
+            url: '/LeadDetails/UpdateLeadValue',
+            method: 'POST',
+            data: { LeadID: leadID, FieldName: fieldName, FieldValue: fieldValue },
+            success: function (response) {
+                if (response) {
+                    toastr.success("Lead source updated successfully");
+                }
+            },
+           
+            error: function (jqXHR, textStatus) {
+                toastr.error("Error: " + textStatus);
+            }
+
+        });
+    })
+
+    // ==============================
     // Reset state and reload page 1
     // ==============================
     function resetAndReload() {
@@ -278,9 +296,19 @@ $(function () {
         $(activityListDiv).empty();
         updateActivate(1, "reset");
     }
+    function resetAndReloadUpcoming() {
+        currentPage2 = 1;
+        noMoreDataDown2 = false;
+        loadedIds2.clear()
+        $(upcomingListDiv).empty();
+        updateUpcomingActivate(currentPage2);
+    }
 
     // ==============================
     // Initial load
     // ==============================
+   
     updateActivate(1, "reset");
+    updateUpcomingActivate();
+   
 });

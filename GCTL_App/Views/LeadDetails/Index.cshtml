@@ -15,6 +15,12 @@
         margin-top: 22px;
     }
 
+    #upcoming-activity {
+        height: 360px; /* adjust to your desired height */
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
         #activity-list::-webkit-scrollbar {
             display: none;
         }
@@ -46,10 +52,6 @@
                             <div class="row align-items-center g-3">
                                 <div class="col-12 col-sm-auto flex-1">
                                     <h3 class="fw-bolder mb-2 line-clamp-1">@Model.LeadName</h3>
-                                    <!-- <div class="d-flex align-items-center mb-4">
-                                      <h5 class="mb-0 me-4">USD $12,000.00</h5>
-                                      <h5 class="fw-semibold"><span class="d-inline-block lh-sm me-1" data-feather="grid" style="height:16px;width:16px;"></span><span class="d-inline-block lh-sm">Financial</span></h5>
-                                    </div> -->
                                     <div class="d-md-flex d-xl-block align-items-center justify-content-between mb-2">
                                         <div class="d-flex align-items-center mb-3 mb-md-0 mb-xl-3">
                                             <div class="avatar avatar-xl me-3"><img class="rounded-circle" src="../../assets/img/team/72x72/58.webp" alt="" /></div>
@@ -325,44 +327,12 @@
                     </div>
                 </div>
 
-                <div class="card mt-3 p-3">
-                    <h4 class="mb-4 border-bottom">Upcomming  Activities</h4>
+                <div class="card mt-3 p-1">
+                <h4 class="pt-3 px-2 pb-2 border-bottom">Upcomming  Activities</h4>
 
-                    <div class="border-bottom border-translucent py-4">
-                        <div class="d-flex">
-                            <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-warning-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-phone-alt text-warning-dark"></span></div>
-                            <div class="flex-1">
-                                <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                    <div class="flex-1 me-2">
-                                        <h5 class="text-body-highlight lh-sm">Purchasing-Related Vendors</h5>
-                                        <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Ansolo Lazinatov</a></p>
-                                    </div>
-                                    <div class="fs-9">
-                                        <p class="fa-regular fa-calendar-days text-primary me-2"></p><span class="fw-semibold">8 Appril, 2025, 4:30pm</span> <br>
-                                        <a href="#" class="badge badge-phoenix badge-phoenix-info pt-1">Done</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   <div id="upcoming-activity">
 
-                    <div class="border-bottom border-translucent py-4">
-                        <div class="d-flex">
-                            <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 bg-info-subtle" style="width:25px; height:25px"><span class="fa-solid text-primary-dark fs-9 fa-video text-info-600"></span></div>
-                            <div class="flex-1">
-                                <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                                    <div class="flex-1 me-2">
-                                        <h5 class="text-body-highlight lh-sm">Onboarding Meeting</h5>
-                                        <p class="fs-9 mb-0">by<a class="ms-1" href="#!">Jackson Pollock</a></p>
-                                    </div>
-                                    <div class="fs-9">
-                                        <p class="fa-regular fa-calendar-days text-primary me-2"></p><span class="fw-semibold">8 Appril, 2025, 5:31pm</span> <br>
-                                        <a href="#" class="badge badge-phoenix badge-phoenix-info pt-1">Done</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                   </div>
 
                 </div>
 

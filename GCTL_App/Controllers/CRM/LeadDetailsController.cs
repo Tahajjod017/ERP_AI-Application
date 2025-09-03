@@ -139,28 +139,17 @@ namespace GCTL_App.Controllers.CRM
             });
         }
 
-
-
-        //[HttpGet]
-        //public async Task<IActionResult> getActivityInfo([FromBody] LeadDetailsVM leadDetailsVM)
-        //{
-        //    try
-        //    {
-
-        //        if (leadDetailsVM.LeadID != 0)
-        //        {
-        //            bool result = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM);
-        //            return Ok(new { result = result, message = "Data added successfully" });
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
-
-        //    }
-        //    return Ok(new { result = false, message = "Failed to add lead details. Please check the input data." });
-        //}
-
+        // update source field value 
+        [HttpPost]
+        public async Task<IActionResult> UpdateLeadValue([FromForm] DetailsLeadUpdateVM detailsLeadUpdateVM)
+        {
+            var fieldNames = new[] { "source", "priority", "stage" };
+            if (fieldNames.Contains(detailsLeadUpdateVM.FieldName)) {
+                var result = await _leadDetailsService.UpdateLeadFieldValue(detailsLeadUpdateVM);
+                return Ok(result);
+            }
+            return Ok(false);
+        }
 
         // geting all acitity list
 
@@ -205,6 +194,35 @@ namespace GCTL_App.Controllers.CRM
 
             return Ok(list);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetUpcomingActivityList(int id, int page)
+        {
+
+            const int pageSize = 10;
+            int skip = (page - 1) * pageSize; 
+            // Fetch filtered and paginated data using LIKE
+            var list = await _leadDetailsRepository
+          .Find(u => u.LeadID == id &&
+                     u.ActivityDateTime >= DateTime.UtcNow
+          )
+          .OrderByDescending(e => e.CreatedAt)   // ORDER FIRST!
+          .Skip(skip)                            // THEN skip
+          .Take(pageSize)                        // THEN take
+          .Select(e => new
+          {
+              e.LeadDetailID,
+              e.ActivityDateTime,
+              e.ActivityNote,
+              e.LeadActivityType.LeadActivityName,
+              e.LeadActivityType.LeadActivityIcon,
+              CreatedByName = e.CreatedByNavigation != null
+                              ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
+                              : null
+          })
+          .ToListAsync();
+
+            return Ok(list);
+        }
 
         [HttpGet]
         public async Task<IActionResult> getUpcommingList(int id, int page)
@@ -230,5 +248,7 @@ namespace GCTL_App.Controllers.CRM
             .ToListAsync();
             return Ok(list);
         }
+
+        // TODO: Next have to add code for stage
     }
 }
