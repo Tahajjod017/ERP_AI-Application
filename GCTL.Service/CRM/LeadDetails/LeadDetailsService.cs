@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Hosting;
+using OfficeOpenXml.Export.ToDataTable;
 
 
 namespace GCTL.Service.CRM.LeadDetails
@@ -20,11 +21,13 @@ namespace GCTL.Service.CRM.LeadDetails
     {
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesGenericRepository;
         private readonly IGenericRepository<GCTL.Data.Models.LeadDetails> _leadDetailsGenericRepository;
-        
-        public LeadDetailsService(IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository)
+        private readonly IGenericRepository<Leads> _leadsRepository;
+
+        public LeadDetailsService(IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository, IGenericRepository<Leads> leadsRepository)
         {
             _leadActivityTypesGenericRepository = leadActivityTypesGenericRepository;
             _leadDetailsGenericRepository = leadDetailsGenericRepository;
+            _leadsRepository = leadsRepository;
         }
 
         public async Task<bool> CreateLeadActivateTypes()
@@ -93,5 +96,33 @@ namespace GCTL.Service.CRM.LeadDetails
             
             return true;
         }
+        //ToDo: How to get user id
+        // lead table source, status update service function
+        public async Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
+        {
+            var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == detailsLeadUpdateVM.LeadID);
+            //var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (leadObj != null)
+            {
+                if (detailsLeadUpdateVM.FieldName == "source")
+                {
+                    leadObj.LeadSourceID = detailsLeadUpdateVM.FieldValue;
+                }
+                else if (detailsLeadUpdateVM.FieldName == "status")
+                {
+                    leadObj.LeadStatusID = detailsLeadUpdateVM.FieldValue;
+                }
+
+
+                leadObj.UpdatedAt = DateTime.UtcNow;
+                leadObj.UpdatedBy = detailsLeadUpdateVM.UpdatedBy;
+                await _leadsRepository.UpdateAsync(leadObj);
+                return true;
+            }
+
+            return false;
+        }
+          
     }
 }
