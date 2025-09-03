@@ -170,12 +170,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetEmployeesByOrgDatesBraDepId
-        public async Task<IActionResult> GetEmployeesByOrgDatesBraDepId(int? orgId, [FromQuery] List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByOrgDatesBraDepId(int? orgId, [FromQuery] List<DateTime>? dates, List<int>? branchIds, List<int>? depIds, string? search, int? page = 1, int? pageSize = 50)
         {
             try
             {
-                var result = await _commonService.GetEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, deptIds);
+                var result = await _commonService.GetEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, depIds, search, page, pageSize);
                 return Json(result);
+                //var result = await _commonService.GetEmployeesByOrgDatesBraDepId2(orgId, dates, branchIds, depIds, search, page, pageSize);
+                //return Json(new
+                //{
+                //    items = result.Items.Select(x => new
+                //    {
+                //        value = x.Id,
+                //        label = x.Name,
+                //        group = x.GroupName
+                //    }),
+                //    hasMore = result.HasMore
+                //});
             }
             catch (Exception ex)
             {
