@@ -389,7 +389,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 // Fetch existing loan from repository
                 await loanRepository.BeginTransactionAsync();
                 var loan = await loanRepository.GetByIdAsync(entityVM.LoanID);
-                var beforeEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(loan, JsonSettings.IgnoreReferenceLoop));
+                var beforeEntity = JsonConvert.DeserializeObject<PayRollLoanViewDeclineApprovedVM>(JsonConvert.SerializeObject(loan, JsonSettings.IgnoreReferenceLoop));
                 if (loan == null)
                 {
                     return new CommonReturnViewModel
@@ -413,7 +413,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 loan.LIP = entityVM.LIP;
                 loan.LMAC = entityVM.LMAC;
                 await loanRepository.UpdateAsync(loan);
-                var afterEntity = JsonConvert.DeserializeObject<GradeVM>(JsonConvert.SerializeObject(loan, JsonSettings.IgnoreReferenceLoop));
+                var afterEntity = JsonConvert.DeserializeObject<PayRollLoanViewDeclineApprovedVM>(JsonConvert.SerializeObject(loan, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Loan Approver", ActionName.DataUpdated, beforeEntity, afterEntity, loan.LoanID, entityVM);
                 var loanBase = new LoanBaseApprovalHistory
                 {
