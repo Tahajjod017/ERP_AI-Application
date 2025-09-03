@@ -108,7 +108,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
-                    form.trigger("reset");
+                   
                     loadTableData();
                 } else {
                     toastr.error(response.message, 'Error');
@@ -120,6 +120,7 @@ $(document).ready(function () {
         });
     });
 });
+
 
 $(document).on('click', '#addCompanySettings-singleDelBtn', function () {
     var approvalSettingID = $(this).data('id');
@@ -157,11 +158,86 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 });
 //edit
 $(document).on('click', '#edit_organization_settingBtn', function () {
-    var approvalSettingID = $(this).data('id');
+    var holidaySettingID = $(this).data('id');
     $('#edit_organization_setting').modal('show'); // Show the delete confirmation modal
+
+     //Store the ID in the hidden input field
+    $('#OrganizationIDedit').val(holidaySettingID);
+
+    // Load the existing data for the selected holiday setting
+    $.ajax({
+        url: '/CompanySettings/GetById',
+        method: 'GET',
+        data: { id: holidaySettingID },
+        success: function (response) {
+            if (response.isSuccess) {
+                // Populate the form fields with the existing data
+               
+                $('#OrganizationNameEdit').val(response.data.organizationName);
+                $('#EmailAddressEdit').val(response.data.emailAddress);
+                $('#PhoneEdit').val(response.data.phone);
+                $('#FaxEdit').val(response.data.fax);
+                $('#WebAddressEdit').val(response.data.webAddress);
+                $('#AddressEdit').val(response.data.address);
+                $('#StreetEdit').val(response.data.street);
+                $('#CityEdit').val(response.data.city);
+              
+                $('#PostCodeEdit').val(response.data.postCode);
+                $('#LatitudeEdit').val(response.data.latitude);
+                $('#LongitudeEdit').val(response.data.longitude);
+
+                choiceManager.setChoiceValue('CountryIDEdit', response.data.countryID);
+                // Initialize the datepicker for the edit form
+               
+            } else {
+                toastr.error(response.message, 'Error');
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle Access Denied error (403)
+            if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+                // Redirect to AccessDenied page
+                window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
+            } else {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        }
+    });
+
     /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
+
 });
 
+$('#companySettingsFormEdit').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    var formData = $(this).serialize(); // Serialize the form data
+
+    // Append the approvalSettingID to the form data
+    // formData += '&approvalSettingID=' + weekendSettingID;
+
+    // Send the data via AJAX
+    $.ajax({
+        url: '/CompanySettings/Updates', // Adjust URL if necessary
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                // Handle success
+                toastr.success('Company setting updated successfully!');
+                $('#edit_organization_setting').modal('hide'); // Hide the modal
+                loadTableData();
+            } else {
+                // Handle failure
+                toastr.error('Failed to update Company setting: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle AJAX errors
+            toastr.error('Error: ' + error);
+        }
+    });
+});
 
 // Function to load table data
 var currentPage = 1;

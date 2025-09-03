@@ -32,7 +32,7 @@ namespace GCTL.Service.CommonService
 
 
         #region Load Paginated
-        Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 10);
+        Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 50);
         Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50);
         #endregion
 
@@ -42,20 +42,14 @@ namespace GCTL.Service.CommonService
 
         Task<List<CommonSelectVM>> GetDepartmentsByOrgId(int? orgId);
 
-        Task<List<CommonSelectVM>> GetEmployeesByOrgId(int? orgId);
-
         Task<List<CommonSelectVM>> GetShiftsByOrgId(int? orgId);
         #endregion
 
 
-        #region Load by OrganizationId, BranchId
-        Task<List<CommonSelectVM>> GetEmployeesByOrgBraId(int? orgId, List<int>? branchIds);
-        #endregion
-
-
         #region Load by OrganizationId, BranchId, DepartmentId, Date
-        Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds);
-        Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds);
+        Task<PaginatedResult<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? depIds, string? search, int? page = 1, int? pageSize = 50);
+        Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? depIds, string? search, int? page = 1, int? pageSize = 50);
+        Task<PaginatedResult<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId2(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? depIds, string? search, int? page = 1, int? pageSize = 50);
         #endregion
 
 

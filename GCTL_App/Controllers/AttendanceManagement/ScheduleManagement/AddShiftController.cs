@@ -8,12 +8,14 @@ using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class AddShiftController : BaseController
     {
         #region Services & Repositories
@@ -49,9 +51,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region SearchOrganizations / OrganizationDD
+        #region SearchOrganizations
         [HttpGet]
-        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 50)
         {
             var result = await _commonService.SearchOrganizations(search, page, pageSize);
 

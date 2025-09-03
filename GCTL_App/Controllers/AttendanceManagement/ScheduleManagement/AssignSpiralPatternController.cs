@@ -1,6 +1,5 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
@@ -110,16 +109,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByOrganization
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeeByOrganization(int? id)
-        {
-            var result = await _commonService.GetEmployeesByOrgId(id);
-            return Json(result);
-        }
-        #endregion
-
-
         #region GetSpiralPatternsByOrgPatternType
         [HttpGet]
         public async Task<IActionResult> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId)
@@ -131,9 +120,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetEmployeesByOrgBraDepId
-        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds, string? search, int? page = 1, int? pageSize = 10)
         {
-            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds, search, page, pageSize);
             return Json(result);
         }
         #endregion

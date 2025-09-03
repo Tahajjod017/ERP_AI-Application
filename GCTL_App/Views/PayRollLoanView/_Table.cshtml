@@ -5,11 +5,11 @@
 
 
 <style>
-    #leaveRequest-searchForm {
+    #loanEntryWaiting-searchForm {
         position: relative;
     }
 
-    #leaveRequest-searchInput {
+    #loanEntryWaiting-searchInput {
         padding-right: 2.25rem; /* Leave space for the icon inside */
         height: calc(1.5em + 0.75rem + 2px); /* Same as .form-select */
     }
@@ -52,12 +52,13 @@
 
 <div class="card-body py-0 scrollbar to-do-list-body">
     <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+        <h4 class="mb-3"> Waiting Loan Approver</h4>
         <div class="row g-3 align-items-end mb-4" style="margin-right:1%">
             <div class="col-md-4">
                 <div class="mb-3">
                     <label  class="form-label">Organization</label>
                     <select class="form-select choiceDD" id="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
-                        <option value="">@Html.SmartLocalize("Select Organization")...</option>
+                        <option value="">@Html.SmartLocalize("Select Organization")</option>
                     </select>
                     <span id="OrganizationIDError" class="text-danger" style="display:none;"></span>
                 </div>
@@ -84,7 +85,7 @@
 
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label class="form-label req">Employee</label>
+                    <label class="form-label">Employee</label>
                     <select class="form-multi-select" id="EmployeeIDs"
                             multiple data-coreui-selection-type="counter"
                             data-coreui-placeholder="@Html.SmartLocalize("Select Employee")"
@@ -111,7 +112,7 @@
                 <div class="d-flex align-items-center me-3" style="width: auto;">
                     <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
                     <div style="width: 100%;">
-                        <select id="leaveRequest-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                        <select id="loanEntryWaiting-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
                             <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
                             <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
                             <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
@@ -124,14 +125,14 @@
 
             <div class="col-12 col-sm-auto">
                 <div class="d-flex align-items-center">
-                    <div class="d-none me-3" id="leaveRequest-bulkSelectActions">
+                    <div class="d-none me-3" id="loanEntryWaiting-bulkSelectActions">
                         <div class="position-relative">
-                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="leaveRequest-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="loanEntryWaiting-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
                         </div>
                     </div>
-                    <div class="dropdown me-3" id="leaveRequest-searchBox">
-                        <form class="position-relative" id="leaveRequest-searchForm">
-                            <input class="form-control search-input" id="leaveRequest-searchInput" type="search"
+                    <div class="dropdown me-3" id="loanEntryWaiting-searchBox">
+                        <form class="position-relative" id="loanEntryWaiting-searchForm">
+                            <input class="form-control search-input" id="loanEntryWaiting-searchInput" type="search"
                                    placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
                             <span class="fas fa-search search-box-icon"></span>
                         </form>
@@ -140,7 +141,7 @@
             </div>
         </div>
         <div class="table-responsive ms-n1 ps-1 scrollbar">
-            <table class="table fs-9 mb-0 border-top border-translucent">
+            <table class="table fs-9 mb-0 border-top border-translucent table-hover table-striped">
                 <thead>
                     <tr>
                         <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
@@ -155,7 +156,7 @@
                         <th class="sort align-middle ps-4 pe-3 text-uppercase text-nowrap" scope="col" data-sort="empEarlyPayAmount">Early Payment</th>
                         <th class="sort align-middle ps-4 pe-3 text-uppercase text-nowrap" scope="col" data-sort="tenureMonth">Tenure Month</th>
                         <th class="sort align-middle ps-4 pe-3 text-uppercase text-nowrap" scope="col" data-sort="monthlyEMI">Monthly EMI</th>
-                        <th class="sort align-middle ps-1 pe-1 text-uppercase text-nowrap" scope="col" data-sort="outstandindBalance">Outstanding Balance</th>
+                        <th class="sort align-middle ps-4 pe-3 text-uppercase text-nowrap" scope="col" data-sort="outstandindBalance">Outstanding Balance</th>
                         <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">Action</th>
                     </tr>
                 </thead>
@@ -166,14 +167,14 @@
 
         <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
             <div class="d-flex">
-                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="leaveRequest-paginationInfo"></p>
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="loanEntryWaiting-paginationInfo"></p>
 
                 <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
             </div>
             <div class="d-flex">
-                <button class="page-link" data-list-pagination="prev" id="leaveRequest-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
-                <ul class="mb-0 pagination" id="leaveRequest-paginationLinks"></ul>
-                <button class="page-link pe-0" data-list-pagination="next" id="leaveRequest-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                <button class="page-link" data-list-pagination="prev" id="loanEntryWaiting-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="loanEntryWaiting-paginationLinks"></ul>
+                <button class="page-link pe-0" data-list-pagination="next" id="loanEntryWaiting-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
             </div>
         </div>
     </div>

@@ -176,10 +176,20 @@
                 e.preventDefault();
 
                 var orgId = $(this).val();
-                getEmployeesByOrgDatesBraDepId(orgId, null, null, null);
+
+                getEmployeesByOrgDatesBraDepId(orgId, [], [], []);
                 loadBranchByOrganization(orgId);
                 loadDepartmentsByOrganization(orgId);
                 loadShiftByOrg(orgId);
+            });
+            // #endregion
+
+
+            // #region DayDate on change
+            $('#DayDate').on('change', function () {
+                var dates = $(this).val().split(',');
+                var orgId = $('#OrganizationID').val();
+                getEmployeesByOrgDatesBraDepId(orgId, dates, [], []);
             });
             // #endregion
 
@@ -289,39 +299,193 @@
 
 
             // #region BranchID on change
-            document.getElementById('BranchIDs')
-                .addEventListener('changed.coreui.multi-select', function (event) {
-                    const orgId = $('#OrganizationID').val();
-                    var dates = $('#DayDate').val().split(',');
-                    const selected = event.value || []; // array of {text, value}
-                    const branchIds = selected.map(x => parseInt(x.value));
+            document.getElementById('BranchIDs').addEventListener('changed.coreui.multi-select', function (event) {
+                const orgId = $('#OrganizationID').val();
+                var dates = $('#DayDate').val().split(',');
+                const selected = event.value || []; // array of {text, value}
+                const branchIds = selected.map(x => parseInt(x.value));
 
-                    getEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, null);
-                });
+                getEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, null);
+            });
             // #endregion
 
 
             // #region DepartmentIDs on change
-            document.getElementById('DepartmentIDs')
-                .addEventListener('changed.coreui.multi-select', function (event) {
-                    const orgId = $('#OrganizationID').val();
-                    var dates = $('#DayDate').val().split(',');
-                    const branchIds = $('#BranchIDs').val();
+            document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function (event) {
+                const orgId = $('#OrganizationID').val();
+                var dates = $('#DayDate').val().split(',');
+                const branchIds = $('#BranchIDs').val();
 
-                    const selected = event.value || []; // array of {text, value}
-                    const deptIds = selected.map(x => parseInt(x.value));
+                const selected = event.value || []; // array of {text, value}
+                const deptIds = selected.map(x => parseInt(x.value));
 
-                    getEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, deptIds);
-                });
+                getEmployeesByOrgDatesBraDepId(orgId, dates, branchIds, deptIds);
+            });
             // #endregion
 
 
-            // #region DayDate on change
-            $('#DayDate').on('change', function () {
-                var dates = $(this).val().split(',');
-                var orgId = $('#OrganizationID').val();
-                getEmployeesByOrgDatesBraDepId(orgId, dates, null, null);
-            });
+            // #region getEmployeesByOrgDatesBraDepId (with pagination, search, scroll)
+            //function getEmployeesByOrgDatesBraDepId(orgId, dates = [], branchIds = [], depIds = []) {
+            //    const selectEl = document.getElementById('EmployeeIDs');
+            //    if (!selectEl) return;
+
+            //    const ms = coreui.MultiSelect.getOrCreateInstance(selectEl);
+
+            //    let page = 1;
+            //    let term = '';
+            //    const pageSize = 50;
+
+            //    let hasMore = true;
+            //    let loading = false;
+            //    let debounce;
+            //    let scrollPosition = 0;
+
+            //    // Initial fetch trigger on open
+            //    selectEl.addEventListener('shown.coreui.multi-select', () => {
+            //        if (selectEl.options.length === 0) {
+            //            page = 1;
+            //            term = '';
+            //            hasMore = true;
+            //            fetchPage({ append: false });
+            //        }
+
+            //        ensureSearchHandler();
+            //        rebindScroll();
+            //    });
+
+            //    function ensureSearchHandler() {
+            //        const wrapper = selectEl.nextElementSibling;
+            //        const input = wrapper?.querySelector('.form-multi-select-search');
+            //        const box = wrapper?.querySelector('.form-multi-select-options');
+            //        if (!input || input.dataset.listenerAttached) return;
+
+            //        input.dataset.listenerAttached = '1';
+            //        input.addEventListener('mousedown', e => e.stopPropagation());
+
+            //        input.addEventListener('input', e => {
+            //            const val = e.target.value.trim();
+            //            clearTimeout(debounce);
+
+            //            if (val.length < 3) {
+            //                addOptions([], { reset: true });
+            //                page = 1;
+            //                term = '';
+            //                hasMore = false;
+            //                if (box) box.scrollTop = 0;
+            //                return;
+            //            }
+
+            //            debounce = setTimeout(() => {
+            //                term = val;
+            //                page = 1;
+            //                hasMore = true;
+            //                fetchPage({ append: false });
+            //                if (box) box.scrollTop = 0;
+            //            }, 1000);
+            //        });
+            //    }
+
+            //    function rebindScroll() {
+            //        const box = selectEl.nextElementSibling?.querySelector('.form-multi-select-options');
+            //        if (!box || box.dataset.infiniteAttached) return;
+
+            //        box.dataset.infiniteAttached = '1';
+            //        box.addEventListener('scroll', () => {
+            //            if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+            //                if (hasMore && !loading) fetchPage({ append: true });
+            //            }
+            //        });
+            //    }
+
+            //    function addOptions(items, { reset = false } = {}) {
+            //        const box = selectEl.nextElementSibling?.querySelector('.form-multi-select-options');
+            //        if (box) scrollPosition = box.scrollTop;
+
+            //        if (reset) {
+            //            const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
+            //            [...selectEl.options].forEach(o => {
+            //                if (!keep.has(o.value)) o.remove();
+            //            });
+            //        }
+
+            //        const existing = new Set([...selectEl.options].map(o => String(o.value)));
+            //        const grouped = {};
+
+            //        items.forEach(emp => {
+            //            const group = emp.group || 'No Department';
+            //            if (!grouped[group]) grouped[group] = [];
+            //            grouped[group].push(emp);
+            //        });
+
+            //        Object.keys(grouped).forEach(group => {
+            //            const optgroup = document.createElement('optgroup');
+            //            optgroup.label = group;
+
+            //            grouped[group].forEach(emp => {
+            //                const idStr = String(emp.value);
+            //                if (existing.has(idStr)) return;
+            //                const opt = document.createElement('option');
+            //                opt.value = idStr;
+            //                opt.textContent = emp.label;
+            //                optgroup.appendChild(opt);
+            //            });
+
+            //            selectEl.appendChild(optgroup);
+            //        });
+
+            //        const wasOpen = !!ms._isShown;
+            //        ms.update();
+            //        if (wasOpen) ms.show();
+            //        ensureSearchHandler();
+
+            //        const input = selectEl.nextElementSibling?.querySelector('.form-multi-select-search');
+            //        if (input && input.value) {
+            //            input.setSelectionRange(input.value.length, input.value.length);
+            //        }
+
+            //        setTimeout(() => {
+            //            const box = selectEl.nextElementSibling?.querySelector('.form-multi-select-options');
+            //            if (box) {
+            //                box.scrollTop = reset ? 0 : scrollPosition;
+            //            }
+            //        }, 10);
+
+            //        rebindScroll();
+            //    }
+
+            //    async function fetchPage({ append }) {
+            //        if (loading || (!hasMore && append)) return;
+            //        loading = true;
+            //        try {
+            //            const url = new URL('/OffDayRoster/GetEmployeesByOrgDatesBraDepId', window.location.origin);
+            //            const params = new URLSearchParams();
+
+            //            if (orgId) params.append('orgId', orgId);
+            //            dates.forEach(id => params.append('dates', id));
+            //            branchIds.forEach(id => params.append('branchIds', id));
+            //            depIds.forEach(id => params.append('depIds', id));
+            //            if (term) params.append('search', term);
+            //            params.append('page', page);
+            //            params.append('pageSize', pageSize);
+
+            //            url.search = params.toString();
+
+            //            const response = await fetch(url);
+            //            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            //            const data = await response.json();
+
+            //            addOptions(data.items, { reset: !append });
+            //            hasMore = !!data.hasMore;
+            //            if (append) page++;
+            //            else page = 2;
+            //        } catch (e) {
+            //            console.error('Error fetching employees:', e);
+            //        } finally {
+            //            loading = false;
+            //        }
+            //    }
+            //}
             // #endregion
 
 
@@ -705,8 +869,6 @@
                 }
             });
             // #endregion
-
-
             
 
         });

@@ -13,11 +13,15 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Microsoft.AspNetCore.Authorization;
 using GCTL_App.EmailServicesMethod;
+using System.Security.Cryptography;
+using System.Text;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers
 {
     [AllowAnonymous]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -26,7 +30,7 @@ namespace GCTL_App.Controllers
         private readonly IEmailService _emailService;
         private readonly IGenericRepository<ActionLogs> actionLogs;
 
-        public AccountController(RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IEmailService emailService, IGenericRepository<ActionLogs> actionLogs)
+        public AccountController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IEmailService emailService, IGenericRepository<ActionLogs> actionLogs) : base(translateService, userProfileService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -59,30 +63,30 @@ namespace GCTL_App.Controllers
 
                 if (result.Succeeded)
                 {
-                    //if (user2.IsPasswordResetRequired==true)
-                    //{
-                    //    var user3 = await _userManager.FindByEmailAsync(model.Email);
-                    //    var claims2 = new List<Claim>
-                    //            {
-                    //                new Claim(ClaimTypes.NameIdentifier, user3.Id),
-                    //                new Claim(ClaimTypes.Name, user3.UserName),
-                    //                new Claim(ClaimTypes.Email, model.Email)
-                    //            };
+                    if (user2.IsPasswordResetRequired == true)
+                    {
+                        var user3 = await _userManager.FindByEmailAsync(model.Email);
+                        var claims2 = new List<Claim>
+                                {
+                                    new Claim(ClaimTypes.NameIdentifier, user3.Id),
+                                    new Claim(ClaimTypes.Name, user3.UserName),
+                                    new Claim(ClaimTypes.Email, model.Email)
+                                };
 
-                    //    var claimsIdentity2 = new ClaimsIdentity(claims2, CookieAuthenticationDefaults.AuthenticationScheme);
-                    //    var claimsPrincipal2 = new ClaimsPrincipal(claimsIdentity2);
+                        var claimsIdentity2 = new ClaimsIdentity(claims2, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsPrincipal2 = new ClaimsPrincipal(claimsIdentity2);
 
-                    //    var authProps2 = new AuthenticationProperties
-                    //    {
-                    //        IsPersistent = model.RememberMe,
-                    //        ExpiresUtc = DateTime.UtcNow.AddDays(1)
-                    //    };
+                        var authProps2 = new AuthenticationProperties
+                        {
+                            IsPersistent = model.RememberMe,
+                            ExpiresUtc = DateTime.UtcNow.AddDays(1)
+                        };
 
-                    //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal2, authProps2);
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal2, authProps2);
 
-                    //    // Redirect to force password change
-                    //    return RedirectToAction("ForceChangePassword", "Account");
-                    //}
+                        // Redirect to force password change
+                        return RedirectToAction("ForceChangePassword", "Account");
+                    }
                     // Step 2: Get user
                     var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -575,6 +579,11 @@ namespace GCTL_App.Controllers
         }
         public async Task<IActionResult> GetEmployeeCodes()
         {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            var getOrgId = await _Db.Employees.Include(e => e.EmployeeOfficeInfoEmployee)
+                .Where(e => e.EmployeeID == currentEmployeeId)
+                .Select(e => e.EmployeeOfficeInfoEmployee.Select(x => x.OrganizationID))
+                .FirstOrDefaultAsync();
             var employeeCodes = await _Db.Employees
                 .Where(e => e.DeletedAt == null && (e.HasUser != true || e.HasUser == null)
                 && (e.IsActive == true || e.IsActive == null)) // Only active employees
@@ -589,13 +598,67 @@ namespace GCTL_App.Controllers
 
             return Ok(employeeCodes);
         }
+        //public async Task<IActionResult> GetEmployeeCodes()
+        //{
+        //    int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+
+        //    // Collect the current user's OrganizationIDs (may be multiple)
+        //    var orgIds = new List<int?>();
+        //    if (currentEmployeeId.HasValue)
+        //    {
+        //        orgIds = await _Db.Employees
+        //            .Where(e => e.EmployeeID == currentEmployeeId.Value)
+        //            .SelectMany(e => e.EmployeeOfficeInfoEmployee
+        //                .Where(x => x.OrganizationID != null)
+        //                .Select(x => x.OrganizationID))
+        //            .Distinct()
+        //            .ToListAsync();
+        //    }
+
+        //    // Base query: only active employees without users
+        //    var query = _Db.Employees
+        //        .Where(e => e.DeletedAt == null
+        //            && (e.HasUser == null || e.HasUser == false)
+        //            && (e.IsActive == true || e.IsActive == null));
+
+        //    // If the current user has one or more orgs, filter by those orgs.
+        //    if (orgIds.Any())
+        //    {
+        //        // If Employee has the same navigation for orgs:
+        //        query = query.Where(e =>
+        //            e.EmployeeOfficeInfoEmployee.Any(x => orgIds.Contains(x.OrganizationID)));
+
+        //        // If instead there's a direct OrganizationID on Employee, use:
+        //        // query = query.Where(e => orgIds.Contains(e.OrganizationID));
+        //    }
+
+        //    var employeeCodes = await query
+        //        .Select(e => new
+        //        {
+        //            id = e.EmployeeID,
+        //            code = e.EmployeeCode + " - " + (((e.FirstName ?? "") + " " + (e.LastName ?? "")).Trim()),
+        //            name = (((e.FirstName ?? "") + " " + (e.LastName ?? "")).Trim())
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(employeeCodes);
+        //}
+
 
         [HttpPost]
         [Route("Account/CreateUsers")]
         public async Task<IActionResult> CreateUsers([FromBody] List<CreateUserRequest> users)
         {
+
             if (users == null || !users.Any())
                 return Json(new { success = false, message = "No user data received." });
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var userOrgId = await _userManager.Users
+                .Where(u => u.Id == currentUserId)
+                .Select(u => new { u.TenantInfoId, u.OrganizationID })
+                .FirstOrDefaultAsync();
 
             foreach (var user in users)
             {
@@ -624,6 +687,8 @@ namespace GCTL_App.Controllers
                 {
                     return Json(new { success = false, message = $"User already exists for employee code: {pureCode}" });
                 }
+                // Generate random password
+                var randomPassword = GeneratePassword12();
 
                 //  Create new user
                 var applicationUser = new ApplicationUser
@@ -632,11 +697,12 @@ namespace GCTL_App.Controllers
                     UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
                     Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
                     EmployeeId = employee.EmployeeID,
-                    IsPasswordResetRequired = true // Set to true to force password change on first login,
+                    IsPasswordResetRequired = true, // Set to true to force password change on first login,
+                    DefaultPass = randomPassword // <-- save password here
 
                 };
 
-                var result = await _userManager.CreateAsync(applicationUser, "##Emp123%");
+                var result = await _userManager.CreateAsync(applicationUser, randomPassword);
 
                 if (result.Succeeded)
                 {
@@ -651,8 +717,39 @@ namespace GCTL_App.Controllers
             }
 
             await _Db.SaveChangesAsync();
-            return Json(new { success = true, message = "Users created successfully! default password: ##Emp123%" });
+            return Json(new { success = true, message = "Users and default password created successfully!" });
         }
+        private static string GeneratePassword12()
+        {
+            const int wordLen = 7; // 7 letters + 3 digits + 2 specials = 12
+            var sb = new StringBuilder(12);
+
+            // 7 letters, capitalize first
+            for (int i = 0; i < wordLen; i++)
+            {
+                char c = (char)('a' + RandomNumberGenerator.GetInt32(26));
+                if (i == 0) c = char.ToUpperInvariant(c);
+                sb.Append(c);
+            }
+
+            // 3 digits
+            for (int i = 0; i < 3; i++)
+                sb.Append(RandomNumberGenerator.GetInt32(10)); // 0..9
+
+            // "%$"
+            sb.Append('%').Append('$');
+
+            return sb.ToString(); // always length 12
+        }
+        private string GenerateRandomPassword(int length = 12)
+        {
+            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+";
+            var random = new Random();
+            return new string(Enumerable.Repeat(valid, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+
         [HttpPost]
         [Route("Account/ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] string userId)
@@ -668,8 +765,10 @@ namespace GCTL_App.Controllers
             // Generate password reset token
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
+            var randomPassword = GeneratePassword12();
+
             // Reset password to a new default password
-            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, "##Emp123%");
+            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, randomPassword);
 
             if (resetResult.Succeeded)
             {
@@ -889,6 +988,7 @@ namespace GCTL_App.Controllers
             if (result.Succeeded)
             {
                 user.IsPasswordResetRequired = false;
+                user.DefaultPass = null; // Clear the default password
                 await _userManager.UpdateAsync(user);
                 TempData["AlertType"] = "success";
                 TempData["AlertMessage"] = "Password updated successfully. Please log in again.";

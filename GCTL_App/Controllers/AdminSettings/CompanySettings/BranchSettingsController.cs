@@ -1,11 +1,14 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.BranchService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
@@ -13,15 +16,21 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
     public class BranchSettingsController : BaseController
     {
         private readonly IBranchSettingService _branchSettingService;
-        public BranchSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IBranchSettingService branchSettingService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly IGenericRepository<Country> _genericRepositoryCountry;
+        public BranchSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IBranchSettingService branchSettingService, IGenericRepository<Organization> organizationRepository, IGenericRepository<Country> genericRepositoryCountry) : base(translateService, userProfileService)
         {
             _branchSettingService = branchSettingService;
+            _organizationRepository = organizationRepository;
+            _genericRepositoryCountry = genericRepositoryCountry;
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.CountriesDropDown = await _branchSettingService.GetCountriesAsync();
             ViewBag.OrganizationsDropDown = await _branchSettingService.GetOrganizationsAsync();
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+            ViewBag.CountriesDD = new SelectList(_genericRepositoryCountry.AllActive(), "CountryID", "CountryName");
             return View();
         }
 
@@ -40,8 +49,17 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     var uniqueName = await _branchSettingService.IsNameUniqueAsync(model.OrganizationBranchName);
                     if (!uniqueName)
                     {
-                        return Json(new { isSuccess = false, message = "This approvalType already exists!" });
+                        return Json(new { isSuccess = false, message = "This OrganizationBranchName already exists!" });
                     }
+                    if(model.OrganizationID == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+                    if (model.OrganizationBranchName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Branch Name cannot be Empty!" });
+                    }
+
                     await _branchSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.OrganizationBranchName });
                 }
@@ -66,6 +84,50 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         }
         #endregion
 
+        #region edit
+        public async Task<IActionResult> GetById(int id)
+        {
+            var branch = await _branchSettingService.GetByIdAsync(id);
+            if (branch == null)
+            {
+                return Json(new { isSuccess = false, message = "No record found against this id." });
+            }
+            return Json(new { isSuccess = true, data = branch });
+        }
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Updates(BranchSettingsVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (model.OrganizationID == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+                    if (model.OrganizationBranchName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Branch Name cannot be Empty!" });
+                    }
+
+                    //var uniqueName = await _branchSettingService.IsNameUniqueAsync(model.OrganizationBranchName);
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
+                    await _branchSettingService.UpdateAsync(model);
+                    return Json(new { isSuccess = true, message = "Updated Successfully.", lastId = model.OrganizationBranchName });
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
         #region delete 
 
         [HttpPost]

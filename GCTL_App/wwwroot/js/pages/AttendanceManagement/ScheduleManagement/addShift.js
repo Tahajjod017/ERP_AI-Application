@@ -24,13 +24,147 @@
         $(() => {
 
 
+            //function validateCoreUIMultiselect($select) {
+            //    const value = $select.val();
+            //    const fieldName = $select.attr('name');
+            //    const $error = $('[asp-validation-for="' + fieldName + '"]');
+            //    const $coreUIWrapper = $select.next('.form-multi-select.coreUiDD');
+
+            //    if (!value || value.length === 0) {
+            //        $coreUIWrapper.css({
+            //            borderColor: '#FF0000',
+            //            outline: '0',
+            //            borderWidth: '1px',
+            //            borderStyle: 'solid',
+            //            borderRadius: '0.375rem',
+            //        });
+            //        $error.text('This field is required.').show();
+            //        return false;
+            //    } else {
+            //        // Clear styles and error if valid
+            //        $coreUIWrapper.css({
+            //            borderColor: '',
+            //            outline: '',
+            //            borderWidth: '',
+            //            borderStyle: '',
+            //            borderRadius: '',
+            //        });
+            //        $error.text('').hide();
+            //        return true;
+            //    }
+            //}
+
+
+
+
+            //$(settings.addform).on('submit', function () {
+            //    $(this).find('input[required], select[required], textarea[required]').each(function () {
+            //        const $field = $(this);
+
+            //        if (!$field.valid()) {
+            //            if ($field.hasClass('coreUiDD')) {
+            //                // Add CoreUI invalid styles + show error
+            //                validateCoreUIMultiselect($field);
+            //                // Don't add 'is-invalid' class on the hidden select itself
+            //            } else {
+            //                // Normal inputs just get the bootstrap class
+            //                $field.addClass('is-invalid');
+            //            }
+            //        } else {
+            //            // On valid, remove all invalid indicators (both CoreUI and normal)
+            //            if ($field.hasClass('coreUiDD')) {
+            //                clearCoreUIMultiselectValidation($field);
+            //            } else {
+            //                $field.removeClass('is-invalid');
+            //            }
+            //        }
+            //    });
+            //});
+
+
+            //$('input[required], select[required], textarea[required]').on('keyup change', function () {
+            //    const $field = $(this);
+
+            //    if ($field.hasClass('coreUiDD')) {
+            //        validateCoreUIMultiselect($field);
+            //    } else {
+            //        if ($field.valid()) {
+            //            $field.removeClass('is-invalid');
+            //        } else {
+            //            $field.addClass('is-invalid');
+            //        }
+            //    }
+            //});
+
+
 
             
+            //$(settings.addform).on('submit', function () {
+            //    $(this).find('input[required], select[required], textarea[required]').each(function () {
+            //        if (!$(this).valid()) {
+            //            $(this).addClass('is-invalid'); 
+            //        } else {
+            //            $(this).removeClass('is-invalid'); 
+            //        }
+            //    });
+            //});
+            
+            //$('input[required], select[required], textarea[required]').on('keyup change', function () {
+            //    if ($(this).valid()) {
+            //        $(this).removeClass('is-invalid');
+            //    }
+            //});
 
 
             // #region Save 
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
+
+                //var $form = $(settings.addform);
+
+                //// Run validation check on all required fields
+                //var isFormValid = true;
+
+                //$form.find('input[required], select[required], textarea[required]').each(function () {
+                //    const $field = $(this);
+                //    const isCoreUIMulti = $field.hasClass('coreUiDD');
+
+                //    if (isCoreUIMulti) {
+                //        // Use custom CoreUI validation for multiselect
+                //        const isValid = validateCoreUIMultiselect($field);
+                //        if (!isValid) {
+                //            isFormValid = false;
+                //        } else {
+                //            clearCoreUIMultiselectValidation($field);
+                //        }
+                //    } else {
+                //        // Normal fields validated by jQuery Validate
+                //        if (!$field.valid()) {
+                //            $field.addClass('is-invalid');
+                //            isFormValid = false;
+                //        } else {
+                //            $field.removeClass('is-invalid');
+                //        }
+                //    }
+                //});
+
+                //$form.find('input[required], select[required], textarea[required]').each(function () {
+                //    const $field = $(this);
+                //    const isCoreUIMulti = $field.hasClass('coreUiDD');
+
+                //    if (!$(this).valid()) {
+                //        $(this).addClass('is-invalid');
+                //        isFormValid = false;
+                //    } else {
+                //        $(this).removeClass('is-invalid');
+                //    }
+                //});
+
+
+                //// 🚫 If form is invalid, stop here
+                //if (!isFormValid) {
+                //    return;
+                //}
 
                 /*var formData = new FormData($('#addShift-Addform')[0]);*/
 
@@ -778,133 +912,6 @@
 
                 rebindScroll();
             });
-            // #endregion
-
-
-
-
-            // #region CoreUI Multiselect with Pagination
-            //const selectEl = document.getElementById('OrganizationIDs');
-            //if (!selectEl) return;
-
-            //const apiUrl = '/AddShift/SearchOrganizations';
-            //const pageSize = 20;
-            //const ms = coreui.MultiSelect.getOrCreateInstance(selectEl); // CoreUI instance
-
-            //// state
-            //let page = 1;
-            //let term = '';
-            //let hasMore = true;
-            //let loading = false;
-            //let debounce;
-            //let scrollPosition = 0;
-
-
-            //// append <option> nodes to <select>, then refresh CoreUI
-            //function addOptions(items, { reset = false } = {}) {
-
-            //    // For remember the scroll position
-            //    //const wrapper = selectEl.nextElementSibling;
-            //    //const box = wrapper?.querySelector('.form-multi-select-options');
-            //    //if (box) {
-            //    //    scrollPosition = box.scrollTop;
-            //    //}
-
-
-            //    // keep already selected options so tags remain
-            //    if (reset) {
-            //        const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
-            //        [...selectEl.options].forEach(o => { if (!keep.has(o.value)) o.remove(); });
-            //    }
-
-            //    // avoid duplicates
-            //    const existing = new Set([...selectEl.options].map(o => String(o.value)));
-            //    for (const it of (items || [])) {
-            //        const v = String(it.value);
-            //        if (existing.has(v)) continue;
-            //        const opt = document.createElement('option');
-            //        opt.value = v;
-            //        opt.textContent = it.label;
-            //        selectEl.appendChild(opt);
-            //    }
-
-            //    ms.update(); // rebuild dropdown UI (required)
-            //    //ms.show(); // open after rebuild with new element
-            //    //// Restore scroll position after a small delay to ensure DOM is ready
-            //    //setTimeout(() => {
-            //    //    const wrapper = selectEl.nextElementSibling;
-            //    //    const box = wrapper?.querySelector('.form-multi-select-options');
-            //    //    if (box) {
-            //    //        box.scrollTop = scrollPosition;
-            //    //    }
-            //    //}, 10);
-            //    rebindScroll(); // dropdown DOM may be rebuilt
-            //}
-
-            //async function fetchPage({ append }) {
-            //    if (loading || (!hasMore && append)) return;
-            //    loading = true;
-            //    try {
-            //        const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
-            //        const data = await res.json();
-            //        addOptions(data.items, { reset: !append });
-            //        hasMore = !!data.hasMore;
-            //        if (append) page += 1;
-            //    } catch (e) {
-            //        console.error(e);
-            //    } finally {
-            //        loading = false;
-            //    }
-            //}
-
-            //function rebindScroll() {
-            //    const wrapper = selectEl.nextElementSibling;
-            //    const box = wrapper?.querySelector('.form-multi-select-options');
-            //    if (!box || box.dataset.infiniteAttached) return;
-
-            //    box.dataset.infiniteAttached = '1';
-            //    box.addEventListener('scroll', () => {
-            //        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
-            //            if (hasMore && !loading) fetchPage({ append: true });
-            //        }
-            //    });
-            //}
-
-            //// on open, wire search + initial load
-            //selectEl.addEventListener('shown.coreui.multi-select', () => {
-            //    const wrapper = selectEl.nextElementSibling;
-            //    const searchInput = wrapper?.querySelector('.form-multi-select-search');
-            //    const box = wrapper?.querySelector('.form-multi-select-options');
-
-            //    // first open: load first page (empty term)
-            //    if (selectEl.options.length === 0) {
-            //        page = 1; term = ''; hasMore = true;
-            //        fetchPage({ append: false });
-            //    }
-
-            //    if (searchInput && !searchInput.dataset.listenerAttached) {
-            //        searchInput.dataset.listenerAttached = '1';
-            //        searchInput.addEventListener('input', e => {
-            //            const val = e.target.value.trim();
-            //            clearTimeout(debounce);
-
-            //            if (val.length < 3) {
-            //                // clear non-selected options when search too short
-            //                addOptions([], { reset: true });
-            //                page = 1; term = ''; hasMore = false;
-            //                if (box) box.scrollTop = 0;
-            //                return;
-            //            }
-
-            //            debounce = setTimeout(() => {
-            //                term = val; page = 1; hasMore = true;
-            //                fetchPage({ append: false });
-            //            }, 300);
-            //        });
-            //    }
-
-            //    rebindScroll();
-            //});
             // #endregion
             
             

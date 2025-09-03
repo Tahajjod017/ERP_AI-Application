@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -32,9 +33,25 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 return; // Exit middleware if user is not authenticated
             }
 
+            // Fallbacks from the server (machine) itself
+            var culture = CultureInfo.CurrentCulture;
+            var fallbackZone = DateTimeZoneProviders.Tzdb.GetSystemDefault();
+            var fallbackDatePattern = culture.DateTimeFormat.ShortDatePattern;
+            var fallbackTimePattern = culture.DateTimeFormat.ShortTimePattern;
+
             var orgId = await userInfo.GetOrganizationIdAsync(http.User,http);
             //var orgId = 2; // hardcoded for your testing
 
+            // If there's no org, keep the current timezone setup and continue
+            if (orgId is null)
+            {
+                ctx.Zone = fallbackZone;
+                ctx.DatePattern = fallbackDatePattern;
+                ctx.TimePattern = fallbackTimePattern;
+                await _next(http);
+                return;
+
+            }
 
             var bundle = await locService.GetOrgLocalizationBundleAsync(orgId.Value);
 

@@ -9,8 +9,8 @@ using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.LoanManagent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Identity.Client;
-using OpenQA.Selenium.BiDi.Modules.Script;
+using System.Security.Claims;
+
 
 
 namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
@@ -40,6 +40,60 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
             return View(model);
         }
 
+
+        #region Get All Data List
+
+        [Route("PayRollLoanView/LoanEntryList")]
+
+        [HttpGet]
+        public async Task<IActionResult> LoanEntryList(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null,
+    List<int> departmentIds = null,
+    List<int> employeeIds = null)
+        {
+            try
+            {
+                string url = GetEmployeePictureURL();
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var data = await payRollLoanEntryService.LoanEntryList(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, organizationId, departmentIds, employeeIds);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region  Loan Step
+        [Route("PayRollLoanView/PayRollLoanStep")]
+
+        [HttpGet]
+        public async Task<IActionResult> PayRollLoanStep(int id)
+        {
+
+            try
+            {
+
+
+                if (id == 0)
+                    return BadRequest("loan not found in claims.");
+
+
+                var data = await payRollLoanEntryService.PayRollLoanStep(id);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+        }
+        #endregion
+
+
         #region Save 
         [Route("PayRollLoanEntry/SaveAsync")]
         [HttpPost]
@@ -48,12 +102,9 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
             if (!ModelState.IsValid)
             {
                 // Return all errors
-                var errors = ModelState.Values.SelectMany(v => v.Errors)
-                                               .Select(e => e.ErrorMessage)
-                                               .ToList();
-                return Json(new { Success = false, Message = "Validation Failed.", Errors = errors });
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return Json(new { Success = false, Message = "Validation Failed.", Errors = errors });   
             }
-
             try
             {
                 var data = await payRollLoanEntryService.SaveAsync(model);
@@ -69,9 +120,9 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
 
 
         #region GetEmployeesByOrgBraDepId
-        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds, string? search, int? page = 1, int? pageSize = 10)
         {
-            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds, search, page, pageSize);
             return Json(result);
         }
         #endregion

@@ -10,22 +10,16 @@
                 <h4 class="modal-title">Edit Department Settings</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="departmentSettingsForm" asp-controller="DepartmentSettings" asp-action="Updates" method="post">
+            <form id="departmentSettingsFormEdit" asp-controller="DepartmentSettings" asp-action="Updates" method="post">
                 <div class="mb-3">
-                    
+                    <input type="hidden" id="DepartmentIDEdit" name="DepartmentID" value="" />
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label" for="OrganizationID">Organization Name</label>
-                                <select id="OrganizationID" name="OrganizationID" class="form-select choiceDD">
+                                <select id="OrganizationIDEdit" name="OrganizationID" asp-items="@ViewBag.OrganizationDD" class="form-select choiceDD">
                                     <option value="">-- Select Organization --</option>
-                                    @if (ViewBag.Organizations != null)
-                                    {
-                                        foreach (var org in ViewBag.Organizations)
-                                        {
-                                            <option value="@org.Value">@org.Text</option>
-                                        }
-                                    }
+                                    
                                 </select>
                             </div>
                         </div>
@@ -33,13 +27,13 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label" for="DepartmentName">Department Name</label>
-                                <input class="form-control" id="DepartmentName" type="text" name="DepartmentName" placeholder="Department Name" />
+                                <input class="form-control" id="DepartmentNameEdit" type="text" name="DepartmentName" placeholder="Department Name" />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label" for="DepartmentHeadEmpID">Department Head</label>
-                                <select class="form-select choiceDD" id="DepartmentHeadEmpID" name="DepartmentHeadEmpID">
+                                <select class="form-select choiceDD" id="DepartmentHeadEmpIDEdit" name="DepartmentHeadEmpID">
                                     <option value="">Select Department Head</option>
                                     @if (ViewBag.EmployeeNameWithCode != null)
                                     {

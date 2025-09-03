@@ -119,7 +119,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 
                 if (entity == null)
                 {
-                    throw new Exception(" Organization not found.");
+                    throw new Exception(" Department not found.");
                 }
 
                 // Update properties
@@ -194,9 +194,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.Organization.OrganizationName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.DepartmentName != null);
 
-            var nameList = existingNames.Select(b => b.Organization.OrganizationName);
+            var nameList = existingNames.Select(b => b.DepartmentName);
 
             return !DuplicateChecker.IsDuplicate(name, nameList);
         }

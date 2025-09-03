@@ -2,7 +2,7 @@
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
-using GCTL.Core.SeedData;
+//using GCTL.Core.SeedData;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AdminSettings.GeneralSettings;
@@ -138,7 +138,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICommonService, CommonService>();
             #endregion
 
-            services.AddScoped<DataSeeder>();
+            //services.AddScoped<DataSeeder>();
 
             #region Added by Md. Rakib Hasan
             services.AddScoped<IBloodGroupService, BloodGroupService>();

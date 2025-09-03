@@ -263,6 +263,8 @@ function loadUserTableData(sortColumn, sortOrder) {
                             
                             <td class="align-middle white-space-nowrap ps-3">${item.employeeCode}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.employeeName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.email}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.defaultPass}</td>
                            
                             <td class="align-middle text-end">
                             <div class="row g-3">

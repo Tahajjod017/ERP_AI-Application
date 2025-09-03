@@ -9,42 +9,42 @@
                 <h4 class="modal-title">Edit Organization Settings</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="companySettingsForm" asp-controller="CompanySettings" asp-action="Create" method="post" enctype="multipart/form-data">
+            <form id="companySettingsFormEdit" asp-controller="CompanySettings" asp-action="Create" method="post" enctype="multipart/form-data">
                 <div class="border-bottom mb-3">
-                    
+                    <input type="hidden" id="OrganizationIDedit" name="OrganizationID" value="" />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="OrganizationName">Organization Name</label>
-                                <input class="form-control" id="OrganizationName" type="text" name="OrganizationName" placeholder="Organization Name" />
+                                <input class="form-control" id="OrganizationNameEdit" type="text" name="OrganizationName" placeholder="Organization Name" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="EmailAddress">Email Address</label>
-                                <input class="form-control" id="EmailAddress" type="email" name="EmailAddress" placeholder="company@email.com" />
+                                <input class="form-control" id="EmailAddressEdit" type="email" name="EmailAddress" placeholder="company@email.com" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="Phone">Phone</label>
-                                <input class="form-control" id="Phone" type="number" name="Phone" placeholder="xxxx xxx xx" />
+                                <input class="form-control" id="PhoneEdit" type="number" name="Phone" placeholder="xxxx xxx xx" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="Fax">Fax</label>
-                                <input class="form-control" id="Fax" type="text" name="Fax" placeholder="xxxx xxx xxx" />
+                                <input class="form-control" id="FaxEdit" type="text" name="Fax" placeholder="xxxx xxx xxx" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="WebAddress">Web</label>
-                                <input class="form-control" id="WebAddress" type="text" name="WebAddress" placeholder="www.company.com" />
+                                <input class="form-control" id="WebAddressEdit" type="text" name="WebAddress" placeholder="www.company.com" />
                             </div>
                         </div>
                     </div>
@@ -100,19 +100,15 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label" for="Address">Address</label>
-                                <input class="form-control" id="Address" type="text" name="Address" placeholder="www.company.com" />
+                                <input class="form-control" id="AddressEdit" type="text" name="Address" placeholder="www.company.com" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="CountryID">Country</label>
-                                <select class="form-select choiceDD" id="CountryID" name="CountryID">
-                                    <option value="">Select Country</option>
-                                    @foreach (var cntry in ViewBag.CountriesDropDown)
-                                    {
-                                        <option value="@cntry.Value">@cntry.Text</option>
-                                    }
+                                <select class="form-select choiceDD" id="CountryIDEdit"  name="CountryID">
+                                    
                                 </select>
                             </div>
                         </div>
@@ -120,21 +116,21 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="Street">Street</label>
-                                <input class="form-control" id="Street" type="text" name="Street" placeholder="" />
+                                <input class="form-control" id="StreetEdit" type="text" name="Street" placeholder="" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="City">City</label>
-                                <input class="form-control" id="City" type="text" name="City" placeholder="" />
+                                <input class="form-control" id="CityEdit" type="text" name="City" placeholder="" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="PostCode">Postal Code</label>
-                                <input class="form-control" id="PostCode" type="text" name="PostCode" placeholder="" />
+                                <input class="form-control" id="PostCodeEdit" type="text" name="PostCode" placeholder="" />
                             </div>
                         </div>
 
@@ -142,14 +138,14 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="Latitude">Latitude</label>
-                                <input class="form-control" id="Latitude" type="text" name="Latitude" placeholder="Latitude" />
+                                <input class="form-control" id="LatitudeEdit" type="text" name="Latitude" placeholder="Latitude" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="Longitude">Longitude</label>
-                                <input class="form-control" id="Longitude" type="text" name="Longitude" placeholder="Longitude" />
+                                <input class="form-control" id="LongitudeEdit" type="text" name="Longitude" placeholder="Longitude" />
                             </div>
                         </div>
 

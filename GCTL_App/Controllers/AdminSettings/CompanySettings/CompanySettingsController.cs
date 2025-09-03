@@ -1,11 +1,16 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Core.ViewModels.CRM;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
@@ -15,15 +20,19 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
     {
         private readonly ICompanySettingService _companySettingService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public CompanySettingsController(ITranslateService translateService, IUserProfileService userProfileService, ICompanySettingService companySettingService, IWebHostEnvironment webHostEnvironment) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Country> _genericRepositoryCouyntry;
+        public CompanySettingsController(ITranslateService translateService, IUserProfileService userProfileService, ICompanySettingService companySettingService, IWebHostEnvironment webHostEnvironment, IGenericRepository<Country> genericRepositoryCouyntry) : base(translateService, userProfileService)
         {
             _companySettingService = companySettingService;
             _webHostEnvironment = webHostEnvironment;
+            _genericRepositoryCouyntry = genericRepositoryCouyntry;
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
+            ViewBag.CountryID = new SelectList(_genericRepositoryCouyntry.AllActive(), "CountryID", "CountryName");
+            //ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             return View();
         }
 
@@ -36,11 +45,17 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
+                    if (model.OrganizationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+
                     string? logoFilePath = null;
                     if (model.LogoLinkIform != null)
                     {
                         // Sanitize and validate file name
                         string logoFileName = SanitizeFileName(model.LogoLinkIform.FileName);
+
 
                         // Validate file extension
                         if (!IsValidImageExtension(logoFileName))
@@ -65,11 +80,25 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         {
                             await model.LogoLinkIform.CopyToAsync(stream);
                         }
+                        string headerLogoDirectory2 = Path.Combine(_webHostEnvironment.WebRootPath, "media", "logo");
+                        CreateDirectoryIfNotExists(headerLogoDirectory2);
 
+                        // Define the fixed file name for the header logo (e.g., "logo.png")
+                        string headerLogoPath2 = Path.Combine(headerLogoDirectory2, "logo" + Path.GetExtension(logoFileName));
+
+                        // Overwrite existing file if it exists
+                        if (System.IO.File.Exists(headerLogoPath2))
+                        {
+                            System.IO.File.Delete(headerLogoPath2);
+                        }
+
+                        // Copy the uploaded logo to the header logo path
+                        System.IO.File.Copy(logoFilePath, headerLogoPath2);
                         // Store only the file name (GUID-based) in the model
                         model.LogoLink = uniqueLogoFileName;
-                    }
 
+                    }
+                   
                     string? faviconFilePath = null;
                     if (model.FaviconLinkIform != null)
                     {
@@ -104,12 +133,14 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         model.FaviconLink = uniqueFaviconFileName;
                     }
 
+                    
 
                     var uniqueName = await _companySettingService.IsNameUniqueAsync(model.OrganizationName);
                     if (!uniqueName)
                     {
-                        return Json(new { isSuccess = false, message = "This approvalType already exists!" });
+                        return Json(new { isSuccess = false, message = "This OrganizationName already exists!" });
                     }
+                  
                     await _companySettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.OrganizationName });
                 }
@@ -119,6 +150,99 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             }
             catch (Exception ex)
             {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        public async Task<IActionResult> GetById(int id)
+        {
+            var data = await _companySettingService.GetByIdAsync(id);
+            if (data == null)
+            {
+                return Json(new { isSuccess = false, message = "No data found against this id." });
+            }
+            //ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
+            return Json(new { isSuccess = true, data = data });
+        }
+
+        public async Task<IActionResult> Updates(CompanySettingsVM model)
+        {
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if(model.OrganizationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+
+                    string? logoFilePath = null;
+                    if (model.LogoLinkIform != null)
+                    {
+                        // Sanitize and validate file name
+                        string logoFileName = SanitizeFileName(model.LogoLinkIform.FileName);
+                        // Validate file extension
+                        if (!IsValidImageExtension(logoFileName))
+                        {
+                            return Json(new { isSuccess = false, message = "Invalid file type for logo. Only .jpg, .jpeg, .png are allowed." });
+                        }
+                        // Generate GUID for unique file name
+                        string uniqueLogoFileName = Guid.NewGuid().ToString() + Path.GetExtension(logoFileName);
+                        // Define the file path
+                        logoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "company", "logo", uniqueLogoFileName);
+                        // Ensure the directory exists
+                        var logoDirectory = Path.GetDirectoryName(logoFilePath);
+                        CreateDirectoryIfNotExists(logoDirectory);
+
+                        // Save the file
+                        using (var stream = new FileStream(logoFilePath, FileMode.Create))
+                        {
+                            await model.LogoLinkIform.CopyToAsync(stream);
+                        }
+                        // Store only the file name (GUID-based) in the model
+                        model.LogoLink = uniqueLogoFileName;
+                    }
+                    string? faviconFilePath = null;
+                    if (model.FaviconLinkIform != null)
+                    {
+                        // Sanitize and validate file name
+                        string faviconFileName = SanitizeFileName(model.FaviconLinkIform.FileName);
+                        // Validate file extension
+                        if (!IsValidImageExtension(faviconFileName))
+                        {
+                            return Json(new { isSuccess = false, message = "Invalid file type for favicon. Only .jpg, .jpeg, .png are allowed." });
+                        }
+                        // Generate GUID for unique file name
+                        string uniqueFaviconFileName = Guid.NewGuid().ToString() + Path.GetExtension(faviconFileName);
+                        // Define the file path
+                        faviconFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "company", "fevicon", uniqueFaviconFileName);
+                        // Ensure the directory exists
+                        var faviconDirectory = Path.GetDirectoryName(faviconFilePath);
+                        CreateDirectoryIfNotExists(faviconDirectory);
+                        // Save the file
+                        using (var stream = new FileStream(faviconFilePath, FileMode.Create))
+                        {
+                            await model.FaviconLinkIform.CopyToAsync(stream);
+                        }
+                        // Store only the file name (GUID-based) in the model
+                        model.FaviconLink = uniqueFaviconFileName;
+                    }
+
+
+                    var result = await _companySettingService.UpdateAsync(model);
+                    // Return success response
+                    return Json(new { isSuccess = true, message = "Organization updated successfully." });
+                }
+                // Get the first error message if model state is invalid
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                // Return failure response with the error message
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                // Log exception here if needed
+                // Return failure response with exception message
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }

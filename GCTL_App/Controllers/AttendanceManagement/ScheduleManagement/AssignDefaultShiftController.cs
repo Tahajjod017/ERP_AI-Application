@@ -36,6 +36,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 SetSmartPageCode(202900);
 
                 ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+                ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
                 ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
                 ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");
                 ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
@@ -47,16 +48,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                 TempData["Error"] = ex.Message;
                 return View(new AssignDefaultShiftPageVM());
             }
-        }
-        #endregion
-
-
-        #region SearchEmployees
-        [HttpGet("SearchEmployees")]
-        public async Task<IActionResult> SearchEmployees(string search, int pageSize = 50)
-        {
-            var result = await _commonService.SearchEmployees(search, pageSize);
-            return Json(result);
         }
         #endregion
 
@@ -187,7 +178,19 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
+        #region GetBranchesByOrgId
+        [Route("AssignDefaultShift/GetBranchesByOrgId")]
+        [HttpGet]
+        public async Task<IActionResult> GetBranchesByOrgId(int? orgId)
+        {
+            var result = await _commonService.GetBranchesByOrgId(orgId);
+            return Json(result);
+        }
+        #endregion
+
+
         #region GetDepartmentByOrganization
+        [Route("AssignDefaultShift/GetDepartmentByOrganization")]
         [HttpGet]
         public async Task<IActionResult> GetDepartmentByOrganization(int? id)
         {
@@ -198,16 +201,26 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region GetEmployeesByOrgBraDepId
+        [Route("AssignDefaultShift/GetEmployeesByOrgBraDepId")]
         [HttpGet]
-        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds, string? search, int? page = 1, int? pageSize = 50)
         {
-            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
-            return Json(result);
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds, search, page, pageSize);
+            return Json(new
+            {
+                items = result.Items.Select(x => new {
+                    value = x.Id,
+                    label = x.Name,
+                    group = x.GroupName
+                }),
+                hasMore = result.HasMore
+            });
         }
         #endregion
 
 
         #region GetShiftByCompany
+        [Route("AssignDefaultShift/GetShiftByCompany")]
         [HttpGet]
         public async Task<JsonResult> GetShiftByCompany(int id)
         {

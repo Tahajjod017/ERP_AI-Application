@@ -7,8 +7,6 @@ $(document).ready(function () {
         var formData = new FormData(form[0]);  // Create a FormData object from the form
 
 
-       
-
         $.ajax({
             url: form.attr('action'),
             method: 'POST',
@@ -67,82 +65,89 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 });
 
 $(document).on('click', '#edit_branch_settingBtn', function () {
-  //  var holidaySettingID = $(this).data('id');
+    var holidaySettingID = $(this).data('id');
     $('#edit_branch_setting').modal('show'); // Show the delete confirmation modal
 
     // Store the ID in the hidden input field
-    //$('#HolidayIDEdit').val(holidaySettingID);
+    $('#OrganizationBranchIDEdit').val(holidaySettingID);
 
-    //// Load the existing data for the selected holiday setting
-    //$.ajax({
-    //    url: '/HolidaySettings/GetById',
-    //    method: 'GET',
-    //    data: { id: holidaySettingID },
-    //    success: function (response) {
-    //        if (response.isSuccess) {
-    //            // Populate the form fields with the existing data  
-    //            choiceManager.setChoiceValue('OrganizationEditID', response.data.organizationID);
-    //            $('#HolidayTitleedit').val(response.data.holidayTitle);
-    //            $('#HolidayDescriptionEdit').val(response.data.holidayDescription);
-    //            $('#StartDateEdit').val(response.data.startDate);
-    //            $('#EndDateEdit').val(response.data.endDate);
-    //            $('#TotalDaysEdit').val(response.data.totalDays);
+    // Load the existing data for the selected holiday setting
+    $.ajax({
+        url: '/BranchSettings/GetById',
+        method: 'GET',
+        data: { id: holidaySettingID },
+        success: function (response) {
+            if (response.isSuccess) {
+                // Populate the form fields with the existing data  
+                choiceManager.setChoiceValue('OrganizationIDEdit', response.data.organizationID);
+                $('#OrganizationBranchNameEdit').val(response.data.organizationBranchName);
+                $('#EmailAddressEdit').val(response.data.emailAddress);
+                $('#PhoneEdit').val(response.data.phone);
+                $('#FaxEdit').val(response.data.fax);
+                $('#WebAddressEdit').val(response.data.webAddress);
+               // $('#WebAddressEdit').val(response.data.webAddress);
+                $('#AddressEdit').val(response.data.address);
 
-    //            choiceManager.setChoiceValue('StatusEditID', response.data.statusID);
-    //            // Initialize the datepicker for the edit form
-    //            initializeDatepickerDMY("editStartDate, editEndDate"); // For dd/MM/yyyy
-    //            // For Date restriction with total days count
-    //            $(document).on('change', "#editStartDate", function () {
-    //                const fromDate = $("#editStartDate").val();
-    //                updateDatepickerWithMinDateTotalDays("editEndDate", fromDate, {}, "editTotalDays", "editStartDate");
-    //            });
-    //        } else {
-    //            toastr.error(response.message, 'Error');
-    //        }
-    //    },
-    //    error: function (xhr, status, error) {
-    //        // Handle Access Denied error (403)
-    //        if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
-    //            // Redirect to AccessDenied page
-    //            window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
-    //        } else {
-    //            toastr.error("Unexpected error: " + error, 'Server Error');
-    //        }
-    //    }
-    //});
+                choiceManager.setChoiceValue('CountryIDEdit', response.data.CountryID);
+
+                $('#StreetEdit').val(response.data.street);
+
+                $('#CityEdit').val(response.data.city);
+                $('#PostCodeEdit').val(response.data.postCode);
+                $('#LatitudeEdit').val(response.data.latitude);
+                $('#LongitudeEdit').val(response.data.longitude);
+
+                
+                // Initialize the datepicker for the edit form
+
+               
+            } else {
+                toastr.error(response.message, 'Error');
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle Access Denied error (403)
+            if (xhr.status === 403 && xhr.responseJSON && xhr.responseJSON.message === "Access denied.") {
+                // Redirect to AccessDenied page
+                window.location.href = '/Home/AccessDenied'; // Change URL to your actual AccessDenied page
+            } else {
+                toastr.error("Unexpected error: " + error, 'Server Error');
+            }
+        }
+    });
 
     /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
 });
 
-$('#holidayEditForm').submit(function (event) {
+$('#branchSettingsFormEdit').submit(function (event) {
     event.preventDefault(); // Prevent default form submission
 
-    //var formData = $(this).serialize(); // Serialize the form data
+    var formData = $(this).serialize(); // Serialize the form data
 
-    //// Append the approvalSettingID to the form data
-    //// formData += '&approvalSettingID=' + weekendSettingID;
+    // Append the approvalSettingID to the form data
+    // formData += '&approvalSettingID=' + weekendSettingID;
 
-    //// Send the data via AJAX
-    //$.ajax({
-    //    url: '/HolidaySettings/Updates', // Adjust URL if necessary
-    //    type: 'POST',
-    //    data: formData,
-    //    success: function (response) {
-    //        if (response.isSuccess) {
-    //            // Handle success
-    //            toastr.success('Holiday setting updated successfully!');
-    //            $('#edit_holiday_setting').modal('hide'); // Hide the modal
-    //            loadTableData();
-    //        } else {
-    //            // Handle failure
-    //            toastr.error('Failed to update weekend setting: ' + response.message);
-    //        }
-    //    },
-    //    error: function (xhr, status, error) {
-    //        // Handle AJAX errors
-    //        toastr.error('Error: ' + error);
-    //    }
-    //});
+    // Send the data via AJAX
+    $.ajax({
+        url: '/BranchSettings/Updates', // Adjust URL if necessary
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                // Handle success
+                toastr.success('Branch setting updated successfully!');
+                $('#edit_branch_setting').modal('hide'); // Hide the modal
+                loadTableData();
+            } else {
+                // Handle failure
+                toastr.error('Failed to update Branch setting: ' + response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle AJAX errors
+            toastr.error('Error: ' + error);
+        }
+    });
 });
 
 
@@ -330,84 +335,61 @@ $(document).on('click', '.page-btn', function () {
 
 let map;
 let marker;
+let autocomplete;
+let namCompany = '';
 
-// Initialize the map with the user's current location
+
+// Initialize the map with a default location
 function initMap() {
-    // Default coordinates (San Francisco, will be overwritten by user's current location)
     const defaultLat = 37.7749;
     const defaultLng = -122.4194;
 
-    // Try to get the user's current location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
+    // Create map options
+    const mapOptions = {
+        center: { lat: defaultLat, lng: defaultLng },
+        zoom: 12,
+    };
 
-            // Show an alert when GPS is successfully enabled and location is fetched
-            alert("GPS is enabled. Current location: Latitude " + userLat + ", Longitude " + userLng);
+    map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-            // Initialize the map with the user's location
-            const mapOptions = {
-                center: { lat: userLat, lng: userLng },
-                zoom: 12,
-            };
+    // Add a marker at the center (default location)
+    marker = new google.maps.Marker({
+        position: map.getCenter(),
+        map: map,
+        draggable: true,
+    });
 
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+    // Set up the address autocomplete
+    const input = document.getElementById('FullAddress');
+    autocomplete = new google.maps.places.Autocomplete(input);
 
-            // Place a marker at the current location
-            marker = new google.maps.Marker({
-                position: map.getCenter(),
-                map: map,
-                draggable: true,  // Allow the user to drag the marker
-            });
+    // Bind the autocomplete to the map and fields
+    autocomplete.bindTo('bounds', map);
 
-            // Update the Latitude and Longitude fields with the user's current position
-            updateCoordinates(userLat, userLng);
+    // Listen for place selection and update fields
+    autocomplete.addListener('place_changed', function () {
+        debugger
+        const place = autocomplete.getPlace();
 
-            // Listen for marker drag and update latitude and longitude fields
-            google.maps.event.addListener(marker, 'dragend', function (event) {
-                const lat = event.latLng.lat();
-                const lng = event.latLng.lng();
-                updateCoordinates(lat, lng);
-            });
-        }, function () {
-            alert("Geolocation service failed. Using default location.");
-            // Fallback to default location if geolocation is not available
-            const mapOptions = {
-                center: { lat: defaultLat, lng: defaultLng },
-                zoom: 12,
-            };
-            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        if (!place.geometry) {
+            alert("Place details not found");
+            return;
+        }
 
-            // Place a marker at the default location
-            marker = new google.maps.Marker({
-                position: map.getCenter(),
-                map: map,
-                draggable: true,
-            });
+        // Set map center to the selected place's location
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
 
-            updateCoordinates(defaultLat, defaultLng);
-        });
-    } else {
-        alert("Geolocation is not supported by this browser.");
-        // Fallback to default location if geolocation is not supported
-        const mapOptions = {
-            center: { lat: defaultLat, lng: defaultLng },
-            zoom: 12,
-        };
-        map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        // Place a marker at the selected location
+        marker.setPosition(place.geometry.location);
 
-        // Place a marker at the default location
-        marker = new google.maps.Marker({
-            position: map.getCenter(),
-            map: map,
-            draggable: true,
-        });
+        // Fill in the address fields based on selected place
+        updateAddressFields(place);
 
-        updateCoordinates(defaultLat, defaultLng);
-    }
+        namCompany = place.name;
+    });
 
-    // Listen for changes in the Latitude and Longitude input fields
+    // Listen for changes in Latitude and Longitude input fields
     const latInput = document.getElementById("Latitude");
     const lngInput = document.getElementById("Longitude");
 
@@ -416,8 +398,8 @@ function initMap() {
         const lng = parseFloat(lngInput.value);
         if (!isNaN(lat) && !isNaN(lng)) {
             const newLocation = new google.maps.LatLng(lat, lng);
-            marker.setPosition(newLocation);  // Update the marker position
-            map.setCenter(newLocation);  // Recenter the map
+            marker.setPosition(newLocation);
+            map.setCenter(newLocation);
         }
     });
 
@@ -426,16 +408,52 @@ function initMap() {
         const lng = parseFloat(lngInput.value);
         if (!isNaN(lat) && !isNaN(lng)) {
             const newLocation = new google.maps.LatLng(lat, lng);
-            marker.setPosition(newLocation);  // Update the marker position
-            map.setCenter(newLocation);  // Recenter the map
+            marker.setPosition(newLocation);
+            map.setCenter(newLocation);
         }
     });
 }
 
-// Update the Latitude and Longitude input fields
-function updateCoordinates(lat, lng) {
-    document.getElementById("Latitude").value = lat;
-    document.getElementById("Longitude").value = lng;
+// Update the fields when an address is selected
+function updateAddressFields(place) {
+    const addressField = document.getElementById('Address');
+    const cityField = document.getElementById('City');
+    const streetField = document.getElementById('Street');
+    const postcodeField = document.getElementById('PostCode');
+    const latitudeField = document.getElementById('Latitude');
+    const longitudeField = document.getElementById('Longitude');
+
+    let address = '';
+    let city = '';
+    let street = '';
+    let postalCode = '';
+
+    // Loop through the address components
+    for (let i = 0; i < place.address_components.length; i++) {
+
+        const component = place.address_components[i];
+        console.log(component)
+        if (component.types.includes("street_number")) {
+            street = component.long_name;
+        }
+        if (component.types.includes("route")) {
+            street += ' ' + component.long_name;
+        }
+        if (component.types.includes("locality")) {
+            city = component.long_name;
+        }
+        if (component.types.includes("postal_code")) {
+            postalCode = component.long_name;
+        }
+    }
+
+    // Set the fields with the address details
+    addressField.value = street;
+    cityField.value = city;
+    streetField.value = street;
+    postcodeField.value = postalCode;
+    latitudeField.value = place.geometry.location.lat();
+    longitudeField.value = place.geometry.location.lng();
 }
 
 // Call initMap when the script is loaded

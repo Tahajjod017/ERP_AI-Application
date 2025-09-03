@@ -1077,7 +1077,7 @@ function getStatusText(item) {
     } else if (item.approverStep === 3) {
         return 'APPROVED';
     }
-
+  
     if (isNewStatus && item.applicationDate) {
        
         const applicationDate = new Date(item.applicationDate);

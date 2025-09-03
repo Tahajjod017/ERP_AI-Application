@@ -1,11 +1,14 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.Department;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
@@ -13,14 +16,17 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
     public class DepartmentSettingsController : BaseController
     {
         private readonly IDepartmentSettingService _departmentSettingService;
-        public DepartmentSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IDepartmentSettingService departmentSettingService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        public DepartmentSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IDepartmentSettingService departmentSettingService, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
         {
             _departmentSettingService = departmentSettingService;
+            _organizationRepository = organizationRepository;
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.Organizations = await _departmentSettingService.GetOrganizationsAsync();
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             ViewBag.EmployeeNameWithCode = await _departmentSettingService.GetEmployeeCodeAsync();
             return View();
         }
@@ -38,6 +44,10 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    if (model.DepartmentName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Department Name cannot be Empty!" });
                     }
                     await _departmentSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.DepartmentName });
@@ -57,17 +67,28 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         //[Permission("Update", "HolidaySettings")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Update(DepartmentSettingsVM model)
+        public async Task<IActionResult> Updates(DepartmentSettingsVM model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _departmentSettingService.IsNameUniqueAsync(model.DepartmentName);
-                    if (!uniqueName)
+                    if (model.OrganizationID == null)
                     {
-                        return Json(new { isSuccess = false, message = "This name already exists!" });
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
                     }
+
+                    if (model.DepartmentName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Department Name cannot be Empty!" });
+                    }
+                    //var uniqueName = await _departmentSettingService.IsNameUniqueAsync(model.DepartmentName);
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
+
+                    
                     await _departmentSettingService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }

@@ -1,4 +1,4 @@
-using GCTL.Core.SeedData;
+//using GCTL.Core.SeedData;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service;
@@ -89,21 +89,21 @@ QuestPDF.Settings.License = LicenseType.Community;
 var app = builder.Build();
 
 #region Seed data before running app using bogus
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var seeder = services.GetRequiredService<DataSeeder>();
-    var context = services.GetRequiredService<AppDbContext>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var seeder = services.GetRequiredService<DataSeeder>();
+//    var context = services.GetRequiredService<AppDbContext>();
 
-    if (!context.Employees.Any())
-        await seeder.SeedEmployeesAsync(context);
+//    if (!context.Employees.Any())
+//        await seeder.SeedEmployeesAsync(context);
 
-    if (!context.EmployeeOfficeInfo.Any())
-        await seeder.SeedEmployeeOfficeInfoAsync(context);
+//    if (!context.EmployeeOfficeInfo.Any())
+//        await seeder.SeedEmployeeOfficeInfoAsync(context);
 
-    if (!context.Shifts.Any())
-        await seeder.SeedShiftsAsync(context);
-}
+//    if (!context.Shifts.Any())
+//        await seeder.SeedShiftsAsync(context);
+//}
 #endregion
 
 // Configure the HTTP request pipeline.
@@ -129,7 +129,7 @@ app.Use(async (context, next) =>
         context.Response.Cookies.Append("Language", "en", new CookieOptions
         {
             HttpOnly = true,
-            Secure = !app.Environment.IsDevelopment(), // Secure in production
+            Secure = !app.Environment.IsDevelopment(), 
             SameSite = SameSiteMode.Lax
         });
     }
@@ -140,11 +140,11 @@ app.Use(async (context, next) =>
 
 
 
-app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
+//app.UseMiddleware<UserVisitLoggingMiddleware>();  // added by Siam
 app.UseRouting();
 
 app.UseAuthentication();
-//app.UseMiddleware<LocalizationMiddleware>();
+app.UseMiddleware<LocalizationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(

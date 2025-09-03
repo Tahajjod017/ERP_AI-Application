@@ -18,6 +18,9 @@ namespace GCTL.Core.ViewModels.PayrollManagements.LoanManagement
         public decimal? MonthlyEMI { get; set; }
         public decimal ? OutSatndingbalance { get; set; }
         public string? EmployeeDepartment { get; set; }
-        public string EmployeeImage { get; set; }
+        public string? EmployeeImage { get; set; }
+        public string? ApplicationDate { get; set; }
+        public string? StatusName { get; set; }
+        public int? ApproverStep { get; set; }
     }
 }

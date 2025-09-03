@@ -24,6 +24,9 @@ namespace GCTL.Data.Models
         public virtual Employees? Employees { get; set; } // hrm project ,, reverse engine disi, user
         public bool IsPasswordResetRequired { get; set; } = false;
 
+        // New field for storing the default generated password
+        public string? DefaultPass { get; set; }
+
     }
 
 

@@ -1,7 +1,6 @@
 ﻿using Azure;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -83,7 +82,9 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetOrganizations, SearchOrganizations
+        #region For ViewBag / Dropdown
+
+        #region GetOrganizations
         public async Task<List<CommonSelectVM>> GetOrganizations()
         {
             var result = await _organization.AllActive().AsNoTracking().Select(x => new CommonSelectVM
@@ -94,9 +95,11 @@ namespace GCTL.Service.CommonService
 
             return result;
         }
+        #endregion
 
 
-        public async Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        #region SearchOrganizations
+        public async Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 50)
         {
             var query = _organization.AllActive().AsNoTracking();
 
@@ -124,8 +127,10 @@ namespace GCTL.Service.CommonService
                 HasMore = (page * pageSize) < totalCount
             };
         }
+        #endregion
 
 
+        #region SearchEmployees
         public async Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50)
         {
             var employees = await (from emp in _employees.AllActive().AsNoTracking()
@@ -190,7 +195,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetEmployeesGroupedByDepartment
+        #region GetEmpGroupedByDep
         public async Task<List<CommonSelectVM>> GetEmpGroupedByDep()
         {
             var data = await (from emp in _employees.AllActive().AsNoTracking()
@@ -208,7 +213,7 @@ namespace GCTL.Service.CommonService
                                   Id = emp.EmployeeID,
                                   Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
                                   GroupName = dep.DepartmentName ?? "-"
-                              }).ToListAsync();
+                              }).Take(50).ToListAsync();
             return data;
         }
         #endregion
@@ -221,7 +226,7 @@ namespace GCTL.Service.CommonService
             {
                 Id = x.ShiftID,
                 Name = $"{x.ShiftName} ({x.StartTime} - {x.EndTime})" ?? "-"
-            }).ToListAsync();
+            }).Take(100).ToListAsync();
 
             return result;
         }
@@ -296,6 +301,8 @@ namespace GCTL.Service.CommonService
         }
         #endregion
 
+        #endregion
+
 
         #region GetSpiralPatternsByOrgPatternType
         public async Task<List<CommonSelectVM>> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId)
@@ -341,7 +348,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetBranches
+        #region GetBranchesByOrgId
         public async Task<List<CommonSelectVM>> GetBranchesByOrgId(int? orgId)
         {
             var query = _organizationBranches.AllActive().AsNoTracking();
@@ -382,78 +389,6 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetEmployeesByOrgId
-        public async Task<List<CommonSelectVM>> GetEmployeesByOrgId(int? orgId)
-        {
-            var data = await (from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
-
-                              join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empGroup
-                              from emp in empGroup.DefaultIfEmpty()
-
-                              where emp.IsActive == true && empOi.EmploymentStatusId == 1
-
-                              join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
-                              from dep in depGroup.DefaultIfEmpty()
-
-                              where empOi.OrganizationID == orgId
-
-                              select new CommonSelectVM
-                              {
-                                  Id = empOi.EmployeeID ?? 0,
-                                  Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
-                                  GroupName = dep.DepartmentName ?? "-"
-                              }).ToListAsync();
-            return data;
-        }
-        #endregion
-
-
-        #region GetEmployeesByOrgBraId
-        public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraId(int? orgId, List<int>? branchIds)
-        {
-            var query = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
-
-                        join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
-                        from emp in empGroup.DefaultIfEmpty()
-
-                        where emp.IsActive == true && empOi.EmploymentStatusId == 1
-
-                        join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
-                        from dep in depGroup.DefaultIfEmpty()
-
-                        select new
-                        {
-                            empOi.OrganizationID,
-                            empOi.OrganizationBranchID,
-                            empOi.EmployeeID,
-                            FirstName = emp.FirstName ?? "-",
-                            LastName = emp.LastName ?? "-",
-                            EmployeeCode = emp.EmployeeCode ?? "-",
-                            DepartmentName = dep.DepartmentName ?? "-"
-                        };
-
-            if (orgId.HasValue && orgId.Value != 0)
-            {
-                query = query.Where(x => x.OrganizationID == orgId.Value);
-            }
-
-            if (branchIds != null && branchIds.Any())
-            {
-                query = query.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
-            }
-
-            var data = await query.Select(x => new CommonSelectVM
-            {
-                Id = x.EmployeeID ?? 0,
-                Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})" ?? "-",
-                GroupName = x.DepartmentName ?? "-"
-            }).ToListAsync();
-
-            return data;
-        }
-        #endregion
-
-
         #region GetShiftsByOrgId
         public async Task<List<CommonSelectVM>> GetShiftsByOrgId(int? orgId)
         {
@@ -474,8 +409,11 @@ namespace GCTL.Service.CommonService
 
 
         #region GetEmployeesByOrgBraDepId
-        public async Task<List<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds)
+        public async Task<PaginatedResult<CommonSelectVM>> GetEmployeesByOrgBraDepId(int? orgId, List<int>? branchIds, List<int>? deptIds, string? search, int? page = 1, int? pageSize = 50)
         {
+            int currentPage = page ?? 1;
+            int currentPageSize = pageSize ?? 50;
+
             var baseQuery = _employeeOfficeInfo.AllActive().AsNoTracking().Where(eoi => eoi.EmploymentStatusId == 1);
 
             if (orgId.HasValue && orgId.Value != 0)
@@ -488,28 +426,241 @@ namespace GCTL.Service.CommonService
                 baseQuery = baseQuery.Where(eoi => eoi.DepartmentID.HasValue &&
                                                    deptIds.Contains(eoi.DepartmentID.Value));
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                baseQuery = baseQuery.Where(x =>
+                    x.Employee.FirstName.Contains(search) ||
+                    x.Employee.LastName.Contains(search) ||
+                    x.Employee.EmployeeCode.Contains(search));
+            }
+
+            var totalCount = await baseQuery.CountAsync();
+
             var result = await (from eoi in baseQuery
 
                                 join emp in _employees.AllActive().AsNoTracking().Where(emp => emp.IsActive == true) on eoi.EmployeeID equals emp.EmployeeID
                                 
                                 join dep in _departments.AllActive().AsNoTracking() on eoi.DepartmentID equals dep.DepartmentID into depGroup
                                 from dep in depGroup.DefaultIfEmpty()
-                                
+
+                                orderby emp.FirstName, emp.LastName
+
                                 select new CommonSelectVM
                                 {
                                     Id = emp.EmployeeID,
                                     Name = $"{emp.FirstName ?? "-"} {emp.LastName ?? "-"} ({emp.EmployeeCode ?? "-"})",
                                     GroupName = dep.DepartmentName ?? "-"
-                                })
-                               .ToListAsync();
+                                }).Skip((currentPage - 1) * currentPageSize).Take(currentPageSize).ToListAsync();
 
-            return result;
+            return new PaginatedResult<CommonSelectVM>
+            {
+                Items = result,
+                HasMore = (currentPage * currentPageSize) < totalCount
+            };
+        }
+        #endregion
+
+
+        #region GetEmployeesByOrgDatesBraDepId2
+        public async Task<PaginatedResult<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId2(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? depIds, string? search, int? page = 1, int? pageSize = 50)
+        {
+            try
+            {
+                var data = from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
+
+                           join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
+                           from emp in empGroup.DefaultIfEmpty()
+
+                           where emp.IsActive == true && empOi.EmploymentStatusId == 1
+
+                           join org in _organization.AllActive().AsNoTracking() on empOi.OrganizationID equals org.OrganizationID into orgGroup
+                           from org in orgGroup.DefaultIfEmpty()
+
+                           join bra in _organizationBranches.AllActive().AsNoTracking() on empOi.OrganizationBranchID equals bra.OrganizationBranchID into braGroup
+                           from bra in braGroup.DefaultIfEmpty()
+
+                           join dep in _departments.AllActive().AsNoTracking() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+                           from dep in depGroup.DefaultIfEmpty()
+
+                           join wes in _weekendSettings.AllActive().AsNoTracking() on empOi.OrganizationID equals wes.OrganizationID into wesGroup
+                           from wes in wesGroup.DefaultIfEmpty()
+
+                           join wed in _weekendDays.AllActive().AsNoTracking() on wes.WeekendSettingID equals wed.WeekendSettingID into wedGroup
+                           from wed in wedGroup.DefaultIfEmpty()
+
+                           join hod in _holidays.AllActive().AsNoTracking() on empOi.OrganizationID equals hod.OrganizationID into hodGroup
+                           from hod in hodGroup.DefaultIfEmpty()
+
+                           join spal in _spiralPatternAssignList.AllActive().AsNoTracking() on empOi.EmployeeID equals spal.EmployeeID into spalGroup
+                           from spal in spalGroup.DefaultIfEmpty()
+
+                           join swp in _spiralWeeklyPatterns.AllActive().AsNoTracking() on spal.SpiralWeeklyPatternID equals swp.SpiralWeeklyPatternID into swpGroup
+                           from swp in swpGroup.DefaultIfEmpty()
+
+                           join swpd in _spiralWeeklyPatternDetails.AllActive().AsNoTracking() on swp.SpiralWeeklyPatternID equals swpd.SpiralWeeklyPatternID into swpdGroup
+                           from swpd in swpdGroup.DefaultIfEmpty()
+
+                           join sbp in _spiralBioWeeklyPattern.AllActive().AsNoTracking() on spal.SpiralBioWeeklyPatternID equals sbp.SpiralBioWeeklyPatternID into sbpGroup
+                           from sbp in sbpGroup.DefaultIfEmpty()
+
+                           join sbpd in _spiralBioWeeklyPatternDetails.AllActive().AsNoTracking() on sbp.SpiralBioWeeklyPatternID equals sbpd.SpiralBioWeeklyPatternID into sbpdGroup
+                           from sbpd in sbpdGroup.DefaultIfEmpty()
+
+                           join smp in _spiralMonthlyPattern.AllActive().AsNoTracking() on spal.SpiralMonthlyPatternID equals smp.SpiralMonthlyPatternID into smpGroup
+                           from smp in smpGroup.DefaultIfEmpty()
+
+                           join smpd in _spiralMonthlyPatternDetails.AllActive().AsNoTracking() on smp.SpiralMonthlyPatternID equals smpd.SpiralMonthlyPatternID into smpdGroup
+                           from smpd in smpdGroup.DefaultIfEmpty()
+
+                           join swpdSft in _shifts.AllActive().AsNoTracking() on swpd.ShiftID equals swpdSft.ShiftID into swpdSftGroup
+                           from swpdSft in swpdSftGroup.DefaultIfEmpty()
+
+                           join sbpdSft in _shifts.AllActive().AsNoTracking() on sbpd.ShiftID equals sbpdSft.ShiftID into sbpdSftGroup
+                           from sbpdSft in sbpdSftGroup.DefaultIfEmpty()
+
+                           join smpdSft in _shifts.AllActive().AsNoTracking() on smpd.ShiftID equals smpdSft.ShiftID into smpdSftGroup
+                           from smpdSft in smpdSftGroup.DefaultIfEmpty()
+
+                           select new
+                           {
+                               empOi.EmployeeID,
+                               FirstName = emp.FirstName ?? "-",
+                               LastName = emp.LastName ?? "-",
+                               EmployeeCode = emp.EmployeeCode ?? "-",
+                               empOi.OrganizationID,
+                               OrganizationName = org.OrganizationName ?? "-",
+                               empOi.OrganizationBranchID,
+                               OrganizationBranchName = bra.OrganizationBranchName ?? "-",
+                               empOi.DepartmentID,
+                               DepartmentName = dep.DepartmentName ?? "-",
+                               weekendDay = wed.WeekdayNumber,
+                               HolidayTitle = hod.HolidayTitle ?? "-",
+                               HolidayStartDate = hod.StartDate,
+                               HolidayEndDate = hod.EndDate,
+
+                               // Spiral Pattern Data
+                               SpiralOrganizationID = spal.OrganizationID,
+                               SpiralStartDate = spal.StartDate,
+                               SpiralEndDate = spal.EndDate,
+                               SpiralWeeklyPatternID = spal.SpiralWeeklyPatternID,
+                               SpiralBioWeeklyPatternID = spal.SpiralBioWeeklyPatternID,
+                               SpiralMonthlyPatternID = spal.SpiralMonthlyPatternID,
+                               SpiralWeeklyPatternDay = swpd != null ? swpd.DayOfWeek : (int?)null,
+                               SpiralWeeklyShiftName = swpdSft.ShiftName,
+                               SpiralBioWeeklyPatternDay = sbpd != null ? sbpd.DayOfMonth : (int?)null,
+                               SpiralBioWeeklyShiftName = sbpdSft.ShiftName,
+                               SpiralMonthlyPatternDay = smpd != null ? smpd.DayOfMonth : (int?)null,
+                               SpiralMonthlyShiftName = smpdSft.ShiftName,
+                           };
+
+                // Apply organization filter
+                if (orgId.HasValue && orgId.Value != 0)
+                {
+                    data = data.Where(x => x.OrganizationID == orgId.Value);
+                }
+
+                // Apply branch filter
+                if (branchIds != null && branchIds.Any())
+                {
+                    data = data.Where(x => branchIds.Contains(x.OrganizationBranchID ?? 0));
+                }
+
+                // Apply department filter
+                if (depIds != null && depIds.Any())
+                {
+                    data = data.Where(x => depIds.Contains(x.DepartmentID ?? 0));
+                }
+
+                // Apply search filter if provided
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    data = data.Where(x =>
+                        x.FirstName.Contains(search) ||
+                        x.LastName.Contains(search) ||
+                        x.EmployeeCode.Contains(search));
+                }
+
+                // Materialize the query
+                var resultList = await data.ToListAsync();
+
+                // === Date filters ===
+                if (dates != null && dates.Any())
+                {
+                    resultList = resultList.Where(x =>
+                        dates.Any(date =>
+                        {
+                            int weekday = (int)date.DayOfWeek;
+                            int dayOfMonth = date.Day;
+
+                            // Weekend Match
+                            bool isWeekend = x.weekendDay.HasValue && weekday == x.weekendDay.Value;
+
+                            // Holiday Match
+                            bool isHoliday = x.HolidayStartDate.HasValue && x.HolidayEndDate.HasValue &&
+                                             date.Date >= x.HolidayStartDate.Value.Date &&
+                                             date.Date <= x.HolidayEndDate.Value.Date;
+
+                            // Spiral Pattern Match for "Weekend" shift
+                            bool isSpiralMatch =
+                                x.SpiralOrganizationID == 1 &&
+                                x.SpiralStartDate.HasValue && x.SpiralEndDate.HasValue &&
+                                date.Date >= x.SpiralStartDate.Value.Date &&
+                                date.Date <= x.SpiralEndDate.Value.Date &&
+                                (
+                                    (x.SpiralWeeklyPatternID != null && x.SpiralWeeklyPatternDay == weekday && x.SpiralWeeklyShiftName == "Weekend")
+                                    ||
+                                    (x.SpiralBioWeeklyPatternID != null && x.SpiralBioWeeklyPatternDay == dayOfMonth && x.SpiralBioWeeklyShiftName == "Weekend")
+                                    ||
+                                    (x.SpiralMonthlyPatternID != null && x.SpiralMonthlyPatternDay == dayOfMonth && x.SpiralMonthlyShiftName == "Weekend")
+                                );
+
+                            return isWeekend || isHoliday || isSpiralMatch;
+                        })
+                    ).ToList();
+                }
+
+                // Group and project to view model
+                var groupedResult = resultList
+                    .GroupBy(x => x.EmployeeID)
+                    .Select(x => x.First())
+                    .Select(x => new CommonSelectVM
+                    {
+                        Id = x.EmployeeID,
+                        Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
+                        GroupName = x.DepartmentName
+                    })
+                    .ToList();
+
+                // Apply pagination
+                var totalCount = groupedResult.Count;
+                var currentPage = page ?? 1;
+                var currentPageSize = pageSize ?? 50;
+                var skip = (currentPage - 1) * currentPageSize;
+
+                var pagedItems = groupedResult
+                    .Skip(skip)
+                    .Take(currentPageSize)
+                    .ToList();
+
+                // Check if there are more items
+                var hasMore = skip + currentPageSize < totalCount;
+
+                return new PaginatedResult<CommonSelectVM>
+                {
+                    Items = pagedItems,
+                    HasMore = hasMore
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching employees", ex);
+            }
         }
         #endregion
 
 
         #region GetEmployeesByOrgDatesBraDepId
-        public async Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? deptIds)
+        public async Task<List<CommonSelectVM>> GetEmployeesByOrgDatesBraDepId(int? orgId, List<DateTime>? dates, List<int>? branchIds, List<int>? depIds, string? search, int? page = 1, int? pageSize = 50)
         {
             try
             {
@@ -614,9 +765,9 @@ namespace GCTL.Service.CommonService
                 }
 
                 // Apply department filter
-                if (deptIds != null && deptIds.Any())
+                if (depIds != null && depIds.Any())
                 {
-                    data = data.Where(x => deptIds.Contains(x.DepartmentID ?? 0));
+                    data = data.Where(x => depIds.Contains(x.DepartmentID ?? 0));
                 }
 
                 // Materialize the query
