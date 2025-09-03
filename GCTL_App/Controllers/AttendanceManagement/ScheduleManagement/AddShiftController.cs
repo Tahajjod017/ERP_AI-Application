@@ -49,9 +49,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region SearchOrganizations / OrganizationDD
+        #region SearchOrganizations
         [HttpGet]
-        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 50)
         {
             var result = await _commonService.SearchOrganizations(search, page, pageSize);
 

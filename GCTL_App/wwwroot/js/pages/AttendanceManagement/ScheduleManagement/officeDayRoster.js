@@ -1,6 +1,6 @@
 ﻿(function ($) {
     $.officedayroster = function (options) {
-        // Default options
+        // #region Default options
         var settings = $.extend({
             baseUrl: '/',
             form: '#rosterInOfficeDays-form',
@@ -26,6 +26,9 @@
         let shiftDD;
         let selectedId = null;
         let selectedDate = null;
+        // #endregion
+
+
         $(() => {
 
 
@@ -269,17 +272,6 @@
 
 
             // #region Dropdown
-            //function initOrganizationDD() {
-            //    organizationDD = new Choices('#OrganizationID', {
-            //        removeItemButton: true,
-            //        shouldSort: false,
-            //        placeholderValue: 'Select Organization...'
-            //    });
-            //}
-            //document.addEventListener('DOMContentLoaded', initOrganizationDD);
-            //initOrganizationDD();
-
-            
             function initShiftDD() {
                 shiftDD = new Choices('#ShiftID', {
                     removeItemButton: true,
@@ -305,18 +297,18 @@
                 e.preventDefault();
 
                 var organizationId = $(this).val(); 
-                loadBranchByOrganization(organizationId);
-                loadDepartmentsByOrganization(organizationId);
-                loadEmpByOrg(organizationId);
+                getBranchesByOrgId(organizationId);
+                getDepartmentsByOrgId(organizationId);
+                getEmployeesByOrgBraDepId(organizationId, [], []);
                 loadShiftByOrg(organizationId);
             });
             // #endregion
 
 
-            // #region loadBranchByOrganization
-            function loadBranchByOrganization(organizationId) {
+            // #region getBranchesByOrgId
+            function getBranchesByOrgId(organizationId) {
                 $.ajax({
-                    url: '/OfficeDayRoster/GerBranchByOrganization',
+                    url: '/OfficeDayRoster/GetBranchesByOrgId',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (branch) {
@@ -349,10 +341,10 @@
             // #endregion
 
 
-            // #region loadDepartmentsByOrganization
-            function loadDepartmentsByOrganization(organizationId) {
+            // #region getDepartmentsByOrgId
+            function getDepartmentsByOrgId(organizationId) {
                 $.ajax({
-                    url: '/OfficeDayRoster/GetDepartmentByOrganization',
+                    url: '/OfficeDayRoster/GetDepartmentsByOrgId',
                     type: 'GET',
                     data: { id: organizationId },
                     success: function (departments) {
@@ -395,54 +387,6 @@
             // #endregion
 
 
-            // #region loadEmpByOrg
-            function loadEmpByOrg(organizationId) {
-                $.ajax({
-                    url: '/OfficeDayRoster/GetEmployeeByOrganization',
-                    type: 'GET',
-                    data: { id: organizationId },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees: ', error);
-                    }
-                });
-            }
-            // #endregion
-
-
             // #region loadShiftByOrg
             function loadShiftByOrg(organizationId, selectedShiftId = null) {
                 return new Promise((resolve, reject) => {
@@ -477,134 +421,251 @@
 
 
             // #region BranchID on change
-            document.getElementById('BranchIDs')
-                .addEventListener('changed.coreui.multi-select', function (event) {
-                    const orgId = $('#OrganizationID').val();
+            document.getElementById('BranchIDs').addEventListener('changed.coreui.multi-select', function (event) {
+                const orgId = $('#OrganizationID').val();
 
-                    const selected = event.value || []; // array of {text, value}
-                    const branchIds = selected.map(x => parseInt(x.value));
+                const selected = event.value || []; // array of {text, value}
+                const branchIds = selected.map(x => parseInt(x.value));
 
-                    loadEmpByOrgBranchId(orgId, branchIds);
-                });
-            // #endregion
-
-
-            // #region loadEmpByOrgBranchId/GetEmployeeByBranch
-            function loadEmpByOrgBranchId(organizationId, branchIds = []) {
-                $.ajax({
-                    url: '/OfficeDayRoster/GetEmployeeByBranch',
-                    type: 'GET',
-                    traditional: true,
-                    data: {
-                        orgId: organizationId,
-                        ids: branchIds
-                    },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees:', error);
-                    }
-                });
-            }
+                getEmployeesByOrgBraDepId(orgId, branchIds, []);
+            });
             // #endregion
 
 
             // #region DepartmentIDs on change
-            document.getElementById('DepartmentIDs')
-                .addEventListener('changed.coreui.multi-select', function (event) {
-                    const orgId = $('#OrganizationID').val();
-                    const branchIds = $('#BranchIDs').val();
+            document.getElementById('DepartmentIDs').addEventListener('changed.coreui.multi-select', function (event) {
+                const orgId = $('#OrganizationID').val();
+                const branchIds = $('#BranchIDs').val();
 
-                    const selected = event.value || []; // array of {text, value}
-                    const ids = selected.map(x => parseInt(x.value));
+                const selected = event.value || []; // array of {text, value}
+                const ids = selected.map(x => parseInt(x.value));
 
-                    loadEmployeesByBranch(orgId, branchIds, ids);
-                });
+                getEmployeesByOrgBraDepId(orgId, branchIds, ids);
+            });
             // #endregion
 
 
-            // #region loadEmployeesByBranch/GetEmployeeByDepartment
-            function loadEmployeesByBranch(orgId, branchIds = [], ids = []) {
-                $.ajax({
-                    url: '/OfficeDayRoster/GetEmployeeByDepartment',
-                    type: 'GET',
-                    traditional: true,
-                    data: {
-                        orgId: orgId,
-                        branchIds: branchIds,
-                        depIds: ids
-                    },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
+            // #region getEmployeesByOrgBraDepId (with pagination, search, scroll)
+            function getEmployeesByOrgBraDepId(orgId, branchIds = [], depIds = []) {
+                const selectEl = document.getElementById('EmployeeIDs');
+                if (!selectEl) return;
 
-                        const grouped = {};
+                const ms = coreui.MultiSelect.getOrCreateInstance(selectEl);
 
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
+                let page = 1;
+                let term = '';
+                const pageSize = 50;
 
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
+                let hasMore = true;
+                let loading = false;
+                let debounce;
+                let scrollPosition = 0;
 
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees:', error);
+                // Initial fetch trigger on open
+                selectEl.addEventListener('shown.coreui.multi-select', () => {
+                    if (selectEl.options.length === 0) {
+                        page = 1;
+                        term = '';
+                        hasMore = true;
+                        fetchPage({ append: false });
                     }
+
+                    ensureSearchHandler();
+                    rebindScroll();
                 });
+
+                function ensureSearchHandler() {
+                    const wrapper = selectEl.nextElementSibling;
+                    const input = wrapper?.querySelector('.form-multi-select-search');
+                    const box = wrapper?.querySelector('.form-multi-select-options');
+                    if (!input || input.dataset.listenerAttached) return;
+
+                    input.dataset.listenerAttached = '1';
+                    input.addEventListener('mousedown', e => e.stopPropagation());
+
+                    input.addEventListener('input', e => {
+                        const val = e.target.value.trim();
+                        clearTimeout(debounce);
+
+                        if (val.length < 3) {
+                            addOptions([], { reset: true });
+                            page = 1;
+                            term = '';
+                            hasMore = false;
+                            if (box) box.scrollTop = 0;
+                            return;
+                        }
+
+                        debounce = setTimeout(() => {
+                            term = val;
+                            page = 1;
+                            hasMore = true;
+                            fetchPage({ append: false });
+                            if (box) box.scrollTop = 0;
+                        }, 1000);
+                    });
+                }
+
+                function rebindScroll() {
+                    const box = selectEl.nextElementSibling?.querySelector('.form-multi-select-options');
+                    if (!box || box.dataset.infiniteAttached) return;
+
+                    box.dataset.infiniteAttached = '1';
+                    box.addEventListener('scroll', () => {
+                        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+                            if (hasMore && !loading) fetchPage({ append: true });
+                        }
+                    });
+                }
+
+                function addOptions(items, { reset = false } = {}) {
+                    const box = selectEl.nextElementSibling?.querySelector('.form-multi-select-options');
+                    if (box) scrollPosition = box.scrollTop;
+
+                    if (reset) {
+                        const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
+                        [...selectEl.options].forEach(o => {
+                            if (!keep.has(o.value)) o.remove();
+                        });
+                    }
+
+                    const existing = new Set([...selectEl.options].map(o => String(o.value)));
+                    const grouped = {};
+
+                    items.forEach(emp => {
+                        const group = emp.group || 'No Department';
+                        if (!grouped[group]) grouped[group] = [];
+                        grouped[group].push(emp);
+                    });
+
+                    Object.keys(grouped).forEach(group => {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = group;
+
+                        grouped[group].forEach(emp => {
+                            const idStr = String(emp.value);
+                            if (existing.has(idStr)) return;
+                            const opt = document.createElement('option');
+                            opt.value = idStr;
+                            opt.textContent = emp.label;
+                            optgroup.appendChild(opt);
+                        });
+
+                        selectEl.appendChild(optgroup);
+                    });
+
+                    const wasOpen = !!ms._isShown;
+                    ms.update();
+                    if (wasOpen) ms.show();
+                    ensureSearchHandler();
+
+                    const input = selectEl.nextElementSibling?.querySelector('.form-multi-select-search');
+                    if (input && input.value) {
+                        input.setSelectionRange(input.value.length, input.value.length);
+                    }
+
+                    setTimeout(() => {
+                        const box = selectEl.nextElementSibling?.querySelector('.form-multi-select-options');
+                        if (box) {
+                            box.scrollTop = reset ? 0 : scrollPosition;
+                        }
+                    }, 10);
+
+                    rebindScroll();
+                }
+
+                async function fetchPage({ append }) {
+                    if (loading || (!hasMore && append)) return;
+                    loading = true;
+                    try {
+                        const url = new URL('/OfficeDayRoster/GetEmployeesByOrgBraDepId', window.location.origin);
+                        const params = new URLSearchParams();
+
+                        if (orgId) params.append('orgId', orgId);
+                        branchIds.forEach(id => params.append('branchIds', id));
+                        depIds.forEach(id => params.append('depIds', id));
+                        if (term) params.append('search', term);
+                        params.append('page', page);
+                        params.append('pageSize', pageSize);
+
+                        url.search = params.toString();
+
+                        const response = await fetch(url);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                        const data = await response.json();
+
+                        addOptions(data.items, { reset: !append });
+                        hasMore = !!data.hasMore;
+                        if (append) page++;
+                        else page = 2;
+                    } catch (e) {
+                        console.error('Error fetching employees:', e);
+                    } finally {
+                        loading = false;
+                    }
+                }
             }
+            // #endregion
+
+
+            // #region getEmployeesByOrgBraDepId
+            //function getEmployeesByOrgBraDepId(orgId, branchIds = [], ids = []) {
+            //    $.ajax({
+            //        url: '/OfficeDayRoster/GetEmployeesByOrgBraDepId',
+            //        type: 'GET',
+            //        traditional: true,
+            //        data: {
+            //            orgId: orgId,
+            //            branchIds: branchIds,
+            //            depIds: ids
+            //        },
+            //        success: function (employees) {
+            //            const select = $('#EmployeeIDs');
+            //            select.empty();
+
+            //            const data = employees.items ?? employees;
+
+            //            if (!Array.isArray(data)) {
+            //                console.error("Invalid response format:", employees);
+            //                return;
+            //            }
+
+            //            const grouped = {};
+
+            //            // Group employees by GroupName (DepartmentName)
+            //            data.forEach(emp => {
+            //                const group = emp.groupName || 'No Department';
+            //                if (!grouped[group]) {
+            //                    grouped[group] = [];
+            //                }
+            //                grouped[group].push(emp);
+            //            });
+
+            //            // Build <optgroup> structure
+            //            Object.keys(grouped).forEach(group => {
+            //                const optgroup = $('<optgroup>').attr('label', group);
+            //                grouped[group].forEach(emp => {
+            //                    optgroup.append(
+            //                        $('<option>').val(emp.id).text(emp.name)
+            //                    );
+            //                });
+            //                select.append(optgroup);
+            //            });
+
+            //            const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+            //            if (multiSelectInstance) {
+            //                multiSelectInstance.update(); // Refresh UI
+            //            } else {
+            //                new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
+            //            }
+            //        },
+            //        error: function (xhr, status, error) {
+            //            console.error('Error loading employees:', error);
+            //        }
+            //    });
+            //}
             // #endregion
 
 
@@ -707,29 +768,6 @@
                 disableMobile: true,
                 allowInput: true 
             });
-            // #endregion
-
-
-            // #region For Range Date
-            //$(document).ready(function () {
-            //    $('#basic-daterange').dateRangePicker({
-            //        format: 'DD/MM/YYYY',
-            //        separator: ' to ',
-            //        language: 'en',
-            //        autoClose: true,
-            //        getValue: function () {
-            //            return $(this).val();
-            //        },
-            //        setValue: function (s) {
-            //            $(this).val(s);
-            //        }
-            //    }).bind('datepicker-change', function (event, obj) {
-            //        const start = moment(obj.date1).format("YYYY-MM-DD");
-            //        const end = moment(obj.date2).format("YYYY-MM-DD");
-            //        $('#StartDate').val(start);
-            //        $('#EndDate').val(end);
-            //    });
-            //});
             // #endregion
 
 

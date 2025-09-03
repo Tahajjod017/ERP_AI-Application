@@ -47,15 +47,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region SearchOrganizations / OrganizationDD
         [HttpGet]
-        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 50)
         {
             var result = await _commonService.SearchOrganizations(search, page, pageSize);
-
-            //return Json(new
-            //{
-            //    items = result.Items,
-            //    hasMore = result.HasMore
-            //});
             return Json(new
             {
                 items = result.Items.Select(x => new {
@@ -219,9 +213,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GerBranchByOrganization
+        #region GetBranchesByOrgId
         [HttpGet]
-        public async Task<IActionResult> GerBranchByOrganization(int? id)
+        public async Task<IActionResult> GetBranchesByOrgId(int? id)
         {
             var result = await _commonService.GetBranchesByOrgId(id);
             return Json(result);
@@ -229,19 +223,10 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetDepartmentByOrganization
-        public async Task<IActionResult> GetDepartmentByOrganization(int? id)
+        #region GetDepartmentsByOrgId
+        public async Task<IActionResult> GetDepartmentsByOrgId(int? id)
         {
             var result = await _commonService.GetDepartmentsByOrgId(id);
-            return Json(result);
-        }
-        #endregion
-
-
-        #region GetEmployeeByOrganization
-        public async Task<IActionResult> GetEmployeeByOrganization(int? id)
-        {
-            var result = await _commonService.GetEmployeesByOrgId(id);
             return Json(result);
         }
         #endregion
@@ -256,20 +241,21 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #endregion
 
 
-        #region GetEmployeeByDepartment
-        public async Task<IActionResult> GetEmployeeByDepartment(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        #region GetEmployeesByOrgBraDepId
+        [Route("OfficeDayRoster/GetEmployeesByOrgBraDepId")]
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds, string? search, int? page = 1, int? pageSize = 50)
         {
-            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
-            return Json(result);
-        }
-        #endregion
-
-
-        #region GetEmployeeByBranch
-        public async Task<IActionResult> GetEmployeeByBranch(int? orgId, [FromQuery] List<int>? ids)
-        {
-            var result = await _commonService.GetEmployeesByOrgBraId(orgId, ids);
-            return Json(result);
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds, search, page, pageSize);
+            return Json(new
+            {
+                items = result.Items.Select(x => new {
+                    value = x.Id,
+                    label = x.Name,
+                    group = x.GroupName
+                }),
+                hasMore = result.HasMore
+            });
         }
         #endregion
     }
