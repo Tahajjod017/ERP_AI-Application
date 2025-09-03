@@ -1,0 +1,128 @@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.EmployeeShiftView.EmployeeShiftViewSetupVM
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+    <div class="d-flex gap-2 flex-wrap">
+        <div class="">
+            <label for="timeFrame" class="form-label">@Html.SmartLocalize("Show as")</label>
+            <select id="timeFrame" class="form-select">
+                <option value="7" selected>@Html.SmartLocalize("Weekly")</option>
+                <option value="14">@Html.SmartLocalize("Fortnightly")</option>
+                <option value="30">@Html.SmartLocalize("Monthly")</option>
+                @* <option value="365">@Html.SmartLocalize("Yearly")</option> *@
+            </select>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-phoenix-secondary p-2 rounded-circle" id="chevron-left"><span data-feather="chevron-left"></span></button>
+        <span class="mt-1 fw-semibold date-range-label"></span>
+        <button class="btn btn-phoenix-secondary p-2 rounded-circle" id="chevron-right"><span data-feather="chevron-right"></span></button>
+    </div>
+</div>
+
+<div class="mx-n4 px-4 mx-lg-n6 px-lg-6 border-top py-5">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+        <div class="dropdown me-2">
+            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+            <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
+                <option value="">@Html.SmartLocalize("Select Organization")...</option>
+            </select>
+        </div>
+
+        <div class="dropdown me-2">
+            <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department Name")</label>
+            <select class="form-multi-select"
+                    asp-for="DepartmentIDs"
+                    asp-items="@ViewBag.DepartmentDD as SelectList"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
+            </select>
+        </div>
+
+        <div class="dropdown me-2">
+            <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
+            <select class="form-multi-select"
+                    asp-for="EmployeeIDs"
+                    multiple data-coreui-multiple="true"
+                    data-coreui-selection-type="counter"
+                    data-coreui-search="true"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")...">
+                @* @foreach (var group in employees.GroupBy(e => e.GroupName))
+                        {
+                            <optgroup label="@group.Key">
+                                @foreach (var emp in group)
+                                {
+                                    <option value="@emp.Id">@emp.Name</option>
+                                }
+                            </optgroup>
+                        } *@
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-3 justify-content-between align-items-end mb-2">
+        <div class="col-12 col-sm-auto">
+            <div class="d-flex align-items-center me-3" style="width: auto;">
+                <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                <div style="width: 100%;">
+                    <select id="rosterInOfficeDays-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                        <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                        <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                        <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                        <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                        <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                        <option class="dropdown-item" value="0">@Html.SmartLocalize("All")</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-auto">
+            <div class="d-flex align-items-center">
+                <div class="d-none me-3" id="rosterInOfficeDays-bulkSelectActions">
+                    <div class="position-relative">
+                        <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="rosterInOfficeDays-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
+                    </div>
+                </div>
+
+                <div class="search-box me-3" id="rosterInOfficeDays-searchBox">
+                    <form class="position-relative" id="rosterInOfficeDays-searchForm">
+                        <input class="form-control search-input search" id="rosterInOfficeDays-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                        <span class="fas fa-search search-box-icon"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive scrollbar mx-n1 px-1">
+        <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th class="align-middle text-uppercase text-nowrap">@Html.SmartLocalize("Employee Name")</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+        <div class="d-flex">
+            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="rosterInOfficeDays-paginationInfo">
+                @Html.SmartLocalize("Showing") <span id="startItem"></span>
+                @Html.SmartLocalize("to") <span id="endItem"></span>
+                @Html.SmartLocalize("Items of") <span id="totalItems"></span>
+            </p>
+
+            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+        </div>
+        <div class="d-flex">
+            <button class="page-link" data-list-pagination="prev" id="rosterInOfficeDays-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+            <ul class="mb-0 pagination" id="rosterInOfficeDays-paginationLinks"></ul>
+            <button class="page-link pe-0" data-list-pagination="next" id="rosterInOfficeDays-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+        </div>
+    </div>
+</div>

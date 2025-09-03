@@ -5,11 +5,13 @@ using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class CreateSpiralPatternController : BaseController
     {
         #region Services
