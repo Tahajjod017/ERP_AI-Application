@@ -348,6 +348,7 @@ namespace GCTL_App.Controllers
                 OrganizationID = companyId,
 
 
+
             };
 
             var createResult = await _userManager.CreateAsync(user);

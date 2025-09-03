@@ -15,11 +15,13 @@ using Microsoft.AspNetCore.Authorization;
 using GCTL_App.EmailServicesMethod;
 using System.Security.Cryptography;
 using System.Text;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers
 {
     [AllowAnonymous]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -28,7 +30,7 @@ namespace GCTL_App.Controllers
         private readonly IEmailService _emailService;
         private readonly IGenericRepository<ActionLogs> actionLogs;
 
-        public AccountController(RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IEmailService emailService, IGenericRepository<ActionLogs> actionLogs)
+        public AccountController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IEmailService emailService, IGenericRepository<ActionLogs> actionLogs) : base(translateService, userProfileService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -577,6 +579,11 @@ namespace GCTL_App.Controllers
         }
         public async Task<IActionResult> GetEmployeeCodes()
         {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            var getOrgId = await _Db.Employees.Include(e => e.EmployeeOfficeInfoEmployee)
+                .Where(e => e.EmployeeID == currentEmployeeId)
+                .Select(e => e.EmployeeOfficeInfoEmployee.Select(x => x.OrganizationID))
+                .FirstOrDefaultAsync();
             var employeeCodes = await _Db.Employees
                 .Where(e => e.DeletedAt == null && (e.HasUser != true || e.HasUser == null)
                 && (e.IsActive == true || e.IsActive == null)) // Only active employees
@@ -591,13 +598,67 @@ namespace GCTL_App.Controllers
 
             return Ok(employeeCodes);
         }
+        //public async Task<IActionResult> GetEmployeeCodes()
+        //{
+        //    int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+
+        //    // Collect the current user's OrganizationIDs (may be multiple)
+        //    var orgIds = new List<int?>();
+        //    if (currentEmployeeId.HasValue)
+        //    {
+        //        orgIds = await _Db.Employees
+        //            .Where(e => e.EmployeeID == currentEmployeeId.Value)
+        //            .SelectMany(e => e.EmployeeOfficeInfoEmployee
+        //                .Where(x => x.OrganizationID != null)
+        //                .Select(x => x.OrganizationID))
+        //            .Distinct()
+        //            .ToListAsync();
+        //    }
+
+        //    // Base query: only active employees without users
+        //    var query = _Db.Employees
+        //        .Where(e => e.DeletedAt == null
+        //            && (e.HasUser == null || e.HasUser == false)
+        //            && (e.IsActive == true || e.IsActive == null));
+
+        //    // If the current user has one or more orgs, filter by those orgs.
+        //    if (orgIds.Any())
+        //    {
+        //        // If Employee has the same navigation for orgs:
+        //        query = query.Where(e =>
+        //            e.EmployeeOfficeInfoEmployee.Any(x => orgIds.Contains(x.OrganizationID)));
+
+        //        // If instead there's a direct OrganizationID on Employee, use:
+        //        // query = query.Where(e => orgIds.Contains(e.OrganizationID));
+        //    }
+
+        //    var employeeCodes = await query
+        //        .Select(e => new
+        //        {
+        //            id = e.EmployeeID,
+        //            code = e.EmployeeCode + " - " + (((e.FirstName ?? "") + " " + (e.LastName ?? "")).Trim()),
+        //            name = (((e.FirstName ?? "") + " " + (e.LastName ?? "")).Trim())
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(employeeCodes);
+        //}
+
 
         [HttpPost]
         [Route("Account/CreateUsers")]
         public async Task<IActionResult> CreateUsers([FromBody] List<CreateUserRequest> users)
         {
+
             if (users == null || !users.Any())
                 return Json(new { success = false, message = "No user data received." });
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var userOrgId = await _userManager.Users
+                .Where(u => u.Id == currentUserId)
+                .Select(u => new { u.TenantInfoId, u.OrganizationID })
+                .FirstOrDefaultAsync();
 
             foreach (var user in users)
             {
@@ -656,7 +717,7 @@ namespace GCTL_App.Controllers
             }
 
             await _Db.SaveChangesAsync();
-            return Json(new { success = true, message = "Users created successfully! default password: ##Emp123%" });
+            return Json(new { success = true, message = "Users and default password created successfully!" });
         }
         private static string GeneratePassword12()
         {
