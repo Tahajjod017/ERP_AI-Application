@@ -199,7 +199,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.HolidayService
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.HolidayID != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.HolidayTitle != null);
 
             var nameList = existingNames.Select(b => b.HolidayTitle);
 

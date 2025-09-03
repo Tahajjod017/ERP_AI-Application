@@ -30,7 +30,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
         public async Task<IActionResult> Index()
         {
             ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
-            //ViewBag.ViewBag.CountryID = new SelectList(_genericRepositoryCouyntry.AllActive(), "CountryID", "CountryName");
+            ViewBag.CountryID = new SelectList(_genericRepositoryCouyntry.AllActive(), "CountryID", "CountryName");
             //ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             return View();
         }
@@ -44,11 +44,17 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
+                    if (model.OrganizationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+
                     string? logoFilePath = null;
                     if (model.LogoLinkIform != null)
                     {
                         // Sanitize and validate file name
                         string logoFileName = SanitizeFileName(model.LogoLinkIform.FileName);
+
 
                         // Validate file extension
                         if (!IsValidImageExtension(logoFileName))
@@ -73,11 +79,25 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         {
                             await model.LogoLinkIform.CopyToAsync(stream);
                         }
+                        string headerLogoDirectory2 = Path.Combine(_webHostEnvironment.WebRootPath, "media", "logo");
+                        CreateDirectoryIfNotExists(headerLogoDirectory2);
 
+                        // Define the fixed file name for the header logo (e.g., "logo.png")
+                        string headerLogoPath2 = Path.Combine(headerLogoDirectory2, "logo" + Path.GetExtension(logoFileName));
+
+                        // Overwrite existing file if it exists
+                        if (System.IO.File.Exists(headerLogoPath2))
+                        {
+                            System.IO.File.Delete(headerLogoPath2);
+                        }
+
+                        // Copy the uploaded logo to the header logo path
+                        System.IO.File.Copy(logoFilePath, headerLogoPath2);
                         // Store only the file name (GUID-based) in the model
                         model.LogoLink = uniqueLogoFileName;
-                    }
 
+                    }
+                   
                     string? faviconFilePath = null;
                     if (model.FaviconLinkIform != null)
                     {
@@ -112,11 +132,16 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         model.FaviconLink = uniqueFaviconFileName;
                     }
 
+                    
 
                     var uniqueName = await _companySettingService.IsNameUniqueAsync(model.OrganizationName);
                     if (!uniqueName)
                     {
-                        return Json(new { isSuccess = false, message = "This approvalType already exists!" });
+                        return Json(new { isSuccess = false, message = "This OrganizationName already exists!" });
+                    }
+                    if (model.OrganizationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
                     }
                     await _companySettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.OrganizationName });
@@ -149,14 +174,64 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                    // Optional: You can add any custom validation if required, like checking if Organization already exists or other checks
-                    // For instance, check if the Localization already exists based on certain properties (OrganizationID, LanguageID, etc.)
-                    //var uniqueCheck = await _localizationSettingService.IsLocalizationUniqueAsync(model.OrganizationID, model.LanguageID, model.TimezoneID);
-                    //if (!uniqueCheck)
-                    //{
-                    //    return Json(new { isSuccess = false, message = "This Localization already exists!" });
-                    //}
-                    // Update the Localization record based on the provided model
+                    if(model.OrganizationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+
+                    string? logoFilePath = null;
+                    if (model.LogoLinkIform != null)
+                    {
+                        // Sanitize and validate file name
+                        string logoFileName = SanitizeFileName(model.LogoLinkIform.FileName);
+                        // Validate file extension
+                        if (!IsValidImageExtension(logoFileName))
+                        {
+                            return Json(new { isSuccess = false, message = "Invalid file type for logo. Only .jpg, .jpeg, .png are allowed." });
+                        }
+                        // Generate GUID for unique file name
+                        string uniqueLogoFileName = Guid.NewGuid().ToString() + Path.GetExtension(logoFileName);
+                        // Define the file path
+                        logoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "company", "logo", uniqueLogoFileName);
+                        // Ensure the directory exists
+                        var logoDirectory = Path.GetDirectoryName(logoFilePath);
+                        CreateDirectoryIfNotExists(logoDirectory);
+
+                        // Save the file
+                        using (var stream = new FileStream(logoFilePath, FileMode.Create))
+                        {
+                            await model.LogoLinkIform.CopyToAsync(stream);
+                        }
+                        // Store only the file name (GUID-based) in the model
+                        model.LogoLink = uniqueLogoFileName;
+                    }
+                    string? faviconFilePath = null;
+                    if (model.FaviconLinkIform != null)
+                    {
+                        // Sanitize and validate file name
+                        string faviconFileName = SanitizeFileName(model.FaviconLinkIform.FileName);
+                        // Validate file extension
+                        if (!IsValidImageExtension(faviconFileName))
+                        {
+                            return Json(new { isSuccess = false, message = "Invalid file type for favicon. Only .jpg, .jpeg, .png are allowed." });
+                        }
+                        // Generate GUID for unique file name
+                        string uniqueFaviconFileName = Guid.NewGuid().ToString() + Path.GetExtension(faviconFileName);
+                        // Define the file path
+                        faviconFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "company", "fevicon", uniqueFaviconFileName);
+                        // Ensure the directory exists
+                        var faviconDirectory = Path.GetDirectoryName(faviconFilePath);
+                        CreateDirectoryIfNotExists(faviconDirectory);
+                        // Save the file
+                        using (var stream = new FileStream(faviconFilePath, FileMode.Create))
+                        {
+                            await model.FaviconLinkIform.CopyToAsync(stream);
+                        }
+                        // Store only the file name (GUID-based) in the model
+                        model.FaviconLink = uniqueFaviconFileName;
+                    }
+
+
                     var result = await _companySettingService.UpdateAsync(model);
                     // Return success response
                     return Json(new { isSuccess = true, message = "Organization updated successfully." });

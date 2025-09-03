@@ -34,8 +34,8 @@
                                                 <div class="mb-3">
                                                     <select class="form-select choiceDD" id="OTPTypeId">
                                                         <option>Select one</option>
-                                                        <option>SMS</option>
-                                                        <option>Email</option>
+                                                        <option value="SMS">SMS</option>
+                                                        <option value="Email">Email</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -49,9 +49,10 @@
                                             <div class="col-lg-5">
                                                 <div class="mb-3">
                                                     <select class="form-select choiceDD" id="OTPDigitLimitId">
-                                                        <option>Select one</option>
-                                                        <option>4</option>
-                                                        <option>6</option>
+                                                        <option>Select Limit</option>
+                                                        <option value="4">4</option>
+                                                        <option value="6">6</option>
+                                                        <option value="8">8</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -65,9 +66,10 @@
                                             <div class="col-lg-5">
                                                 <div class="mb-3">
                                                     <select class="form-select choiceDD" id="OTPExpireInMinId">
-                                                        <option>Select one</option>
-                                                        <option>5 Mins</option>
-                                                        <option>10 Mins</option>
+                                                        <option>Select Time</option>
+                                                        <option value="2">2 Mins</option>
+                                                        <option value="5">5 Mins</option>
+                                                        <option value="10">10 Mins</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -89,3 +91,7 @@
 </div>
 
 <partial name="_ConfirmDelete" />
+
+@section Scripts{
+    <script src="~/js/pages/adminsettings/systemsettings/otpsettingconfig.js"></script>
+}

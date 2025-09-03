@@ -14,5 +14,6 @@ namespace GCTL_App.Controllers.AdminSettings
         {
             return View();
         }
+
     }
 }
