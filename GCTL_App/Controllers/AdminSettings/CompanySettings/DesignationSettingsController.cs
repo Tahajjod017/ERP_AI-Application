@@ -83,18 +83,18 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _designationSettingService.IsNameUniqueAsync(model.DesignationName);
+                    //var uniqueName = await _designationSettingService.IsNameUniqueAsync(model.DesignationName);
 
-                    if (!uniqueName)
-                    {
-                        return Json(new { isSuccess = false, message = "This name already exists!" });
-                    }
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
                     if(model.DesignationName == null)
                     {
                         return Json(new { isSuccess = false, message = "Designation Name cannot be Empty!" });
                     }
                     await _designationSettingService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully.", lastId = model.DesignationName });
+                    return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }
                 var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
                 return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });

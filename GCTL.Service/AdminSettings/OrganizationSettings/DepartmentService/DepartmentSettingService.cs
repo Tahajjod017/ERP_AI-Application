@@ -119,7 +119,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DepartmentService
 
                 if (entity == null)
                 {
-                    throw new Exception(" Organization not found.");
+                    throw new Exception(" Department not found.");
                 }
 
                 // Update properties
