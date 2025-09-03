@@ -6,11 +6,13 @@ using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 {
+    [Authorize]
     public class OfficeDayRosterController : BaseController
     {
         #region Services & Repositories
