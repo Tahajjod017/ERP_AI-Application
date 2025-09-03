@@ -33,6 +33,8 @@ public partial class LeadDetails
 
     public int? DeletedBy { get; set; }
 
+    public string FileLink { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

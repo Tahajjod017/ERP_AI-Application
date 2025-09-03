@@ -1,0 +1,8 @@
+ <div class="col-md-6">
+     <div class="form-floating form-floating-advance-select">
+         <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
+         <select class="form-select" id="leadOwnerId" required>
+             <option value="" selected disabled>@Html.SmartLocalize("Select Lead Owner")</option>
+         </select>
+     </div>
+ </div>

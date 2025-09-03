@@ -5,27 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Loan
+public partial class EmployeeFinalShifts
 {
-    public int LoanID { get; set; }
+    public int EmployeeFinalShiftID { get; set; }
+
+    public int? OrganizationID { get; set; }
+
+    public int? DepartmentID { get; set; }
 
     public int? EmployeeID { get; set; }
 
-    public decimal? LoanAmount { get; set; }
+    public int? ShiftID { get; set; }
 
-    public int? LoanInstallmentPeriodID { get; set; }
+    public DateTime? DayDate { get; set; }
 
-    public DateTime? IssueDate { get; set; }
-
-    public DateTime? StartDate { get; set; }
-
-    public int? ApprovalPersonID { get; set; }
-
-    public bool? IsFinalApproved { get; set; }
-
-    public bool? IsDecline { get; set; }
-
-    public int? ApprovalStage { get; set; }
+    public int? StatusID { get; set; }
 
     public string LIP { get; set; }
 
@@ -43,19 +37,17 @@ public partial class Loan
 
     public int? DeletedBy { get; set; }
 
-    public int? StatusID { get; set; }
-
-    public virtual Employees ApprovalPerson { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual Departments Department { get; set; }
+
     public virtual Employees Employee { get; set; }
 
-    public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; } = new List<LoanBaseApprovalHistory>();
+    public virtual Organization Organization { get; set; }
 
-    public virtual LoanInstallmentPeriods LoanInstallmentPeriod { get; set; }
+    public virtual Shifts Shift { get; set; }
 
     public virtual Statuses Status { get; set; }
 

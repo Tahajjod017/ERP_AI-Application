@@ -379,6 +379,14 @@ public partial class Employees
 
     public virtual ICollection<EmployeeFamilyInfo> EmployeeFamilyInfoUpdatedByNavigation { get; set; } = new List<EmployeeFamilyInfo>();
 
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShiftsCreatedByNavigation { get; set; } = new List<EmployeeFinalShifts>();
+
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShiftsDeletedByNavigation { get; set; } = new List<EmployeeFinalShifts>();
+
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShiftsEmployee { get; set; } = new List<EmployeeFinalShifts>();
+
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShiftsUpdatedByNavigation { get; set; } = new List<EmployeeFinalShifts>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoCreatedByNavigation { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfoDeletedByNavigation { get; set; } = new List<EmployeeOfficeInfo>();
@@ -644,6 +652,12 @@ public partial class Employees
     public virtual ICollection<Percentages> PercentagesDeletedByNavigation { get; set; } = new List<Percentages>();
 
     public virtual ICollection<Percentages> PercentagesUpdatedByNavigation { get; set; } = new List<Percentages>();
+
+    public virtual ICollection<Priorities> PrioritiesCreatedByNavigation { get; set; } = new List<Priorities>();
+
+    public virtual ICollection<Priorities> PrioritiesDeletedByNavigation { get; set; } = new List<Priorities>();
+
+    public virtual ICollection<Priorities> PrioritiesUpdatedByNavigation { get; set; } = new List<Priorities>();
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsCreatedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
 

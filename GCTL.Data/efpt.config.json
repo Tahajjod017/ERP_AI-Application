@@ -348,6 +348,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[records]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Religions]",
          "ObjectType": 0
       },
@@ -500,6 +504,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[Priorities]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[CalculationTypes]",
          "ObjectType": 0
       },
@@ -557,6 +565,10 @@
       },
       {
          "Name": "[Settings].[Timezones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Shift].[EmployeeFinalShifts]",
          "ObjectType": 0
       },
       {
