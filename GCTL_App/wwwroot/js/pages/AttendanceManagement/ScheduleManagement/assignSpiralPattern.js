@@ -1,6 +1,6 @@
 ﻿(function ($) {
     $.assignSpiralPattern = function (options) {
-        // Default options
+        // #region Default options
         var settings = $.extend({
             baseUrl: '/',
             saveForm: '#assignSpiralPattern-form',
@@ -17,9 +17,10 @@
         var gridUrl = settings.baseUrl + "/GetAllAsync";
         var editUrl = settings.baseUrl + "/GetByIdAsync";
         var deleteUrl = settings.baseUrl + "/Delete";
+        // #endregion
+
+
         $(() => {
-
-
 
 
             // #region Save
@@ -249,7 +250,7 @@
 
                 var organizationId = $(this).val();
                 loadDepartmentsByOrganization(organizationId);
-                loadEmpByOrg(organizationId);
+                getEmployeesByOrgBraDepId(organizationId, [], []);
                 loadSpiralPatternsByOrgPatternType(organizationId, null);
             });
             // #endregion
@@ -297,54 +298,6 @@
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading departments:', error);
-                    }
-                });
-            }
-            // #endregion
-
-
-            // #region loadEmpByOrg
-            function loadEmpByOrg(organizationId) {
-                $.ajax({
-                    url: '/AssignSpiralPattern/GetEmployeeByOrganization',
-                    type: 'GET',
-                    data: { id: organizationId },
-                    success: function (employees) {
-                        const select = $('#EmployeeIDs');
-                        select.empty();
-
-                        const grouped = {};
-
-                        // Group employees by GroupName (DepartmentName)
-                        employees.forEach(emp => {
-                            const group = emp.groupName || 'No Department';
-                            if (!grouped[group]) {
-                                grouped[group] = [];
-                            }
-                            grouped[group].push(emp);
-                        });
-
-                        // Build <optgroup> structure
-                        Object.keys(grouped).forEach(group => {
-                            const optgroup = $('<optgroup>').attr('label', group);
-                            grouped[group].forEach(emp => {
-                                optgroup.append(
-                                    $('<option>').val(emp.id).text(emp.name)
-                                );
-                            });
-                            select.append(optgroup);
-                        });
-
-                        const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
-
-                        if (multiSelectInstance) {
-                            multiSelectInstance.update(); // Refresh UI
-                        } else {
-                            new coreui.MultiSelect(select[0]); // Init CoreUI multiselect
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error loading employees: ', error);
                     }
                 });
             }
