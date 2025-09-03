@@ -89,10 +89,15 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     //{
                     //    return Json(new { isSuccess = false, message = "This name already exists!" });
                     //}
-                    if(model.DesignationName == null)
+                    if (model.OrganizationID == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
+                    }
+                    if (model.DesignationName == null)
                     {
                         return Json(new { isSuccess = false, message = "Designation Name cannot be Empty!" });
                     }
+
                     await _designationSettingService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }
