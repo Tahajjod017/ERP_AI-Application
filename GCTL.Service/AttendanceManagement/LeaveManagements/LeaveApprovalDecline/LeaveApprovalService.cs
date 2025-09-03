@@ -180,7 +180,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
                 // 🔹 Step 3: Base query with includes
-                var query = leaveRequest.AllActive().Where(x=>x.LeaveBaseApprovalHistory.Any(h => h.ApproveBy == employeeId)) //x => x.StatusID != null
+                var query = leaveRequest.AllActive().Where(x=>x.LeaveBaseApprovalHistory.Any(h => h.ApproveBy == employeeId)) 
                     .Include(x => x.Employee)
                     .Include(x => x.Status)
                     .Include(x => x.LeaveType)

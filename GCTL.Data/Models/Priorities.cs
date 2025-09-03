@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LeadActivityTypes
+public partial class Priorities
 {
-    public int LeadActivityTypeID { get; set; }
+    public int PriorityID { get; set; }
 
-    public string LeadActivityIcon { get; set; }
-
-    public string LeadActivityName { get; set; }
+    public string PriorityName { get; set; }
 
     public string LIP { get; set; }
 
@@ -33,7 +31,7 @@ public partial class LeadActivityTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<LeadDetails> LeadDetails { get; set; } = new List<LeadDetails>();
+    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

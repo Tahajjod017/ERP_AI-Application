@@ -83,6 +83,8 @@ public partial class Organization
 
     public virtual ICollection<EmployeeBenefits> EmployeeBenefits { get; set; } = new List<EmployeeBenefits>();
 
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShifts { get; set; } = new List<EmployeeFinalShifts>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransferFromOrganization { get; set; } = new List<EmployeeTransfer>();

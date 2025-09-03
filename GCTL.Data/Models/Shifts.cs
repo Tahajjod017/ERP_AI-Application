@@ -65,6 +65,8 @@ public partial class Shifts
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShifts { get; set; } = new List<EmployeeFinalShifts>();
+
     public virtual Organization Organization { get; set; }
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();

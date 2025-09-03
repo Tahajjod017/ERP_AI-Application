@@ -47,10 +47,10 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
         #endregion
         #region Get All Data List
 
-        [Route("PayRollLoanView/GetAllTableListAsync")]
+        [Route("PayRollLoanView/GetAllTableAboveAsync")]
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTableListAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "",  int? organizationId = null,
+        public async Task<IActionResult> GetAllTableAboveAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "",  int? organizationId = null,
     List<int> departmentIds = null,
     List<int> employeeIds = null)
         {
@@ -58,7 +58,28 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
             {
                 string url = GetEmployeePictureURL();
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var data = await payRollLoanEntryService.GetAllTableAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, organizationId, departmentIds, employeeIds);
+                var data = await payRollLoanEntryService.GetAllTableAboveAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, organizationId, departmentIds, employeeIds);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("PayRollLoanView/GetAllTableBelowAsync")]
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllTableBelowAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null,
+       List<int> departmentIds = null,
+       List<int> employeeIds = null)
+        {
+            try
+            {
+                string url = GetEmployeePictureURL();
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var data = await payRollLoanEntryService.GetAllTableBelowAsync(pageNumber, pageSize, searchTerm, currentSortColumn, currentSortOrder, url, userId, organizationId, departmentIds, employeeIds);
                 return Json(data);
             }
             catch (Exception ex)

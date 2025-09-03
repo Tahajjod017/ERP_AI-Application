@@ -39,6 +39,8 @@ public partial class Statuses
 
     public virtual ICollection<EmployeeCareerChanges> EmployeeCareerChanges { get; set; } = new List<EmployeeCareerChanges>();
 
+    public virtual ICollection<EmployeeFinalShifts> EmployeeFinalShifts { get; set; } = new List<EmployeeFinalShifts>();
+
     public virtual ICollection<EmployeeOfficeInfo> EmployeeOfficeInfo { get; set; } = new List<EmployeeOfficeInfo>();
 
     public virtual ICollection<EmployeeTransfer> EmployeeTransfer { get; set; } = new List<EmployeeTransfer>();
@@ -50,6 +52,8 @@ public partial class Statuses
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
+
+    public virtual ICollection<Loan> Loan { get; set; } = new List<Loan>();
 
     public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; } = new List<LoanBaseApprovalHistory>();
 
