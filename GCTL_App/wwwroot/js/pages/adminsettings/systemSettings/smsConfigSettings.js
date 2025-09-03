@@ -1,4 +1,29 @@
-﻿var currentPage = 1;
+﻿$('#smsForm').on('submit', function (e) {
+    e.preventDefault();
+
+    var form = $(this);
+    var formData = form.serialize();
+
+    $.ajax({
+        url: form.attr('action'),
+        method: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                toastr.success(response.message, '');
+                form.trigger("reset");
+            } else {
+                toastr.error(response.message, 'Error');
+            }
+        },
+        error: function (xhr, status, error) {
+            toastr.error("Unexpected error: " + error, 'Server Error');
+        }
+    });
+});
+
+//////////////////Table
+var currentPage = 1;
 var pageSize = 5;
 
 $('#addSmsConfig-pageSizeSelect').on('change', function () {

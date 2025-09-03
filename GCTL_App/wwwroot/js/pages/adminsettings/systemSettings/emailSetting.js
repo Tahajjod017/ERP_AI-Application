@@ -34,11 +34,64 @@ function toggleBulkActions() {
     }
 }
 
+$('#smtpForm').on('submit', function (e) {
+    e.preventDefault();
+
+    var form = $(this);
+    var formData = form.serialize();
+
+    $.ajax({
+        url: form.attr('action'),
+        method: 'POST',
+        data: formData,
+        success: function (response) {
+            if (response.isSuccess) {
+                toastr.success(response.message, '');
+                form.trigger("reset");
+            } else {
+                toastr.error(response.message, 'Error');
+            }
+        },
+        error: function (xhr, status, error) {
+            toastr.error("Unexpected error: " + error, 'Server Error');
+        }
+    });
+});
+
 //delete 
 $(document).on('click', '#emailSettingssDelete_singleDelBtn', function () {
     var emailSettingID = $(this).data('id');
     $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal
     $('#confirmDeleteBtn').data('id', emailSettingID); // Store the approvalSettingID on the "Yes, Delete" button
+});
+
+$(document).on('click', '#confirmDeleteBtn', function () {
+    var id = $(this).data('id');
+    if (id) {
+        $.ajax({
+            url: '/EmailSetting/SoftDelete',
+            method: 'POST',
+            data: { ids: [id] },
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message);
+                    // Optionally, reload the table data or remove the deleted row from the table
+                    loadTableData(); // Reload data after delete
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error("Error occurred while deleting.");
+            },
+            complete: function () {
+                // Hide the modal after the action
+                $('#confirmDeleteModal').modal('hide');
+            }
+        });
+    } else {
+        toastr.error("Invalid action.");
+    }
 });
 
 /////////table
@@ -144,7 +197,7 @@ function loadTableData(sortColumn, sortOrder) {
                             <td class="align-middle white-space-nowrap ps-0">${item.friorityIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.userName}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.password}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.isActive}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.isActive ? "Active" : "InActive"}</td>
                              <td>
                             <div class="d-flex justify-content-end align-items-center">
                          <a
@@ -230,23 +283,19 @@ $(document).on('click', '#edit_emailSettings_settingBtn', function () {
     $('#edit_emailSettings_setting').modal('show'); // Show the edit modal
 
     // Store the ID in the hidden input field
-    $('#localizationId').val(weekendSettingID);
+    $('#EmailSettingIDEdit').val(weekendSettingID);
 
 
     // Fetch the current data for the weekend setting using the ID (Example: Get the existing values from your backend)
     $.ajax({
-        url: '/LocalizationSettings/GetById',  // Adjust the URL as per your endpoint
+        url: '/EmailSetting/GetById',  // Adjust the URL as per your endpoint
         type: 'GET',
         data: { id: weekendSettingID },
         success: function (data) {
             
             //orgazationEditDropdown();
-            choiceManager.setChoiceValue('organizationEditId', data.organizationID);
-            choiceManager.setChoiceValue('languageEditId', data.languageID);
-            choiceManager.setChoiceValue('timezoneEditId', data.timezoneID);
-            choiceManager.setChoiceValue('dateFormatEditId', data.dateFormatID);
-            choiceManager.setChoiceValue('timeFormatEditId', data.timeFormatID);
-            choiceManager.setChoiceValue('currencyEditId', data.currencyID);
+            choiceManager.setChoiceValue('OrganizationIDedit', data.organizationID);
+            $('#ServerNameEdit').val(data.serverName);
 
 
         },
@@ -256,9 +305,9 @@ $(document).on('click', '#edit_emailSettings_settingBtn', function () {
     });
 });
 
-$('#localizationEditForm').submit(function (event) {
+$('#smtpEditFormEdit').submit(function (event) {
     event.preventDefault(); // Prevent default form submission
-    var weekendSettingID = $('#localizationId').data('id');  // Get ID from the modal trigger
+   // var weekendSettingID = $('#localizationId').data('id');  // Get ID from the modal trigger
     var formData = $(this).serialize(); // Serialize the form data
 
     // Append the approvalSettingID to the form data
@@ -266,18 +315,18 @@ $('#localizationEditForm').submit(function (event) {
 
     // Send the data via AJAX
     $.ajax({
-        url: '/LocalizationSettings/Updates', // Adjust URL if necessary
+        url: '/EmailSetting/Updates', // Adjust URL if necessary
         type: 'POST',
         data: formData,
         success: function (response) {
             if (response.isSuccess) {
                 // Handle success
-                toastr.success('Localization setting updated successfully!');
+                toastr.success('Email setting updated successfully!');
                 $('#edit_Localization_setting').modal('hide'); // Hide the modal
                 loadTableData();
             } else {
                 // Handle failure
-                toastr.error('Failed to update weekend setting: ' + response.message);
+                toastr.error('Failed to update the setting: ' + response.message);
             }
         },
         error: function (xhr, status, error) {

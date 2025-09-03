@@ -203,9 +203,9 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.Organization.OrganizationName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ServerName != null);
 
-            var nameList = existingNames.Select(b => b.Organization.OrganizationName);
+            var nameList = existingNames.Select(b => b.ServerName);
 
             return !DuplicateChecker.IsDuplicate(name, nameList);
         }

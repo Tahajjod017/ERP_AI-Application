@@ -326,6 +326,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.BranchService
                 EF.Functions.Like(x.City, $"%{term}%"),
                 x => new BranchSettingsVM
                 {
+                    OrganizationBranchID = x.OrganizationBranchID,
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization.OrganizationName ?? "_", // Include organization name
                     OrganizationBranchName = x.OrganizationBranchName ?? "_",

@@ -1,10 +1,13 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.Designations;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.DesignationService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AdminSettings.CompanySettings
 {
@@ -12,14 +15,17 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
     public class DesignationSettingsController : BaseController
     {
         private readonly IDesignationSettingService _designationSettingService;
-        public DesignationSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IDesignationSettingService designationSettingService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        public DesignationSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IDesignationSettingService designationSettingService, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
         {
             _designationSettingService = designationSettingService;
+            _organizationRepository = organizationRepository;
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.Organizations = await _designationSettingService.GetOrganizationsAsync();
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             return View();
         }
         public async Task<IActionResult> GetDesignations(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "DesignationID", string sortOrder = "desc")
@@ -39,6 +45,10 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    if (model.DesignationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Designation Name cannot be Empty!" });
                     }
                     await _designationSettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.DesignationName });
@@ -73,10 +83,15 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _designationSettingService.IsNameUniqueAsync(model.DesignationName, model.DesignationID);
+                    var uniqueName = await _designationSettingService.IsNameUniqueAsync(model.DesignationName);
+
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
+                    }
+                    if(model.DesignationName == null)
+                    {
+                        return Json(new { isSuccess = false, message = "Designation Name cannot be Empty!" });
                     }
                     await _designationSettingService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully.", lastId = model.DesignationName });

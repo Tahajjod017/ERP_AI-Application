@@ -10,22 +10,16 @@
                 <h4 class="modal-title">Edit Designation Settings</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="designationSettingsForm" asp-controller="DesignationSettings" asp-action="Updates" method="post">
+            <form id="designationSettingsFormEdit" asp-controller="DesignationSettings" asp-action="Updates" method="post">
                 <div class="mb-3">
-                    <input type="hidden" id="OrganizationID" name="OrganizationID" value="" />
+                    <input type="hidden" id="DesignationIDEdit" name="DesignationID" value="" />
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label" for="OrganizationID">Organization Name</label>
-                                <select id="OrganizationID" name="OrganizationID" class="form-select choiceDD">
+                                <select id="OrganizationIDEdit" name="OrganizationID" asp-items="@ViewBag.OrganizationDD" class="form-select choiceDD">
                                     <option value="">-- Select Organization --</option>
-                                    @if (ViewBag.Organizations != null)
-                                    {
-                                        foreach (var org in ViewBag.Organizations)
-                                        {
-                                            <option value="@org.Value">@org.Text</option>
-                                        }
-                                    }
+                                   
                                 </select>
                             </div>
                         </div>
@@ -33,7 +27,7 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label" for="DesignationName">Designation Name</label>
-                                <input class="form-control" id="DesignationName" name="DesignationName" type="text" placeholder="Branch Name" />
+                                <input class="form-control" id="DesignationNameEdit" name="DesignationName" type="text" placeholder="Designation Name" />
                             </div>
                         </div>
 
