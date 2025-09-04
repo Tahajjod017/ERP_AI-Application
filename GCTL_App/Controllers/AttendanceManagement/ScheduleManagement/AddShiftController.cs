@@ -37,7 +37,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
-        //[Permission("View", "Add Shift")]
+        [Permission("View", "AddShift")]
         public IActionResult Index()
         {
             ShiftsPageVM model = new ShiftsPageVM();
