@@ -51,8 +51,8 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
 
         [HttpGet]
         public async Task<IActionResult> GetAllTableAboveAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "",  int? organizationId = null,
-    List<int> departmentIds = null,
-    List<int> employeeIds = null)
+       List<int> departmentIds = null,
+       List<int> employeeIds = null)
         {
             try
             {

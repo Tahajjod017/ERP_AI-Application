@@ -35,6 +35,7 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
             ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
+            ViewBag.EmployeeDD = await payRollLoanEntryService.SelectAsync();
             ViewBag.LoanInstallmentDD = new SelectList(loanInstallment.AllActive(), "PeriodValue", "PeriodText");
           
             return View(model);
@@ -118,6 +119,43 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
         }
         #endregion
 
+        #region Update
+        [Route("PayRollLoanEntry/UpdateAsync")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateAsync([FromBody]LoanUpdateVM model)
+        {
+
+            try
+            {
+                var data = await payRollLoanEntryService.UpdateAsync(model);
+                return Json(new { Success=data.Success, Message=data.Message});
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Get ByData for Approved or Decline
+        [Route("PayRollLoanEntry/GetByAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetByAsync(int id)
+        {
+            try
+            {
+                var data = await payRollLoanEntryService.GetByAsync(id);
+                return Json(new { Success = data.Success, Data = data.Data });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
 
         #region GetEmployeesByOrgBraDepId
         public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)

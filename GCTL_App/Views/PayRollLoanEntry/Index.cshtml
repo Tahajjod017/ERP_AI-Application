@@ -41,6 +41,20 @@
 </div>
 
 
+<div class="modal fade" id="EditEntry_loan" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Loan</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            @await Html.PartialAsync("_Update", Model.Update)
+        </div>
+    </div>
+</div>
+
+
 
 <partial name="_TableLilstLaon" />
 <partial name="_ConfirmDelete" />

@@ -1,0 +1,165 @@
+﻿@model GCTL.Core.ViewModels.PayrollManagements.LoanManagement.LoanUpdateVM
+
+@{
+    var employees = ViewBag.EmployeeDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+}
+
+<style>
+    .flatpickr-monthSelect-months {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 10px 1px 3px 1px;
+    }
+
+
+    .flatpickr-monthSelect-month {
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: #393939;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        position: relative;
+        text-align: center;
+        width: 100%;
+    }
+
+
+        .flatpickr-monthSelect-month.flatpickr-disabled {
+            color: #eee;
+        }
+
+            .flatpickr-monthSelect-month.flatpickr-disabled:hover,
+            .flatpickr-monthSelect-month.flatpickr-disabled:focus {
+                cursor: not-allowed;
+                background: none !important;
+            }
+
+
+    .flatpickr-monthSelect-theme-dark {
+        background: #3f4458;
+    }
+
+        .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+            .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.selected {
+                background-color: #80cbc4;
+                color: #fff;
+                border-color: #80cbc4;
+            }
+
+
+    .flatpickr-monthSelect-month.today {
+        border-color: #959ea9;
+    }
+
+    .flatpickr-monthSelect-month.selected,
+    .flatpickr-monthSelect-month.startRange,
+    .flatpickr-monthSelect-month.endRange {
+        background-color: #569ff7;
+        box-shadow: none;
+        color: #fff;
+        border-color: #569ff7;
+    }
+
+
+    .flatpickr-monthSelect-month.startRange {
+        border-radius: 50px 0 0 50px;
+    }
+
+    .flatpickr-monthSelect-month.endRange {
+        border-radius: 0 50px 50px 0;
+    }
+
+    .flatpickr-monthSelect-month.inRange {
+        border-radius: 0;
+        box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
+    }
+</style>
+<form id="loanFormEdit" class="row g-3 mb-2 p-3">
+
+
+    <div class="col-md-12">
+        <div class="mb-3">
+            <label class="form-label req" asp-for="EmployeeIDEdit">Employee</label>
+            <input asp-for="LoanIDEdit" hidden />
+            <select class="form-select choiceDD" asp-for="EmployeeIDEdit" disabled>
+                <option value="">Select Employee</option>
+                @if (employees != null)
+                {
+                    foreach (var emp in employees)
+                    {
+                        <option value="@emp.Id">@emp.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <span asp-validation-for="EmployeeIDEdit" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <div class="mb-1">
+            <label class="form-label req" for="timepicker1">Loan Amount</label>
+            <input class="form-control" asp-for="LoanAmountEdit" type="text" placeholder="Ex: 50000">
+        </div>
+        <span asp-validation-for="LoanAmountEdit" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <div class="mb-1">
+            <label class="form-label" for="timepicker1">Installment Period</label>
+            <select class="form-select choiceDD" asp-for="LoanInstallmentPeriodIDEdit" asp-items="@ViewBag.LoanInstallmentDD as SelectList">
+                <option value="">Select Month</option>
+            </select>
+        </div>
+        <span asp-validation-for="LoanInstallmentPeriodIDEdit" class="text-danger"></span>
+    </div>
+
+
+    <div class="col-md-6">
+
+        <div class="mb-1 flatpickr-input-container">
+            <label class="form-label req">Issue Date</label>
+
+            <div class="input-icon-end position-relative flatpickr">
+                <input type="text" asp-for="IssueDateEdit" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
+                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+            </div>
+
+        </div>
+        <span asp-validation-for="IssueDateEdit" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <div class="mb-1 ">
+            <label class="form-label req">Installment Start Date</label>
+
+            <div class="input-icon-end position-relative">
+                <input type="text" asp-for="StartDateEdit" class="form-control StartDateMOnthYear" required placeholder="Select Month">
+                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+            </div>
+        </div>
+        <span asp-validation-for="StartDateEdit" class="text-danger"></span>
+    </div>
+    <div class="col-md-8">
+        <p id="loanSummary" class="fw-bold mt-4"></p>
+    </div>
+    <div class="col-12">
+        <div class="row g-3 justify-content-end">
+            <div class="col-auto">
+                <button class="btn btn-phoenix-primary px-5" id="ResetButtonUpdate">Cancel</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" id="ButtonUpdate" class="btn btn-primary px-5">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
