@@ -4,7 +4,7 @@
         var settings = $.extend({
             baseUrl: '/',
             form: '#leadSource-form',
-            saveBtn: '#leadSource-saveBtn',
+            saveBtn: '#priority-saveBtn',
             editBtn: '#leadSource-editBtn',
             resetBtn: '#leadSource-resetBtn',
             bulkDelBtn: '#leadSource-bulkDelBtn',
@@ -19,25 +19,24 @@
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
 
-            $('#leadSource-saveBtn').on('click', function (e) {
+            $('#priority-saveBtn').on('click', function (e) {
                 e.preventDefault();
-
                 var token = $('#leadSource-form input[name="__RequestVerificationToken"]').val();
 
                 var formData = {
                     __RequestVerificationToken: token,
-                    LeadSourceID: $('#LeadSourceID').val(),
-                    LeadSourceName: $('#LeadSourceName').val(),
+                    PriorityID: $('#PriorityID').val(),
+                    PriorityName: $('#PriorityName').val(),
                 }
 
                 validateName();
 
-                var id = $('#leadSource-form #LeadSourceID').val();
+                var id = $('#leadSource-form #PriorityID').val();
                 var url = '';
                 if (id > 0) {
-                    url = '/LeadSources/Update';
+                    url = '/Priorities/Update';
                 } else {
-                    url = '/LeadSources/Create';
+                    url = '/Priorities/Create';
                 }
 
                 $.ajax({
@@ -66,16 +65,16 @@
 
 
                 $.ajax({
-                    url: '/LeadSources/GetById',
+                    url: '/Priorities/GetById',
                     method: 'GET',
                     data: { id: id },
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#leadSource-form #LeadSourceID').val(data.leadSourceID);
-                            $('#leadSource-form #LeadSourceName').val(data.leadSourceName);
+                            $('#leadSource-form #PriorityID').val(data.priorityID);
+                            $('#leadSource-form #PriorityName').val(data.priorityName);
 
-                            $('#leadSource-form #leadSource-saveBtn').text('Update');
+                            $('#leadSource-form #priority-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
                         }
@@ -96,7 +95,7 @@
                 if (selectedIds.length > 0) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/LeadSources/SoftDelete',
+                            url: '/Priorities/SoftDelete',
                             method: 'POST',
                             data: { ids: selectedIds },
                             success: function (response) {
@@ -124,7 +123,7 @@
                 if (id) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/LeadSources/SoftDelete',
+                            url: '/Priorities/SoftDelete',
                             method: 'POST',
                             data: { ids: [id] },
                             success: function (response) {
@@ -155,7 +154,7 @@
 
             function clear() {
                 $('#leadSource-form')[0].reset();
-                $('#LeadSourceID').val('0');
+                $('#PriorityID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -163,7 +162,7 @@
                         $(this).css('border-color', '#ccc');
                     }
                 });
-                $('#leadSource-form #leadSource-saveBtn').text('Save');
+                $('#leadSource-form #priority-saveBtn').text('Save');
                 $("#leadSource-check-all").prop('checked', false);
                 $('.leadSource-selectItem').prop('checked', false);
                 loadTableData();
@@ -172,18 +171,18 @@
             }
 
 
-            $('#LeadSourceName').on('input', function () {
+            $('#PriorityName').on('input', function () {
                 validateName();
             });
 
 
             function validateName() {
-                var name = $('#LeadSourceName').val().trim();
+                var name = $('#PriorityName').val().trim();
 
                 if (name === '') {
-                    $('#LeadSourceName').css('border', '1px solid red');
+                    $('#PriorityName').css('border', '1px solid red');
                 } else {
-                    $('#LeadSourceName').css('border', '1px solid #ccc');
+                    $('#PriorityName').css('border', '1px solid #ccc');
                 }
             }
 
@@ -193,20 +192,20 @@
             });
 
             function checkNameUnique() {
-                $('#LeadSourceName').on('input', function () {
+                $('#PriorityName').on('input', function () {
                     var value = $(this).val();
 
                     $.ajax({
-                        url: '/LeadSources/CheckNameUnique',
+                        url: '/Priorities/CheckNameUnique',
                         type: 'POST',
                         data: { name: value },
                         success: function (response) {
                             if (response === true) {
                                 $('#nameError').hide();
-                                $('input[name="LeadSourceName"]').removeClass('is-invalid');
+                                $('input[name="PriorityName"]').removeClass('is-invalid');
                             } else {
                                 $('#nameError').text(response).show();
-                                $('input[name="LeadSourceName"]').addClass('is-invalid');
+                                $('input[name="PriorityName"]').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -297,7 +296,7 @@
         });
 
 
-        let currentSortColumn = 'leadSourceName';
+        let currentSortColumn = 'priorityName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -335,7 +334,7 @@
             var searchTerm = $("#leadSource-searchInput").val();
 
             $.ajax({
-                url: '/LeadSources/GetAll',
+                url: '/Priorities/GetAll',
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
@@ -353,14 +352,14 @@
                             tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input leadSource-selectItem" data-id="${item.leadSourceID}" />
+                                <input type="checkbox" class="form-check-input leadSource-selectItem" data-id="${item.priorityID}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.leadSourceName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.priorityName}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadSource-bulkDelete" href="#!" id="leadSource-edit" data-id="${item.leadSourceID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 leadSource-bulkEdit" href="#!" id="leadSource-single-delete" data-id="${item.leadSourceID}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadSource-bulkEdit" href="#!" id="leadSource-edit" data-id="${item.priorityID}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 leadSource-bulkDelete" href="#!" id="leadSource-single-delete" data-id="${item.priorityID}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -421,3 +420,4 @@
         });
     }
 }(jQuery));
+

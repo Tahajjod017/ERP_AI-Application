@@ -1,0 +1,39 @@
+﻿@model GCTL.Core.ViewModels.MasterSetup.Priority.PriorityVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Add Lead Source")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="LeadSources" method="post" enctype="multipart/form-data" id="leadSource-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="PriorityID" />
+
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="PriorityName" type="text" placeholder="@Html.SmartLocalize("Lead Source Name")" />
+                        <label asp-for="PriorityName">@Html.SmartLocalize("Lead Source Name") <span style="color: red;">*</span></label>
+                    </div>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="leadSource-resetBtn">@Html.SmartLocalize("Reset")</button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-primary px-5 px-sm-15" id="priority-saveBtn">@Html.SmartLocalize("Save")</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

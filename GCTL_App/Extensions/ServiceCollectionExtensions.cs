@@ -85,6 +85,7 @@ using GCTL.Service.MasterSetup.Organizations;
 using GCTL.Service.MasterSetup.PassingYear;
 using GCTL.Service.MasterSetup.PaymenPeriodType;
 using GCTL.Service.MasterSetup.PaymentMode;
+using GCTL.Service.MasterSetup.Priority;
 using GCTL.Service.MasterSetup.ProvisionPeriodTimeType;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.ResultType;
@@ -283,6 +284,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadCreateService, LeadCreateService>();
             services.AddScoped<ICRMService, CRMService>();
             services.AddScoped<ILeadDetailsService, LeadDetailsService>();
+            services.AddScoped<IPriorityService, PriorityService>();
             #endregion
         }
     }

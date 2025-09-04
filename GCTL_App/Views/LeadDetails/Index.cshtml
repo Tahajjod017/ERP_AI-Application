@@ -235,12 +235,9 @@
 
                             <div class="col-md-4">
                                 <label for="form-control">Priority</label>
-                                <select class="form-select mb-3" id="organizerSingle2" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                    <option value="low">Low</option>
-                                    <option value="high">High</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
+                            <select class="form-select mb-3" id="leadPriority" asp-for="PriorityID" asp-items="@ViewBag.LeadPriorities as SelectList" required>
+                                <option value="" disabled>select Priority</option>
+                            </select>
                             </div>
                             <div class="col-md-4">
                                 <label for="form-control">Stage</label>

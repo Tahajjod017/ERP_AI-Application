@@ -23,9 +23,10 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesRepository;
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
+        private readonly IGenericRepository<Priorities> _prioritiesRepository;
         private readonly ILeadDetailsService _leadDetailsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository) : base(translateService, userProfileService)
+        public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -35,6 +36,7 @@ namespace GCTL_App.Controllers.CRM
             _webHostEnvironment = webHostEnvironment;
             _context = context;
             _leadStatusesRepository = leadStatusesRepository;
+            _prioritiesRepository = prioritiesRepository;
         }
 
         public async Task<IActionResult> Index(int? id)
@@ -46,6 +48,7 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
             ViewBag.LeadStatus =  new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName}), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadPriorities =  new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName}), "PriorityID", "PriorityName");
             
             var customerObj = await(from lead in _context.Leads
                                     join cAddress in _context.CustomerAddresses
@@ -62,6 +65,7 @@ namespace GCTL_App.Controllers.CRM
                                         LeadID = lead.LeadID,
                                         LeadSourceID = lead.LeadSourceID ?? 0,
                                         LeadStatusID = lead.LeadStatusID ?? 0,
+                                        PriorityID = lead.PriorityID ?? 0,
                                         Created = lead.CreatedAt,
                                         Probability =  lead.ProbabilityPercentage,
                                         AddressTypeName = cAddress.AddressType.AddressTypeName,
