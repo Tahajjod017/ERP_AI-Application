@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
 
 
-    initializeDatepickerDMY("IssueDate");
+    initializeDatepickerDMY("IssueDate,IssueDateEdit");
     initializeMonthYearPicker(".StartDateMOnthYear");
     function calculateLoanSummary() {
         let loanAmount = parseFloat($("#LoanAmount").val()) || 0;
@@ -29,12 +29,7 @@
 
     $(document).on('click', '#SaveButton', function (e) {
         e.preventDefault();
-
-        //if (!validateLoanForm()) {
-        //    return; 
-        //}
         var formData = $('form').serialize();
-
         $.ajax({
             url: '/PayRollLoanEntry/SaveAsync', 
             type: 'POST',
@@ -61,8 +56,105 @@
             }
         });
     });
+    //
+
+    $(document).on('click', '#ButtonUpdate', function (e) {
+        e.preventDefault();
+
+        //if (!validateLoanForm()) {
+        //    return;
+        //}
+      
+        const formdata = {
+            LoanIDEdit: parseInt($('#LoanIDEdit').val()),
+            IssueDateEdit: flatpickrHelper.getDate('IssueDateEdit'),
+            StartDateEdit: flatpickrHelper.getDate('StartDateEdit'),
+            EmployeeIDEdit: parseInt(choiceManager.getChoiceValue('EmployeeIDEdit')),
+            LoanInstallmentPeriodIDEdit: parseInt(choiceManager.getChoiceValue('LoanInstallmentPeriodIDEdit')),
+            LoanAmountEdit: $('#LoanAmountEdit').val()
+        };
+        debugger
+        console.log(formdata);
+        $.ajax({
+            url: '/PayRollLoanEntry/UpdateAsync',
+            type: 'POST',
+            data: JSON.stringify(formdata),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    resetForm();
+                    var applyModalEl = document.getElementById('EditEntry_loan');
+                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
+                    if (!applyModal) {
+                        applyModal = new bootstrap.Modal(applyModalEl);
+                    }
+                    applyModal.hide();
+                } else {
+                    toastr.error("Failed: " + response.message);
+                }
+                if (response.errors) {
+                    response.errors.forEach(err => toastr.error(err));
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("An error occurred: " + error);
+            }
+        });
+    });
 
     //
+    $(document).on('click', '#edit-loan', function () {
+        const loanId = $(this).data('id');
+        $.ajax({
+            url: '/PayRollLoanEntry/GetByAsync',
+            type: 'GET',
+            dataType: 'json',
+            data: { id: loanId },
+            success: function (response) {
+                if (response.success) {
+                    const data = response.data;
+
+                    // Fill form fields
+                    $('#loanFormEdit').find('[name="LoanIDEdit"]').val(data.loanID);
+                    choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeID);
+                    $('#loanFormEdit').find('[name="LoanAmountEdit"]').val(data.loanAmount);
+                    choiceManager.setChoiceValue('LoanInstallmentPeriodIDEdit', data.loanInstallmentPeriodID);
+                    flatpickrHelper.setDate('IssueDateEdit', data.issueDate);
+
+
+                    const $effectiveDateInput = $(`#StartDateEdit`);
+                    if ($effectiveDateInput.length && data.startDate) {
+                        try {
+                            const date = new Date(data.startDate);
+                            if (!isNaN(date.getTime())) {
+                                const monthNames = ["January", "February", "March", "April", "May", "June",
+                                    "July", "August", "September", "October", "November", "December"];
+                                const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                                $effectiveDateInput.val(formattedDate);
+                                if ($effectiveDateInput[0]._flatpickr) {
+                                    $effectiveDateInput[0]._flatpickr.setDate(formattedDate, true);
+                                }
+                            }
+                        } catch (e) {
+                            console.error(`Failed to set date for index ${index}:`, e.message);
+                        }
+                    }
+
+                } else {
+                    toastr.error(response.message || 'Failed to load loan data.');
+                }
+                
+
+
+            },
+            error: function (err) {
+                console.error(err);
+                toastr.error('An error occurred while fetching loan data.');
+            }
+        });
+    });
     // Separate validation method
     function validateLoanForm() {
         let isValid = true;
@@ -644,11 +736,11 @@
                          <a
                                href="#"
                                title="Edit"
-                               id="loanEntryEditButton"
+                               id="edit-loan"
                                data-id="${item.loanID}"
                                class="btn btn-outline-light btn-icon me-1 ${isDisabled ? 'disabled' : ''}" 
                                data-bs-toggle="modal" 
-                               data-bs-target="#apply_loan"
+                               data-bs-target="#EditEntry_loan"
                                ${isDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
                                <i class="fas fa-edit text-black"></i>
                     </a>

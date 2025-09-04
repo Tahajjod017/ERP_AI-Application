@@ -8,17 +8,13 @@ namespace GCTL.Core.ViewModels.PayrollManagements.LoanManagement
 {
     public class LoanUpdateVM:BaseViewModel
     {
-        public int LoanID { get; set; }
-        public int? EmployeeID { get; set; }
-        public decimal? LoanAmount { get; set; }
-        public int? LoanInstallmentPeriodID { get; set; }
-        public DateTime? IssueDate { get; set; }
-        public DateTime? StartDate { get; set; }
-        public int? ApprovalPersonID { get; set; }
-        public bool? IsFinalApproved { get; set; }
-        public bool? IsDecline { get; set; }
-        public int? ApprovalStage { get; set; }
-        public int? OrganizationIDs { get; set; }
-        public int? DepartmentID { get; set; }
+        public int LoanIDEdit { get; set; }
+        public int? EmployeeIDEdit { get; set; }
+        public decimal? LoanAmountEdit { get; set; }
+        public int? LoanInstallmentPeriodIDEdit { get; set; }
+        public DateTime? IssueDateEdit { get; set; }
+        public DateTime? StartDateEdit { get; set; }
+      
+
     }
 }
