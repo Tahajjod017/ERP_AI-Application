@@ -39,7 +39,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             var fallbackDatePattern = culture.DateTimeFormat.ShortDatePattern;
             var fallbackTimePattern = culture.DateTimeFormat.ShortTimePattern;
 
-            var orgId = await userInfo.GetOrganizationIdAsync(http.User,http);
+            var orgId = await userInfo.GetOrganizationIdAsync(http.User, http);
             //var orgId = 2; // hardcoded for your testing
 
             // If there's no org, keep the current timezone setup and continue
@@ -53,31 +53,53 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
 
             }
 
-            var bundle = await locService.GetOrgLocalizationBundleAsync(orgId.Value);
-
-            // Build DateTimeZone from DB value
-            DateTimeZone zone;
-            var m = UtcOffsetRegex.Match(bundle.TzValueOrIana);
-            if (m.Success)
+            try
             {
-                var sign = m.Groups["sign"].Value == "-" ? -1 : 1;
-                var hh = int.Parse(m.Groups["hh"].Value);
-                var mm = int.Parse(m.Groups["mm"].Value);
-                var offset = Offset.FromHoursAndMinutes(sign * hh, sign * mm);
-                zone = DateTimeZone.ForOffset(offset);
+                // Fetch the localization bundle for the organization
+                var bundle = await locService.GetOrgLocalizationBundleAsync(orgId.Value);
+
+                // If the localization data is missing or incomplete, fallback to default settings
+                if (bundle == null || string.IsNullOrEmpty(bundle.TzValueOrIana) || string.IsNullOrEmpty(bundle.DatePattern) || string.IsNullOrEmpty(bundle.TimePattern))
+                {
+                    ctx.Zone = fallbackZone;
+                    ctx.DatePattern = fallbackDatePattern;
+                    ctx.TimePattern = fallbackTimePattern;
+                    await _next(http);
+                    return;
+                }
+
+                // Build DateTimeZone from DB value (handle both UTC offset and IANA time zone)
+                DateTimeZone zone;
+                var m = UtcOffsetRegex.Match(bundle.TzValueOrIana);
+                if (m.Success)
+                {
+                    var sign = m.Groups["sign"].Value == "-" ? -1 : 1;
+                    var hh = int.Parse(m.Groups["hh"].Value);
+                    var mm = int.Parse(m.Groups["mm"].Value);
+                    var offset = Offset.FromHoursAndMinutes(sign * hh, sign * mm);
+                    zone = DateTimeZone.ForOffset(offset);
+                }
+                else
+                {
+                    // Treat as IANA time zone
+                    zone = DateTimeZoneProviders.Tzdb[bundle.TzValueOrIana];
+                }
+
+                // Fill scoped context with the resolved values
+                ctx.Zone = zone;
+                ctx.DatePattern = bundle.DatePattern;
+                ctx.TimePattern = bundle.TimePattern;
             }
-            else
+            catch (InvalidOperationException ex)
             {
-                // treat as IANA
-                zone = DateTimeZoneProviders.Tzdb[bundle.TzValueOrIana];
+                // Handle the case where the organization has no localization setup
+                // This will catch the specific exception and apply fallback settings
+                ctx.Zone = fallbackZone;
+                ctx.DatePattern = fallbackDatePattern;
+                ctx.TimePattern = fallbackTimePattern;
+                await _next(http);
+                return;
             }
-
-            // Fill scoped context
-            ctx.Zone = zone;
-            ctx.DatePattern = bundle.DatePattern;
-            ctx.TimePattern = bundle.TimePattern;
-
-            await _next(http);
         }
     }
 
