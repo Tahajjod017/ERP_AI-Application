@@ -109,7 +109,7 @@ namespace GCTL.Service.CRM.LeadDetails
                 {
                     leadObj.LeadSourceID = detailsLeadUpdateVM.FieldValue;
                 }
-                else if (detailsLeadUpdateVM.FieldName == "status")
+                else if (detailsLeadUpdateVM.FieldName == "stage")
                 {
                     leadObj.LeadStatusID = detailsLeadUpdateVM.FieldValue;
                 }

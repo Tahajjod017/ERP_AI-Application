@@ -11,6 +11,8 @@ namespace GCTL.Core.ViewModels.CRM
         public int LeadID { get; set; }
         public string? LeadName { get; set; }
         public string? FullName { get; set; }
+        public int LeadSourceID { get; set; }
+        public int LeadStatusID { get; set; }
         public decimal? Probability { get; set; } = 0;
         public DateTime? Created { get; set; }
         public string? AddressTypeName { get; set; }
