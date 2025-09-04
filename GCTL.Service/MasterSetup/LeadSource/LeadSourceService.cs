@@ -39,6 +39,7 @@ namespace GCTL.Service.MasterSetup.LeadSource
                     entityToRestore.LMAC = model.LMAC;
 
                     entityToRestore.DeletedAt = null;
+                    entityToRestore.DeletedBy = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
@@ -80,8 +81,8 @@ namespace GCTL.Service.MasterSetup.LeadSource
             {
                 query = sortColumn switch
                 {
-                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadSourceID) : query.OrderBy(x => x.LeadSourceID),
-                    "GenderName" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadSourceName) : query.OrderBy(x => x.LeadSourceName),
+                    "LeadSourceID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadSourceID) : query.OrderBy(x => x.LeadSourceID),
+                    "LeadSourceName" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadSourceName) : query.OrderBy(x => x.LeadSourceName),
                     _ => query.OrderBy(x => x.LeadSourceID)
                 };
             }

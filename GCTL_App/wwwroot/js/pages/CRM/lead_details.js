@@ -166,9 +166,7 @@ $(function () {
                 if (!loadedIds.has(item.leadDetailID)) {
                     loadedIds.add(item.leadDetailID);
                     const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                    
-
-                    showDev(item.leadActivityName);
+                   
                     if (item.leadActivityName === 'Attachment') {
                         $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
                     } else {
@@ -296,11 +294,10 @@ $(function () {
     // update Lead Source value
     // ==============================
 
-    $("#leadSource, #lead-status").on("change", function () {
+    $("#leadSource, #lead-status, #leadPriority").on("change", function () {
         let fieldValue = $(this).val();
         let fieldID = $(this).attr("id");
-        showDev($(this).attr("id"));
-        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : "";
+        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : "";
         let leadID = $("#leadID").val();
 
         $.ajax({

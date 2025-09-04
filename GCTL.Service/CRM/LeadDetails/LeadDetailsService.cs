@@ -113,6 +113,10 @@ namespace GCTL.Service.CRM.LeadDetails
                 {
                     leadObj.LeadStatusID = detailsLeadUpdateVM.FieldValue;
                 }
+                else if (detailsLeadUpdateVM.FieldName == "priority")
+                {
+                    leadObj.PriorityID = detailsLeadUpdateVM.FieldValue;
+                }
 
 
                 leadObj.UpdatedAt = DateTime.UtcNow;
