@@ -60,6 +60,8 @@ namespace GCTL_App.Controllers.CRM
                                         FullName = customer.FullName,
                                         LeadName = lead.LeadName,
                                         LeadID = lead.LeadID,
+                                        LeadSourceID = lead.LeadSourceID ?? 0,
+                                        LeadStatusID = lead.LeadStatusID ?? 0,
                                         Created = lead.CreatedAt,
                                         Probability =  lead.ProbabilityPercentage,
                                         AddressTypeName = cAddress.AddressType.AddressTypeName,
@@ -184,6 +186,7 @@ namespace GCTL_App.Controllers.CRM
               e.LeadDetailID,
               e.ActivityDateTime,
               e.ActivityNote,
+              e.FileLink,
               e.LeadActivityType.LeadActivityName,
               e.LeadActivityType.LeadActivityIcon,
               CreatedByName = e.CreatedByNavigation != null

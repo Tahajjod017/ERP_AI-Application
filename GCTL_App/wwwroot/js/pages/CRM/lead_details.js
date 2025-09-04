@@ -166,7 +166,14 @@ $(function () {
                 if (!loadedIds.has(item.leadDetailID)) {
                     loadedIds.add(item.leadDetailID);
                     const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                    $(activityListDiv).append(renderActivity(item, activityDate));
+                    
+
+                    showDev(item.leadActivityName);
+                    if (item.leadActivityName === 'Attachment') {
+                        $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
+                    } else {
+                        $(activityListDiv).append(renderActivity(item, activityDate));
+                    }
                 }
             });
         },
@@ -240,6 +247,31 @@ $(function () {
                 </div>
             </div>`;
     }
+    function renderAttachmentActivity(value, activityDate) {
+        return `
+            <div class="border-bottom border-translucent py-3 mx-3">
+                <div class="d-flex">
+                    <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
+                         style="width:25px; height:25px">
+                        <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+                            <div class="flex-1 me-2">
+                                <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
+                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.fileLink}</a></p>
+                            </div>
+                            <div class="fs-9">
+                                <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+                                <span class="fw-semibold">${activityDate}</span>
+                            </div>
+                        </div>
+                        <p class="fs-9 mb-0">${value.activityNote}</p>
+                    </div>
+                </div>
+            </div>`;
+    }
 
     // ==============================
     // Convert date to ISO string
@@ -264,9 +296,11 @@ $(function () {
     // update Lead Source value
     // ==============================
 
-    $("#leadSource").on("change", function () {
+    $("#leadSource, #lead-status").on("change", function () {
         let fieldValue = $(this).val();
-        let fieldName = "source";
+        let fieldID = $(this).attr("id");
+        showDev($(this).attr("id"));
+        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : "";
         let leadID = $("#leadID").val();
 
         $.ajax({
