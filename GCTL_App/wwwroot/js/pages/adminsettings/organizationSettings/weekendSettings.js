@@ -153,7 +153,6 @@ $(document).on('click', '#edit_weekend_settingBtn', function () {
         type: 'GET',
         data: { id: weekendSettingID },
         success: function (data) {
-            debugger
             console.log(data.model.organizationID)
            
                 // Populate the modal fields with the data returned from the server

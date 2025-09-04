@@ -9,9 +9,20 @@
         $(() => {
 
 
-            
+            // #region Dropdowns
+            function initOrganizationDD() {
+                organizationDD = new Choices('#OrganizationID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Organization...'
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initOrganizationDD);
+            initOrganizationDD();
+            // #endregion
 
         });
+        
 
         // #region Table With Pagination
         var currentPage = 1;
@@ -75,24 +86,70 @@
         }
 
 
-        function renderEmployeeTable(employees) {
+        function renderEmployeeTable(employees, holidays, leaves) {
             const daysToShow = getDaysToShow();
-            const headers = generateDateHeaders(daysToShow, currentStartDate);  // Number of days for columns
-            //const paginationInfo = result.paginationInfo;
+            const headers = generateDateHeaders(daysToShow, currentStartDate); // Dates to display
 
-            // Render header
+            // 🔷 1. Render header row
             let headerHtml = `<th class="sort align-middle text-center text-uppercase text-nowrap">Employee Name</th>`;
             headers.forEach(h => {
                 headerHtml += `<th class="align-middle text-center text-uppercase text-nowrap">${h.day}<br>${h.date}</th>`;
             });
             $('table.leads-table thead tr').html(headerHtml);
 
-            // Render rows
+            // 🔷 2. Create global holiday map: key = orgID_branchID_date
+            const holidayMap = {};
+            holidays.forEach(h => {
+                const startDateStr = h.startDate.split("T")[0]; // "2025-09-05"
+                const endDateStr = h.endDate.split("T")[0];     // "2025-09-06"
+
+                const start = new Date(Date.UTC(
+                    parseInt(startDateStr.slice(0, 4)),         // year
+                    parseInt(startDateStr.slice(5, 7)) - 1,     // month (0-based)
+                    parseInt(startDateStr.slice(8, 10))         // day
+                ));
+
+                const end = new Date(Date.UTC(
+                    parseInt(endDateStr.slice(0, 4)),
+                    parseInt(endDateStr.slice(5, 7)) - 1,
+                    parseInt(endDateStr.slice(8, 10))
+                ));
+
+                const title = h.holidayTitle || "Holiday";
+
+                for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+                    const isoDate = d.toISOString().split("T")[0];
+                    const key = `${h.organizationID || ''}_${h.organizationBranchID || ''}_${isoDate}`;
+                    holidayMap[key] = title;
+                }
+            });
+
+            // 🔷 2b. Create global leave map: key = employeeID_date
+            const leaveMap = {};
+            leaves.forEach(leave => {
+                const empId = leave.employeeID;
+
+                const fromDate = new Date(leave.fromDate.split("T")[0]);
+                const toDate = new Date(leave.toDate.split("T")[0]);
+
+                for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
+                    const isoDate = d.toISOString().split("T")[0];
+                    const key = `${empId}_${isoDate}`;
+                    leaveMap[key] = {
+                        leaveType: leave.leaveTypeName || 'Leave',
+                        isFullDay: leave.isFullDay,
+                        partialFromTime: leave.partialFromTime,
+                        partialToTime: leave.partialToTime
+                    };
+                }
+            });
+
+            // 🔷 3. Render body rows
             let bodyHtml = '';
             employees.forEach(emp => {
                 bodyHtml += '<tr>';
 
-                // Employee info column
+                // Employee column
                 bodyHtml += `
                 <td class="align-middle text-center white-space-nowrap fw-semibold text-body-emphasis ps-2 py-2 sticky-col bg-white z-index-sticky">
                     <div class="d-inline-flex flex-column align-items-center justify-content-center">
@@ -102,93 +159,72 @@
                     </div>
                 </td>`;
 
-                // Parse and show shifts
+                // Assigned shifts, weekends, holidays, leaves
                 const shiftMap = parseShiftSchedule(emp.assignedDates);
-                const weekendDays = parseWeekdayNumbers(emp.weekdayNumber);
-                const holidayMap = {};
-                (emp.holidayDates || "").split(',').forEach((date, i) => {
-                    const title = (emp.holidayTitle || "").split(',')[i] || "Holiday";
-                    holidayMap[date.trim()] = title.trim();
-                });
-                const leaveMap = {};
-                (emp.leaveDates || "").split(',').forEach((date, i) => {
-                    const title = (emp.leaveTypeName || "").split(',')[i] || "Leave";
-                    leaveMap[date.trim()] = title.trim();
-                });
+                const weekendDays = parseWeekdayNumbers(emp.weekdayNumbers || '');
+
                 headers.forEach(h => {
-                    const dateObj = new Date(h.date);
+                    const dateStr = h.date;
+                    const dateObj = new Date(dateStr);
                     const weekdayNumber = dateObj.getDay(); // Sunday = 0, Saturday = 6
-                    const shift = shiftMap[h.date];
-                    const holidayTitle = holidayMap[h.date];
-                    const leaveTypeName = leaveMap[h.date];
                     const isWeekend = weekendDays.includes(weekdayNumber);
+                    const shift = shiftMap[dateStr];
+
+                    // Get holiday title using orgID + branchID + date
+                    const holidayKey = `${emp.organizationID || ''}_${emp.organizationBranchID || ''}_${dateStr}`;
+                    const holidayTitle = holidayMap[holidayKey];
+
+                    const leaveKey = `${emp.employeeID}_${dateStr}`;
+                    const leaveData = leaveMap[leaveKey];
+
                     if (holidayTitle) {
+                        // 🟥 Holiday cell
                         bodyHtml += `
-                        <td class="holiday-cell align-middle text-center">
-                            <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
+                        <td class="align-middle text-center">
+                            <div class="shift-cell position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
                                 <p class="fs-10 mb-0 p-1 bg-light text-info">${holidayTitle}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
-                                    id="employeeShiftView-editBtn"
-                                    data-id="${emp.rosterInOfficeDayID || ''}" 
-                                    data-date="${h.date}" 
-                                    data-shift-id="${emp.shiftID || ''}"
-                                    data-organization-id="${emp.organizationID}" 
-                                    data-dep-id="${emp.departmentID}" 
-                                    data-emp-id="${emp.employeeID}" 
-                                    data-bs-target="#employeeShiftView-editShiftModal">
-                                    <i class="fas fa-pen"></i>
-                                </a>
                             </div>
                         </td>`;
-                    } else if (leaveTypeName) {
+                    } else if (leaveData) {
+                        // 🟦 Leave cell
+                        const timeRange = !leaveData.isFullDay && leaveData.partialFromTime && leaveData.partialToTime
+                            ? `${leaveData.partialFromTime} - ${leaveData.partialToTime}`
+                            : '';
+
                         bodyHtml += `
-                        <td class="holiday-cell align-middle text-center">
-                            <div class="position-relative badge badge-phoenix-danger holiday-block px-4 py-2" style="border-left:5px solid #FC0808;">
-                                <p class="fs-10 mb-0 p-1 bg-light text-info">${leaveTypeName}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal"
-                                    id="employeeShiftView-editBtn"
-                                    data-id="${emp.rosterInOfficeDayID || ''}" 
-                                    data-date="${h.date}" 
-                                    data-shift-id="${emp.shiftID || ''}"
-                                    data-organization-id="${emp.organizationID}" 
-                                    data-dep-id="${emp.departmentID}" 
-                                    data-emp-id="${emp.employeeID}" 
-                                    data-bs-target="#employeeShiftView-editShiftModal">
-                                    <i class="fas fa-pen"></i>
-                                </a>
+                        <td class="align-middle text-center">
+                            <div class="shift-cell position-relative badge badge-phoenix-warning holiday-block px-4 py-2" style="border-left:5px solid #FFC107;">
+                                <p class="fs-10 mb-0 p-1 bg-light text-info">${leaveData.leaveType}</p>
+                                ${timeRange ? `<p class="fs-10 mb-0 text-muted">${timeRange}</p>` : ''}
                             </div>
                         </td>`;
                     } else if (shift) {
+                        // 🟩 Assigned Shift cell
                         const badgeClass = isWeekend ? 'badge-phoenix-danger' : 'badge-phoenix-primary';
                         const leftColor = isWeekend ? '#FF6F6F' : '#A1F1A1';
                         bodyHtml += `
-                        <td class="startTime align-middle text-center">
-                            <div class="position-relative badge ${badgeClass} shift-block px-4 py-2" style="border-left:5px solid ${leftColor};">
+                        <td class="align-middle text-center">
+                            <div class="shift-cell position-relative badge ${badgeClass} shift-block px-4 py-2" style="border-left:5px solid ${leftColor};">
                                 <p class="fs-10 mb-1">${shift.timeRange}</p>
                                 <p class="fs-10 mb-1">${shift.shiftName}</p>
-                                <a href="#" class="btn btn-info btn-sm px-2 py-1 nav-item mx-2 edit-shift-btn" data-bs-toggle="modal" id="employeeShiftView-editBtn"
-                                    data-id="${emp.rosterInOfficeDayID}" 
-                                    data-date="${h.date}" 
-                                    data-shift-id="${emp.shiftID}"
-                                    data-organization-id="${emp.organizationID}" 
-                                    data-dep-id="${emp.departmentID}" 
-                                    data-emp-id="${emp.employeeID}" 
-                                    data-bs-target="#employeeShiftView-editShiftModal">
-                                    <i class="fas fa-pen"></i>
-                                </a>
+                            </div>
+                        </td>`;
+                    } else if (isWeekend) {
+                        // 🟧 Weekend cell
+                        bodyHtml += `
+                        <td class="align-middle text-center">
+                            <div class="shift-cell position-relative badge badge-phoenix-danger shift-block px-4 py-2" style="border-left:5px solid #FF6F6F;">
+                                <p class="fs-10 mb-1">Weekend</p>
                             </div>
                         </td>`;
                     } else {
+                        // 🟨 Default shift (fallback)
                         bodyHtml += `
-                        <td class="shift-cell align-middle text-center">
-                            <a href="#" class="btn btn-outline-success add-shift-btn" data-bs-toggle="modal" data-bs-target="#addShiftModal"
-                                data-id="${emp.rosterInOfficeDayID}" 
-                                data-date="${h.date}" 
-                                data-organization-id="${emp.organizationID}" 
-                                data-dep-id="${emp.departmentID}" 
-                                data-emp-id="${emp.employeeID}" >
-                                <i class="fa fa-plus"></i>
-                            </a>
+                        <td class="align-middle text-center">
+                            <div class="shift-cell position-relative badge badge-phoenix-primary shift-block px-4 py-2" style="border-left:5px solid #A1F1A1;">
+                                <p class="fs-10 mb-1">${emp.shiftName || ''}</p>
+                                <p class="fs-10 mb-1">${emp.startTime || ''} - ${emp.endTime || ''}</p>
+                            </div>
                         </td>`;
                     }
                 });
@@ -198,6 +234,7 @@
 
             $('table.leads-table tbody').html(bodyHtml);
 
+            // 🔷 4. Update date range label
             const firstDate = headers[0].date;
             const lastDate = headers[headers.length - 1].date;
             $(".date-range-label").text(`${firstDate} - ${lastDate}`);
@@ -238,20 +275,22 @@
                     startDate: startDate
                 },
                 success: function (response) {
-                    const employees = response.data;  // Your controller returns JSON { data = ..., totalCount = ... }
+                    const employees = response.items;  
+                    const holidays = response.holidays;
+                    const leaves = response.leaveApplications;
                     const totalCount = response.totalCount;
-                    renderEmployeeTable(employees);
+                    renderEmployeeTable(employees, holidays, leaves);
 
                     // Calculate pagination info
                     const pagination = response.separatePaginationInfo;
 
                     // ✅ Update pagination info display
-                    $("#startItem").text(pagination.startItem);
-                    $("#endItem").text(pagination.endItem);
-                    $("#totalItems").text(pagination.totalItems);
+                    $("#startItem").text(response.startItem);
+                    $("#endItem").text(response.endItem);
+                    $("#totalItems").text(response.totalItems);
 
                     // ✅ Update pagination buttons
-                    updatePagination(pagination.pageNumbers, pagination.currentPage, pagination.totalPages);
+                    updatePagination(response.pageNumbers, response.currentPage, response.totalPages);
                 },
                 error: function (xhr, status, error) {
                     console.error('Error loading employee data:', error);

@@ -10,6 +10,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView
 {
     public interface IEmployeeShiftViewService
     {
-        Task<SeparatePaginationResult<EmployeeShiftViewSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null);
+        Task<PaginatedShiftResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", int daysToShow = 7, DateTime? startDate = null);
     }
 }

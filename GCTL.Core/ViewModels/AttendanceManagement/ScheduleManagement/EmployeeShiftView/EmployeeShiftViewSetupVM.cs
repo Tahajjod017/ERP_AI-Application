@@ -29,13 +29,21 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.EmployeeS
 
         public int? ShiftID { get; set; }
 
-        public DateTime? DayDate { get; set; }
+        public string? ShiftName { get; set; }
+
+        public string? StartTime { get; set; }
+
+        public string? EndTime { get; set; }
+
+        public DateTime? FromDate { get; set; }
+
+        public DateTime? ToDate { get; set; }
 
         public int? StatusID { get; set; }
 
         public string? AssignedDates { get; set; }
 
-        public string? WeekdayNumber { get; set; }
+        public string? WeekdayNumbers { get; set; }
 
         public string? HolidayDates { get; set; }
 
