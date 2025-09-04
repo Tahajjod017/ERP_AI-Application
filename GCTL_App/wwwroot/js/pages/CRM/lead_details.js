@@ -258,7 +258,8 @@ $(function () {
                             <div class="flex-1 me-2">
                                 <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
                                 <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
-                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.fileLink}</a></p>
+                                
+                                <p class="fs-9 mb-0">file: <a class="ms-1" href="#!">${value.fileLink}</a></p>
                             </div>
                             <div class="fs-9">
                                 <span class="fa-regular fa-calendar-days text-primary me-2"></span>
