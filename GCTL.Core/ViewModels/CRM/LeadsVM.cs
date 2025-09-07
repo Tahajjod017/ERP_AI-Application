@@ -12,10 +12,12 @@ namespace GCTL.Core.ViewModels.CRM
         public string LeadName { get; set; }
 
         public int LeadStatusID { get; set; }
+        public int LeadID { get; set; }
 
         public int LeadSourceID { get; set; }
 
         public int LeadOwnerID { get; set; }
+        public int PriorityID { get; set; }
 
         public decimal? ApproximateDealValue { get; set; }
 

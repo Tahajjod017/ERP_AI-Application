@@ -28,9 +28,9 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly AppDbContext _context;
         private readonly IGenericRepository<Country> _countryRepository;
-
+        private readonly IGenericRepository<Priorities> _prioritiesRepository;
         #endregion
-        public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null) : base(translateService, userProfileService)
+        public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null, IGenericRepository<Priorities> prioritiesRepository = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -42,12 +42,13 @@ namespace GCTL_App.Controllers.CRM
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
             _context = context;
+            _prioritiesRepository = prioritiesRepository;
         }
 
         public async Task<IActionResult> index()
         {
             SetSmartPageCode(600100);
-
+            ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
             ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadStatusDD = new SelectList(_leadStatusesTypeRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");

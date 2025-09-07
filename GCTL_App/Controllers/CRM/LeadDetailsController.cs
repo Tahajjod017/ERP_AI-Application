@@ -26,7 +26,13 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Priorities> _prioritiesRepository;
         private readonly ILeadDetailsService _leadDetailsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository) : base(translateService, userProfileService)
+
+
+        private readonly IGenericRepository<Services> _serviceTypeRepository;
+        //private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
+        //private readonly IGenericRepository<Customers> _customersRepository;
+        //private readonly IGenericRepository<Country> _countryRepository;
+        public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -37,6 +43,7 @@ namespace GCTL_App.Controllers.CRM
             _context = context;
             _leadStatusesRepository = leadStatusesRepository;
             _prioritiesRepository = prioritiesRepository;
+            _serviceTypeRepository = serviceTypeRepository;
         }
 
         public async Task<IActionResult> Index(int? id)
@@ -45,6 +52,8 @@ namespace GCTL_App.Controllers.CRM
             await _leadDetailsService.CreateLeadActivateTypes();
 
 
+            ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
+            
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
             ViewBag.LeadStatus =  new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName}), "LeadStatusID", "LeadStatusName");
@@ -67,7 +76,10 @@ namespace GCTL_App.Controllers.CRM
                                         LeadStatusID = lead.LeadStatusID ?? 0,
                                         PriorityID = lead.PriorityID ?? 0,
                                         Created = lead.CreatedAt,
+                                        ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
+                                        Priority = lead.Priority.PriorityName,
                                         Probability =  lead.ProbabilityPercentage,
+                                        LeadDescription = lead.LeadDescription,
                                         AddressTypeName = cAddress.AddressType.AddressTypeName,
                                         FullAddress = address.FullAddress,
                                         Street = address.Street,
@@ -75,8 +87,6 @@ namespace GCTL_App.Controllers.CRM
                                         Additionaladdress = address.Additionaladdress,
                                         State = address.State,
                                         PostalCode = address.PostalCode,
-                                        //CountryID = country != null ? country.CountryID : 0,
-                                        //CountryCode = country != null ? country.CountryCode : null,
                                         Latitude = address.Latitude,
                                         Longitude = address.Longitude,
                                         Phone = address.Phone,
@@ -124,8 +134,11 @@ namespace GCTL_App.Controllers.CRM
             return $"/media/leads/{uniqueFileName}";
         }
 
+       
 
-        [HttpPost]
+
+
+    [HttpPost]
         public async Task<IActionResult> CeateLeadDetail([FromForm] LeadDetailsVM leadDetailsVM)
         {
             if (leadDetailsVM == null)
@@ -256,6 +269,26 @@ namespace GCTL_App.Controllers.CRM
             return Ok(list);
         }
 
-        // TODO: Next have to add code for stage
+        // TODO: update Lead
+
+        [HttpPost]
+        public async Task<IActionResult> EditLeadData([FromBody] LeadsVM leadsVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (leadsVM.LeadID != 0)
+                {
+                    var result = await _leadCreateService.EditLead(leadsVM);
+                    return Ok(result);
+                }
+            }
+            var results = new ReturnView
+            {
+                Success = false,
+                Message = "Data not inserted",
+            };
+            return Ok(results);
+
+        }
     }
 }

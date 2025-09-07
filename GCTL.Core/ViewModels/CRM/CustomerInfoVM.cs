@@ -13,10 +13,13 @@ namespace GCTL.Core.ViewModels.CRM
         public string? FullName { get; set; }
         public int LeadSourceID { get; set; }
         public int LeadStatusID { get; set; }
+        public decimal ApproximateDealValue { get; set; }
         public int PriorityID { get; set; }
         public decimal? Probability { get; set; } = 0;
         public DateTime? Created { get; set; }
         public string? AddressTypeName { get; set; }
+        public string? LeadDescription { get; set; }
+        public string? Priority { get; set; }
         public string? FullAddress { get; set; }
         public string? Street { get; set; }
         public string? City { get; set; }

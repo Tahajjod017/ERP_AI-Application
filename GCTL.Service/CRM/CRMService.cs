@@ -55,7 +55,7 @@ namespace GCTL.Service.CRM
                             Phone = address.Phone,
                             Email = address.Email,
                             ContactName = address.FirstName + " " + address.LastName,
-                            Status = "Active",
+                            Status = lead.LeadStatus.LeadStatusName,
                             CreatedDate = lead.CreatedAt,
                             CustomerTypeID = indDddr.AddressType.AddressTypeID
                         };
