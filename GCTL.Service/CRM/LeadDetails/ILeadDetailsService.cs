@@ -10,6 +10,7 @@ namespace GCTL.Service.CRM.LeadDetails
     public interface ILeadDetailsService
     {
         public Task<bool> CreateLeadActivateTypes();
-        Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM);
+        Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation);
+        Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AdminSettingsVM;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.OrganizationSettings.CompanyService;
 using GCTL.Service.Language;
@@ -139,10 +140,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     {
                         return Json(new { isSuccess = false, message = "This OrganizationName already exists!" });
                     }
-                    if (model.OrganizationName == null)
-                    {
-                        return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
-                    }
+                  
                     await _companySettingService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.OrganizationName });
                 }
@@ -163,8 +161,8 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 return Json(new { isSuccess = false, message = "No data found against this id." });
             }
-            ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
-            return PartialView("_Edit", data);
+            //ViewBag.CountriesDropDown = await _companySettingService.GetCountriesAsync();
+            return Json(new { isSuccess = true, data = data });
         }
 
         public async Task<IActionResult> Updates(CompanySettingsVM model)

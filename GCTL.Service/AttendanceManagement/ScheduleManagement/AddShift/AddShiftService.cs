@@ -468,7 +468,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         #region GetAllAsync
         public async Task<PaginationService<Shifts, ShiftsSetupVM>.PaginationResult<ShiftsSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null)
         {
-            var query = _genericRepository.All().AsNoTracking().Include(x => x.Organization).Where(x => x.DeletedAt == null);
+            var query = _genericRepository.AllActive().AsNoTracking().Include(x => x.Organization).Where(x => x.DeletedAt == null);
 
             if (organizationID.HasValue && organizationID.Value > 0)
             {

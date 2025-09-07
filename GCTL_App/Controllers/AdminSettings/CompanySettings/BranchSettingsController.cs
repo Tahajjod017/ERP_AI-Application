@@ -111,11 +111,11 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         return Json(new { isSuccess = false, message = "Branch Name cannot be Empty!" });
                     }
 
-                    var uniqueName = await _branchSettingService.IsNameUniqueAsync(model.OrganizationBranchName);
-                    if (!uniqueName)
-                    {
-                        return Json(new { isSuccess = false, message = "This name already exists!" });
-                    }
+                    //var uniqueName = await _branchSettingService.IsNameUniqueAsync(model.OrganizationBranchName);
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
                     await _branchSettingService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully.", lastId = model.OrganizationBranchName });
                 }

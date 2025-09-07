@@ -15,11 +15,13 @@ using Microsoft.AspNetCore.Authorization;
 using GCTL_App.EmailServicesMethod;
 using System.Security.Cryptography;
 using System.Text;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
 
 namespace GCTL_App.Controllers
 {
     [AllowAnonymous]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -28,7 +30,7 @@ namespace GCTL_App.Controllers
         private readonly IEmailService _emailService;
         private readonly IGenericRepository<ActionLogs> actionLogs;
 
-        public AccountController(RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IEmailService emailService, IGenericRepository<ActionLogs> actionLogs)
+        public AccountController(ITranslateService translateService, IUserProfileService userProfileService, RoleManager<ApplicationRole> roleManager, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext db, IEmailService emailService, IGenericRepository<ActionLogs> actionLogs) : base(translateService, userProfileService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -575,22 +577,102 @@ namespace GCTL_App.Controllers
             TempData["Email"] = email;
             return RedirectToAction("TwoStepPage");
         }
+
+        //public async Task<IActionResult> GetEmployeeCodes()
+        //{
+        //    int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+
+        //    // Collect the current user's OrganizationIDs (may be multiple)
+        //    var orgIds = new List<int?>();
+        //    if (currentEmployeeId.HasValue)
+        //    {
+        //        orgIds = await _Db.Employees
+        //            .Where(e => e.EmployeeID == currentEmployeeId.Value)
+        //            .SelectMany(e => e.EmployeeOfficeInfoEmployee
+        //                .Where(x => x.OrganizationID != null)
+        //                .Select(x => x.OrganizationID))
+        //            .Distinct()
+        //            .ToListAsync();
+        //    }
+
+        //    // Base query: only active employees without users
+        //    var query = _Db.Employees
+        //        .Where(e => e.DeletedAt == null
+        //            && (e.HasUser == null || e.HasUser == false)
+        //            && (e.IsActive == true || e.IsActive == null));
+
+        //    // If the current user has one or more orgs, filter by those orgs.
+        //    if (orgIds.Any())
+        //    {
+        //        // If Employee has the same navigation for orgs:
+        //        query = query.Where(e =>
+        //            e.EmployeeOfficeInfoEmployee.Any(x => orgIds.Contains(x.OrganizationID)));
+
+        //        // If instead there's a direct OrganizationID on Employee, use:
+        //        // query = query.Where(e => orgIds.Contains(e.OrganizationID));
+        //    }
+
+        //    var employeeCodes = await query
+        //        .Select(e => new
+        //        {
+        //            id = e.EmployeeID,
+        //            code = e.EmployeeCode + " - " + (((e.FirstName ?? "") + " " + (e.LastName ?? "")).Trim()),
+        //            name = (((e.FirstName ?? "") + " " + (e.LastName ?? "")).Trim())
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(employeeCodes);
+        //}
+
         public async Task<IActionResult> GetEmployeeCodes()
         {
-            var employeeCodes = await _Db.Employees
-                .Where(e => e.DeletedAt == null && (e.HasUser != true || e.HasUser == null)
-                && (e.IsActive == true || e.IsActive == null)) // Only active employees
-                .Select(e => new
-                {
-                    id = e.EmployeeID,
-                    code = $"{e.EmployeeCode} - {(e.FirstName + " " + e.LastName).Trim()}",
-                    name = (e.FirstName + " " + e.LastName).Trim()
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
 
-                })
-                .ToListAsync();
+            var userOrgId = await _userManager.Users
+                .Where(u => u.EmployeeId == currentEmployeeId)
+                .Select(u => u.OrganizationID)
+                .FirstOrDefaultAsync();
 
-            return Ok(employeeCodes);
+
+            // If the current employee has an OrganizationID, filter employees by that OrganizationID
+            if (userOrgId != null)
+            {
+                var employeeCodesQuery = _Db.Employees.Include(x => x.EmployeeOfficeInfoEmployee)
+                    .Where(e => e.DeletedAt == null
+                                && (e.HasUser != true || e.HasUser == null)
+                                && (e.IsActive == true || e.IsActive == null)
+                                && e.EmployeeOfficeInfoEmployee.Any(x => userOrgId.HasValue)) // Filter by OrganizationID
+                    .Select(e => new
+                    {
+                        id = e.EmployeeID,
+                        code = $"{e.EmployeeCode} - {(e.FirstName + " " + e.LastName).Trim()}",
+                        name = (e.FirstName + " " + e.LastName).Trim()
+                    });
+
+                var employeeCodes = await employeeCodesQuery.ToListAsync();
+                return Ok(employeeCodes);
+            }
+            else
+            {
+                // If the current employee has no OrganizationID or it's null, return all employees
+                var employeeCodes = await _Db.Employees
+                    .Where(e => e.DeletedAt == null
+                                && (e.HasUser != true || e.HasUser == null)
+                                && (e.IsActive == true || e.IsActive == null)
+                                && e.EmployeeOfficeInfoEmployee.Any(x => x.OrganizationID != null)) // Only active employees
+                    .Select(e => new
+                    {
+                        id = e.EmployeeID,
+                        code = $"{e.EmployeeCode} - {(e.FirstName + " " + e.LastName).Trim()}",
+                        name = (e.FirstName + " " + e.LastName).Trim()
+                    })
+                    .ToListAsync();
+
+                return Ok(employeeCodes);
+            }
         }
+
+
 
         [HttpPost]
         [Route("Account/CreateUsers")]
@@ -599,93 +681,132 @@ namespace GCTL_App.Controllers
             if (users == null || !users.Any())
                 return Json(new { success = false, message = "No user data received." });
 
-            foreach (var user in users)
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
             {
-                //  Extract clean employee code
-                var pureCode = user.EmployeeCode?.Split(" - ")[0]?.Trim();
+                var userOrgId = await _userManager.Users
+                    .Where(u => u.Id == currentUserId)
+                    .Select(u => new { u.TenantInfoId, u.OrganizationID })
+                    .FirstOrDefaultAsync();
+                var tenantRoles = await _Db.UserRoles
+                    .Where(ur => ur.UserId == currentUserId)
+                    .Select(ur => ur.RoleId)
+                    .ToListAsync();
 
-                if (string.IsNullOrEmpty(pureCode))
+                foreach (var user in users)
                 {
-                    return Json(new { success = false, message = "Invalid employee code format." });
+                    var pureCode = user.EmployeeCode?.Split(" - ")[0]?.Trim();
+                    if (string.IsNullOrEmpty(pureCode))
+                    {
+                        return Json(new { success = false, message = "Invalid employee code format." });
+                    }
+
+                    // Check if employee exists
+                    var employee = await _Db.Employees
+                        .Include(e => e.EmployeeOfficeInfoEmployee)
+                        .Where(e => e.EmployeeCode == pureCode
+                            && e.DeletedAt == null
+                            && e.EmployeeOfficeInfoEmployee.Any(x => x.OrganizationID != null))
+                        .FirstOrDefaultAsync();
+
+                    if (employee == null)
+                    {
+                        return Json(new { success = false, message = $"Employee not found for code: {pureCode}" });
+                    }
+
+                    var organizationId = employee.EmployeeOfficeInfoEmployee.FirstOrDefault()?.OrganizationID;
+
+                    // Construct the role name pattern by excluding the "1_2_" part
+                    string roleNamePattern = $"1_{organizationId}_GeneralUser";
+
+                    // Check if the "GeneralUser" role exists for the organization and tenant
+                    var generalUserRoleExists = await _Db.ApplicationRoles
+                        .AnyAsync(ur => ur.Name.EndsWith("GeneralUser")
+                            && ur.OrganizationID == organizationId
+                            && ur.TenantInfoId == 1); // TenantInfoId = 1
+
+                    if (!generalUserRoleExists)
+                    {
+                        return Json(new { success = false, message = "The 'GeneralUser' role does not exist for this organization and Tenant. Please create the role first." });
+                    }
+
+                    // Check if user already exists
+                    var existingUser = await _Db.Users
+                        .FirstOrDefaultAsync(u => u.EmployeeId == employee.EmployeeID);
+
+                    if (existingUser != null)
+                    {
+                        return Json(new { success = false, message = $"User already exists for employee code: {pureCode}" });
+                    }
+
+                    // Generate random password
+                    var randomPassword = GeneratePassword8();
+
+                    // Create new user
+                    var applicationUser = new ApplicationUser
+                    {
+                        UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
+                        Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
+                        EmployeeId = employee.EmployeeID,
+                        IsPasswordResetRequired = true,
+                        DefaultPass = randomPassword,
+                        TenantInfoId = 1,
+                        OrganizationID = employee.EmployeeOfficeInfoEmployee.FirstOrDefault()?.OrganizationID
+                    };
+
+                    var result = await _userManager.CreateAsync(applicationUser, randomPassword);
+
+                    if (result.Succeeded)
+                    {
+                        // After user is created, assign the "GeneralUser" role
+                        await _userManager.AddToRoleAsync(applicationUser, roleNamePattern);
+
+                        employee.HasUser = true;
+                        employee.UpdatedAt = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        var errorMessages = result.Errors.Select(e => e.Description).ToList();
+                        return Json(new { success = false, message = $"Failed to create user for {pureCode}", errors = errorMessages });
+                    }
                 }
 
-                //  Check if employee exists
-                var employee = await _Db.Employees
-                    .FirstOrDefaultAsync(e => e.EmployeeCode == pureCode && e.DeletedAt == null);
-
-                if (employee == null)
-                {
-                    return Json(new { success = false, message = $"Employee not found for code: {pureCode}" });
-                }
-
-                //  Check if user already exists
-                var existingUser = await _Db.Users
-                    .FirstOrDefaultAsync(u => u.EmployeeId == employee.EmployeeID);
-
-                if (existingUser != null)
-                {
-                    return Json(new { success = false, message = $"User already exists for employee code: {pureCode}" });
-                }
-                // Generate random password
-                var randomPassword = GeneratePassword12();
-
-                //  Create new user
-                var applicationUser = new ApplicationUser
-                {
-                    //UserName = employee.EmployeeCode,
-                    UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
-                    Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
-                    EmployeeId = employee.EmployeeID,
-                    IsPasswordResetRequired = true, // Set to true to force password change on first login,
-                    DefaultPass = randomPassword // <-- save password here
-
-                };
-
-                var result = await _userManager.CreateAsync(applicationUser, randomPassword);
-
-                if (result.Succeeded)
-                {
-                    employee.HasUser = true;
-                    employee.UpdatedAt = DateTime.UtcNow;
-                }
-                else
-                {
-                    var errorMessages = result.Errors.Select(e => e.Description).ToList();
-                    return Json(new { success = false, message = $"Failed to create user for {pureCode}", errors = errorMessages });
-                }
+                await _Db.SaveChangesAsync();
+                return Json(new { success = true, message = "Users and default password created successfully!" });
             }
+            catch (Exception ex)
+            {
+                // Log the exception details for debugging
+                // Log.Error(ex, "An error occurred while creating users");
 
-            await _Db.SaveChangesAsync();
-            return Json(new { success = true, message = "Users created successfully! default password: ##Emp123%" });
+                return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
         }
-        private static string GeneratePassword12()
-        {
-            const int wordLen = 7; // 7 letters + 3 digits + 2 specials = 12
-            var sb = new StringBuilder(12);
 
-            // 7 letters, capitalize first
-            for (int i = 0; i < wordLen; i++)
+        private static string GeneratePassword8()
+        {
+            const int letterCount = 4;
+            const int digitCount = 2;
+            const int totalLength = 8;
+            var sb = new StringBuilder(totalLength);
+
+            // 4 letters, capitalize first
+            for (int i = 0; i < letterCount; i++)
             {
                 char c = (char)('a' + RandomNumberGenerator.GetInt32(26));
                 if (i == 0) c = char.ToUpperInvariant(c);
                 sb.Append(c);
             }
 
-            // 3 digits
-            for (int i = 0; i < 3; i++)
+            // 2 digits
+            for (int i = 0; i < digitCount; i++)
                 sb.Append(RandomNumberGenerator.GetInt32(10)); // 0..9
 
-            // "%$"
+            // 2 special characters
             sb.Append('%').Append('$');
 
-            return sb.ToString(); // always length 12
-        }
-        private string GenerateRandomPassword(int length = 12)
-        {
-            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+";
-            var random = new Random();
-            return new string(Enumerable.Repeat(valid, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+            return sb.ToString(); // always length 8
         }
 
 
@@ -704,7 +825,7 @@ namespace GCTL_App.Controllers
             // Generate password reset token
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            var randomPassword = GeneratePassword12();
+            var randomPassword = GeneratePassword8();
 
             // Reset password to a new default password
             var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, randomPassword);
@@ -713,11 +834,12 @@ namespace GCTL_App.Controllers
             {
                 //   Mark password as needing reset
                 user.IsPasswordResetRequired = true;
+                user.DefaultPass = randomPassword;
 
                 // Save changes
                 await _userManager.UpdateAsync(user);
 
-                return Ok(new { message = "Password reset successfully! New default password is ##Emp123%." });
+                return Ok(new { message = "Password reset successfully!" });
             }
             else
             {

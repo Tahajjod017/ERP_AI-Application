@@ -39,9 +39,9 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
         }
 
         #region GetEmployeesByOrgBraDepId
-        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds)
+        public async Task<IActionResult> GetEmployeesByOrgBraDepId(int? orgId, [FromQuery] List<int>? branchIds, [FromQuery] List<int>? depIds, string? search, int? page = 1, int? pageSize = 10)
         {
-            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds);
+            var result = await _commonService.GetEmployeesByOrgBraDepId(orgId, branchIds, depIds, search, page, pageSize);
             return Json(result);
         }
         #endregion

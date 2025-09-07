@@ -73,13 +73,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _departmentSettingService.IsNameUniqueAsync(model.DepartmentName);
-                    if (!uniqueName)
-                    {
-                        return Json(new { isSuccess = false, message = "This name already exists!" });
-                    }
-
-                    if(model.OrganizationID == null)
+                    if (model.OrganizationID == null)
                     {
                         return Json(new { isSuccess = false, message = "Organization Name cannot be Empty!" });
                     }
@@ -88,6 +82,13 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     {
                         return Json(new { isSuccess = false, message = "Department Name cannot be Empty!" });
                     }
+                    //var uniqueName = await _departmentSettingService.IsNameUniqueAsync(model.DepartmentName);
+                    //if (!uniqueName)
+                    //{
+                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
+                    //}
+
+                    
                     await _departmentSettingService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }

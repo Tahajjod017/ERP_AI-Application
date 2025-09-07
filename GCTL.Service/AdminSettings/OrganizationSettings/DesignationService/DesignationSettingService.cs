@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
 using System.Web.Mvc;
+using GCTL.Core.Helpers.Jsonserialize;
 
 namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 {
@@ -94,8 +95,9 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity,JsonSettings.IgnoreReferenceLoop));
 
+                entity.OrganizationID = model.OrganizationID;
                 entity.DesignationName = model.DesignationName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -104,7 +106,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Designation", ActionName.DataUpdated, beforeEntity, afterEntity, entity.DesignationID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -130,6 +132,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.DesignationService
 
                 return new DesignationVM
                 {
+                    OrganizationID = data.OrganizationID,
                     DesignationID = data.DesignationID,
                     DesignationName = data.DesignationName,
                 };

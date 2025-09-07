@@ -42,6 +42,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
                     entityToRestore.LMAC = model.LMAC;
 
                     entityToRestore.DeletedAt = null;
+                    entityToRestore.DeletedBy = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
@@ -83,8 +84,8 @@ namespace GCTL.Service.MasterSetup.ServiceType
             {
                 query = sortColumn switch
                 {
-                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ServiceID) : query.OrderBy(x => x.ServiceID),
-                    "GenderName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ServiceName) : query.OrderBy(x => x.ServiceName),
+                    "ServiceID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ServiceID) : query.OrderBy(x => x.ServiceID),
+                    "ServiceName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ServiceName) : query.OrderBy(x => x.ServiceName),
                     _ => query.OrderBy(x => x.ServiceID)
                 };
             }

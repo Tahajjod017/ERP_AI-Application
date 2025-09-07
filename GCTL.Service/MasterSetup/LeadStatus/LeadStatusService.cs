@@ -38,10 +38,11 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     entityToRestore.LMAC = model.LMAC;
 
                     entityToRestore.DeletedAt = null;
+                    entityToRestore.DeletedBy = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
-                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadStatuses", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadStatusID, model);
+                    await _userInfoService.ActionLogAsync("LeadStatuses", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadStatusID, model);
                 }
                 else
                 {
@@ -53,7 +54,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     entity.LMAC = model.LMAC;
 
                     await _genericRepository.AddAsync(entity);
-                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadStatuses", ActionName.DataAdd, null, entity, entity.LeadStatusID, model);
+                    await _userInfoService.ActionLogAsync("LeadStatuses", ActionName.DataAdd, null, entity, entity.LeadStatusID, model);
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -79,8 +80,8 @@ namespace GCTL.Service.MasterSetup.LeadStatus
             {
                 query = sortColumn switch
                 {
-                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadStatusID) : query.OrderBy(x => x.LeadStatusID),
-                    "GenderName" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadStatusName) : query.OrderBy(x => x.LeadStatusName),
+                    "LeadStatusID" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadStatusID) : query.OrderBy(x => x.LeadStatusID),
+                    "LeadStatusName" => sortOrder == "desc" ? query.OrderByDescending(x => x.LeadStatusName) : query.OrderBy(x => x.LeadStatusName),
                     _ => query.OrderBy(x => x.LeadStatusID)
                 };
             }

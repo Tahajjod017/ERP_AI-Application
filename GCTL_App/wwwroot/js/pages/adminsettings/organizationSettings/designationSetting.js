@@ -64,7 +64,7 @@ $(document).on('click', '#designationIDEditButton', function () {
     $('#edit_designation_setting').modal('show'); // Show the delete confirmation modal
 
     // Store the ID in the hidden input field
-    //$('#HolidayIDEdit').val(holidaySettingID);
+    $('#DesignationIDEdit').val(designationID);
 
     //// Load the existing data for the selected holiday setting
     $.ajax({
@@ -116,7 +116,7 @@ $('#designationSettingsFormEdit').submit(function (event) {
                 loadTableData();
             } else {
                 // Handle failure
-                toastr.error('Failed to update Designation setting: ' + response.message);
+                toastr.error('Failed to update Designation setting:' + response.message);
             }
         },
         error: function (xhr, status, error) {

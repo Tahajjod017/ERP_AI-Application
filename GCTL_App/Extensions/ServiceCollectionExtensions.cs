@@ -2,7 +2,7 @@
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
-using GCTL.Core.SeedData;
+//using GCTL.Core.SeedData;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AdminSettings.GeneralSettings;
@@ -32,6 +32,7 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
@@ -84,6 +85,7 @@ using GCTL.Service.MasterSetup.Organizations;
 using GCTL.Service.MasterSetup.PassingYear;
 using GCTL.Service.MasterSetup.PaymenPeriodType;
 using GCTL.Service.MasterSetup.PaymentMode;
+using GCTL.Service.MasterSetup.Priority;
 using GCTL.Service.MasterSetup.ProvisionPeriodTimeType;
 using GCTL.Service.MasterSetup.Religion;
 using GCTL.Service.MasterSetup.ResultType;
@@ -138,7 +140,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICommonService, CommonService>();
             #endregion
 
-            services.AddScoped<DataSeeder>();
+            //services.AddScoped<DataSeeder>();
 
             #region Added by Md. Rakib Hasan
             services.AddScoped<IBloodGroupService, BloodGroupService>();
@@ -172,6 +174,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IOffDayRosterService, OffDayRosterService>();
             services.AddScoped<ICreateSpiralPatternService, CreateSpiralPatternService>();
             services.AddScoped<IAssignSpiralPatternService, AssignSpiralPatternService>();
+            services.AddScoped<IEmployeeShiftViewService, EmployeeShiftViewService>();
             #endregion
 
 
@@ -281,6 +284,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadCreateService, LeadCreateService>();
             services.AddScoped<ICRMService, CRMService>();
             services.AddScoped<ILeadDetailsService, LeadDetailsService>();
+            services.AddScoped<IPriorityService, PriorityService>();
             #endregion
         }
     }

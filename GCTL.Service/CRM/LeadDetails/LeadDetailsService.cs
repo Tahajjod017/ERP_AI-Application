@@ -7,6 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using GCTL.Service.Language;
+using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Hosting;
+using OfficeOpenXml.Export.ToDataTable;
+
 
 namespace GCTL.Service.CRM.LeadDetails
 {
@@ -15,10 +21,13 @@ namespace GCTL.Service.CRM.LeadDetails
     {
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesGenericRepository;
         private readonly IGenericRepository<GCTL.Data.Models.LeadDetails> _leadDetailsGenericRepository;
-        public LeadDetailsService(IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository)
+        private readonly IGenericRepository<Leads> _leadsRepository;
+
+        public LeadDetailsService(IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository, IGenericRepository<Leads> leadsRepository)
         {
             _leadActivityTypesGenericRepository = leadActivityTypesGenericRepository;
             _leadDetailsGenericRepository = leadDetailsGenericRepository;
+            _leadsRepository = leadsRepository;
         }
 
         public async Task<bool> CreateLeadActivateTypes()
@@ -49,7 +58,7 @@ namespace GCTL.Service.CRM.LeadDetails
             return false;
         }
 
-        public async Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM)
+        public async Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation)
         {
 
             if (!leadDetailsVM.ActivityDateTime.HasValue)
@@ -61,21 +70,63 @@ namespace GCTL.Service.CRM.LeadDetails
             var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
             var utcDateTime = localDateTime.ToUniversalTime();
 
+            var leadTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
+            var leadTypeObj2 = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityName == "Attachment");
+            var leadTypeID = leadTypeObj.LeadActivityTypeID;
+            bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
 
-            var leadObj = new GCTL.Data.Models.LeadDetails()
+                if (leadTypeID != 0)
             {
-                LeadID = leadDetailsVM.LeadID,
-                ActivityDateTime = utcDateTime,
-                LeadActivityTypeID = leadDetailsVM.LeadActivityTypeID,
-                ActivityNote = leadDetailsVM.ActivityNote,
+                var leadObj = new GCTL.Data.Models.LeadDetails()
+                {
+                    LeadID = leadDetailsVM.LeadID,
+                    ActivityDateTime = utcDateTime,
+                    LeadActivityTypeID = leadTypeID,
+                    ActivityNote = leadDetailsVM.ActivityNote,
+                    FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = leadDetailsVM.CreatedBy,
+                    LIP = leadDetailsVM.LIP,
+                    LMAC = leadDetailsVM.LMAC,
+                };
+                await _leadDetailsGenericRepository.AddAsync(leadObj);
 
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = leadDetailsVM.CreatedBy,
-                LIP = leadDetailsVM.LIP,
-                LMAC = leadDetailsVM.LMAC,
-            };
-            await _leadDetailsGenericRepository.AddAsync(leadObj);
+            }
+
+            
             return true;
         }
+        //ToDo: How to get user id
+        // lead table source, status update service function
+        public async Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
+        {
+            var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == detailsLeadUpdateVM.LeadID);
+            //var userId = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (leadObj != null)
+            {
+                if (detailsLeadUpdateVM.FieldName == "source")
+                {
+                    leadObj.LeadSourceID = detailsLeadUpdateVM.FieldValue;
+                }
+                else if (detailsLeadUpdateVM.FieldName == "stage")
+                {
+                    leadObj.LeadStatusID = detailsLeadUpdateVM.FieldValue;
+                }
+                else if (detailsLeadUpdateVM.FieldName == "priority")
+                {
+                    leadObj.PriorityID = detailsLeadUpdateVM.FieldValue;
+                }
+
+
+                leadObj.UpdatedAt = DateTime.UtcNow;
+                leadObj.UpdatedBy = detailsLeadUpdateVM.UpdatedBy;
+                await _leadsRepository.UpdateAsync(leadObj);
+                return true;
+            }
+
+            return false;
+        }
+          
     }
 }

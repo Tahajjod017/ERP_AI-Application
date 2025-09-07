@@ -1,319 +1,346 @@
 $(function () {
 
-	// active item buttons
-	$(".option-btn").on('click', function () {
-		$(".option-btn").removeClass('active');
-		$(this).addClass('active');
-		let btnText = $(this).text().trim();
-		if (btnText === "Attachment") {
-			console.log("attachment");
-			$('#file-field').css('display', 'block');
-		} else {
-			$('#file-field').css('display', 'none');
-		}
-			console.log($(this).data('id'));
+    // ==============================
+    // Active option buttons
+    // ==============================
+    $(".option-btn").on('click', function () {
+        $(".option-btn").removeClass('active');
+        $(this).addClass('active');
 
-		console.log($(this).text().trim());
-	});
+        let btnText = $(this).text().trim();
+        if (btnText === "Attachment") {
+            $('#file-field').show();
+        } else {
+            $('#file-field').hide();
+        }
+    });
 
-	// addLDetails button work
-	$('#addLDetails').on('click', function (e) {
-		e.preventDefault();
-		let buttonID = $(".option-btn.active").data('id');
-		let buttonText = $(".option-btn.active").text().trim();
-		console.log(`Trem: ${buttonText}`);
-		let date = $("#lDetailsDate").val();
-		let text = $("#lDetailsText").val();
-		let id = $("#leadID").val();
-		let convertedDate = convertToISODateTime(date);
+    // ==============================
+    // Config & State
+    // ==============================
+    const activityListDiv = "#activity-list";
+    const upcomingListDiv = "#upcoming-activity";
+    const options = {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    };
 
-		let data = {
-			LeadID: id,
-			LeadActivityTypeID: buttonID,
-			ActivityDateTime: convertedDate,
-			ActivityNote: text,
-		};
-		console.log(JSON.stringify(data));
-
-		$.ajax({
-			url: '/LeadDetails/CeateLeadDetail',
-			method: 'POST',
-			contentType: 'application/json',
-			data: JSON.stringify(data),
-			success: function (response) {
-				debugger;
-				$('#allActivity').empty();
-				toastr.success(response.message);
-				currentPage = 1;
-				prepareHTML(buttonText);
-			},
-			error: function (error) {
-				toastr.error(error.message);
-			}
-		});
-	});
-
-	const options = {
-		day: '2-digit',
-		month: 'short',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: true
-	};
-	
+    let currentPage = 1;
+    let currentPage2 = 1;
+  
+    let lastSearch = "";
 
 
-	let currentPage = 1;
-	let loading = false;
-	let lastSearch = "";
-	let noMoreDataDown = false;
-	let noMoreDataUp = false;
+    let loading = false, noMoreDataDown = false;
+    let loading2 = false, noMoreDataDown2 = false;
+
+    let loadedIds = new Set();
+    let loadedIds2 = new Set();
 
 
+    $('#addLDetails').on('click', function (e) {
+        e.preventDefault();
 
+        const buttonID = $(".option-btn.active").data('id');
+        const date = $("#lDetailsDate").val();
+        const text = $("#lDetailsText").val();
+        const id = $("#leadID").val();
+        const fileInput = $('#formFile')[0];
+        const file = fileInput.files[0];
 
+        if (!id || !buttonID || !date) {
+            toastr.error("Please fill all required fields");
+            return;
+        }
 
-	//$('#activity').on('scroll', function () {
-	//	const container = $(this);
+        const convertedDate = convertToISODateTime(date);
 
-	//	// Scroll Down (near bottom)
-	//	if (!loading && !noMoreDataDown && container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 10) {
-	//		currentPage++;
-	//		updateActivate(currentPage, "down");
-	//	}
+        const formData = new FormData();
+        formData.append("LeadID", parseInt(id));
+        formData.append("LeadActivityTypeID", parseInt(buttonID));
+        formData.append("ActivityDateTime", convertedDate);
+        formData.append("ActivityNote", text || "");
+        if (file) formData.append("File", file);
 
-	//	// Scroll Up (near top)
-	//	if (!loading && !noMoreDataUp && container.scrollTop() <= 10 && currentPage > 1) {
-	//		currentPage--;
-	//		updateActivate(currentPage, "up");
-	//	}
-	//});
+        $.ajax({
+            url: '/LeadDetails/CeateLeadDetail',
+            method: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                toastr.success(response.message);
+                resetAndReload();
+                resetAndReloadUpcoming();
+                $(".option-btn").removeClass("active");
+                $("#lDetailsDate").val("");
+                $("#lDetailsText").val("");
+                $("#formFile").val("");
+                $('#file-field').hide();
+            },
+            error: function (error) {
+                toastr.error(error.responseJSON?.message || "Error adding lead detail");
+            }
+        });
+    });
 
-	//// Search handler
-	//$("#searchActivity").on("input", function () {
-	//	let search = $(this).val().trim();
-	//	if (search !== lastSearch) {
-	//		lastSearch = search;
-	//		currentPage = 1;
-	//		noMoreDataDown = false;
-	//		noMoreDataUp = false;
-	//		$('#activity').empty();
-	//		updateActivate(currentPage, "reset");
-	//	}
-	//});
+    // ==============================
+    // Infinite scroll inside activity-list
+    // ==============================
+    $('#activity-list, #upcoming-activity',).on("scroll", function () {
+        const container = $(this);
+        const containerName = container.attr('id');
+        const scrollTop = container.scrollTop();
+        const innerHeight = container.innerHeight();
+        const scrollHeight = container[0].scrollHeight;
 
-	function attachScrollAndSearch(type) {
-		const safeName = type.replace(/\s+/g, "-"); // or use toSafeId if needed
+        if (containerName === 'activity-list') {
+            if (!loading && !noMoreDataDown && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
+                currentPage++;
+                updateActivate(currentPage, "down");
+            }
+        } else if (containerName === 'upcoming-activity') {
+            if (!loading2 && !noMoreDataDown2 && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
+                currentPage2++;
+                updateUpcomingActivate(currentPage2)
+            }
+        }
+    });
 
-		// Scroll handler for this tab's container
-		$(`#${safeName}`).off("scroll").on("scroll", function () {
-			const container = $(this);
+    // ==============================
+    // Search with debounce
+    // ==============================
+    let typingTimer;
+    const delay = 500;
 
-			// Scroll Down (near bottom)
-			if (!loading && !noMoreDataDown && container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 10) {
-				currentPage++;
-				updateActivate(currentPage, "down", type);
-			}
+    $('#search-activity').on("input", function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function () {
+            const search = $('#search-activity').val() || "";
+            if (search !== lastSearch) {
+                lastSearch = search;
+                resetAndReload();
+            }
+        }, delay);
+    });
 
-			// Scroll Up (near top)
-			if (!loading && !noMoreDataUp && container.scrollTop() <= 10 && currentPage > 1) {
-				currentPage--;
-				updateActivate(currentPage, "up", type);
-			}
-		});
-		let typingTimer;
-		let delay = 500;
-		// Search handler for this tab
-		$(`#search${safeName}`).off("input").on("input", function () {
-			const input = this; // capture the element
-			clearTimeout(typingTimer);
-			typingTimer = setTimeout(function () {
-				let search = $(`#search${safeName}`).val() || "";
-				console.log(search);
-				if (search !== lastSearch) {
-					lastSearch = search;
-					currentPage = 1;
-					noMoreDataDown = false;
-					noMoreDataUp = false;
-					$(`#${safeName}`).empty();
-					updateActivate(currentPage, "reset", type);
-				}
-			}, delay);
-		});
-	}
+    // ==============================
+    // Tab click handler
+    // ==============================
+    $("#myTab .nav-link").on('click', function (e) {
+        e.preventDefault();
+        $("#myTab .nav-link").removeClass('active');
+        $(this).addClass('active');
+        resetAndReload();
+    });
 
-	function toSafeId(name) {
-		return name
-			.replace(/\s+/g, "-")   // replace spaces with dash
-			.replace(/\./g, "\\.")  // escape dots
-			.replace(/[^a-zA-Z0-9\-\\]/g, ""); // remove any other unsafe chars
-	}
+    // ==============================
+    // Fetch activity data
+    // ==============================
+    function updateActivate(page = 1, direction = "down") {
+    if (loading) return;
+    loading = true;
 
-	function updateActivate(page = 1, direction = "down", type = "") {
-		const serachFieldId = type.replace(/\s+/g, "-");
-		if (!type) type = "Activity"; // default fallback
-		let search = $(`#search${serachFieldId}`).val() || "";
-		let id = $("#leadID").val();
-		let typeD = type === "Activity" ? "" : type;
-		let safeName = toSafeId(type);
-		safeName = type === "Rev. Quatation" ? "Rev\\.\\-Quatation" : safeName;
-		console.log(safeName);
-		loading = true;
+    const tabName = $("#myTab .nav-link.active").text().trim();
+    const search = $("#search-activity").val() || "";
+    const id = $("#leadID").val();
+    const typeD = tabName === "All Activity" ? "" : tabName;
 
-		$.ajax({
-			url: '/LeadDetails/getActivityList',
-			method: 'GET',
-			contentType: 'application/json',
-			data: { id: id, query: search, page: page, type: typeD },
-			success: function (response) {
-				if (!response || response.length === 0) {
-					if (direction === "down") noMoreDataDown = true;
-					if (direction === "up") noMoreDataUp = true;
-					return; // ? stop duplicates
-				}
+    $.ajax({
+        url: '/LeadDetails/getActivityList',
+        method: 'GET',
+        contentType: 'application/json',
+        data: { id, query: search, page, type: typeD },
+        success: function (response) {
+            if (!response || response.length === 0) {
+                noMoreDataDown = true;
+                return;
+            }
 
-				if (direction === "reset") {
-					$('#' + safeName).empty();
-					noMoreDataDown = false;
-					noMoreDataUp = false;
-				}
+            response.forEach(item => {
+                if (!item.leadDetailID) return; // skip invalid
+                if (!loadedIds.has(item.leadDetailID)) {
+                    loadedIds.add(item.leadDetailID);
+                    const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+                   
+                    if (item.leadActivityName === 'Attachment') {
+                        $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
+                    } else {
+                        $(activityListDiv).append(renderActivity(item, activityDate));
+                    }
+                }
+            });
+        },
+        complete: function () { loading = false;},
+        error: function (jqXHR, textStatus) {
+            toastr.error("Error: " + textStatus);
+        }
+    });
 
-				if (direction === "up") {
-					response.reverse().forEach((value) => {
-						const activityDate = new Date(value.activityDateTime).toLocaleString('en-GB', options);
-						$('#' + safeName).prepend(renderActivity(value, activityDate));
-					});
+        
+    }
+    // ==============================
+    // Fetch upcoming activity data
+    // ==============================
+    function updateUpcomingActivate(page = 1, direction = "down") {
+        if (loading2) return;
+        loading2 = true;
+        const id = $("#leadID").val();
+        $.ajax({
+            url: '/LeadDetails/GetUpcomingActivityList',
+            method: 'GET',
+            contentType: 'application/json',
+            data: { id, page },
+            success: function (response) {
+                if (!response || response.length === 0) {
+                    noMoreDataDown2 = true;
+                    return;
+                }
 
-					const container = $('#' + safeName);
-					container.scrollTop(50); // keep view stable after prepend
+                response.forEach(item => {
+                    if (!item.leadDetailID) return;
+                    if (!loadedIds2.has(item.leadDetailID)) {
+                        loadedIds2.add(item.leadDetailID);
+                        const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+                        $('#upcoming-activity').append(renderActivity(item, activityDate));
+                    }
+                });
+            },
+            complete: function () { loading2 = false;},
+            error: function (jqXHR, textStatus) {
+                toastr.error("Error: " + textStatus);
+            }
 
-				} else {
-					response.forEach((value) => {
-						const activityDate = new Date(value.activityDateTime).toLocaleString('en-GB', options);
-						$('#' + safeName).append(renderActivity(value, activityDate));
-					});
-				}
-			},
-			complete: function () { loading = false; },
-			error: function (jqXHR, textStatus, errorThrown) {
-				console.log(jqXHR, textStatus, errorThrown);
-				toastr.error("An error occurred: " + textStatus);
-			}
-		});
-	}
-
-	function renderActivity(value, activityDate) {
-		return `
-			<div class="border-bottom border-translucent py-4">
-				<div class="d-flex">
-					<div class="d-flex bg-primary-subtle rounded-circle flex-center me-3" style="width:25px; height:25px">
-						<span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-					</div>
-					<div class="flex-1">
-						<div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-							<div class="flex-1 me-2">
-								<h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-								<p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
-							</div>
-							<div class="fs-9">
-								<span class="fa-regular fa-calendar-days text-primary me-2"></span>
-								<span class="fw-semibold">${activityDate}</span>
-							</div>
-						</div>
-						<p class="fs-9 mb-0">${value.activityNote}</p>
-					</div>
-				</div>
-			</div>`;
-	}
-
-
-
-	$("#activity-tab, #Email-tab, #Call-tab, #Offline-Meeting-tab, #Online-Meeting-tab, #Quatation-tab, #Rev\\.\\-Quatation\\-tab, #Attachment-tab").on('click', function () {
-		console.log("clicked");
-		let tabName = $(this).text().trim();
-		console.log(tabName);
-		prepareHTML(tabName);
-		updateActivate(1, "down", tabName);
-	});
-
-	function prepareHTML(type) {
-		const safeName = type.replace(/\s+/g, "-"); // replace spaces with hyphen
-
-		$("#myTabContent").empty();
-
-		$("#myTabContent").append(`
-					<div class="tab-pane fade active show" id="tab-${safeName}" role="tabpanel" aria-labelledby="${safeName}-tab">
-                        <h2 class="mb-4">${type}</h2>
-                        <div class="row align-items-center g-3 justify-content-between justify-content-start">
-                            <div class="col-12 col-sm-auto">
-                                <div class="search-box mb-2 mb-sm-0">
-                                    <form class="position-relative">
-                                        <input class="form-control search-input search ms-1" id="search${safeName}" type="search" placeholder="Search Activity" aria-label="Search" />
-                                        <span class="fas fa-search search-box-icon"></span>
-
-                                    </form>
-                                </div>
+        });
+    }
+    
+    // ==============================
+    // Render a single activity
+    // ==============================
+    function renderActivity(value, activityDate) {
+        return `
+            <div class="border-bottom border-translucent py-3 mx-3">
+                <div class="d-flex">
+                    <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
+                         style="width:25px; height:25px">
+                        <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+                            <div class="flex-1 me-2">
+                                <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
                             </div>
-						</div>
-						<div id="${safeName}" class="activity-site"></div>
-					</div>
-				`)
-		attachScrollAndSearch(type);
-	}
+                            <div class="fs-9">
+                                <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+                                <span class="fw-semibold">${activityDate}</span>
+                            </div>
+                        </div>
+                        <p class="fs-9 mb-0">${value.activityNote}</p>
+                    </div>
+                </div>
+            </div>`;
+    }
+    function renderAttachmentActivity(value, activityDate) {
+        return `
+            <div class="border-bottom border-translucent py-3 mx-3">
+                <div class="d-flex">
+                    <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
+                         style="width:25px; height:25px">
+                        <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+                            <div class="flex-1 me-2">
+                                <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
+                                
+                                <p class="fs-9 mb-0">file: <a class="ms-1" href="#!">${value.fileLink}</a></p>
+                            </div>
+                            <div class="fs-9">
+                                <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+                                <span class="fw-semibold">${activityDate}</span>
+                            </div>
+                        </div>
+                        <p class="fs-9 mb-0">${value.activityNote}</p>
+                    </div>
+                </div>
+            </div>`;
+    }
 
-	//prepareHTML("Activity");
-	prepareHTML("Activity");
-	updateActivate(1, "down", "Activity");
+    // ==============================
+    // Convert date to ISO string
+    // ==============================
+    function convertToISODateTime(dateTimeString) {
+        const [datePart, timePart] = dateTimeString.split(' ');
+        const [day, month, year] = datePart.split('/').map(Number);
+        const fullYear = year < 100 ? 2000 + year : year;
+        const [hours, minutes] = timePart.split(':').map(Number);
+        const date = new Date(fullYear, month - 1, day, hours, minutes);
 
+        const pad = (num) => String(num).padStart(2, '0');
+        const offsetMinutes = date.getTimezoneOffset();
+        const offsetSign = offsetMinutes > 0 ? '-' : '+';
+        const offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60));
+        const offsetMins = pad(Math.abs(offsetMinutes) % 60);
 
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${offsetSign}${offsetHours}:${offsetMins}`;
+    }
 
-	function convertToISODateTime(dateTimeString) {
-		// Split input into date and time parts
-		const [datePart, timePart] = dateTimeString.split(' ');
+    // ==============================
+    // update Lead Source value
+    // ==============================
 
-		// Validate input format
-		if (!datePart || !timePart) {
-			throw new Error('Invalid format. Expected dd/mm/yy hh:mm');
-		}
+    $("#leadSource, #lead-status, #leadPriority").on("change", function () {
+        let fieldValue = $(this).val();
+        let fieldID = $(this).attr("id");
+        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : "";
+        let leadID = $("#leadID").val();
 
-		// Split date (dd/mm/yy) and validate
-		const [day, month, year] = datePart.split('/').map(Number);
-		if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
-			throw new Error('Invalid date format. Expected dd/mm/yy');
-		}
+        $.ajax({
+            url: '/LeadDetails/UpdateLeadValue',
+            method: 'POST',
+            data: { LeadID: leadID, FieldName: fieldName, FieldValue: fieldValue },
+            success: function (response) {
+                if (response) {
+                    toastr.success("Lead source updated successfully");
+                }
+            },
+           
+            error: function (jqXHR, textStatus) {
+                toastr.error("Error: " + textStatus);
+            }
 
-		// Handle two-digit year (assume 21st century)
-		const fullYear = year < 100 ? 2000 + year : year;
+        });
+    })
 
-		// Split time (hh:mm) and validate
-		const [hours, minutes] = timePart.split(':').map(Number);
-		if (!Number.isInteger(hours) || !Number.isInteger(minutes)) {
-			throw new Error('Invalid time format. Expected hh:mm');
-		}
+    // ==============================
+    // Reset state and reload page 1
+    // ==============================
+    function resetAndReload() {
+        currentPage = 1;
+        noMoreDataDown = false;
+        loadedIds.clear();
+        $(activityListDiv).empty();
+        updateActivate(1, "reset");
+    }
+    function resetAndReloadUpcoming() {
+        currentPage2 = 1;
+        noMoreDataDown2 = false;
+        loadedIds2.clear()
+        $(upcomingListDiv).empty();
+        updateUpcomingActivate(currentPage2);
+    }
 
-		// Create Date object (month is 0-based in JS, so subtract 1)
-		const date = new Date(fullYear, month - 1, day, hours, minutes);
-
-		// Validate Date object
-		if (isNaN(date.getTime())) {
-			throw new Error('Invalid date or time');
-		}
-
-		// Format to ISO 8601 with local timezone offset
-		const pad = (num) => String(num).padStart(2, '0');
-		const yearStr = date.getFullYear();
-		const monthStr = pad(date.getMonth() + 1);
-		const dayStr = pad(date.getDate());
-		const hoursStr = pad(date.getHours());
-		const minutesStr = pad(date.getMinutes());
-		const secondsStr = pad(date.getSeconds());
-		const offsetMinutes = date.getTimezoneOffset();
-		const offsetSign = offsetMinutes > 0 ? '-' : '+';
-		const offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60));
-		const offsetMins = pad(Math.abs(offsetMinutes) % 60);
-		const offset = `${offsetSign}${offsetHours}:${offsetMins}`;
-
-		return `${yearStr}-${monthStr}-${dayStr}T${hoursStr}:${minutesStr}:${secondsStr}${offset}`;
-	}
+    // ==============================
+    // Initial load
+    // ==============================
+   
+    updateActivate(1, "reset");
+    updateUpcomingActivate();
+   
 });

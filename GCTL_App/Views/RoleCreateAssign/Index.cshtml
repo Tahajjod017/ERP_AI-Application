@@ -1,5 +1,22 @@
 ﻿@model GCTL.Core.ViewModels.RoleModule.RoleManagementViewModel
 
+
+@if (TempData["Message"] != null)
+{
+    <div id="successAlert" class="alert alert-success text-center alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div id="errorAlert" class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="container m-2">
    @*  <div class="d-flex justify-content-between align-items-center mb-4">
         <h5 class="fw-bold text-primary">Tenant: IT</h5>
