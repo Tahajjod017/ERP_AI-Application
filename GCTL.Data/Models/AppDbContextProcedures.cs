@@ -153,6 +153,57 @@ namespace GCTL.Data.Models
             return _;
         }
 
+        public virtual async Task<List<sp_GetAllEmployeeShiftsResult>> sp_GetAllEmployeeShiftsAsync(int? pageNumber, int? pageSize, string searchTerm, int? daysToShow, DateOnly? startDate, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "pageNumber",
+                    Value = pageNumber ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "pageSize",
+                    Value = pageSize ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "searchTerm",
+                    Size = 200,
+                    Value = searchTerm ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "daysToShow",
+                    Value = daysToShow ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "startDate",
+                    Value = startDate ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Date,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_GetAllEmployeeShiftsResult>("EXEC @returnValue = [dbo].[sp_GetAllEmployeeShifts] @pageNumber = @pageNumber, @pageSize = @pageSize, @searchTerm = @searchTerm, @daysToShow = @daysToShow, @startDate = @startDate", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<sp_InsertOrUpdateShiftsResult>> sp_InsertOrUpdateShiftsAsync(DataTable ShiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter

@@ -535,6 +535,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[LoanDetails]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[LoanInstallmentPeriods]",
          "ObjectType": 0
       },
@@ -580,6 +584,10 @@
       },
       {
          "Name": "[dbo].[Prc_GetEmployeesPaged]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_GetAllEmployeeShifts]",
          "ObjectType": 1
       },
       {

@@ -55,6 +55,8 @@ public partial class Loan
 
     public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; } = new List<LoanBaseApprovalHistory>();
 
+    public virtual ICollection<LoanDetails> LoanDetails { get; set; } = new List<LoanDetails>();
+
     public virtual LoanInstallmentPeriods LoanInstallmentPeriod { get; set; }
 
     public virtual Statuses Status { get; set; }

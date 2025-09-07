@@ -237,9 +237,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
 
 
         }
-        #region
-
-        #endregion
+        #region  Update View Region 
         public async Task<CommonReturnViewModel> UpdateFromAppDecAsync(PayRollLoanViewDeclineApprovedVM entityVM)
         {
             if (entityVM == null || entityVM.LoanID == 0)
@@ -458,14 +456,17 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 };
             }
         }
+        #endregion
 
+
+        #region  Update Loan Entry
 
         public async Task<CommonReturnViewModel> UpdateAsync(LoanUpdateVM entityVM)
         {
             var result = new CommonReturnViewModel();
             try
             {
-               
+
                 await loanRepository.BeginTransactionAsync();
                 // Fetch existing loan
                 var loan = await loanRepository.GetByIdAsync(entityVM.LoanIDEdit);
@@ -479,10 +480,10 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                 loan.EmployeeID = entityVM.EmployeeIDEdit;
                 loan.IssueDate = entityVM.IssueDateEdit;
                 loan.StartDate = entityVM.StartDateEdit;
-                loan.LoanAmount= entityVM.LoanAmountEdit;
-                loan.LoanInstallmentPeriodID= entityVM.LoanInstallmentPeriodIDEdit;
+                loan.LoanAmount = entityVM.LoanAmountEdit;
+                loan.LoanInstallmentPeriodID = entityVM.LoanInstallmentPeriodIDEdit;
                 loan.LIP = entityVM.LIP;
-                loan.LMAC= entityVM.LMAC;
+                loan.LMAC = entityVM.LMAC;
                 loan.UpdatedBy = entityVM.UpdatedBy;
                 loan.UpdatedAt = DateTime.Now;
                 await loanRepository.UpdateAsync(loan);
@@ -508,10 +509,9 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
             }
             return result;
         }
-        #region Update Data
-
-
         #endregion
+
+        
         #region get By data
 
         public async Task<CommonReturnViewModel> GetByAsync(int id)
@@ -677,7 +677,6 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                     ? query.OrderByDescending(orderByExpression)
                     : query.OrderBy(orderByExpression);
 
-
                 // For approver Step
                 //
                 var approvalStepsMap = await loanBaseHistory.AllActive().GroupBy(x => x.LoanID).ToDictionaryAsync(g => g.Key, g => g.Select(x => x.ApprovalStep ?? 0).ToList());
@@ -688,7 +687,6 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                     pageNumber,
                     pageSize,
                     searchTerm,
-
                     currentSortColumn,
                     currentSortOrder,
 
