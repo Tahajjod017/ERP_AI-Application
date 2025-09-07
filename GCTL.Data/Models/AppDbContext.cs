@@ -174,6 +174,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; }
 
+    public virtual DbSet<LoanDetails> LoanDetails { get; set; }
+
     public virtual DbSet<LoanInstallmentPeriods> LoanInstallmentPeriods { get; set; }
 
     public virtual DbSet<Localizations> Localizations { get; set; }
@@ -553,6 +555,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
         modelBuilder.Entity<Attendance>(entity =>
         {
             entity.HasKey(e => e.AttendanceID).HasName("PK__Attendan__8B69263CCE1244FA");
@@ -2747,6 +2750,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.ToTable("Leads", "Lead");
 
             entity.Property(e => e.ApproximateDealValue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ClosingDate).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -3086,6 +3090,45 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LoanBaseApprovalHistoryUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__LoanBaseA__Updat__261B931E");
+        });
+
+        modelBuilder.Entity<LoanDetails>(entity =>
+        {
+            entity.HasKey(e => e.LoanDetailsID).HasName("PK__LoanDeta__F9B8DE8E1FE070ED");
+
+            entity.ToTable("LoanDetails", "Payroll");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CurrentInstallmentAmunt).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EarlyPayAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.NextInstallmentAmunt).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.PaymentDateTime).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LoanDetailsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LoanDetai__Creat__1B68FA81");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LoanDetailsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LoanDetai__Delet__1E45672C");
+
+            entity.HasOne(d => d.Loan).WithMany(p => p.LoanDetails)
+                .HasForeignKey(d => d.LoanID)
+                .HasConstraintName("FK__LoanDetai__LoanI__1980B20F");
+
+            entity.HasOne(d => d.ReceivedBy).WithMany(p => p.LoanDetailsReceivedBy)
+                .HasForeignKey(d => d.ReceivedByID)
+                .HasConstraintName("FK__LoanDetai__Recei__1A74D648");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LoanDetailsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LoanDetai__Updat__1C5D1EBA");
         });
 
         modelBuilder.Entity<LoanInstallmentPeriods>(entity =>

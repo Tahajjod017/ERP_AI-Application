@@ -575,6 +575,14 @@ public partial class Employees
 
     public virtual ICollection<Loan> LoanDeletedByNavigation { get; set; } = new List<Loan>();
 
+    public virtual ICollection<LoanDetails> LoanDetailsCreatedByNavigation { get; set; } = new List<LoanDetails>();
+
+    public virtual ICollection<LoanDetails> LoanDetailsDeletedByNavigation { get; set; } = new List<LoanDetails>();
+
+    public virtual ICollection<LoanDetails> LoanDetailsReceivedBy { get; set; } = new List<LoanDetails>();
+
+    public virtual ICollection<LoanDetails> LoanDetailsUpdatedByNavigation { get; set; } = new List<LoanDetails>();
+
     public virtual ICollection<Loan> LoanEmployee { get; set; } = new List<Loan>();
 
     public virtual ICollection<LoanInstallmentPeriods> LoanInstallmentPeriodsCreatedByNavigation { get; set; } = new List<LoanInstallmentPeriods>();

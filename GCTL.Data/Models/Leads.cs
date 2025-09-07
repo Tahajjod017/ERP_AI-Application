@@ -45,6 +45,10 @@ public partial class Leads
 
     public int? PriorityID { get; set; }
 
+    public bool? IsWwn { get; set; }
+
+    public DateTime? ClosingDate { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
