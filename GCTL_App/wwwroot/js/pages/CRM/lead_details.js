@@ -245,32 +245,119 @@ $(function () {
                 </div>
             </div>`;
     }
+
+    // previewFile function
+    function previewFile(fileUrl) {
+        let ext = fileUrl.split('.').pop().toLowerCase();
+        let container = document.getElementById("filePreviewContainer");
+        container.innerHTML = ""; // reset
+
+        if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+            // Image preview
+            container.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="preview">`;
+        }
+        else if (ext === "pdf") {
+            container.innerHTML = `<iframe src="${fileUrl}" 
+                           style="width:100%;height:500px" frameborder="0"></iframe>`;
+        }
+        //else if (["xls", "xlsx"].includes(ext)) {
+        //    // Excel preview using SheetJS
+        //    fetch(fileUrl).then(res => res.arrayBuffer()).then(data => {
+        //        let workbook = XLSX.read(data, { type: "array" });
+        //        let firstSheet = workbook.SheetNames[0];
+        //        let html = XLSX.utils.sheet_to_html(workbook.Sheets[firstSheet]);
+        //        container.innerHTML = `<div class="table-responsive" style="max-height:500px;overflow:auto">${html}</div>`;
+        //    }).catch(() => {
+        //        window.open(fileUrl, "_blank"); // fallback download
+        //    });
+        //}
+        else {
+            // Not supported ? force download
+            window.open(fileUrl, "_blank");
+            return;
+        }
+
+        // Show modal
+        let modal = new bootstrap.Modal(document.getElementById('filePreviewModal'));
+        modal.show();
+    }
+    // Ensure global access
+    window.previewFile = previewFile;
     function renderAttachmentActivity(value, activityDate) {
         return `
-            <div class="border-bottom border-translucent py-3 mx-3">
-                <div class="d-flex">
-                    <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
-                         style="width:25px; height:25px">
-                        <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                            <div class="flex-1 me-2">
-                                <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
-                                
-                                <p class="fs-9 mb-0">file: <a class="ms-1" href="#!">${value.fileLink}</a></p>
-                            </div>
-                            <div class="fs-9">
-                                <span class="fa-regular fa-calendar-days text-primary me-2"></span>
-                                <span class="fw-semibold">${activityDate}</span>
-                            </div>
-                        </div>
-                        <p class="fs-9 mb-0">${value.activityNote}</p>
-                    </div>
+        <div class="border-bottom border-translucent py-3 mx-3">
+            <div class="d-flex">
+                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
+                     style="width:25px; height:25px">
+                    <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
                 </div>
-            </div>`;
+                <div class="flex-1">
+                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+                        <div class="flex-1 me-2">
+                            <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
+                            
+                            <p class="fs-9 mb-0">file: 
+                                <a href="javascript:void(0)" onclick="previewFile('${value.fileLink}')">
+                                    ${value.fileLink}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="fs-9">
+                            <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+                            <span class="fw-semibold">${activityDate}</span>
+                        </div>
+                    </div>
+                    <p class="fs-9 mb-0">${value.activityNote}</p>
+                </div>
+            </div>
+        </div>`;
     }
+
+    
+
+    // ==============================
+    // Convert date to ISO string
+    // ==============================
+
+    $("#editBtn").on("click", function (e) {
+        e.preventDefault();
+        if (await fieldValidation()) {
+            const data = {
+                LeadName: $("#leadName").val() || "",
+                LeadStatusID: parseInt($("#leadStatusId").val()) || 0,
+                LeadSourceID: parseInt($("#leadSourceId").val()) || 0,
+                LeadOwnerID: parseInt($("#leadOwnerId").val()) || 0,
+                PriorityID: parseInt($("#leadPriorityId").val()) || 0,
+                ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
+                ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
+                CustomerId: parseInt($("#customerID").val()) || 0,
+                LeadDescription: $("#descriptionText").val(),
+                ServiceTypeIds: $("#serviceTypes").val() || [],
+            };
+            $.ajax({
+                url: '/CreateLead/EditLeadData',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+
+                    if (response.success) {
+                        //toastr.success(response.message);
+                        //getCustomerList();
+                        //clearTabData(idMapIndex.indexBase);
+                        //clearTabData(idMapIndex.demoField);
+                        //window.location.href = "/crm/Index";
+                    } else {
+                        toastr.error(response.message || "Failed to create lead");
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Error creating lead");
+                }
+            });
+        }
+    })
 
     // ==============================
     // Convert date to ISO string

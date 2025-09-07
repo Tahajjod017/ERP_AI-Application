@@ -227,6 +227,14 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Status Name")</label>
+                            <select class="form-select choiceDD" id="priorityID" asp-items="@ViewBag.LeadPriorities as SelectList" required>
+                                <option value="" selected>@Html.SmartLocalize("Select Status")</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating form-floating-advance-select">
+                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Status Name")</label>
                             <select class="form-select choiceDD" id="leadStatusId" asp-items="@ViewBag.LeadStatusDD as SelectList" required>
                                 <option value="" selected>@Html.SmartLocalize("Select Status")</option>
                             </select>
@@ -241,31 +249,20 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-floating">
-
                             <input class="form-control" id="approximateDealValue" type="text" placeholder="" />
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Approximate Deal Value")</label>
                         </div>
                     </div>
-
-                    @* <div class="col-md-6">
-                        <div class="form-floating">
-
-                            <input class="form-control" id="probabilityPercentage" type="text" placeholder="" />
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Probability (%)")</label>
-                        </div>
-                    </div> *@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label">@Html.SmartLocalize("Service Type")</label>
-                            <select class="form-multi-select form-multi-select-lg mb-3" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList" data-coreui-selection-type="counter" data-coreui-search="true">
+                            <select class="form-multi-select form-multi-select-lg mb-3" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
                                 <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
                             </select>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <label for="completion" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center">

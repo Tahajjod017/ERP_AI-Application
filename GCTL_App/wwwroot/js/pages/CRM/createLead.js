@@ -111,6 +111,7 @@ const idMapIndex = {
         leadStatusID: 'leadStatusId',
         leadSourceID: 'leadSourceId',
         leadOwnerID: 'leadOwnerId',
+        priorityID: 'priorityID',
         approximateDealValue: 'approximateDealValue',
         probabilityPercentage: 'probabilityPercentage',
         leadDescription: 'descriptionText'
@@ -1667,6 +1668,7 @@ $(document).ready(function () {
                 LeadStatusID: parseInt($("#" + idMapIndex.indexBase.leadStatusID).val()) || 0,
                 LeadSourceID: parseInt($("#" + idMapIndex.indexBase.leadSourceID).val()) || 0,
                 LeadOwnerID: parseInt($("#" + idMapIndex.indexBase.leadOwnerID).val()) || 0,
+                PriorityID: parseInt($("#" + idMapIndex.indexBase.priorityID).val()) || 0,
                 ApproximateDealValue: parseFloat($("#" + idMapIndex.indexBase.approximateDealValue).val()) || 0,
                 ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
                 CustomerId: parseInt($("#" + idMapIndex.indexBase.customerID).val()) || 0,

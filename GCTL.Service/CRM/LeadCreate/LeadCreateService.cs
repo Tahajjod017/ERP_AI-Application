@@ -1,11 +1,15 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
+using GCTL.Core.ViewModels.MasterSetup.LeadSource;
+using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
+using GCTL.Core.ViewModels.MasterSetup.Priority;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkiaSharp;
+using System.Security.Cryptography;
 
 
 namespace GCTL.Service.CRM.LeadCreate
@@ -422,6 +426,7 @@ namespace GCTL.Service.CRM.LeadCreate
                     LeadStatusID = leadsVM.LeadStatusID,
                     LeadSourceID = leadsVM.LeadSourceID,
                     LeadOwnerID = leadsVM.LeadOwnerID,
+                    PriorityID = leadsVM.PriorityID,
                     ApproximateDealValue = leadsVM.ApproximateDealValue,
                     ProbabilityPercentage = leadsVM.ProbabilityPercentage,
                     LeadDescription = leadsVM.LeadDescription,
@@ -455,6 +460,60 @@ namespace GCTL.Service.CRM.LeadCreate
                 //};
 
                 //}
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Data saved succesfull",
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new CommonReturnViewModel    
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
+            }
+        }
+        public async Task<CommonReturnViewModel> EditLead(LeadsVM leadsVM)
+        {
+            try
+            {
+                var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(u => u.CustomerAddressID == leadsVM.CustomerId);
+                var leadObj = await _leadsRepository.FirstOrDefaultAsync( u => u.LeadID == leadsVM.LeadID );
+
+                leadObj.CustomerID = individualAddressObj.CustomerAddressID;
+                leadObj.LeadName = leadsVM.LeadName;
+                leadObj.IsIndividualCustomer = leadsVM.IsIndividualCustomer;
+                leadObj.LeadStatusID = leadsVM.LeadStatusID;
+                leadObj.LeadSourceID = leadsVM.LeadSourceID;
+                leadObj.LeadOwnerID = leadsVM.LeadOwnerID;
+                leadObj.PriorityID = leadsVM.PriorityID;
+                leadObj.ApproximateDealValue = leadsVM.ApproximateDealValue;
+                leadObj.ProbabilityPercentage = leadsVM.ProbabilityPercentage;
+                leadObj.LeadDescription = leadsVM.LeadDescription;
+
+                leadObj.UpdatedAt = DateTime.UtcNow;
+                leadObj.UpdatedBy = leadsVM.CreatedBy;
+                leadObj.LIP = leadsVM.LIP;
+                leadObj.LMAC = leadsVM.LMAC;
+       
+                await _leadsRepository.UpdateAsync(leadObj);
+
+                if (leadsVM.ServiceTypeIds != null && leadsVM.ServiceTypeIds.Count > 0)
+                {
+                    List<LeadServices> services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                    {
+                        LeadID = leadObj.LeadID,
+                        ServiceID = serviceId,
+                        UpdatedAt = DateTime.UtcNow,
+                        UpdatedBy = leadsVM.CreatedBy,
+                        LIP = leadsVM.LIP,
+                        LMAC = leadsVM.LMAC,
+                    }).ToList();
+                    await _leadServicesRepository.AddRangeAsync(services);
+                }
                 return new CommonReturnViewModel
                 {
                     Success = true,
