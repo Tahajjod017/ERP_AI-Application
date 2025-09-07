@@ -4,6 +4,7 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.0",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -535,6 +536,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[LoanDetails]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[LoanInstallmentPeriods]",
          "ObjectType": 0
       },
@@ -583,6 +588,10 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_GetAllEmployeeShifts]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[sp_InsertOrUpdateShifts]",
          "ObjectType": 1
       }
@@ -592,6 +601,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -599,6 +609,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -610,5 +621,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }
