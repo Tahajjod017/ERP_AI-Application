@@ -43,6 +43,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
+
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -645,6 +646,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //                j.HasKey("UserId", "RoleId");
         //            });
         //});
+
+
         modelBuilder.Entity<ApplicationUser>()
 .HasDiscriminator<string>("Discriminator")
 .HasValue<ApplicationUser>("ApplicationUser");
@@ -653,7 +656,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Organization)
         .WithMany(o => o.AspNetUsers)
@@ -679,7 +681,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(r => r.TenantInfoId)
         .IsRequired(false)
         .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
 
         modelBuilder.Entity<Attendance>(entity =>
         {
