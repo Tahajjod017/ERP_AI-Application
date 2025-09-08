@@ -653,6 +653,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
         .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Organization)
         .WithMany(o => o.AspNetUsers)
@@ -678,6 +679,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(r => r.TenantInfoId)
         .IsRequired(false)
         .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {

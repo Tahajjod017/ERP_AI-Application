@@ -1,6 +1,7 @@
 ﻿using GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using Microsoft.AspNetCore.Authorization;
@@ -25,6 +26,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "EmployeeShiftView")]
         public async Task<IActionResult> Index()
         {
             EmployeeShiftViewPageView model = new EmployeeShiftViewPageView();
@@ -45,7 +47,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         {
             try
             {
-                var result = await _employeeShiftViewService.GetAllAsync(pageNumber, pageSize, searchTerm, daysToShow, startDate);
+                var result = await _employeeShiftViewService.GetAll(pageNumber, pageSize, searchTerm, daysToShow, startDate);
 
                 return Json(result);
             }

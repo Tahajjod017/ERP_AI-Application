@@ -15,7 +15,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
     public interface IPayRollLoanEntryService
     {
       Task<CommonReturnViewModel> SaveAsync(LoanSaveVM entityVM);
-      Task<CommonReturnViewModel> UpdateAsync(LoanUpdateVM entityVM);
+         Task<CommonReturnViewModel> UpdateAsync(LoanUpdateVM entityVM);
         
         Task<CommonReturnViewModel> DeleteAsync(DeleteRequestVM deleteRequestVM);
          Task<CommonReturnViewModel> GetByAsync(int id);
