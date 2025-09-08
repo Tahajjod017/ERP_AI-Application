@@ -18,6 +18,8 @@ namespace GCTL_App.Controllers.MenuTab
         {
             return View();
         }
+
+
         #region GetMasterSetupCategoriesAsync
         [Route("MasterSetupCategory/GetMasterSetupCategoriesAsync")]
         [HttpGet]

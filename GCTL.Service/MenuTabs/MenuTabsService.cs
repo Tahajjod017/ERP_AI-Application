@@ -211,15 +211,14 @@ namespace GCTL.Service.MenuTabs
 
 
         #endregion
+
+
         #region Master setup menutab category
-      
         public async Task<List<MasterSetupCategoryVM>> GetMasterSetupCategoriesAsync()
         {
-           
-
             try
             {
-                var menuTabs = await _genericRepository.AllActive().Where(x=>x.Type=="Secondary" && x.ParentId==18).ToListAsync();
+                var menuTabs = await _genericRepository.AllActive().Where(x=> x.Type == "Secondary" && x.ParentId == 18).ToListAsync();
 
                 var result = menuTabs.Select(m => new MasterSetupCategoryVM
                 {
@@ -236,8 +235,6 @@ namespace GCTL.Service.MenuTabs
                 throw;
             }
         }
-     
-
         #endregion
     }
 }
