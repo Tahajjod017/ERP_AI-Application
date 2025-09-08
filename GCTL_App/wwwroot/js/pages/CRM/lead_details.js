@@ -142,44 +142,52 @@ $(function () {
     // Fetch activity data
     // ==============================
     function updateActivate(page = 1, direction = "down") {
-    if (loading) return;
-    loading = true;
+        if (loading) return;
+        loading = true;
 
-    const tabName = $("#myTab .nav-link.active").text().trim();
-    const search = $("#search-activity").val() || "";
-    const id = $("#leadID").val();
-    const typeD = tabName === "All Activity" ? "" : tabName;
+        const tabName = $("#myTab .nav-link.active").text().trim();
+        const search = $("#search-activity").val() || "";
+        const id = $("#leadID").val();
+        const typeD = tabName === "All Activity" ? "" : tabName;
 
-    $.ajax({
-        url: '/LeadDetails/getActivityList',
-        method: 'GET',
-        contentType: 'application/json',
-        data: { id, query: search, page, type: typeD },
-        success: function (response) {
-            if (!response || response.length === 0) {
-                noMoreDataDown = true;
-                return;
-            }
-
-            response.forEach(item => {
-                if (!item.leadDetailID) return; // skip invalid
-                if (!loadedIds.has(item.leadDetailID)) {
-                    loadedIds.add(item.leadDetailID);
-                    const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                   
-                    if (item.leadActivityName === 'Attachment') {
-                        $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
-                    } else {
-                        $(activityListDiv).append(renderActivity(item, activityDate));
-                    }
+        $.ajax({
+            url: '/LeadDetails/getActivityList',
+            method: 'GET',
+            contentType: 'application/json',
+            data: { id, query: search, page, type: typeD },
+            success: function (response) {
+                debugger;
+                $("#activity-label").text(tabName);
+                if (!response || response.length === 0) {
+                    noMoreDataDown = true;
+                    //$("#activity-result-div").addClass("d-none");
+                    //$("#activity-label").text("");
+                    return;
+                } else {
+                    $("#all-activity-div").removeClass("d-none");
+                    //$("#activity-result-div").removeClass("d-none");
                 }
-            });
-        },
-        complete: function () { loading = false;},
-        error: function (jqXHR, textStatus) {
-            toastr.error("Error: " + textStatus);
-        }
-    });
+                
+
+                response.forEach(item => {
+                    if (!item.leadDetailID) return; // skip invalid
+                    if (!loadedIds.has(item.leadDetailID)) {
+                        loadedIds.add(item.leadDetailID);
+                        const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+
+                        if (item.leadActivityName === 'Attachment') {
+                            $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
+                        } else {
+                            $(activityListDiv).append(renderActivity(item, activityDate));
+                        }
+                    }
+                });
+            },
+            complete: function () { loading = false; },
+            error: function (jqXHR, textStatus) {
+                toastr.error("Error: " + textStatus);
+            }
+        });
 
         
     }
@@ -199,6 +207,10 @@ $(function () {
                 if (!response || response.length === 0) {
                     noMoreDataDown2 = true;
                     return;
+                    $("#upcomming-div").addClass("d-none");
+                } else {
+                    //$("#myTab").css("display", "block");
+                    $("#upcomming-div").removeClass("d-none");
                 }
 
                 response.forEach(item => {
@@ -322,23 +334,24 @@ $(function () {
 
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
-        if (await fieldValidation()) {
+        //if (await fieldValidation()) {
             const data = {
                 LeadName: $("#leadName").val() || "",
                 LeadStatusID: parseInt($("#leadStatusId").val()) || 0,
                 LeadSourceID: parseInt($("#leadSourceId").val()) || 0,
                 LeadOwnerID: parseInt($("#leadOwnerId").val()) || 0,
                 PriorityID: parseInt($("#leadPriorityId").val()) || 0,
+                leadID : $("#leadID").val(),
                 ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
                 ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
                 CustomerId: parseInt($("#customerID").val()) || 0,
                 LeadDescription: $("#descriptionText").val(),
                 ServiceTypeIds: $("#serviceTypes").val() || [],
-            };
+        };
+        showDev(data);
             $.ajax({
-                url: '/CreateLead/EditLeadData',
+                url: '/LeadDetails/EditLeadData',
                 method: 'POST',
-                contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (response) {
 
@@ -356,7 +369,7 @@ $(function () {
                     toastr.error("Error creating lead");
                 }
             });
-        }
+        //}
     })
 
     // ==============================
@@ -422,6 +435,31 @@ $(function () {
         $(upcomingListDiv).empty();
         updateUpcomingActivate(currentPage2);
     }
+
+    // ==============================
+    // loss and won button work
+    // ==============================
+    $("#loss, #won").on("click", function (e) {
+        let type = $(this).attr('id');
+        showDev(type)
+        const id = $("#leadID").val();
+        showDev(id)
+        $.ajax({
+            url: '/LeadDetails/IsWon',
+            method: 'POST',
+            data: { id : id, type : type },
+            success: function (response) {
+                showDev(response);
+                $(this+"modal").hide();
+            },
+            complete: function () { loading2 = false; },
+            error: function (jqXHR, textStatus) {
+                toastr.error("Error: " + textStatus);
+            }
+
+        });
+    });
+
 
     // ==============================
     // Initial load

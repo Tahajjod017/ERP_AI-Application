@@ -69,6 +69,7 @@ namespace GCTL_App.Controllers.CRM
                                     where lead.LeadID == id
                                     select new CustomerInfoVM
                                     {
+                                        //CustomerID = lead.CustomerID,
                                         FullName = customer.FullName,
                                         LeadName = lead.LeadName,
                                         LeadID = lead.LeadID,
@@ -289,6 +290,24 @@ namespace GCTL_App.Controllers.CRM
             };
             return Ok(results);
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IsWon([FromForm] IsWonVM isWonVM)
+        {
+         
+            if (ModelState.IsValid)
+            {
+                var types = new[] { "loss", "won" };
+                if (isWonVM.id != 0 && types.Contains(isWonVM.type))
+                {
+                    var result = _leadDetailsService.AddIsWon(isWonVM);
+                    return Ok(new { success = result });
+                }
+                return Ok(new { success = false });
+            }
+
+            return Ok(new { success = false });
         }
     }
 }
