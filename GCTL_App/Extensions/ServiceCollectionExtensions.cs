@@ -195,6 +195,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPayRollTaxperCentangeSettingsService, PayRollTaxpercentageSettingsService>();
             services.AddScoped<IEmpAllowanceTypeOrganizationService, EmpAllowanceTypeOrganizationService>();
             services.AddScoped<IPayRollLoanEntryService, PayRollLoanEntryService>();
+            services.AddScoped<IPayRollEarlyPaymentService, PayRollEarlyPaymentService>();
             #endregion
 
             #region Asad

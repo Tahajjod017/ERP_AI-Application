@@ -715,10 +715,8 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                         EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive()
                         .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault(),
-                        ApproverStep =b.ApprovalStage   //approvalStepsMap.ContainsKey(b.LoanID) ? approvalStepsMap[b.LoanID] : new List<int>()
+                        ApproverStep =b.ApprovalStage   
                     });
-
-
                 return result;
 
             }
