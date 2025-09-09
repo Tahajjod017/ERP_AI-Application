@@ -39,17 +39,17 @@ public partial class Attendance
 
     public int? DeletedBy { get; set; }
 
-    public decimal? RegularHour { get; set; }
-
-    public decimal? OvertimeHour { get; set; }
-
-    public decimal? LateHour { get; set; }
-
-    public decimal? EarlyHour { get; set; }
-
-    public decimal? WorkingHour { get; set; }
-
     public bool? IsChecked { get; set; }
+
+    public TimeOnly? RegularHour { get; set; }
+
+    public TimeOnly? OvertimeHour { get; set; }
+
+    public TimeOnly? LateHour { get; set; }
+
+    public TimeOnly? EarlyHour { get; set; }
+
+    public TimeOnly? WorkingHour { get; set; }
 
     public virtual ICollection<AttendanceLog> AttendanceLog { get; set; } = new List<AttendanceLog>();
 

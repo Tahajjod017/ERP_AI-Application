@@ -31,6 +31,10 @@ public partial class AttendanceLog
 
     public int? DeletedBy { get; set; }
 
+    public string DeviceSN { get; set; }
+
+    public DateTime? CHECKTIME_UTC { get; set; }
+
     public virtual Attendance Attendance { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

@@ -1,10 +1,12 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
@@ -13,10 +15,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
     {
         private readonly IEmployeeAttendanceReport _employeeAttendanceReport;
         private readonly ILocalizationContext _loc;
-        public EmployeesAttendanceController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAttendanceReport employeeAttendanceReport, ILocalizationContext loc) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Statuses> _organizationRepository;
+        public EmployeesAttendanceController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeeAttendanceReport employeeAttendanceReport, ILocalizationContext loc, IGenericRepository<Statuses> organizationRepository) : base(translateService, userProfileService)
         {
             _employeeAttendanceReport = employeeAttendanceReport;
             _loc = loc;
+            _organizationRepository = organizationRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -58,17 +62,17 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             // Pass the current time to the view  
             ViewData["CurrentTime"] = DateTimeExtensions.NowDateTime(_loc);
 
-
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive().Where(x=>x.StatusType== "Present/Absent"), "StatusID", "StatusName");
 
             return View();
         }
         #region table
-        public async Task<IActionResult> GetAlls(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayTitle", string sortOrder = "desc", int? organizationID = null, int? employeeId = null)
+        public async Task<IActionResult> GetAlls(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayTitle", string sortOrder = "desc", int? organizationID = null, int? employeeId = null, int? statusID = null, string? sortId = "")
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
 
-            var result = await _employeeAttendanceReport.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID, currentEmployeeId);
+            var result = await _employeeAttendanceReport.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID, currentEmployeeId, statusID ,sortId);
             return Json(result);
 
         }

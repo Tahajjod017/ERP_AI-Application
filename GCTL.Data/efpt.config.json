@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.0",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -345,10 +344,6 @@
       },
       {
          "Name": "[dbo].[ProvisionPeriodTtimeTypes]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[records]",
          "ObjectType": 0
       },
       {
