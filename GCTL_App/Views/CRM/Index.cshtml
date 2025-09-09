@@ -93,6 +93,100 @@
     </div>
 </div>
 
+<!--- edit modal -----><!-- Button trigger modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Lead</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row gy-3 ">
+                    <input type="hidden" id="leadID"/>
+                    <div class="col-md-6">
+                        <label for="form-control">Lead Name</label>
+                        <input class="form-control" id="leadName" type="text" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Status Name</label>
+                        <select class="form-select" id="leadStatusID"  asp-items="@ViewBag.LeadStatus as SelectList">
+                            <option value="" disabled selected>Select Staus</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" >@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+                        <select class="form-multi-select coreUiDD"
+                                id="OrganizationIDs"
+                                multiple
+                                data-coreui-selection-type="counter"
+                                data-coreui-search="true"
+                                data-coreui-placeholder="@Html.SmartLocalize("Select Organization")..." required>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Lead Owner Name</label>
+                        <select class="form-select" id="leadOwnerID" asp-items="@ViewBag.EmployeeDD as SelectList">
+
+                            @* @if (Model.LeadOwnerId != 0)
+                            {
+                                <option value="@Model.LeadOwnerId" selected>
+                                    @Model.LeadOwnerName
+                                </option>
+                            }
+                            else
+                            {
+                                <option selected>Open this select menu</option>
+                            } *@
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Lead Source</label>
+                        <select class="form-select" id="leadSourceID"  asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <option value="" disabled>select</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Priority</label>
+                        <select class="form-select" id="leadPriorityID" asp-items="@ViewBag.LeadPriorities as SelectList">
+                            <option value="" disabled>select Priority</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Approximate Deal Value</label>
+                        <input class="form-control" id="approximateDealValue"  type="text" placeholder="" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Service Type</label>
+                        <select class="form-multi-select form-multi-select" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
+                            <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">@Html.SmartLocalize("Probability (%)")</label>
+                        <div class="d-flex align-items-center mt-1">
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="" oninput="completionValue.innerText = this.value + '%'">
+                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">5%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
+
+                            <label for="form-control">@Html.SmartLocalize("Description")</label>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" id="editBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="~/js/pages/CRM/crm_index.js"></script>
 }

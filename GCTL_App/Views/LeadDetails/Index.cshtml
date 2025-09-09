@@ -34,8 +34,8 @@
                 <h2 class="mb-0">Lead Details</h2>
             </div>
             <div class="col-12 col-md-auto d-flex">
-            <button class="btn btn-phoenix-secondary px-3 px-sm-5 me-2" data-bs-toggle="modal" data-bs-target="#editModal"><span class="fa-solid fa-edit me-sm-2"></span><span class="d-none d-sm-inline">Edit</span></button>
-                <button class="btn btn-phoenix-danger me-2"><span class="fa-solid fa-trash me-2"></span><span>Delete Deal</span></button>
+                <button class="btn btn-phoenix-secondary px-3 px-sm-5 me-2" data-bs-toggle="modal" data-bs-target="#editModal"><span class="fa-solid fa-edit me-sm-2"></span><span class="d-none d-sm-inline">Edit</span></button>
+                @* <button class="btn btn-phoenix-danger me-2"><span class="fa-solid fa-trash me-2"></span><span>Delete Deal</span></button>
                 <div>
                     <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fa-solid fa-ellipsis"></span></button>
                     <ul class="dropdown-menu dropdown-menu-end p-0" style="z-index: 9999;">
@@ -44,7 +44,7 @@
                         <li><a class="dropdown-item" href="#!">Manage notifications</a></li>
                         <li><a class="dropdown-item text-danger" href="#!">Delete Lead</a></li>
                     </ul>
-                </div>
+                </div> *@
             </div>
         </div>
         <div class="row g-4 g-xl-6">
@@ -88,9 +88,9 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <span class="badge badge-phoenix badge-phoenix-success me-2">Success 68%</span>
-                                            <span class="badge badge-phoenix badge-phoenix-danger me-2">Lost 12%</span>
-                                            <span class="badge badge-phoenix badge-phoenix-secondary">Cancel 20%</span>
+                                        <span class="badge badge-phoenix badge-phoenix-success me-2">Success @Model.SuccessPercentage%</span>
+                                        <span class="badge badge-phoenix badge-phoenix-danger me-2">Lost @Model.LostPercentage%</span>
+                                        <span class="badge badge-phoenix badge-phoenix-secondary">Cancel @Model.CancelPercentage%</span>
                                         </div>
                                     </div>
                                     <div class="progress mb-2 px-3 bg-white" style="height:25px">
@@ -400,27 +400,10 @@
         </div>
     </div>
 </div>
-<!-- loss modal-->
-<div class="modal fade" id="lossModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title fs-7" id="staticBackdropLabel">Conformation</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <h4 class="text-center mb-2">Did you loss this project?</h4>
-                <div class="text-center"><button type="button" id="loss" class="btn btn-danger">Confirm</button></div>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
 <!--- edit modal -----><!-- Button trigger modal -->
-
-<!-- Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -430,95 +413,67 @@
             </div>
             <div class="modal-body">
                 <div class="row gy-3 ">
-
-                    <div class="col-sm-12 customerDiv col-md-6">
-                        <div class="form-floating mbs-4 position-relative">
-                            <input type="text" id="ContactNameSearch" value="@Model.LeadName">
-                            <input type="hidden" id="customerID" class="idBank">
-                            <input type="hidden" id="customerType">
-
-                            <label for="floatingSelectLitigation"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
-
-                            <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
-                                <!-- ContactName items will be populated here by JavaScript -->
-                            </div>
-                            <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
-                                @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
-                                <span>Or</span>
-                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="col-md-6">
-                        <div class="form-floating">
-                            <input class="form-control" id="leadName" type="text" value="@Model.LeadName" />
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Lead Name")</label>
-                        </div>
+                        <label for="form-control">Lead Name</label>
+                        <input class="form-control" id="leadName" type="text" value="@Model.LeadName" />
                     </div>
-
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Sources") </label>
-                            <select class="form-select choiceDD" id="leadSourceId" asp-for="@Model.LeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
-                                <option value="" selected>@Html.SmartLocalize("Select Sources")...</option>
-                            </select>
-                        </div>
+                        <label for="form-control">Status Name</label>
+                        <select class="form-select" id="leadStatusID" asp-for="LeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
+                            <option value="" disabled selected>Select Staus</option>
+                        </select>
                     </div>
-
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Status Name")</label>
-                            <select class="form-select choiceDD" id="leadStatusId" asp-for="@Model.LeadStatusID" asp-for="LeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
-                                <option value="" selected>@Html.SmartLocalize("Select Status")</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
-                            <select class="form-select" id="leadOwnerId" asp-items="@ViewBag.EmployeeDD as SelectList">
+                        <label for="form-control">Lead Owner Name</label>
+                        <select class="form-select" id="leadOwnerID" asp-items="@ViewBag.EmployeeDD as SelectList">
+                           
+                            @if (Model.LeadOwnerId != 0)
+                            {
+                                <option value="@Model.LeadOwnerId" selected>
+                                    @Model.LeadOwnerName
+                                </option>
+                            }
+                            else
+                            {
                                 <option selected>Open this select menu</option>
-                            </select>
-                        </div>
+                            }
+                        </select>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-floating">
-
-                            <input class="form-control" id="approximateDealValue" asp-for="@Model.ApproximateDealValue" type="text" placeholder="" />
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Approximate Deal Value")</label>
-                        </div>
+                        <label for="form-control">Lead Source</label>
+                        <select class="form-select" id="leadSourceID" asp-for="LeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <option value="" disabled>select</option>
+                        </select>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label">@Html.SmartLocalize("Service Type")</label>
-                            <select class="form-multi-select form-multi-select-lg mb-3" multiple id="serviceTypes"  asp-items="@ViewBag.ServiceDD as SelectList">
-                                <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
-                            </select>
-                        </div>
+                        <label for="form-control">Priority</label>
+                        <select class="form-select" id="leadPriorityID" asp-for="PriorityID" asp-items="@ViewBag.LeadPriorities as SelectList">
+                            <option value="" disabled>select Priority</option>
+                        </select>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Priority Name")</label>
-                            <select class="form-select choiceDD" id="leadPriorityId" asp-for="@Model.Priority" asp-items="@ViewBag.LeadPriorities as SelectList">
-                                <option value="" selected>@Html.SmartLocalize("Select Status")</option>
-                            </select>
-                        </div>
+                        <label for="form-control">Approximate Deal Value</label>
+                        <input class="form-control" id="approximateDealValue" asp-for="@Model.ApproximateDealValue" type="text" placeholder="" />
                     </div>
- 
                     <div class="col-md-6">
-                        <label for="completion" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
-                        <div class="d-flex align-items-center">
+                        <label for="form-control">Service Type</label>
+                        <select class="form-multi-select form-multi-select" multiple id="serviceTypes" asp-for="ServiceIds" asp-items="@ViewBag.ServiceDD as SelectList">
+                            <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">@Html.SmartLocalize("Probability (%)")</label>
+                        <div class="d-flex align-items-center mt-1">
                             <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="@Model.Probability" oninput="completionValue.innerText = this.value + '%'">
-                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
+                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">@Model.Probability%</span>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <div class="form-floating">
                             <textarea class="form-control h-100" id="descriptionText" rows="3" asp-for="@Model.LeadDescription" placeholder=""></textarea>
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Description")</label>
+                           
+                            <label for="form-control">@Html.SmartLocalize("Description")</label>
+
                         </div>
                     </div>
 

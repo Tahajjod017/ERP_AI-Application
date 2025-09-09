@@ -335,32 +335,34 @@ $(function () {
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
         //if (await fieldValidation()) {
-            const data = {
+        const data = {
+                LeadID: $("#leadID").val(),
                 LeadName: $("#leadName").val() || "",
-                LeadStatusID: parseInt($("#leadStatusId").val()) || 0,
-                LeadSourceID: parseInt($("#leadSourceId").val()) || 0,
-                LeadOwnerID: parseInt($("#leadOwnerId").val()) || 0,
-                PriorityID: parseInt($("#leadPriorityId").val()) || 0,
-                leadID : $("#leadID").val(),
+                LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
+                LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
+                LeadOwnerID: parseInt($("#leadOwnerID").val()) || 0,
+                PriorityID: parseInt($("#leadPriorityID").val()) || 0,
                 ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
                 ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
-                CustomerId: parseInt($("#customerID").val()) || 0,
-                LeadDescription: $("#descriptionText").val(),
-                ServiceTypeIds: $("#serviceTypes").val() || [],
+            LeadDescription: $("#descriptionText").val(),
+            ServiceTypeIds: $("#serviceTypes").val(),
         };
+        debugger
         showDev(data);
             $.ajax({
                 url: '/LeadDetails/EditLeadData',
                 method: 'POST',
                 data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+
                 success: function (response) {
 
                     if (response.success) {
-                        //toastr.success(response.message);
-                        //getCustomerList();
-                        //clearTabData(idMapIndex.indexBase);
-                        //clearTabData(idMapIndex.demoField);
-                        //window.location.href = "/crm/Index";
+                        toastr.success(response.message);
+                        let modalEl = document.getElementById("editModal");
+                        let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        modal.hide();
+                        location.reload();
                     } else {
                         toastr.error(response.message || "Failed to create lead");
                     }
@@ -441,16 +443,17 @@ $(function () {
     // ==============================
     $("#loss, #won").on("click", function (e) {
         let type = $(this).attr('id');
-        showDev(type)
         const id = $("#leadID").val();
-        showDev(id)
         $.ajax({
             url: '/LeadDetails/IsWon',
             method: 'POST',
             data: { id : id, type : type },
             success: function (response) {
-                showDev(response);
-                $(this+"modal").hide();
+                showDev(`${type}Modal`);
+                let modalEl = document.getElementById(`${type}Modal`);
+                let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+                location.reload();
             },
             complete: function () { loading2 = false; },
             error: function (jqXHR, textStatus) {

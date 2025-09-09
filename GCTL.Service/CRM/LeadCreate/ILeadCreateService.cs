@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.MasterSetup.Genders;
+using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace GCTL.Service.CRM.LeadCreate
         Task<ReturnView> CreateCompany(CompanyVM companyVM);
         Task<CommonReturnViewModel> CreateShippingAddress(ShippingVM shippingVM);
         Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM);
-        Task<CommonReturnViewModel> EditLead(LeadsVM leadsVM);
+        Task<CommonReturnViewModel> EditLead(LeadUpdateVM leadUpdateVM);
         Task<ReturnView> CreateBranch(BranchVM branchVM);
         Task<ReturnView> CreateWarehouse(WarehouseVM warehouseVM);
         public Task<object?> getcustomerInfo(int? id);

@@ -3,7 +3,6 @@
     let delay = 300;
 
     $("#dataSearch, #pageElementSize, #dateRange2, #customerType").on("change", function () {
-        console.log("Hello");
         clearTimeout(typingTimer);
         typingTimer = setTimeout(async function () {
             loadProcessedTable();
@@ -51,10 +50,26 @@
         }
     });
 
+    // ====================
+    // generate color
+    // ====================
+
+
+    const statusColors = {
+        "contacted": "text-bg-primary",       // green
+        "new": "text-bg-primary",             // blue
+        "not contacted": "text-bg-info", // gray
+        "nurturing": "text-bg-light",       // yellow
+        "qualified": "text-bg-success",          // light blue
+        "unqualified": "text-bg-danger"       // red
+    };
+
+    function getStatusBadgeClass(status) {
+        return statusColors[status.trim().toLowerCase()] || "badge-secondary";
+    }
     function loadProcessedTable() {
         let typingTimer;
         let delay = 200;
-        console.log("outpu: " , search);
         var page = $('#pageNumber').data('page');
         //var size = $('#resignProcessed').data('size');
         var size = $('#pageElementSize').val();
@@ -63,7 +78,7 @@
         var dir = $('#resignProcessed').data('dir');
         var dateRange = $('#dateRange2').val();
         var customerType = $('#customerType').val();
-        console.log(`page: ${page}, size: ${size}, search: ${search}, sort: ${sort}, dir: ${sort}, dateRange: ${dateRange}, customerType: ${customerType}`)
+        
 
         $.ajax({
             url: '/CRM/GetAllLead',
@@ -78,12 +93,11 @@
                 sortDirection: dir
             },
             success: function (data) {
-                showDev(data, 'Approve Table')
-                console.log(data);
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 $.each(data.result.leads, function (index, item) {
-                    var statusBadge = item.status === 'Approved' ? 'badge-phoenix-success' : 'badge-phoenix-danger';
+                    let statusBadge = getStatusBadgeClass(item.status); 
+                    //var statusBadge = item.status === 'Approved' ? 'badge-phoenix-success' : 'badge-phoenix-danger';
                     tbody.append(`
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                         <td class="fs-9 align-middle py-1  py-2">
@@ -101,10 +115,10 @@
                         <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="7">${item.phone}</td>
                         <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.contactName}</td>
                         <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="9">
-                            <span class="badge badge-phoenix ${statusBadge} fs-9">${item.status}</span>
+                           <span class="badge ${statusBadge} fs-9">${item.leadStatus}</span>
                         </td>
                         <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="10">
-                            <button class="btn btn-sm btn-primary"><i class="fa-solid fa-pen-to-square"></i></button> <button class="btn btn-sm btn-danger"> <i class="fa-solid fa-trash"></i> </button>
+                            <button class="btn btn-sm btn-primary" id="editBtn" data-id="${item.leadId}"><i class="fa-solid fa-pen-to-square"></i></button>
                         </td>
                     </tr>
                 `);
@@ -124,6 +138,76 @@
     }
     loadProcessedTable();
 
+
+    // ====================
+    // Edit Button work
+    // ======================
+    $(document).on("click", "#editBtn", function (e) {
+        // Bootstrap 5 way to open modal
+        var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
+            keyboard: false
+        });
+        myModal.show();
+
+        let leadID = $(this).data('id');
+        $.ajax({
+            url: '/CRM/GetLeadInfo',
+            method: 'POST',
+            data: { id: leadID },
+            success: function (response) {
+                $("#leadID").val(response.leadID);
+                $("#leadName").val(response.leadName);
+                $("#leadStatusID").val(response.leadStatusID);
+                $("#leadSourceID").val(response.leadSourceID);
+                $("#leadPriorityID").val(response.priorityID);
+                $("#approximateDealValue").val(response.approximateDealValue);
+                $("#probabilityPercentage").val(response.probability);
+
+                const selectedValues = [26, 27];
+                const multiSelectElement = document.querySelector('#serviceTypes');
+
+
+                // Loop through all options
+                Array.from(multiSelectElement.options).forEach(option => {
+                    option.selected = selectedValues.includes(parseInt(option.value));
+                });
+
+                // Refresh CoreUI MultiSelect UI
+                multiSelectElement.dispatchEvent(new Event('change'));
+
+               
+              
+                //if (response.serviceIds.length > 0) {
+                //    showDev(response.serviceIds);
+
+                //    // Set selected options
+                //    $('#serviceTypes').val('27');
+                //}
+                //$('#serviceTypes').trigger('change');
+                //var selectedIds = response.serviceIds.map(String);
+                //$("#serviceTypes").val(selectedIds).trigger("change");
+ 
+                //const selectElement = document.getElementById('serviceTypes');
+                //const selectedValues = Array.from(selectElement.selectedOptions).map(option => option.value);
+                //showDev(response)
+                ////if (response.success) {
+                ////    //toastr.success(response.message);
+                    
+                ////} else {
+                //    toastr.error(response.message || "Failed to create lead");
+                //}
+            },
+            error: function (xhr) {
+                toastr.error("Error creating lead");
+            }
+        });
+    });
+
+    //$("#editBtn").on("click", function (e) {
+    //    e.preventDefault();
+    //    showDev("Edit Button clicked");
+    //    console.log("clicked");
+    //})
 
     $('.sort').on('click', function () {
         var tableId = $(this).closest('table').attr('id');
