@@ -59,13 +59,13 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.LeadStatus =  new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName}), "LeadStatusID", "LeadStatusName");
             ViewBag.LeadPriorities =  new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName}), "PriorityID", "PriorityName");
             
+
             var customerObj = await(from lead in _context.Leads
                                     join cAddress in _context.CustomerAddresses
                                     on lead.CustomerID equals cAddress.CustomerAddressID
                                     join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
                                     join address in _context.Addresses on cAddress.AddressID equals address.AddressID
-                                    //join country in _context.Country on address.CountryID equals country.CountryID into countryGroup
-                                    //from country in countryGroup.DefaultIfEmpty()
+                  
                                     where lead.LeadID == id
                                     select new CustomerInfoVM
                                     {
@@ -78,7 +78,7 @@ namespace GCTL_App.Controllers.CRM
                                         Created = lead.CreatedAt,
                                         ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
                                         Priority = lead.Priority.PriorityName,
-                                        Probability =  lead.ProbabilityPercentage,
+                                        Probability = (int)(lead.ProbabilityPercentage ?? 0),
                                         LeadDescription = lead.LeadDescription,
                                         AddressTypeName = cAddress.AddressType.AddressTypeName,
                                         FullAddress = address.FullAddress,
@@ -93,8 +93,28 @@ namespace GCTL_App.Controllers.CRM
                                         OtherPhone = address.OtherPhone,
                                         Email = address.Email,
                                         FirstName = address.FirstName,
-                                        LastName = address.LastName
+                                        LastName = address.LastName,
 
+                                        LeadOwnerId = lead.LeadOwnerID,
+                                        LeadOwnerName = lead.LeadOwner.FirstName + " " +lead.LeadOwner.LastName,
+                                        ServiceIds = lead.LeadServices.Where(s=> s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
+
+                                        // 🔥 Stats calculation for this LeadOwner
+                                        SuccessPercentage = (int) Math.Round(_context.Leads
+                                        .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == true)
+                                        .Count() * 100m /
+                                        (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
+
+                                        LostPercentage = (int) Math.Round (_context.Leads
+                                        .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == false)
+                                        .Count() * 100m /
+                                        (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
+
+                                        CancelPercentage = (int) Math.Round (_context.Leads
+                                        .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == null)
+                                        .Count() * 100m /
+                                        (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID)))
+                                    
                                     }).FirstOrDefaultAsync();
             if (customerObj != null)
             {
@@ -272,13 +292,13 @@ namespace GCTL_App.Controllers.CRM
         // TODO: update Lead
 
         [HttpPost]
-        public async Task<IActionResult> EditLeadData([FromBody] LeadsVM leadsVM)
+        public async Task<IActionResult> EditLeadData([FromBody] LeadUpdateVM leadUpdateVM)
         {
             if (ModelState.IsValid)
             {
-                if (leadsVM.LeadID != 0)
+                if (leadUpdateVM.LeadID != 0)
                 {
-                    var result = await _leadCreateService.EditLead(leadsVM);
+                    var result = await _leadCreateService.EditLead(leadUpdateVM);
                     return Ok(result);
                 }
             }
@@ -289,6 +309,24 @@ namespace GCTL_App.Controllers.CRM
             };
             return Ok(results);
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IsWon([FromForm] IsWonVM isWonVM)
+        {
+         
+            if (ModelState.IsValid)
+            {
+                var types = new[] { "loss", "won" };
+                if (isWonVM.id != 0 && types.Contains(isWonVM.type))
+                {
+                    var result = _leadDetailsService.AddIsWon(isWonVM);
+                    return Ok(new { success = result });
+                }
+                return Ok(new { success = false });
+            }
+
+            return Ok(new { success = false });
         }
     }
 }

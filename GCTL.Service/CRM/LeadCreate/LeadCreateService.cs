@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels.MasterSetup.LeadSource;
 using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
 using GCTL.Core.ViewModels.MasterSetup.Priority;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
+using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -476,48 +477,48 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
-        public async Task<CommonReturnViewModel> EditLead(LeadsVM leadsVM)
+        public async Task<CommonReturnViewModel> EditLead(LeadUpdateVM leadUpdateVM)
         {
             try
             {
-                var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(u => u.CustomerAddressID == leadsVM.CustomerId);
-                var leadObj = await _leadsRepository.FirstOrDefaultAsync( u => u.LeadID == leadsVM.LeadID );
+                var individualAddressObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadUpdateVM.LeadID);
+                var leadObj = await _leadsRepository.FirstOrDefaultAsync( u => u.LeadID == leadUpdateVM.LeadID );
 
-                leadObj.CustomerID = individualAddressObj.CustomerAddressID;
-                leadObj.LeadName = leadsVM.LeadName;
-                leadObj.IsIndividualCustomer = leadsVM.IsIndividualCustomer;
-                leadObj.LeadStatusID = leadsVM.LeadStatusID;
-                leadObj.LeadSourceID = leadsVM.LeadSourceID;
-                leadObj.LeadOwnerID = leadsVM.LeadOwnerID;
-                leadObj.PriorityID = leadsVM.PriorityID;
-                leadObj.ApproximateDealValue = leadsVM.ApproximateDealValue;
-                leadObj.ProbabilityPercentage = leadsVM.ProbabilityPercentage;
-                leadObj.LeadDescription = leadsVM.LeadDescription;
+                leadObj.LeadName = leadUpdateVM.LeadName;
+                leadObj.LeadStatusID = leadUpdateVM.LeadStatusID;
+                leadObj.LeadSourceID = leadUpdateVM.LeadSourceID;
+                leadObj.LeadOwnerID = leadUpdateVM.LeadOwnerID;
+                leadObj.PriorityID = leadUpdateVM.PriorityID;
+                leadObj.ApproximateDealValue = leadUpdateVM.ApproximateDealValue;
+                leadObj.ProbabilityPercentage = leadUpdateVM.ProbabilityPercentage;
+                leadObj.LeadDescription = leadUpdateVM.LeadDescription;
 
                 leadObj.UpdatedAt = DateTime.UtcNow;
-                leadObj.UpdatedBy = leadsVM.CreatedBy;
-                leadObj.LIP = leadsVM.LIP;
-                leadObj.LMAC = leadsVM.LMAC;
+                leadObj.UpdatedBy = leadUpdateVM.CreatedBy;
+                leadObj.LIP = leadUpdateVM.LIP;
+                leadObj.LMAC = leadUpdateVM.LMAC;
        
                 await _leadsRepository.UpdateAsync(leadObj);
+                var leadServices = await _leadServicesRepository.FindAsync(u=> u.LeadID==leadUpdateVM.LeadID);
+                await _leadServicesRepository.DeleteRangeAsync(leadServices);
 
-                if (leadsVM.ServiceTypeIds != null && leadsVM.ServiceTypeIds.Count > 0)
+                if (leadUpdateVM.ServiceTypeIds != null && leadUpdateVM.ServiceTypeIds.Count > 0)
                 {
-                    List<LeadServices> services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                    List<LeadServices> services = leadUpdateVM.ServiceTypeIds.Select(serviceId => new LeadServices
                     {
                         LeadID = leadObj.LeadID,
                         ServiceID = serviceId,
                         UpdatedAt = DateTime.UtcNow,
-                        UpdatedBy = leadsVM.CreatedBy,
-                        LIP = leadsVM.LIP,
-                        LMAC = leadsVM.LMAC,
+                        UpdatedBy = leadUpdateVM.CreatedBy,
+                        LIP = leadUpdateVM.LIP,
+                        LMAC = leadUpdateVM.LMAC,
                     }).ToList();
                     await _leadServicesRepository.AddRangeAsync(services);
                 }
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Data saved succesfull",
+                    Message = "Data Updated succesfull",
                 };
 
             }

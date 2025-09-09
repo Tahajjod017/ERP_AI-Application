@@ -15,7 +15,7 @@ namespace GCTL.Core.ViewModels.CRM
         public int LeadStatusID { get; set; }
         public decimal ApproximateDealValue { get; set; }
         public int PriorityID { get; set; }
-        public decimal? Probability { get; set; } = 0;
+        public int? Probability { get; set; } = 0;
         public DateTime? Created { get; set; }
         public string? AddressTypeName { get; set; }
         public string? LeadDescription { get; set; }
@@ -35,5 +35,11 @@ namespace GCTL.Core.ViewModels.CRM
         public string? Email { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public List<int?> ServiceIds { get; set; }
+        public int? LeadOwnerId { get; set; }
+        public string? LeadOwnerName { get; set; }
+        public int? SuccessPercentage { get; set; }
+        public int? LostPercentage { get; set; }
+        public int? CancelPercentage { get; set; }
     }
 }

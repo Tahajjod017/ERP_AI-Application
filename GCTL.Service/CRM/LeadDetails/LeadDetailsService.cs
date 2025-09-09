@@ -12,6 +12,7 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml.Export.ToDataTable;
+using System.Web.Mvc;
 
 
 namespace GCTL.Service.CRM.LeadDetails
@@ -29,6 +30,7 @@ namespace GCTL.Service.CRM.LeadDetails
             _leadDetailsGenericRepository = leadDetailsGenericRepository;
             _leadsRepository = leadsRepository;
         }
+
 
         public async Task<bool> CreateLeadActivateTypes()
         {
@@ -127,6 +129,25 @@ namespace GCTL.Service.CRM.LeadDetails
 
             return false;
         }
-          
+
+
+        // ==============================
+        // Save Won or Loss function
+        // ==============================
+
+        public async Task<bool> AddIsWon(IsWonVM isWonVM)
+        {
+
+            var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == isWonVM.id);
+
+            leadObj.IsWwn = isWonVM.type == "won" ? true : false;
+            leadObj.ClosingDate = DateTime.UtcNow;
+            leadObj.UpdatedAt = DateTime.UtcNow;
+            leadObj.UpdatedBy = isWonVM.UpdatedBy;
+
+            await _leadsRepository.UpdateAsync(leadObj);
+            return true;
+
+        }
     }
 }

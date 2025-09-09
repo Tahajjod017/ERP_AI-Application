@@ -133,7 +133,6 @@ app.Use(async (context, next) =>
             SameSite = SameSiteMode.Lax
         });
     }
-
     await next();
 });
 #endregion
