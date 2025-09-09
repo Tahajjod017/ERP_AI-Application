@@ -97,8 +97,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                                           ActualOutTime = att?.CheckOutTime?.ToString("hh:mm tt") ?? "Not Punched",
                                           BreakInTime = shift?.MealBreakStartTime?.ToString("hh:mm tt") ?? "Not Punched",
                                           BreakOutTime = shift?.MealBreakEndTime?.ToString("hh:mm tt") ?? "Not Punched",
-                                          Overtime = (att?.OvertimeHour ?? 0) > 0 ?
-                                              $"{att.OvertimeHour} hrs" : "No Overtime",
+                                          //Overtime = (att?.OvertimeHour ?? 0) > 0 ?
+                                          //    $"{att.OvertimeHour} hrs" : "No Overtime",
+                                          Overtime = att?.OvertimeHour,
                                           BiometricHits = att != null ?
                                               logs?.Count(x => x.AttendanceID == att.AttendanceID) ?? 0 : 0,
 
@@ -249,7 +250,7 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                 }
 
                 // 6. Unauthorized Overtime
-                if (record.Overtime != "No Overtime" && !record.isOvertimeEligible)
+                if (record.Overtime.HasValue && !record.isOvertimeEligible)
                 {
                     reasons.Add("Unauthorized overtime recorded");
                     //type = type == "" ? "Overtime" : type;
@@ -386,7 +387,7 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                 }
             }
 
-            if (record.Overtime != "No Overtime" && !record.isOvertimeEligible)
+            if (record.Overtime.HasValue && !record.isOvertimeEligible)
             {
                 reasons.Add("Unauthorized overtime recorded");
                 type = type == "" ? ViolationType.Overtime.ToString() : type;

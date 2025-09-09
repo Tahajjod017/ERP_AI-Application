@@ -51,6 +51,8 @@ public partial class OrganizationBranches
 
     public decimal? Longitude { get; set; }
 
+    public string FullAddress { get; set; }
+
     public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
 
     public virtual ICollection<ApprovalTypes> ApprovalTypes { get; set; } = new List<ApprovalTypes>();

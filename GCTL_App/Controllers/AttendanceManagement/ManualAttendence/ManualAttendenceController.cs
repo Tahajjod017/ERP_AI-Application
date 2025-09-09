@@ -77,7 +77,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 ActualOutTime = "Not Punched",
                 BreakInTime = "01:00 PM",
                 BreakOutTime = "Not Punched",
-                Overtime = "No Overtime",
+                //Overtime = "No Overtime",
                 BiometricHits = 3,
                 PossibleReason = "Break In/Out Missing",
                 PunchData = new List<PunchData>
@@ -105,7 +105,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 ActualOutTime = "Not Punched",
                 BreakInTime = "01:00 PM",
                 BreakOutTime = "Not Punched",
-                Overtime = "No Overtime",
+                //Overtime = "No Overtime",
                 BiometricHits = 3,
                 PossibleReason = "Break In/Out Missing",
                 PunchData = new List<PunchData>
@@ -601,7 +601,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 }
 
                 // 6. Unauthorized Overtime
-                if (record.Overtime != "No Overtime" && !record.isOvertimeEligible)
+                if (record.Overtime.HasValue && !record.isOvertimeEligible)
                 {
                     reasons.Add("Unauthorized overtime recorded");
                     //type = type == "" ? "Overtime" : type;
