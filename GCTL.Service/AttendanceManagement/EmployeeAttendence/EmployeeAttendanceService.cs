@@ -270,10 +270,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var punchTimes = await _genericAttendanceLog.All()
                 .Where(x => x.DeletedAt == null
                             && x.Attendance.EmployeeID == userId
-                            && x.PunchTime >= today
-                            && x.PunchTime < tomorrow)
-                .OrderBy(x => x.PunchTime)
-                .Select(x => x.PunchTime)
+                            && x.CHECKTIME_UTC >= today
+                            && x.CHECKTIME_UTC < tomorrow)
+                .OrderBy(x => x.CHECKTIME_UTC)
+                .Select(x => x.CHECKTIME_UTC)
                 
                 .ToListAsync();
 
@@ -281,12 +281,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                // consistent with your ViewBag logic
                 .Select((x, index) =>
                 {
-                    var localTime = x.ToOrgTime(_localizationContext);
-                   // var formatted = localTime;
-                   // ctx.TimePattern = "h:mm tt"; // e.g., "7:30 PM"
 
-
-
+                    var localTime = x.HasValue ? x.Value.ToOrgTime(_localizationContext) : DateTime.MinValue.ToOrgTime(_localizationContext);
+                
 
                     var type = index % 2 == 0 ? "Punch In" : "Punch Out";
 
